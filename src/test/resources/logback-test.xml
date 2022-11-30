@@ -1,0 +1,14 @@
+<configuration>
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%cyan(%d{HH:mm:ss.SSS}) %gray([%thread]) %highlight(%-5level) %magenta(%logger{36}) - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+<!--   <logger name="io.micronaut.data.query" level="DEBUG" />-->
+<!--    <logger name="io.micronaut.transaction.jdbc.DataSourceTransactionManager" level="DEBUG"/>-->
+
+    <root level="INFO">
+        <appender-ref ref="stdout"/>
+    </root>
+</configuration>
