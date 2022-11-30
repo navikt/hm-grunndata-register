@@ -14,8 +14,8 @@ data class ProductRegistration(
     @field:GeneratedValue
     @field:Id
     var id: Long = -1L,
-    val uuid: UUID,
-    val supplier_uuid: UUID,
+    val uuid: UUID = UUID.randomUUID(),
+    val supplierUuid: UUID,
     val supplierRef: String,
     @field:Column(name="hms_artnr")
     val HMSArtNr: String?,
@@ -24,11 +24,11 @@ data class ProductRegistration(
     val adminStatus: AdminStatus = AdminStatus.NOT_APPROVED,
     val message: String,
     @field:TypeDef(type = DataType.JSON)
-    val adminInfo: AdminInfo?,
+    val adminInfo: AdminInfo?=null,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
-    val published: LocalDateTime?,
-    val expired: LocalDateTime?,
+    val published: LocalDateTime?=null,
+    val expired: LocalDateTime?=null,
     val createdBy: String,
     val updatedBy: String,
     val createdByAdmin: Boolean = false,
