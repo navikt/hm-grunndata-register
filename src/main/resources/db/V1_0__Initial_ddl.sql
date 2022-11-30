@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS user_v1 (
     email VARCHAR(255) NOT NULL,
     supplier_uuid uuid NOT NULL,
     token TEXT NOT NULL
-)
+);
 
 
 CREATE TABLE IF NOT EXISTS supplier_v1 (
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS supplier_v1 (
     identifier VARCHAR(128) NOT NULL,
     unique(name),
     unique(identifier)
-)
+);
 
 
 CREATE TABLE IF NOT EXISTS product_reg_v1 (
@@ -41,4 +41,4 @@ CREATE TABLE IF NOT EXISTS product_reg_v1 (
     created_by_admin BOOLEAN NOT NULL,
     product_dto JSONB NOT NULL,
     UNIQUE (supplier_id, supplier_ref)
-)
+);
