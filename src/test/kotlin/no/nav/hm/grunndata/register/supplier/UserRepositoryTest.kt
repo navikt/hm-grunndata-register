@@ -2,6 +2,8 @@ package no.nav.hm.grunndata.register.supplier
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.common.runBlocking
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import no.nav.hm.grunndata.register.api.supplier.User
 import no.nav.hm.grunndata.register.api.supplier.UserRepository
@@ -24,9 +26,11 @@ class UserRepositoryTest(private val userRepository: UserRepository,
                 )
             )
             val db = userRepository.findByEmail("user@name.com")
-            println(objectMapper.writeValueAsString(db))
             val login = userRepository.loginUser("user@name.com", "token123")
-            println(objectMapper.writeValueAsString(login))
+            db.shouldNotBeNull()
+            login.shouldNotBeNull()
+            db.name shouldBe login.name
+            db.id shouldBe login.id
         }
 
 

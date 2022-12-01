@@ -5,11 +5,10 @@ import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import java.util.UUID
 
-@MappedEntity
+@MappedEntity(SUPPLIER_V1)
 data class Supplier (
     @field:Id
-    @field:GeneratedValue
-    val uuid: UUID,
+    val uuid: UUID = UUID.randomUUID(),
     val name: String,
     val address: String?=null,
     val homepage: String?=null,
@@ -17,3 +16,5 @@ data class Supplier (
     val email: String,
     val identifier: String
 )
+
+const val SUPPLIER_V1= "supplier_v1"

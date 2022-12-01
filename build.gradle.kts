@@ -2,7 +2,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jvmTarget = "17"
-val micronautVersion="3.7.1"
+val micronautVersion="3.7.4"
 val kafkaVersion = "3.2.1"
 val micrometerRegistryPrometheusVersion = "1.9.1"
 val junitJupiterVersion = "5.9.0"
@@ -26,7 +26,7 @@ plugins {
     kotlin("plugin.allopen") version "1.7.0"
     id("java")
     id("com.github.johnrengelman.shadow") version "7.1.0"
-    id("io.micronaut.application") version "3.6.2"
+    id("io.micronaut.application") version "3.6.5"
 }
 
 configurations.all {
@@ -43,6 +43,9 @@ dependencies {
     // coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
+    // security
+    implementation("io.micronaut.security:micronaut-security-jwt")
+    annotationProcessor("io.micronaut.security:micronaut-security-annotations")
 
     // micronaut-data
     implementation("io.micronaut.data:micronaut-data-jdbc")
