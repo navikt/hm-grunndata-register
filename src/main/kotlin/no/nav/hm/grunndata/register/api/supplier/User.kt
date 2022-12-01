@@ -5,14 +5,15 @@ import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import java.util.UUID
 
-@MappedEntity
+@MappedEntity(USER_V1)
 data class User (
     @field:GeneratedValue
     @field:Id
-    val uuid: UUID,
+    var id: UUID = UUID.randomUUID(),
     val name:String,
     val email: String,
     val supplierUuid: UUID,
     val token: String
 )
 
+const val USER_V1 = "user_v1"
