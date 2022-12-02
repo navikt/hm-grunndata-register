@@ -11,10 +11,8 @@ import javax.persistence.Column
 
 @MappedEntity("product_reg_v1")
 data class ProductRegistration(
-    @field:GeneratedValue
     @field:Id
-    var id: Long = -1L,
-    val uuid: UUID = UUID.randomUUID(),
+    val id: UUID = UUID.randomUUID(),
     val supplierUuid: UUID,
     val supplierRef: String,
     @field:Column(name="hms_artnr")
@@ -22,6 +20,7 @@ data class ProductRegistration(
     val title: String,
     val draft: DraftStatus = DraftStatus.DRAFT,
     val adminStatus: AdminStatus = AdminStatus.NOT_APPROVED,
+    val status: RegistrationStatus = RegistrationStatus.ACTIVE,
     val message: String,
     @field:TypeDef(type = DataType.JSON)
     val adminInfo: AdminInfo?=null,
@@ -38,6 +37,10 @@ data class ProductRegistration(
     fun isApproved(): Boolean = adminStatus == AdminStatus.APPROVED
 }
 
+enum class RegistrationStatus {
+    INACTIVE, ACTIVE, DELETED
+}
+
 enum class AdminStatus {
     NOT_APPROVED, APPROVED
 }
@@ -49,7 +52,7 @@ enum class DraftStatus {
 data class AdminInfo(val approvedBy: String?, val note: String?)
 
 data class ProductDTO(
-    val uuid: UUID = UUID.randomUUID(),
+    val id: UUID = UUID.randomUUID(),
     val supplierUUID: String,
     val title: String,
     val description: Description,
@@ -117,3 +120,25 @@ data class TechData (
     val value:  String,
     val unit:   String
 )
+
+data class ProductRegistrationDTO(
+    val id: UUID,
+    val supplierUuid: UUID,
+    val supplierRef: String,
+    val HMSArtNr: String?,
+    val title: String,
+    val draft: DraftStatus,
+    val adminStatus: AdminStatus,
+    val message: String,
+    val adminInfo: AdminInfo?,
+    val created: LocalDateTime,
+    val updated: LocalDateTime,
+    val published: LocalDateTime?,
+    val expired: LocalDateTime?,
+    val createdBy: String,
+    val updatedBy: String,
+    val createdByAdmin: Boolean,
+    val productDTO: ProductDTO ) {
+    fun isDraft(): Boolean = draft == DraftStatus.DRAFT
+    fun isApproved(): Boolean = adminStatus == AdminStatus.APPROVED
+}

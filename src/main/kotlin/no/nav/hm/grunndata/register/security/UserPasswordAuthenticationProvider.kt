@@ -8,7 +8,7 @@ import io.micronaut.security.authentication.AuthenticationResponse
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 
-import no.nav.hm.grunndata.register.api.supplier.UserRepository
+import no.nav.hm.grunndata.register.user.UserRepository
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 

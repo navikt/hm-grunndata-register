@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.api.supplier
+package no.nav.hm.grunndata.register.user
 
 import io.micronaut.data.annotation.GeneratedValue
 import io.micronaut.data.annotation.Id

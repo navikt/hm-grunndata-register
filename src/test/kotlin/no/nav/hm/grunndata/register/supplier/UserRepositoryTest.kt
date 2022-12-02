@@ -5,8 +5,8 @@ import io.kotest.common.runBlocking
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
-import no.nav.hm.grunndata.register.api.supplier.User
-import no.nav.hm.grunndata.register.api.supplier.UserRepository
+import no.nav.hm.grunndata.register.user.User
+import no.nav.hm.grunndata.register.user.UserRepository
 import org.junit.jupiter.api.Test
 import java.util.*
 
