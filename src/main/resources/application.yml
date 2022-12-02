@@ -11,6 +11,7 @@ micronaut:
       login:
         enabled: true
         path: "/login"
+    authentication: cookie
 jackson:
   bean-introspection-module: true
   serialization:

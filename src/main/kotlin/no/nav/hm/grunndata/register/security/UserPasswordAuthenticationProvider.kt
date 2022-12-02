@@ -10,18 +10,26 @@ import kotlinx.coroutines.runBlocking
 
 import no.nav.hm.grunndata.register.api.supplier.UserRepository
 import org.reactivestreams.Publisher
+import org.slf4j.LoggerFactory
 
 
 @Singleton
 class UserPasswordAuthenticationProvider(private val userRepository: UserRepository): AuthenticationProvider {
 
+    private val LOG = LoggerFactory.getLogger(UserPasswordAuthenticationProvider::class.java)
+
     override fun authenticate(httpRequest: HttpRequest<*>,
                               authenticationRequest: AuthenticationRequest<*, *>): Publisher<AuthenticationResponse> =
         runBlocking {
-             userRepository.loginUser(
-                 authenticationRequest.identity.toString(),
-                 authenticationRequest.identity.toString()
-             )?.let { Publishers.just(AuthenticationResponse.success(it.email)) }
-                 ?: Publishers.just(AuthenticationResponse.exception("Login failed"))
+            val identity = authenticationRequest.identity.toString()
+            val secret = authenticationRequest.secret.toString()
+             userRepository.loginUser(identity, secret)
+                 ?.let {  LOG.debug("User ${it.email} logged in ")
+                    Publishers.just(AuthenticationResponse.success(it.email)) }
+                 ?: run {
+                     LOG.error("User login failed")
+                     Publishers.just(AuthenticationResponse.exception("Login failed"))
+                 }
          }
+
 }
