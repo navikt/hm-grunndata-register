@@ -6,7 +6,11 @@ micronaut:
     consumer:
       type: fixed
       nThreads: 1
-
+  security:
+    endpoints:
+      login:
+        enabled: true
+        path: "/login"
 jackson:
   bean-introspection-module: true
   serialization:
