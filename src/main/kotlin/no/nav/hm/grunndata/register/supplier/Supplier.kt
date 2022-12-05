@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.api.supplier
+package no.nav.hm.grunndata.register.supplier
 
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity

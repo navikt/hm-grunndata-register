@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.api
+package no.nav.hm.grunndata.register.product
 
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*

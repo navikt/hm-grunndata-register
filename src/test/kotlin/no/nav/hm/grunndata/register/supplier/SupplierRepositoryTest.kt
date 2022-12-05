@@ -4,9 +4,6 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.register.api.supplier.Supplier
-import no.nav.hm.grunndata.register.api.supplier.SupplierRepository
-import no.nav.hm.grunndata.register.api.supplier.SupplierStatus
 import org.junit.jupiter.api.Test
 
 @MicronautTest
