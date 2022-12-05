@@ -1,6 +1,5 @@
 package no.nav.hm.grunndata.register.product
 
-import io.micronaut.data.annotation.GeneratedValue
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
@@ -13,7 +12,7 @@ import javax.persistence.Column
 data class ProductRegistration(
     @field:Id
     val id: UUID = UUID.randomUUID(),
-    val supplierUuid: UUID,
+    val supplierId: UUID,
     val supplierRef: String,
     @field:Column(name="hms_artnr")
     val HMSArtNr: String?,
@@ -28,17 +27,20 @@ data class ProductRegistration(
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime?=null,
     val expired: LocalDateTime?=null,
-    val createdBy: String,
-    val updatedBy: String,
+    val createdBy: String = "REGISTER",
+    val updatedBy: String = "REGISTER",
     val createdByAdmin: Boolean = false,
     @field:TypeDef(type = DataType.JSON)
-    val productDTO: ProductDTO ) {
-    fun isDraft(): Boolean = draft == DraftStatus.DRAFT
-    fun isApproved(): Boolean = adminStatus == AdminStatus.APPROVED
-}
+    val productDTO: ProductDTO )
+
+fun ProductRegistration.isDraft(): Boolean = draft == DraftStatus.DRAFT
+fun ProductRegistration.isApproved(): Boolean = adminStatus == AdminStatus.APPROVED
+fun ProductRegistration.approve(approvedByName: String): ProductRegistration =
+    this.copy(adminInfo = AdminInfo(approvedBy = approvedByName), adminStatus = AdminStatus.APPROVED,
+        status = RegistrationStatus.ACTIVE, draft = DraftStatus.DONE, published = LocalDateTime.now())
 
 enum class RegistrationStatus {
-    INACTIVE, ACTIVE, DELETED
+   ACTIVE, DELETED
 }
 
 enum class AdminStatus {
@@ -49,14 +51,14 @@ enum class DraftStatus {
     DRAFT, DONE
 }
 
-data class AdminInfo(val approvedBy: String?, val note: String?)
+data class AdminInfo(val approvedBy: String?, val note: String?=null)
 
 data class ProductDTO(
     val id: UUID = UUID.randomUUID(),
-    val supplierUUID: String,
+    val supplierId: UUID,
     val title: String,
     val description: Description,
-    val status: ProductStatus = ProductStatus.ACTIVE,
+    val status: ProductStatus = ProductStatus.INACTIVE,
     val HMSArtNr: String?=null,
     val identifier: String?=null,
     val supplierRef: String,
@@ -71,9 +73,11 @@ data class ProductDTO(
     val expired: LocalDateTime = updated.plusYears(20),
     val agreementInfo: AgreementInfo?,
     val hasAgreement: Boolean = (agreementInfo!=null),
-    val createdBy: String = "REGISTER",
-    val updatedBy: String = "REGISTER"
+    val createdBy: String = REGISTER,
+    val updatedBy: String = REGISTER
 )
+
+const val REGISTER = "REGISTER"
 
 data class Description(val name: String?=null,
                        val shortDescription: String?=null,
@@ -105,7 +109,8 @@ data class Media (
 )
 
 enum class MediaSourceType {
-    ONPREM, GCP, EXTERNALURL
+    // HMDB means it is stored in hjelpemiddeldatabasen
+    HMDB, ONPREM, GCP, EXTERNALURL
 }
 
 enum class MediaType {
@@ -123,7 +128,7 @@ data class TechData (
 
 data class ProductRegistrationDTO(
     val id: UUID,
-    val supplierUuid: UUID,
+    val supplierId: UUID,
     val supplierRef: String,
     val HMSArtNr: String?,
     val title: String,
@@ -135,10 +140,7 @@ data class ProductRegistrationDTO(
     val updated: LocalDateTime,
     val published: LocalDateTime?,
     val expired: LocalDateTime?,
-    val createdBy: String,
-    val updatedBy: String,
+    val createdBy: String = REGISTER,
+    val updatedBy: String = REGISTER,
     val createdByAdmin: Boolean,
-    val productDTO: ProductDTO ) {
-    fun isDraft(): Boolean = draft == DraftStatus.DRAFT
-    fun isApproved(): Boolean = adminStatus == AdminStatus.APPROVED
-}
+    val productDTO: ProductDTO )

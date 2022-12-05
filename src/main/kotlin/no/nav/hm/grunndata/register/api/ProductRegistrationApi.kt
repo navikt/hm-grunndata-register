@@ -53,13 +53,13 @@ class ProductRegistrationApi(private val productRegistrationRepository: ProductR
 }
 
 private fun ProductRegistrationDTO.toEntity(): ProductRegistration = ProductRegistration(id = id,
-    supplierUuid = supplierUuid, supplierRef =supplierRef, HMSArtNr = HMSArtNr, title = title, draft = draft,
+    supplierId = supplierId, supplierRef =supplierRef, HMSArtNr = HMSArtNr, title = title, draft = draft,
     adminStatus = adminStatus, message = message, adminInfo = adminInfo, created = created, updated = updated,
     published = published, expired = expired, createdBy = createdBy, updatedBy = updatedBy,
     createdByAdmin = createdByAdmin, productDTO = productDTO)
 
 private fun ProductRegistration.toDTO(): ProductRegistrationDTO = ProductRegistrationDTO(
-    id = id, supplierUuid= supplierUuid, supplierRef =supplierRef, HMSArtNr = HMSArtNr, title = title, draft = draft,
+    id = id, supplierId= supplierId, supplierRef =supplierRef, HMSArtNr = HMSArtNr, title = title, draft = draft,
     adminStatus = adminStatus, message = message, adminInfo = adminInfo, created = created, updated = updated,
     published = published, expired = expired, createdBy = createdBy, updatedBy = updatedBy,
     createdByAdmin = createdByAdmin, productDTO = productDTO
