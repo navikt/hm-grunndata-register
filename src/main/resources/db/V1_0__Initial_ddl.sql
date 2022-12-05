@@ -1,7 +1,7 @@
 CREATE EXTENSION pgcrypto;
 
 CREATE TABLE IF NOT EXISTS user_v1 (
-    id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    id uuid NOT NULL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     supplier_uuid uuid NOT NULL,
@@ -11,8 +11,9 @@ CREATE TABLE IF NOT EXISTS user_v1 (
 
 
 CREATE TABLE IF NOT EXISTS supplier_v1 (
-    id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    id uuid NOT NULL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    status VARCHAR(32) NOT NULL,
     address VARCHAR(255),
     homepage VARCHAR(512),
     phone VARCHAR(32),
@@ -24,7 +25,7 @@ CREATE TABLE IF NOT EXISTS supplier_v1 (
 
 
 CREATE TABLE IF NOT EXISTS product_reg_v1 (
-    id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    id uuid NOT NULL PRIMARY KEY,
     supplier_id uuid NOT NULL,
     supplier_ref VARCHAR(255) NOT NULL,
     hms_artnr VARCHAR(255),

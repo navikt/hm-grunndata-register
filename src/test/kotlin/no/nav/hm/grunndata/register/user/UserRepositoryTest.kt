@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.supplier
+package no.nav.hm.grunndata.register.user
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.common.runBlocking
@@ -11,8 +11,7 @@ import org.junit.jupiter.api.Test
 import java.util.*
 
 @MicronautTest
-class UserRepositoryTest(private val userRepository: UserRepository,
-                         private val objectMapper: ObjectMapper) {
+class UserRepositoryTest(private val userRepository: UserRepository) {
 
     @Test
     fun testUserCrud() {
@@ -32,7 +31,5 @@ class UserRepositoryTest(private val userRepository: UserRepository,
             db.name shouldBe login.name
             db.id shouldBe login.id
         }
-
-
     }
 }

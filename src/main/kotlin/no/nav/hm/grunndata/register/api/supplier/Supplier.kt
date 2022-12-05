@@ -1,6 +1,5 @@
 package no.nav.hm.grunndata.register.api.supplier
 
-import io.micronaut.data.annotation.GeneratedValue
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import java.util.UUID
@@ -8,7 +7,8 @@ import java.util.UUID
 @MappedEntity(SUPPLIER_V1)
 data class Supplier (
     @field:Id
-    val uuid: UUID = UUID.randomUUID(),
+    val id: UUID = UUID.randomUUID(),
+    val status: SupplierStatus = SupplierStatus.ACTIVE,
     val name: String,
     val address: String?=null,
     val homepage: String?=null,
@@ -16,5 +16,9 @@ data class Supplier (
     val email: String,
     val identifier: String
 )
+
+enum class SupplierStatus {
+    INACTIVE, ACTIVE
+}
 
 const val SUPPLIER_V1= "supplier_v1"
