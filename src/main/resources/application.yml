@@ -7,6 +7,8 @@ micronaut:
       type: fixed
       nThreads: 1
   security:
+    redirect:
+      enabled: false
     endpoints:
       login:
         enabled: true

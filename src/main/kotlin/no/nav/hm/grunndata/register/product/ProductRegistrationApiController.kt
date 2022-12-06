@@ -5,10 +5,6 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.rules.SecurityRule
-import no.nav.hm.grunndata.register.product.ProductRegistration
-import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
-import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
-import no.nav.hm.grunndata.register.product.RegistrationStatus
 import org.slf4j.LoggerFactory
 import java.util.*
 
