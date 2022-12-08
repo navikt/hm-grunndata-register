@@ -45,7 +45,7 @@ class SupplierApiControllerTest(private val supplierRepository: SupplierReposito
             userRepository.createUser(
                 User(
                     email = email, token = token,
-                    supplierId = testSupplier.id, name = "User tester", roles = listOf(Roles.ROLE_ADMIN)
+                    name = "User tester", roles = listOf(Roles.ROLE_ADMIN)
                 )
             )
         }

@@ -43,7 +43,8 @@ class UserControllerTest(private val userRepository: UserRepository, private val
             userRepository.createUser(
                 User(
                     email = email, token = token,
-                    supplierId = testSupplier.id, name = "User tester", roles = listOf(Roles.ROLE_SUPPLIER)
+                    name = "User tester", roles = listOf(Roles.ROLE_SUPPLIER),
+                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier.id))
                 )
             )
         }

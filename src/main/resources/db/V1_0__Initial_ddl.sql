@@ -18,12 +18,10 @@ CREATE TABLE IF NOT EXISTS user_v1 (
     id uuid NOT NULL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
-    supplier_id uuid,
     roles JSONB NOT NULL,
     attributes JSONB NOT NULL,
     token TEXT NOT NULL,
-    UNIQUE(email),
-    CONSTRAINT fk_supplier_user_v1_log FOREIGN KEY (supplier_id) REFERENCES supplier_v1(id)
+    UNIQUE(email)
 );
 
 CREATE TABLE IF NOT EXISTS product_reg_v1 (

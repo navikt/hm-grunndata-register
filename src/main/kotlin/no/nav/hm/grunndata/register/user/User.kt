@@ -12,7 +12,6 @@ data class User (
     val id: UUID = UUID.randomUUID(),
     val name:String,
     val email: String,
-    val supplierId: UUID,
     val token: String,
     @field:TypeDef(type = DataType.JSON)
     val roles: List<String> = emptyList(),
@@ -21,3 +20,7 @@ data class User (
 )
 
 const val USER_V1 = "user_v1"
+
+object UserAttribute {
+    const val SUPPLIER_ID = "SUPPLIER_ID"
+}

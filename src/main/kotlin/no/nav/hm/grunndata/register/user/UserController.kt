@@ -12,7 +12,7 @@ import java.util.*
 class UserController(private val userRepository: UserRepository) {
 
     @Get("/")
-    suspend fun getUserById(authentication: Authentication?) : HttpResponse<UserDTO> =
+    suspend fun getUser(authentication: Authentication?) : HttpResponse<UserDTO> =
         if (authentication!=null) {
             userRepository.findByEmail(authentication.name)
                 ?.let {
@@ -26,8 +26,7 @@ class UserController(private val userRepository: UserRepository) {
         if (authentication != null) {
             userRepository.findByEmail(authentication.name)
                 ?.let { HttpResponse.ok(userRepository.update(it.copy(name = userDTO.name, email = userDTO.email,
-                    supplierId = userDTO.supplierId, roles = userDTO.roles,
-                    attributes = userDTO.attributes)).toDTO()) } ?: HttpResponse.notFound()
+                    roles = userDTO.roles, attributes = userDTO.attributes)).toDTO()) } ?: HttpResponse.notFound()
         }
         else HttpResponse.unauthorized()
 

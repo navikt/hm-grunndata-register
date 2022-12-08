@@ -32,9 +32,8 @@ class UserRepositoryTest(private val userRepository: UserRepository, private val
                     name = "First Family",
                     email = "user@name.com",
                     token = "token123",
-                    supplierId = testSupplier.id,
                     roles = listOf(Roles.ROLE_SUPPLIER),
-                    attributes = emptyMap()
+                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier.id))
                 )
             )
             val db = userRepository.findByEmail("user@name.com")
