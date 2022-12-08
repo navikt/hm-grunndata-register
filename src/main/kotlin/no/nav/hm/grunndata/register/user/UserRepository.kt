@@ -18,4 +18,7 @@ interface UserRepository: CoroutineCrudRepository<User, UUID> {
                           token = crypt(:token, token)""")
     suspend fun loginUser(email:String, token:String): User?
 
+    @Query("""UPDATE $USER_V1 SET token = crypt(:token,gen_salt('bf', 8)) WHERE id = :id  AND token = crypt(:oldToken, token)""")
+    suspend fun changePassword(id: UUID,  oldToken: String, token: String)
+
 }

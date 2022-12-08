@@ -1,6 +1,5 @@
 package no.nav.hm.grunndata.register.user
 
-import io.micronaut.data.annotation.GeneratedValue
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
@@ -16,7 +15,9 @@ data class User (
     val supplierUuid: UUID,
     val token: String,
     @field:TypeDef(type = DataType.JSON)
-    val roles: List<String> = emptyList()
+    val roles: List<String> = emptyList(),
+    @field:TypeDef(type = DataType.JSON)
+    val attributes: Map<String, Any> = emptyMap(),
 )
 
 const val USER_V1 = "user_v1"

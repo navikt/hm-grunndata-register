@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
-@Controller("/api/v1/supplier")
+@Controller("/api/v1/admin/supplier")
 class SupplierApiController(private val supplierRepository: SupplierRepository) {
 
     private val LOG = LoggerFactory.getLogger(SupplierApiController::class.java)
