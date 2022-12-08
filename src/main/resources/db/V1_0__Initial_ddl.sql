@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS user_v1 (
     email VARCHAR(255) NOT NULL,
     supplier_uuid uuid NOT NULL,
     roles JSONB NOT NULL,
+    attributes JSONB NOT NULL,
     token TEXT NOT NULL,
     UNIQUE(email)
 );

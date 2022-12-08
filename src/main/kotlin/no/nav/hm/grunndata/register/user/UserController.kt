@@ -24,7 +24,7 @@ class UserController(private val userRepository: UserRepository) {
     @Put("/")
     suspend fun updateUser(authentication: Authentication?, @Body userDTO: UserDTO): HttpResponse<UserDTO> =
         if (authentication != null) {
-            userRepository.findById(authentication.attributes["id"] as UUID)
+            userRepository.findByEmail(authentication.name)
                 ?.let { HttpResponse.ok(userRepository.update(it.copy(name = userDTO.name, email = userDTO.email, supplierUuid = userDTO.supplierUuid,
                     roles = userDTO.roles, attributes = userDTO.attributes)).toDTO()) } ?: HttpResponse.notFound()
         }
@@ -33,9 +33,10 @@ class UserController(private val userRepository: UserRepository) {
     @Put("/password")
     suspend fun changePassword(authentication: Authentication?, @Body changePassword: ChangePasswordDTO): HttpResponse<Any> =
         if (authentication != null) {
-            val id = authentication.attributes["id"] as UUID
-            userRepository.changePassword(id, changePassword.oldPassword, changePassword.newPassword)
-            HttpResponse.ok()
+            userRepository.loginUser(authentication.name, changePassword.oldPassword)?.let {
+                userRepository.changePassword(it.id, changePassword.oldPassword, changePassword.newPassword)
+                HttpResponse.ok()
+            } ?: HttpResponse.badRequest()
         }
         else HttpResponse.unauthorized()
 }
