@@ -6,48 +6,54 @@ import io.micronaut.http.HttpRequest
 import io.micronaut.http.client.HttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.security.authentication.UsernamePasswordCredentials
-import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
-import io.mockk.every
-import io.mockk.mockk
 import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.*
 import javax.ws.rs.core.MediaType
 
 
 @MicronautTest
-class SupplierApiControllerTest {
+class SupplierApiControllerTest(private val supplierRepository: SupplierRepository,
+                                private val userRepository: UserRepository) {
 
     @Inject
     @field:Client("/")
     lateinit var client: HttpClient
 
-    @MockBean(UserRepository::class)
-    fun mockedUserRepository(): UserRepository = mockk()
+    val email = "admintester@test.test"
+    val token = "token-123"
 
-    @Inject
-    lateinit var userRepository: UserRepository
+    @BeforeEach
+    fun createUserSupplier() {
+        runBlocking {
+            val testSupplier = supplierRepository.save(
+                Supplier(
+                    email = "admintester@test.test",
+                    identifier = "adminsupplier-unique-name",
+                    name = "Admin Company",
+                    address = "address 1",
+                    homepage = "https://www.hompage.no",
+                    phone = "+47 12345678"
+                )
+            )
+            userRepository.createUser(
+                User(
+                    email = email, token = token,
+                    supplierId = testSupplier.id, name = "User tester", roles = listOf(Roles.ROLE_ADMIN)
+                )
+            )
+        }
+    }
+
 
     @Test
     fun crudAPItest() {
-        val email = "test@test.test"
-        val token = "token-123"
-        val uuid = UUID.randomUUID()
-        client
-            every {
-                runBlocking {
-                    userRepository.loginUser(email, token)
-                }
-            } answers {
-                User(email = email, token = token, supplierId = uuid,
-                    name = "test tester", roles = listOf(Roles.ROLE_ADMIN))
-            }
-
         // login
         val creds = UsernamePasswordCredentials(email, token)
         val request  = HttpRequest.POST<Any>("/login", creds)
