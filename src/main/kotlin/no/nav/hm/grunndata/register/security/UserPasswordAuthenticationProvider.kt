@@ -25,7 +25,7 @@ class UserPasswordAuthenticationProvider(private val userRepository: UserReposit
             val secret = authenticationRequest.secret.toString()
              userRepository.loginUser(identity, secret)
                  ?.let {  LOG.debug("User ${it.email} logged in ")
-                    Publishers.just(AuthenticationResponse.success(it.email)) }
+                    Publishers.just(AuthenticationResponse.success(it.email, it.roles)) }
                  ?: run {
                      LOG.error("User login failed")
                      Publishers.just(AuthenticationResponse.exception("Login failed"))

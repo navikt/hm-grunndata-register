@@ -12,6 +12,7 @@ import io.mockk.every
 import io.mockk.mockk
 import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
 import org.junit.jupiter.api.Test
@@ -43,7 +44,8 @@ class SupplierApiControllerTest {
                     userRepository.loginUser(email, token)
                 }
             } answers {
-                User(email = email, token = token, supplierUuid = uuid, name = "test tester")
+                User(email = email, token = token, supplierUuid = uuid,
+                    name = "test tester", roles = listOf(Roles.ROLE_ADMIN))
             }
 
         // login

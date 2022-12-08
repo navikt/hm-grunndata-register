@@ -1,12 +1,11 @@
 package no.nav.hm.grunndata.register.user
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.common.runBlocking
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
-import no.nav.hm.grunndata.register.user.User
-import no.nav.hm.grunndata.register.user.UserRepository
+import no.nav.hm.grunndata.register.security.Roles
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -21,7 +20,8 @@ class UserRepositoryTest(private val userRepository: UserRepository) {
                     name = "User Name",
                     email = "user@name.com",
                     token = "token123",
-                    supplierUuid = UUID.randomUUID()
+                    supplierUuid = UUID.randomUUID(),
+                    roles = listOf(Roles.ROLE_ADMIN)
                 )
             )
             val db = userRepository.findByEmail("user@name.com")
@@ -30,6 +30,7 @@ class UserRepositoryTest(private val userRepository: UserRepository) {
             login.shouldNotBeNull()
             db.name shouldBe login.name
             db.id shouldBe login.id
+            db.roles shouldContain Roles.ROLE_ADMIN
         }
     }
 }

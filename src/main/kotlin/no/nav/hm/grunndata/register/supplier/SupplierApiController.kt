@@ -4,10 +4,11 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
+import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
-@Secured(SecurityRule.IS_AUTHENTICATED)
+@Secured(Roles.ROLE_ADMIN)
 @Controller("/api/v1/supplier")
 class SupplierApiController(private val supplierRepository: SupplierRepository) {
 

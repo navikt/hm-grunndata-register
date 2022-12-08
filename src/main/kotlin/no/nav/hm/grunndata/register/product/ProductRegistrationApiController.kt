@@ -4,11 +4,11 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import io.micronaut.security.rules.SecurityRule
+import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
 import java.util.*
 
-@Secured(SecurityRule.IS_AUTHENTICATED)
+@Secured(Roles.ROLE_ADMIN, Roles.ROLE_SUPPLIER)
 @Controller("/api/v1/product")
 class ProductRegistrationApi(private val productRegistrationRepository: ProductRegistrationRepository,
                              private val authentication: Authentication) {
