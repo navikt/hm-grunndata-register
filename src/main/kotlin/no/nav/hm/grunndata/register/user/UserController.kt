@@ -14,7 +14,7 @@ class UserController(private val userRepository: UserRepository) {
     @Get("/")
     suspend fun getUserById(authentication: Authentication?) : HttpResponse<UserDTO> =
         if (authentication!=null) {
-            userRepository.findById(authentication.attributes["id"] as UUID)
+            userRepository.findByEmail(authentication.name)
                 ?.let {
                     HttpResponse.ok(it.toDTO())
                 } ?: HttpResponse.notFound()
@@ -25,8 +25,9 @@ class UserController(private val userRepository: UserRepository) {
     suspend fun updateUser(authentication: Authentication?, @Body userDTO: UserDTO): HttpResponse<UserDTO> =
         if (authentication != null) {
             userRepository.findByEmail(authentication.name)
-                ?.let { HttpResponse.ok(userRepository.update(it.copy(name = userDTO.name, email = userDTO.email, supplierUuid = userDTO.supplierUuid,
-                    roles = userDTO.roles, attributes = userDTO.attributes)).toDTO()) } ?: HttpResponse.notFound()
+                ?.let { HttpResponse.ok(userRepository.update(it.copy(name = userDTO.name, email = userDTO.email,
+                    supplierId = userDTO.supplierId, roles = userDTO.roles,
+                    attributes = userDTO.attributes)).toDTO()) } ?: HttpResponse.notFound()
         }
         else HttpResponse.unauthorized()
 

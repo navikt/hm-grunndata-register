@@ -20,7 +20,7 @@ class UserRepositoryTest(private val userRepository: UserRepository) {
                     name = "First Family",
                     email = "user@name.com",
                     token = "token123",
-                    supplierUuid = UUID.randomUUID(),
+                    supplierId = UUID.randomUUID(),
                     roles = listOf(Roles.ROLE_SUPPLIER),
                     attributes = emptyMap()
                 )

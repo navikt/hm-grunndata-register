@@ -44,7 +44,7 @@ class SupplierApiControllerTest {
                     userRepository.loginUser(email, token)
                 }
             } answers {
-                User(email = email, token = token, supplierUuid = uuid,
+                User(email = email, token = token, supplierId = uuid,
                     name = "test tester", roles = listOf(Roles.ROLE_ADMIN))
             }
 

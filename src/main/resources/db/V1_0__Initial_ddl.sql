@@ -1,16 +1,5 @@
 CREATE EXTENSION pgcrypto;
 
-CREATE TABLE IF NOT EXISTS user_v1 (
-    id uuid NOT NULL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    supplier_uuid uuid NOT NULL,
-    roles JSONB NOT NULL,
-    attributes JSONB NOT NULL,
-    token TEXT NOT NULL,
-    UNIQUE(email)
-);
-
 
 CREATE TABLE IF NOT EXISTS supplier_v1 (
     id uuid NOT NULL PRIMARY KEY,
@@ -25,6 +14,17 @@ CREATE TABLE IF NOT EXISTS supplier_v1 (
     unique(identifier)
 );
 
+CREATE TABLE IF NOT EXISTS user_v1 (
+    id uuid NOT NULL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    supplier_id uuid,
+    roles JSONB NOT NULL,
+    attributes JSONB NOT NULL,
+    token TEXT NOT NULL,
+    UNIQUE(email),
+    CONSTRAINT fk_supplier_user_v1_log FOREIGN KEY (supplier_id) REFERENCES supplier_v1(id)
+);
 
 CREATE TABLE IF NOT EXISTS product_reg_v1 (
     id uuid NOT NULL PRIMARY KEY,

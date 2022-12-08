@@ -8,7 +8,7 @@ data class UserDTO (
     val id: UUID = UUID.randomUUID(),
     val name:String,
     val email: String,
-    val supplierUuid: UUID,
+    val supplierId: UUID,
     @field:TypeDef(type = DataType.JSON)
     val roles: List<String>,
     val attributes: Map<String, Any>,
@@ -18,7 +18,7 @@ fun User.toDTO() = UserDTO (
     id = id,
     name = name,
     email = email,
-    supplierUuid = supplierUuid,
+    supplierId = supplierId,
     roles = roles,
     attributes = attributes
 )

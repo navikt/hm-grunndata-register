@@ -12,7 +12,7 @@ data class User (
     val id: UUID = UUID.randomUUID(),
     val name:String,
     val email: String,
-    val supplierUuid: UUID,
+    val supplierId: UUID,
     val token: String,
     @field:TypeDef(type = DataType.JSON)
     val roles: List<String> = emptyList(),
