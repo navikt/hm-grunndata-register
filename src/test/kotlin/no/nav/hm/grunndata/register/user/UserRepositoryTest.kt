@@ -6,21 +6,33 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.supplier.Supplier
+import no.nav.hm.grunndata.register.supplier.SupplierRepository
 import org.junit.jupiter.api.Test
 import java.util.*
 
 @MicronautTest
-class UserRepositoryTest(private val userRepository: UserRepository) {
+class UserRepositoryTest(private val userRepository: UserRepository, private val supplierRepository: SupplierRepository) {
 
     @Test
     fun testUserCrud() {
         runBlocking {
+            val testSupplier = supplierRepository.save(
+                Supplier(
+                    email = "supplier1@test.test",
+                    identifier = "supplier1-unique-name",
+                    name = "Supplier AS1",
+                    address = "address 1",
+                    homepage = "https://www.hompage.no",
+                    phone = "+47 12345678"
+                )
+            )
             userRepository.createUser(
                 User(
                     name = "First Family",
                     email = "user@name.com",
                     token = "token123",
-                    supplierId = UUID.randomUUID(),
+                    supplierId = testSupplier.id,
                     roles = listOf(Roles.ROLE_SUPPLIER),
                     attributes = emptyMap()
                 )
