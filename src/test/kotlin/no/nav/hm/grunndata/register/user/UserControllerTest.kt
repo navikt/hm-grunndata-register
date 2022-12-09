@@ -9,6 +9,7 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.register.product.getLoginCookie
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.Supplier
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
@@ -52,10 +53,7 @@ class UserControllerTest(private val userRepository: UserRepository, private val
 
     @Test
     fun userControllertest() {
-        val creds = UsernamePasswordCredentials(email, token)
-        val request = HttpRequest.POST<Any>("/login", creds)
-        val resp = client.toBlocking().exchange<Any, Any>(request)
-        val jwt = resp.getCookie("JWT").get()
+        val jwt = getLoginCookie(client, email, token)
 
         val respons = client.toBlocking().exchange(
             HttpRequest.GET<UserDTO>("/api/v1/user")
