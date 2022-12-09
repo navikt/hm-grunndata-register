@@ -33,7 +33,7 @@ class UserRepositoryTest(private val userRepository: UserRepository, private val
                     email = "user@name.com",
                     token = "token123",
                     roles = listOf(Roles.ROLE_SUPPLIER),
-                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier.id))
+                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier.id.toString()))
                 )
             )
             val db = userRepository.findByEmail("user@name.com")

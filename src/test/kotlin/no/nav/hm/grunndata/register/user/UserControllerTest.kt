@@ -45,7 +45,7 @@ class UserControllerTest(private val userRepository: UserRepository, private val
                 User(
                     email = email, token = token,
                     name = "User tester", roles = listOf(Roles.ROLE_SUPPLIER),
-                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier.id))
+                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier.id.toString()))
                 )
             )
         }

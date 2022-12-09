@@ -1,7 +1,9 @@
 package no.nav.hm.grunndata.register.product
 
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import io.micronaut.http.HttpRequest
+import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.HttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.cookie.Cookie
@@ -17,6 +19,7 @@ import no.nav.hm.grunndata.register.user.UserRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.*
+import javax.ws.rs.core.MediaType
 
 @MicronautTest
 class ProductRegistrationApiControllerTest(private val userRepository: UserRepository,
@@ -25,12 +28,14 @@ class ProductRegistrationApiControllerTest(private val userRepository: UserRepos
 
     val email = "user3@test.test"
     val token = "token-123"
+    val supplierId = UUID.randomUUID()
 
     @BeforeEach
     fun createUserSupplier() {
         runBlocking {
             val testSupplier = supplierRepository.save(
                 Supplier(
+                    id = supplierId,
                     email = "supplier3@test.test",
                     identifier = "supplier3-unique-name",
                     name = "Supplier AS3",
@@ -42,7 +47,7 @@ class ProductRegistrationApiControllerTest(private val userRepository: UserRepos
             userRepository.createUser(
                 User(
                     email = email, token = token, name = "User tester", roles = listOf(Roles.ROLE_SUPPLIER),
-                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier.id))
+                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier.id.toString()))
                 )
             )
         }
@@ -52,8 +57,9 @@ class ProductRegistrationApiControllerTest(private val userRepository: UserRepos
     fun crudProductRegistration() {
         val jwt = getLoginCookie(client, email, token)
         jwt.shouldNotBeNull()
+
         val productDTO = ProductDTO (
-            supplierId = UUID.randomUUID(),
+            supplierId = supplierId,
             title = "Dette er produkt title",
             description = Description("produktnavn", "En kort beskrivelse av produktet",
                 "En lang beskrivelse av produktet"),
@@ -69,7 +75,8 @@ class ProductRegistrationApiControllerTest(private val userRepository: UserRepos
             agreementInfo = AgreementInfo(id = 1, identifier = "hmdbid-1", rank = 1, postId = 123, postNr = 1, reference = "AV-142")
         )
         val registration = ProductRegistration (
-            supplierId = UUID.randomUUID(),
+            id = productDTO.id,
+            supplierId = productDTO.supplierId,
             supplierRef = productDTO.supplierRef,
             HMSArtNr = productDTO.HMSArtNr ,
             title = productDTO.title,
@@ -80,6 +87,36 @@ class ProductRegistrationApiControllerTest(private val userRepository: UserRepos
             adminInfo = null,
             productDTO = productDTO
         )
+        // create
+        var respons = client.toBlocking().exchange(
+            HttpRequest.POST("/api/v1/product", registration)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(jwt), ProductRegistrationDTO::class.java
+        )
+        respons.status() shouldBe HttpStatus.CREATED
+
+        // update
+        val updateDTO = productDTO.copy(title = "Ny title")
+        val updatedReg = registration.copy(title = "Ny title", productDTO = updateDTO)
+        respons = client.toBlocking().exchange(
+            HttpRequest.PUT("/api/v1/product/${updateDTO.id}", updatedReg)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(jwt), ProductRegistrationDTO::class.java
+        )
+
+        respons.status shouldBe HttpStatus.OK
+
+        // Delete
+        respons = client.toBlocking().exchange(
+            HttpRequest.DELETE<ProductRegistrationDTO>("/api/v1/product/${updateDTO.id}")
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(jwt), ProductRegistrationDTO::class.java
+        )
+        respons.status shouldBe HttpStatus.OK
+        val deleted = respons.body()
+        deleted.shouldNotBeNull()
+        deleted.status shouldBe RegistrationStatus.DELETED
+        deleted.productDTO.status shouldBe ProductStatus.INACTIVE
     }
 
 }

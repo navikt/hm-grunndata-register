@@ -11,7 +11,7 @@ import javax.persistence.Column
 @MappedEntity("product_reg_v1")
 data class ProductRegistration(
     @field:Id
-    val id: UUID = UUID.randomUUID(),
+    val id: UUID,
     val supplierId: UUID,
     val supplierRef: String,
     @field:Column(name="hms_artnr")
@@ -135,6 +135,7 @@ data class ProductRegistrationDTO(
     val title: String,
     val draft: DraftStatus,
     val adminStatus: AdminStatus,
+    val status: RegistrationStatus,
     val message: String,
     val adminInfo: AdminInfo?,
     val created: LocalDateTime,

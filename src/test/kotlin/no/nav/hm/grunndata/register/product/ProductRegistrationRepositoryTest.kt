@@ -29,6 +29,7 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             agreementInfo = AgreementInfo(id = 1, identifier = "hmdbid-1", rank = 1, postId = 123, postNr = 1, reference = "AV-142")
         )
         val registration = ProductRegistration (
+            id = productDTO.id,
             supplierId = UUID.randomUUID(),
             supplierRef = productDTO.supplierRef,
             HMSArtNr = productDTO.HMSArtNr ,

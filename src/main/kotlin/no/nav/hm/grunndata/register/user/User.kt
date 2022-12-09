@@ -16,7 +16,7 @@ data class User (
     @field:TypeDef(type = DataType.JSON)
     val roles: List<String> = emptyList(),
     @field:TypeDef(type = DataType.JSON)
-    val attributes: Map<String, Any> = emptyMap(),
+    val attributes: Map<String, String> = emptyMap(),
 )
 
 const val USER_V1 = "user_v1"

@@ -7,6 +7,7 @@ import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.user.UserAttribute
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
@@ -36,35 +37,36 @@ class ProductRegistrationApi(private val productRegistrationRepository: ProductR
     suspend fun updateProduct(@Body registrationDTO: ProductRegistrationDTO, @PathVariable id: UUID, authentication: Authentication):
             HttpResponse<ProductRegistrationDTO> =
         if (registrationDTO.supplierId != userSupplierId(authentication) ) HttpResponse.unauthorized()
-        else productRegistrationRepository.findById(id)
+        else productRegistrationRepository.findByIdAndSupplierId(id,userSupplierId(authentication))
                 ?.let {
-                    val updated = registrationDTO.copy(id = it.id, created = it.created)
+                    val updated = registrationDTO.copy(id = it.id, created = it.created, supplierId = it.supplierId, updatedBy = REGISTER)
                     HttpResponse.ok(productRegistrationRepository.update(updated.toEntity()).toDTO()) }
                 ?: run {
                     HttpResponse.badRequest() }
 
     @Delete("/{id}")
-    suspend fun deleteProduct(id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
+    suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
         productRegistrationRepository.findByIdAndSupplierId(id, userSupplierId(authentication))
             ?.let {
-                HttpResponse.ok(productRegistrationRepository.update(it.copy(status=RegistrationStatus.DELETED)).toDTO())}
+                val productDTO = it.productDTO.copy(status = ProductStatus.INACTIVE, expired = LocalDateTime.now().minusMinutes(1L))
+                HttpResponse.ok(productRegistrationRepository.update(it.copy(status=RegistrationStatus.DELETED, productDTO = productDTO)).toDTO())}
             ?: HttpResponse.notFound()
 
 }
 
 private fun ProductRegistrationDTO.toEntity(): ProductRegistration = ProductRegistration(id = id,
     supplierId = supplierId, supplierRef =supplierRef, HMSArtNr = HMSArtNr, title = title, draft = draft,
-    adminStatus = adminStatus, message = message, adminInfo = adminInfo, created = created, updated = updated,
+    adminStatus = adminStatus, status = status, message = message, adminInfo = adminInfo, created = created, updated = updated,
     published = published, expired = expired, createdBy = createdBy, updatedBy = updatedBy,
     createdByAdmin = createdByAdmin, productDTO = productDTO)
 
 private fun ProductRegistration.toDTO(): ProductRegistrationDTO = ProductRegistrationDTO(
     id = id, supplierId= supplierId, supplierRef =supplierRef, HMSArtNr = HMSArtNr, title = title, draft = draft,
-    adminStatus = adminStatus, message = message, adminInfo = adminInfo, created = created, updated = updated,
+    adminStatus = adminStatus, status = status,  message = message, adminInfo = adminInfo, created = created, updated = updated,
     published = published, expired = expired, createdBy = createdBy, updatedBy = updatedBy,
     createdByAdmin = createdByAdmin, productDTO = productDTO
 )
 
 
-fun userSupplierId(authentication: Authentication) =
-    authentication.attributes[UserAttribute.SUPPLIER_ID] as UUID
+fun userSupplierId(authentication: Authentication) = UUID.fromString(
+    authentication.attributes[UserAttribute.SUPPLIER_ID] as String )

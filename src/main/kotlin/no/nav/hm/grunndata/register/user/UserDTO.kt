@@ -10,7 +10,7 @@ data class UserDTO (
     val email: String,
     @field:TypeDef(type = DataType.JSON)
     val roles: List<String>,
-    val attributes: Map<String, Any>,
+    val attributes: Map<String, String>,
 )
 
 fun User.toDTO() = UserDTO (

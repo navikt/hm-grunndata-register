@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS supplier_v1 (
 CREATE TABLE IF NOT EXISTS user_v1 (
     id uuid NOT NULL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL, s
+    email VARCHAR(255) NOT NULL,
     roles JSONB NOT NULL,
     attributes JSONB NOT NULL,
     token TEXT NOT NULL,
