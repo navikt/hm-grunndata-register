@@ -1,9 +1,13 @@
 package no.nav.hm.grunndata.register.product
 
+import io.micronaut.data.model.Slice
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.user.UserAttribute
 import org.slf4j.LoggerFactory
@@ -52,6 +56,9 @@ class ProductRegistrationApi(private val productRegistrationRepository: ProductR
                 HttpResponse.ok(productRegistrationRepository.update(it.copy(status=RegistrationStatus.DELETED, productDTO = productDTO)).toDTO())}
             ?: HttpResponse.notFound()
 
+    @Get("/")
+    fun listProductsBySupplier(authentication: Authentication): Flow<ProductRegistrationDTO> =
+        productRegistrationRepository.findAll().map { it.toDTO() }
 }
 
 private fun ProductRegistrationDTO.toEntity(): ProductRegistration = ProductRegistration(id = id,
