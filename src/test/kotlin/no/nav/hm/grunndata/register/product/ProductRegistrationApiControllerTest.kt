@@ -12,6 +12,7 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.Supplier
+import no.nav.hm.grunndata.register.supplier.SupplierInfo
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserAttribute
@@ -36,12 +37,15 @@ class ProductRegistrationApiControllerTest(private val userRepository: UserRepos
             val testSupplier = supplierRepository.save(
                 Supplier(
                     id = supplierId,
-                    email = "supplier3@test.test",
+                    info = SupplierInfo(
+                        address = "address 3",
+                        homepage = "https://www.hompage.no",
+                        phone = "+47 12345678",
+                        email = "supplier3@test.test",
+                    ),
                     identifier = "supplier3-unique-name",
                     name = "Supplier AS3",
-                    address = "address 3",
-                    homepage = "https://www.hompage.no",
-                    phone = "+47 12345678"
+
                 )
             )
             userRepository.createUser(

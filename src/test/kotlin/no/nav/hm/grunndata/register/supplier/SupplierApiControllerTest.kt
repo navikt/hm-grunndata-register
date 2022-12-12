@@ -15,6 +15,7 @@ import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 import java.util.*
 import javax.ws.rs.core.MediaType
 
@@ -35,12 +36,15 @@ class SupplierApiControllerTest(private val supplierRepository: SupplierReposito
         runBlocking {
             val testSupplier = supplierRepository.save(
                 Supplier(
-                    email = "admintester@test.test",
+                    info = SupplierInfo(
+                        email = "admintester@test.test",
+                        address = "address 1",
+                        homepage = "https://www.hompage.no",
+                        phone = "+47 12345678"
+                    ),
                     identifier = "adminsupplier-unique-name",
                     name = "Admin Company",
-                    address = "address 1",
-                    homepage = "https://www.hompage.no",
-                    phone = "+47 12345678"
+
                 )
             )
             userRepository.createUser(
@@ -61,11 +65,15 @@ class SupplierApiControllerTest(private val supplierRepository: SupplierReposito
             id = UUID.randomUUID(),
             status = SupplierStatus.ACTIVE,
             name = "Leverandør AS",
-            address = "veien 1",
-            homepage = "www.hjemmesiden.no",
-            phone = "+47 12345678",
-            email = "email@email.com",
-            identifier = "leverandor-as"
+            info = SupplierInfo(
+                address = "veien 1",
+                homepage = "www.hjemmesiden.no",
+                phone = "+47 12345678",
+                email = "email@email.com",
+            ),
+            identifier = "leverandor-as",
+            created = LocalDateTime.now(),
+            updated = LocalDateTime.now()
         )
         val respons = client.toBlocking().exchange(
             HttpRequest.POST("/api/v1/supplier", supplier)

@@ -11,8 +11,8 @@ interface UserRepository: CoroutineCrudRepository<User, UUID> {
 
     suspend fun findByEmail(email:String): User?
 
-    @Query("""INSERT INTO $USER_V1(id, name, email, token, roles, attributes) 
-        VALUES (:id, :name, :email, crypt(:token, gen_salt('bf', 8)), :roles::json, :attributes::json)""")
+    @Query("""INSERT INTO $USER_V1(id, name, email, token, roles, attributes, created, updated) 
+        VALUES (:id, :name, :email, crypt(:token, gen_salt('bf', 8)), :roles::json, :attributes::json, :created, :updated)""")
     suspend fun createUser(user: User)
 
     @Query("""SELECT * FROM $USER_V1 WHERE email = :email AND

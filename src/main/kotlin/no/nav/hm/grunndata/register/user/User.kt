@@ -4,6 +4,7 @@ import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.model.DataType
+import java.time.LocalDateTime
 import java.util.UUID
 
 @MappedEntity(USER_V1)
@@ -17,6 +18,8 @@ data class User (
     val roles: List<String> = emptyList(),
     @field:TypeDef(type = DataType.JSON)
     val attributes: Map<String, String> = emptyMap(),
+    val created: LocalDateTime = LocalDateTime.now(),
+    val updated: LocalDateTime = LocalDateTime.now()
 )
 
 const val USER_V1 = "user_v1"

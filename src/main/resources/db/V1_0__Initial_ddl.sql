@@ -5,11 +5,10 @@ CREATE TABLE IF NOT EXISTS supplier_v1 (
     id uuid NOT NULL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     status VARCHAR(32) NOT NULL,
-    address VARCHAR(255),
-    homepage VARCHAR(512),
-    phone VARCHAR(32),
-    email VARCHAR(255),
+    info JSONB NOT NULL,
     identifier VARCHAR(128) NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     unique(name),
     unique(identifier)
 );
@@ -21,6 +20,8 @@ CREATE TABLE IF NOT EXISTS user_v1 (
     roles JSONB NOT NULL,
     attributes JSONB NOT NULL,
     token TEXT NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(email)
 );
 

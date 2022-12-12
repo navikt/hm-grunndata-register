@@ -12,6 +12,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.product.getLoginCookie
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.Supplier
+import no.nav.hm.grunndata.register.supplier.SupplierInfo
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,12 +34,15 @@ class UserControllerTest(private val userRepository: UserRepository, private val
         runBlocking {
             val testSupplier = supplierRepository.save(
                 Supplier(
-                    email = "supplier@test.test",
+                    info = SupplierInfo(
+                        email = "supplier@test.test",
+                        address = "address 1",
+                        homepage = "https://www.hompage.no",
+                        phone = "+47 12345678"
+                    ),
                     identifier = "supplier-unique-name",
                     name = "Supplier AS",
-                    address = "address 1",
-                    homepage = "https://www.hompage.no",
-                    phone = "+47 12345678"
+
                 )
             )
             userRepository.createUser(
