@@ -26,7 +26,7 @@ plugins {
     kotlin("plugin.allopen") version "1.7.0"
     id("java")
     id("com.github.johnrengelman.shadow") version "7.1.0"
-    id("io.micronaut.application") version "3.6.5"
+    id("io.micronaut.application") version "3.6.6"
 }
 
 configurations.all {

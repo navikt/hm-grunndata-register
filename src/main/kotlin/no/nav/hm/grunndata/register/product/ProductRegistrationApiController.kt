@@ -1,13 +1,12 @@
 package no.nav.hm.grunndata.register.product
 
-import io.micronaut.data.model.Slice
+import io.micronaut.data.model.Pageable
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.user.UserAttribute
 import org.slf4j.LoggerFactory
@@ -15,10 +14,14 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
-@Controller("/api/v1/product")
+@Controller(ProductRegistrationApi.API_V1_PRODUCT_REGISTRATIONS)
 class ProductRegistrationApi(private val productRegistrationRepository: ProductRegistrationRepository) {
 
-    private val LOG = LoggerFactory.getLogger(ProductRegistrationApi::class.java)
+    companion object {
+        const val API_V1_PRODUCT_REGISTRATIONS = "/api/v1/product/registrations"
+        private val LOG = LoggerFactory.getLogger(ProductRegistrationApi::class.java)
+    }
+
 
     @Get("/{id}")
     suspend fun getProductById(id: UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
@@ -57,8 +60,8 @@ class ProductRegistrationApi(private val productRegistrationRepository: ProductR
             ?: HttpResponse.notFound()
 
     @Get("/")
-    fun listProductsBySupplier(authentication: Authentication): Flow<ProductRegistrationDTO> =
-        productRegistrationRepository.findAll().map { it.toDTO() }
+    suspend fun findProducts(authentication: Authentication, pageable: Pageable): Flow<ProductRegistrationDTO> =
+        productRegistrationRepository.findBySupplierId(userSupplierId(authentication), pageable).map { it.toDTO() }
 }
 
 private fun ProductRegistrationDTO.toEntity(): ProductRegistration = ProductRegistration(id = id,
@@ -77,3 +80,4 @@ private fun ProductRegistration.toDTO(): ProductRegistrationDTO = ProductRegistr
 
 fun userSupplierId(authentication: Authentication) = UUID.fromString(
     authentication.attributes[UserAttribute.SUPPLIER_ID] as String )
+

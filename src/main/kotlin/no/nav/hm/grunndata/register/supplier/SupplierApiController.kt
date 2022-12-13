@@ -12,7 +12,9 @@ import java.util.UUID
 @Controller("/api/v1/supplier")
 class SupplierApiController(private val supplierRepository: SupplierRepository) {
 
-    private val LOG = LoggerFactory.getLogger(SupplierApiController::class.java)
+    companion object {
+        private val LOG = LoggerFactory.getLogger(SupplierApiController::class.java)
+    }
 
     @Get("/{id}")
     suspend fun getById(id: UUID): HttpResponse<SupplierDTO> = supplierRepository.findById(id)?.let {

@@ -64,12 +64,12 @@ class ProductRegistrationApiControllerTest(private val userRepository: UserRepos
 
         val productDTO = ProductDTO (
             supplierId = supplierId,
-            title = "Dette er produkt title",
+            title = "Dette er produkt 1",
             description = Description("produktnavn", "En kort beskrivelse av produktet",
                 "En lang beskrivelse av produktet"),
-            HMSArtNr = "123",
-            identifier = "hmdb-123",
-            supplierRef = "eksternref-123",
+            HMSArtNr = "111",
+            identifier = "hmdb-111",
+            supplierRef = "eksternref-111",
             isoCategory = "12001314",
             accessory = false,
             sparepart = false,
@@ -93,7 +93,7 @@ class ProductRegistrationApiControllerTest(private val userRepository: UserRepos
         )
         // create
         var respons = client.toBlocking().exchange(
-            HttpRequest.POST("/api/v1/product", registration)
+            HttpRequest.POST(ProductRegistrationApi.API_V1_PRODUCT_REGISTRATIONS, registration)
                 .accept(MediaType.APPLICATION_JSON)
                 .cookie(jwt), ProductRegistrationDTO::class.java
         )
@@ -103,16 +103,26 @@ class ProductRegistrationApiControllerTest(private val userRepository: UserRepos
         val updateDTO = productDTO.copy(title = "Ny title")
         val updatedReg = registration.copy(title = "Ny title", productDTO = updateDTO)
         respons = client.toBlocking().exchange(
-            HttpRequest.PUT("/api/v1/product/${updateDTO.id}", updatedReg)
+            HttpRequest.PUT("${ProductRegistrationApi.API_V1_PRODUCT_REGISTRATIONS}/${updateDTO.id}", updatedReg)
                 .accept(MediaType.APPLICATION_JSON)
                 .cookie(jwt), ProductRegistrationDTO::class.java
         )
 
         respons.status shouldBe HttpStatus.OK
 
+        // read
+        respons = client.toBlocking().exchange(
+            HttpRequest.GET<ProductRegistrationDTO>("${ProductRegistrationApi.API_V1_PRODUCT_REGISTRATIONS}/${updateDTO.id}")
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(jwt), ProductRegistrationDTO::class.java
+        )
+
+        respons.status shouldBe HttpStatus.OK
+        respons.body().shouldNotBeNull()
+
         // Delete
         respons = client.toBlocking().exchange(
-            HttpRequest.DELETE<ProductRegistrationDTO>("/api/v1/product/${updateDTO.id}")
+            HttpRequest.DELETE<ProductRegistrationDTO>("${ProductRegistrationApi.API_V1_PRODUCT_REGISTRATIONS}/${updateDTO.id}")
                 .accept(MediaType.APPLICATION_JSON)
                 .cookie(jwt), ProductRegistrationDTO::class.java
         )
@@ -121,6 +131,51 @@ class ProductRegistrationApiControllerTest(private val userRepository: UserRepos
         deleted.shouldNotBeNull()
         deleted.status shouldBe RegistrationStatus.DELETED
         deleted.productDTO.status shouldBe ProductStatus.INACTIVE
+
+
+
+        val productDTO2 = ProductDTO (
+            supplierId = supplierId,
+            title = "Dette er produkt 2",
+            description = Description("produktnavn", "En kort beskrivelse av produktet",
+                "En lang beskrivelse av produktet"),
+            HMSArtNr = "222",
+            identifier = "hmdb-222",
+            supplierRef = "eksternref-222",
+            isoCategory = "12001314",
+            accessory = false,
+            sparepart = false,
+            seriesId = "series-123",
+            techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
+            media = listOf(Media(uri="https://ekstern.url/222.jpg", text = "bilde av produktet", source = MediaSourceType.EXTERNALURL)),
+            agreementInfo = AgreementInfo(id = 1, identifier = "hmdbid-1", rank = 1, postId = 123, postNr = 1, reference = "AV-142")
+        )
+        val registration2 = ProductRegistration (
+            id = productDTO2.id,
+            supplierId = productDTO2.supplierId,
+            supplierRef = productDTO2.supplierRef,
+            HMSArtNr = productDTO2.HMSArtNr ,
+            title = productDTO2.title,
+            draft = DraftStatus.DRAFT,
+            adminStatus = AdminStatus.NOT_APPROVED,
+            status  = RegistrationStatus.ACTIVE,
+            message = "Melding til leverandør",
+            adminInfo = null,
+            productDTO = productDTO2
+        )
+        // create 2
+        client.toBlocking().exchange(
+            HttpRequest.POST(ProductRegistrationApi.API_V1_PRODUCT_REGISTRATIONS, registration2)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(jwt), ProductRegistrationDTO::class.java
+        )
+
+        // list products
+        respons = client.toBlocking().exchange(
+            HttpRequest.GET<ProductRegistrationDTO>(ProductRegistrationApi.API_V1_PRODUCT_REGISTRATIONS)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(jwt), ProductRegistrationDTO::class.java
+        )
     }
 
 }
