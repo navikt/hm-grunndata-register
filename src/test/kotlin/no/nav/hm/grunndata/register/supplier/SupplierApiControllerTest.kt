@@ -9,7 +9,7 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.register.product.getLoginCookie
+import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
@@ -22,7 +22,8 @@ import javax.ws.rs.core.MediaType
 
 @MicronautTest
 class SupplierApiControllerTest(private val supplierRepository: SupplierRepository,
-                                private val userRepository: UserRepository) {
+                                private val userRepository: UserRepository,
+                                private val loginClient: LoginClient) {
 
     @Inject
     @field:Client("/")
@@ -60,7 +61,7 @@ class SupplierApiControllerTest(private val supplierRepository: SupplierReposito
     @Test
     fun crudAPItest() {
         // login
-        val jwt = getLoginCookie(client, email, token)
+        val jwt = loginClient.login(UsernamePasswordCredentials(email, token)).getCookie("JWT").get()
         val supplier = SupplierDTO(
             id = UUID.randomUUID(),
             status = SupplierStatus.ACTIVE,

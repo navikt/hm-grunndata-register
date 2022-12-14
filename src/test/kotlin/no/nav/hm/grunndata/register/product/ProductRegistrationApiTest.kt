@@ -104,6 +104,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAP
         )
         val created = apiClient.createProduct(jwt, registration)
         created.shouldNotBeNull()
+
         val read = apiClient.readProduct(jwt, created.id)
         read.shouldNotBeNull()
         read.title shouldBe created.title
