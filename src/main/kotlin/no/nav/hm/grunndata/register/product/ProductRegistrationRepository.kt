@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.product
 
 import com.fasterxml.jackson.databind.deser.std.UUIDDeserializer
 import io.micronaut.data.jdbc.annotation.JdbcRepository
+import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
@@ -13,6 +14,6 @@ interface ProductRegistrationRepository : CoroutineCrudRepository<ProductRegistr
 
     suspend fun findByIdAndSupplierId(id:UUID, supplierId: UUID): ProductRegistration?
 
-    suspend fun findBySupplierId(supplierId: UUID, pageable: Pageable): Flow<ProductRegistration>
+    suspend fun findBySupplierId(supplierId: UUID, pageable: Pageable): Page<ProductRegistration>
 
 }

@@ -1,7 +1,9 @@
 package no.nav.hm.grunndata.register.product
 
+import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.http.HttpResponse
+import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
@@ -14,14 +16,18 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
-@Controller(ProductRegistrationApi.API_V1_PRODUCT_REGISTRATIONS)
-class ProductRegistrationApi(private val productRegistrationRepository: ProductRegistrationRepository) {
+@Controller(ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS)
+class ProductRegistrationApiController(private val productRegistrationRepository: ProductRegistrationRepository) {
 
     companion object {
         const val API_V1_PRODUCT_REGISTRATIONS = "/api/v1/product/registrations"
-        private val LOG = LoggerFactory.getLogger(ProductRegistrationApi::class.java)
+        private val LOG = LoggerFactory.getLogger(ProductRegistrationApiController::class.java)
     }
 
+
+    @Get("/")
+    suspend fun findProducts(authentication: Authentication, pageable: Pageable): Page<ProductRegistrationDTO> =
+        productRegistrationRepository.findBySupplierId(userSupplierId(authentication), pageable).map { it.toDTO() }
 
     @Get("/{id}")
     suspend fun getProductById(id: UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
@@ -59,9 +65,6 @@ class ProductRegistrationApi(private val productRegistrationRepository: ProductR
                 HttpResponse.ok(productRegistrationRepository.update(it.copy(status=RegistrationStatus.DELETED, productDTO = productDTO)).toDTO())}
             ?: HttpResponse.notFound()
 
-    @Get("/")
-    suspend fun findProducts(authentication: Authentication, pageable: Pageable): Flow<ProductRegistrationDTO> =
-        productRegistrationRepository.findBySupplierId(userSupplierId(authentication), pageable).map { it.toDTO() }
 }
 
 private fun ProductRegistrationDTO.toEntity(): ProductRegistration = ProductRegistration(id = id,
