@@ -39,7 +39,8 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             status  = RegistrationStatus.ACTIVE,
             message = "Melding til leverandør",
             adminInfo = null,
-            productDTO = productDTO
+            productDTO = productDTO,
+            version = 1
         )
         runBlocking {
             val saved  = productRegistrationRepository.save(registration)

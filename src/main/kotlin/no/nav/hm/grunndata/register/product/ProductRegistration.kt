@@ -3,6 +3,7 @@ package no.nav.hm.grunndata.register.product
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
+import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
 import java.time.LocalDateTime
 import java.util.*
@@ -31,7 +32,9 @@ data class ProductRegistration(
     val updatedBy: String = "REGISTER",
     val createdByAdmin: Boolean = false,
     @field:TypeDef(type = DataType.JSON)
-    val productDTO: ProductDTO )
+    val productDTO: ProductDTO,
+    @field:Version
+    val version: Long? = 0L)
 
 fun ProductRegistration.isDraft(): Boolean = draft == DraftStatus.DRAFT
 fun ProductRegistration.isApproved(): Boolean = adminStatus == AdminStatus.APPROVED
@@ -145,4 +148,5 @@ data class ProductRegistrationDTO(
     val createdBy: String = REGISTER,
     val updatedBy: String = REGISTER,
     val createdByAdmin: Boolean,
-    val productDTO: ProductDTO )
+    val productDTO: ProductDTO,
+    val version: Long? )

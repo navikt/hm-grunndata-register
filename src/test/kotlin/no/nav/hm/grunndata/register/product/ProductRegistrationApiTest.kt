@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.product
 
+import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.security.authentication.UsernamePasswordCredentials
@@ -100,7 +101,8 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAP
             createdByAdmin = true,
             expired = null,
             published = null,
-            productDTO = productDTO
+            productDTO = productDTO,
+            version = 1
         )
         val created = apiClient.createProduct(jwt, registration)
         created.shouldNotBeNull()
@@ -108,6 +110,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAP
         val read = apiClient.readProduct(jwt, created.id)
         read.shouldNotBeNull()
         read.title shouldBe created.title
+        println("first READ version ${read.version}")
 
         val updated = apiClient.updateProduct(jwt, read.id, read.copy(title="new title"))
         updated.shouldNotBeNull()
@@ -121,6 +124,9 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAP
         val page = apiClient.findProducts(jwt,10,1,"created,asc")
         page.totalSize shouldBe 1
 
+        val updatedVersion = apiClient.readProduct(jwt, updated.id)
+
+        updatedVersion.version!! shouldBeGreaterThan 0
     }
 
 }

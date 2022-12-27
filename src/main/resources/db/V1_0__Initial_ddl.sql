@@ -44,5 +44,6 @@ CREATE TABLE IF NOT EXISTS product_reg_v1 (
     updated_by VARCHAR(64) NOT NULL,
     created_by_admin BOOLEAN NOT NULL,
     product_dto JSONB NOT NULL,
+    version BIGINT NOT NULL,
     UNIQUE (supplier_id, supplier_ref)
 );

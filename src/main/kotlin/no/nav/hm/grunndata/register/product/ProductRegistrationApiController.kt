@@ -7,8 +7,6 @@ import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.user.UserAttribute
 import org.slf4j.LoggerFactory
@@ -71,13 +69,14 @@ private fun ProductRegistrationDTO.toEntity(): ProductRegistration = ProductRegi
     supplierId = supplierId, supplierRef =supplierRef, HMSArtNr = HMSArtNr, title = title, draft = draft,
     adminStatus = adminStatus, status = status, message = message, adminInfo = adminInfo, created = created, updated = updated,
     published = published, expired = expired, createdBy = createdBy, updatedBy = updatedBy,
-    createdByAdmin = createdByAdmin, productDTO = productDTO)
+    createdByAdmin = createdByAdmin, productDTO = productDTO, version = version
+)
 
 private fun ProductRegistration.toDTO(): ProductRegistrationDTO = ProductRegistrationDTO(
     id = id, supplierId= supplierId, supplierRef =supplierRef, HMSArtNr = HMSArtNr, title = title, draft = draft,
     adminStatus = adminStatus, status = status,  message = message, adminInfo = adminInfo, created = created, updated = updated,
     published = published, expired = expired, createdBy = createdBy, updatedBy = updatedBy,
-    createdByAdmin = createdByAdmin, productDTO = productDTO
+    createdByAdmin = createdByAdmin, productDTO = productDTO, version = version
 )
 
 
