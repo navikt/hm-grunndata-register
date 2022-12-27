@@ -37,6 +37,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
     @Post("/")
     suspend fun createProduct(@Body registrationDTO: ProductRegistrationDTO, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
         if (registrationDTO.supplierId != userSupplierId(authentication) ) HttpResponse.unauthorized()
+        else if (registrationDTO.createdByAdmin || registrationDTO.adminStatus == AdminStatus.APPROVED) HttpResponse.unauthorized()
         else
             productRegistrationRepository.findById(registrationDTO.id)?.let {
                 HttpResponse.badRequest()
@@ -50,7 +51,9 @@ class ProductRegistrationApiController(private val productRegistrationRepository
         if (registrationDTO.supplierId != userSupplierId(authentication) ) HttpResponse.unauthorized()
         else productRegistrationRepository.findByIdAndSupplierId(id,userSupplierId(authentication))
                 ?.let {
-                    val updated = registrationDTO.copy(id = it.id, created = it.created, supplierId = it.supplierId, updatedBy = REGISTER)
+                    val updated = registrationDTO.copy(id = it.id, created = it.created, supplierId = it.supplierId,
+                        updatedBy = REGISTER, createdBy = it.createdBy, createdByAdmin = it.createdByAdmin,
+                        adminStatus = it.adminStatus, adminInfo = it.adminInfo)
                     HttpResponse.ok(productRegistrationRepository.update(updated.toEntity()).toDTO()) }
                 ?: run {
                     HttpResponse.badRequest() }
@@ -62,6 +65,10 @@ class ProductRegistrationApiController(private val productRegistrationRepository
                 val productDTO = it.productDTO.copy(status = ProductStatus.INACTIVE, expired = LocalDateTime.now().minusMinutes(1L))
                 HttpResponse.ok(productRegistrationRepository.update(it.copy(status=RegistrationStatus.DELETED, productDTO = productDTO)).toDTO())}
             ?: HttpResponse.notFound()
+
+
+    private fun userSupplierId(authentication: Authentication) = UUID.fromString(
+        authentication.attributes[UserAttribute.SUPPLIER_ID] as String )
 
 }
 
@@ -80,6 +87,5 @@ private fun ProductRegistration.toDTO(): ProductRegistrationDTO = ProductRegistr
 )
 
 
-fun userSupplierId(authentication: Authentication) = UUID.fromString(
-    authentication.attributes[UserAttribute.SUPPLIER_ID] as String )
+
 
