@@ -40,6 +40,8 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             message = "Melding til leverandør",
             adminInfo = null,
             productDTO = productDTO,
+            updatedByUser = "user",
+            createdByUser = "user",
             version = 1
         )
         runBlocking {

@@ -40,6 +40,8 @@ CREATE TABLE IF NOT EXISTS product_reg_v1 (
     updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     published TIMESTAMP,
     expired TIMESTAMP,
+    created_by_user VARCHAR(255) NOT NULL,
+    updated_by_user VARCHAR(255) NOT NULL,
     created_by VARCHAR(64) NOT NULL,
     updated_by VARCHAR(64) NOT NULL,
     created_by_admin BOOLEAN NOT NULL,

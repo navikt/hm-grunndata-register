@@ -42,7 +42,9 @@ class ProductRegistrationApiController(private val productRegistrationRepository
             productRegistrationRepository.findById(registrationDTO.id)?.let {
                 HttpResponse.badRequest()
             } ?: run {
-                HttpResponse.created(productRegistrationRepository.save(registrationDTO.toEntity()).toDTO())
+                HttpResponse.created(productRegistrationRepository.save(registrationDTO
+                    .copy(updatedByUser =  authentication.name, createdByUser = authentication.name )
+                    .toEntity()).toDTO())
             }
 
     @Put("/{id}")
@@ -51,10 +53,12 @@ class ProductRegistrationApiController(private val productRegistrationRepository
         if (registrationDTO.supplierId != userSupplierId(authentication) ) HttpResponse.unauthorized()
         else productRegistrationRepository.findByIdAndSupplierId(id,userSupplierId(authentication))
                 ?.let {
-                    val updated = registrationDTO.copy(id = it.id, created = it.created, supplierId = it.supplierId,
-                        updatedBy = REGISTER, createdBy = it.createdBy, createdByAdmin = it.createdByAdmin,
-                        adminStatus = it.adminStatus, adminInfo = it.adminInfo)
-                    HttpResponse.ok(productRegistrationRepository.update(updated.toEntity()).toDTO()) }
+                    HttpResponse.ok(productRegistrationRepository.update(registrationDTO
+                        .copy(id = it.id, created = it.created, supplierId = it.supplierId,
+                        updatedBy = REGISTER, updatedByUser = authentication.name, createdByUser = it.createdByUser,
+                        createdBy = it.createdBy, createdByAdmin = it.createdByAdmin, adminStatus = it.adminStatus,
+                        adminInfo = it.adminInfo)
+                        .toEntity()).toDTO()) }
                 ?: run {
                     HttpResponse.badRequest() }
 
@@ -63,7 +67,9 @@ class ProductRegistrationApiController(private val productRegistrationRepository
         productRegistrationRepository.findByIdAndSupplierId(id, userSupplierId(authentication))
             ?.let {
                 val productDTO = it.productDTO.copy(status = ProductStatus.INACTIVE, expired = LocalDateTime.now().minusMinutes(1L))
-                HttpResponse.ok(productRegistrationRepository.update(it.copy(status=RegistrationStatus.DELETED, productDTO = productDTO)).toDTO())}
+                HttpResponse.ok(productRegistrationRepository.update(it
+                    .copy(status=RegistrationStatus.DELETED, updatedByUser = authentication.name, productDTO = productDTO))
+                    .toDTO()) }
             ?: HttpResponse.notFound()
 
 
@@ -71,20 +77,6 @@ class ProductRegistrationApiController(private val productRegistrationRepository
         authentication.attributes[UserAttribute.SUPPLIER_ID] as String )
 
 }
-
-private fun ProductRegistrationDTO.toEntity(): ProductRegistration = ProductRegistration(id = id,
-    supplierId = supplierId, supplierRef =supplierRef, HMSArtNr = HMSArtNr, title = title, draft = draft,
-    adminStatus = adminStatus, status = status, message = message, adminInfo = adminInfo, created = created, updated = updated,
-    published = published, expired = expired, createdBy = createdBy, updatedBy = updatedBy,
-    createdByAdmin = createdByAdmin, productDTO = productDTO, version = version
-)
-
-private fun ProductRegistration.toDTO(): ProductRegistrationDTO = ProductRegistrationDTO(
-    id = id, supplierId= supplierId, supplierRef =supplierRef, HMSArtNr = HMSArtNr, title = title, draft = draft,
-    adminStatus = adminStatus, status = status,  message = message, adminInfo = adminInfo, created = created, updated = updated,
-    published = published, expired = expired, createdBy = createdBy, updatedBy = updatedBy,
-    createdByAdmin = createdByAdmin, productDTO = productDTO, version = version
-)
 
 
 

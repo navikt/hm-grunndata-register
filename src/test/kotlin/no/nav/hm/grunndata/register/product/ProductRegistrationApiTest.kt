@@ -98,9 +98,11 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAP
             status = RegistrationStatus.ACTIVE,
             message = "Melding til leverandør",
             adminInfo = null,
-            createdByAdmin = true,
+            createdByAdmin = false,
             expired = null,
             published = null,
+            updatedByUser = email,
+            createdByUser = email,
             productDTO = productDTO,
             version = 1
         )
@@ -110,7 +112,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAP
         val read = apiClient.readProduct(jwt, created.id)
         read.shouldNotBeNull()
         read.title shouldBe created.title
-        println("first READ version ${read.version}")
+        read.createdByUser shouldBe email
 
         val updated = apiClient.updateProduct(jwt, read.id, read.copy(title="new title"))
         updated.shouldNotBeNull()
@@ -125,8 +127,8 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAP
         page.totalSize shouldBe 1
 
         val updatedVersion = apiClient.readProduct(jwt, updated.id)
-
         updatedVersion.version!! shouldBeGreaterThan 0
+        updatedVersion.updatedByUser shouldBe email
     }
 
 }
