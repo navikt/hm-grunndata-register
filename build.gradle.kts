@@ -49,7 +49,7 @@ dependencies {
 
     // micronaut-data
     implementation("io.micronaut.data:micronaut-data-jdbc")
-    implementation("jakarta.persistence:jakarta.persistence-api:2.2.3")
+    implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     runtimeOnly("io.micronaut.sql:micronaut-jdbc-hikari")
     annotationProcessor("io.micronaut.data:micronaut-data-processor")

@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.product
 
+import io.micronaut.data.annotation.Query
 import io.micronaut.data.model.Page
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.MediaType.*
@@ -11,8 +12,12 @@ import java.util.*
 interface ProductionRegistrationAdminApiClient {
 
     @Get(uri = "/", consumes = [APPLICATION_JSON])
-    fun findProducts(@CookieValue("JWT") jwt: String, @QueryValue supplier: UUID,  @QueryValue("size") size: Int? = null,
-                     @QueryValue("number") number: Int?=null, @QueryValue("sort") sort: String? = null): Page<ProductRegistrationDTO>
+    fun findProducts(@CookieValue("JWT") jwt: String,
+                     @QueryValue supplierId: UUID? = null,
+                     @QueryValue adminStatus: AdminStatus? = null,
+                     @QueryValue supplierRef: String? = null,
+                     @QueryValue("size") size: Int? = null, @QueryValue("number") number: Int?=null,
+                     @QueryValue("sort") sort: String? = null): Page<ProductRegistrationDTO>
 
     @Post(uri = "/", processes = [APPLICATION_JSON])
     fun createProduct(@CookieValue("JWT") jwt: String,

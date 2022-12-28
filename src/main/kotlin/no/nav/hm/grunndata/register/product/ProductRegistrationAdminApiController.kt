@@ -2,13 +2,15 @@ package no.nav.hm.grunndata.register.product
 
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
+import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
+import io.micronaut.data.runtime.criteria.get
+import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.user.UserAttribute
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
@@ -23,9 +25,22 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
     }
 
 
-    @Get("/{?supplier}")
-    suspend fun findProducts(@QueryValue supplier: UUID, pageable: Pageable): Page<ProductRegistrationDTO> =
-        productRegistrationRepository.findBySupplierId(supplier, pageable).map { it.toDTO() }
+    @Get("/{?params*}")
+    suspend fun findProducts(@QueryValue params: HashMap<String,String>?,
+                             pageable: Pageable): Page<ProductRegistrationDTO> =
+        productRegistrationRepository.findAll(buildCriteriaSpec(params), pageable).map { it.toDTO() }
+
+
+    private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<ProductRegistration>?
+    = params?.let {
+        where {
+            if (params.contains("supplierRef")) root[ProductRegistration::supplierRef] eq params["supplierRef"]
+            if (params.contains("adminStatus")) root[ProductRegistration::adminStatus] eq AdminStatus.valueOf(params["adminStatus"]!!)
+            if (params.contains("supplierId"))  root[ProductRegistration::supplierId] eq UUID.fromString(params["supplierId"]!!)
+        }
+    }
+
+
 
     @Get("/{id}")
     suspend fun getProductById(id: UUID): HttpResponse<ProductRegistrationDTO> =
@@ -65,6 +80,5 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
             ?: HttpResponse.notFound()
 
 }
-
 
 

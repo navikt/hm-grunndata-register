@@ -122,7 +122,9 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         deleted.status shouldBe RegistrationStatus.DELETED
         deleted.productDTO.status shouldBe ProductStatus.INACTIVE
 
-        val page = apiClient.findProducts(jwt, supplierId, 10,1,"created,asc")
+        val page = apiClient.findProducts(jwt = jwt,
+            supplierId = supplierId, supplierRef = "eksternref-111",
+            size = 20, number = 0, sort = "created,asc")
         page.totalSize shouldBe 1
 
         val updatedVersion = apiClient.readProduct(jwt, updated.id)
