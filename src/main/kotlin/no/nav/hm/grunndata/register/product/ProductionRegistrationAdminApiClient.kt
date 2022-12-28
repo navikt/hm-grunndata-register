@@ -7,11 +7,11 @@ import io.micronaut.http.annotation.*
 import java.util.*
 
 
-@Client(ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS)
-interface ProductionRegistrationAPIClient {
+@Client(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
+interface ProductionRegistrationAdminApiClient {
 
     @Get(uri = "/", consumes = [APPLICATION_JSON])
-    fun findProducts(@CookieValue("JWT") jwt: String, @QueryValue("size") size: Int? = null,
+    fun findProducts(@CookieValue("JWT") jwt: String, @QueryValue supplier: UUID,  @QueryValue("size") size: Int? = null,
                      @QueryValue("number") number: Int?=null, @QueryValue("sort") sort: String? = null): Page<ProductRegistrationDTO>
 
     @Post(uri = "/", processes = [APPLICATION_JSON])

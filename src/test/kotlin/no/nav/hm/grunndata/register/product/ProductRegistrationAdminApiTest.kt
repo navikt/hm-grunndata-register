@@ -19,12 +19,12 @@ import org.junit.jupiter.api.Test
 import java.util.*
 
 @MicronautTest
-class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationApiClient,
-                                 private val loginClient: LoginClient, private val userRepository: UserRepository,
-                                 private val supplierRepository: SupplierRepository) {
+class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrationAdminApiClient,
+                                      private val loginClient: LoginClient, private val userRepository: UserRepository,
+                                      private val supplierRepository: SupplierRepository) {
 
-    val email = "api@test.test"
-    val password = "api-123"
+    val email = "admin@test.test"
+    val password = "admin-123"
     val supplierId = UUID.randomUUID()
 
     @BeforeEach
@@ -34,19 +34,18 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                 Supplier(
                     id = supplierId,
                     info = SupplierInfo(
-                        address = "address 3",
+                        address = "address 4",
                         homepage = "https://www.hompage.no",
                         phone = "+47 12345678",
-                        email = "supplier3@test.test",
+                        email = "supplier4@test.test",
                     ),
-                    identifier = "supplier3-unique-name",
-                    name = "Supplier AS3",
+                    identifier = "supplier4-unique-name",
+                    name = "Supplier AS4",
                 )
             )
             userRepository.createUser(
                 User(
-                    email = email, token = password, name = "User tester", roles = listOf(Roles.ROLE_SUPPLIER),
-                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier.id.toString()))
+                    email = email, token = password, name = "User tester", roles = listOf(Roles.ROLE_ADMIN)
                 )
             )
         }
@@ -123,7 +122,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         deleted.status shouldBe RegistrationStatus.DELETED
         deleted.productDTO.status shouldBe ProductStatus.INACTIVE
 
-        val page = apiClient.findProducts(jwt,10,1,"created,asc")
+        val page = apiClient.findProducts(jwt, supplierId, 10,1,"created,asc")
         page.totalSize shouldBe 1
 
         val updatedVersion = apiClient.readProduct(jwt, updated.id)
