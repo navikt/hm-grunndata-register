@@ -16,14 +16,16 @@ interface ProductionRegistrationApiClient {
 
     @Post(uri = "/", processes = [APPLICATION_JSON])
     fun createProduct(@CookieValue("JWT") jwt: String,
-                      @Body productRegistrationDTO: ProductRegistrationDTO): ProductRegistrationDTO
+                      @Body productRegistrationDTO: ProductRegistrationDTO
+    ): ProductRegistrationDTO
 
     @Get(uri = "/{id}", consumes = [APPLICATION_JSON])
     fun readProduct(@CookieValue("JWT") jwt: String, id: UUID): ProductRegistrationDTO
 
     @Put(uri= "/{id}", processes = [APPLICATION_JSON])
     fun updateProduct(@CookieValue("JWT") jwt: String, id:UUID,
-                      @Body productRegistrationDTO: ProductRegistrationDTO): ProductRegistrationDTO
+                      @Body productRegistrationDTO: ProductRegistrationDTO
+    ): ProductRegistrationDTO
 
     @Delete(uri="/{id}", consumes = [APPLICATION_JSON])
     fun deleteProduct(@CookieValue("JWT") jwt: String, id:UUID): ProductRegistrationDTO

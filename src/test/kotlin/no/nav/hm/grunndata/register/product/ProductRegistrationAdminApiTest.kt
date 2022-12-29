@@ -4,7 +4,6 @@ import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.security.authentication.UsernamePasswordCredentials
-import io.micronaut.security.token.jwt.cookie.JwtCookieConfigurationProperties
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.security.LoginClient
@@ -13,7 +12,6 @@ import no.nav.hm.grunndata.register.supplier.Supplier
 import no.nav.hm.grunndata.register.supplier.SupplierInfo
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
 import no.nav.hm.grunndata.register.user.User
-import no.nav.hm.grunndata.register.user.UserAttribute
 import no.nav.hm.grunndata.register.user.UserRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
