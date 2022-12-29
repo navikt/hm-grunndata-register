@@ -19,10 +19,10 @@ micronaut:
         signatures:
           secret:
             generator:
-              secret: ${JWT_GENERATOR_SECRET:JustForTesting}
+              secret: ${JWT_GENERATOR_SECRET:MustBeAVeryLongSecretAndUsedThisForTestOnly}
               jws-algorithm: HS256
         cookie:
-          cookie-max-age: 3600
+          max-age: 3600
 jackson:
   bean-introspection-module: true
   serialization:

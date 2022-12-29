@@ -3,11 +3,12 @@ package no.nav.hm.grunndata.register.user
 import io.micronaut.data.annotation.Query
 import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect
+import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
 import java.util.UUID
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
-interface UserRepository: CoroutineCrudRepository<User, UUID> {
+interface UserRepository: CoroutineCrudRepository<User, UUID>, CoroutineJpaSpecificationExecutor<User> {
 
     suspend fun findByEmail(email:String): User?
 

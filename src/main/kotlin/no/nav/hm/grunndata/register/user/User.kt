@@ -25,5 +25,5 @@ data class User (
 const val USER_V1 = "user_v1"
 
 object UserAttribute {
-    const val SUPPLIER_ID = "SUPPLIER_ID"
+    const val SUPPLIER_ID = "supplierId"
 }
