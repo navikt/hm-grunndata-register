@@ -4,6 +4,7 @@ import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.security.authentication.UsernamePasswordCredentials
+import io.micronaut.security.token.jwt.cookie.JwtCookieConfigurationProperties
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.security.LoginClient

@@ -14,6 +14,15 @@ micronaut:
         enabled: true
         path: "/login"
     authentication: cookie
+    token:
+      jwt:
+        signatures:
+          secret:
+            generator:
+              secret: ${JWT_GENERATOR_SECRET:JustForTesting}
+              jws-algorithm: HS256
+        cookie:
+          cookie-max-age: 3600
 jackson:
   bean-introspection-module: true
   serialization:
