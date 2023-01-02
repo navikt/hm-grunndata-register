@@ -67,12 +67,6 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.0")
-    testImplementation("no.nav:kafka-embedded-env:$kafkaEmbeddedVersion")
-    {
-        exclude("log4j")
-        exclude("org.glassfish")
-        exclude("io.netty")
-    }
     testImplementation("org.testcontainers:postgresql:${tcVersion}")
 }
 
