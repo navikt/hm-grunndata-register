@@ -57,4 +57,3 @@ CREATE INDEX product_reg_v1_hms_draft_idx ON product_reg_v1(draft);
 CREATE INDEX product_reg_v1_updated_idx ON product_reg_v1(updated);
 CREATE INDEX product_reg_v1_created_by_user_idx ON product_reg_v1(created_by_user);
 CREATE INDEX product_reg_v1_updated_by_user_idx ON product_reg_v1(updated_by_user);
-
