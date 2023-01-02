@@ -9,10 +9,10 @@ import io.micronaut.security.rules.SecurityRule
 @Controller("/internal")
 class AliveController {
 
-    @Get("/alive")
+    @Get("/isAlive")
     fun alive() = "ALIVE"
 
-    @Get("/ready")
+    @Get("/isReady")
     fun ready() = "OK"
 
 }
