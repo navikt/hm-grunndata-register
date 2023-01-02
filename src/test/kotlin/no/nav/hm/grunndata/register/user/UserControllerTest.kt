@@ -4,6 +4,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.mpp.log
 import io.micronaut.http.HttpRequest
+import io.micronaut.http.MediaType
 import io.micronaut.http.client.HttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.security.authentication.UsernamePasswordCredentials
@@ -18,7 +19,6 @@ import no.nav.hm.grunndata.register.supplier.SupplierRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.*
-import javax.ws.rs.core.MediaType
 
 @MicronautTest
 class UserControllerTest(private val userRepository: UserRepository,
