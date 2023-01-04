@@ -60,6 +60,9 @@ dependencies {
     implementation("io.micronaut:micronaut-http-server-netty")
     implementation("io.micronaut:micronaut-http-client")
     implementation("io.micronaut.cache:micronaut-cache-caffeine")
+    implementation("io.micronaut.micrometer:micronaut-micrometer-core")
+    implementation("io.micronaut.micrometer:micronaut-micrometer-registry-prometheus")
+    implementation("io.micronaut:micronaut-management")
     // Apache POI for excel file handling
     implementation("org.apache.poi:poi:$apachePoiVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")

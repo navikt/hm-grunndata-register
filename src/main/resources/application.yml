@@ -7,6 +7,7 @@ micronaut:
       type: fixed
       nThreads: 1
   security:
+    enabled: true
     redirect:
       enabled: false
     endpoints:
@@ -23,6 +24,35 @@ micronaut:
               jws-algorithm: HS256
         cookie:
           max-age: 3600
+  metrics:
+    enabled: true
+    sensitive: false
+    binders:
+      uptime:
+        enabled: true
+      processor:
+        enabled: true
+      jvm:
+        enabled: true
+      web:
+        enabled: true
+      logback:
+        enabled: true
+    export:
+      prometheus:
+        enabled: true
+        step: PT1M
+        descriptions: true
+endpoints:
+  metrics:
+    enabled: true
+    sensitive: false
+  prometheus:
+    sensitive: false
+    enabled: true
+  all:
+    path: "/internal"
+
 jackson:
   bean-introspection-module: true
   serialization:
