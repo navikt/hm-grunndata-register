@@ -72,3 +72,6 @@ flyway:
   datasources:
     default:
       locations: classpath:db
+
+rapidsandrivers:
+  enabled: false

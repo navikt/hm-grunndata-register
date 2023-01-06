@@ -16,6 +16,7 @@ val mockkVersion = "1.13.2"
 val kotestVersion = "5.5.4"
 val apachePoiVersion = "5.2.3"
 val openSearchRestClientVersion = "1.3.5"
+val rapidsRiversVersion="202301061300"
 
 group = "no.nav.hm"
 version = properties["version"] ?: "local-build"
@@ -36,8 +37,7 @@ configurations.all {
 }
 
 dependencies {
-    //implementation("com.github.navikt:hm-rapids-and-rivers-v2-core:1.0-SNAPSHOT")
-    //implementation("com.github.navikt:hm-rapids-and-rivers-v2-micronaut:1.0-SNAPSHOT")
+
     api("ch.qos.logback:logback-classic:$logbackClassicVersion")
     api("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
     // coroutines
@@ -71,6 +71,10 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.0")
     testImplementation("org.testcontainers:postgresql:${tcVersion}")
+
+    // Rapids and Rivers
+    implementation("com.github.navikt:hm-rapids-and-rivers-v2-core:$rapidsRiversVersion")
+    implementation("com.github.navikt:hm-rapids-and-rivers-v2-micronaut:$rapidsRiversVersion")
 }
 
 micronaut {
@@ -120,6 +124,7 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven("https://packages.confluent.io/maven/")
+    maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
 
 }
 
