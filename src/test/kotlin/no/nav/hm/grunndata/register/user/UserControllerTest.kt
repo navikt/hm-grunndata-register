@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.user
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.mpp.log
@@ -18,11 +19,18 @@ import no.nav.hm.grunndata.register.supplier.SupplierInfo
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
 import java.util.*
 
 @MicronautTest
 class UserControllerTest(private val userRepository: UserRepository,
-                         private val supplierRepository: SupplierRepository, private val loginClient: LoginClient) {
+                         private val supplierRepository: SupplierRepository,
+                         private val loginClient: LoginClient,
+                         private val objectMapper: ObjectMapper) {
+
+    companion object {
+        private val LOG = LoggerFactory.getLogger(UserControllerTest::class.java)
+    }
 
     @Inject
     @field:Client("/")
@@ -47,13 +55,14 @@ class UserControllerTest(private val userRepository: UserRepository,
 
                 )
             )
-            userRepository.createUser(
-                User(
-                    email = email, token = token,
-                    name = "User tester", roles = listOf(Roles.ROLE_SUPPLIER),
-                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier.id.toString()))
-                )
+            val user = User(
+                email = email, token = token,
+                name = "User tester", roles = listOf(Roles.ROLE_SUPPLIER),
+                attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier.id.toString()))
             )
+            userRepository.createUser(user)
+            LOG.info("created supplier: ${objectMapper.writeValueAsString(testSupplier)}")
+            LOG.info("created user: ${objectMapper.writeValueAsString(user)}")
         }
     }
 

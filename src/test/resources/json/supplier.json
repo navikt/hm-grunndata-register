@@ -1,0 +1,14 @@
+{
+  "id": "ab112411-b5e8-48fd-ae50-73abe4bed136",
+  "status": "ACTIVE",
+  "name": "Supplier AS",
+  "info": {
+    "address": "address 1",
+    "email": "supplier@test.test",
+    "phone": "+47 12345678",
+    "homepage": "https://www.hompage.no"
+  },
+  "identifier": "supplier-unique-name",
+  "created": "2023-01-09T09:16:29.083862",
+  "updated": "2023-01-09T09:16:29.08389"
+}
