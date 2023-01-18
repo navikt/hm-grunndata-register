@@ -15,14 +15,16 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
         val productDTO = ProductDTO (
             supplierId = UUID.randomUUID(),
             title = "Dette er produkt title",
-            description = Description("produktnavn", "En kort beskrivelse av produktet",
-                "En lang beskrivelse av produktet"),
+            attributes = mapOf(
+                Pair("articlename", "produktnavn"), Pair("shortdescription", "En kort beskrivelse av produktet"),
+                Pair("text", "En lang beskrivelse av produktet")
+            ),
             HMSArtNr = "123",
             identifier = "hmdb-123",
             supplierRef = "eksternref-123",
             isoCategory = "12001314",
             accessory = false,
-            sparepart = false,
+            sparePart = false,
             seriesId = "series-123",
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
             media = listOf(Media(uri="https://ekstern.url/123.jpg", text = "bilde av produktet", source = MediaSourceType.EXTERNALURL)),

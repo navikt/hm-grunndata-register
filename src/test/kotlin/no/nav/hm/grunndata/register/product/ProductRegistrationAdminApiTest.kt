@@ -57,16 +57,16 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         val productDTO = ProductDTO(
             supplierId = supplierId,
             title = "Dette er produkt 1",
-            description = Description(
-                "produktnavn", "En kort beskrivelse av produktet",
-                "En lang beskrivelse av produktet"
+            attributes = mapOf(
+                Pair("articlename", "produktnavn"), Pair("shortdescription", "En kort beskrivelse av produktet"),
+                Pair("text", "En lang beskrivelse av produktet")
             ),
             HMSArtNr = "111",
             identifier = "hmdb-111",
             supplierRef = "eksternref-111",
             isoCategory = "12001314",
             accessory = false,
-            sparepart = false,
+            sparePart = false,
             seriesId = "series-123",
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
             media = listOf(
