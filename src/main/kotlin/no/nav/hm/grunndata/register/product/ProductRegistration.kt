@@ -85,11 +85,6 @@ data class ProductDTO(
 
 const val REGISTER = "REGISTER"
 
-data class Description(val name: String?=null,
-                       val shortDescription: String?=null,
-                       val text: String?=null)
-
-
 data class AgreementInfo (
     val id: Long,
     val identifier: String?=null,
