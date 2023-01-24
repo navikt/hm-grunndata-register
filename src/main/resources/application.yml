@@ -75,3 +75,6 @@ flyway:
 
 rapidsandrivers:
   enabled: false
+kafka:
+  topic: hm-grunndata-v1
+  consumerGroupId: hm-grunndata-register-g1
