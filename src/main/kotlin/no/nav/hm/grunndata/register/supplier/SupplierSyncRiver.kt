@@ -3,6 +3,7 @@ package no.nav.hm.grunndata.register.supplier
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.context.annotation.Context
 import io.micronaut.context.annotation.Requires
+import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.KafkaRapid
 import no.nav.helse.rapids_rivers.MessageContext
@@ -14,7 +15,8 @@ import org.slf4j.LoggerFactory
 @Requires(bean = KafkaRapid::class)
 class SupplierSyncRiver(river: RiverHead,
                         private val objectMapper: ObjectMapper,
-                        private val supplierRepository: SupplierRepository): River.PacketListener {
+                        private val supplierService: SupplierService): River.PacketListener {
+
     private val eventName = "hm-grunndata-db-hmdb-supplier-sync"
 
     companion object {
@@ -28,7 +30,11 @@ class SupplierSyncRiver(river: RiverHead,
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        val supplier = objectMapper.treeToValue(packet["payload"], SupplierDTO::class.java)
+        val dto = objectMapper.treeToValue(packet["payload"], SupplierDTO::class.java)
+        runBlocking {
+            supplierService.save(dto.toEntity())
+            LOG.info("supplier ${dto.id} synced from HMDB")
+        }
     }
 
 }

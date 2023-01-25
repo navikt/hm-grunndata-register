@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS supplier_v1 (
     identifier VARCHAR(128) NOT NULL,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(64) NOT NULL,
+    updated_by VARCHAR(64) NOT NULL,
     unique(name),
     unique(identifier)
 );

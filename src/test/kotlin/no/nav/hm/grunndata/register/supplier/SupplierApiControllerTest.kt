@@ -10,6 +10,7 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.register.product.REGISTER
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.user.User
@@ -75,7 +76,9 @@ class SupplierApiControllerTest(private val supplierRepository: SupplierReposito
             ),
             identifier = "leverandor-as",
             created = LocalDateTime.now(),
-            updated = LocalDateTime.now()
+            updated = LocalDateTime.now(),
+            createdBy = REGISTER,
+            updatedBy = REGISTER
         )
         val respons = client.toBlocking().exchange(
             HttpRequest.POST("/api/v1/supplier", supplier)

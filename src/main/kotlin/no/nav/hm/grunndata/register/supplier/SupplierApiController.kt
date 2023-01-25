@@ -32,7 +32,7 @@ class SupplierApiController(private val supplierRepository: SupplierRepository) 
     @Put("/{id}")
     suspend fun updateSupplier(@Body supplier: SupplierDTO, id: UUID): HttpResponse<SupplierDTO> =
         supplierRepository.findById(id)
-            ?.let { HttpResponse.ok(supplierRepository.update(supplier.toEntity()).toDTO()) }
+            ?.let { HttpResponse.ok(supplierRepository.update(supplier.toEntity().copy(created = it.created)).toDTO()) }
             ?:run { HttpResponse.notFound() }
 
     @Delete("/{id}")
