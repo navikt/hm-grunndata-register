@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory
 @Requires(bean = KafkaRapid::class)
 class SupplierSyncRiver(river: RiverHead,
                         private val objectMapper: ObjectMapper,
-                        private val supplierService: SupplierService): River.PacketListener {
+                        private val supplierRepository: SupplierRepository): River.PacketListener {
 
     private val eventName = "hm-grunndata-db-hmdb-supplier-sync"
 
@@ -30,10 +30,11 @@ class SupplierSyncRiver(river: RiverHead,
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
-        val dto = objectMapper.treeToValue(packet["payload"], SupplierDTO::class.java)
+        val supplier = objectMapper.treeToValue(packet["payload"], SupplierDTO::class.java).toEntity()
         runBlocking {
-            supplierService.save(dto.toEntity())
-            LOG.info("supplier ${dto.id} synced from HMDB")
+            supplierRepository.findById(supplier.id)?.let { inDb ->
+                supplierRepository.update(supplier.copy(created = inDb.created)) } ?: supplierRepository.save(supplier)
+            LOG.info("supplier ${supplier.id} synced from HMDB")
         }
     }
 
