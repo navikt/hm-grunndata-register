@@ -25,16 +25,19 @@ class SupplierSyncRiver(river: RiverHead,
     init {
         river
             .validate { it.demandValue("eventName", eventName)}
+            .validate { it.demandValue("payloadType", SupplierDTO::class.java.simpleName)}
             .validate { it.demandKey("payload")}
+            .validate { it.demandKey("eventId")}
             .register(this)
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
+        val eventId = packet["eventId"].asText()
         val supplier = objectMapper.treeToValue(packet["payload"], SupplierDTO::class.java).toEntity()
         runBlocking {
             supplierRepository.findById(supplier.id)?.let { inDb ->
                 supplierRepository.update(supplier.copy(created = inDb.created)) } ?: supplierRepository.save(supplier)
-            LOG.info("supplier ${supplier.id} synced from HMDB")
+            LOG.info("supplier ${supplier.id} with eventId $eventId synced from HMDB")
         }
     }
 

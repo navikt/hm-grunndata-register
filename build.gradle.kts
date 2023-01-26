@@ -16,7 +16,7 @@ val mockkVersion = "1.13.2"
 val kotestVersion = "5.5.4"
 val apachePoiVersion = "5.2.3"
 val openSearchRestClientVersion = "1.3.5"
-val rapidsRiversVersion="202301061300"
+val rapidsRiversVersion="202301261325"
 
 group = "no.nav.hm"
 version = properties["version"] ?: "local-build"

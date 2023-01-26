@@ -10,6 +10,7 @@ import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 
 @Context
 @Requires(bean = KafkaRapid::class)
@@ -25,15 +26,20 @@ class ProductSyncRiver(river: RiverHead,
     init {
         river
             .validate { it.demandValue("eventName", eventName)}
+            .validate { it.demandValue("payloadType", ProductDTO::class.java.simpleName)}
             .validate { it.demandKey("payload")}
+            .validate { it.demandKey("eventId")}
             .register(this)
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
+        val eventId = packet["eventId"].asText()
         val dto = objectMapper.treeToValue(packet["payload"], ProductDTO::class.java)
         runBlocking {
             productRegistrationRepository.findById(dto.id)?.let { inDb ->
-                productRegistrationRepository.update(inDb.copy(productDTO = dto))
+                productRegistrationRepository.update(inDb.copy(productDTO = dto, updatedBy = dto.updatedBy,
+                    updated = LocalDateTime.now(), HMSArtNr = dto.HMSArtNr, title = dto.title,
+                    supplierRef = dto.supplierRef, published = dto.published, expired = dto.expired))
             } ?: productRegistrationRepository.save(
                 ProductRegistration(id = dto.id, supplierId = dto.supplierId, supplierRef = dto.supplierRef,
                     createdBy = dto.createdBy, updatedBy = dto.updatedBy, draft = DraftStatus.DONE,
@@ -41,6 +47,7 @@ class ProductSyncRiver(river: RiverHead,
                     title = dto.title, productDTO = dto)
             )
         }
+        LOG.info("product ${dto.id} with eventId $eventId synced")
     }
 
 }
