@@ -19,8 +19,8 @@ class AgreementRepositoryTest(private val agreementRegistrationRepository: Agree
             expired = LocalDateTime.now().plusYears(2), title = "Title of agreement",
             text = "some text", reference = "unik-ref1", identifier = "unik-ref1", resume = "resume",
             posts = listOf(
-                AgreementPost(agreementId=agreementId, identifier = "unik-post1", title = "Post title",
-                description = "post description", nr = 1), AgreementPost(agreementId=agreementId, identifier = "unik-post2", title = "Post title 2",
+                AgreementPost(identifier = "unik-post1", title = "Post title",
+                description = "post description", nr = 1), AgreementPost(identifier = "unik-post2", title = "Post title 2",
                     description = "post description 2", nr = 2)
             ), createdBy = REGISTER, updatedBy = REGISTER)
         val agreementRegistration = AgreementRegistration(

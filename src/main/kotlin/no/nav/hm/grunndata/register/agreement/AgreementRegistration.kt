@@ -38,8 +38,6 @@ enum class AgreementStatus {
 }
 
 data class AgreementPost (
-    val id: UUID = UUID.randomUUID(),
-    val agreementId: UUID,
     val identifier: String,
     val nr: Int,
     val title: String,
