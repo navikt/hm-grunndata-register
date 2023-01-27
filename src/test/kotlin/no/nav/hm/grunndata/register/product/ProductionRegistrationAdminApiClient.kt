@@ -14,7 +14,7 @@ interface ProductionRegistrationAdminApiClient {
     fun findProducts(@CookieValue("JWT") jwt: String,
                      @QueryValue supplierId: UUID? = null,
                      @QueryValue adminStatus: AdminStatus? = null,
-                     @QueryValue draft: DraftStatus? = null,
+                     @QueryValue draftStatus: DraftStatus? = null,
                      @QueryValue supplierRef: String? = null,
                      @QueryValue createdByUser: String? = null,
                      @QueryValue updatedByUser: String? = null,
