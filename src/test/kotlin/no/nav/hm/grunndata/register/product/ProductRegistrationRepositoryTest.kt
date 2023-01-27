@@ -58,6 +58,8 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             updated.isApproved() shouldBe true
             updated.isDraft() shouldBe false
             updated.published.shouldNotBeNull()
+            val byHMSArtNr = productRegistrationRepository.findByHMSArtNrAndSupplierId(saved.HMSArtNr!!, saved.supplierId)
+            byHMSArtNr.shouldNotBeNull()
         }
     }
 }
