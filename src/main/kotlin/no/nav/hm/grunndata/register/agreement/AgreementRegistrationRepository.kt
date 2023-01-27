@@ -9,7 +9,7 @@ import java.util.UUID
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
 interface AgreementRegistrationRepository: CoroutineCrudRepository<AgreementRegistration, UUID>,
-    CoroutineJpaSpecificationExecutor<ProductRegistration> {
+    CoroutineJpaSpecificationExecutor<AgreementRegistration> {
 
 
 }

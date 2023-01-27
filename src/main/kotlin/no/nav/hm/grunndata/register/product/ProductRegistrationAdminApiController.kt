@@ -37,7 +37,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
             if (params.contains("supplierRef")) root[ProductRegistration::supplierRef] eq params["supplierRef"]
             if (params.contains("adminStatus")) root[ProductRegistration::adminStatus] eq AdminStatus.valueOf(params["adminStatus"]!!)
             if (params.contains("supplierId"))  root[ProductRegistration::supplierId] eq UUID.fromString(params["supplierId"]!!)
-            if (params.contains("draft")) root[ProductRegistration::draft] eq DraftStatus.valueOf(params["draft"]!!)
+            if (params.contains("draft")) root[ProductRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
             if (params.contains("createdByUser")) root[ProductRegistration::createdByUser] eq params["createdByUser"]
             if (params.contains("updatedByUser")) root[ProductRegistration::updatedByUser] eq params["updatedByUser"]
         }

@@ -36,7 +36,7 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             supplierRef = productDTO.supplierRef,
             HMSArtNr = productDTO.HMSArtNr ,
             title = productDTO.title,
-            draft = DraftStatus.DRAFT,
+            draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.NOT_APPROVED,
             status  = RegistrationStatus.ACTIVE,
             message = "Melding til leverandør",

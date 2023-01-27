@@ -18,7 +18,7 @@ data class ProductRegistration(
     @field:Column(name="hms_artnr")
     val HMSArtNr: String?,
     val title: String,
-    val draft: DraftStatus = DraftStatus.DRAFT,
+    val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val adminStatus: AdminStatus = AdminStatus.NOT_APPROVED,
     val status: RegistrationStatus = RegistrationStatus.ACTIVE,
     val message: String?=null,
@@ -38,11 +38,11 @@ data class ProductRegistration(
     @field:Version
     val version: Long? = 0L)
 
-fun ProductRegistration.isDraft(): Boolean = draft == DraftStatus.DRAFT
+fun ProductRegistration.isDraft(): Boolean = draftStatus == DraftStatus.DRAFT
 fun ProductRegistration.isApproved(): Boolean = adminStatus == AdminStatus.APPROVED
 fun ProductRegistration.approve(approvedByName: String): ProductRegistration =
     this.copy(adminInfo = AdminInfo(approvedBy = approvedByName), adminStatus = AdminStatus.APPROVED,
-        status = RegistrationStatus.ACTIVE, draft = DraftStatus.DONE, published = LocalDateTime.now())
+        status = RegistrationStatus.ACTIVE, draftStatus = DraftStatus.DONE, published = LocalDateTime.now())
 
 enum class RegistrationStatus {
    ACTIVE, DELETED

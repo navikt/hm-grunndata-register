@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS product_reg_v1 (
     supplier_ref VARCHAR(255) NOT NULL,
     hms_artnr VARCHAR(255),
     title VARCHAR(512) NOT NULL,
-    draft VARCHAR(32) NOT NULL,
+    draft_status VARCHAR(32) NOT NULL,
     admin_status VARCHAR(32) NOT NULL,
     status VARCHAR(32) NOT NULL,
     message TEXT,
@@ -54,8 +54,8 @@ CREATE TABLE IF NOT EXISTS product_reg_v1 (
 
 CREATE INDEX product_reg_v1_supplier_id_idx ON product_reg_v1(supplier_id);
 CREATE INDEX product_reg_v1_hms_artnr_idx ON product_reg_v1(hms_artnr);
-CREATE INDEX product_reg_v1_hms_admin_status_idx ON product_reg_v1(admin_status);
-CREATE INDEX product_reg_v1_hms_draft_idx ON product_reg_v1(draft);
+CREATE INDEX product_reg_v1_admin_status_idx ON product_reg_v1(admin_status);
+CREATE INDEX product_reg_v1_draft_status_idx ON product_reg_v1(draft_status);
 CREATE INDEX product_reg_v1_updated_idx ON product_reg_v1(updated);
 CREATE INDEX product_reg_v1_created_by_user_idx ON product_reg_v1(created_by_user);
 CREATE INDEX product_reg_v1_updated_by_user_idx ON product_reg_v1(updated_by_user);
@@ -79,3 +79,7 @@ CREATE TABLE IF NOT EXISTS agreement_reg_v1(
     unique(reference)
 );
 
+CREATE INDEX agreement_reg_v1_draft_status_idx ON agreement_reg_v1(draft_status);
+CREATE INDEX agreement_reg_v1_updated_idx ON agreement_reg_v1(updated);
+CREATE INDEX agreement_reg_v1_created_by_user_idx ON agreement_reg_v1(created_by_user);
+CREATE INDEX agreement_reg_v1_updated_by_user_idx ON agreement_reg_v1(updated_by_user);

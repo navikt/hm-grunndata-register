@@ -33,6 +33,24 @@ data class AgreementRegistration(
     val version: Long? = 0L
 )
 
+data class AgreementRegistrationDTO (
+    val id: UUID,
+    val draftStatus: DraftStatus = DraftStatus.DRAFT,
+    val title: String,
+    val reference: String,
+    val status : AgreementStatus = AgreementStatus.INACTIVE,
+    val created: LocalDateTime = LocalDateTime.now(),
+    val updated: LocalDateTime = LocalDateTime.now(),
+    val published: LocalDateTime = LocalDateTime.now(),
+    val expired: LocalDateTime = LocalDateTime.now(),
+    val createdByUser: String,
+    val updatedByUser: String,
+    val createdBy: String = REGISTER,
+    val updatedBy: String = REGISTER,
+    val agreementDTO: AgreementDTO,
+    val version: Long? = 0L
+)
+
 enum class AgreementStatus {
     INACTIVE, ACTIVE
 }
@@ -66,4 +84,18 @@ data class AgreementDTO(
     val updatedBy: String,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
+)
+
+fun AgreementRegistration.toDTO(): AgreementRegistrationDTO = AgreementRegistrationDTO(
+    id = id, draftStatus = draftStatus, title = title, reference = reference, status = status, created = created,
+    updated = updated, published = published, expired = expired, createdByUser = createdByUser,
+    updatedByUser = updatedByUser, createdBy= createdBy, updatedBy = updatedBy, agreementDTO = agreementDTO,
+    version = version
+)
+
+fun AgreementRegistrationDTO.toEntity(): AgreementRegistration = AgreementRegistration(
+    id = id, draftStatus = draftStatus, title = title, reference = reference, status = status, created = created,
+    updated = updated, published = published, expired = expired, createdByUser = createdByUser,
+    updatedByUser = updatedByUser, createdBy= createdBy, updatedBy = updatedBy, agreementDTO = agreementDTO,
+    version = version
 )

@@ -42,7 +42,7 @@ class ProductSyncRiver(river: RiverHead,
                     supplierRef = dto.supplierRef, published = dto.published, expired = dto.expired))
             } ?: productRegistrationRepository.save(
                 ProductRegistration(id = dto.id, supplierId = dto.supplierId, supplierRef = dto.supplierRef,
-                    createdBy = dto.createdBy, updatedBy = dto.updatedBy, draft = DraftStatus.DONE,
+                    createdBy = dto.createdBy, updatedBy = dto.updatedBy, draftStatus = DraftStatus.DONE,
                     expired = dto.expired, HMSArtNr = dto.HMSArtNr, published = dto.published,
                     title = dto.title, productDTO = dto)
             )
