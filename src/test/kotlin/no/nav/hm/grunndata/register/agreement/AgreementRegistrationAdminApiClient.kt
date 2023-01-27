@@ -27,4 +27,9 @@ interface AgreementRegistrationAdminApiClient {
     @Put(uri= "/{id}", processes = [MediaType.APPLICATION_JSON])
     fun updateAgreement(@CookieValue("JWT") jwt: String, id: UUID,
                         @Body agreementRegistrationDTO: AgreementRegistrationDTO):HttpResponse<AgreementRegistrationDTO>
+
+    @Post(uri= "/", processes = [MediaType.APPLICATION_JSON])
+    fun createAgreement(@CookieValue("JWT") jwt: String,
+                        @Body agreementRegistrationDTO: AgreementRegistrationDTO):HttpResponse<AgreementRegistrationDTO>
+
 }
