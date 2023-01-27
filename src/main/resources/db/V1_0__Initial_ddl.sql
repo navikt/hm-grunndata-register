@@ -59,3 +59,23 @@ CREATE INDEX product_reg_v1_hms_draft_idx ON product_reg_v1(draft);
 CREATE INDEX product_reg_v1_updated_idx ON product_reg_v1(updated);
 CREATE INDEX product_reg_v1_created_by_user_idx ON product_reg_v1(created_by_user);
 CREATE INDEX product_reg_v1_updated_by_user_idx ON product_reg_v1(updated_by_user);
+
+CREATE TABLE IF NOT EXISTS agreement_reg_v1(
+    id uuid NOT NULL PRIMARY KEY,
+    draft_status VARCHAR(32) NOT NULL,
+    title TEXT,
+    reference VARCHAR(255) NOT NULL,
+    status VARCHAR(32) NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    published TIMESTAMP NOT NULL,
+    expired TIMESTAMP NOT NULL,
+    created_by_user VARCHAR(255) NOT NULL,
+    updated_by_user VARCHAR(255) NOT NULL,
+    created_by VARCHAR(255) NOT NULL,
+    updated_by VARCHAR(255) NOT NULL,
+    agreement_dto JSONB NOT NULL,
+    version BIGINT NOT NULL,
+    unique(reference)
+);
+
