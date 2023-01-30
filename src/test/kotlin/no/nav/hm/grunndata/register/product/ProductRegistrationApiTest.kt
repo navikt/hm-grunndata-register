@@ -60,8 +60,8 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             supplierId = supplierId,
             title = "Dette er produkt 1",
             attributes = mapOf(
-                Pair("articlename", "produktnavn"), Pair("shortdescription", "En kort beskrivelse av produktet"),
-                Pair("text", "En lang beskrivelse av produktet")
+                AttributeNames.articlename.name to "produktnavn", AttributeNames.shortdescription.name to "En kort beskrivelse av produktet",
+                AttributeNames.text.name to "En lang beskrivelse av produktet"
             ),
             HMSArtNr = "111",
             identifier = "hmdb-111",
