@@ -5,6 +5,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest
@@ -13,11 +14,12 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
     @Test
     fun crudRepositoryTest() {
         val productDTO = ProductDTO (
+            id = UUID.randomUUID(),
             supplierId = UUID.randomUUID(),
             title = "Dette er produkt title",
             attributes = mapOf(
-                Pair("articlename", "produktnavn"), Pair("shortdescription", "En kort beskrivelse av produktet"),
-                Pair("text", "En lang beskrivelse av produktet")
+               AttributeNames.articlename to  "produktnavn", AttributeNames.shortdescription to "En kort beskrivelse av produktet",
+              AttributeNames.text to "En lang beskrivelse av produktet"
             ),
             HMSArtNr = "123",
             identifier = "hmdb-123",
@@ -28,7 +30,8 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             seriesId = "series-123",
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
             media = listOf(Media(uri="https://ekstern.url/123.jpg", text = "bilde av produktet", source = MediaSourceType.EXTERNALURL)),
-            agreementInfo = AgreementInfo(id = 1, identifier = "hmdbid-1", rank = 1, postId = 123, postNr = 1, reference = "AV-142")
+            agreementInfo = AgreementInfo(id = UUID.randomUUID(), identifier = "hmdbid-1", rank = 1, postNr = 1,
+                reference = "AV-142", expired = LocalDateTime.now())
         )
         val registration = ProductRegistration (
             id = productDTO.id,

@@ -58,74 +58,7 @@ enum class DraftStatus {
 
 data class AdminInfo(val approvedBy: String?, val note: String?=null)
 
-data class ProductDTO(
-    val id: UUID=UUID.randomUUID(),
-    val supplierId: UUID,
-    val title: String,
-    val attributes: Map<String, Any>,
-    val status: ProductStatus = ProductStatus.ACTIVE,
-    val HMSArtNr: String?=null,
-    val identifier: String?=null,
-    val supplierRef: String,
-    val isoCategory: String,
-    val accessory: Boolean = false,
-    val sparePart: Boolean = false,
-    val seriesId: String?=null,
-    val techData: List<TechData> = emptyList(),
-    val media: List<Media> = emptyList(),
-    val created: LocalDateTime = LocalDateTime.now(),
-    val updated: LocalDateTime = LocalDateTime.now(),
-    val published: LocalDateTime = LocalDateTime.now(),
-    val expired: LocalDateTime = updated.plusYears(20),
-    val agreementInfo: AgreementInfo?,
-    val hasAgreement: Boolean = (agreementInfo!=null),
-    val createdBy: String = REGISTER,
-    val updatedBy: String = REGISTER
-)
-
 const val REGISTER = "REGISTER"
-
-data class AgreementInfo (
-    val id: Long,
-    val identifier: String?=null,
-    val rank: Int,
-    val postId: Long,
-    val postNr: Int,
-    val postIdentifier: String?=null,
-    val reference: String?=null,
-)
-
-
-enum class ProductStatus {
-    ACTIVE, INACTIVE
-}
-
-data class Media (
-    val uuid:   UUID = UUID.randomUUID(),
-    val order:  Int=1,
-    val type: MediaType = MediaType.IMAGE,
-    val uri:    String,
-    val text:   String?=null,
-    val source: MediaSourceType = MediaSourceType.ONPREM
-)
-
-enum class MediaSourceType {
-    // HMDB means it is stored in hjelpemiddeldatabasen
-    HMDB, ONPREM, GCP, EXTERNALURL
-}
-
-enum class MediaType {
-    PDF,
-    IMAGE,
-    VIDEO,
-    OTHER
-}
-
-data class TechData (
-    val key:    String,
-    val value:  String,
-    val unit:   String
-)
 
 data class ProductRegistrationDTO(
     val id: UUID = UUID.randomUUID(),

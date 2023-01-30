@@ -16,6 +16,7 @@ import no.nav.hm.grunndata.register.user.UserAttribute
 import no.nav.hm.grunndata.register.user.UserRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest
@@ -57,11 +58,12 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
         val productDTO = ProductDTO(
+            id = UUID.randomUUID(),
             supplierId = supplierId,
             title = "Dette er produkt 1",
             attributes = mapOf(
-                AttributeNames.articlename.name to "produktnavn", AttributeNames.shortdescription.name to "En kort beskrivelse av produktet",
-                AttributeNames.text.name to "En lang beskrivelse av produktet"
+                AttributeNames.articlename to "produktnavn", AttributeNames.shortdescription to "En kort beskrivelse av produktet",
+                AttributeNames.text to "En lang beskrivelse av produktet"
             ),
             HMSArtNr = "111",
             identifier = "hmdb-111",
@@ -79,12 +81,12 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                 )
             ),
             agreementInfo = AgreementInfo(
-                id = 1,
+                id = UUID.randomUUID(),
                 identifier = "hmdbid-1",
                 rank = 1,
-                postId = 123,
                 postNr = 1,
-                reference = "AV-142"
+                reference = "AV-142",
+                expired = LocalDateTime.now()
             )
         )
         val registration = ProductRegistrationDTO(
