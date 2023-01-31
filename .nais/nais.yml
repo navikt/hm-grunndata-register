@@ -34,7 +34,7 @@ spec:
     - name: DB_DRIVER
       value: "org.postgresql.Driver"
     - name: RAPIDSANDRIVERS_ENABLED
-      value: {{ rapidsandrivers_enabled }}
+      value: "{{ rapidsandrivers_enabled }}"
   gcp:
     sqlInstances:
       - name: hm-grunndata-register
