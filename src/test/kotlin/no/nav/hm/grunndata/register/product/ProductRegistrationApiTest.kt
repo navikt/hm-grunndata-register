@@ -4,7 +4,9 @@ import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.security.authentication.UsernamePasswordCredentials
+import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
@@ -14,6 +16,7 @@ import no.nav.hm.grunndata.register.supplier.SupplierRepository
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserAttribute
 import no.nav.hm.grunndata.register.user.UserRepository
+import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
@@ -21,12 +24,16 @@ import java.util.*
 
 @MicronautTest
 class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationApiClient,
-                                 private val loginClient: LoginClient, private val userRepository: UserRepository,
+                                 private val loginClient: LoginClient,
+                                 private val userRepository: UserRepository,
                                  private val supplierRepository: SupplierRepository) {
 
     val email = "api@test.test"
     val password = "api-123"
     val supplierId = UUID.randomUUID()
+
+    @MockBean(RapidPushService::class)
+    fun rapidPushService(): RapidPushService = mockk(relaxed = true)
 
     @BeforeEach
     fun createUserSupplier() {
@@ -95,7 +102,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             supplierRef = productDTO.supplierRef,
             HMSArtNr = productDTO.HMSArtNr,
             title = productDTO.title,
-            draft = DraftStatus.DRAFT,
+            draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.NOT_APPROVED,
             status = RegistrationStatus.ACTIVE,
             message = "Melding til leverandør",

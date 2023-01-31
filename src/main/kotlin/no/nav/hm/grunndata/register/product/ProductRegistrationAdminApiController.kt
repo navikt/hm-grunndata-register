@@ -10,20 +10,22 @@ import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import no.nav.hm.grunndata.register.eventName
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.rapids_rivers.micronaut.KafkaRapidService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
-class ProductRegistrationAdminApiController(private val productRegistrationRepository: ProductRegistrationRepository) {
+class ProductRegistrationAdminApiController(private val productRegistrationRepository: ProductRegistrationRepository,
+                                            private val kafkaRapidHandler: ProductRegistrationRapidHandler) {
 
     companion object {
         const val API_V1_ADMIN_PRODUCT_REGISTRATIONS = "/api/v1/admin/product/registrations"
         private val LOG = LoggerFactory.getLogger(ProductRegistrationAdminApiController::class.java)
     }
-
 
     @Get("/{?params*}")
     suspend fun findProducts(@QueryValue params: HashMap<String,String>?,
@@ -57,9 +59,11 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
             productRegistrationRepository.findById(registrationDTO.id)?.let {
                 HttpResponse.badRequest()
             } ?: run {
-                HttpResponse.created(productRegistrationRepository.save(registrationDTO
+                val dto = productRegistrationRepository.save(registrationDTO
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name, createdByAdmin = true)
-                    .toEntity()).toDTO())
+                    .toEntity()).toDTO()
+                kafkaRapidHandler.pushProductToKafka(dto)
+                HttpResponse.created(dto)
             }
 
     @Put("/{id}")
@@ -70,7 +74,9 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                     val updated = registrationDTO.copy(id = it.id, created = it.created, supplierId = it.supplierId,
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = it.createdBy,
                         createdByAdmin = it.createdByAdmin)
-                    HttpResponse.ok(productRegistrationRepository.update(updated.toEntity()).toDTO()) }
+                    val dto = productRegistrationRepository.update(updated.toEntity()).toDTO()
+                    kafkaRapidHandler.pushProductToKafka(dto)
+                    HttpResponse.ok(dto) }
                 ?: run {
                     HttpResponse.badRequest() }
 
@@ -79,7 +85,9 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
         productRegistrationRepository.findById(id)
             ?.let {
                 val productDTO = it.productDTO.copy(status = ProductStatus.INACTIVE, expired = LocalDateTime.now().minusMinutes(1L))
-                HttpResponse.ok(productRegistrationRepository.update(it.copy(status=RegistrationStatus.DELETED, productDTO = productDTO)).toDTO())}
+                val dto = productRegistrationRepository.update(it.copy(status=RegistrationStatus.DELETED, productDTO = productDTO)).toDTO()
+                kafkaRapidHandler.pushProductToKafka(dto)
+                HttpResponse.ok(dto)}
             ?: HttpResponse.notFound()
 
 }
