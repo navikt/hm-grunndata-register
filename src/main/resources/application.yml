@@ -77,7 +77,7 @@ flyway:
 rapidsandrivers:
   enabled: ${RAPIDSANDRIVERS_ENABLED:false}
 kafka:
-  topic: hm-grunndata-v1
+  topic: teamdigihot.hm-grunndata-v1
   consumerGroupId: hm-grunndata-register-g1
   trustStorePath: ${KAFKA_TRUSTSTORE_PATH}
   trustStorePassword: ${KAFKA_CREDSTORE_PASSWORD}
