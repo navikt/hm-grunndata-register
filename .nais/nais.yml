@@ -33,6 +33,8 @@ spec:
   env:
     - name: DB_DRIVER
       value: "org.postgresql.Driver"
+    - name: RAPIDSANDRIVERS_ENABLED
+      value: {{ rapidsandrivers_enabled }}
   gcp:
     sqlInstances:
       - name: hm-grunndata-register
@@ -47,3 +49,5 @@ spec:
           - name: register
             envVarPrefix: DB
         cascadingDelete: false
+  kafka:
+    pool: {{ kafka_cluster }}
