@@ -11,6 +11,7 @@ import no.nav.helse.rapids_rivers.River
 import no.nav.hm.grunndata.register.product.DraftStatus
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 
 @Context
 @Requires(bean = KafkaRapid::class)
@@ -38,11 +39,12 @@ class AgreementSyncRiver(river: RiverHead,
         val dto = objectMapper.treeToValue(packet["payload"], AgreementDTO::class.java)
         runBlocking {
             agreementRegistrationRepository.findById(dto.id)?.let { inDb ->
-                agreementRegistrationRepository.update(inDb.copy(agreementDTO = dto)) }
+                agreementRegistrationRepository.update(inDb.copy(agreementDTO = dto, reference = dto.reference,
+                    title = dto.title, published = dto.published, expired = dto.expired, updated = LocalDateTime.now())) }
                 ?: agreementRegistrationRepository.save(AgreementRegistration(
                     title = dto.title, id = dto.id, createdByUser = dto.createdBy, updatedByUser = dto.updatedBy,
                     createdBy = dto.createdBy, updatedBy = dto.updatedBy, reference = dto.reference,
-                    published = dto.published, expired = dto.expired, status = AgreementStatus.ACTIVE,
+                    published = dto.published, expired = dto.expired,
                     draftStatus = DraftStatus.DONE, agreementDTO = dto
                 ))
             LOG.info("Agreement ${dto.id} with eventId $eventId synced from HMDB")

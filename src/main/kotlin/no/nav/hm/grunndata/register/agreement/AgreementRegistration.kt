@@ -18,7 +18,6 @@ data class AgreementRegistration(
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val title: String,
     val reference: String,
-    val status : AgreementStatus = AgreementStatus.INACTIVE,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime = LocalDateTime.now(),
@@ -38,7 +37,6 @@ data class AgreementRegistrationDTO (
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val title: String,
     val reference: String,
-    val status : AgreementStatus = AgreementStatus.INACTIVE,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime = LocalDateTime.now(),
@@ -50,10 +48,6 @@ data class AgreementRegistrationDTO (
     val agreementDTO: AgreementDTO,
     val version: Long? = 0L
 )
-
-enum class AgreementStatus {
-    INACTIVE, ACTIVE
-}
 
 data class AgreementPost (
     val identifier: String,
@@ -87,14 +81,14 @@ data class AgreementDTO(
 )
 
 fun AgreementRegistration.toDTO(): AgreementRegistrationDTO = AgreementRegistrationDTO(
-    id = id, draftStatus = draftStatus, title = title, reference = reference, status = status, created = created,
+    id = id, draftStatus = draftStatus, title = title, reference = reference, created = created,
     updated = updated, published = published, expired = expired, createdByUser = createdByUser,
     updatedByUser = updatedByUser, createdBy= createdBy, updatedBy = updatedBy, agreementDTO = agreementDTO,
     version = version
 )
 
 fun AgreementRegistrationDTO.toEntity(): AgreementRegistration = AgreementRegistration(
-    id = id, draftStatus = draftStatus, title = title, reference = reference, status = status, created = created,
+    id = id, draftStatus = draftStatus, title = title, reference = reference, created = created,
     updated = updated, published = published, expired = expired, createdByUser = createdByUser,
     updatedByUser = updatedByUser, createdBy= createdBy, updatedBy = updatedBy, agreementDTO = agreementDTO,
     version = version
