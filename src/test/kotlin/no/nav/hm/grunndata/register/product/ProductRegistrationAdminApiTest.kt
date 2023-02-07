@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.product
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -28,7 +29,8 @@ import java.util.*
 class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrationAdminApiClient,
                                       private val loginClient: LoginClient,
                                       private val userRepository: UserRepository,
-                                      private val supplierRepository: SupplierRepository) {
+                                      private val supplierRepository: SupplierRepository,
+                                      private val objectMapper: ObjectMapper) {
 
     val email = "admin@test.test"
     val password = "admin-123"
@@ -120,6 +122,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         created.shouldNotBeNull()
 
         val read = apiClient.readProduct(jwt, created.id)
+        println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(read))
         read.shouldNotBeNull()
         read.title shouldBe created.title
         read.createdByUser shouldBe email
