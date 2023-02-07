@@ -8,7 +8,6 @@ import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 @Singleton
 open class ProductRegistrationRapidHandler(private val kafkaRapidService: RapidPushService) {
 
-
     fun pushProductToKafka(dto: ProductRegistrationDTO) {
         if (dto.draftStatus == DraftStatus.DONE) {
             kafkaRapidService.pushToRapid(

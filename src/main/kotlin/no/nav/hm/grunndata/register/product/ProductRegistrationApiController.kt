@@ -15,7 +15,8 @@ import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS)
-class ProductRegistrationApiController(private val productRegistrationRepository: ProductRegistrationRepository) {
+class ProductRegistrationApiController(private val productRegistrationRepository: ProductRegistrationRepository,
+                                       private val kafkaRapidHandler: ProductRegistrationRapidHandler) {
 
     companion object {
         const val API_V1_PRODUCT_REGISTRATIONS = "/api/v1/product/registrations"
@@ -42,9 +43,11 @@ class ProductRegistrationApiController(private val productRegistrationRepository
             productRegistrationRepository.findById(registrationDTO.id)?.let {
                 HttpResponse.badRequest()
             } ?: run {
-                HttpResponse.created(productRegistrationRepository.save(registrationDTO
+                val dto = productRegistrationRepository.save(registrationDTO
                     .copy(updatedByUser =  authentication.name, createdByUser = authentication.name )
-                    .toEntity()).toDTO())
+                    .toEntity()).toDTO()
+                kafkaRapidHandler.pushProductToKafka(dto)
+                HttpResponse.created(dto)
             }
 
     @Put("/{id}")
@@ -53,12 +56,14 @@ class ProductRegistrationApiController(private val productRegistrationRepository
         if (registrationDTO.supplierId != userSupplierId(authentication) ) HttpResponse.unauthorized()
         else productRegistrationRepository.findByIdAndSupplierId(id,userSupplierId(authentication))
                 ?.let {
-                    HttpResponse.ok(productRegistrationRepository.update(registrationDTO
+                    val dto = productRegistrationRepository.update(registrationDTO
                         .copy(id = it.id, created = it.created, supplierId = it.supplierId,
-                        updatedBy = REGISTER, updatedByUser = authentication.name, createdByUser = it.createdByUser,
-                        createdBy = it.createdBy, createdByAdmin = it.createdByAdmin, adminStatus = it.adminStatus,
-                        adminInfo = it.adminInfo)
-                        .toEntity()).toDTO()) }
+                            updatedBy = REGISTER, updatedByUser = authentication.name, createdByUser = it.createdByUser,
+                            createdBy = it.createdBy, createdByAdmin = it.createdByAdmin, adminStatus = it.adminStatus,
+                            adminInfo = it.adminInfo)
+                        .toEntity()).toDTO()
+                    kafkaRapidHandler.pushProductToKafka(dto)
+                    HttpResponse.ok(dto) }
                 ?: run {
                     HttpResponse.badRequest() }
 
@@ -66,10 +71,13 @@ class ProductRegistrationApiController(private val productRegistrationRepository
     suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
         productRegistrationRepository.findByIdAndSupplierId(id, userSupplierId(authentication))
             ?.let {
-                val productDTO = it.productDTO.copy(status = ProductStatus.INACTIVE, expired = LocalDateTime.now().minusMinutes(1L))
-                HttpResponse.ok(productRegistrationRepository.update(it
+                val productDTO = it.productDTO.copy(status = ProductStatus.INACTIVE,
+                    expired = LocalDateTime.now().minusMinutes(1L), updatedBy = REGISTER, updated = LocalDateTime.now())
+                val deleteDTO = productRegistrationRepository.update(it
                     .copy(status=RegistrationStatus.DELETED, updatedByUser = authentication.name, productDTO = productDTO))
-                    .toDTO()) }
+                    .toDTO()
+                HttpResponse.ok(deleteDTO)
+            }
             ?: HttpResponse.notFound()
 
 
