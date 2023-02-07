@@ -5,14 +5,16 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.supplier.SupplierApiController.Companion.API_V1_ADMIN_SUPPLIER_REGISTRATIONS
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
-@Controller("/api/v1/supplier")
+@Controller(API_V1_ADMIN_SUPPLIER_REGISTRATIONS)
 class SupplierApiController(private val supplierRepository: SupplierRepository) {
 
     companion object {
+        const val API_V1_ADMIN_SUPPLIER_REGISTRATIONS = "/api/v1/admin/supplier/registrations"
         private val LOG = LoggerFactory.getLogger(SupplierApiController::class.java)
     }
 

@@ -13,6 +13,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.product.REGISTER
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.supplier.SupplierApiController.Companion.API_V1_ADMIN_SUPPLIER_REGISTRATIONS
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
 import org.junit.jupiter.api.BeforeEach
@@ -81,7 +82,7 @@ class SupplierApiControllerTest(private val supplierRepository: SupplierReposito
             updatedBy = REGISTER
         )
         val respons = client.toBlocking().exchange(
-            HttpRequest.POST("/api/v1/supplier", supplier)
+            HttpRequest.POST(API_V1_ADMIN_SUPPLIER_REGISTRATIONS, supplier)
                 .accept(MediaType.APPLICATION_JSON)
                 .cookie(jwt), SupplierDTO::class.java
         )
