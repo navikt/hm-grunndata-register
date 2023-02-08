@@ -21,7 +21,7 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
                AttributeNames.articlename to  "produktnavn", AttributeNames.shortdescription to "En kort beskrivelse av produktet",
               AttributeNames.text to "En lang beskrivelse av produktet"
             ),
-            HMSArtNr = "123",
+            hmsArtNr = "123",
             identifier = "hmdb-123",
             supplierRef = "eksternref-123",
             isoCategory = "12001314",
@@ -37,7 +37,7 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             id = productDTO.id,
             supplierId = UUID.randomUUID(),
             supplierRef = productDTO.supplierRef,
-            HMSArtNr = productDTO.HMSArtNr ,
+            HMSArtNr = productDTO.hmsArtNr ,
             title = productDTO.title,
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.NOT_APPROVED,

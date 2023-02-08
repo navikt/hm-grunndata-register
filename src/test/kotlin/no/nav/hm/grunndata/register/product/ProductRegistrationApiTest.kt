@@ -72,7 +72,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                 AttributeNames.articlename to "produktnavn", AttributeNames.shortdescription to "En kort beskrivelse av produktet",
                 AttributeNames.text to "En lang beskrivelse av produktet"
             ),
-            HMSArtNr = "111",
+            hmsArtNr = "111",
             identifier = "hmdb-111",
             supplierRef = "eksternref-111",
             isoCategory = "12001314",
@@ -102,7 +102,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             id = productDTO.id,
             supplierId = productDTO.supplierId,
             supplierRef = productDTO.supplierRef,
-            HMSArtNr = productDTO.HMSArtNr,
+            HMSArtNr = productDTO.hmsArtNr,
             title = productDTO.title,
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.NOT_APPROVED,

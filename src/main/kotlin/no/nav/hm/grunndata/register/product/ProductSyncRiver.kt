@@ -38,12 +38,12 @@ class ProductSyncRiver(river: RiverHead,
         runBlocking {
             productRegistrationRepository.findById(dto.id)?.let { inDb ->
                 productRegistrationRepository.update(inDb.copy(productDTO = dto, updatedBy = dto.updatedBy,
-                    updated = LocalDateTime.now(), HMSArtNr = dto.HMSArtNr, title = dto.title,
+                    updated = LocalDateTime.now(), HMSArtNr = dto.hmsArtNr, title = dto.title,
                     supplierRef = dto.supplierRef, published = dto.published, expired = dto.expired))
             } ?: productRegistrationRepository.save(
                 ProductRegistration(id = dto.id, supplierId = dto.supplierId, supplierRef = dto.supplierRef,
                     createdBy = dto.createdBy, updatedBy = dto.updatedBy, draftStatus = DraftStatus.DONE,
-                    expired = dto.expired, HMSArtNr = dto.HMSArtNr, published = dto.published,
+                    expired = dto.expired, HMSArtNr = dto.hmsArtNr, published = dto.published,
                     title = dto.title, productDTO = dto)
             )
         }
