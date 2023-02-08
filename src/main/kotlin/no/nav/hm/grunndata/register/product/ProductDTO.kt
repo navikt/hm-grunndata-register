@@ -24,8 +24,8 @@ data class ProductDTO(
     val expired: LocalDateTime = updated.plusYears(20),
     val agreementInfo: AgreementInfo?,
     val hasAgreement: Boolean = (agreementInfo!=null && agreementInfo.expired.isAfter(LocalDateTime.now())),
-    val createdBy: String = REGISTER,
-    val updatedBy: String = REGISTER
+    val createdBy: String,
+    val updatedBy: String
 )
 
 data class TechData (
@@ -74,7 +74,7 @@ enum class AttributeNames(private val type: AttributeType) {
     manufacturer(AttributeType.STRING),
     articlename(AttributeType.STRING),
     compatible(AttributeType.LIST),
-    series(AttributeType.LIST),
+    series(AttributeType.STRING),
     keywords(AttributeType.LIST),
     shortdescription(AttributeType.HTML),
     text(AttributeType.HTML),

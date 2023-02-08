@@ -94,7 +94,9 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                 postNr = 1,
                 reference = "AV-142",
                 expired = LocalDateTime.now()
-            )
+            ),
+            createdBy = REGISTER,
+            updatedBy = REGISTER
         )
         val registration = ProductRegistrationDTO(
             id = productDTO.id,
