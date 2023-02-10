@@ -2,7 +2,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jvmTarget = "17"
-val micronautVersion="3.8.3"
+val micronautVersion="3.8.4"
 val kafkaVersion = "3.2.1"
 val micrometerRegistryPrometheusVersion = "1.9.1"
 val junitJupiterVersion = "5.9.0"
@@ -17,6 +17,7 @@ val kotestVersion = "5.5.4"
 val apachePoiVersion = "5.2.3"
 val openSearchRestClientVersion = "1.3.5"
 val rapidsRiversVersion="202301310932"
+val grunndataDtoVersion = "202302100934"
 
 group = "no.nav.hm"
 version = properties["version"] ?: "local-build"
@@ -75,6 +76,7 @@ dependencies {
     // Rapids and Rivers
     implementation("com.github.navikt:hm-rapids-and-rivers-v2-core:$rapidsRiversVersion")
     implementation("com.github.navikt:hm-rapids-and-rivers-v2-micronaut:$rapidsRiversVersion")
+    implementation("no.nav.hm.grunndata:hm-grunndata-rapid-dto:$grunndataDtoVersion")
 }
 
 micronaut {
