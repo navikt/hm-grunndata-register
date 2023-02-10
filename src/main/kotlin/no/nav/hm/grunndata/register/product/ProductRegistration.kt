@@ -6,6 +6,7 @@ import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
 import jakarta.persistence.Column
+import no.nav.hm.grunndata.dto.ProductDTO
 import java.time.LocalDateTime
 import java.util.*
 

@@ -5,9 +5,9 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import no.nav.hm.grunndata.dto.SupplierInfo
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.Supplier
-import no.nav.hm.grunndata.register.supplier.SupplierInfo
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
 import org.junit.jupiter.api.Test
 import java.util.*

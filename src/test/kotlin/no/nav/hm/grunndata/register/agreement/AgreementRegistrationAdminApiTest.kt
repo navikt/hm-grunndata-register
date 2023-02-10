@@ -6,12 +6,11 @@ import io.kotest.matchers.shouldBe
 import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.dto.AgreementDTO
+import no.nav.hm.grunndata.dto.AgreementPost
 import no.nav.hm.grunndata.register.product.REGISTER
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.Supplier
-import no.nav.hm.grunndata.register.supplier.SupplierInfo
-import no.nav.hm.grunndata.register.supplier.SupplierRepository
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
 import org.junit.jupiter.api.BeforeEach
@@ -49,7 +48,9 @@ class AgreementRegistrationAdminApiTest(private val apiClient: AgreementRegistra
                 AgreementPost(identifier = "unik-post1", title = "Post title",
                     description = "post description", nr = 1), AgreementPost(identifier = "unik-post2", title = "Post title 2",
                     description = "post description 2", nr = 2)
-            ), createdBy = REGISTER, updatedBy = REGISTER
+            ), createdBy = REGISTER, updatedBy = REGISTER,
+            created = LocalDateTime.now(),
+            updated = LocalDateTime.now()
         )
 
         val agreementRegistration = AgreementRegistrationDTO(

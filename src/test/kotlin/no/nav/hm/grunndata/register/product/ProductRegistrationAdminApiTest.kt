@@ -10,11 +10,12 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.dto.*
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.Supplier
-import no.nav.hm.grunndata.register.supplier.SupplierInfo
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
+import no.nav.hm.grunndata.register.supplier.toDTO
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
@@ -33,6 +34,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
     val email = "admin@test.test"
     val password = "admin-123"
     val supplierId = UUID.randomUUID()
+    var testSupplier : SupplierDTO? = null
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -40,7 +42,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
     @BeforeEach
     fun createUserSupplier() {
         runBlocking {
-            val testSupplier = supplierRepository.save(
+            testSupplier = supplierRepository.save(
                 Supplier(
                     id = supplierId,
                     info = SupplierInfo(
@@ -52,7 +54,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
                     identifier = "supplier4-unique-name",
                     name = "Supplier AS4",
                 )
-            )
+            ).toDTO()
             userRepository.createUser(
                 User(
                     email = email, token = password, name = "User tester", roles = listOf(Roles.ROLE_ADMIN)
@@ -67,7 +69,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         val jwt = resp.getCookie("JWT").get().value
         val productDTO = ProductDTO(
             id = UUID.randomUUID(),
-            supplierId = supplierId,
+            supplier = testSupplier!!,
             title = "Dette er produkt 1",
             attributes = mapOf(
                 AttributeNames.articlename to "produktnavn", AttributeNames.shortdescription to "En kort beskrivelse av produktet",
@@ -101,7 +103,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         )
         val registration = ProductRegistrationDTO(
             id = productDTO.id,
-            supplierId = productDTO.supplierId,
+            supplierId = productDTO.supplier.id,
             supplierRef = productDTO.supplierRef,
             HMSArtNr = productDTO.hmsArtNr,
             title = productDTO.title,

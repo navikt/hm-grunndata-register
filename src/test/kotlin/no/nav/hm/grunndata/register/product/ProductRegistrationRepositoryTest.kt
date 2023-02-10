@@ -4,6 +4,7 @@ import io.kotest.common.runBlocking
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import no.nav.hm.grunndata.dto.*
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.util.*
@@ -15,7 +16,8 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
     fun crudRepositoryTest() {
         val productDTO = ProductDTO (
             id = UUID.randomUUID(),
-            supplierId = UUID.randomUUID(),
+            supplier = SupplierDTO(id= UUID.randomUUID(), identifier = "12345", updated = LocalDateTime.now(),
+                created = LocalDateTime.now(), createdBy = REGISTER, updatedBy = REGISTER, info = SupplierInfo(), name = "testsupplier"),
             title = "Dette er produkt title",
             attributes = mapOf(
                AttributeNames.articlename to  "produktnavn", AttributeNames.shortdescription to "En kort beskrivelse av produktet",

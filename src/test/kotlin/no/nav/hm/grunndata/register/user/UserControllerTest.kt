@@ -3,7 +3,6 @@ package no.nav.hm.grunndata.register.user
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.mpp.log
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.MediaType
 import io.micronaut.http.client.HttpClient
@@ -12,10 +11,10 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.dto.SupplierInfo
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.Supplier
-import no.nav.hm.grunndata.register.supplier.SupplierInfo
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

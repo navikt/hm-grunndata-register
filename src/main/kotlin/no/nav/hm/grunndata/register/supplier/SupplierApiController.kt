@@ -3,7 +3,8 @@ package no.nav.hm.grunndata.register.supplier
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
-import io.micronaut.security.rules.SecurityRule
+import no.nav.hm.grunndata.dto.SupplierDTO
+import no.nav.hm.grunndata.dto.SupplierStatus
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierApiController.Companion.API_V1_ADMIN_SUPPLIER_REGISTRATIONS
 import org.slf4j.LoggerFactory

@@ -4,6 +4,8 @@ import io.kotest.common.runBlocking
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import no.nav.hm.grunndata.dto.AgreementDTO
+import no.nav.hm.grunndata.dto.AgreementPost
 import no.nav.hm.grunndata.register.product.REGISTER
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
@@ -22,7 +24,8 @@ class AgreementRepositoryTest(private val agreementRegistrationRepository: Agree
                 AgreementPost(identifier = "unik-post1", title = "Post title",
                 description = "post description", nr = 1), AgreementPost(identifier = "unik-post2", title = "Post title 2",
                     description = "post description 2", nr = 2)
-            ), createdBy = REGISTER, updatedBy = REGISTER)
+            ), createdBy = REGISTER, updatedBy = REGISTER,
+            created = LocalDateTime.now(), updated = LocalDateTime.now())
         val agreementRegistration = AgreementRegistration(
             id = agreementId, published = agreement.published, expired = agreement.expired, title = agreement.title,
             reference = agreement.reference, updatedByUser = "username", createdByUser = "username",

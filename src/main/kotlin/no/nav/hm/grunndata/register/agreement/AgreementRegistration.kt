@@ -5,8 +5,9 @@ import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
+import no.nav.hm.grunndata.dto.AgreementDTO
 import no.nav.hm.grunndata.register.product.DraftStatus
-import no.nav.hm.grunndata.register.product.Media
+
 import no.nav.hm.grunndata.register.product.REGISTER
 import java.time.LocalDateTime
 import java.util.*
@@ -47,37 +48,6 @@ data class AgreementRegistrationDTO (
     val updatedBy: String = REGISTER,
     val agreementDTO: AgreementDTO,
     val version: Long? = 0L
-)
-
-data class AgreementPost (
-    val identifier: String,
-    val nr: Int,
-    val title: String,
-    val description: String,
-    val created: LocalDateTime = LocalDateTime.now()
-)
-
-data class AgreementAttachment (
-    val title: String?,
-    val media: List<Media> = emptyList(),
-    val description: String?,
-)
-
-data class AgreementDTO(
-    val id: UUID,
-    val identifier: String,
-    val title: String,
-    val resume: String?,
-    val text: String?,
-    val reference: String,
-    val published: LocalDateTime,
-    val expired: LocalDateTime,
-    val attachments: List<AgreementAttachment> = emptyList(),
-    val posts: List<AgreementPost>,
-    val createdBy:String,
-    val updatedBy: String,
-    val created: LocalDateTime = LocalDateTime.now(),
-    val updated: LocalDateTime = LocalDateTime.now(),
 )
 
 fun AgreementRegistration.toDTO(): AgreementRegistrationDTO = AgreementRegistrationDTO(

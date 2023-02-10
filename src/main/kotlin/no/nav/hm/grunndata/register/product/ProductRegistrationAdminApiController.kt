@@ -10,9 +10,9 @@ import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import no.nav.hm.grunndata.register.eventName
+import no.nav.hm.grunndata.dto.ProductStatus
+
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.rapids_rivers.micronaut.KafkaRapidService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
