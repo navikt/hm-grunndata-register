@@ -14,7 +14,6 @@ val postgresqlVersion= "42.5.1"
 val tcVersion= "1.17.6"
 val mockkVersion = "1.13.2"
 val kotestVersion = "5.5.4"
-val apachePoiVersion = "5.2.3"
 val openSearchRestClientVersion = "1.3.5"
 val rapidsRiversVersion="202301310932"
 val grunndataDtoVersion = "202302100934"
@@ -64,8 +63,6 @@ dependencies {
     implementation("io.micronaut.micrometer:micronaut-micrometer-core")
     implementation("io.micronaut.micrometer:micronaut-micrometer-registry-prometheus")
     implementation("io.micronaut:micronaut-management")
-    // Apache POI for excel file handling
-    implementation("org.apache.poi:poi:$apachePoiVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.micronaut.test:micronaut-test-kotest5")
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
