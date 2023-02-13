@@ -18,7 +18,8 @@ interface AgreementRegistrationAdminApiClient {
                        @QueryValue reference: String?=null,
                        @QueryValue createdByUser: String? = null,
                        @QueryValue updatedByUser: String? = null,
-                       @QueryValue("size") size: Int? = null, @QueryValue("number") number: Int?=null,
+                       @QueryValue("size") size: Int? = null,
+                       @QueryValue("page") page: Int?=null,
                        @QueryValue("sort") sort: String? = null): Page<AgreementRegistrationDTO>
 
     @Get(uri = "/{id}", consumes = [MediaType.APPLICATION_JSON])

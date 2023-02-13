@@ -12,7 +12,7 @@ interface ProductionRegistrationApiClient {
 
     @Get(uri = "/", consumes = [APPLICATION_JSON])
     fun findProducts(@CookieValue("JWT") jwt: String, @QueryValue("size") size: Int? = null,
-                     @QueryValue("number") number: Int?=null, @QueryValue("sort") sort: String? = null): Page<ProductRegistrationDTO>
+                     @QueryValue("page") page: Int?=null, @QueryValue("sort") sort: String? = null): Page<ProductRegistrationDTO>
 
     @Post(uri = "/", processes = [APPLICATION_JSON])
     fun createProduct(@CookieValue("JWT") jwt: String,

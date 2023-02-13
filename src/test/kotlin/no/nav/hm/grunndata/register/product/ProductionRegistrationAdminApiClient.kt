@@ -19,7 +19,7 @@ interface ProductionRegistrationAdminApiClient {
                      @QueryValue createdByUser: String? = null,
                      @QueryValue updatedByUser: String? = null,
                      @QueryValue("size") size: Int? = null,
-                     @QueryValue("number") number: Int?=null,
+                     @QueryValue("page") page: Int?=null,
                      @QueryValue("sort") sort: String? = null): Page<ProductRegistrationDTO>
 
     @Post(uri = "/", processes = [APPLICATION_JSON])

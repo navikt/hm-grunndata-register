@@ -140,7 +140,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
 
         val page = apiClient.findProducts(jwt = jwt,
             supplierId = supplierId, supplierRef = "eksternref-111",
-            size = 20, number = 0, sort = "created,asc")
+            size = 20, page = 0, sort = "created,asc")
         page.totalSize shouldBe 1
 
         val updatedVersion = apiClient.readProduct(jwt, updated.id)
