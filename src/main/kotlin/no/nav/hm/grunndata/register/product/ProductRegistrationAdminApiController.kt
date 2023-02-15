@@ -10,7 +10,7 @@ import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import no.nav.hm.grunndata.dto.ProductStatus
+import no.nav.hm.grunndata.dto.*
 
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
@@ -85,7 +85,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
         productRegistrationRepository.findById(id)
             ?.let {
                 val productDTO = it.productDTO.copy(status = ProductStatus.INACTIVE, expired = LocalDateTime.now().minusMinutes(1L))
-                val dto = productRegistrationRepository.update(it.copy(status=RegistrationStatus.DELETED, productDTO = productDTO)).toDTO()
+                val dto = productRegistrationRepository.update(it.copy(status= RegistrationStatus.DELETED, productDTO = productDTO)).toDTO()
                 kafkaRapidHandler.pushProductToKafka(dto)
                 HttpResponse.ok(dto)}
             ?: HttpResponse.notFound()

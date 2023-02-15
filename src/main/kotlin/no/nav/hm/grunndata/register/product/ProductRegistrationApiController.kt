@@ -7,7 +7,10 @@ import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import no.nav.hm.grunndata.dto.AdminStatus
+import no.nav.hm.grunndata.dto.ProductRegistrationDTO
 import no.nav.hm.grunndata.dto.ProductStatus
+import no.nav.hm.grunndata.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.user.UserAttribute
 import org.slf4j.LoggerFactory
@@ -75,7 +78,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
                 val productDTO = it.productDTO.copy(status = ProductStatus.INACTIVE,
                     expired = LocalDateTime.now().minusMinutes(1L), updatedBy = REGISTER, updated = LocalDateTime.now())
                 val deleteDTO = productRegistrationRepository.update(it
-                    .copy(status=RegistrationStatus.DELETED, updatedByUser = authentication.name, productDTO = productDTO))
+                    .copy(status= RegistrationStatus.DELETED, updatedByUser = authentication.name, productDTO = productDTO))
                     .toDTO()
                 HttpResponse.ok(deleteDTO)
             }

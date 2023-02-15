@@ -1,5 +1,7 @@
 package no.nav.hm.grunndata.register.product
 
+import no.nav.hm.grunndata.dto.ProductRegistrationDTO
+
 
 fun ProductRegistrationDTO.toEntity(): ProductRegistration = ProductRegistration(id = id,
     supplierId = supplierId, supplierRef =supplierRef, HMSArtNr = HMSArtNr, title = title, draftStatus = draftStatus,

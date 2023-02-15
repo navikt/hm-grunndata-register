@@ -4,6 +4,7 @@ import io.micronaut.data.model.Page
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
+import no.nav.hm.grunndata.dto.ProductRegistrationDTO
 import java.util.*
 
 

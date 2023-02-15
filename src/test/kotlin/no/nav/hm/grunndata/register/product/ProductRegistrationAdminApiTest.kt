@@ -118,7 +118,9 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
             updatedByUser = email,
             createdByUser = email,
             productDTO = productDTO,
-            version = 1
+            version = 1,
+            createdBy = REGISTER,
+            updatedBy = REGISTER
         )
         val created = apiClient.createProduct(jwt, registration)
         created.shouldNotBeNull()
