@@ -10,6 +10,7 @@ import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.ProductDTO
+import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
@@ -30,11 +31,14 @@ class ProductSyncRiver(river: RiverHead,
             .validate { it.demandValue("payloadType", ProductDTO::class.java.simpleName)}
             .validate { it.demandKey("payload")}
             .validate { it.demandKey("eventId")}
+            .validate { it.demandKey( "dtoVersion")}
             .register(this)
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val eventId = packet["eventId"].asText()
+        val dtoVersion = packet["dtoVersion"].asLong()
+        if (dtoVersion > rapidDTOVersion) LOG.warn("dto version $dtoVersion is newer than $rapidDTOVersion")
         val dto = objectMapper.treeToValue(packet["payload"], ProductDTO::class.java)
         runBlocking {
             productRegistrationRepository.findById(dto.id)?.let { inDb ->

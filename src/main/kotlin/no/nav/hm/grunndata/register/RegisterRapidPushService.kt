@@ -5,6 +5,7 @@ import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.register.product.REGISTER
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
+import java.time.LocalDateTime
 
 @Singleton
 class RegisterRapidPushService(private val kafkaRapidService: RapidPushService) {
@@ -13,7 +14,7 @@ class RegisterRapidPushService(private val kafkaRapidService: RapidPushService) 
         kafkaRapidService.pushToRapid(
             key = "$eventName-${dto.id}",
             eventName = eventName, payload = dto, keyValues = mapOf("createdBy" to REGISTER,
-                "dtoVersion" to rapidDTOVersion)
+                "created" to LocalDateTime.now(), "dtoVersion" to rapidDTOVersion)
         )
     }
 }
