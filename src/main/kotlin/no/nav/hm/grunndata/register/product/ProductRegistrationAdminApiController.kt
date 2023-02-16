@@ -11,6 +11,7 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.event.EventName
 
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
@@ -62,7 +63,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                 val dto = productRegistrationRepository.save(registrationDTO
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name, createdByAdmin = true)
                     .toEntity()).toDTO()
-                kafkaRapidHandler.pushProductToKafka(dto)
+                kafkaRapidHandler.pushProductToKafka(dto, EventName.productRegistration)
                 HttpResponse.created(dto)
             }
 
@@ -75,7 +76,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = it.createdBy,
                         createdByAdmin = it.createdByAdmin)
                     val dto = productRegistrationRepository.update(updated.toEntity()).toDTO()
-                    kafkaRapidHandler.pushProductToKafka(dto)
+                    kafkaRapidHandler.pushProductToKafka(dto, EventName.productRegistration)
                     HttpResponse.ok(dto) }
                 ?: run {
                     HttpResponse.badRequest() }
@@ -86,7 +87,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
             ?.let {
                 val productDTO = it.productDTO.copy(status = ProductStatus.INACTIVE, expired = LocalDateTime.now().minusMinutes(1L))
                 val dto = productRegistrationRepository.update(it.copy(status= RegistrationStatus.DELETED, productDTO = productDTO)).toDTO()
-                kafkaRapidHandler.pushProductToKafka(dto)
+                kafkaRapidHandler.pushProductToKafka(dto, EventName.productRegistration)
                 HttpResponse.ok(dto)}
             ?: HttpResponse.notFound()
 

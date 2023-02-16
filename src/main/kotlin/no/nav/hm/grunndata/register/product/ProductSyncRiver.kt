@@ -10,6 +10,7 @@ import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.ProductDTO
+import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -20,14 +21,12 @@ class ProductSyncRiver(river: RiverHead,
                        private val objectMapper: ObjectMapper,
                        private val productRegistrationRepository: ProductRegistrationRepository): River.PacketListener {
 
-    private val eventName = "hm-grunndata-db-hmdb-product-sync"
-
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductSyncRiver::class.java)
     }
     init {
         river
-            .validate { it.demandValue("eventName", eventName)}
+            .validate { it.demandValue("eventName", EventName.hmdbproductsync)}
             .validate { it.demandValue("payloadType", ProductDTO::class.java.simpleName)}
             .validate { it.demandKey("payload")}
             .validate { it.demandKey("eventId")}

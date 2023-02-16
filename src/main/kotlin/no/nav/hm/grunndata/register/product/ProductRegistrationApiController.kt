@@ -11,6 +11,7 @@ import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.ProductRegistrationDTO
 import no.nav.hm.grunndata.rapid.dto.ProductStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.user.UserAttribute
 import org.slf4j.LoggerFactory
@@ -50,7 +51,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
                 val dto = productRegistrationRepository.save(registrationDTO
                     .copy(updatedByUser =  authentication.name, createdByUser = authentication.name )
                     .toEntity()).toDTO()
-                kafkaRapidHandler.pushProductToKafka(dto)
+                kafkaRapidHandler.pushProductToKafka(dto, EventName.productRegistration)
                 HttpResponse.created(dto)
             }
 
@@ -66,7 +67,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
                             createdBy = it.createdBy, createdByAdmin = it.createdByAdmin, adminStatus = it.adminStatus,
                             adminInfo = it.adminInfo)
                         .toEntity()).toDTO()
-                    kafkaRapidHandler.pushProductToKafka(dto)
+                    kafkaRapidHandler.pushProductToKafka(dto, EventName.productRegistration)
                     HttpResponse.ok(dto) }
                 ?: run {
                     HttpResponse.badRequest() }
