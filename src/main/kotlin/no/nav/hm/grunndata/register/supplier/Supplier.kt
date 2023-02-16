@@ -4,9 +4,9 @@ import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.model.DataType
-import no.nav.hm.grunndata.dto.SupplierDTO
-import no.nav.hm.grunndata.dto.SupplierInfo
-import no.nav.hm.grunndata.dto.SupplierStatus
+import no.nav.hm.grunndata.rapid.dto.SupplierDTO
+import no.nav.hm.grunndata.rapid.dto.SupplierInfo
+import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.register.product.REGISTER
 import java.time.LocalDateTime
 import java.util.UUID

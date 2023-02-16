@@ -1,6 +1,6 @@
 package no.nav.hm.grunndata.register.product
 
-import no.nav.hm.grunndata.dto.ProductRegistrationDTO
+import no.nav.hm.grunndata.rapid.dto.ProductRegistrationDTO
 
 
 fun ProductRegistrationDTO.toEntity(): ProductRegistration = ProductRegistration(id = id,

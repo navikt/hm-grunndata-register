@@ -5,7 +5,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
-import no.nav.hm.grunndata.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationAdminApiController.Companion.API_V1_ADMIN_AGREEMENT_REGISTRATIONS
 import java.util.*
 

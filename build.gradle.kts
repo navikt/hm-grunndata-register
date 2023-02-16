@@ -16,7 +16,7 @@ val mockkVersion = "1.13.2"
 val kotestVersion = "5.5.4"
 val openSearchRestClientVersion = "1.3.5"
 val rapidsRiversVersion="202301310932"
-val grunndataDtoVersion = "202302160820"
+val grunndataDtoVersion = "202302160845"
 
 group = "no.nav.hm"
 version = properties["version"] ?: "local-build"

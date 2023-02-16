@@ -6,8 +6,8 @@ import io.kotest.matchers.shouldBe
 import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.dto.AgreementDTO
-import no.nav.hm.grunndata.dto.AgreementPost
+import no.nav.hm.grunndata.rapid.dto.AgreementDTO
+import no.nav.hm.grunndata.rapid.dto.AgreementPost
 import no.nav.hm.grunndata.register.product.REGISTER
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles

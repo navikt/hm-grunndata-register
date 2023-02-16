@@ -10,7 +10,7 @@ import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import no.nav.hm.grunndata.dto.*
+import no.nav.hm.grunndata.rapid.dto.*
 
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory

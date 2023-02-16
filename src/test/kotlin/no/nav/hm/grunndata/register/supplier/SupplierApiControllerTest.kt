@@ -10,9 +10,9 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.dto.SupplierDTO
-import no.nav.hm.grunndata.dto.SupplierInfo
-import no.nav.hm.grunndata.dto.SupplierStatus
+import no.nav.hm.grunndata.rapid.dto.SupplierDTO
+import no.nav.hm.grunndata.rapid.dto.SupplierInfo
+import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.register.product.REGISTER
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
