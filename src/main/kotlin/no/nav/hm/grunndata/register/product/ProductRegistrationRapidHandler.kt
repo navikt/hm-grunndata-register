@@ -9,12 +9,4 @@ import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 @Singleton
 open class ProductRegistrationRapidHandler(private val kafkaRapidService: RapidPushService) {
 
-    fun pushProductToKafka(dto: ProductRegistrationDTO, eventName: String) {
-        if (dto.draftStatus == DraftStatus.DONE && dto.adminStatus == AdminStatus.APPROVED) {
-            kafkaRapidService.pushToRapid(
-                key = "$eventName-${dto.id}",
-                eventName = eventName, payload = dto, keyValues = mapOf("createdBy" to REGISTER)
-            )
-        }
-    }
 }

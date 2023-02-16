@@ -9,6 +9,7 @@ import no.nav.helse.rapids_rivers.KafkaRapid
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
 import no.nav.hm.grunndata.rapid.dto.SupplierDTO
+import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
 
@@ -34,7 +35,10 @@ class SupplierSyncRiver(river: RiverHead,
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val eventId = packet["eventId"].asText()
-        val supplier = objectMapper.treeToValue(packet["payload"], SupplierDTO::class.java).toEntity()
+        val dto = objectMapper.treeToValue(packet["payload"], SupplierDTO::class.java)
+        val version = dto.dtoVersion.toLong()
+        if (version > rapidDTOVersion.toLong()) LOG.warn("Old dto version detected, please update to $version")
+        val supplier = dto.toEntity()
         runBlocking {
             supplierRepository.findById(supplier.id)?.let { inDb ->
                 supplierRepository.update(supplier.copy(created = inDb.created)) } ?: supplierRepository.save(supplier)

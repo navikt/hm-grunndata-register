@@ -12,6 +12,7 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
+import no.nav.hm.grunndata.register.RegisterRapidPushService
 
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
@@ -21,7 +22,7 @@ import java.util.*
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
 class ProductRegistrationAdminApiController(private val productRegistrationRepository: ProductRegistrationRepository,
-                                            private val kafkaRapidHandler: ProductRegistrationRapidHandler) {
+                                            private val registerRapidPushService: RegisterRapidPushService) {
 
     companion object {
         const val API_V1_ADMIN_PRODUCT_REGISTRATIONS = "/api/v1/admin/product/registrations"
@@ -63,7 +64,9 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                 val dto = productRegistrationRepository.save(registrationDTO
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name, createdByAdmin = true)
                     .toEntity()).toDTO()
-                kafkaRapidHandler.pushProductToKafka(dto, EventName.productRegistration)
+                if (dto.draftStatus == DraftStatus.DONE && dto.adminStatus == AdminStatus.APPROVED) {
+                    registerRapidPushService.pushDTOToKafka(dto, EventName.productRegistration)
+                }
                 HttpResponse.created(dto)
             }
 
@@ -76,7 +79,9 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = it.createdBy,
                         createdByAdmin = it.createdByAdmin)
                     val dto = productRegistrationRepository.update(updated.toEntity()).toDTO()
-                    kafkaRapidHandler.pushProductToKafka(dto, EventName.productRegistration)
+                    if (dto.draftStatus == DraftStatus.DONE && dto.adminStatus == AdminStatus.APPROVED) {
+                        registerRapidPushService.pushDTOToKafka(dto, EventName.productRegistration)
+                    }
                     HttpResponse.ok(dto) }
                 ?: run {
                     HttpResponse.badRequest() }
@@ -87,7 +92,9 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
             ?.let {
                 val productDTO = it.productDTO.copy(status = ProductStatus.INACTIVE, expired = LocalDateTime.now().minusMinutes(1L))
                 val dto = productRegistrationRepository.update(it.copy(status= RegistrationStatus.DELETED, productDTO = productDTO)).toDTO()
-                kafkaRapidHandler.pushProductToKafka(dto, EventName.productRegistration)
+                if (dto.draftStatus == DraftStatus.DONE && dto.adminStatus == AdminStatus.APPROVED) {
+                    registerRapidPushService.pushDTOToKafka(dto, EventName.productRegistration)
+                }
                 HttpResponse.ok(dto)}
             ?: HttpResponse.notFound()
 

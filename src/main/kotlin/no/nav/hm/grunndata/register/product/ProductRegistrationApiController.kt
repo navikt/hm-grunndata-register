@@ -7,11 +7,9 @@ import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import no.nav.hm.grunndata.rapid.dto.AdminStatus
-import no.nav.hm.grunndata.rapid.dto.ProductRegistrationDTO
-import no.nav.hm.grunndata.rapid.dto.ProductStatus
-import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
+import no.nav.hm.grunndata.register.RegisterRapidPushService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.user.UserAttribute
 import org.slf4j.LoggerFactory
@@ -21,7 +19,7 @@ import java.util.*
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS)
 class ProductRegistrationApiController(private val productRegistrationRepository: ProductRegistrationRepository,
-                                       private val kafkaRapidHandler: ProductRegistrationRapidHandler) {
+                                       private val registerRapidPushService: RegisterRapidPushService) {
 
     companion object {
         const val API_V1_PRODUCT_REGISTRATIONS = "/api/v1/product/registrations"
@@ -51,7 +49,9 @@ class ProductRegistrationApiController(private val productRegistrationRepository
                 val dto = productRegistrationRepository.save(registrationDTO
                     .copy(updatedByUser =  authentication.name, createdByUser = authentication.name )
                     .toEntity()).toDTO()
-                kafkaRapidHandler.pushProductToKafka(dto, EventName.productRegistration)
+                if (dto.draftStatus == DraftStatus.DONE && dto.adminStatus == AdminStatus.APPROVED) {
+                    registerRapidPushService.pushDTOToKafka(dto, EventName.productRegistration)
+                }
                 HttpResponse.created(dto)
             }
 
@@ -67,7 +67,9 @@ class ProductRegistrationApiController(private val productRegistrationRepository
                             createdBy = it.createdBy, createdByAdmin = it.createdByAdmin, adminStatus = it.adminStatus,
                             adminInfo = it.adminInfo)
                         .toEntity()).toDTO()
-                    kafkaRapidHandler.pushProductToKafka(dto, EventName.productRegistration)
+                    if (dto.draftStatus == DraftStatus.DONE && dto.adminStatus == AdminStatus.APPROVED) {
+                        registerRapidPushService.pushDTOToKafka(dto, EventName.productRegistration)
+                    }
                     HttpResponse.ok(dto) }
                 ?: run {
                     HttpResponse.badRequest() }
