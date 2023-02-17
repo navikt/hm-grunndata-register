@@ -46,7 +46,13 @@ micronaut:
   data:
     pageable:
       max-page-size: 1000
-
+  caches:
+    suppliers:
+      charset: 'UTF-8'
+    agreements:
+      charset: 'UTF-8'
+    agreementposts:
+      charset: 'UTF-8'
 endpoints:
   metrics:
     enabled: true
