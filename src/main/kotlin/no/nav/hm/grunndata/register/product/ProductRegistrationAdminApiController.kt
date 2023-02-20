@@ -15,6 +15,8 @@ import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.RegisterRapidPushService
 
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.supplier.SupplierRepository
+import no.nav.hm.grunndata.register.supplier.toDTO
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
@@ -22,7 +24,8 @@ import java.util.*
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
 class ProductRegistrationAdminApiController(private val productRegistrationRepository: ProductRegistrationRepository,
-                                            private val registerRapidPushService: RegisterRapidPushService) {
+                                            private val registerRapidPushService: RegisterRapidPushService,
+                                            private val supplierRepository: SupplierRepository) {
 
     companion object {
         const val API_V1_ADMIN_PRODUCT_REGISTRATIONS = "/api/v1/admin/product/registrations"
@@ -55,6 +58,23 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
             ?.let {
                 HttpResponse.ok(it.toDTO()) }
             ?: HttpResponse.notFound()
+
+    @Get("/draft/{supplierId}")
+    suspend fun draftProduct(supplierId: UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
+        supplierRepository.findById(supplierId)?.let {
+            val supplier = it.toDTO()
+            val productId = UUID.randomUUID()
+            val product = ProductDTO(id = productId, updatedBy = REGISTER, createdBy = REGISTER, title = "", status = ProductStatus.INACTIVE,
+                supplier = supplier, supplierRef = productId.toString(), identifier = productId.toString(),
+                seriesId = productId.toString(), isoCategory = "", attributes = mapOf(AttributeNames.articlename to "artikkelnavn",
+                AttributeNames.shortdescription to "kort beskrivelse", AttributeNames.text to "en lang beskrivelse")
+            )
+            val registration = ProductRegistrationDTO(id = productId, supplierId= supplier.id, HMSArtNr = null,   createdBy = REGISTER,
+            updatedBy = REGISTER, supplierRef = productId.toString(), message = null, title = product.title,  published = product.published,
+            expired = product.expired, productDTO = product)
+            HttpResponse.ok(registration)
+        } ?: HttpResponse.badRequest()
+
 
     @Post("/")
     suspend fun createProduct(@Body registrationDTO: ProductRegistrationDTO, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
