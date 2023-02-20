@@ -60,19 +60,23 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                 HttpResponse.ok(it.toDTO()) }
             ?: HttpResponse.notFound()
 
-    @Get("/draft/reference/{supplierRef}/supplier/{supplierId}")
-    suspend fun draftProduct(supplierId: UUID, supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
-        supplierRepository.findById(supplierId)?.let {
+    @Get("/draft/reference/{supplierRef}/supplier/{supplierId}{?isAccessory}{?isSparePart}")
+    suspend fun draftProduct(supplierId: UUID, supplierRef: String, authentication: Authentication,
+                             @QueryValue(defaultValue = "false") isAccessory: Boolean,
+                             @QueryValue(defaultValue = "false") isSparePart: Boolean): HttpResponse<ProductRegistrationDTO> =
+        supplierRepository.findById(supplierId)?.let { it ->
             val supplier = it.toDTO()
             if (productRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)!=null) {
                 throw BadRequestException("$supplierId and $supplierRef duplicate error")
             }
             val productId = UUID.randomUUID()
             val product = ProductDTO(id = productId, updatedBy = REGISTER, createdBy = REGISTER, title = "", status = ProductStatus.INACTIVE,
-                supplier = supplier, supplierRef = supplierRef, identifier = productId.toString(),
-                seriesId = productId.toString(), isoCategory = "", attributes = mapOf(AttributeNames.articlename to "artikkelnavn",
-                AttributeNames.shortdescription to "kort beskrivelse", AttributeNames.text to "en lang beskrivelse")
-            )
+                supplier = supplier, supplierRef = supplierRef, identifier = "$supplierId-$supplierRef", accessory = isAccessory!!,
+                sparePart = isSparePart!!, seriesId = productId.toString(), isoCategory = "", attributes = mapOf(AttributeNames.articlename to "artikkelnavn",
+                AttributeNames.shortdescription to "kort beskrivelse", AttributeNames.text to "en lang beskrivelse",
+                    if (isSparePart || isAccessory) AttributeNames.compatible to listOf("HmsArtNr", "identifier")
+                    else AttributeNames.compatible to emptyList()
+                ))
             val registration = ProductRegistrationDTO(id = productId, supplierId= supplier.id, HMSArtNr = null,   createdBy = REGISTER,
             updatedBy = REGISTER, supplierRef = supplierRef, message = null, title = product.title,  published = product.published,
             expired = product.expired, productDTO = product, createdByUser = authentication.name, updatedByUser = authentication.name,
