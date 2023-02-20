@@ -5,6 +5,7 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import no.nav.hm.grunndata.rapid.dto.SupplierDTO
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
+import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierApiController.Companion.API_V1_ADMIN_SUPPLIER_REGISTRATIONS
 import org.slf4j.LoggerFactory
@@ -26,7 +27,7 @@ class SupplierApiController(private val supplierRepository: SupplierRepository) 
     @Post("/")
     suspend fun createSupplier(@Body supplier: SupplierDTO): HttpResponse<SupplierDTO> =
         supplierRepository.findById(supplier.id)
-            ?.let { HttpResponse.badRequest() }
+            ?.let { throw BadRequestException("supplier ${supplier.id} already exists") }
             ?:run { val supplier = supplierRepository.save(supplier.toEntity())
                 LOG.info("supplier ${supplier.id} created")
                 HttpResponse.created(supplier.toDTO())

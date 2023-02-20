@@ -11,6 +11,7 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.product.REGISTER
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
@@ -54,7 +55,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationR
     @Post("/")
     suspend fun createAgreement(@Body registrationDTO: AgreementRegistrationDTO, authentication: Authentication): HttpResponse<AgreementRegistrationDTO> =
             agreementRegistrationRepository.findById(registrationDTO.id)?.let {
-                HttpResponse.badRequest()
+                throw BadRequestException("agreement ${registrationDTO.id} already exists")
             } ?: run {
                 HttpResponse.created(agreementRegistrationRepository.save(registrationDTO
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name)
@@ -70,7 +71,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationR
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = inDb.createdBy)
                     HttpResponse.ok(agreementRegistrationRepository.update(updated.toEntity()).toDTO()) }
                 ?: run {
-                    HttpResponse.badRequest() }
+                    throw BadRequestException("${registrationDTO.id} does not exists")}
 
 }
 

@@ -4,6 +4,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import java.util.*
 
@@ -36,7 +37,7 @@ class UserController(private val userRepository: UserRepository) {
             userRepository.loginUser(authentication.name, changePassword.oldPassword)?.let {
                 userRepository.changePassword(it.id, changePassword.oldPassword, changePassword.newPassword)
                 HttpResponse.ok()
-            } ?: HttpResponse.badRequest()
+            } ?: throw BadRequestException("Wrong user info, please check password and email is correct")
         }
         else HttpResponse.unauthorized()
 }
