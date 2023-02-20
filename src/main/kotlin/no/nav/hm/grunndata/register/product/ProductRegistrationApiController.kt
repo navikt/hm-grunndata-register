@@ -11,6 +11,8 @@ import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.RegisterRapidPushService
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.supplier.SupplierRepository
+import no.nav.hm.grunndata.register.supplier.toDTO
 import no.nav.hm.grunndata.register.user.UserAttribute
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -19,7 +21,8 @@ import java.util.*
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS)
 class ProductRegistrationApiController(private val productRegistrationRepository: ProductRegistrationRepository,
-                                       private val registerRapidPushService: RegisterRapidPushService) {
+                                       private val registerRapidPushService: RegisterRapidPushService,
+                                       private val supplierRepository: SupplierRepository) {
 
     companion object {
         const val API_V1_PRODUCT_REGISTRATIONS = "/api/v1/product/registrations"
@@ -87,6 +90,25 @@ class ProductRegistrationApiController(private val productRegistrationRepository
             }
             ?: HttpResponse.notFound()
 
+    @Get("/draft/reference/{supplierRef}")
+    suspend fun draftProduct(@PathVariable supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
+        val supplierId = userSupplierId(authentication)
+        productRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)?.let {
+            return HttpResponse.badRequest()
+        } ?: run {
+            val supplier = supplierRepository.findById(supplierId)!!.toDTO()
+            val productId = UUID.randomUUID()
+            val product = ProductDTO(id = productId, updatedBy = REGISTER, createdBy = REGISTER, title = "", status = ProductStatus.INACTIVE,
+                supplier = supplier, supplierRef = supplierRef, identifier = productId.toString(),
+                seriesId = productId.toString(), isoCategory = "", attributes = mapOf(AttributeNames.articlename to "artikkelnavn",
+                    AttributeNames.shortdescription to "kort beskrivelse", AttributeNames.text to "en lang beskrivelse")
+            )
+            val registration = ProductRegistrationDTO(id = productId, supplierId= supplier.id, HMSArtNr = null,   createdBy = REGISTER,
+                updatedBy = REGISTER, supplierRef = supplierRef, message = null, title = product.title,  published = product.published,
+                expired = product.expired, productDTO = product)
+            return HttpResponse.ok(registration)
+        }
+    }
 
     private fun userSupplierId(authentication: Authentication) = UUID.fromString(
         authentication.attributes[UserAttribute.SUPPLIER_ID] as String )

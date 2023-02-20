@@ -18,4 +18,6 @@ interface ProductRegistrationRepository : CoroutineCrudRepository<ProductRegistr
 
     suspend fun findByHMSArtNrAndSupplierId(HMSArtNr: String, supplierId: UUID): ProductRegistration?
 
+    suspend fun findBySupplierIdAndSupplierRef(supplierId: UUID, supplierRef: String): ProductRegistration?
+
 }
