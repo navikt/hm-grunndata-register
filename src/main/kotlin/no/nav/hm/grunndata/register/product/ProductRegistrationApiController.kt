@@ -47,7 +47,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
         else if (registrationDTO.createdByAdmin || registrationDTO.adminStatus == AdminStatus.APPROVED) HttpResponse.unauthorized()
         else
             productRegistrationRepository.findById(registrationDTO.id)?.let {
-                HttpResponse.badRequest()
+                throw BadRequestException("Product registration already exists ${registrationDTO.id}")
             } ?: run {
                 val dto = productRegistrationRepository.save(registrationDTO
                     .copy(updatedByUser =  authentication.name, createdByUser = authentication.name )
@@ -75,7 +75,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
                     }
                     HttpResponse.ok(dto) }
                 ?: run {
-                    HttpResponse.badRequest() }
+                    throw BadRequestException("Product does not exists $id") }
 
     @Delete("/{id}")
     suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
@@ -94,7 +94,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
     suspend fun draftProduct(@PathVariable supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
         val supplierId = userSupplierId(authentication)
         productRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)?.let {
-            return HttpResponse.badRequest()
+            throw BadRequestException("$supplierId and $supplierRef already exists")
         } ?: run {
             val supplier = supplierRepository.findById(supplierId)!!.toDTO()
             val productId = UUID.randomUUID()

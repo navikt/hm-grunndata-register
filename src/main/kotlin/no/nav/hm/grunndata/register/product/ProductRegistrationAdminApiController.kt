@@ -83,7 +83,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
     @Post("/")
     suspend fun createProduct(@Body registrationDTO: ProductRegistrationDTO, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
             productRegistrationRepository.findById(registrationDTO.id)?.let {
-                HttpResponse.badRequest()
+                throw BadRequestException("Product registration already exists ${registrationDTO.id}")
             } ?: run {
                 val dto = productRegistrationRepository.save(registrationDTO
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name, createdByAdmin = true)
@@ -108,7 +108,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                     }
                     HttpResponse.ok(dto) }
                 ?: run {
-                    HttpResponse.badRequest() }
+                    throw BadRequestException("Product registration already exists $id") }
 
     @Delete("/{id}")
     suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
