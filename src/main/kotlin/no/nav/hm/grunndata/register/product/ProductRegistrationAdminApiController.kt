@@ -59,21 +59,25 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                 HttpResponse.ok(it.toDTO()) }
             ?: HttpResponse.notFound()
 
-    @Get("/draft/supplier/{supplierId}")
-    suspend fun draftProduct(supplierId: UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
+    @Get("/draft/reference/{supplierRef}/supplier/{supplierId}")
+    suspend fun draftProduct(supplierId: UUID, supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
         supplierRepository.findById(supplierId)?.let {
             val supplier = it.toDTO()
+            if (productRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)!=null) {
+                throw BadRequestException("$supplierId and $supplierRef duplicate error")
+            }
             val productId = UUID.randomUUID()
             val product = ProductDTO(id = productId, updatedBy = REGISTER, createdBy = REGISTER, title = "", status = ProductStatus.INACTIVE,
-                supplier = supplier, supplierRef = productId.toString(), identifier = productId.toString(),
+                supplier = supplier, supplierRef = supplierRef, identifier = productId.toString(),
                 seriesId = productId.toString(), isoCategory = "", attributes = mapOf(AttributeNames.articlename to "artikkelnavn",
                 AttributeNames.shortdescription to "kort beskrivelse", AttributeNames.text to "en lang beskrivelse")
             )
             val registration = ProductRegistrationDTO(id = productId, supplierId= supplier.id, HMSArtNr = null,   createdBy = REGISTER,
-            updatedBy = REGISTER, supplierRef = productId.toString(), message = null, title = product.title,  published = product.published,
-            expired = product.expired, productDTO = product)
+            updatedBy = REGISTER, supplierRef = supplierRef, message = null, title = product.title,  published = product.published,
+            expired = product.expired, productDTO = product, createdByUser = authentication.name, updatedByUser = authentication.name,
+                createdByAdmin = true)
             HttpResponse.ok(registration)
-        } ?: HttpResponse.badRequest()
+        } ?: throw BadRequestException("$supplierId does not exist")
 
 
     @Post("/")

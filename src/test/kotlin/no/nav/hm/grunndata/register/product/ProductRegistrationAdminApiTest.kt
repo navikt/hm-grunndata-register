@@ -149,9 +149,12 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         updatedVersion.version!! shouldBeGreaterThan 0
         updatedVersion.updatedByUser shouldBe email
 
-        val draft = apiClient.draftProduct(jwt, testSupplier!!.id)
+        val draft = apiClient.draftProduct(jwt, "eksternref-222", testSupplier!!.id)
         draft.shouldNotBeNull()
         draft.supplierId shouldBe  testSupplier!!.id
+        draft.supplierRef shouldBe  "eksternref-222"
+        draft.createdByAdmin shouldBe true
+        draft.createdByUser shouldBe email
 
     }
 
