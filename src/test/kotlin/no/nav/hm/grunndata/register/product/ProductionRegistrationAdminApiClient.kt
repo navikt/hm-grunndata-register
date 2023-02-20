@@ -30,7 +30,7 @@ interface ProductionRegistrationAdminApiClient {
                       @Body productRegistrationDTO: ProductRegistrationDTO
     ): ProductRegistrationDTO
 
-    @Get(uri = "/{id}", consumes = [APPLICATION_JSON])
+    @Get(uri = "/{id}", produces = [APPLICATION_JSON])
     fun readProduct(@CookieValue("JWT") jwt: String, id: UUID): ProductRegistrationDTO
 
     @Put(uri= "/{id}", processes = [APPLICATION_JSON])
@@ -40,4 +40,7 @@ interface ProductionRegistrationAdminApiClient {
 
     @Delete(uri="/{id}", consumes = [APPLICATION_JSON])
     fun deleteProduct(@CookieValue("JWT") jwt: String, id:UUID): ProductRegistrationDTO
+
+    @Get(uri="/draft/supplier/{supplierId}", produces = [APPLICATION_JSON])
+    fun draftProduct(@CookieValue("JWT") jwt: String, supplierId: UUID):ProductRegistrationDTO
 }

@@ -59,7 +59,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                 HttpResponse.ok(it.toDTO()) }
             ?: HttpResponse.notFound()
 
-    @Get("/draft/{supplierId}")
+    @Get("/draft/supplier/{supplierId}")
     suspend fun draftProduct(supplierId: UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
         supplierRepository.findById(supplierId)?.let {
             val supplier = it.toDTO()
