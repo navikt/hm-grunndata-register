@@ -64,20 +64,28 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
     }
 
     @Test
-    fun apiTest() {
+    fun aGoodDayRegistrationScenarioTest() {
+        // Login to get authentication cookie
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
-        val productDTO = ProductDTO(
-            id = UUID.randomUUID(),
-            supplier = testSupplier!!,
+
+        // create a draft to begin product registration
+        val draft = apiClient.draftProduct(jwt, "eksternref-222", testSupplier!!.id)
+        draft.shouldNotBeNull()
+        draft.supplierId shouldBe  testSupplier!!.id
+        draft.supplierRef shouldBe  "eksternref-222"
+        draft.createdByAdmin shouldBe true
+        draft.createdByUser shouldBe email
+        println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(draft))
+
+        // Edit the draft
+        val productDTO = draft.productDTO.copy(
             title = "Dette er produkt 1",
             attributes = mapOf(
                 AttributeNames.articlename to "produktnavn", AttributeNames.shortdescription to "En kort beskrivelse av produktet",
                 AttributeNames.text to "En lang beskrivelse av produktet"
             ),
             hmsArtNr = "111",
-            identifier = "hmdb-111",
-            supplierRef = "eksternref-111",
             isoCategory = "12001314",
             accessory = false,
             sparePart = false,
@@ -97,11 +105,9 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
                 postNr = 1,
                 reference = "AV-142",
                 expired =  LocalDateTime.now()
-            ),
-            createdBy = REGISTER,
-            updatedBy = REGISTER
+            )
         )
-        val registration = ProductRegistrationDTO(
+        val registration = draft.copy(
             id = productDTO.id,
             supplierId = productDTO.supplier.id,
             supplierRef = productDTO.supplierRef,
@@ -109,52 +115,40 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
             title = productDTO.title,
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.NOT_APPROVED,
-            status = RegistrationStatus.ACTIVE,
             message = "Melding til leverandør",
             adminInfo = null,
-            createdByAdmin = false,
-            expired = null,
-            published = null,
-            updatedByUser = email,
-            createdByUser = email,
-            productDTO = productDTO,
-            version = 1,
-            createdBy = REGISTER,
-            updatedBy = REGISTER
+            productDTO = productDTO
         )
+
+        // save the draft to database
         val created = apiClient.createProduct(jwt, registration)
         created.shouldNotBeNull()
 
+        // read it from database
         val read = apiClient.readProduct(jwt, created.id)
-        println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(read))
         read.shouldNotBeNull()
         read.title shouldBe created.title
         read.createdByUser shouldBe email
 
+        // make some changes
         val updated = apiClient.updateProduct(jwt, read.id, read.copy(title="new title"))
         updated.shouldNotBeNull()
         updated.title shouldBe "new title"
 
+        // flag the registration to deleted
         val deleted = apiClient.deleteProduct(jwt, updated.id)
         deleted.shouldNotBeNull()
         deleted.status shouldBe RegistrationStatus.DELETED
         deleted.productDTO.status shouldBe ProductStatus.INACTIVE
 
         val page = apiClient.findProducts(jwt = jwt,
-            supplierId = supplierId, supplierRef = "eksternref-111",
+            supplierId = supplierId, supplierRef = "eksternref-222",
             size = 20, page = 0, sort = "created,asc")
         page.totalSize shouldBe 1
 
         val updatedVersion = apiClient.readProduct(jwt, updated.id)
         updatedVersion.version!! shouldBeGreaterThan 0
         updatedVersion.updatedByUser shouldBe email
-
-        val draft = apiClient.draftProduct(jwt, "eksternref-222", testSupplier!!.id)
-        draft.shouldNotBeNull()
-        draft.supplierId shouldBe  testSupplier!!.id
-        draft.supplierRef shouldBe  "eksternref-222"
-        draft.createdByAdmin shouldBe true
-        draft.createdByUser shouldBe email
 
     }
 
