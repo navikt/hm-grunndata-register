@@ -8,10 +8,6 @@ jobs:
     uses: navikt/pam-deploy/.github/workflows/deploy-prod.yml@v2
     with:
       NAIS_RESOURCE: ".nais/nais.yml"
-      NAIS_VARS: ".nais/nais-dev.json"
-      JAVA_VERSION: 17
-      SNYK_ENABLED: true
-      SNYK_ORG: "hjelpemiddelbehov"
+      NAIS_VARS: ".nais/nais-prod.json"
     secrets:
       NAIS_DEPLOY_APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}

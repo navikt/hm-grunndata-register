@@ -2,5 +2,7 @@
   "disk_tier": "db-f1-micro",
   "disk_size": 10,
   "kafka_cluster": "nav-dev",
-  "rapidsandrivers_enabled": true
+  "rapidsandrivers_enabled": true,
+  "min_replicas": 1,
+  "max_replicas": 1
 }
