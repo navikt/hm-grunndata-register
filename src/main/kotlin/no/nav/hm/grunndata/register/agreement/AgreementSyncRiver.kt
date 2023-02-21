@@ -41,11 +41,12 @@ class AgreementSyncRiver(river: RiverHead,
         runBlocking {
             agreementRegistrationRepository.findById(dto.id)?.let { inDb ->
                 agreementRegistrationRepository.update(inDb.copy(agreementDTO = dto, reference = dto.reference,
-                    title = dto.title, published = dto.published, expired = dto.expired, updated = LocalDateTime.now())) }
+                    title = dto.title, published = dto.published, expired = dto.expired, created = dto.created,
+                    updated = dto.updated)) }
                 ?: agreementRegistrationRepository.save(AgreementRegistration(
                     title = dto.title, id = dto.id, createdByUser = dto.createdBy, updatedByUser = dto.updatedBy,
                     createdBy = dto.createdBy, updatedBy = dto.updatedBy, reference = dto.reference,
-                    published = dto.published, expired = dto.expired,
+                    published = dto.published, expired = dto.expired, updated = dto.updated, created = dto.created,
                     draftStatus = DraftStatus.DONE, agreementDTO = dto
                 ))
             LOG.info("Agreement ${dto.id} with eventId $eventId synced from HMDB")
