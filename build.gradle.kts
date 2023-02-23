@@ -2,7 +2,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jvmTarget = "17"
-val micronautVersion="3.8.4"
+val micronautVersion="3.8.5"
 val kafkaVersion = "3.2.1"
 val micrometerRegistryPrometheusVersion = "1.9.1"
 val junitJupiterVersion = "5.9.0"
@@ -14,9 +14,8 @@ val postgresqlVersion= "42.5.1"
 val tcVersion= "1.17.6"
 val mockkVersion = "1.13.2"
 val kotestVersion = "5.5.4"
-val openSearchRestClientVersion = "1.3.5"
 val rapidsRiversVersion="202301310932"
-val grunndataDtoVersion = "202302161342"
+val grunndataDtoVersion = "202302221558"
 
 group = "no.nav.hm"
 version = properties["version"] ?: "local-build"
@@ -27,7 +26,7 @@ plugins {
     kotlin("plugin.allopen") version "1.7.0"
     id("java")
     id("com.github.johnrengelman.shadow") version "7.1.0"
-    id("io.micronaut.application") version "3.6.6"
+    id("io.micronaut.application") version "3.7.2"
 }
 
 configurations.all {
