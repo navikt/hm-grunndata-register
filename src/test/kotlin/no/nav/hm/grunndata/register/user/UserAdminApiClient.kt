@@ -22,4 +22,8 @@ interface UserAdminApiClient {
                  @QueryValue("page") page: Int?=null,
                  @QueryValue("sort") sort: String? = null)
 
+
+    @Get("/{id}")
+    fun getUser(id:UUID) : HttpResponse<UserDTO>
+
 }

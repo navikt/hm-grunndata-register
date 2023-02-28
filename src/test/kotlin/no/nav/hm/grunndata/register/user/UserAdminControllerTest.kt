@@ -68,12 +68,23 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
         val jwtUser = loginClient.login(UsernamePasswordCredentials(userEmail, password))
             .getCookie("JWT").get().value
 
+        // admin user can create new user
         val resp = userAdminApiClient.createUser(jwtAdmin, UserRegistrationDTO (
             email = "anotheruser@test.test", password = "test123", roles = listOf(Roles.ROLE_SUPPLIER),
             name = "another user", attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier!!.id.toString()))
         ))
-
         resp.status shouldBe  HttpStatus.CREATED
+
+        // supplier can not create new user
+        // TODO need to check if we should allow supplier to create new user.
+        runCatching {
+            val resp2 = userAdminApiClient.createUser(jwtUser, UserRegistrationDTO (
+                email = "anotheruser2@test.test", password = "test123", roles = listOf(Roles.ROLE_SUPPLIER),
+                name = "another user2", attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier!!.id.toString()))
+            ))
+        }.isFailure shouldBe true
+
+        //
     }
 
 }
