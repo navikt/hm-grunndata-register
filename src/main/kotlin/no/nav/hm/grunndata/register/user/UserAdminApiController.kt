@@ -5,8 +5,11 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
+import io.micronaut.security.authentication.Authentication
+import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -24,7 +27,7 @@ class UserAdminApiController(private val userRepository: UserRepository) {
         userRepository.findAll(buildCriteriaSpec(params), pageable).map { it.toDTO() }
 
 
-    private fun buildCriteriaSpec(params: java.util.HashMap<String, String>?): PredicateSpecification<User>? =
+    private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<User>? =
         params?.let {
             where {
                 if (params.contains("email")) root[User::email] eq params["email"]
@@ -38,6 +41,17 @@ class UserAdminApiController(private val userRepository: UserRepository) {
                     )
             }
         }
+
+    @Post("/")
+    suspend fun createUser(@Body dto: UserRegistrationDTO): HttpResponse<UserDTO> {
+        LOG.info("Creating user ${dto.id} ")
+        val entity = User(
+            id = dto.id, name = dto.name, email = dto.email, token = dto.password, roles = dto.roles,
+            attributes = dto.attributes
+        )
+        userRepository.createUser(entity)
+        return HttpResponse.created(entity.toDTO())
+    }
 
 }
 

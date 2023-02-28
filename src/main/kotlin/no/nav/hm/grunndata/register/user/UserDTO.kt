@@ -26,3 +26,12 @@ fun User.toDTO() = UserDTO (
     created = created,
     updated = updated
 )
+
+data class UserRegistrationDTO(
+    val id: UUID = UUID.randomUUID(),
+    val name: String,
+    val email: String,
+    val password: String,
+    val roles: List<String> = emptyList(),
+    val attributes : Map<String, String> = emptyMap(),
+)
