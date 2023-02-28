@@ -8,12 +8,10 @@ import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
-import jakarta.persistence.criteria.Path
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.user.UserAdminApiController.Companion.API_V1_ADMIN_USER_REGISTRATIONS
 import org.slf4j.LoggerFactory
 import java.util.*
-import javax.validation.constraints.Email
 
 
 @Secured(Roles.ROLE_ADMIN)

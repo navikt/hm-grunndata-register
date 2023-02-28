@@ -99,6 +99,10 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
         // Should be two users from same supplierId
         val supplierUsers = userAdminApiClient.getUsersBySupplierId(jwtAdmin, supplierId = supplierId)
         supplierUsers.size shouldBe 2
+        val oneUser = supplierUsers[0]
+
+        val updated = userAdminApiClient.updateUser(jwtAdmin, oneUser.id, oneUser.copy(name="New Name"))
+        updated.body().name shouldBe "New Name"
 
     }
 

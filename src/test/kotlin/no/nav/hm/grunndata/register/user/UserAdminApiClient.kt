@@ -4,8 +4,6 @@ import io.micronaut.data.model.Page
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
-import no.nav.hm.grunndata.rapid.dto.AdminStatus
-import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import java.util.*
 
 @Client(UserAdminApiController.API_V1_ADMIN_USER_REGISTRATIONS)
@@ -30,4 +28,6 @@ interface UserAdminApiClient {
     @Get("/email/{email}")
     fun getUserByEmail(@CookieValue("JWT") jwt: String, email:String) : HttpResponse<UserDTO>
 
+    @Put("/{id}")
+    fun updateUser(@CookieValue("JWT") jwt: String, id: UUID, @Body userDTO: UserDTO): HttpResponse<UserDTO>
 }
