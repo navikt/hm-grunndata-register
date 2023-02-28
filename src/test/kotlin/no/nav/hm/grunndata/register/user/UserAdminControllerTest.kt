@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.user
 
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.http.HttpStatus
 import io.micronaut.security.authentication.UsernamePasswordCredentials
@@ -88,6 +89,12 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
         userByEmail.status() shouldBe HttpStatus.OK
         userByEmail.body().name shouldBe "User test"
 
+        val users = userAdminApiClient.getUsers(jwtAdmin, email = "user@test.test", size = 10, page = 0, sort = "updated,asc")
+
+        users.shouldNotBeNull()
+        users.totalSize shouldBe 1
+        users.numberOfElements shouldBe  1
+        users.content[0].email shouldBe userEmail
 
     }
 

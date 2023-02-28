@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.user
 
+import io.micronaut.data.model.Page
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
@@ -20,7 +21,7 @@ interface UserAdminApiClient {
                  @QueryValue supplierId: UUID? = null,
                  @QueryValue("size") size: Int? = null,
                  @QueryValue("page") page: Int?=null,
-                 @QueryValue("sort") sort: String? = null)
+                 @QueryValue("sort") sort: String? = null): Page<UserDTO>
 
 
     @Get("/email/{email}")
