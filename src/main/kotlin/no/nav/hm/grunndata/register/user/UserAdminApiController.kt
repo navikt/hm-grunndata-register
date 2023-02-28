@@ -54,5 +54,19 @@ class UserAdminApiController(private val userRepository: UserRepository) {
         return HttpResponse.created(entity.toDTO())
     }
 
+
+    @Get("/{id}")
+    suspend fun getUser(id:UUID) : HttpResponse<UserDTO> =
+        userRepository.findById(id)
+            ?.let {
+                HttpResponse.ok(it.toDTO())
+            } ?: HttpResponse.notFound()
+
+
+    @Put("/{id}")
+    suspend fun updateUser(id: UUID, @Body userDTO: UserDTO): HttpResponse<UserDTO> =
+        userRepository.findById(id)?.let { HttpResponse.ok(userRepository.update(it.copy(name = userDTO.name, email = userDTO.email,
+            roles = userDTO.roles, attributes = userDTO.attributes)).toDTO()) } ?: HttpResponse.notFound()
+
 }
 
