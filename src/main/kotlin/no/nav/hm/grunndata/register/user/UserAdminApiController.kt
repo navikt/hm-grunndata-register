@@ -8,17 +8,18 @@ import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
-import io.micronaut.security.authentication.Authentication
-import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.user.UserAdminApiController.Companion.API_V1_ADMIN_USER_REGISTRATIONS
 import org.slf4j.LoggerFactory
 import java.util.*
 
+
 @Secured(Roles.ROLE_ADMIN)
-@Controller("/api/v1/admin/user")
+@Controller(API_V1_ADMIN_USER_REGISTRATIONS)
 class UserAdminApiController(private val userRepository: UserRepository) {
 
     companion object {
+        const val API_V1_ADMIN_USER_REGISTRATIONS = "/api/v1/admin/user"
         private val LOG = LoggerFactory.getLogger(UserAdminApiController::class.java)
     }
 
