@@ -96,6 +96,10 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
         users.numberOfElements shouldBe  1
         users.content[0].email shouldBe userEmail
 
+        // Should be two users from same supplierId
+        val supplierUsers = userAdminApiClient.getUsersBySupplierId(jwtAdmin, supplierId = supplierId.toString())
+        supplierUsers.size shouldBe 2
+
     }
 
 }

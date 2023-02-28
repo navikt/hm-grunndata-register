@@ -29,8 +29,8 @@ class UserAdminApiController(private val userRepository: UserRepository) {
     suspend fun getUsers(@QueryValue params: HashMap<String, String>?, pageable: Pageable): Page<UserDTO> =
         userRepository.findAll(buildCriteriaSpec(params), pageable).map { it.toDTO() }
 
-    @Get("/supplierId/{supplierId")
-    suspend fun getUsersBySupplierId(supplierId: UUID): List<UserDTO> =
+    @Get("/supplierId/{supplierId}")
+    suspend fun getUsersBySupplierId(supplierId: String): List<UserDTO> =
         userRepository.getUsersBySupplierId(supplierId).map { it.toDTO() }
 
     private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<User>? =

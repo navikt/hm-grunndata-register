@@ -24,6 +24,6 @@ interface UserRepository: CoroutineCrudRepository<User, UUID>, CoroutineJpaSpeci
     suspend fun changePassword(id: UUID,  oldToken: String, token: String)
 
     @Query("""SELECT * FROM $USER_V1 WHERE jsonb_extract_path_text(attributes,'supplierId') = :supplierId """)
-    suspend fun getUsersBySupplierId(supplierId: UUID): List<User>
+    suspend fun getUsersBySupplierId(supplierId: String): List<User>
 
 }
