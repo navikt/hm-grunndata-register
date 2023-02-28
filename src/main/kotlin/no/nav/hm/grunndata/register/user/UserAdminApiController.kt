@@ -12,6 +12,7 @@ import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.user.UserAdminApiController.Companion.API_V1_ADMIN_USER_REGISTRATIONS
 import org.slf4j.LoggerFactory
 import java.util.*
+import javax.validation.constraints.Email
 
 
 @Secured(Roles.ROLE_ADMIN)
@@ -61,6 +62,11 @@ class UserAdminApiController(private val userRepository: UserRepository) {
             ?.let {
                 HttpResponse.ok(it.toDTO())
             } ?: HttpResponse.notFound()
+
+
+    @Get("/email/{email}")
+    suspend fun getUserByEmail(email: String): HttpResponse<UserDTO> =
+        userRepository.findByEmail(email)?.let { HttpResponse.ok(it.toDTO())}  ?: HttpResponse.notFound()
 
 
     @Put("/{id}")

@@ -78,13 +78,17 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
         // supplier can not create new user
         // TODO need to check if we should allow supplier to create new user.
         runCatching {
-            val resp2 = userAdminApiClient.createUser(jwtUser, UserRegistrationDTO (
+            userAdminApiClient.createUser(jwtUser, UserRegistrationDTO (
                 email = "anotheruser2@test.test", password = "test123", roles = listOf(Roles.ROLE_SUPPLIER),
                 name = "another user2", attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier!!.id.toString()))
             ))
         }.isFailure shouldBe true
 
-        //
+        val userByEmail = userAdminApiClient.getUserByEmail(jwtAdmin, "user@test.test")
+        userByEmail.status() shouldBe HttpStatus.OK
+        userByEmail.body().name shouldBe "User test"
+
+
     }
 
 }

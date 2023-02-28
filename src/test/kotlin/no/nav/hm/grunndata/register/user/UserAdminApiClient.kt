@@ -23,7 +23,7 @@ interface UserAdminApiClient {
                  @QueryValue("sort") sort: String? = null)
 
 
-    @Get("/{id}")
-    fun getUser(id:UUID) : HttpResponse<UserDTO>
+    @Get("/email/{email}")
+    fun getUserByEmail(@CookieValue("JWT") jwt: String, email:String) : HttpResponse<UserDTO>
 
 }
