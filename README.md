@@ -21,3 +21,21 @@ denne flyten fungerer.
 ## Administrering
 Det er kun admin som kan godkjenne et produkt. Produktet blir ikke publisert før etter godkjennning. 
 Flagget AdminStatus settes til APPROVED når produktet blir godkjent. 
+
+# Development
+
+Run docker-compose up, and start Application with Intellij. 
+
+Create an admin user in the local database:
+
+```
+INSERT INTO user_v1(id, name, email,roles,attributes,token) 
+VALUES (gen_random_uuid(), 'admin', 'admin@test.test', '["ROLE_ADMIN"]','{}', crypt('test123', gen_salt('bf', 8)));
+
+```
+
+curl -v -X POST -H "Content-type: application/json" -d '{"username":"admin@test.test", "password":"test123"}' 
+http://localhost:8080/login
+
+This will give you the JWT cookie in the header to use for authentication.
+
