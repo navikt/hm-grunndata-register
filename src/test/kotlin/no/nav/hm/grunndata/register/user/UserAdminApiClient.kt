@@ -24,7 +24,7 @@ interface UserAdminApiClient {
                  @QueryValue("sort") sort: String? = null): Page<UserDTO>
 
     @Get("/supplierId/{supplierId}")
-    fun getUsersBySupplierId(@CookieValue("JWT") jwt: String, supplierId: String): List<UserDTO>
+    fun getUsersBySupplierId(@CookieValue("JWT") jwt: String, supplierId: UUID): List<UserDTO>
 
 
     @Get("/email/{email}")

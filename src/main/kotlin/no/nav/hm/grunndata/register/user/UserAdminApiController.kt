@@ -30,8 +30,8 @@ class UserAdminApiController(private val userRepository: UserRepository) {
         userRepository.findAll(buildCriteriaSpec(params), pageable).map { it.toDTO() }
 
     @Get("/supplierId/{supplierId}")
-    suspend fun getUsersBySupplierId(supplierId: String): List<UserDTO> =
-        userRepository.getUsersBySupplierId(supplierId).map { it.toDTO() }
+    suspend fun getUsersBySupplierId(supplierId: UUID): List<UserDTO> =
+        userRepository.getUsersBySupplierId(supplierId.toString()).map { it.toDTO() }
 
     private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<User>? =
         params?.let {
