@@ -14,7 +14,7 @@ class RegisterRapidPushService(private val kafkaRapidService: RapidPushService) 
         kafkaRapidService.pushToRapid(
             key = "$eventName-${dto.id}",
             eventName = eventName, payload = dto, keyValues = mapOf("createdBy" to REGISTER,
-                "created" to LocalDateTime.now(), "dtoVersion" to rapidDTOVersion)
+                "dtoVersion" to rapidDTOVersion)
         )
     }
 }
