@@ -32,6 +32,7 @@ class ProductSyncRiver(river: RiverHead,
             .validate { it.demandKey("payload")}
             .validate { it.demandKey("eventId")}
             .validate { it.demandKey( "dtoVersion")}
+            .validate { it.demandKey("createdTime")}
             .register(this)
     }
 

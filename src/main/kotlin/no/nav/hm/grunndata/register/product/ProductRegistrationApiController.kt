@@ -51,9 +51,10 @@ class ProductRegistrationApiController(private val productRegistrationRepository
                 throw BadRequestException("Product registration already exists ${registrationDTO.id}")
             } ?: run {
                 val dto = productRegistrationRepository.save(registrationDTO
-                    .copy(updatedByUser =  authentication.name, createdByUser = authentication.name )
+                    .copy(updatedByUser =  authentication.name, createdByUser = authentication.name,
+                        created = LocalDateTime.now(), updated = LocalDateTime.now())
                     .toEntity()).toDTO()
-                if (dto.draftStatus == DraftStatus.DONE && dto.adminStatus == AdminStatus.APPROVED) {
+                if (dto.draftStatus == DraftStatus.DONE) {
                     registerRapidPushService.pushDTOToKafka(dto, EventName.productRegistration)
                 }
                 HttpResponse.created(dto)
@@ -69,9 +70,10 @@ class ProductRegistrationApiController(private val productRegistrationRepository
                         .copy(id = it.id, created = it.created, supplierId = it.supplierId,
                             updatedBy = REGISTER, updatedByUser = authentication.name, createdByUser = it.createdByUser,
                             createdBy = it.createdBy, createdByAdmin = it.createdByAdmin, adminStatus = it.adminStatus,
-                            adminInfo = it.adminInfo)
+                            adminInfo = it.adminInfo, updated = LocalDateTime.now(),
+                            productDTO = it.productDTO.copy(updated = LocalDateTime.now()))
                         .toEntity()).toDTO()
-                    if (dto.draftStatus == DraftStatus.DONE && dto.adminStatus == AdminStatus.APPROVED) {
+                    if (dto.draftStatus == DraftStatus.DONE) {
                         registerRapidPushService.pushDTOToKafka(dto, EventName.productRegistration)
                     }
                     HttpResponse.ok(dto) }
