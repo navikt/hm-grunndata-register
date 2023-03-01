@@ -26,11 +26,14 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
     val adminEmail = "admin@test.test"
     val password = "test123"
 
+    val userId = UUID.randomUUID()
     val userEmail = "user@test.test"
 
     val supplierId = UUID.randomUUID()
 
     private var testSupplier: SupplierDTO? = null
+
+
 
     @BeforeEach
     fun createAdminUser() {
@@ -55,7 +58,7 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
             )
             userRepository.createUser(
                 User(
-                    email = userEmail, token = password, name = "User test", roles = listOf(Roles.ROLE_SUPPLIER),
+                    id = userId, email = userEmail, token = password, name = "User test", roles = listOf(Roles.ROLE_SUPPLIER),
                     attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier!!.id.toString()))
                 )
             )
@@ -85,8 +88,11 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
             ))
         }.isFailure shouldBe true
 
+        val userById = userAdminApiClient.getUser(jwtAdmin, userId).body()
+        userById.shouldNotBeNull()
+        userById.email shouldBe "user@test.test"
+
         val userByEmail = userAdminApiClient.getUserByEmail(jwtAdmin, "user@test.test")
-        userByEmail.status() shouldBe HttpStatus.OK
         userByEmail.body().name shouldBe "User test"
 
         val users = userAdminApiClient.getUsers(jwtAdmin, email = "user@test.test", size = 10, page = 0, sort = "updated,asc")

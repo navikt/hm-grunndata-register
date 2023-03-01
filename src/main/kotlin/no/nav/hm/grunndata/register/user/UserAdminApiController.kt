@@ -27,9 +27,6 @@ class UserAdminApiController(private val userRepository: UserRepository) {
     suspend fun getUsers(@QueryValue params: HashMap<String, String>?, pageable: Pageable): Page<UserDTO> =
         userRepository.findAll(buildCriteriaSpec(params), pageable).map { it.toDTO() }
 
-    @Get("/supplierId/{supplierId}")
-    suspend fun getUsersBySupplierId(supplierId: UUID): List<UserDTO> =
-        userRepository.getUsersBySupplierId(supplierId.toString()).map { it.toDTO() }
 
     private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<User>? =
         params?.let {
@@ -38,6 +35,10 @@ class UserAdminApiController(private val userRepository: UserRepository) {
                 if (params.contains("name")) criteriaBuilder.like(root[User::name], params["name"])
             }
         }
+
+    @Get("/supplierId/{supplierId}")
+    suspend fun getUsersBySupplierId(supplierId: UUID): List<UserDTO> =
+        userRepository.getUsersBySupplierId(supplierId.toString()).map { it.toDTO() }
 
     @Post("/")
     suspend fun createUser(@Body dto: UserRegistrationDTO): HttpResponse<UserDTO> {

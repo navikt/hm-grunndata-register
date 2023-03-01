@@ -30,4 +30,7 @@ interface UserAdminApiClient {
 
     @Put("/{id}")
     fun updateUser(@CookieValue("JWT") jwt: String, id: UUID, @Body userDTO: UserDTO): HttpResponse<UserDTO>
+
+    @Get("/{id}")
+    fun getUser(@CookieValue("JWT") jwt: String, id:UUID) : HttpResponse<UserDTO>
 }
