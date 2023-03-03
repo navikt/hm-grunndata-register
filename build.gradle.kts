@@ -44,14 +44,14 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
     // security
     implementation("io.micronaut.security:micronaut-security-jwt")
-    annotationProcessor("io.micronaut.security:micronaut-security-annotations")
+    kapt("io.micronaut.security:micronaut-security-annotations")
 
     // micronaut-data
     implementation("io.micronaut.data:micronaut-data-jdbc")
     implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     runtimeOnly("io.micronaut.sql:micronaut-jdbc-hikari")
-    annotationProcessor("io.micronaut.data:micronaut-data-processor")
+    kapt("io.micronaut.data:micronaut-data-processor")
     implementation("org.postgresql:postgresql:${postgresqlVersion}")
     implementation("io.micronaut.flyway:micronaut-flyway")
     implementation("io.micronaut:micronaut-runtime")
@@ -96,10 +96,12 @@ java {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = jvmTarget
+    kapt.includeCompileClasspath=false
 }
 
 tasks.named<KotlinCompile>("compileTestKotlin") {
     kotlinOptions.jvmTarget = jvmTarget
+    kapt.includeCompileClasspath=false
 }
 
 tasks.withType<Test> {

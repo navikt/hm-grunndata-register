@@ -84,9 +84,10 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
             media = listOf(
                 MediaDTO(
-                    uri = "https://ekstern.url/123.jpg",
+                    uri = "123.jpg",
                     text = "bilde av produktet",
-                    source = MediaSourceType.EXTERNALURL
+                    source = MediaSourceType.EXTERNALURL,
+                    sourceUri = "https://ekstern.url/123.jpg"
                 )
             ),
             agreementInfo = AgreementInfo(
