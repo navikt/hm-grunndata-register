@@ -1,13 +1,1 @@
-version: '3'
-services:
-  postgresgrunndatadb:
-    hostname: postgres
-    container_name: postgresgrunndataregister
-    image: postgres:14
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_PASSWORD: postgres
-    volumes:
-      - ./src/test/resources/postgres:/docker-entrypoint-initdb.d
-    command: ["postgres", "-c", "log_statement=none"]
+## Use docker-compose.yml file in hm-grunndata-db
