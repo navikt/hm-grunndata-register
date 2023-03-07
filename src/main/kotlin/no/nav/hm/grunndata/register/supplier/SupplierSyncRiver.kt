@@ -30,14 +30,15 @@ class SupplierSyncRiver(river: RiverHead,
             .validate { it.demandValue("payloadType", SupplierDTO::class.java.simpleName)}
             .validate { it.demandKey("payload")}
             .validate { it.demandKey("eventId")}
+            .validate { it.demandKey( "dtoVersion")}
             .register(this)
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val eventId = packet["eventId"].asText()
+        val version = packet["dtoVersion"].asLong()
         val dto = objectMapper.treeToValue(packet["payload"], SupplierDTO::class.java)
-        val version = dto.dtoVersion.toLong()
-        if (version > rapidDTOVersion.toLong()) LOG.warn("Old dto version detected, please update to $version")
+        if (version > rapidDTOVersion) LOG.warn("Old dto version detected, please update to $version")
         val supplier = dto.toEntity()
         runBlocking {
             supplierRepository.findById(supplier.id)?.let { inDb ->
