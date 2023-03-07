@@ -60,7 +60,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                 HttpResponse.ok(it.toDTO()) }
             ?: HttpResponse.notFound()
 
-    @Get("/draft/reference/{supplierRef}/supplier/{supplierId}{?isAccessory}{?isSparePart}")
+    @Get("/draft/supplier/{supplierId}/reference/{supplierRef}{?isAccessory}{?isSparePart}")
     suspend fun draftProduct(supplierId: UUID, supplierRef: String, authentication: Authentication,
                              @QueryValue(defaultValue = "false") isAccessory: Boolean,
                              @QueryValue(defaultValue = "false") isSparePart: Boolean): HttpResponse<ProductRegistrationDTO> =

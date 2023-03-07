@@ -55,3 +55,7 @@ Get registrations (admin user):
 curl -v -X GET -H "Content-type: application/json" --cookie "JWT=<jwttokenhere>" http://localhost:8080/api/v1/admin/product/registrations
 ```
 
+Create a draft: 
+```
+
+```

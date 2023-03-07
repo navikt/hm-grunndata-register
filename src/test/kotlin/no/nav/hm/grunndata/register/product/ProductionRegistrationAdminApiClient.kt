@@ -41,7 +41,7 @@ interface ProductionRegistrationAdminApiClient {
     @Delete(uri="/{id}", consumes = [APPLICATION_JSON])
     fun deleteProduct(@CookieValue("JWT") jwt: String, id:UUID): ProductRegistrationDTO
 
-    @Get(uri="/draft/reference/{supplierRef}/supplier/{supplierId}", produces = [APPLICATION_JSON])
+    @Get(uri="/draft/supplier/{supplierId}/reference/{supplierRef}", produces = [APPLICATION_JSON])
     fun draftProduct(@CookieValue("JWT") jwt: String, supplierRef: String, supplierId: UUID):ProductRegistrationDTO
 
 
