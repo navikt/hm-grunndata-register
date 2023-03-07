@@ -108,7 +108,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                     val updated = registrationDTO.copy(id = it.id, created = it.created, supplierId = it.supplierId,
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = it.createdBy,
                         createdByAdmin = it.createdByAdmin, updated = LocalDateTime.now(),
-                        productDTO = it.productDTO.copy(updated = LocalDateTime.now())
+                        productDTO = registrationDTO.productDTO.copy(created =  it.created, updated = LocalDateTime.now())
                     )
                     val dto = productRegistrationRepository.update(updated.toEntity()).toDTO()
                     if (dto.draftStatus == DraftStatus.DONE) {

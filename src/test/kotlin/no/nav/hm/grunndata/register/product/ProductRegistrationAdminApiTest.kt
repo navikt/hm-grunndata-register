@@ -132,9 +132,11 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         read.createdByUser shouldBe email
 
         // make some changes
-        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title="new title"))
+        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title="Changed title",
+            productDTO = read.productDTO.copy(title = "Changed title")))
         updated.shouldNotBeNull()
-        updated.title shouldBe "new title"
+        updated.title shouldBe "Changed title"
+        updated.productDTO.title shouldBe "Changed title"
 
         // flag the registration to deleted
         val deleted = apiClient.deleteProduct(jwt, updated.id)
