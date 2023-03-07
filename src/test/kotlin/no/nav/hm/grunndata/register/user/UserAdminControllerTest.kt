@@ -88,6 +88,14 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
             ))
         }.isFailure shouldBe true
 
+        // can not create a supplier user that does not belong to a supplier.
+        runCatching {
+            userAdminApiClient.createUser(jwtAdmin, UserRegistrationDTO (
+                email = "anotheruser2@test.test", password = "test123", roles = listOf(Roles.ROLE_SUPPLIER),
+                name = "another user2", attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, UUID.randomUUID().toString()))
+            ))
+        }.isFailure shouldBe true
+
         val userById = userAdminApiClient.getUser(jwtAdmin, userId).body()
         userById.shouldNotBeNull()
         userById.email shouldBe "user@test.test"

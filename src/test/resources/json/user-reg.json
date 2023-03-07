@@ -1,0 +1,7 @@
+{
+  "name" : "User tester",
+  "email" : "user1@test.test",
+  "password" : "token123",
+  "roles" : [ "ROLE_SUPPLIER" ],
+  "attributes" : {"supplierId" : "517a2a3c-5b92-4d72-8693-431914fa4320"}
+}

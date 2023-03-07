@@ -8,15 +8,20 @@ import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
+import no.nav.hm.grunndata.rapid.dto.AttributeNames
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.supplier.SupplierRepository
 import no.nav.hm.grunndata.register.user.UserAdminApiController.Companion.API_V1_ADMIN_USER_REGISTRATIONS
+import no.nav.hm.grunndata.register.user.UserAttribute.SUPPLIER_ID
 import org.slf4j.LoggerFactory
 import java.util.*
 
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(API_V1_ADMIN_USER_REGISTRATIONS)
-class UserAdminApiController(private val userRepository: UserRepository) {
+class UserAdminApiController(private val userRepository: UserRepository,
+                             private val supplierRepository: SupplierRepository
+) {
 
     companion object {
         const val API_V1_ADMIN_USER_REGISTRATIONS = "/api/v1/admin/users"
@@ -43,6 +48,10 @@ class UserAdminApiController(private val userRepository: UserRepository) {
     @Post("/")
     suspend fun createUser(@Body dto: UserRegistrationDTO): HttpResponse<UserDTO> {
         LOG.info("Creating user ${dto.id} ")
+        if (dto.attributes.containsKey(SUPPLIER_ID)) {
+            val supplierId = UUID.fromString(dto.attributes[SUPPLIER_ID])
+            supplierRepository.findById(supplierId) ?: throw Exception("Unknown supplier id $supplierId")
+        }
         val entity = User(
             id = dto.id, name = dto.name, email = dto.email, token = dto.password, roles = dto.roles,
             attributes = dto.attributes
