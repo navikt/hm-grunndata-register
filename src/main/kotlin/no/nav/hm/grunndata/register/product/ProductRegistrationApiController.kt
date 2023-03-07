@@ -106,7 +106,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
                 seriesId = productId.toString(), isoCategory = "", attributes = mapOf(AttributeNames.articlename to "artikkelnavn",
                     AttributeNames.shortdescription to "kort beskrivelse", AttributeNames.text to "en lang beskrivelse")
             )
-            val registration = ProductRegistrationDTO(id = productId, supplierId= supplier.id, HMSArtNr = null,   createdBy = REGISTER,
+            val registration = ProductRegistrationDTO(id = productId, supplierId= supplier.id, hmsArtNr = null,   createdBy = REGISTER,
                 updatedBy = REGISTER, supplierRef = supplierRef, message = null, title = product.title,  published = product.published,
                 expired = product.expired, productDTO = product)
             return HttpResponse.ok(registration)

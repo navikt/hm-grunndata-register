@@ -77,7 +77,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                     if (isSparePart || isAccessory) AttributeNames.compatible to listOf("HmsArtNr", "identifier")
                     else AttributeNames.compatible to emptyList()
                 ))
-            val registration = ProductRegistrationDTO(id = productId, supplierId= supplier.id, HMSArtNr = null,   createdBy = REGISTER,
+            val registration = ProductRegistrationDTO(id = productId, supplierId= supplier.id, hmsArtNr = null,   createdBy = REGISTER,
             updatedBy = REGISTER, supplierRef = supplierRef, message = null, title = product.title,  published = product.published,
             expired = product.expired, productDTO = product, createdByUser = authentication.name, updatedByUser = authentication.name,
                 createdByAdmin = true)
@@ -105,7 +105,9 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
             HttpResponse<ProductRegistrationDTO> =
         productRegistrationRepository.findById(id)
                 ?.let {
-                    val updated = registrationDTO.copy(id = it.id, created = it.created, supplierId = it.supplierId,
+                    val updated = registrationDTO.copy(title = registrationDTO.productDTO.title,
+                        supplierRef = registrationDTO.productDTO.supplierRef, hmsArtNr = registrationDTO.productDTO.hmsArtNr,
+                        id = it.id, created = it.created, supplierId = it.supplierId,
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = it.createdBy,
                         createdByAdmin = it.createdByAdmin, updated = LocalDateTime.now(),
                         productDTO = registrationDTO.productDTO.copy(created =  it.created, updated = LocalDateTime.now())

@@ -12,7 +12,6 @@ import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 
 @Context
 @Requires(bean = KafkaRapid::class)
@@ -46,7 +45,7 @@ class ProductSyncRiver(river: RiverHead,
                     inDb.copy(
                         productDTO = dto, updatedBy = dto.updatedBy, status = mapStatus(dto.status),
                         adminStatus = mapAdminStatus(dto.status), created = dto.created, updated = dto.updated,
-                        HMSArtNr = dto.hmsArtNr, title = dto.title, supplierRef = dto.supplierRef,
+                        hmsArtNr = dto.hmsArtNr, title = dto.title, supplierRef = dto.supplierRef,
                         published = dto.published, expired = dto.expired
                     )
                 )
@@ -55,7 +54,7 @@ class ProductSyncRiver(river: RiverHead,
                     id = dto.id, supplierId = dto.supplier.id, supplierRef = dto.supplierRef,
                     status = mapStatus(dto.status), adminStatus = mapAdminStatus(dto.status),
                     createdBy = dto.createdBy, updatedBy = dto.updatedBy, created = dto.created, updated = dto.updated,
-                    draftStatus = DraftStatus.DONE, expired = dto.expired, HMSArtNr = dto.hmsArtNr,
+                    draftStatus = DraftStatus.DONE, expired = dto.expired, hmsArtNr = dto.hmsArtNr,
                     published = dto.published, title = dto.title, productDTO = dto
                 )
             )

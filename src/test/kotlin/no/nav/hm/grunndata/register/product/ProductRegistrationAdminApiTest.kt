@@ -112,7 +112,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
             id = productDTO.id,
             supplierId = productDTO.supplier.id,
             supplierRef = productDTO.supplierRef,
-            HMSArtNr = productDTO.hmsArtNr,
+            hmsArtNr = productDTO.hmsArtNr,
             title = productDTO.title,
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.NOT_APPROVED,

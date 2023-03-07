@@ -17,7 +17,7 @@ data class ProductRegistration(
     val supplierId: UUID,
     val supplierRef: String,
     @field:Column(name="hms_artnr")
-    val HMSArtNr: String?,
+    val hmsArtNr: String?,
     val title: String,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val adminStatus: AdminStatus = AdminStatus.NOT_APPROVED,

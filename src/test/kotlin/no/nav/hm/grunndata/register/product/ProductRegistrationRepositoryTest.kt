@@ -40,7 +40,7 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             id = productDTO.id,
             supplierId = UUID.randomUUID(),
             supplierRef = productDTO.supplierRef,
-            HMSArtNr = productDTO.hmsArtNr ,
+            hmsArtNr = productDTO.hmsArtNr ,
             title = productDTO.title,
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.NOT_APPROVED,
@@ -57,14 +57,14 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             saved.shouldNotBeNull()
             val inDb = productRegistrationRepository.findById(saved.id)
             inDb.shouldNotBeNull()
-            saved.HMSArtNr shouldBe inDb.HMSArtNr
+            saved.hmsArtNr shouldBe inDb.hmsArtNr
             val approve = inDb.approve("NAVN1")
             val updated = productRegistrationRepository.update(approve)
             updated.id shouldBe saved.id
             updated.isApproved() shouldBe true
             updated.isDraft() shouldBe false
             updated.published.shouldNotBeNull()
-            val byHMSArtNr = productRegistrationRepository.findByHMSArtNrAndSupplierId(saved.HMSArtNr!!, saved.supplierId)
+            val byHMSArtNr = productRegistrationRepository.findByHmsArtNrAndSupplierId(saved.hmsArtNr!!, saved.supplierId)
             byHMSArtNr.shouldNotBeNull()
         }
     }
