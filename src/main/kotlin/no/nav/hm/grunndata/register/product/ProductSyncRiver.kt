@@ -8,9 +8,7 @@ import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.KafkaRapid
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
-import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.ProductDTO
-import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
+import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
@@ -25,14 +23,15 @@ class ProductSyncRiver(river: RiverHead,
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductSyncRiver::class.java)
     }
+
     init {
         river
-            .validate { it.demandValue("eventName", EventName.hmdbproductsync)}
-            .validate { it.demandValue("payloadType", ProductDTO::class.java.simpleName)}
-            .validate { it.demandKey("payload")}
-            .validate { it.demandKey("eventId")}
-            .validate { it.demandKey( "dtoVersion")}
-            .validate { it.demandKey("createdTime")}
+            .validate { it.demandValue("eventName", EventName.hmdbproductsync) }
+            .validate { it.demandValue("payloadType", ProductDTO::class.java.simpleName) }
+            .validate { it.demandKey("payload") }
+            .validate { it.demandKey("eventId") }
+            .validate { it.demandKey("dtoVersion") }
+            .validate { it.demandKey("createdTime") }
             .register(this)
     }
 
@@ -43,17 +42,30 @@ class ProductSyncRiver(river: RiverHead,
         val dto = objectMapper.treeToValue(packet["payload"], ProductDTO::class.java)
         runBlocking {
             productRegistrationRepository.findById(dto.id)?.let { inDb ->
-                productRegistrationRepository.update(inDb.copy(productDTO = dto, updatedBy = dto.updatedBy,
-                    created = dto.created, updated = dto.updated, HMSArtNr = dto.hmsArtNr, title = dto.title,
-                    supplierRef = dto.supplierRef, published = dto.published, expired = dto.expired))
+                productRegistrationRepository.update(
+                    inDb.copy(
+                        productDTO = dto, updatedBy = dto.updatedBy, status = mapStatus(dto.status),
+                        adminStatus = mapAdminStatus(dto.status), created = dto.created, updated = dto.updated,
+                        HMSArtNr = dto.hmsArtNr, title = dto.title, supplierRef = dto.supplierRef,
+                        published = dto.published, expired = dto.expired
+                    )
+                )
             } ?: productRegistrationRepository.save(
-                ProductRegistration(id = dto.id, supplierId = dto.supplier.id, supplierRef = dto.supplierRef,
+                ProductRegistration(
+                    id = dto.id, supplierId = dto.supplier.id, supplierRef = dto.supplierRef,
+                    status = mapStatus(dto.status), adminStatus = mapAdminStatus(dto.status),
                     createdBy = dto.createdBy, updatedBy = dto.updatedBy, created = dto.created, updated = dto.updated,
                     draftStatus = DraftStatus.DONE, expired = dto.expired, HMSArtNr = dto.hmsArtNr,
-                    published = dto.published, title = dto.title, productDTO = dto)
+                    published = dto.published, title = dto.title, productDTO = dto
+                )
             )
         }
         LOG.info("product ${dto.id} with eventId $eventId synced")
     }
 
+    private fun mapAdminStatus(status: ProductStatus): AdminStatus =
+        if (status == ProductStatus.ACTIVE) AdminStatus.APPROVED else AdminStatus.NOT_APPROVED
+
+    private fun mapStatus(status: ProductStatus): RegistrationStatus =
+        if (status == ProductStatus.ACTIVE) RegistrationStatus.ACTIVE else RegistrationStatus.DELETED
 }
