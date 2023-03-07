@@ -122,7 +122,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         )
 
         // save the draft to database
-        val created = apiClient.createProduct(jwt, registration)
+        val created = apiClient.updateProduct(jwt, registration.id, registration)
         created.shouldNotBeNull()
 
         // read it from database
