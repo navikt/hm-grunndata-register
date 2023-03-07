@@ -17,17 +17,18 @@
   "productDTO" : {
     "id" : "08c0fe35-2d0c-44f3-8bd9-4d3fe0e532d5",
     "supplierId" : "be63bc25-2c80-464e-8913-d7f03898f213",
-    "title" : "Dette er produkt 1",
+    "title" : "Dette er produkt 2",
     "attributes" : {
       "text" : "En lang beskrivelse av produktet",
-      "articlename" : "produktnavn",
-      "shortdescription" : "En kort beskrivelse av produktet"
+      "articlename" : "Dette er produkt 2 beregnet for barn",
+      "shortdescription" : "En kort beskrivelse av produktet",
+      "compatible": "12345"
     },
     "status" : "ACTIVE",
     "identifier" : "hmdb-111",
     "supplierRef" : "eksternref-111",
     "isoCategory" : "12001314",
-    "accessory" : false,
+    "accessory" : true,
     "sparePart" : false,
     "seriesId" : "series-123",
     "techData" : [ {
@@ -37,10 +38,11 @@
     } ],
     "media" : [ {
       "id" : "4fd84825-b7a3-4915-bbd9-9e0aa9cc9ce7",
-      "order" : 1,
+      "priority" : 1,
       "type" : "IMAGE",
+      "sourceUri": "https://ekstern.url/123.jpg",
       "uri" : "https://ekstern.url/123.jpg",
-      "text" : "bilde av produktet",
+      "text" : "et bilde av produktet",
       "source" : "EXTERNALURL"
     } ],
     "created" : "2023-02-07T10:19:47.709448",
@@ -53,9 +55,9 @@
       "rank" : 1,
       "postNr" : 1,
       "reference" : "AV-142",
-      "expired" : "2023-02-07T10:19:47.709212"
+      "expired" : "2024-02-07T10:19:47.709212"
     },
-    "hasAgreement" : false,
+    "hasAgreement" : true,
     "createdBy" : "REGISTER",
     "updatedBy" : "REGISTER"
   },
