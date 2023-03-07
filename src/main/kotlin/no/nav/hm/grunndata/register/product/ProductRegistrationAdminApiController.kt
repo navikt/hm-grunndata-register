@@ -81,7 +81,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
             updatedBy = REGISTER, supplierRef = supplierRef, message = null, title = product.title,  published = product.published,
             expired = product.expired, productDTO = product, createdByUser = authentication.name, updatedByUser = authentication.name,
                 createdByAdmin = true)
-            HttpResponse.ok(registration)
+            HttpResponse.ok(productRegistrationRepository.save(registration.toEntity()).toDTO())
         } ?: throw BadRequestException("$supplierId does not exist")
 
 
@@ -94,7 +94,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name, createdByAdmin = true,
                         created = LocalDateTime.now(), updated = LocalDateTime.now())
                     .toEntity()).toDTO()
-                if (dto.draftStatus == DraftStatus.DONE && dto.adminStatus == AdminStatus.APPROVED) {
+                if (dto.draftStatus == DraftStatus.DONE) {
                     registerRapidPushService.pushDTOToKafka(dto, EventName.productRegistration)
                 }
                 HttpResponse.created(dto)
@@ -124,11 +124,13 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
             ?.let {
                 val productDTO = it.productDTO.copy(status = ProductStatus.INACTIVE, expired = LocalDateTime.now().minusMinutes(1L))
                 val dto = productRegistrationRepository.update(it.copy(status= RegistrationStatus.DELETED, productDTO = productDTO)).toDTO()
-                if (dto.draftStatus == DraftStatus.DONE && dto.adminStatus == AdminStatus.APPROVED) {
+                if (dto.draftStatus == DraftStatus.DONE) {
                     registerRapidPushService.pushDTOToKafka(dto, EventName.productRegistration)
                 }
                 HttpResponse.ok(dto)}
             ?: HttpResponse.notFound()
+
+
 
 }
 
