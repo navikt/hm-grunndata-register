@@ -34,8 +34,24 @@ VALUES (gen_random_uuid(), 'admin', 'admin@test.test', '["ROLE_ADMIN"]','{}', cr
 
 ```
 
-curl -v -X POST -H "Content-type: application/json" -d '{"username":"admin@test.test", "password":"test123"}' 
-http://localhost:8080/login
+curl -v -X POST -H "Content-type: application/json" -d '{"username":"admin@test.test", "password":"test123"}' http://localhost:8080/login
 
 This will give you the JWT cookie in the header to use for authentication.
+
+Create another user in localhost:
+```
+ curl -v -X POST -H "Content-type: application/json" --cookie "JWT=<jwttokenhere>" -d '{
+  "name" : "User tester",
+  "email" : "user1@test.test",
+  "password" : "token123",
+  "roles" : [ "ROLE_SUPPLIER" ],
+  "attributes" : {"supplierId" : "<supplierid>"}
+}' http://localhost:8080/api/v1/admin/user
+
+```
+
+Get registrations (admin user):
+```
+curl -v -X GET -H "Content-type: application/json" --cookie "JWT=<jwttokenhere>" http://localhost:8080/api/v1/admin/product/registrations
+```
 
