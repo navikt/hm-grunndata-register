@@ -20,12 +20,13 @@ micronaut:
         signatures:
           secret:
             generator:
-              access-token:
-                expiration: 10800
               secret: ${JWT_GENERATOR_SECRET:MustBeAVeryLongSecretAndUsedThisForTestOnly}
               jws-algorithm: HS256
         cookie:
           cookie-max-age: 3h
+        generator:
+          access-token:
+            expiration: 10800
   metrics:
     enabled: true
     sensitive: false
