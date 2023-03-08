@@ -121,9 +121,11 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
             productDTO = productDTO
         )
 
-        // save the draft to database
+        // update draft
         val created = apiClient.updateProduct(jwt, registration.id, registration)
         created.shouldNotBeNull()
+        created.adminStatus shouldBe AdminStatus.NOT_APPROVED
+        created.productDTO.status shouldBe ProductStatus.INACTIVE
 
         // read it from database
         val read = apiClient.readProduct(jwt, created.id)
@@ -133,10 +135,14 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
 
         // make some changes
         val updated = apiClient.updateProduct(jwt, read.id, read.copy(title="Changed title",
-            productDTO = read.productDTO.copy(title = "Changed title")))
+            adminStatus = AdminStatus.APPROVED,
+            productDTO = read.productDTO.copy(title = "Changed title", status = ProductStatus.ACTIVE)))
         updated.shouldNotBeNull()
         updated.title shouldBe "Changed title"
         updated.productDTO.title shouldBe "Changed title"
+        updated.adminStatus shouldBe AdminStatus.APPROVED
+        updated.productDTO.status shouldBe ProductStatus.ACTIVE
+
 
         // flag the registration to deleted
         val deleted = apiClient.deleteProduct(jwt, updated.id)

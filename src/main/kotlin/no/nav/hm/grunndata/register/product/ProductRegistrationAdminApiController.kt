@@ -92,13 +92,22 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
             } ?: run {
                 val dto = productRegistrationRepository.save(registrationDTO
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name, createdByAdmin = true,
-                        created = LocalDateTime.now(), updated = LocalDateTime.now())
+                        created = LocalDateTime.now(), updated = LocalDateTime.now(), productDTO = registrationDTO.productDTO.copy(
+                            status = if (registrationDTO.adminStatus == AdminStatus.NOT_APPROVED) ProductStatus.INACTIVE
+                            else registrationDTO.productDTO.status, createdBy = REGISTER, updatedBy = REGISTER
+                        ))
                     .toEntity()).toDTO()
                 if (dto.draftStatus == DraftStatus.DONE) {
                     registerRapidPushService.pushDTOToKafka(dto, EventName.productRegistration)
                 }
                 HttpResponse.created(dto)
             }
+
+    private fun prepareProduct(productDTO: ProductDTO, registrationDTO: ProductRegistrationDTO): ProductDTO =
+        if (registrationDTO.adminStatus == AdminStatus.NOT_APPROVED)
+            productDTO.copy(status = ProductStatus.INACTIVE)
+        else productDTO
+
 
     @Put("/{id}")
     suspend fun updateProduct(@Body registrationDTO: ProductRegistrationDTO, @PathVariable id: UUID, authentication: Authentication):
@@ -110,7 +119,10 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                         id = it.id, created = it.created, supplierId = it.supplierId,
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = it.createdBy,
                         createdByAdmin = it.createdByAdmin, updated = LocalDateTime.now(),
-                        productDTO = registrationDTO.productDTO.copy(created =  it.created, updated = LocalDateTime.now())
+                        productDTO = registrationDTO.productDTO.copy(
+                            status = if (registrationDTO.adminStatus == AdminStatus.NOT_APPROVED) ProductStatus.INACTIVE
+                            else registrationDTO.productDTO.status,
+                            created =  it.created, updated = LocalDateTime.now())
                     )
                     val dto = productRegistrationRepository.update(updated.toEntity()).toDTO()
                     if (dto.draftStatus == DraftStatus.DONE) {

@@ -71,7 +71,10 @@ class ProductRegistrationApiController(private val productRegistrationRepository
                             updatedBy = REGISTER, updatedByUser = authentication.name, createdByUser = it.createdByUser,
                             createdBy = it.createdBy, createdByAdmin = it.createdByAdmin, adminStatus = it.adminStatus,
                             adminInfo = it.adminInfo, updated = LocalDateTime.now(),
-                            productDTO = it.productDTO.copy(updated = LocalDateTime.now()))
+                            productDTO = it.productDTO.copy(updated = LocalDateTime.now(),
+                                status = if (it.adminStatus == AdminStatus.NOT_APPROVED) ProductStatus.INACTIVE
+                                    else registrationDTO.productDTO.status
+                            ))
                         .toEntity()).toDTO()
                     if (dto.draftStatus == DraftStatus.DONE) {
                         registerRapidPushService.pushDTOToKafka(dto, EventName.productRegistration)
