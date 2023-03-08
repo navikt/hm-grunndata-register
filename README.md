@@ -24,7 +24,23 @@ Flagget AdminStatus settes til APPROVED når produktet blir godkjent.
 
 # Development
 
-Run docker-compose up, and start Application with Intellij. 
+## Running in localhost
+
+This use docker-compose.yml file located in hm-grunndata-db, startup database and kafka 
+
+```
+cd hm-grunndata-db
+docker-compose up -d
+
+```
+
+Running the hm-grunndata-register:
+```
+export DB_DRIVER=org.postgresql.Driver
+export DB_JDBC_URL=jdbc:postgresql://localhost:5432/register
+export RAPIDSANDRIVERS_ENABLED=true
+./gradlew build run
+```
 
 Create an admin user in the local database:
 
@@ -53,9 +69,4 @@ Create another user in localhost:
 Get registrations (admin user):
 ```
 curl -v -X GET -H "Content-type: application/json" --cookie "JWT=<jwttokenhere>" http://localhost:8080/api/v1/admin/product/registrations
-```
-
-Create a draft: 
-```
-
 ```
