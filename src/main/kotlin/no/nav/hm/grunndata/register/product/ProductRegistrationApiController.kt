@@ -44,7 +44,8 @@ class ProductRegistrationApiController(private val productRegistrationRepository
 
     @Post("/")
     suspend fun createProduct(@Body registrationDTO: ProductRegistrationDTO, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
-        if (registrationDTO.supplierId != userSupplierId(authentication) ) HttpResponse.unauthorized()
+        if (registrationDTO.supplierId != userSupplierId(authentication) ||
+            registrationDTO.productDTO.supplier.id != userSupplierId(authentication)) HttpResponse.unauthorized()
         else if (registrationDTO.createdByAdmin || registrationDTO.adminStatus == AdminStatus.APPROVED) HttpResponse.unauthorized()
         else
             productRegistrationRepository.findById(registrationDTO.id)?.let {
@@ -63,7 +64,8 @@ class ProductRegistrationApiController(private val productRegistrationRepository
     @Put("/{id}")
     suspend fun updateProduct(@Body registrationDTO: ProductRegistrationDTO, @PathVariable id: UUID, authentication: Authentication):
             HttpResponse<ProductRegistrationDTO> =
-        if (registrationDTO.supplierId != userSupplierId(authentication) ) HttpResponse.unauthorized()
+        if (registrationDTO.supplierId != userSupplierId(authentication) ||
+            registrationDTO.productDTO.supplier.id != userSupplierId(authentication)) HttpResponse.unauthorized()
         else productRegistrationRepository.findByIdAndSupplierId(id,userSupplierId(authentication))
                 ?.let {
                     val dto = productRegistrationRepository.update(registrationDTO

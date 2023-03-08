@@ -32,7 +32,9 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
     val email = "api@test.test"
     val password = "api-123"
     val supplierId = UUID.randomUUID()
+    val supplierId2 = UUID.randomUUID()
     var testSupplier: SupplierDTO? = null
+    var testSupplier2: SupplierDTO? = null
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -53,6 +55,18 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                     name = "Supplier AS3",
                 )
             ).toDTO()
+            testSupplier2 = supplierRepository.save(
+                Supplier(
+                    id = supplierId2,
+                    info = SupplierInfo(
+                    address = "address 4",
+                    homepage = "https://www.hompage.no",
+                    phone = "+47 12345678",
+                    email = "supplier4@test.test",
+                ),
+                identifier = "supplier4-unique-name",
+                name = "Supplier AS4",
+            )).toDTO()
             userRepository.createUser(
                 User(
                     email = email, token = password, name = "User tester", roles = listOf(Roles.ROLE_SUPPLIER),
@@ -145,6 +159,67 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         val updatedVersion = apiClient.readProduct(jwt, updated.id)
         updatedVersion.version!! shouldBeGreaterThan 0
         updatedVersion.updatedByUser shouldBe email
+
+        // should not be allowed to create a product of another supplier
+        val productDTO2 = ProductDTO(
+            id = UUID.randomUUID(),
+            supplier = testSupplier2!!,
+            title = "Dette er produkt 1",
+            attributes = mapOf(
+                AttributeNames.articlename to "produktnavn", AttributeNames.shortdescription to "En kort beskrivelse av produktet",
+                AttributeNames.text to "En lang beskrivelse av produktet"
+            ),
+            hmsArtNr = "111",
+            identifier = "hmdb-222",
+            supplierRef = "eksternref-222",
+            isoCategory = "12001314",
+            accessory = false,
+            sparePart = false,
+            seriesId = "series-123",
+            techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
+            media = listOf(
+                MediaDTO(
+                    uri = "123.jpg",
+                    text = "bilde av produktet",
+                    source = MediaSourceType.EXTERNALURL,
+                    sourceUri = "https://ekstern.url/123.jpg"
+                )
+            ),
+            agreementInfo = AgreementInfo(
+                id = UUID.randomUUID(),
+                identifier = "hmdbid-1",
+                rank = 1,
+                postNr = 1,
+                reference = "AV-142",
+                expired = LocalDateTime.now()
+            ),
+            createdBy = REGISTER,
+            updatedBy = REGISTER
+        )
+        val registration2 = ProductRegistrationDTO(
+            id = productDTO2.id,
+            supplierId = productDTO2.supplier.id,
+            supplierRef = productDTO2.supplierRef,
+            hmsArtNr = productDTO2.hmsArtNr,
+            title = productDTO2.title,
+            draftStatus = DraftStatus.DRAFT,
+            adminStatus = AdminStatus.NOT_APPROVED,
+            status = RegistrationStatus.ACTIVE,
+            message = "Melding til leverandør",
+            adminInfo = null,
+            createdByAdmin = false,
+            expired = null,
+            published = null,
+            updatedByUser = email,
+            createdByUser = email,
+            productDTO = productDTO2,
+            version = 1,
+            createdBy = REGISTER,
+            updatedBy = REGISTER
+        )
+        runCatching {
+            val created2 = apiClient.createProduct(jwt, registration2)
+        }.isFailure shouldBe true
     }
 
 }
