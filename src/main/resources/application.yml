@@ -1,5 +1,7 @@
 micronaut:
   server:
+    multipart:
+      max-file-size: 2097152
     port: ${SERVER_PORT:8080}
   application:
     name: hm-grunndata-register
@@ -102,3 +104,6 @@ kafka:
   keystorePassword: ${KAFKA_CREDSTORE_PASSWORD:}
   health:
     enabled: false
+media:
+  upload:
+    url: ${MEDIA_UPLOAD_URL:`http://localhost:8282/api/v1/media/files`}

@@ -7,7 +7,7 @@ import io.micronaut.http.multipart.CompletedFileUpload
 import no.nav.hm.grunndata.rapid.dto.MediaDTO
 import java.util.*
 
-@Client("\${MEDIA.UPLOAD.URL}")
+@Client("\${upload.media.url}")
 interface MediaUploadClient {
 
     @Post(
