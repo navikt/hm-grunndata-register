@@ -11,8 +11,9 @@ micronaut:
   security:
     enabled: true
     redirect:
-      enabled: true
+      enabled: false
       login-failure: "/login-failure"
+      login-success: "/login-success"
     endpoints:
       login:
         enabled: true
