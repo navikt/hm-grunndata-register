@@ -12,7 +12,7 @@ micronaut:
     enabled: true
     redirect:
       enabled: true
-      login-failure: "login-failure"
+      login-failure: "/login-failure"
     endpoints:
       login:
         enabled: true
