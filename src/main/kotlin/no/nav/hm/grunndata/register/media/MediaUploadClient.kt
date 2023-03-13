@@ -13,7 +13,7 @@ interface MediaUploadClient {
     @Post(
         value = "/{oid}",
         consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
-        produces = [io.micronaut.http.MediaType.TEXT_PLAIN]
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
     )
     suspend fun uploadFile(oid: UUID, file: CompletedFileUpload): HttpResponse<MediaDTO>
 

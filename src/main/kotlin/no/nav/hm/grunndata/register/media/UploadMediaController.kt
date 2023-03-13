@@ -7,17 +7,13 @@ import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.rapid.dto.MediaDTO
-import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.register.media.UploadMediaController.Companion.V1_UPLOAD_MEDIA
 import no.nav.hm.grunndata.register.security.Roles
-
 import org.slf4j.LoggerFactory
-import java.net.URI
 import java.util.*
-import javax.print.attribute.standard.Media
 
-@Secured(value = [Roles.ROLE_ADMIN, Roles.ROLE_SUPPLIER])
+@Secured(Roles.ROLE_ADMIN)
 @Controller(V1_UPLOAD_MEDIA)
 class UploadMediaController(private val mediaUploadClient: MediaUploadClient) {
 
@@ -29,7 +25,7 @@ class UploadMediaController(private val mediaUploadClient: MediaUploadClient) {
     @Post(
         value = "/{oid}",
         consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
-        produces = [io.micronaut.http.MediaType.TEXT_PLAIN]
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
     )
     suspend fun uploadFile(oid: UUID,
                            file: CompletedFileUpload,
