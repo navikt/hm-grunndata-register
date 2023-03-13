@@ -16,8 +16,9 @@ import org.slf4j.LoggerFactory
 @Singleton
 class UserPasswordAuthenticationProvider(private val userRepository: UserRepository): AuthenticationProvider {
 
-    private val LOG = LoggerFactory.getLogger(UserPasswordAuthenticationProvider::class.java)
-
+    companion object {
+        private val LOG = LoggerFactory.getLogger(UserPasswordAuthenticationProvider::class.java)
+    }
     override fun authenticate(httpRequest: HttpRequest<*>,
                               authenticationRequest: AuthenticationRequest<*, *>): Publisher<AuthenticationResponse> =
         runBlocking {
@@ -29,7 +30,7 @@ class UserPasswordAuthenticationProvider(private val userRepository: UserReposit
                     Publishers.just(AuthenticationResponse.success(it.email, it.roles, it.attributes)) }
                  ?: run {
                      LOG.error("User login failed")
-                     Publishers.just(AuthenticationResponse.exception("Login failed"))
+                     Publishers.just(AuthenticationResponse.failure("Login failed"))
                  }
          }
 
