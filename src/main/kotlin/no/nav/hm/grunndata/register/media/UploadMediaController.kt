@@ -3,6 +3,7 @@ package no.nav.hm.grunndata.register.media
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
+import io.micronaut.http.client.multipart.MultipartBody
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
@@ -33,10 +34,12 @@ class UploadMediaController(private val mediaUploadClient: MediaUploadClient) {
         return if (authentication.roles.contains(Roles.ROLE_ADMIN)) {
             val type = getMediaType(file)
             if (type == MediaType.OTHER) throw UknownMediaSource("only png, jpg, pdf is supported")
-
             val uri = "${oid}_${UUID.randomUUID()}.${file.extension}"
             LOG.info("Got file ${file.filename} with uri: $uri and size: ${file.size} for $oid")
-            val response = mediaUploadClient.uploadFile(oid, file)
+            val body = MultipartBody.builder().addPart("file", file.filename,
+                io.micronaut.http.MediaType.MULTIPART_FORM_DATA_TYPE, file.bytes
+                ).build()
+            val response = mediaUploadClient.uploadFile(oid, body)
             HttpResponse.created(response.body())
         } else {
             LOG.error("User is unauthorized ${authentication.roles}")
