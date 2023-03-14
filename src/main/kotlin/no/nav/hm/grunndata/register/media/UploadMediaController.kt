@@ -34,15 +34,13 @@ class UploadMediaController(private val mediaUploadClient: MediaUploadClient) {
         return if (authentication.roles.contains(Roles.ROLE_ADMIN)) {
             val type = getMediaType(file)
             if (type == MediaType.OTHER) throw UknownMediaSource("only png, jpg, pdf is supported")
-            val uri = "${oid}_${UUID.randomUUID()}.${file.extension}"
-            LOG.info("Got file ${file.filename} with uri: $uri and size: ${file.size} for $oid")
             val body = MultipartBody.builder().addPart("file", file.filename,
                 io.micronaut.http.MediaType.MULTIPART_FORM_DATA_TYPE, file.bytes
                 ).build()
             val response = mediaUploadClient.uploadFile(oid, body)
             HttpResponse.created(response.body())
         } else {
-            LOG.error("User is unauthorized ${authentication.roles}")
+            LOG.error("User is unauthorized")
             HttpResponse.unauthorized()
         }
     }
