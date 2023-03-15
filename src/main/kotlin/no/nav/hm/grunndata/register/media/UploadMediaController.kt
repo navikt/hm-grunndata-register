@@ -34,14 +34,8 @@ class UploadMediaController(private val mediaUploadClient: MediaUploadClient) {
     )
     suspend fun uploadFile(oid: UUID,
                            file: CompletedFileUpload,
-                           authentication: Authentication): HttpResponse<MediaDTO> {
-        return if (authentication.roles.contains(Roles.ROLE_ADMIN)) {
-            HttpResponse.created(createMedia(file, oid))
-        } else {
-            LOG.error("User is unauthorized")
-            HttpResponse.unauthorized()
-        }
-    }
+                           authentication: Authentication): HttpResponse<MediaDTO> =
+        HttpResponse.created(createMedia(file, oid))
 
     @Post(
         value = "/files/{oid}",
@@ -50,14 +44,10 @@ class UploadMediaController(private val mediaUploadClient: MediaUploadClient) {
     )
     suspend fun uploadFiles(oid: UUID,
                             files: Publisher<CompletedFileUpload>,
-                            authentication: Authentication): HttpResponse<List<MediaDTO>> {
-        return if (authentication.roles.contains(Roles.ROLE_ADMIN)) {
+                            authentication: Authentication): HttpResponse<List<MediaDTO>> =
             HttpResponse.created(files.asFlow().map {createMedia(it, oid) }.toList())
-        } else {
-            LOG.error("User is unauthorized")
-            HttpResponse.unauthorized()
-        }
-    }
+
+
 
     private suspend fun createMedia(file: CompletedFileUpload,
                                     oid: UUID): MediaDTO {
