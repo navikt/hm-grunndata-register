@@ -7,17 +7,18 @@ import no.nav.hm.grunndata.rapid.dto.SupplierDTO
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.SupplierApiController.Companion.API_V1_ADMIN_SUPPLIER_REGISTRATIONS
+import no.nav.hm.grunndata.register.supplier.SupplierAdminApiController.Companion.API_V1_ADMIN_SUPPLIER_REGISTRATIONS
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(API_V1_ADMIN_SUPPLIER_REGISTRATIONS)
-class SupplierApiController(private val supplierRepository: SupplierRepository) {
+class SupplierAdminApiController(private val supplierRepository: SupplierRepository) {
 
     companion object {
         const val API_V1_ADMIN_SUPPLIER_REGISTRATIONS = "/api/v1/admin/supplier/registrations"
-        private val LOG = LoggerFactory.getLogger(SupplierApiController::class.java)
+        private val LOG = LoggerFactory.getLogger(SupplierAdminApiController::class.java)
     }
 
     @Get("/{id}")
@@ -36,7 +37,9 @@ class SupplierApiController(private val supplierRepository: SupplierRepository) 
     @Put("/{id}")
     suspend fun updateSupplier(@Body supplier: SupplierDTO, id: UUID): HttpResponse<SupplierDTO> =
         supplierRepository.findById(id)
-            ?.let { HttpResponse.ok(supplierRepository.update(supplier.toEntity().copy(created = it.created)).toDTO()) }
+            ?.let { HttpResponse.ok(supplierRepository.update(supplier.toEntity()
+                //identifier can not be changed during migration
+                .copy(created = it.created, identifier = it.identifier, updated = LocalDateTime.now())).toDTO()) }
             ?:run { HttpResponse.notFound() }
 
     @Delete("/{id}")

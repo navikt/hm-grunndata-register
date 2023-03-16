@@ -16,7 +16,7 @@ import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.register.product.REGISTER
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.SupplierApiController.Companion.API_V1_ADMIN_SUPPLIER_REGISTRATIONS
+import no.nav.hm.grunndata.register.supplier.SupplierAdminApiController.Companion.API_V1_ADMIN_SUPPLIER_REGISTRATIONS
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
 import org.junit.jupiter.api.BeforeEach
@@ -27,9 +27,9 @@ import java.util.*
 
 
 @MicronautTest
-class SupplierApiControllerTest(private val supplierRepository: SupplierRepository,
-                                private val userRepository: UserRepository,
-                                private val loginClient: LoginClient) {
+class SupplierAdminApiControllerTest(private val supplierRepository: SupplierRepository,
+                                     private val userRepository: UserRepository,
+                                     private val loginClient: LoginClient) {
 
     @Inject
     @field:Client("/")
