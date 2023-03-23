@@ -55,7 +55,7 @@ class ProductSyncRiver(river: RiverHead,
                     status = mapStatus(dto.status), adminStatus = mapAdminStatus(dto.status),
                     createdBy = dto.createdBy, updatedBy = dto.updatedBy, created = dto.created, updated = dto.updated,
                     draftStatus = DraftStatus.DONE, expired = dto.expired, hmsArtNr = dto.hmsArtNr,
-                    published = dto.published, title = dto.title, productDTO = dto
+                    published = dto.published, title = dto.title, articleName = dto.articleName, productDTO = dto
                 )
             )
         }

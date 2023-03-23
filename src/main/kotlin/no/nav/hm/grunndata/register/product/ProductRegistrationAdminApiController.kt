@@ -78,7 +78,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                     else AttributeNames.compatible to emptyList()
                 ))
             val registration = ProductRegistrationDTO(id = productId, supplierId= supplier.id, hmsArtNr = null,   createdBy = REGISTER,
-            updatedBy = REGISTER, supplierRef = supplierRef, message = null, title = product.title,  published = product.published,
+            updatedBy = REGISTER, supplierRef = supplierRef, message = null, title = product.title,  articleName =  product.articleName, published = product.published,
             expired = product.expired, productDTO = product, createdByUser = authentication.name, updatedByUser = authentication.name,
                 createdByAdmin = true)
             HttpResponse.ok(productRegistrationRepository.save(registration.toEntity()).toDTO())

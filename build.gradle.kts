@@ -15,7 +15,7 @@ val tcVersion= "1.17.6"
 val mockkVersion = "1.13.2"
 val kotestVersion = "5.5.4"
 val rapidsRiversVersion="202303011052"
-val grunndataDtoVersion = "202303231302"
+val grunndataDtoVersion = "202303231418"
 
 group = "no.nav.hm"
 version = properties["version"] ?: "local-build"

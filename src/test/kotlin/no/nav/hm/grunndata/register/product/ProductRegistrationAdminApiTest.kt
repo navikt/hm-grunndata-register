@@ -82,7 +82,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         val productDTO = draft.productDTO.copy(
             title = "Dette er produkt 1",
             attributes = mapOf(
-                AttributeNames.articlename to "produktnavn", AttributeNames.shortdescription to "En kort beskrivelse av produktet",
+                AttributeNames.shortdescription to "En kort beskrivelse av produktet",
                 AttributeNames.text to "En lang beskrivelse av produktet"
             ),
             hmsArtNr = "111",

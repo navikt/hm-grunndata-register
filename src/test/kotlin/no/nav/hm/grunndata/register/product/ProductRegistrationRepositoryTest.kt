@@ -21,7 +21,7 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             title = "Dette er produkt title",
             articleName = "Dette er produkt 1 med og med",
             attributes = mapOf(
-               AttributeNames.articlename to  "produktnavn", AttributeNames.shortdescription to "En kort beskrivelse av produktet",
+               AttributeNames.shortdescription to "En kort beskrivelse av produktet",
               AttributeNames.text to "En lang beskrivelse av produktet"
             ),
             hmsArtNr = "123",
@@ -43,6 +43,7 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             supplierRef = productDTO.supplierRef,
             hmsArtNr = productDTO.hmsArtNr ,
             title = productDTO.title,
+            articleName = productDTO.articleName,
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.NOT_APPROVED,
             status  = RegistrationStatus.ACTIVE,

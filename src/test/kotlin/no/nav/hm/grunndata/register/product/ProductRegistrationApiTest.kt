@@ -122,6 +122,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             supplierRef = productDTO.supplierRef,
             hmsArtNr = productDTO.hmsArtNr,
             title = productDTO.title,
+            articleName = productDTO.articleName,
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.NOT_APPROVED,
             status = RegistrationStatus.ACTIVE,
@@ -143,11 +144,13 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         val read = apiClient.readProduct(jwt, created.id)
         read.shouldNotBeNull()
         read.title shouldBe created.title
+        read.articleName shouldBe created.articleName
         read.createdByUser shouldBe email
 
-        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title="new title"))
+        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title="new title", articleName = "new article title"))
         updated.shouldNotBeNull()
         updated.title shouldBe "new title"
+        updated.articleName shouldBe "new article title"
 
         val deleted = apiClient.deleteProduct(jwt, updated.id)
         deleted.shouldNotBeNull()
@@ -168,7 +171,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             title = "Dette er produkt 1",
             articleName = "Dette er produkt 1 med og med",
             attributes = mapOf(
-                AttributeNames.articlename to "produktnavn", AttributeNames.shortdescription to "En kort beskrivelse av produktet",
+                AttributeNames.shortdescription to "En kort beskrivelse av produktet",
                 AttributeNames.text to "En lang beskrivelse av produktet"
             ),
             hmsArtNr = "111",
@@ -204,6 +207,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             supplierRef = productDTO2.supplierRef,
             hmsArtNr = productDTO2.hmsArtNr,
             title = productDTO2.title,
+            articleName = productDTO2.articleName,
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.NOT_APPROVED,
             status = RegistrationStatus.ACTIVE,

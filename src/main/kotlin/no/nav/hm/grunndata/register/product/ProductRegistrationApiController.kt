@@ -108,11 +108,11 @@ class ProductRegistrationApiController(private val productRegistrationRepository
             val productId = UUID.randomUUID()
             val product = ProductDTO(id = productId, updatedBy = REGISTER, createdBy = REGISTER, title = "", articleName= "",  status = ProductStatus.INACTIVE,
                 supplier = supplier, supplierRef = supplierRef, identifier = productId.toString(),
-                seriesId = productId.toString(), isoCategory = "", attributes = mapOf(AttributeNames.articlename to "artikkelnavn",
+                seriesId = productId.toString(), isoCategory = "", attributes = mapOf(
                     AttributeNames.shortdescription to "kort beskrivelse", AttributeNames.text to "en lang beskrivelse")
             )
             val registration = ProductRegistrationDTO(id = productId, supplierId= supplier.id, hmsArtNr = null,   createdBy = REGISTER,
-                updatedBy = REGISTER, supplierRef = supplierRef, message = null, title = product.title,  published = product.published,
+                updatedBy = REGISTER, supplierRef = supplierRef, message = null, title = product.title,  articleName = product.articleName, published = product.published,
                 expired = product.expired, productDTO = product)
             return HttpResponse.ok(registration)
         }
