@@ -19,6 +19,7 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             supplier = SupplierDTO(id= UUID.randomUUID(), identifier = "12345", updated = LocalDateTime.now(),
                 created = LocalDateTime.now(), createdBy = REGISTER, updatedBy = REGISTER, info = SupplierInfo(), name = "testsupplier"),
             title = "Dette er produkt title",
+            articleName = "Dette er produkt 1 med og med",
             attributes = mapOf(
                AttributeNames.articlename to  "produktnavn", AttributeNames.shortdescription to "En kort beskrivelse av produktet",
               AttributeNames.text to "En lang beskrivelse av produktet"

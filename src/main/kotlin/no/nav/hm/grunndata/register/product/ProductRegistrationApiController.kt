@@ -106,7 +106,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
         } ?: run {
             val supplier = supplierRepository.findById(supplierId)!!.toDTO()
             val productId = UUID.randomUUID()
-            val product = ProductDTO(id = productId, updatedBy = REGISTER, createdBy = REGISTER, title = "", status = ProductStatus.INACTIVE,
+            val product = ProductDTO(id = productId, updatedBy = REGISTER, createdBy = REGISTER, title = "", articleName= "",  status = ProductStatus.INACTIVE,
                 supplier = supplier, supplierRef = supplierRef, identifier = productId.toString(),
                 seriesId = productId.toString(), isoCategory = "", attributes = mapOf(AttributeNames.articlename to "artikkelnavn",
                     AttributeNames.shortdescription to "kort beskrivelse", AttributeNames.text to "en lang beskrivelse")

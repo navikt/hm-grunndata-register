@@ -84,6 +84,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             id = UUID.randomUUID(),
             supplier = testSupplier!!,
             title = "Dette er produkt 1",
+            articleName = "Dette er produkt 1 med og med",
             attributes = mapOf(
                 AttributeNames.articlename to "produktnavn", AttributeNames.shortdescription to "En kort beskrivelse av produktet",
                 AttributeNames.text to "En lang beskrivelse av produktet"
@@ -165,6 +166,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             id = UUID.randomUUID(),
             supplier = testSupplier2!!,
             title = "Dette er produkt 1",
+            articleName = "Dette er produkt 1 med og med",
             attributes = mapOf(
                 AttributeNames.articlename to "produktnavn", AttributeNames.shortdescription to "En kort beskrivelse av produktet",
                 AttributeNames.text to "En lang beskrivelse av produktet"

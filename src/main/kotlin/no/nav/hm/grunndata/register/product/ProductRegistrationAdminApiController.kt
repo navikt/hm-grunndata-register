@@ -70,7 +70,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                 throw BadRequestException("$supplierId and $supplierRef duplicate error")
             }
             val productId = UUID.randomUUID()
-            val product = ProductDTO(id = productId, updatedBy = REGISTER, createdBy = REGISTER, title = "", status = ProductStatus.INACTIVE,
+            val product = ProductDTO(id = productId, updatedBy = REGISTER, createdBy = REGISTER, title = "", articleName = "", status = ProductStatus.INACTIVE,
                 supplier = supplier, supplierRef = supplierRef, identifier = "$supplierId-$supplierRef", accessory = isAccessory!!,
                 sparePart = isSparePart!!, seriesId = productId.toString(), isoCategory = "", attributes = mapOf(AttributeNames.articlename to "artikkelnavn",
                 AttributeNames.shortdescription to "kort beskrivelse", AttributeNames.text to "en lang beskrivelse",
