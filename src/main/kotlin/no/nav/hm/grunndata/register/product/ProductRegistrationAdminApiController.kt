@@ -93,7 +93,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                 val dto = productRegistrationRepository.save(registrationDTO
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name, createdByAdmin = true,
                         created = LocalDateTime.now(), updated = LocalDateTime.now(), productDTO = registrationDTO.productDTO.copy(
-                            status = if (registrationDTO.adminStatus == AdminStatus.NOT_APPROVED) ProductStatus.INACTIVE
+                            status = if (registrationDTO.adminStatus == AdminStatus.PENDING) ProductStatus.INACTIVE
                             else registrationDTO.productDTO.status, createdBy = REGISTER, updatedBy = REGISTER
                         ))
                     .toEntity()).toDTO()
@@ -104,7 +104,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
             }
 
     private fun prepareProduct(productDTO: ProductDTO, registrationDTO: ProductRegistrationDTO): ProductDTO =
-        if (registrationDTO.adminStatus == AdminStatus.NOT_APPROVED)
+        if (registrationDTO.adminStatus == AdminStatus.PENDING)
             productDTO.copy(status = ProductStatus.INACTIVE)
         else productDTO
 
@@ -120,7 +120,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = it.createdBy,
                         createdByAdmin = it.createdByAdmin, updated = LocalDateTime.now(),
                         productDTO = registrationDTO.productDTO.copy(
-                            status = if (registrationDTO.adminStatus == AdminStatus.NOT_APPROVED) ProductStatus.INACTIVE
+                            status = if (registrationDTO.adminStatus == AdminStatus.PENDING) ProductStatus.INACTIVE
                             else registrationDTO.productDTO.status,
                             created =  it.created, updated = LocalDateTime.now())
                     )

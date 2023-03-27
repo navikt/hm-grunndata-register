@@ -63,7 +63,7 @@ class ProductSyncRiver(river: RiverHead,
     }
 
     private fun mapAdminStatus(status: ProductStatus): AdminStatus =
-        if (status == ProductStatus.ACTIVE) AdminStatus.APPROVED else AdminStatus.NOT_APPROVED
+        if (status == ProductStatus.ACTIVE) AdminStatus.APPROVED else AdminStatus.PENDING
 
     private fun mapStatus(status: ProductStatus): RegistrationStatus =
         if (status == ProductStatus.ACTIVE) RegistrationStatus.ACTIVE else RegistrationStatus.DELETED

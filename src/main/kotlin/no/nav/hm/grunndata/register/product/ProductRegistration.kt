@@ -21,7 +21,7 @@ data class ProductRegistration(
     val title: String,
     val articleName: String,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
-    val adminStatus: AdminStatus = AdminStatus.NOT_APPROVED,
+    val adminStatus: AdminStatus = AdminStatus.PENDING,
     val status: RegistrationStatus = RegistrationStatus.ACTIVE,
     val message: String?=null,
     @field:TypeDef(type = DataType.JSON)

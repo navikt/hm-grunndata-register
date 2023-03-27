@@ -115,7 +115,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
             hmsArtNr = productDTO.hmsArtNr,
             title = productDTO.title,
             draftStatus = DraftStatus.DRAFT,
-            adminStatus = AdminStatus.NOT_APPROVED,
+            adminStatus = AdminStatus.PENDING,
             message = "Melding til leverandør",
             adminInfo = null,
             productDTO = productDTO
@@ -124,7 +124,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         // update draft
         val created = apiClient.updateProduct(jwt, registration.id, registration)
         created.shouldNotBeNull()
-        created.adminStatus shouldBe AdminStatus.NOT_APPROVED
+        created.adminStatus shouldBe AdminStatus.PENDING
         created.productDTO.status shouldBe ProductStatus.INACTIVE
 
         // read it from database

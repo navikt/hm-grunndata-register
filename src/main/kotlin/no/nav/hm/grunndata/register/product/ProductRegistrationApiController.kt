@@ -74,7 +74,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
                             createdBy = it.createdBy, createdByAdmin = it.createdByAdmin, adminStatus = it.adminStatus,
                             adminInfo = it.adminInfo, updated = LocalDateTime.now(),
                             productDTO = it.productDTO.copy(updated = LocalDateTime.now(),
-                                status = if (it.adminStatus == AdminStatus.NOT_APPROVED) ProductStatus.INACTIVE
+                                status = if (it.adminStatus == AdminStatus.PENDING) ProductStatus.INACTIVE
                                     else registrationDTO.productDTO.status
                             ))
                         .toEntity()).toDTO()
