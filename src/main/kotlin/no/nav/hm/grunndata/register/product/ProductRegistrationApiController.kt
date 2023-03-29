@@ -55,12 +55,14 @@ class ProductRegistrationApiController(private val productRegistrationRepository
                     .copy(updatedByUser =  authentication.name, createdByUser = authentication.name,
                         created = LocalDateTime.now(), updated = LocalDateTime.now())
                     .toEntity()).toDTO()
-                if (dto.draftStatus == DraftStatus.DONE) {
-                    registerRapidPushService.pushDTOToKafka(dto, EventName.productRegistration)
-                }
+                pushToRapidIfNotDraft(dto)
                 HttpResponse.created(dto)
             }
-
+    private fun pushToRapidIfNotDraft(dto: ProductRegistrationDTO) {
+        if (dto.draftStatus == DraftStatus.DONE) {
+            registerRapidPushService.pushDTOToKafka(dto, EventName.registeredProductV1)
+        }
+    }
     @Put("/{id}")
     suspend fun updateProduct(@Body registrationDTO: ProductRegistrationDTO, @PathVariable id: UUID, authentication: Authentication):
             HttpResponse<ProductRegistrationDTO> =
@@ -78,9 +80,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
                                     else registrationDTO.productDTO.status
                             ))
                         .toEntity()).toDTO()
-                    if (dto.draftStatus == DraftStatus.DONE) {
-                        registerRapidPushService.pushDTOToKafka(dto, EventName.productRegistration)
-                    }
+                    pushToRapidIfNotDraft(dto)
                     HttpResponse.ok(dto) }
                 ?: run {
                     throw BadRequestException("Product does not exists $id") }

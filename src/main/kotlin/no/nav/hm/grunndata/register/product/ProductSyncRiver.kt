@@ -25,7 +25,7 @@ class ProductSyncRiver(river: RiverHead,
 
     init {
         river
-            .validate { it.demandValue("eventName", EventName.hmdbproductsync) }
+            .validate { it.demandValue("eventName", EventName.hmdbproductsyncV1) }
             .validate { it.demandValue("payloadType", ProductDTO::class.java.simpleName) }
             .validate { it.demandKey("payload") }
             .validate { it.demandKey("eventId") }

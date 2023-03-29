@@ -71,8 +71,8 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
             }
             val productId = UUID.randomUUID()
             val product = ProductDTO(id = productId, updatedBy = REGISTER, createdBy = REGISTER, title = "", articleName = "", status = ProductStatus.INACTIVE,
-                supplier = supplier, supplierRef = supplierRef, identifier = "$supplierId-$supplierRef", accessory = isAccessory!!,
-                sparePart = isSparePart!!, seriesId = productId.toString(), isoCategory = "", attributes = mapOf(AttributeNames.articlename to "artikkelnavn",
+                supplier = supplier, supplierRef = supplierRef, identifier = "$supplierId-$supplierRef", accessory = isAccessory,
+                sparePart = isSparePart, seriesId = productId.toString(), isoCategory = "", attributes = mapOf(
                 AttributeNames.shortdescription to "kort beskrivelse", AttributeNames.text to "en lang beskrivelse",
                     if (isSparePart || isAccessory) AttributeNames.compatible to listOf("HmsArtNr", "identifier")
                     else AttributeNames.compatible to emptyList()
@@ -97,11 +97,15 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                             else registrationDTO.productDTO.status, createdBy = REGISTER, updatedBy = REGISTER
                         ))
                     .toEntity()).toDTO()
-                if (dto.draftStatus == DraftStatus.DONE) {
-                    registerRapidPushService.pushDTOToKafka(dto, EventName.productRegistration)
-                }
+                pushToRapidIfNotDraft(dto)
                 HttpResponse.created(dto)
             }
+
+    private fun pushToRapidIfNotDraft(dto: ProductRegistrationDTO) {
+        if (dto.draftStatus == DraftStatus.DONE) {
+            registerRapidPushService.pushDTOToKafka(dto, EventName.registeredProductV1)
+        }
+    }
 
     private fun prepareProduct(productDTO: ProductDTO, registrationDTO: ProductRegistrationDTO): ProductDTO =
         if (registrationDTO.adminStatus == AdminStatus.PENDING)
@@ -125,9 +129,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                             created =  it.created, updated = LocalDateTime.now())
                     )
                     val dto = productRegistrationRepository.update(updated.toEntity()).toDTO()
-                    if (dto.draftStatus == DraftStatus.DONE) {
-                        registerRapidPushService.pushDTOToKafka(dto, EventName.productRegistration)
-                    }
+                    pushToRapidIfNotDraft(dto)
                     HttpResponse.ok(dto) }
                 ?: run {
                     throw BadRequestException("Product registration already exists $id") }
@@ -138,9 +140,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
             ?.let {
                 val productDTO = it.productDTO.copy(status = ProductStatus.INACTIVE, expired = LocalDateTime.now().minusMinutes(1L))
                 val dto = productRegistrationRepository.update(it.copy(status= RegistrationStatus.DELETED, productDTO = productDTO)).toDTO()
-                if (dto.draftStatus == DraftStatus.DONE) {
-                    registerRapidPushService.pushDTOToKafka(dto, EventName.productRegistration)
-                }
+                pushToRapidIfNotDraft(dto)
                 HttpResponse.ok(dto)}
             ?: HttpResponse.notFound()
 

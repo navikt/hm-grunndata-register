@@ -29,9 +29,9 @@ class SupplierAdminApiController(private val supplierRepository: SupplierReposit
     suspend fun createSupplier(@Body supplier: SupplierDTO): HttpResponse<SupplierDTO> =
         supplierRepository.findById(supplier.id)
             ?.let { throw BadRequestException("supplier ${supplier.id} already exists") }
-            ?:run { val supplier = supplierRepository.save(supplier.toEntity())
-                LOG.info("supplier ${supplier.id} created")
-                HttpResponse.created(supplier.toDTO())
+            ?:run { val saved = supplierRepository.save(supplier.toEntity())
+                LOG.info("supplier ${saved.id} created")
+                HttpResponse.created(saved.toDTO())
             }
 
     @Put("/{id}")
