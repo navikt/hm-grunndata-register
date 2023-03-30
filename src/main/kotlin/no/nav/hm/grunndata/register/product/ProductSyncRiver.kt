@@ -43,7 +43,7 @@ class ProductSyncRiver(river: RiverHead,
             productRegistrationRepository.findById(dto.id)?.let { inDb ->
                 productRegistrationRepository.update(
                     inDb.copy(
-                        productDTO = dto, updatedBy = dto.updatedBy, status = mapStatus(dto.status),
+                        productDTO = dto, updatedBy = dto.updatedBy, registrationStatus = mapStatus(dto.status),
                         adminStatus = mapAdminStatus(dto.status), created = dto.created, updated = dto.updated,
                         hmsArtNr = dto.hmsArtNr, title = dto.title, supplierRef = dto.supplierRef,
                         published = dto.published, expired = dto.expired
@@ -52,7 +52,7 @@ class ProductSyncRiver(river: RiverHead,
             } ?: productRegistrationRepository.save(
                 ProductRegistration(
                     id = dto.id, supplierId = dto.supplier.id, supplierRef = dto.supplierRef,
-                    status = mapStatus(dto.status), adminStatus = mapAdminStatus(dto.status),
+                    registrationStatus = mapStatus(dto.status), adminStatus = mapAdminStatus(dto.status),
                     createdBy = dto.createdBy, updatedBy = dto.updatedBy, created = dto.created, updated = dto.updated,
                     draftStatus = DraftStatus.DONE, expired = dto.expired, hmsArtNr = dto.hmsArtNr,
                     published = dto.published, title = dto.title, articleName = dto.articleName, productDTO = dto

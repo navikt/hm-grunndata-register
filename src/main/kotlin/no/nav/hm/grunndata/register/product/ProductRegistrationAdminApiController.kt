@@ -138,7 +138,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
         productRegistrationRepository.findById(id)
             ?.let {
                 val productDTO = it.productDTO.copy(status = ProductStatus.INACTIVE, expired = LocalDateTime.now().minusMinutes(1L))
-                val dto = productRegistrationRepository.update(it.copy(status= RegistrationStatus.DELETED, productDTO = productDTO)).toDTO()
+                val dto = productRegistrationRepository.update(it.copy(registrationStatus= RegistrationStatus.DELETED, productDTO = productDTO)).toDTO()
                 pushToRapidIfNotDraft(dto)
                 HttpResponse.ok(dto)}
             ?: HttpResponse.notFound()

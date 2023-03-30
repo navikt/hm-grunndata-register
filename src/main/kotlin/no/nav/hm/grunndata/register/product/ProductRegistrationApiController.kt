@@ -94,7 +94,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
                 val productDTO = it.productDTO.copy(status = ProductStatus.INACTIVE,
                     expired = LocalDateTime.now().minusMinutes(1L), updatedBy = REGISTER, updated = LocalDateTime.now())
                 val deleteDTO = productRegistrationRepository.update(it
-                    .copy(status= RegistrationStatus.DELETED, updatedByUser = authentication.name, productDTO = productDTO))
+                    .copy(registrationStatus= RegistrationStatus.DELETED, updatedByUser = authentication.name, productDTO = productDTO))
                     .toDTO()
                 HttpResponse.ok(deleteDTO)
             }

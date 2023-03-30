@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS product_reg_v1 (
     article_name VARCHAR(255) NOT NULL,
     draft_status VARCHAR(32) NOT NULL,
     admin_status VARCHAR(32) NOT NULL,
-    status VARCHAR(32) NOT NULL,
+    registration_status VARCHAR(32) NOT NULL,
     message TEXT,
     admin_info JSONB,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

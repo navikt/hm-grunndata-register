@@ -22,7 +22,7 @@ data class ProductRegistration(
     val articleName: String,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val adminStatus: AdminStatus = AdminStatus.PENDING,
-    val status: RegistrationStatus = RegistrationStatus.ACTIVE,
+    val registrationStatus: RegistrationStatus = RegistrationStatus.ACTIVE,
     val message: String?=null,
     @field:TypeDef(type = DataType.JSON)
     val adminInfo: AdminInfo?=null,
@@ -44,7 +44,7 @@ fun ProductRegistration.isDraft(): Boolean = draftStatus == DraftStatus.DRAFT
 fun ProductRegistration.isApproved(): Boolean = adminStatus == AdminStatus.APPROVED
 fun ProductRegistration.approve(approvedByName: String): ProductRegistration =
     this.copy(adminInfo = AdminInfo(approvedBy = approvedByName), adminStatus = AdminStatus.APPROVED,
-        status = RegistrationStatus.ACTIVE, draftStatus = DraftStatus.DONE, published = LocalDateTime.now())
+        registrationStatus = RegistrationStatus.ACTIVE, draftStatus = DraftStatus.DONE, published = LocalDateTime.now())
 
 
 const val REGISTER = "REGISTER"

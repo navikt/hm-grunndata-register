@@ -46,7 +46,7 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             articleName = productDTO.articleName,
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.PENDING,
-            status  = RegistrationStatus.ACTIVE,
+            registrationStatus  = RegistrationStatus.ACTIVE,
             message = "Melding til leverandør",
             adminInfo = null,
             productDTO = productDTO,
