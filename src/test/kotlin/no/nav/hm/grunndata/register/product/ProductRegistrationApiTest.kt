@@ -118,14 +118,9 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         )
         val registration = ProductRegistrationDTO(
             id = productDTO.id,
-            supplierId = productDTO.supplier.id,
-            supplierRef = productDTO.supplierRef,
-            hmsArtNr = productDTO.hmsArtNr,
-            title = productDTO.title,
-            articleName = productDTO.articleName,
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.PENDING,
-            status = RegistrationStatus.ACTIVE,
+            registrationStatus = RegistrationStatus.ACTIVE,
             message = "Melding til leverandør",
             adminInfo = null,
             createdByAdmin = false,
@@ -143,18 +138,15 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
 
         val read = apiClient.readProduct(jwt, created.id)
         read.shouldNotBeNull()
-        read.title shouldBe created.title
-        read.articleName shouldBe created.articleName
         read.createdByUser shouldBe email
 
-        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title="new title", articleName = "new article title"))
+        val updated = apiClient.updateProduct(jwt, read.id, read.copy(productDTO = read.productDTO.copy(title="Changed title", articleName = "Changed articlename")))
         updated.shouldNotBeNull()
-        updated.title shouldBe "new title"
-        updated.articleName shouldBe "new article title"
+
 
         val deleted = apiClient.deleteProduct(jwt, updated.id)
         deleted.shouldNotBeNull()
-        deleted.status shouldBe RegistrationStatus.DELETED
+        deleted.registrationStatus shouldBe RegistrationStatus.DELETED
         deleted.productDTO.status shouldBe ProductStatus.INACTIVE
 
         val page = apiClient.findProducts(jwt,10,1,"created,asc")
@@ -203,14 +195,9 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         )
         val registration2 = ProductRegistrationDTO(
             id = productDTO2.id,
-            supplierId = productDTO2.supplier.id,
-            supplierRef = productDTO2.supplierRef,
-            hmsArtNr = productDTO2.hmsArtNr,
-            title = productDTO2.title,
-            articleName = productDTO2.articleName,
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.PENDING,
-            status = RegistrationStatus.ACTIVE,
+            registrationStatus = RegistrationStatus.ACTIVE,
             message = "Melding til leverandør",
             adminInfo = null,
             createdByAdmin = false,
@@ -226,6 +213,15 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         runCatching {
             val created2 = apiClient.createProduct(jwt, registration2)
         }.isFailure shouldBe true
+
+        // make template of another product
+        val template = apiClient.useProductTemplate(jwt, created.id)
+        template.shouldNotBeNull()
+        template.productDTO.shouldNotBeNull()
+        template.productDTO.title shouldBe "Changed title"
+        template.productDTO.articleName shouldBe "Changed articlename"
+
+
     }
 
 }

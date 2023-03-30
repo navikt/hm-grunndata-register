@@ -26,13 +26,8 @@ class ProductRegistrationHandler {
         )
         return registration.toDTO().copy(
             id = productId,
-            supplierRef = product.supplierRef,
-            hmsArtNr = product.hmsArtNr,
-            title = product.title,
-            articleName = product.articleName,
             draftStatus =  DraftStatus.DRAFT,
             adminStatus = AdminStatus.PENDING,
-            status = RegistrationStatus.ACTIVE,
             message = null,
             adminInfo = null,
             created = LocalDateTime.now(),

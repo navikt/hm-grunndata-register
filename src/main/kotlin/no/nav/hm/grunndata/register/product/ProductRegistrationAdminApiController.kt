@@ -26,7 +26,8 @@ import java.util.*
 @Controller(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
 class ProductRegistrationAdminApiController(private val productRegistrationRepository: ProductRegistrationRepository,
                                             private val registerRapidPushService: RegisterRapidPushService,
-                                            private val supplierRepository: SupplierRepository) {
+                                            private val supplierRepository: SupplierRepository,
+                                            private val productRegistrationHandler: ProductRegistrationHandler) {
 
     companion object {
         const val API_V1_ADMIN_PRODUCT_REGISTRATIONS = "/api/v1/admin/product/registrations"
@@ -77,8 +78,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                     if (isSparePart || isAccessory) AttributeNames.compatible to listOf("HmsArtNr", "identifier")
                     else AttributeNames.compatible to emptyList()
                 ))
-            val registration = ProductRegistrationDTO(id = productId, supplierId= supplier.id, hmsArtNr = null,   createdBy = REGISTER,
-            updatedBy = REGISTER, supplierRef = supplierRef, message = null, title = product.title,  articleName =  product.articleName, published = product.published,
+            val registration = ProductRegistrationDTO(id = productId,  createdBy = REGISTER, updatedBy = REGISTER, message = null, published = product.published,
             expired = product.expired, productDTO = product, createdByUser = authentication.name, updatedByUser = authentication.name,
                 createdByAdmin = true)
             HttpResponse.ok(productRegistrationRepository.save(registration.toEntity()).toDTO())
@@ -118,9 +118,8 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
             HttpResponse<ProductRegistrationDTO> =
         productRegistrationRepository.findById(id)
                 ?.let {
-                    val updated = registrationDTO.copy(title = registrationDTO.productDTO.title,
-                        supplierRef = registrationDTO.productDTO.supplierRef, hmsArtNr = registrationDTO.productDTO.hmsArtNr,
-                        id = it.id, created = it.created, supplierId = it.supplierId,
+                    val updated = registrationDTO.copy(
+                        id = it.id, created = it.created,
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = it.createdBy,
                         createdByAdmin = it.createdByAdmin, updated = LocalDateTime.now(),
                         productDTO = registrationDTO.productDTO.copy(
@@ -144,7 +143,12 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                 HttpResponse.ok(dto)}
             ?: HttpResponse.notFound()
 
-
+    @Get("/template/{id}")
+    suspend fun useProductTemplate(@PathVariable id: UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
+        return productRegistrationRepository.findById(id)?.let {
+            HttpResponse.ok(productRegistrationHandler.makeTemplateOf(it, authentication))
+        } ?: HttpResponse.notFound()
+    }
 
 }
 

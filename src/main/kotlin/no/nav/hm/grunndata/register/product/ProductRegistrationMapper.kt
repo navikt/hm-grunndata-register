@@ -4,15 +4,16 @@ import no.nav.hm.grunndata.rapid.dto.ProductRegistrationDTO
 
 
 fun ProductRegistrationDTO.toEntity(): ProductRegistration = ProductRegistration(id = id,
-    supplierId = supplierId, supplierRef =supplierRef, hmsArtNr = hmsArtNr, title = title, articleName = articleName, draftStatus = draftStatus,
-    adminStatus = adminStatus, status = status, message = message, adminInfo = adminInfo, created = created, updated = updated,
-    published = published, expired = expired, updatedByUser = updatedByUser, createdByUser = createdByUser,  createdBy = createdBy, updatedBy = updatedBy,
-    createdByAdmin = createdByAdmin, productDTO = productDTO, version = version
+    supplierId = productDTO.supplier.id, supplierRef = productDTO.supplierRef, hmsArtNr = productDTO.hmsArtNr,
+    title = productDTO.title, articleName = productDTO.articleName, draftStatus = draftStatus,
+    adminStatus = adminStatus, status = registrationStatus, message = message, adminInfo = adminInfo, created = created,
+    updated = updated, published = published, expired = expired, updatedByUser = updatedByUser,
+    createdByUser = createdByUser, createdBy = createdBy, updatedBy = updatedBy, createdByAdmin = createdByAdmin,
+    productDTO = productDTO, version = version
 )
 
  fun ProductRegistration.toDTO(): ProductRegistrationDTO = ProductRegistrationDTO(
-     id = id, supplierId= supplierId, supplierRef =supplierRef, hmsArtNr = hmsArtNr, title = title,
-     articleName = articleName, draftStatus = draftStatus, adminStatus = adminStatus, status = status,
+     id = id, draftStatus = draftStatus, adminStatus = adminStatus, registrationStatus = status,
      message = message, adminInfo = adminInfo, created = created, updated = updated, published = published,
      expired = expired, updatedByUser = updatedByUser, createdByUser = createdByUser, createdBy = createdBy,
      updatedBy = updatedBy, createdByAdmin = createdByAdmin, productDTO = productDTO, version = version

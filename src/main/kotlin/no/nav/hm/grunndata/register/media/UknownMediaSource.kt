@@ -1,5 +1,5 @@
 package no.nav.hm.grunndata.register.media
 
-class UknownMediaSource(message: String) : Throwable() {
+class UknownMediaSource(message: String) : Throwable(message) {
 
 }

@@ -72,8 +72,6 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         // create a draft to begin product registration
         val draft = apiClient.draftProduct(jwt, "eksternref-222", testSupplier!!.id)
         draft.shouldNotBeNull()
-        draft.supplierId shouldBe  testSupplier!!.id
-        draft.supplierRef shouldBe  "eksternref-222"
         draft.createdByAdmin shouldBe true
         draft.createdByUser shouldBe email
         println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(draft))
@@ -110,10 +108,6 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         )
         val registration = draft.copy(
             id = productDTO.id,
-            supplierId = productDTO.supplier.id,
-            supplierRef = productDTO.supplierRef,
-            hmsArtNr = productDTO.hmsArtNr,
-            title = productDTO.title,
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.PENDING,
             message = "Melding til leverandør",
@@ -130,15 +124,13 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         // read it from database
         val read = apiClient.readProduct(jwt, created.id)
         read.shouldNotBeNull()
-        read.title shouldBe created.title
         read.createdByUser shouldBe email
 
         // make some changes
-        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title="Changed title",
+        val updated = apiClient.updateProduct(jwt, read.id, read.copy(
             adminStatus = AdminStatus.APPROVED,
             productDTO = read.productDTO.copy(title = "Changed title", status = ProductStatus.ACTIVE)))
         updated.shouldNotBeNull()
-        updated.title shouldBe "Changed title"
         updated.productDTO.title shouldBe "Changed title"
         updated.adminStatus shouldBe AdminStatus.APPROVED
         updated.productDTO.status shouldBe ProductStatus.ACTIVE
@@ -147,7 +139,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         // flag the registration to deleted
         val deleted = apiClient.deleteProduct(jwt, updated.id)
         deleted.shouldNotBeNull()
-        deleted.status shouldBe RegistrationStatus.DELETED
+        deleted.registrationStatus shouldBe RegistrationStatus.DELETED
         deleted.productDTO.status shouldBe ProductStatus.INACTIVE
 
         val page = apiClient.findProducts(jwt = jwt,
