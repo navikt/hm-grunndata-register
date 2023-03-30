@@ -46,10 +46,11 @@ class ProductRegistrationApiController(private val productRegistrationRepository
     @Post("/")
     suspend fun createProduct(@Body registrationDTO: ProductRegistrationDTO, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
         if (registrationDTO.productDTO.supplier.id != userSupplierId(authentication)) {
-            LOG.warn("Got unauthorized attempt for ")
+            LOG.warn("Got unauthorized attempt for ${registrationDTO.productDTO.supplier.id}")
             HttpResponse.unauthorized()
         }
         else if (registrationDTO.createdByAdmin || registrationDTO.adminStatus == AdminStatus.APPROVED) HttpResponse.unauthorized()
+        else if (registrationDTO.productDTO.id != registrationDTO.id) throw BadRequestException("Product and registration id not matched")
         else
             productRegistrationRepository.findById(registrationDTO.id)?.let {
                 throw BadRequestException("Product registration already exists ${registrationDTO.id}")
@@ -70,14 +71,14 @@ class ProductRegistrationApiController(private val productRegistrationRepository
     suspend fun updateProduct(@Body registrationDTO: ProductRegistrationDTO, @PathVariable id: UUID, authentication: Authentication):
             HttpResponse<ProductRegistrationDTO> =
         if (registrationDTO.productDTO.supplier.id != userSupplierId(authentication)) HttpResponse.unauthorized()
-        else productRegistrationRepository.findByIdAndSupplierId(id,userSupplierId(authentication))
+        else productRegistrationRepository.findByIdAndSupplierId(id, registrationDTO.productDTO.supplier.id)
                 ?.let { inDb ->
                     val dto = productRegistrationRepository.update(registrationDTO
                         .copy(id = inDb.id, created = inDb.created,
                             updatedBy = REGISTER, updatedByUser = authentication.name, createdByUser = inDb.createdByUser,
                             createdBy = inDb.createdBy, createdByAdmin = inDb.createdByAdmin, adminStatus = inDb.adminStatus,
                             adminInfo = inDb.adminInfo, updated = LocalDateTime.now(),
-                            productDTO = registrationDTO.productDTO.copy(updated = LocalDateTime.now(),
+                            productDTO = registrationDTO.productDTO.copy(id = inDb.productDTO.id, updated = LocalDateTime.now(),
                                 status = if (inDb.adminStatus == AdminStatus.PENDING ) ProductStatus.INACTIVE
                                     else registrationDTO.productDTO.status
                             ))
@@ -108,10 +109,12 @@ class ProductRegistrationApiController(private val productRegistrationRepository
         } ?: run {
             val supplier = supplierRepository.findById(supplierId)!!.toDTO()
             val productId = UUID.randomUUID()
-            val product = ProductDTO(id = productId, updatedBy = REGISTER, createdBy = REGISTER, title = "", articleName= "",  status = ProductStatus.INACTIVE,
-                supplier = supplier, supplierRef = supplierRef, identifier = productId.toString(),
+            val product = ProductDTO(id = productId, updatedBy = REGISTER, createdBy = REGISTER, title = "", articleName= "",
+                status = ProductStatus.INACTIVE, supplier = supplier, supplierRef = supplierRef, identifier = productId.toString(),
                 seriesId = productId.toString(), isoCategory = "", attributes = mapOf(
-                    AttributeNames.shortdescription to "kort beskrivelse", AttributeNames.text to "en lang beskrivelse")
+                    AttributeNames.shortdescription to "kort beskrivelse",
+                    AttributeNames.text to "en lang beskrivelse",
+                    AttributeNames.url to "http://")
             )
             val registration = ProductRegistrationDTO(id = productId, createdBy = REGISTER,
                 updatedBy = REGISTER, message = null, published = product.published,
