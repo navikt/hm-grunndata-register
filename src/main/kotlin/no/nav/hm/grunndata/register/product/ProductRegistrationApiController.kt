@@ -23,7 +23,8 @@ import java.util.*
 @Controller(ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS)
 class ProductRegistrationApiController(private val productRegistrationRepository: ProductRegistrationRepository,
                                        private val registerRapidPushService: RegisterRapidPushService,
-                                       private val supplierRepository: SupplierRepository) {
+                                       private val supplierRepository: SupplierRepository,
+                                       private val productRegistrationHandler: ProductRegistrationHandler) {
 
     companion object {
         const val API_V1_PRODUCT_REGISTRATIONS = "/api/v1/product/registrations"
@@ -98,7 +99,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
             }
             ?: HttpResponse.notFound()
 
-    @Get("/draft/reference/{supplierRef}")
+    @Get("/draft/{supplierRef}")
     suspend fun draftProduct(@PathVariable supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
         val supplierId = userSupplierId(authentication)
         productRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)?.let {
@@ -118,11 +119,19 @@ class ProductRegistrationApiController(private val productRegistrationRepository
         }
     }
 
+    @Get("/template/{id}")
+    suspend fun useProductTemplate(@PathVariable id: UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
+        val supplierId = userSupplierId(authentication)
+        return productRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.let {
+            HttpResponse.ok(productRegistrationHandler.makeTemplateOf(it, authentication))
+        } ?: HttpResponse.notFound()
+    }
+
     private fun userSupplierId(authentication: Authentication) = UUID.fromString(
         authentication.attributes[UserAttribute.SUPPLIER_ID] as String )
 
 }
 
-
+fun Authentication.isAdmin(): Boolean  = roles.contains(Roles.ROLE_ADMIN)
 
 
