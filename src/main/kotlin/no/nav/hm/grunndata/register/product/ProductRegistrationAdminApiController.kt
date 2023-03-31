@@ -10,6 +10,7 @@ import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.RegisterRapidPushService
@@ -18,6 +19,7 @@ import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
 import no.nav.hm.grunndata.register.supplier.toDTO
+
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
@@ -65,21 +67,35 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
     suspend fun draftProduct(supplierId: UUID, supplierRef: String, authentication: Authentication,
                              @QueryValue(defaultValue = "false") isAccessory: Boolean,
                              @QueryValue(defaultValue = "false") isSparePart: Boolean): HttpResponse<ProductRegistrationDTO> =
-        supplierRepository.findById(supplierId)?.let { it ->
-            val supplier = it.toDTO()
+        supplierRepository.findById(supplierId)?.let {
             if (productRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)!=null) {
                 throw BadRequestException("$supplierId and $supplierRef duplicate error")
             }
             val productId = UUID.randomUUID()
-            val product = ProductDTO(id = productId, updatedBy = REGISTER, createdBy = REGISTER, title = "", articleName = "", status = ProductStatus.INACTIVE,
-                supplier = supplier, supplierRef = supplierRef, identifier = "$supplierId-$supplierRef", accessory = isAccessory,
-                sparePart = isSparePart, seriesId = productId.toString(), isoCategory = "", attributes = mapOf(
-                AttributeNames.shortdescription to "kort beskrivelse", AttributeNames.text to "en lang beskrivelse",
-                    if (isSparePart || isAccessory) AttributeNames.compatible to listOf("HmsArtNr", "identifier")
-                    else AttributeNames.compatible to emptyList()
+            val product = ProductData (
+                    accessory = isAccessory,
+                    sparePart = isSparePart,
+                    seriesId = productId.toString(),
+                    isoCategory = "", attributes = Attributes (
+                    shortdescription = "kort beskrivelse",
+                    text = "en lang beskrivelse",
+                    compatible = if (isSparePart || isAccessory) listOf(CompatibleAttribute(hmsArtNr = "", supplierRef = "")) else null
                 ))
-            val registration = ProductRegistrationDTO(id = productId,  createdBy = REGISTER, updatedBy = REGISTER, message = null, published = product.published,
-            expired = product.expired, productDTO = product, createdByUser = authentication.name, updatedByUser = authentication.name,
+            val registration = ProductRegistrationDTO(
+                id = productId,
+                supplierId = supplierId,
+                supplierRef = supplierRef,
+                hmsArtNr = "",
+                title = "",
+                articleName = "",
+                createdBy = REGISTER,
+                updatedBy = REGISTER,
+                message = null,
+                published = LocalDateTime.now(),
+                expired = LocalDateTime.now().plusYears(10),
+                productData = product,
+                createdByUser = authentication.name,
+                updatedByUser = authentication.name,
                 createdByAdmin = true)
             HttpResponse.ok(productRegistrationRepository.save(registration.toEntity()).toDTO())
         } ?: throw BadRequestException("$supplierId does not exist")
@@ -92,40 +108,30 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
             } ?: run {
                 val dto = productRegistrationRepository.save(registrationDTO
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name, createdByAdmin = true,
-                        created = LocalDateTime.now(), updated = LocalDateTime.now(), productDTO = registrationDTO.productDTO.copy(
-                            status = if (registrationDTO.adminStatus == AdminStatus.PENDING) ProductStatus.INACTIVE
-                            else registrationDTO.productDTO.status, createdBy = REGISTER, updatedBy = REGISTER
-                        ))
-                    .toEntity()).toDTO()
+                        created = LocalDateTime.now(), updated = LocalDateTime.now()).toEntity()).toDTO()
                 pushToRapidIfNotDraft(dto)
                 HttpResponse.created(dto)
             }
 
     private fun pushToRapidIfNotDraft(dto: ProductRegistrationDTO) {
-        if (dto.draftStatus == DraftStatus.DONE) {
-            registerRapidPushService.pushDTOToKafka(dto, EventName.registeredProductV1)
+        runBlocking {
+            if (dto.draftStatus == DraftStatus.DONE) {
+                val rapidDTO = dto.toRapidDTO()
+                registerRapidPushService.pushDTOToKafka(rapidDTO, EventName.registeredProductV1)
+            }
         }
     }
-
-    private fun prepareProduct(productDTO: ProductDTO, registrationDTO: ProductRegistrationDTO): ProductDTO =
-        if (registrationDTO.adminStatus == AdminStatus.PENDING)
-            productDTO.copy(status = ProductStatus.INACTIVE)
-        else productDTO
 
 
     @Put("/{id}")
     suspend fun updateProduct(@Body registrationDTO: ProductRegistrationDTO, @PathVariable id: UUID, authentication: Authentication):
             HttpResponse<ProductRegistrationDTO> =
         productRegistrationRepository.findById(id)
-                ?.let {
+                ?.let { inDb ->
                     val updated = registrationDTO.copy(
-                        id = it.id, created = it.created,
-                        updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = it.createdBy,
-                        createdByAdmin = it.createdByAdmin, updated = LocalDateTime.now(),
-                        productDTO = registrationDTO.productDTO.copy(
-                            status = if (registrationDTO.adminStatus == AdminStatus.PENDING) ProductStatus.INACTIVE
-                            else registrationDTO.productDTO.status,
-                            created =  it.created, updated = LocalDateTime.now())
+                        id = inDb.id, created = inDb.created,
+                        updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = inDb.createdBy,
+                        createdByAdmin = inDb.createdByAdmin, updated = LocalDateTime.now()
                     )
                     val dto = productRegistrationRepository.update(updated.toEntity()).toDTO()
                     pushToRapidIfNotDraft(dto)
@@ -137,8 +143,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
     suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
         productRegistrationRepository.findById(id)
             ?.let {
-                val productDTO = it.productDTO.copy(status = ProductStatus.INACTIVE, expired = LocalDateTime.now().minusMinutes(1L))
-                val dto = productRegistrationRepository.update(it.copy(registrationStatus= RegistrationStatus.DELETED, productDTO = productDTO)).toDTO()
+                val dto = productRegistrationRepository.update(it.copy(registrationStatus= RegistrationStatus.DELETED)).toDTO()
                 pushToRapidIfNotDraft(dto)
                 HttpResponse.ok(dto)}
             ?: HttpResponse.notFound()
@@ -150,6 +155,73 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
         } ?: HttpResponse.notFound()
     }
 
+   suspend fun ProductRegistrationDTO.toRapidDTO() = ProductRegistrationRapidDTO (
+        id = id,
+        draftStatus = draftStatus,
+        adminStatus = adminStatus,
+        registrationStatus = registrationStatus,
+        message = message,
+        adminInfo = adminInfo,
+        created = created,
+        updated = updated,
+        published = published,
+        expired = expired,
+        updatedByUser = updatedByUser,
+        createdByUser = createdByUser,
+        createdBy = createdBy,
+        updatedBy = updatedBy,
+        createdByAdmin = createdByAdmin,
+        version = version,
+        productDTO = productData.toProductDTO(this),
+    )
+
+    suspend fun ProductData.toProductDTO(registration: ProductRegistrationDTO): ProductDTO = ProductDTO (
+        id = registration.id,
+        supplier = supplierRepository.findById(registration.supplierId)!!.toDTO(),
+        supplierRef = registration.supplierRef,
+        title =  registration.title,
+        articleName = registration.articleName,
+        hmsArtNr = registration.hmsArtNr,
+        identifier = registration.id.toString(),
+        isoCategory = isoCategory,
+        accessory = accessory,
+        sparePart = sparePart,
+        seriesId = seriesId,
+        techData = techData,
+        media = media,
+        created = registration.created,
+        updated = registration.updated,
+        published = registration.published ?: LocalDateTime.now(),
+        expired = registration.expired ?: LocalDateTime.now().plusYears(10),
+        agreementInfo = agreementInfo,
+        hasAgreement = agreementInfo!=null,
+        createdBy = registration.createdBy,
+        updatedBy = registration.updatedBy,
+        attributes = mapAttributes(attributes),
+        status = setCorrectStatusFor(registration)
+    )
+
+    private fun setCorrectStatusFor(registration: ProductRegistrationDTO): ProductStatus =
+        if (registration.registrationStatus == RegistrationStatus.DELETED
+                ||  registration.adminStatus != AdminStatus.APPROVED
+                ||  registration.draftStatus == DraftStatus.DRAFT
+                ||  LocalDateTime.now().isAfter(registration.expired))
+            ProductStatus.INACTIVE
+        else
+            ProductStatus.ACTIVE
+
+    @Suppress("UNCHECKED_CAST")
+    private fun mapAttributes(attributes: Attributes): Map<AttributeNames, Any> =
+        mutableMapOf<AttributeNames, Any?>().apply {
+            put(AttributeNames.manufacturer, attributes.manufacturer)
+            put(AttributeNames.series, attributes.series)
+            put(AttributeNames.url, attributes.url)
+            put(AttributeNames.text, attributes.text)
+            put(AttributeNames.shortdescription, attributes.shortdescription)
+            put(AttributeNames.compatible, attributes.compatible)
+        }.filterValues { it !=null }.toMap() as Map<AttributeNames, Any>
+
 }
+
 
 
