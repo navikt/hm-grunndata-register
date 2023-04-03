@@ -40,6 +40,9 @@ data class ProductRegistration(
     @field:Version
     val version: Long?=0L)
 
+data class AdminInfo(val approvedBy: String?, val note: String?=null)
+
+
 fun ProductRegistration.isDraft(): Boolean = draftStatus == DraftStatus.DRAFT
 fun ProductRegistration.isApproved(): Boolean = adminStatus == AdminStatus.APPROVED
 fun ProductRegistration.approve(approvedByName: String): ProductRegistration =
