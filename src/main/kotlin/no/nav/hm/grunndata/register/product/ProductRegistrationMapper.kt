@@ -6,7 +6,7 @@ fun ProductRegistrationDTO.toEntity(): ProductRegistration = ProductRegistration
     registrationStatus = registrationStatus, message = message, adminInfo = adminInfo, created = created,
     updated = updated, published = published, expired = expired, updatedByUser = updatedByUser,
     createdByUser = createdByUser, createdBy = createdBy, updatedBy = updatedBy, createdByAdmin = createdByAdmin,
-    productData = productData
+    productData = productData, version = version
 )
 
  fun ProductRegistration.toDTO(): ProductRegistrationDTO = ProductRegistrationDTO(
@@ -15,5 +15,5 @@ fun ProductRegistrationDTO.toEntity(): ProductRegistration = ProductRegistration
      registrationStatus = registrationStatus, message = message, adminInfo = adminInfo, created = created,
      updated = updated, published = published, expired = expired, updatedByUser = updatedByUser,
      createdByUser = createdByUser, createdBy = createdBy, updatedBy = updatedBy, createdByAdmin = createdByAdmin,
-     productData = productData
+     productData = productData, version = version
 )

@@ -116,7 +116,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         val created = apiClient.updateProduct(jwt, registration.id, registration)
         created.shouldNotBeNull()
         created.adminStatus shouldBe AdminStatus.PENDING
-        created.registrationStatus shouldBe ProductStatus.ACTIVE
+        created.registrationStatus shouldBe RegistrationStatus.ACTIVE
 
         // read it from database
         val read = apiClient.readProduct(jwt, created.id)

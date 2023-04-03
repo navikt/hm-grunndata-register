@@ -95,7 +95,8 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                 productData = product,
                 createdByUser = authentication.name,
                 updatedByUser = authentication.name,
-                createdByAdmin = true)
+                createdByAdmin = true,
+                version = 0)
             HttpResponse.ok(productRegistrationRepository.save(registration.toEntity()).toDTO())
         } ?: throw BadRequestException("$supplierId does not exist")
 

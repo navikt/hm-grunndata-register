@@ -104,7 +104,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
             val registration = ProductRegistrationDTO(id = productId, title = "", articleName = "", hmsArtNr = "",
                 createdBy = REGISTER, supplierId = supplierId, supplierRef = supplierRef, updatedBy = REGISTER,
                 message = null, published = LocalDateTime.now(), expired = LocalDateTime.now().plusYears(10),
-                productData = product)
+                productData = product, version = 0 )
             return HttpResponse.ok(registration)
         }
     }

@@ -38,7 +38,7 @@ data class ProductRegistration(
     @field:TypeDef(type = DataType.JSON)
     val productData: ProductData,
     @field:Version
-    val version: Long? = 0L)
+    val version: Long?=0L)
 
 fun ProductRegistration.isDraft(): Boolean = draftStatus == DraftStatus.DRAFT
 fun ProductRegistration.isApproved(): Boolean = adminStatus == AdminStatus.APPROVED
