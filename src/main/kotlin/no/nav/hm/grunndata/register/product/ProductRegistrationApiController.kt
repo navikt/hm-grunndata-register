@@ -8,12 +8,9 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.rapid.dto.*
-import no.nav.hm.grunndata.rapid.event.EventName
-import no.nav.hm.grunndata.register.RegisterRapidPushService
 import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
-import no.nav.hm.grunndata.register.supplier.toDTO
 import no.nav.hm.grunndata.register.user.UserAttribute
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -22,9 +19,8 @@ import java.util.*
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS)
 class ProductRegistrationApiController(private val productRegistrationRepository: ProductRegistrationRepository,
-                                       private val registerRapidPushService: RegisterRapidPushService,
-                                       private val supplierRepository: SupplierRepository,
-                                       private val productRegistrationHandler: ProductRegistrationHandler) {
+                                       private val productRegistrationHandler: ProductRegistrationHandler,
+                                       private val supplierRepository: SupplierRepository) {
 
     companion object {
         const val API_V1_PRODUCT_REGISTRATIONS = "/api/v1/product/registrations"
@@ -45,12 +41,11 @@ class ProductRegistrationApiController(private val productRegistrationRepository
 
     @Post("/")
     suspend fun createProduct(@Body registrationDTO: ProductRegistrationDTO, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
-        if (registrationDTO.productDTO.supplier.id != userSupplierId(authentication)) {
-            LOG.warn("Got unauthorized attempt for ${registrationDTO.productDTO.supplier.id}")
+        if (registrationDTO.supplierId != userSupplierId(authentication)) {
+            LOG.warn("Got unauthorized attempt for ${registrationDTO.supplierId}")
             HttpResponse.unauthorized()
         }
         else if (registrationDTO.createdByAdmin || registrationDTO.adminStatus == AdminStatus.APPROVED) HttpResponse.unauthorized()
-        else if (registrationDTO.productDTO.id != registrationDTO.id) throw BadRequestException("Product and registration id not matched")
         else
             productRegistrationRepository.findById(registrationDTO.id)?.let {
                 throw BadRequestException("Product registration already exists ${registrationDTO.id}")
@@ -59,31 +54,23 @@ class ProductRegistrationApiController(private val productRegistrationRepository
                     .copy(updatedByUser =  authentication.name, createdByUser = authentication.name,
                         created = LocalDateTime.now(), updated = LocalDateTime.now())
                     .toEntity()).toDTO()
-                pushToRapidIfNotDraft(dto)
+                productRegistrationHandler.pushToRapidIfNotDraft(dto)
                 HttpResponse.created(dto)
             }
-    private fun pushToRapidIfNotDraft(dto: ProductRegistrationDTO) {
-        if (dto.draftStatus == DraftStatus.DONE) {
-            registerRapidPushService.pushDTOToKafka(dto, EventName.registeredProductV1)
-        }
-    }
+
     @Put("/{id}")
     suspend fun updateProduct(@Body registrationDTO: ProductRegistrationDTO, @PathVariable id: UUID, authentication: Authentication):
             HttpResponse<ProductRegistrationDTO> =
-        if (registrationDTO.productDTO.supplier.id != userSupplierId(authentication)) HttpResponse.unauthorized()
-        else productRegistrationRepository.findByIdAndSupplierId(id, registrationDTO.productDTO.supplier.id)
+        if (registrationDTO.supplierId != userSupplierId(authentication)) HttpResponse.unauthorized()
+        else productRegistrationRepository.findByIdAndSupplierId(id, registrationDTO.supplierId)
                 ?.let { inDb ->
                     val dto = productRegistrationRepository.update(registrationDTO
                         .copy(id = inDb.id, created = inDb.created,
                             updatedBy = REGISTER, updatedByUser = authentication.name, createdByUser = inDb.createdByUser,
                             createdBy = inDb.createdBy, createdByAdmin = inDb.createdByAdmin, adminStatus = inDb.adminStatus,
-                            adminInfo = inDb.adminInfo, updated = LocalDateTime.now(),
-                            productDTO = registrationDTO.productDTO.copy(id = inDb.productDTO.id, updated = LocalDateTime.now(),
-                                status = if (inDb.adminStatus == AdminStatus.PENDING ) ProductStatus.INACTIVE
-                                    else registrationDTO.productDTO.status
-                            ))
+                            adminInfo = inDb.adminInfo, updated = LocalDateTime.now())
                         .toEntity()).toDTO()
-                    pushToRapidIfNotDraft(dto)
+                    productRegistrationHandler.pushToRapidIfNotDraft(dto)
                     HttpResponse.ok(dto) }
                 ?: run {
                     throw BadRequestException("Product does not exists $id") }
@@ -92,14 +79,11 @@ class ProductRegistrationApiController(private val productRegistrationRepository
     suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
         productRegistrationRepository.findByIdAndSupplierId(id, userSupplierId(authentication))
             ?.let {
-                val productDTO = it.productDTO.copy(status = ProductStatus.INACTIVE,
-                    expired = LocalDateTime.now().minusMinutes(1L), updatedBy = REGISTER, updated = LocalDateTime.now())
                 val deleteDTO = productRegistrationRepository.update(it
-                    .copy(registrationStatus= RegistrationStatus.DELETED, updatedByUser = authentication.name, productDTO = productDTO))
+                    .copy(registrationStatus = RegistrationStatus.DELETED, updatedByUser = authentication.name))
                     .toDTO()
                 HttpResponse.ok(deleteDTO)
-            }
-            ?: HttpResponse.notFound()
+            } ?: HttpResponse.notFound()
 
     @Get("/draft/{supplierRef}")
     suspend fun draftProduct(@PathVariable supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
@@ -107,18 +91,20 @@ class ProductRegistrationApiController(private val productRegistrationRepository
         productRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)?.let {
             throw BadRequestException("$supplierId and $supplierRef already exists")
         } ?: run {
-            val supplier = supplierRepository.findById(supplierId)!!.toDTO()
             val productId = UUID.randomUUID()
-            val product = ProductDTO(id = productId, updatedBy = REGISTER, createdBy = REGISTER, title = "", articleName= "",
-                status = ProductStatus.INACTIVE, supplier = supplier, supplierRef = supplierRef, identifier = productId.toString(),
-                seriesId = productId.toString(), isoCategory = "", attributes = mapOf(
-                    AttributeNames.shortdescription to "kort beskrivelse",
-                    AttributeNames.text to "en lang beskrivelse",
-                    AttributeNames.url to "http://")
+            val product = ProductData (
+                seriesId = productId.toString(),
+                isoCategory = "",
+                attributes = Attributes(
+                    shortdescription = "",
+                    text = "",
+                    compatible = listOf(CompatibleAttribute(hmsArtNr = "", supplierRef = ""))
+                )
             )
-            val registration = ProductRegistrationDTO(id = productId, createdBy = REGISTER,
-                updatedBy = REGISTER, message = null, published = product.published,
-                expired = product.expired, productDTO = product)
+            val registration = ProductRegistrationDTO(id = productId, title = "", articleName = "", hmsArtNr = "",
+                createdBy = REGISTER, supplierId = supplierId, supplierRef = supplierRef, updatedBy = REGISTER,
+                message = null, published = LocalDateTime.now(), expired = LocalDateTime.now().plusYears(10),
+                productData = product)
             return HttpResponse.ok(registration)
         }
     }

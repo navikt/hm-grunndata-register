@@ -27,7 +27,6 @@ import java.util.*
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
 class ProductRegistrationAdminApiController(private val productRegistrationRepository: ProductRegistrationRepository,
-                                            private val registerRapidPushService: RegisterRapidPushService,
                                             private val supplierRepository: SupplierRepository,
                                             private val productRegistrationHandler: ProductRegistrationHandler) {
 
@@ -109,18 +108,11 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                 val dto = productRegistrationRepository.save(registrationDTO
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name, createdByAdmin = true,
                         created = LocalDateTime.now(), updated = LocalDateTime.now()).toEntity()).toDTO()
-                pushToRapidIfNotDraft(dto)
+                productRegistrationHandler.pushToRapidIfNotDraft(dto)
                 HttpResponse.created(dto)
             }
 
-    private fun pushToRapidIfNotDraft(dto: ProductRegistrationDTO) {
-        runBlocking {
-            if (dto.draftStatus == DraftStatus.DONE) {
-                val rapidDTO = dto.toRapidDTO()
-                registerRapidPushService.pushDTOToKafka(rapidDTO, EventName.registeredProductV1)
-            }
-        }
-    }
+
 
 
     @Put("/{id}")
@@ -134,7 +126,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                         createdByAdmin = inDb.createdByAdmin, updated = LocalDateTime.now()
                     )
                     val dto = productRegistrationRepository.update(updated.toEntity()).toDTO()
-                    pushToRapidIfNotDraft(dto)
+                    productRegistrationHandler.pushToRapidIfNotDraft(dto)
                     HttpResponse.ok(dto) }
                 ?: run {
                     throw BadRequestException("Product registration already exists $id") }
@@ -144,7 +136,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
         productRegistrationRepository.findById(id)
             ?.let {
                 val dto = productRegistrationRepository.update(it.copy(registrationStatus= RegistrationStatus.DELETED)).toDTO()
-                pushToRapidIfNotDraft(dto)
+                productRegistrationHandler.pushToRapidIfNotDraft(dto)
                 HttpResponse.ok(dto)}
             ?: HttpResponse.notFound()
 
@@ -154,72 +146,6 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
             HttpResponse.ok(productRegistrationHandler.makeTemplateOf(it, authentication))
         } ?: HttpResponse.notFound()
     }
-
-   suspend fun ProductRegistrationDTO.toRapidDTO() = ProductRegistrationRapidDTO (
-        id = id,
-        draftStatus = draftStatus,
-        adminStatus = adminStatus,
-        registrationStatus = registrationStatus,
-        message = message,
-        adminInfo = adminInfo,
-        created = created,
-        updated = updated,
-        published = published,
-        expired = expired,
-        updatedByUser = updatedByUser,
-        createdByUser = createdByUser,
-        createdBy = createdBy,
-        updatedBy = updatedBy,
-        createdByAdmin = createdByAdmin,
-        version = version,
-        productDTO = productData.toProductDTO(this),
-    )
-
-    suspend fun ProductData.toProductDTO(registration: ProductRegistrationDTO): ProductDTO = ProductDTO (
-        id = registration.id,
-        supplier = supplierRepository.findById(registration.supplierId)!!.toDTO(),
-        supplierRef = registration.supplierRef,
-        title =  registration.title,
-        articleName = registration.articleName,
-        hmsArtNr = registration.hmsArtNr,
-        identifier = registration.id.toString(),
-        isoCategory = isoCategory,
-        accessory = accessory,
-        sparePart = sparePart,
-        seriesId = seriesId,
-        techData = techData,
-        media = media,
-        created = registration.created,
-        updated = registration.updated,
-        published = registration.published ?: LocalDateTime.now(),
-        expired = registration.expired ?: LocalDateTime.now().plusYears(10),
-        agreementInfo = agreementInfo,
-        hasAgreement = agreementInfo!=null,
-        createdBy = registration.createdBy,
-        updatedBy = registration.updatedBy,
-        attributes = mapAttributes(attributes),
-        status = setCorrectStatusFor(registration)
-    )
-
-    private fun setCorrectStatusFor(registration: ProductRegistrationDTO): ProductStatus =
-        if (registration.registrationStatus == RegistrationStatus.DELETED
-                ||  registration.adminStatus != AdminStatus.APPROVED
-                ||  registration.draftStatus == DraftStatus.DRAFT
-                ||  LocalDateTime.now().isAfter(registration.expired))
-            ProductStatus.INACTIVE
-        else
-            ProductStatus.ACTIVE
-
-    @Suppress("UNCHECKED_CAST")
-    private fun mapAttributes(attributes: Attributes): Map<AttributeNames, Any> =
-        mutableMapOf<AttributeNames, Any?>().apply {
-            put(AttributeNames.manufacturer, attributes.manufacturer)
-            put(AttributeNames.series, attributes.series)
-            put(AttributeNames.url, attributes.url)
-            put(AttributeNames.text, attributes.text)
-            put(AttributeNames.shortdescription, attributes.shortdescription)
-            put(AttributeNames.compatible, attributes.compatible)
-        }.filterValues { it !=null }.toMap() as Map<AttributeNames, Any>
 
 }
 

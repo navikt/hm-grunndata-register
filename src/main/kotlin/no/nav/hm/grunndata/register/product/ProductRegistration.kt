@@ -51,20 +51,27 @@ const val REGISTER = "REGISTER"
 
 data class ProductRegistrationDTO (
     val id: UUID,
+    val supplierId: UUID,
+    val supplierRef: String,
+    val hmsArtNr: String?,
+    val title: String,
+    val articleName: String,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val adminStatus: AdminStatus = AdminStatus.PENDING,
     val registrationStatus: RegistrationStatus = RegistrationStatus.ACTIVE,
-    val message: String?,
+    val message: String?=null,
     val adminInfo: AdminInfo?=null,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
-    val published: LocalDateTime?,
-    val expired: LocalDateTime?,
+    val published: LocalDateTime?=null,
+    val expired: LocalDateTime?=null,
     val updatedByUser: String="system",
     val createdByUser: String="system",
-    val createdBy: String,
-    val updatedBy: String,
+    val createdBy: String = "REGISTER",
+    val updatedBy: String = "REGISTER",
     val createdByAdmin: Boolean = false,
     val productData: ProductData,
-    val version: Long?=null
+    val version: Long? = 0L
 )
+
+
