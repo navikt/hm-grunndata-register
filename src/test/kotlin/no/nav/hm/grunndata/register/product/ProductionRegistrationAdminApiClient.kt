@@ -6,7 +6,6 @@ import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.ProductRegistrationDTO
 import java.util.*
 
 

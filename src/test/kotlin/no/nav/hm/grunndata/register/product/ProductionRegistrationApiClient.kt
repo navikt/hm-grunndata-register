@@ -1,12 +1,10 @@
 package no.nav.hm.grunndata.register.product
 
 import io.micronaut.data.model.Page
-import io.micronaut.http.HttpResponse
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
-import io.micronaut.security.authentication.Authentication
-import no.nav.hm.grunndata.rapid.dto.ProductRegistrationDTO
+
 import java.util.*
 
 
