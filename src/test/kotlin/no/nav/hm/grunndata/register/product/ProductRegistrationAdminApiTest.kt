@@ -77,13 +77,11 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(draft))
 
         // Edit the draft
-        val productDTO = draft.productDTO.copy(
-            title = "Dette er produkt 1",
-            attributes = mapOf(
-                AttributeNames.shortdescription to "En kort beskrivelse av produktet",
-                AttributeNames.text to "En lang beskrivelse av produktet"
+        val productData = draft.productData.copy(
+            attributes = Attributes(
+                shortdescription = "En kort beskrivelse av produktet",
+                text = "En lang beskrivelse av produktet"
             ),
-            hmsArtNr = "111",
             isoCategory = "12001314",
             accessory = false,
             sparePart = false,
@@ -107,19 +105,18 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
             )
         )
         val registration = draft.copy(
-            id = productDTO.id,
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.PENDING,
             message = "Melding til leverandør",
             adminInfo = null,
-            productDTO = productDTO
+            productData = productData
         )
 
         // update draft
         val created = apiClient.updateProduct(jwt, registration.id, registration)
         created.shouldNotBeNull()
         created.adminStatus shouldBe AdminStatus.PENDING
-        created.productDTO.status shouldBe ProductStatus.INACTIVE
+        created.registrationStatus shouldBe ProductStatus.ACTIVE
 
         // read it from database
         val read = apiClient.readProduct(jwt, created.id)
@@ -127,20 +124,17 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         read.createdByUser shouldBe email
 
         // make some changes
-        val updated = apiClient.updateProduct(jwt, read.id, read.copy(
-            adminStatus = AdminStatus.APPROVED,
-            productDTO = read.productDTO.copy(title = "Changed title", status = ProductStatus.ACTIVE)))
-        updated.shouldNotBeNull()
-        updated.productDTO.title shouldBe "Changed title"
-        updated.adminStatus shouldBe AdminStatus.APPROVED
-        updated.productDTO.status shouldBe ProductStatus.ACTIVE
+        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title = "Changed title",
+            adminStatus = AdminStatus.APPROVED))
 
+        updated.shouldNotBeNull()
+        updated.title shouldBe "Changed title"
+        updated.adminStatus shouldBe AdminStatus.APPROVED
 
         // flag the registration to deleted
         val deleted = apiClient.deleteProduct(jwt, updated.id)
         deleted.shouldNotBeNull()
         deleted.registrationStatus shouldBe RegistrationStatus.DELETED
-        deleted.productDTO.status shouldBe ProductStatus.INACTIVE
 
         val page = apiClient.findProducts(jwt = jwt,
             supplierId = supplierId, supplierRef = "eksternref-222",

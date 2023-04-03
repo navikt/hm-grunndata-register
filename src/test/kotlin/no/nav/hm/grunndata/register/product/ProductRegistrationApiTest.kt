@@ -20,6 +20,8 @@ import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.testcontainers.shaded.org.bouncycastle.asn1.x500.style.RFC4519Style.title
+import java.awt.SystemColor.text
 import java.time.LocalDateTime
 import java.util.*
 
@@ -80,18 +82,11 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
     fun apiTest() {
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
-        val productDTO = ProductDTO(
-            id = UUID.randomUUID(),
-            supplier = testSupplier!!,
-            title = "Dette er produkt 1",
-            articleName = "Dette er produkt 1 med og med",
-            attributes = mapOf(
-                AttributeNames.articlename to "produktnavn", AttributeNames.shortdescription to "En kort beskrivelse av produktet",
-                AttributeNames.text to "En lang beskrivelse av produktet"
+        val productData = ProductData(
+            attributes = Attributes(
+                shortdescription = "En kort beskrivelse av produktet",
+                text = "En lang beskrivelse av produktet"
             ),
-            hmsArtNr = "111",
-            identifier = "hmdb-111",
-            supplierRef = "eksternref-111",
             isoCategory = "12001314",
             accessory = false,
             sparePart = false,
@@ -112,12 +107,16 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                 postNr = 1,
                 reference = "AV-142",
                 expired = LocalDateTime.now()
-            ),
-            createdBy = REGISTER,
-            updatedBy = REGISTER
+            )
         )
+
         val registration = ProductRegistrationDTO(
-            id = productDTO.id,
+            title = "Dette er produkt 1",
+            articleName = "Dette er produkt 1 med og med",
+            id = UUID.randomUUID(),
+            supplierId = testSupplier!!.id,
+            hmsArtNr = "111",
+            supplierRef = "eksternref-111",
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.PENDING,
             registrationStatus = RegistrationStatus.ACTIVE,
@@ -128,7 +127,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             published = null,
             updatedByUser = email,
             createdByUser = email,
-            productDTO = productDTO,
+            productData = productData,
             version = 1,
             createdBy = REGISTER,
             updatedBy = REGISTER
@@ -140,14 +139,13 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         read.shouldNotBeNull()
         read.createdByUser shouldBe email
 
-        val updated = apiClient.updateProduct(jwt, read.id, read.copy(productDTO = read.productDTO.copy(title="Changed title", articleName = "Changed articlename")))
+        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title="Changed title", articleName = "Changed articlename"))
         updated.shouldNotBeNull()
 
 
         val deleted = apiClient.deleteProduct(jwt, updated.id)
         deleted.shouldNotBeNull()
         deleted.registrationStatus shouldBe RegistrationStatus.DELETED
-        deleted.productDTO.status shouldBe ProductStatus.INACTIVE
 
         val page = apiClient.findProducts(jwt,10,1,"created,asc")
         page.totalSize shouldBe 1
@@ -157,18 +155,11 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         updatedVersion.updatedByUser shouldBe email
 
         // should not be allowed to create a product of another supplier
-        val productDTO2 = ProductDTO(
-            id = UUID.randomUUID(),
-            supplier = testSupplier2!!,
-            title = "Dette er produkt 1",
-            articleName = "Dette er produkt 1 med og med",
-            attributes = mapOf(
-                AttributeNames.shortdescription to "En kort beskrivelse av produktet",
-                AttributeNames.text to "En lang beskrivelse av produktet"
+        val productData2 = ProductData (
+            attributes = Attributes (
+                shortdescription = "En kort beskrivelse av produktet",
+                text = "En lang beskrivelse av produktet"
             ),
-            hmsArtNr = "111",
-            identifier = "hmdb-222",
-            supplierRef = "eksternref-222",
             isoCategory = "12001314",
             accessory = false,
             sparePart = false,
@@ -189,12 +180,15 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                 postNr = 1,
                 reference = "AV-142",
                 expired = LocalDateTime.now()
-            ),
-            createdBy = REGISTER,
-            updatedBy = REGISTER
+            )
         )
         val registration2 = ProductRegistrationDTO(
-            id = productDTO2.id,
+            id = UUID.randomUUID(),
+            supplierId = testSupplier2!!.id,
+            title = "Dette er produkt 1",
+            articleName = "Dette er produkt 1 med og med",
+            hmsArtNr = "111",
+            supplierRef = "eksternref-222",
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.PENDING,
             registrationStatus = RegistrationStatus.ACTIVE,
@@ -205,7 +199,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             published = null,
             updatedByUser = email,
             createdByUser = email,
-            productDTO = productDTO2,
+            productData = productData,
             version = 1,
             createdBy = REGISTER,
             updatedBy = REGISTER
@@ -217,9 +211,9 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         // make template of another product
         val template = apiClient.useProductTemplate(jwt, created.id)
         template.shouldNotBeNull()
-        template.productDTO.shouldNotBeNull()
-        template.productDTO.title shouldBe "Changed title"
-        template.productDTO.articleName shouldBe "Changed articlename"
+        template.productData.shouldNotBeNull()
+        template.title shouldBe "Changed title"
+        template.articleName shouldBe "Changed articlename"
 
 
     }
