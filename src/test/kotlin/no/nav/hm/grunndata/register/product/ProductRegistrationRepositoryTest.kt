@@ -6,6 +6,8 @@ import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import no.nav.hm.grunndata.rapid.dto.*
 import org.junit.jupiter.api.Test
+import org.testcontainers.shaded.org.bouncycastle.asn1.x500.style.RFC4519Style.title
+import java.awt.SystemColor.text
 import java.time.LocalDateTime
 import java.util.*
 
@@ -14,19 +16,12 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
 
     @Test
     fun crudRepositoryTest() {
-        val productDTO = ProductDTO (
-            id = UUID.randomUUID(),
-            supplier = SupplierDTO(id= UUID.randomUUID(), identifier = "12345", updated = LocalDateTime.now(),
-                created = LocalDateTime.now(), createdBy = REGISTER, updatedBy = REGISTER, info = SupplierInfo(), name = "testsupplier"),
-            title = "Dette er produkt title",
-            articleName = "Dette er produkt 1 med og med",
-            attributes = mapOf(
-               AttributeNames.shortdescription to "En kort beskrivelse av produktet",
-              AttributeNames.text to "En lang beskrivelse av produktet"
+        val productData = ProductData (
+            attributes = Attributes (
+                shortdescription = "En kort beskrivelse av produktet",
+                text = "En lang beskrivelse av produktet"
             ),
-            hmsArtNr = "123",
-            identifier = "hmdb-123",
-            supplierRef = "eksternref-123",
+
             isoCategory = "12001314",
             accessory = false,
             sparePart = false,
@@ -35,21 +30,21 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             media = listOf(MediaInfo(uri="123.jpg", text = "bilde av produktet", source = MediaSourceType.EXTERNALURL,
                 sourceUri = "https://ekstern.url/123.jpg")),
             agreementInfo = AgreementInfo(id = UUID.randomUUID(), identifier = "hmdbid-1", rank = 1, postNr = 1,
-                reference = "AV-142", expired = LocalDateTime.now()), createdBy = REGISTER, updatedBy = REGISTER
+                reference = "AV-142", expired = LocalDateTime.now())
         )
         val registration = ProductRegistration (
-            id = productDTO.id,
+            id = UUID.randomUUID(),
             supplierId = UUID.randomUUID(),
-            supplierRef = productDTO.supplierRef,
-            hmsArtNr = productDTO.hmsArtNr ,
-            title = productDTO.title,
-            articleName = productDTO.articleName,
+            title = "Dette er produkt title",
+            articleName = "Dette er produkt 1 med og med",
+            hmsArtNr = "123",
+            supplierRef = "eksternref-123",
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.PENDING,
             registrationStatus  = RegistrationStatus.ACTIVE,
             message = "Melding til leverandør",
             adminInfo = null,
-            productDTO = productDTO,
+            productData = productData,
             updatedByUser = "user",
             createdByUser = "user",
             version = 1
