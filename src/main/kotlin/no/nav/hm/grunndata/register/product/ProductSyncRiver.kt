@@ -26,7 +26,6 @@ class ProductSyncRiver(river: RiverHead,
     init {
         river
             .validate { it.demandValue("eventName", EventName.hmdbproductsyncV1) }
-            .validate { it.demandValue("payloadType", ProductDTO::class.java.simpleName) }
             .validate { it.demandKey("payload") }
             .validate { it.demandKey("eventId") }
             .validate { it.demandKey("dtoVersion") }
@@ -43,10 +42,10 @@ class ProductSyncRiver(river: RiverHead,
             productRegistrationRepository.findById(dto.id)?.let { inDb ->
                 productRegistrationRepository.update(
                     inDb.copy(
-                        productDTO = dto, updatedBy = dto.updatedBy, registrationStatus = mapStatus(dto.status),
+                        productData = dto.toProductData(), updatedBy = dto.updatedBy, registrationStatus = mapStatus(dto.status),
                         adminStatus = mapAdminStatus(dto.status), created = dto.created, updated = dto.updated,
                         hmsArtNr = dto.hmsArtNr, title = dto.title, supplierRef = dto.supplierRef,
-                        published = dto.published, expired = dto.expired
+                        supplierId = dto.supplier.id, published = dto.published, expired = dto.expired
                     )
                 )
             } ?: productRegistrationRepository.save(
@@ -55,7 +54,7 @@ class ProductSyncRiver(river: RiverHead,
                     registrationStatus = mapStatus(dto.status), adminStatus = mapAdminStatus(dto.status),
                     createdBy = dto.createdBy, updatedBy = dto.updatedBy, created = dto.created, updated = dto.updated,
                     draftStatus = DraftStatus.DONE, expired = dto.expired, hmsArtNr = dto.hmsArtNr,
-                    published = dto.published, title = dto.title, articleName = dto.articleName, productDTO = dto
+                    published = dto.published, title = dto.title, articleName = dto.articleName, productData = dto.toProductData()
                 )
             )
         }
