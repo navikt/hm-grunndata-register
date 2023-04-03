@@ -3,6 +3,7 @@ micronaut:
     multipart:
       max-file-size: 2097152
     port: ${SERVER_PORT:8080}
+    context-path: /
   application:
     name: hm-grunndata-register
     thread-selection: auto
@@ -16,6 +17,14 @@ micronaut:
       enabled: false
       login-failure: "/login-failure"
       login-success: "/login-success"
+    intercept-url-map:
+      - pattern: ${micronaut.server.context-path}/swagger/**
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: ${micronaut.server.context-path}/swagger-ui/**
+        access:
+          - isAnonymous()
     endpoints:
       login:
         enabled: true
@@ -72,6 +81,14 @@ micronaut:
       http:
         num-threads: 25
         prefer-native-transport: true
+  router:
+    static-resources:
+      swagger:
+        paths: classpath:META-INF/swagger
+        mapping: /swagger/**
+      swagger-ui:
+        paths: classpath:META-INF/swagger/views/swagger-ui
+        mapping: /swagger-ui/**
 endpoints:
   metrics:
     enabled: true
