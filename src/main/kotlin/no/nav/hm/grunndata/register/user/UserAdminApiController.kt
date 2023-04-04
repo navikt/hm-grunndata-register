@@ -8,6 +8,10 @@ import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.security.SecurityScheme
 import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
@@ -19,6 +23,7 @@ import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(API_V1_ADMIN_USER_REGISTRATIONS)
+@SecurityScheme(type = SecuritySchemeType.APIKEY, `in` = SecuritySchemeIn.COOKIE, name = "JWT")
 class UserAdminApiController(private val userRepository: UserRepository,
                              private val supplierRepository: SupplierRepository
 ) {

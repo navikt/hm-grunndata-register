@@ -1,7 +1,16 @@
 package no.nav.hm.grunndata.register
 
 import io.micronaut.runtime.Micronaut
+import io.swagger.v3.oas.annotations.OpenAPIDefinition
+import io.swagger.v3.oas.annotations.info.Info
 
+@OpenAPIDefinition(
+    info = Info(
+        title = "Hjelpemiddel Registrering API",
+        version = "0.1",
+        description = "NAVs Api for transferring accessibility devices"
+    )
+)
 object Application {
     @JvmStatic
     fun main(args: Array<String>) {
