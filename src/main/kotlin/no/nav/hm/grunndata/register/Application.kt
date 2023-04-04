@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.info.Info
     info = Info(
         title = "Hjelpemiddel Registrering API",
         version = "0.1",
-        description = "NAVs Api for transferring accessibility devices"
+        description = "API for Registreringsfrontend"
     )
 )
 object Application {

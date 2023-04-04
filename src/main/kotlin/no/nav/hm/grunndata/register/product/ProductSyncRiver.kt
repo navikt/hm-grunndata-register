@@ -54,8 +54,8 @@ class ProductSyncRiver(river: RiverHead,
                     registrationStatus = mapStatus(dto.status), adminStatus = mapAdminStatus(dto.status),
                     createdBy = dto.createdBy, updatedBy = dto.updatedBy, created = dto.created, updated = dto.updated,
                     draftStatus = DraftStatus.DONE, expired = dto.expired, hmsArtNr = dto.hmsArtNr,
-                    published = dto.published, title = dto.title, articleName = dto.articleName, productData = dto.toProductData(),
-                    version = 0
+                    published = dto.published, title = dto.title, articleName = dto.articleName,
+                    productData = dto.toProductData()
                 )
             )
         }
@@ -66,5 +66,5 @@ class ProductSyncRiver(river: RiverHead,
         if (status == ProductStatus.ACTIVE) AdminStatus.APPROVED else AdminStatus.PENDING
 
     private fun mapStatus(status: ProductStatus): RegistrationStatus =
-        if (status == ProductStatus.ACTIVE) RegistrationStatus.ACTIVE else RegistrationStatus.DELETED
+        if (status == ProductStatus.ACTIVE) RegistrationStatus.ACTIVE else RegistrationStatus.INACTIVE
 }
