@@ -10,6 +10,7 @@ import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
 import no.nav.hm.grunndata.rapid.dto.SupplierDTO
 import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
+import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
 
@@ -19,15 +20,12 @@ class SupplierSyncRiver(river: RiverHead,
                         private val objectMapper: ObjectMapper,
                         private val supplierRepository: SupplierRepository): River.PacketListener {
 
-    private val eventName = "hm-grunndata-db-hmdb-supplier-sync"
-
     companion object {
         private val LOG = LoggerFactory.getLogger(SupplierSyncRiver::class.java)
     }
     init {
         river
-            .validate { it.demandValue("eventName", eventName)}
-            .validate { it.demandValue("payloadType", SupplierDTO::class.java.simpleName)}
+            .validate { it.demandValue("eventName", EventName.hmdbsuppliersyncV1)}
             .validate { it.demandKey("payload")}
             .validate { it.demandKey("eventId")}
             .validate { it.demandKey( "dtoVersion")}
