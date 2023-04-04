@@ -14,8 +14,6 @@ import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller("/api/v1/user")
-@SecurityRequirement(name = "cookie-jwt")
-@SecurityScheme(type = SecuritySchemeType.APIKEY, `in` = SecuritySchemeIn.COOKIE, paramName = "JWT", name = "cookie-jwt")
 class UserController(private val userRepository: UserRepository) {
 
     @Get("/")

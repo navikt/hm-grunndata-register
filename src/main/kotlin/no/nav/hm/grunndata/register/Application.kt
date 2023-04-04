@@ -1,6 +1,9 @@
 package no.nav.hm.grunndata.register
 
+import io.micronaut.openapi.annotation.OpenAPIInclude
 import io.micronaut.runtime.Micronaut
+import io.micronaut.security.endpoints.LoginController
+import io.micronaut.security.endpoints.LogoutController
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.info.Info
 
@@ -11,12 +14,15 @@ import io.swagger.v3.oas.annotations.info.Info
         description = "API for Registreringsfrontend"
     )
 )
+@OpenAPIInclude(
+    classes = [LoginController::class, LogoutController::class]
+)
 object Application {
     @JvmStatic
     fun main(args: Array<String>) {
         Micronaut.build()
             .packages("no.nav.hm.grunndata.register")
-            .mainClass(Application.javaClass)
+            .mainClass(Application::class.java)
             .start()
     }
 }

@@ -23,8 +23,6 @@ import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(API_V1_ADMIN_USER_REGISTRATIONS)
-@SecurityRequirement(name = "cookie-jwt")
-@SecurityScheme(type = SecuritySchemeType.APIKEY, `in` = SecuritySchemeIn.COOKIE, paramName = "JWT", name = "cookie-jwt")
 class UserAdminApiController(private val userRepository: UserRepository,
                              private val supplierRepository: SupplierRepository
 ) {
