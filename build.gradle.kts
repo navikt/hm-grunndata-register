@@ -74,6 +74,7 @@ dependencies {
 
     // OpenApi
     kapt("io.micronaut.openapi:micronaut-openapi")
+    implementation("io.micronaut.openapi:micronaut-openapi")
     implementation("io.swagger.core.v3:swagger-annotations")
 }
 
