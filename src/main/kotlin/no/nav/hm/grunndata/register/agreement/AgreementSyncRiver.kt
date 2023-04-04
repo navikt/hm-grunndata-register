@@ -10,6 +10,7 @@ import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
 import no.nav.hm.grunndata.rapid.dto.AgreementDTO
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -20,15 +21,13 @@ class AgreementSyncRiver(river: RiverHead,
                          private val objectMapper: ObjectMapper,
                          private val agreementRegistrationRepository: AgreementRegistrationRepository): River.PacketListener {
 
-    private val eventName = "hm-grunndata-db-hmdb-agreement-sync"
 
     companion object {
         private val LOG = LoggerFactory.getLogger(AgreementSyncRiver::class.java)
     }
     init {
         river
-            .validate { it.demandValue("eventName", eventName)}
-            .validate { it.demandValue("payloadType", AgreementDTO::class.java.simpleName)}
+            .validate { it.demandValue("eventName", EventName.hmdbagreementsyncV1)}
             .validate { it.demandKey("payload")}
             .validate { it.demandKey("eventId")}
             .register(this)
