@@ -6,6 +6,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.RegisterRapidPushService
+import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
 import no.nav.hm.grunndata.register.supplier.toDTO
 import java.time.LocalDateTime
@@ -43,7 +44,7 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
         }
     }
 
-    suspend fun ProductRegistrationDTO.toRapidDTO() = ProductRegistrationRapidDTO (
+    private suspend fun ProductRegistrationDTO.toRapidDTO() = ProductRegistrationRapidDTO (
         id = id,
         draftStatus = draftStatus,
         adminStatus = adminStatus,
@@ -60,7 +61,7 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
         productDTO = productData.toProductDTO(this),
     )
 
-    suspend fun ProductData.toProductDTO(registration: ProductRegistrationDTO): ProductDTO = ProductDTO (
+    private suspend fun ProductData.toProductDTO(registration: ProductRegistrationDTO): ProductDTO = ProductDTO (
         id = registration.id,
         supplier = supplierRepository.findById(registration.supplierId)!!.toDTO(),
         supplierRef = registration.supplierRef,
@@ -96,3 +97,22 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
             ProductStatus.ACTIVE
 
 }
+fun Authentication.isAdmin(): Boolean  = roles.contains(Roles.ROLE_ADMIN)
+
+fun ProductRegistrationDTO.toEntity(): ProductRegistration = ProductRegistration(
+    id = id, supplierId = supplierId, supplierRef = supplierRef, hmsArtNr = hmsArtNr, title = title,
+    articleName = articleName, draftStatus = draftStatus, adminStatus = adminStatus,
+    registrationStatus = registrationStatus, message = message, adminInfo = adminInfo, created = created,
+    updated = updated, published = published, expired = expired, updatedByUser = updatedByUser,
+    createdByUser = createdByUser, createdBy = createdBy, updatedBy = updatedBy, createdByAdmin = createdByAdmin,
+    productData = productData, version = version
+)
+
+fun ProductRegistration.toDTO(): ProductRegistrationDTO = ProductRegistrationDTO(
+    id = id, supplierId = supplierId, supplierRef = supplierRef, hmsArtNr = hmsArtNr, title = title,
+    articleName = articleName, draftStatus = draftStatus, adminStatus = adminStatus,
+    registrationStatus = registrationStatus, message = message, adminInfo = adminInfo, created = created,
+    updated = updated, published = published, expired = expired, updatedByUser = updatedByUser,
+    createdByUser = createdByUser, createdBy = createdBy, updatedBy = updatedBy, createdByAdmin = createdByAdmin,
+    productData = productData, version = version
+)

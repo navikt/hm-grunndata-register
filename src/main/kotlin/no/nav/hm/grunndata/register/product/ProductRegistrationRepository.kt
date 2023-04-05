@@ -14,8 +14,6 @@ interface ProductRegistrationRepository : CoroutineCrudRepository<ProductRegistr
 
     suspend fun findByIdAndSupplierId(id:UUID, supplierId: UUID): ProductRegistration?
 
-    suspend fun findBySupplierId(supplierId: UUID, pageable: Pageable): Page<ProductRegistration>
-
     suspend fun findByHmsArtNrAndSupplierId(hmsArtNr: String, supplierId: UUID): ProductRegistration?
 
     suspend fun findBySupplierIdAndSupplierRef(supplierId: UUID, supplierRef: String): ProductRegistration?
