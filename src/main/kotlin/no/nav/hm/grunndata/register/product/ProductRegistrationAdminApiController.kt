@@ -45,11 +45,13 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
     = params?.let {
         where {
             if (params.contains("supplierRef")) root[ProductRegistration::supplierRef] eq params["supplierRef"]
+            if (params.contains("hmsArtNr")) root[ProductRegistration::hmsArtNr] eq params["hmsArtNr"]
             if (params.contains("adminStatus")) root[ProductRegistration::adminStatus] eq AdminStatus.valueOf(params["adminStatus"]!!)
             if (params.contains("supplierId"))  root[ProductRegistration::supplierId] eq UUID.fromString(params["supplierId"]!!)
             if (params.contains("draft")) root[ProductRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
             if (params.contains("createdByUser")) root[ProductRegistration::createdByUser] eq params["createdByUser"]
             if (params.contains("updatedByUser")) root[ProductRegistration::updatedByUser] eq params["updatedByUser"]
+            if (params.contains("title")) criteriaBuilder.like(root[ProductRegistration::title], params["title"])
         }
     }
 
