@@ -2,6 +2,9 @@ package no.nav.hm.grunndata.register.product
 
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
+import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
+import io.micronaut.data.runtime.criteria.get
+import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
@@ -19,8 +22,7 @@ import java.util.*
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS)
 class ProductRegistrationApiController(private val productRegistrationRepository: ProductRegistrationRepository,
-                                       private val productRegistrationHandler: ProductRegistrationHandler,
-                                       private val supplierRepository: SupplierRepository) {
+                                       private val productRegistrationHandler: ProductRegistrationHandler) {
 
     companion object {
         const val API_V1_PRODUCT_REGISTRATIONS = "/api/v1/product/registrations"
@@ -29,8 +31,21 @@ class ProductRegistrationApiController(private val productRegistrationRepository
 
 
     @Get("/")
-    suspend fun findProducts(authentication: Authentication, pageable: Pageable): Page<ProductRegistrationDTO> =
-        productRegistrationRepository.findBySupplierId(userSupplierId(authentication), pageable).map { it.toDTO() }
+    suspend fun findProducts(@QueryValue params: HashMap<String,String>?,
+                             pageable: Pageable, authentication: Authentication): Page<ProductRegistrationDTO> =
+        productRegistrationRepository.findAll(buildCriteriaSpec(params, userSupplierId(authentication)), pageable).map { it.toDTO() }
+
+
+    private fun buildCriteriaSpec(params: HashMap<String, String>?, supplierId: UUID): PredicateSpecification<ProductRegistration>?
+            = params?.let {
+        where {
+            root[ProductRegistration::supplierId] eq supplierId
+            if (params.contains("supplierRef")) root[ProductRegistration::supplierRef] eq params["supplierRef"]
+            if (params.contains("hmsArtNr")) root[ProductRegistration::hmsArtNr] eq params["hmsArtNr"]
+            if (params.contains("draft")) root[ProductRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
+            if (params.contains("title")) criteriaBuilder.like(root[ProductRegistration::title], params["title"])
+        }
+    }
 
     @Get("/{id}")
     suspend fun getProductById(id: UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
@@ -122,6 +137,5 @@ class ProductRegistrationApiController(private val productRegistrationRepository
 
 }
 
-fun Authentication.isAdmin(): Boolean  = roles.contains(Roles.ROLE_ADMIN)
 
 
