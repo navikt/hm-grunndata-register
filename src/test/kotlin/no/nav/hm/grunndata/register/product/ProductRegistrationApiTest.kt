@@ -135,6 +135,62 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         val created = apiClient.createProduct(jwt, registration)
         created.shouldNotBeNull()
 
+        // create another one
+
+        val productData2 = ProductData(
+            attributes = Attributes(
+                shortdescription = "En kort beskrivelse av produktet",
+                text = "En lang beskrivelse av produktet"
+            ),
+            isoCategory = "12001314",
+            accessory = false,
+            sparePart = false,
+            seriesId = "series-123",
+            techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
+            media = listOf(
+                MediaInfo(
+                    uri = "123.jpg",
+                    text = "bilde av produktet",
+                    source = MediaSourceType.EXTERNALURL,
+                    sourceUri = "https://ekstern.url/123.jpg"
+                )
+            ),
+            agreementInfo = AgreementInfo(
+                id = UUID.randomUUID(),
+                identifier = "hmdbid-1",
+                rank = 1,
+                postNr = 1,
+                reference = "AV-142",
+                expired = LocalDateTime.now()
+            )
+        )
+
+        val registration2 = ProductRegistrationDTO(
+            title = "en veldig fin tittel",
+            articleName = "en veldig fin tittel med og med",
+            id = UUID.randomUUID(),
+            supplierId = testSupplier!!.id,
+            hmsArtNr = "111",
+            supplierRef = "eksternref-222",
+            draftStatus = DraftStatus.DRAFT,
+            adminStatus = AdminStatus.PENDING,
+            registrationStatus = RegistrationStatus.ACTIVE,
+            message = "Melding til leverandør",
+            adminInfo = null,
+            createdByAdmin = false,
+            expired = null,
+            published = null,
+            updatedByUser = email,
+            createdByUser = email,
+            productData = productData2,
+            version = 1,
+            createdBy = REGISTER,
+            updatedBy = REGISTER
+        )
+
+        val created2 = apiClient.createProduct(jwt, registration2)
+        created2.shouldNotBeNull()
+
         val read = apiClient.readProduct(jwt, created.id)
         read.shouldNotBeNull()
         read.createdByUser shouldBe email
@@ -147,15 +203,15 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         deleted.shouldNotBeNull()
         deleted.registrationStatus shouldBe RegistrationStatus.DELETED
 
-        val page = apiClient.findProducts(jwt,10,1,"created,asc")
-        page.totalSize shouldBe 1
+        val page = apiClient.findProducts(jwt,null,10,1,"created,asc")
+        page.totalSize shouldBe 2
 
         val updatedVersion = apiClient.readProduct(jwt, updated.id)
         updatedVersion.version!! shouldBeGreaterThan 0
         updatedVersion.updatedByUser shouldBe email
 
         // should not be allowed to create a product of another supplier
-        val productData2 = ProductData (
+        val productData3 = ProductData (
             attributes = Attributes (
                 shortdescription = "En kort beskrivelse av produktet",
                 text = "En lang beskrivelse av produktet"
@@ -182,7 +238,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                 expired = LocalDateTime.now()
             )
         )
-        val registration2 = ProductRegistrationDTO(
+        val registration3 = ProductRegistrationDTO(
             id = UUID.randomUUID(),
             supplierId = testSupplier2!!.id,
             title = "Dette er produkt 1",
@@ -199,13 +255,13 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             published = null,
             updatedByUser = email,
             createdByUser = email,
-            productData = productData,
+            productData = productData3,
             version = 1,
             createdBy = REGISTER,
             updatedBy = REGISTER
         )
         runCatching {
-            val created2 = apiClient.createProduct(jwt, registration2)
+            val created3 = apiClient.createProduct(jwt, registration3)
         }.isFailure shouldBe true
 
         // make template of another product

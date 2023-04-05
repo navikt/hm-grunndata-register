@@ -53,7 +53,7 @@ fun ProductRegistration.approve(approvedByName: String): ProductRegistration =
 const val REGISTER = "REGISTER"
 
 data class ProductRegistrationDTO (
-    val id: UUID,
+    val id: UUID = UUID.randomUUID(),
     val supplierId: UUID,
     val supplierRef: String,
     val hmsArtNr: String?,
