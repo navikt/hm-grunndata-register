@@ -10,12 +10,12 @@ import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import jakarta.persistence.criteria.Expression
+
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.SupplierRepository
-import no.nav.hm.grunndata.register.user.UserAttribute
+
+import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
@@ -34,7 +34,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
     @Get("/{?params*}")
     suspend fun findProducts(@QueryValue params: HashMap<String,String>?,
                              pageable: Pageable, authentication: Authentication): Page<ProductRegistrationDTO> =
-        productRegistrationRepository.findAll(buildCriteriaSpec(params, userSupplierId(authentication)), pageable).map { it.toDTO() }
+        productRegistrationRepository.findAll(buildCriteriaSpec(params, authentication.supplierId()), pageable).map { it.toDTO() }
 
 
     private fun buildCriteriaSpec(params: HashMap<String, String>?, supplierId: UUID): PredicateSpecification<ProductRegistration>?
@@ -50,14 +50,14 @@ class ProductRegistrationApiController(private val productRegistrationRepository
 
     @Get("/{id}")
     suspend fun getProductById(id: UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
-        productRegistrationRepository.findByIdAndSupplierId(id, userSupplierId(authentication))
+        productRegistrationRepository.findByIdAndSupplierId(id, authentication.supplierId())
             ?.let {
                 HttpResponse.ok(it.toDTO()) }
             ?: HttpResponse.notFound()
 
     @Post("/")
     suspend fun createProduct(@Body registrationDTO: ProductRegistrationDTO, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
-        if (registrationDTO.supplierId != userSupplierId(authentication)) {
+        if (registrationDTO.supplierId != authentication.supplierId()) {
             LOG.warn("Got unauthorized attempt for ${registrationDTO.supplierId}")
             HttpResponse.unauthorized()
         }
@@ -77,7 +77,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
     @Put("/{id}")
     suspend fun updateProduct(@Body registrationDTO: ProductRegistrationDTO, @PathVariable id: UUID, authentication: Authentication):
             HttpResponse<ProductRegistrationDTO> =
-        if (registrationDTO.supplierId != userSupplierId(authentication)) HttpResponse.unauthorized()
+        if (registrationDTO.supplierId != authentication.supplierId()) HttpResponse.unauthorized()
         else productRegistrationRepository.findByIdAndSupplierId(id, registrationDTO.supplierId)
                 ?.let { inDb ->
                     val dto = productRegistrationRepository.update(registrationDTO
@@ -93,7 +93,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
 
     @Delete("/{id}")
     suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
-        productRegistrationRepository.findByIdAndSupplierId(id, userSupplierId(authentication))
+        productRegistrationRepository.findByIdAndSupplierId(id, authentication.supplierId())
             ?.let {
                 val deleteDTO = productRegistrationRepository.update(it
                     .copy(registrationStatus = RegistrationStatus.DELETED, updatedByUser = authentication.name))
@@ -103,7 +103,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
 
     @Get("/draft/{supplierRef}")
     suspend fun draftProduct(@PathVariable supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
-        val supplierId = userSupplierId(authentication)
+        val supplierId = authentication.supplierId()
         productRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)?.let {
             throw BadRequestException("$supplierId and $supplierRef already exists")
         } ?: run {
@@ -127,13 +127,9 @@ class ProductRegistrationApiController(private val productRegistrationRepository
 
     @Get("/template/{id}")
     suspend fun useProductTemplate(@PathVariable id: UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
-        val supplierId = userSupplierId(authentication)
+        val supplierId = authentication.supplierId()
         return productRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.let {
             HttpResponse.ok(productRegistrationHandler.makeTemplateOf(it, authentication))
         } ?: HttpResponse.notFound()
     }
-
-    private fun userSupplierId(authentication: Authentication) = UUID.fromString(
-        authentication.attributes[UserAttribute.SUPPLIER_ID] as String )
-
 }
