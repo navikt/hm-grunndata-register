@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme
 import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
+import no.nav.hm.grunndata.register.supplier.SupplierService
 import no.nav.hm.grunndata.register.user.UserAdminApiController.Companion.API_V1_ADMIN_USER_REGISTRATIONS
 import no.nav.hm.grunndata.register.user.UserAttribute.SUPPLIER_ID
 import org.slf4j.LoggerFactory
@@ -24,7 +25,7 @@ import java.util.*
 @Secured(Roles.ROLE_ADMIN)
 @Controller(API_V1_ADMIN_USER_REGISTRATIONS)
 class UserAdminApiController(private val userRepository: UserRepository,
-                             private val supplierRepository: SupplierRepository
+                             private val supplierService: SupplierService
 ) {
 
     companion object {
@@ -54,7 +55,7 @@ class UserAdminApiController(private val userRepository: UserRepository,
         LOG.info("Creating user ${dto.id} ")
         if (dto.attributes.containsKey(SUPPLIER_ID)) {
             val supplierId = UUID.fromString(dto.attributes[SUPPLIER_ID])
-            supplierRepository.findById(supplierId) ?: throw BadRequestException("Unknown supplier id $supplierId")
+            supplierService.findById(supplierId) ?: throw BadRequestException("Unknown supplier id $supplierId")
         }
         val entity = User(
             id = dto.id, name = dto.name, email = dto.email, token = dto.password, roles = dto.roles,

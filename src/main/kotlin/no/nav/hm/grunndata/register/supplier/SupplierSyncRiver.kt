@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
 @Requires(bean = KafkaRapid::class)
 class SupplierSyncRiver(river: RiverHead,
                         private val objectMapper: ObjectMapper,
-                        private val supplierRepository: SupplierRepository): River.PacketListener {
+                        private val supplierService: SupplierService): River.PacketListener {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(SupplierSyncRiver::class.java)
@@ -39,8 +39,8 @@ class SupplierSyncRiver(river: RiverHead,
         if (version > rapidDTOVersion) LOG.warn("Old dto version detected, please update to $version")
         val supplier = dto.toEntity()
         runBlocking {
-            supplierRepository.findById(supplier.id)?.let { inDb ->
-                supplierRepository.update(supplier.copy(created = inDb.created)) } ?: supplierRepository.save(supplier)
+            supplierService.findById(supplier.id)?.let { inDb ->
+                supplierService.update(supplier.copy(created = inDb.created)) } ?: supplierService.save(supplier)
             LOG.info("supplier ${supplier.id} with eventId $eventId synced from HMDB")
         }
     }

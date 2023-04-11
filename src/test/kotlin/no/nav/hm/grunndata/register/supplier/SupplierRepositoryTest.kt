@@ -9,7 +9,7 @@ import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import org.junit.jupiter.api.Test
 
 @MicronautTest
-class SupplierRepositoryTest(private val supplierRepository: SupplierRepository) {
+class SupplierRepositoryTest(private val supplierService: SupplierService) {
 
     @Test
     fun crudSupplierTest() {
@@ -22,17 +22,17 @@ class SupplierRepositoryTest(private val supplierRepository: SupplierRepository)
                 email = "email@email.com"),
             identifier = "leverandor-as")
         runBlocking {
-            val saved = supplierRepository.save(supplier)
+            val saved = supplierService.save(supplier)
             saved.shouldNotBeNull()
             saved.id shouldBe supplier.id
-            val inDb = supplierRepository.findById(saved.id)
+            val inDb = supplierService.findById(saved.id)
             inDb.shouldNotBeNull()
             inDb.name shouldBe "Leverandør AS"
-            val updated = supplierRepository.update(inDb.copy(name = "Leverandør AS-2"))
+            val updated = supplierService.update(inDb.copy(name = "Leverandør AS-2"))
             updated.shouldNotBeNull()
             updated.name shouldBe "Leverandør AS-2"
             updated.info.email shouldBe "email@email.com"
-            val deactivated = supplierRepository.update(updated.copy(status = SupplierStatus.INACTIVE))
+            val deactivated = supplierService.update(updated.copy(status = SupplierStatus.INACTIVE))
             deactivated.shouldNotBeNull()
             deactivated.status shouldBe SupplierStatus.INACTIVE
         }

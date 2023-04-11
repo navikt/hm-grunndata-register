@@ -12,6 +12,7 @@ import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.Supplier
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
+import no.nav.hm.grunndata.register.supplier.SupplierService
 import no.nav.hm.grunndata.register.supplier.toDTO
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -21,7 +22,7 @@ import java.util.*
 class UserAdminControllerTest(private val userRepository: UserRepository,
                               private val loginClient: LoginClient,
                               private val userAdminApiClient: UserAdminApiClient,
-                              private val supplierRepository: SupplierRepository) {
+                              private val supplierService: SupplierService) {
 
     val adminEmail = "admin@test.test"
     val password = "test123"
@@ -38,7 +39,7 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
     @BeforeEach
     fun createAdminUser() {
         runBlocking {
-            testSupplier = supplierRepository.save(
+            testSupplier = supplierService.save(
                 Supplier(
                     id = supplierId,
                     info = SupplierInfo(

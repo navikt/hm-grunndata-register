@@ -9,15 +9,16 @@ import no.nav.hm.grunndata.rapid.dto.SupplierInfo
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.Supplier
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
+import no.nav.hm.grunndata.register.supplier.SupplierService
 import org.junit.jupiter.api.Test
 
 @MicronautTest
-class UserRepositoryTest(private val userRepository: UserRepository, private val supplierRepository: SupplierRepository) {
+class UserRepositoryTest(private val userRepository: UserRepository, private val supplierService: SupplierService) {
 
     @Test
     fun testUserCrud() {
         runBlocking {
-            val testSupplier = supplierRepository.save(
+            val testSupplier = supplierService.save(
                 Supplier(
                     info = SupplierInfo(
                         email = "supplier1@test.test",

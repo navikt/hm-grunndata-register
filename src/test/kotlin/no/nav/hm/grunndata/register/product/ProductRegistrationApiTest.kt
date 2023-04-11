@@ -13,6 +13,7 @@ import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.Supplier
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
+import no.nav.hm.grunndata.register.supplier.SupplierService
 import no.nav.hm.grunndata.register.supplier.toDTO
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserAttribute
@@ -29,7 +30,7 @@ import java.util.*
 class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationApiClient,
                                  private val loginClient: LoginClient,
                                  private val userRepository: UserRepository,
-                                 private val supplierRepository: SupplierRepository) {
+                                 private val supplierService: SupplierService) {
 
     val email = "api@test.test"
     val password = "api-123"
@@ -44,7 +45,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
     @BeforeEach
     fun createUserSupplier() {
         runBlocking {
-            testSupplier = supplierRepository.save(
+            testSupplier = supplierService.save(
                 Supplier(
                     id = supplierId,
                     info = SupplierInfo(
@@ -57,7 +58,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                     name = "Supplier AS3",
                 )
             ).toDTO()
-            testSupplier2 = supplierRepository.save(
+            testSupplier2 = supplierService.save(
                 Supplier(
                     id = supplierId2,
                     info = SupplierInfo(

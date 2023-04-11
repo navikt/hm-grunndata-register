@@ -8,13 +8,14 @@ import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.RegisterRapidPushService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
+import no.nav.hm.grunndata.register.supplier.SupplierService
 import no.nav.hm.grunndata.register.supplier.toDTO
 import java.time.LocalDateTime
 import java.util.*
 
 @Singleton
 class ProductRegistrationHandler(private val registerRapidPushService: RegisterRapidPushService,
-                                 private val supplierRepository: SupplierRepository) {
+                                 private val supplierService: SupplierService) {
 
     fun makeTemplateOf(registration: ProductRegistration, authentication: Authentication): ProductRegistrationDTO {
         val productId = UUID.randomUUID()
@@ -63,7 +64,7 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
 
     private suspend fun ProductData.toProductDTO(registration: ProductRegistrationDTO): ProductDTO = ProductDTO (
         id = registration.id,
-        supplier = supplierRepository.findById(registration.supplierId)!!.toDTO(),
+        supplier = supplierService.findById(registration.supplierId)!!.toDTO(),
         supplierRef = registration.supplierRef,
         title =  registration.title,
         articleName = registration.articleName,

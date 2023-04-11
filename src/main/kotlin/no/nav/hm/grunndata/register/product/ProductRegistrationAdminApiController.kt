@@ -10,16 +10,10 @@ import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
-import no.nav.hm.grunndata.rapid.event.EventName
-import no.nav.hm.grunndata.register.RegisterRapidPushService
 import no.nav.hm.grunndata.register.api.BadRequestException
-
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.SupplierRepository
-import no.nav.hm.grunndata.register.supplier.toDTO
-
+import no.nav.hm.grunndata.register.supplier.SupplierService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
@@ -27,7 +21,7 @@ import java.util.*
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
 class ProductRegistrationAdminApiController(private val productRegistrationRepository: ProductRegistrationRepository,
-                                            private val supplierRepository: SupplierRepository,
+                                            private val supplierService: SupplierService,
                                             private val productRegistrationHandler: ProductRegistrationHandler) {
 
     companion object {
@@ -68,7 +62,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
     suspend fun draftProduct(supplierId: UUID, supplierRef: String, authentication: Authentication,
                              @QueryValue(defaultValue = "false") isAccessory: Boolean,
                              @QueryValue(defaultValue = "false") isSparePart: Boolean): HttpResponse<ProductRegistrationDTO> =
-        supplierRepository.findById(supplierId)?.let {
+        supplierService.findById(supplierId)?.let {
             if (productRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)!=null) {
                 throw BadRequestException("$supplierId and $supplierRef duplicate error")
             }

@@ -27,7 +27,7 @@ import java.util.*
 
 
 @MicronautTest
-class SupplierAdminApiControllerTest(private val supplierRepository: SupplierRepository,
+class SupplierAdminApiControllerTest(private val supplierService: SupplierService,
                                      private val userRepository: UserRepository,
                                      private val loginClient: LoginClient) {
 
@@ -41,7 +41,7 @@ class SupplierAdminApiControllerTest(private val supplierRepository: SupplierRep
     @BeforeEach
     fun createUserSupplier() {
         runBlocking {
-            val testSupplier = supplierRepository.save(
+            val testSupplier = supplierService.save(
                 Supplier(
                     info = SupplierInfo(
                         email = "admintester@test.test",

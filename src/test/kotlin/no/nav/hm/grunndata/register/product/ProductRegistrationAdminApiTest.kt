@@ -15,6 +15,7 @@ import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.Supplier
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
+import no.nav.hm.grunndata.register.supplier.SupplierService
 import no.nav.hm.grunndata.register.supplier.toDTO
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
@@ -28,7 +29,7 @@ import java.util.*
 class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrationAdminApiClient,
                                       private val loginClient: LoginClient,
                                       private val userRepository: UserRepository,
-                                      private val supplierRepository: SupplierRepository,
+                                      private val supplierService: SupplierService,
                                       private val objectMapper: ObjectMapper) {
 
     val email = "admin@test.test"
@@ -42,7 +43,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
     @BeforeEach
     fun createUserSupplier() {
         runBlocking {
-            testSupplier = supplierRepository.save(
+            testSupplier = supplierService.save(
                 Supplier(
                     id = supplierId,
                     info = SupplierInfo(
