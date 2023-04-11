@@ -16,7 +16,7 @@ import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SupplierApiController.API_V1_SUPPLIER_REGISTRATIONS)
-class SupplierApiController(private val supplierRepository: SupplierRepository) {
+class SupplierApiController(private val supplierService: SupplierService) {
 
     companion object {
         const val API_V1_SUPPLIER_REGISTRATIONS = "/api/v1/supplier/registrations"
@@ -25,15 +25,15 @@ class SupplierApiController(private val supplierRepository: SupplierRepository) 
 
     @Get("/")
     suspend fun getById(authentication: Authentication): HttpResponse<SupplierDTO> =
-        supplierRepository.findById(authentication.supplierId())?.let {
+        supplierService.findById(authentication.supplierId())?.let {
             HttpResponse.ok(it.toDTO())
         } ?: HttpResponse.notFound()
 
 
     @Put("/")
     suspend fun updateSupplier(@Body supplier: SupplierDTO, authentication: Authentication): HttpResponse<SupplierDTO> =
-        supplierRepository.findById(authentication.supplierId())
-            ?.let { HttpResponse.ok(supplierRepository.update(supplier.toEntity()
+        supplierService.findById(authentication.supplierId())
+            ?.let { HttpResponse.ok(supplierService.update(supplier.toEntity()
                 // supplier can not change its status
                 .copy(status = it.status, created = it.created, identifier = it.identifier, updated = LocalDateTime.now())).toDTO()) }
             ?:run { HttpResponse.notFound() }
