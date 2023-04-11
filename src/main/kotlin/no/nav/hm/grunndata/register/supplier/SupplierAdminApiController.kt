@@ -14,7 +14,7 @@ import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(API_V1_ADMIN_SUPPLIER_REGISTRATIONS)
-class SupplierAdminApiController(private val supplierRepository: SupplierRepository) {
+class SupplierAdminApiController(private val supplierService: SupplierService) {
 
     companion object {
         const val API_V1_ADMIN_SUPPLIER_REGISTRATIONS = "/api/v1/admin/supplier/registrations"
@@ -22,30 +22,30 @@ class SupplierAdminApiController(private val supplierRepository: SupplierReposit
     }
 
     @Get("/{id}")
-    suspend fun getById(id: UUID): HttpResponse<SupplierDTO> = supplierRepository.findById(id)?.let {
+    suspend fun getById(id: UUID): HttpResponse<SupplierDTO> = supplierService.findById(id)?.let {
             HttpResponse.ok(it.toDTO()) } ?: HttpResponse.notFound()
 
     @Post("/")
     suspend fun createSupplier(@Body supplier: SupplierDTO): HttpResponse<SupplierDTO> =
-        supplierRepository.findById(supplier.id)
+        supplierService.findById(supplier.id)
             ?.let { throw BadRequestException("supplier ${supplier.id} already exists") }
-            ?:run { val saved = supplierRepository.save(supplier.toEntity())
+            ?:run { val saved = supplierService.save(supplier.toEntity())
                 LOG.info("supplier ${saved.id} created")
                 HttpResponse.created(saved.toDTO())
             }
 
     @Put("/{id}")
     suspend fun updateSupplier(@Body supplier: SupplierDTO, id: UUID): HttpResponse<SupplierDTO> =
-        supplierRepository.findById(id)
-            ?.let { HttpResponse.ok(supplierRepository.update(supplier.toEntity()
+        supplierService.findById(id)
+            ?.let { HttpResponse.ok(supplierService.update(supplier.toEntity()
                 //identifier can not be changed during migration
                 .copy(created = it.created, identifier = it.identifier, updated = LocalDateTime.now())).toDTO()) }
             ?:run { HttpResponse.notFound() }
 
     @Delete("/{id}")
     suspend fun deactivateSupplier(id: UUID): HttpResponse<SupplierDTO> =
-        supplierRepository.findById(id)
-            ?.let { HttpResponse.ok(supplierRepository.update(it.copy(status = SupplierStatus.INACTIVE)).toDTO()) }
+        supplierService.findById(id)
+            ?.let { HttpResponse.ok(supplierService.update(it.copy(status = SupplierStatus.INACTIVE)).toDTO()) }
             ?:run { HttpResponse.notFound()}
 
 }

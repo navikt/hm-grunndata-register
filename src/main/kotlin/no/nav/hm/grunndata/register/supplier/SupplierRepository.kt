@@ -9,5 +9,4 @@ import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
 import java.util.UUID
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
-interface SupplierRepository: CoroutineCrudRepository<Supplier, UUID> {
-}
+interface SupplierRepository: CoroutineCrudRepository<Supplier, UUID>
