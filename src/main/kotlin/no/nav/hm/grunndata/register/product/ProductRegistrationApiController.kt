@@ -10,6 +10,7 @@ import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import jakarta.persistence.criteria.Expression
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
@@ -30,7 +31,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
     }
 
 
-    @Get("/")
+    @Get("/{?params*}")
     suspend fun findProducts(@QueryValue params: HashMap<String,String>?,
                              pageable: Pageable, authentication: Authentication): Page<ProductRegistrationDTO> =
         productRegistrationRepository.findAll(buildCriteriaSpec(params, userSupplierId(authentication)), pageable).map { it.toDTO() }
@@ -43,8 +44,8 @@ class ProductRegistrationApiController(private val productRegistrationRepository
             if (params.contains("supplierRef")) root[ProductRegistration::supplierRef] eq params["supplierRef"]
             if (params.contains("hmsArtNr")) root[ProductRegistration::hmsArtNr] eq params["hmsArtNr"]
             if (params.contains("draft")) root[ProductRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
-            if (params.contains("title")) criteriaBuilder.like(root[ProductRegistration::title], params["title"])
-        }
+        }.and { root, criteriaBuilder ->
+            if (params.contains("title")) criteriaBuilder.like(root[ProductRegistration::title], params["title"]) else null }
     }
 
     @Get("/{id}")
@@ -136,6 +137,3 @@ class ProductRegistrationApiController(private val productRegistrationRepository
         authentication.attributes[UserAttribute.SUPPLIER_ID] as String )
 
 }
-
-
-

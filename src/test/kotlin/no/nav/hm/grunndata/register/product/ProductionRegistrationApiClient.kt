@@ -13,7 +13,8 @@ interface ProductionRegistrationApiClient {
 
     @Get(uri = "/", consumes = [APPLICATION_JSON])
     fun findProducts(@CookieValue("JWT") jwt: String,
-                     @QueryValue("title") title: String?,
+                     @QueryValue("hmsArtNr") hmsArtNr: String?=null,
+                     @QueryValue("title") title: String?=null,
                      @QueryValue("size") size: Int? = null,
                      @QueryValue("page") page: Int?=null,
                      @QueryValue("sort") sort: String? = null): Page<ProductRegistrationDTO>

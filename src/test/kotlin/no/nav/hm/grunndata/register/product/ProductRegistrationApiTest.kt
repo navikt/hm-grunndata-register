@@ -170,7 +170,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             articleName = "en veldig fin tittel med og med",
             id = UUID.randomUUID(),
             supplierId = testSupplier!!.id,
-            hmsArtNr = "111",
+            hmsArtNr = "222",
             supplierRef = "eksternref-222",
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.PENDING,
@@ -203,8 +203,14 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         deleted.shouldNotBeNull()
         deleted.registrationStatus shouldBe RegistrationStatus.DELETED
 
-        val page = apiClient.findProducts(jwt,null,10,1,"created,asc")
+        val page = apiClient.findProducts(jwt,null, null, 20,1,"created,asc")
         page.totalSize shouldBe 2
+
+        val page2 = apiClient.findProducts(jwt,"222", null, 30,1,"created,asc")
+        page2.totalSize shouldBe 1
+
+        val page3 = apiClient.findProducts(jwt,null, "%en veldig%", 30,1,"created,asc")
+        page3.totalSize shouldBe 1
 
         val updatedVersion = apiClient.readProduct(jwt, updated.id)
         updatedVersion.version!! shouldBeGreaterThan 0
@@ -243,8 +249,8 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             supplierId = testSupplier2!!.id,
             title = "Dette er produkt 1",
             articleName = "Dette er produkt 1 med og med",
-            hmsArtNr = "111",
-            supplierRef = "eksternref-222",
+            hmsArtNr = "333",
+            supplierRef = "eksternref-333",
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.PENDING,
             registrationStatus = RegistrationStatus.ACTIVE,
@@ -270,7 +276,6 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         template.productData.shouldNotBeNull()
         template.title shouldBe "Changed title"
         template.articleName shouldBe "Changed articlename"
-
 
     }
 
