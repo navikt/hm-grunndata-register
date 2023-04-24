@@ -53,3 +53,7 @@ spec:
         cascadingDelete: false
   kafka:
     pool: {{ kafka_cluster }}
+  accessPolicy:
+    outbound:
+      rules:
+        - application: hm-grunndata-media
