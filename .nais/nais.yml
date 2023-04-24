@@ -35,6 +35,8 @@ spec:
       value: "org.postgresql.Driver"
     - name: RAPIDSANDRIVERS_ENABLED
       value: "{{ rapidsandrivers_enabled }}"
+    - name: MEDIA_UPLOAD_URL
+      value: "{{ media_upload_url }}"
   gcp:
     sqlInstances:
       - name: hm-grunndata-register

@@ -4,5 +4,6 @@
   "kafka_cluster": "nav-dev",
   "rapidsandrivers_enabled": true,
   "min_replicas": 1,
-  "max_replicas": 1
+  "max_replicas": 1,
+  "media_upload_url": "http://hm-grunndata-media/api/v1/upload/media/register"
 }

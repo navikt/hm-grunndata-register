@@ -39,6 +39,7 @@ micronaut:
               jws-algorithm: HS256
         cookie:
           cookie-max-age: ${COOKIE_MAX_AGE:3h}
+
         generator:
           access-token:
             expiration: ${ACCESS_TOKEN_EXPIRATION:10800}
@@ -133,4 +134,4 @@ kafka:
     enabled: false
 media:
   upload:
-    url: ${MEDIA_UPLOAD_URL:`http://localhost:8282/api/v1/media`}
+    url: ${MEDIA_UPLOAD_URL:`http://localhost:8282/api/v1/upload/media/register`}
