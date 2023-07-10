@@ -44,6 +44,8 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
 
     @BeforeEach
     fun createUserSupplier() {
+        val name1 = UUID.randomUUID().toString()
+        val name2 = UUID.randomUUID().toString()
         runBlocking {
             testSupplier = supplierService.save(
                 Supplier(
@@ -54,8 +56,8 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                         phone = "+47 12345678",
                         email = "supplier3@test.test",
                     ),
-                    identifier = "supplier3-unique-name",
-                    name = "Supplier AS3",
+                    identifier =  name1,
+                    name =  name1
                 )
             ).toDTO()
             testSupplier2 = supplierService.save(
@@ -67,8 +69,8 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                     phone = "+47 12345678",
                     email = "supplier4@test.test",
                 ),
-                identifier = "supplier4-unique-name",
-                name = "Supplier AS4",
+                identifier = name2,
+                name = name2
             )).toDTO()
             userRepository.createUser(
                 User(

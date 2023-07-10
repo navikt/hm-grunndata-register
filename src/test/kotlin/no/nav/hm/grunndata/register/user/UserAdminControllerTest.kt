@@ -24,11 +24,11 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
                               private val userAdminApiClient: UserAdminApiClient,
                               private val supplierService: SupplierService) {
 
-    val adminEmail = "admin@test.test"
+    val adminEmail = "randomAdmin@test.test"
     val password = "test123"
 
     val userId = UUID.randomUUID()
-    val userEmail = "user@test.test"
+    val userEmail = "randomUser@test.test"
 
     val supplierId = UUID.randomUUID()
 
@@ -99,12 +99,12 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
 
         val userById = userAdminApiClient.getUser(jwtAdmin, userId).body()
         userById.shouldNotBeNull()
-        userById.email shouldBe "user@test.test"
+        userById.email shouldBe userEmail
 
-        val userByEmail = userAdminApiClient.getUserByEmail(jwtAdmin, "user@test.test")
+        val userByEmail = userAdminApiClient.getUserByEmail(jwtAdmin, userEmail)
         userByEmail.body().name shouldBe "User test"
 
-        val users = userAdminApiClient.getUsers(jwtAdmin, email = "user@test.test", size = 10, page = 0, sort = "updated,asc")
+        val users = userAdminApiClient.getUsers(jwtAdmin, email = userEmail, size = 10, page = 0, sort = "updated,asc")
 
         users.shouldNotBeNull()
         users.totalSize shouldBe 1

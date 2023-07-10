@@ -32,7 +32,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
                                       private val supplierService: SupplierService,
                                       private val objectMapper: ObjectMapper) {
 
-    val email = "admin@test.test"
+    val email = "ProductRegistrationAdminApiTest@test.test"
     val password = "admin-123"
     val supplierId = UUID.randomUUID()
     var testSupplier : SupplierDTO? = null
