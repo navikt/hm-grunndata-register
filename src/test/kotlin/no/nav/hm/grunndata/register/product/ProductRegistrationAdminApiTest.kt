@@ -124,7 +124,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         read.shouldNotBeNull()
         read.createdByUser shouldBe email
 
-        // make some changes
+        // make some changes, with approved by admin
         val updated = apiClient.updateProduct(jwt, read.id, read.copy(title = "Changed title",
             adminStatus = AdminStatus.APPROVED))
 
