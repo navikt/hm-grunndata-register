@@ -62,7 +62,7 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
         productDTO = productData.toProductDTO(this),
     )
 
-    private suspend fun ProductData.toProductDTO(registration: ProductRegistrationDTO): ProductDTO = ProductDTO (
+    private suspend fun ProductData.toProductDTO(registration: ProductRegistrationDTO): ProductRapidDTO = ProductRapidDTO (
         id = registration.id,
         supplier = supplierService.findById(registration.supplierId)!!.toDTO(),
         supplierRef = registration.supplierRef,

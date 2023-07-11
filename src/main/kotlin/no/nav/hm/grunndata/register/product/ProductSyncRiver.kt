@@ -37,7 +37,7 @@ class ProductSyncRiver(river: RiverHead,
         val eventId = packet["eventId"].asText()
         val dtoVersion = packet["dtoVersion"].asLong()
         if (dtoVersion > rapidDTOVersion) LOG.warn("dto version $dtoVersion is newer than $rapidDTOVersion")
-        val dto = objectMapper.treeToValue(packet["payload"], ProductDTO::class.java)
+        val dto = objectMapper.treeToValue(packet["payload"], ProductRapidDTO::class.java)
         runBlocking {
             productRegistrationRepository.findById(dto.id)?.let { inDb ->
                 productRegistrationRepository.update(
@@ -66,5 +66,9 @@ class ProductSyncRiver(river: RiverHead,
         if (status == ProductStatus.ACTIVE) AdminStatus.APPROVED else AdminStatus.PENDING
 
     private fun mapStatus(status: ProductStatus): RegistrationStatus =
-        if (status == ProductStatus.ACTIVE) RegistrationStatus.ACTIVE else RegistrationStatus.INACTIVE
+        when (status) {
+            ProductStatus.ACTIVE -> RegistrationStatus.ACTIVE
+            ProductStatus.DELETED -> RegistrationStatus.DELETED
+            else -> RegistrationStatus.INACTIVE
+        }
 }

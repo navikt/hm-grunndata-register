@@ -16,7 +16,7 @@ data class ProductData (
 
 
 
-fun ProductDTO.toProductData(): ProductData = ProductData (
+fun ProductRapidDTO.toProductData(): ProductData = ProductData (
     isoCategory = isoCategory,
     accessory = accessory,
     sparePart = sparePart,
