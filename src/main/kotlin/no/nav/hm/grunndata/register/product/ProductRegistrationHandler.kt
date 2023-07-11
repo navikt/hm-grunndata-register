@@ -97,6 +97,10 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
         else
             ProductStatus.ACTIVE
 
+    fun createProductVariant(registration: ProductRegistration, reference: String, authentication: Authentication): ProductRegistrationDTO {
+        TODO()
+    }
+
 }
 fun Authentication.isAdmin(): Boolean  = roles.contains(Roles.ROLE_ADMIN)
 

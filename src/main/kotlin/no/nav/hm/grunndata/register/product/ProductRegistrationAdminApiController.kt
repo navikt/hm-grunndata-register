@@ -144,4 +144,10 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
         } ?: HttpResponse.notFound()
     }
 
+    @Post("/draft/variant/{id}/reference/{supplierRef}")
+    suspend fun createProductVariant(@PathVariable id:UUID, reference: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
+        return productRegistrationRepository.findById(id)?.let {
+            HttpResponse.ok(productRegistrationHandler.createProductVariant(it, reference, authentication))
+        } ?: HttpResponse.notFound()
+    }
 }

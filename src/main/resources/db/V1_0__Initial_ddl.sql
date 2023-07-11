@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS product_reg_v1 (
 );
 
 CREATE INDEX product_reg_v1_supplier_id_idx ON product_reg_v1(supplier_id);
-CREATE INDEX product_reg_v1_hms_artnr_idx ON product_reg_v1(hms_artnr);
+CREATE UNIQUE INDEX product_reg_v1_hms_artnr_idx ON product_reg_v1(hms_artnr) WHERE hms_artnr IS NOT NULL;
 CREATE INDEX product_reg_v1_admin_status_idx ON product_reg_v1(admin_status);
 CREATE INDEX product_reg_v1_draft_status_idx ON product_reg_v1(draft_status);
 CREATE INDEX product_reg_v1_updated_idx ON product_reg_v1(updated);

@@ -105,7 +105,9 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
                 expired =  LocalDateTime.now()
             )
         )
+        val hmsArtNr = UUID.randomUUID().toString()
         val registration = draft.copy(
+            hmsArtNr = hmsArtNr,
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.PENDING,
             message = "Melding til leverandør",
@@ -123,6 +125,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         val read = apiClient.readProduct(jwt, created.id)
         read.shouldNotBeNull()
         read.createdByUser shouldBe email
+        read.hmsArtNr shouldBe hmsArtNr
 
         // make some changes, with approved by admin
         val updated = apiClient.updateProduct(jwt, read.id, read.copy(title = "Changed title",
