@@ -64,6 +64,7 @@ CREATE INDEX product_reg_v1_updated_by_user_idx ON product_reg_v1(updated_by_use
 CREATE TABLE IF NOT EXISTS agreement_reg_v1(
     id uuid NOT NULL PRIMARY KEY,
     draft_status VARCHAR(32) NOT NULL,
+    agreement_status VARCHAR(32) NOT NULL,
     title TEXT,
     reference VARCHAR(255) NOT NULL,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -75,6 +76,7 @@ CREATE TABLE IF NOT EXISTS agreement_reg_v1(
     created_by VARCHAR(255) NOT NULL,
     updated_by VARCHAR(255) NOT NULL,
     agreement_dto JSONB NOT NULL,
+    agreement_data JSONB NOT NULL,
     version BIGINT NOT NULL,
     unique(reference)
 );

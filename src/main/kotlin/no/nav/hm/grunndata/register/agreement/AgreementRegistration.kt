@@ -5,8 +5,7 @@ import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
-import no.nav.hm.grunndata.rapid.dto.AgreementDTO
-import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.*
 
 import no.nav.hm.grunndata.register.product.REGISTER
 import java.time.LocalDateTime
@@ -17,6 +16,7 @@ data class AgreementRegistration(
     @field:Id
     val id: UUID,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
+    val agreementStatus: AgreementStatus = AgreementStatus.INACTIVE,
     val title: String,
     val reference: String,
     val created: LocalDateTime = LocalDateTime.now(),
@@ -29,8 +29,18 @@ data class AgreementRegistration(
     val updatedBy: String = REGISTER,
     @field:TypeDef(type = DataType.JSON)
     val agreementDTO: AgreementDTO,
+    @field:TypeDef(type = DataType.JSON)
+    val agreementData: AgreementData,
     @field:Version
     val version: Long? = 0L
+)
+
+data class AgreementData (
+    val resume: String?,
+    val text: String?,
+    val status: AgreementStatus = AgreementStatus.ACTIVE,
+    val attachments: List<AgreementAttachment> = emptyList(),
+    val posts: List<AgreementPost> = emptyList(),
 )
 
 data class AgreementRegistrationDTO (
@@ -47,19 +57,24 @@ data class AgreementRegistrationDTO (
     val createdBy: String = REGISTER,
     val updatedBy: String = REGISTER,
     val agreementDTO: AgreementDTO,
+    val agreementData: AgreementData,
     val version: Long? = 0L
+)
+
+fun AgreementDTO.toData(): AgreementData = AgreementData(
+    resume = resume, text = text, status = status, attachments = attachments, posts = posts
 )
 
 fun AgreementRegistration.toDTO(): AgreementRegistrationDTO = AgreementRegistrationDTO(
     id = id, draftStatus = draftStatus, title = title, reference = reference, created = created,
     updated = updated, published = published, expired = expired, createdByUser = createdByUser,
     updatedByUser = updatedByUser, createdBy= createdBy, updatedBy = updatedBy, agreementDTO = agreementDTO,
-    version = version
+    agreementData = agreementData, version = version
 )
 
 fun AgreementRegistrationDTO.toEntity(): AgreementRegistration = AgreementRegistration(
     id = id, draftStatus = draftStatus, title = title, reference = reference, created = created,
     updated = updated, published = published, expired = expired, createdByUser = createdByUser,
     updatedByUser = updatedByUser, createdBy= createdBy, updatedBy = updatedBy, agreementDTO = agreementDTO,
-    version = version
+    agreementData = agreementData, version = version
 )

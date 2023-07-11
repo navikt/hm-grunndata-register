@@ -26,10 +26,17 @@ class AgreementRepositoryTest(private val agreementRegistrationRepository: Agree
                     description = "post description 2", nr = 2)
             ), createdBy = REGISTER, updatedBy = REGISTER,
             created = LocalDateTime.now(), updated = LocalDateTime.now())
+        val data = AgreementData(
+            text = "some text", resume = "resume",
+            posts = listOf(
+                AgreementPost(identifier = "unik-post1", title = "Post title",
+                    description = "post description", nr = 1), AgreementPost(identifier = "unik-post2", title = "Post title 2",
+                    description = "post description 2", nr = 2)
+            ))
         val agreementRegistration = AgreementRegistration(
             id = agreementId, published = agreement.published, expired = agreement.expired, title = agreement.title,
             reference = agreement.reference, updatedByUser = "username", createdByUser = "username",
-            agreementDTO = agreement
+            agreementDTO = agreement, agreementData = data
         )
         runBlocking {
             val saved = agreementRegistrationRepository.save(agreementRegistration)
