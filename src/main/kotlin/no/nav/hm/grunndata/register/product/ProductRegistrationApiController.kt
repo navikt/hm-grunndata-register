@@ -125,11 +125,10 @@ class ProductRegistrationApiController(private val productRegistrationRepository
         }
     }
 
-    @Get("/template/{id}")
-    suspend fun useProductTemplate(@PathVariable id: UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
-        val supplierId = authentication.supplierId()
-        return productRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.let {
-            HttpResponse.ok(productRegistrationHandler.makeTemplateOf(it, authentication))
+    @Post("/draft/variant/{id}/reference/{supplierRef}")
+    suspend fun createProductVariant(@PathVariable id:UUID, supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
+        return productRegistrationRepository.findById(id)?.let {
+            HttpResponse.ok(productRegistrationHandler.createProductVariant(it, supplierRef, authentication))
         } ?: HttpResponse.notFound()
     }
 }

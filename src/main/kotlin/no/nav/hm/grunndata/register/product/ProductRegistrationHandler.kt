@@ -16,26 +16,6 @@ import java.util.*
 @Singleton
 class ProductRegistrationHandler(private val registerRapidPushService: RegisterRapidPushService,
                                  private val supplierService: SupplierService) {
-
-    fun makeTemplateOf(registration: ProductRegistration, authentication: Authentication): ProductRegistrationDTO {
-        val productId = UUID.randomUUID()
-        return registration.toDTO().copy(
-            id = productId,
-            draftStatus =  DraftStatus.DRAFT,
-            adminStatus = AdminStatus.PENDING,
-            registrationStatus = RegistrationStatus.ACTIVE,
-            message = null,
-            adminInfo = null,
-            created = LocalDateTime.now(),
-            updated = LocalDateTime.now(),
-            published = LocalDateTime.now(),
-            expired = LocalDateTime.now().plusYears(10),
-            updatedByUser = authentication.name,
-            createdByUser = authentication.name,
-            createdByAdmin = authentication.isAdmin()
-        )
-    }
-
     fun pushToRapidIfNotDraft(dto: ProductRegistrationDTO) {
         runBlocking {
             if (dto.draftStatus == DraftStatus.DONE) {
@@ -97,8 +77,24 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
         else
             ProductStatus.ACTIVE
 
-    fun createProductVariant(registration: ProductRegistration, reference: String, authentication: Authentication): ProductRegistrationDTO {
-        TODO()
+    fun createProductVariant(registration: ProductRegistration, supplierRef: String, authentication: Authentication): ProductRegistrationDTO {
+        val productId = UUID.randomUUID()
+        return registration.toDTO().copy(
+            supplierRef = supplierRef,
+            id = productId,
+            draftStatus =  DraftStatus.DRAFT,
+            adminStatus = AdminStatus.PENDING,
+            registrationStatus = RegistrationStatus.ACTIVE,
+            message = null,
+            adminInfo = null,
+            created = LocalDateTime.now(),
+            updated = LocalDateTime.now(),
+            published = LocalDateTime.now(),
+            expired = LocalDateTime.now().plusYears(10),
+            updatedByUser = authentication.name,
+            createdByUser = authentication.name,
+            createdByAdmin = authentication.isAdmin(),
+        )
     }
 
 }

@@ -35,7 +35,4 @@ interface ProductionRegistrationApiClient {
     @Delete(uri="/{id}", consumes = [APPLICATION_JSON])
     fun deleteProduct(@CookieValue("JWT") jwt: String, id:UUID): ProductRegistrationDTO
 
-    @Get("/template/{id}")
-    fun useProductTemplate(@CookieValue("JWT") jwt: String, @PathVariable id: UUID): ProductRegistrationDTO
-
 }

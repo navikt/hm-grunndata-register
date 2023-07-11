@@ -137,17 +137,11 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                 HttpResponse.ok(dto)}
             ?: HttpResponse.notFound()
 
-    @Get("/template/{id}")
-    suspend fun useProductTemplate(@PathVariable id: UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
-        return productRegistrationRepository.findById(id)?.let {
-            HttpResponse.ok(productRegistrationHandler.makeTemplateOf(it, authentication))
-        } ?: HttpResponse.notFound()
-    }
 
     @Post("/draft/variant/{id}/reference/{supplierRef}")
-    suspend fun createProductVariant(@PathVariable id:UUID, reference: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
+    suspend fun createProductVariant(@PathVariable id:UUID, supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
         return productRegistrationRepository.findById(id)?.let {
-            HttpResponse.ok(productRegistrationHandler.createProductVariant(it, reference, authentication))
+            HttpResponse.ok(productRegistrationHandler.createProductVariant(it, supplierRef, authentication))
         } ?: HttpResponse.notFound()
     }
 }

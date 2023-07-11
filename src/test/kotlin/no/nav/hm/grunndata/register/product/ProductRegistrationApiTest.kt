@@ -273,13 +273,6 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             val created3 = apiClient.createProduct(jwt, registration3)
         }.isFailure shouldBe true
 
-        // make template of another product
-        val template = apiClient.useProductTemplate(jwt, created.id)
-        template.shouldNotBeNull()
-        template.productData.shouldNotBeNull()
-        template.title shouldBe "Changed title"
-        template.articleName shouldBe "Changed articlename"
-
     }
 
 }
