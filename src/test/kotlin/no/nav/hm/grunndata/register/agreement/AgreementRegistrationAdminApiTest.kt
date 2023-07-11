@@ -65,8 +65,7 @@ class AgreementRegistrationAdminApiTest(private val apiClient: AgreementRegistra
 
         val agreementRegistration = AgreementRegistrationDTO(
             id = agreementId, published = agreement.published, expired = agreement.expired, title = agreement.title,
-            reference = agreement.reference, updatedByUser = email, createdByUser = email,
-            agreementDTO = agreement, agreementData =data
+            reference = agreement.reference, updatedByUser = email, createdByUser = email, agreementData =data
         )
 
         val created = apiClient.createAgreement(jwt, agreementRegistration).body()

@@ -39,14 +39,14 @@ class AgreementSyncRiver(river: RiverHead,
         val dto = objectMapper.treeToValue(packet["payload"], AgreementDTO::class.java)
         runBlocking {
             agreementRegistrationRepository.findById(dto.id)?.let { inDb ->
-                agreementRegistrationRepository.update(inDb.copy(agreementDTO = dto, agreementData = dto.toData(), reference = dto.reference,
+                agreementRegistrationRepository.update(inDb.copy(agreementData = dto.toData(), reference = dto.reference,
                     title = dto.title, published = dto.published, expired = dto.expired, created = dto.created,
                     updated = dto.updated)) }
                 ?: agreementRegistrationRepository.save(AgreementRegistration(
                     title = dto.title, id = dto.id, createdByUser = dto.createdBy, updatedByUser = dto.updatedBy,
                     createdBy = dto.createdBy, updatedBy = dto.updatedBy, reference = dto.reference,
                     published = dto.published, expired = dto.expired, updated = dto.updated, created = dto.created,
-                    draftStatus = DraftStatus.DONE, agreementDTO = dto, agreementData = dto.toData()
+                    draftStatus = DraftStatus.DONE, agreementData = dto.toData()
                 ))
             LOG.info("Agreement ${dto.id} with eventId $eventId synced from HMDB")
         }

@@ -75,7 +75,6 @@ CREATE TABLE IF NOT EXISTS agreement_reg_v1(
     updated_by_user VARCHAR(255) NOT NULL,
     created_by VARCHAR(255) NOT NULL,
     updated_by VARCHAR(255) NOT NULL,
-    agreement_dto JSONB NOT NULL,
     agreement_data JSONB NOT NULL,
     version BIGINT NOT NULL,
     unique(reference)

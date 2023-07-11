@@ -35,8 +35,7 @@ class AgreementRepositoryTest(private val agreementRegistrationRepository: Agree
             ))
         val agreementRegistration = AgreementRegistration(
             id = agreementId, published = agreement.published, expired = agreement.expired, title = agreement.title,
-            reference = agreement.reference, updatedByUser = "username", createdByUser = "username",
-            agreementDTO = agreement, agreementData = data
+            reference = agreement.reference, updatedByUser = "username", createdByUser = "username", agreementData = data
         )
         runBlocking {
             val saved = agreementRegistrationRepository.save(agreementRegistration)

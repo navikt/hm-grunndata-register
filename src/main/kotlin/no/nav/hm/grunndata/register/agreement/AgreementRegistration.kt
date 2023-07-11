@@ -28,8 +28,6 @@ data class AgreementRegistration(
     val createdBy: String = REGISTER,
     val updatedBy: String = REGISTER,
     @field:TypeDef(type = DataType.JSON)
-    val agreementDTO: AgreementDTO,
-    @field:TypeDef(type = DataType.JSON)
     val agreementData: AgreementData,
     @field:Version
     val version: Long? = 0L
@@ -56,7 +54,6 @@ data class AgreementRegistrationDTO (
     val updatedByUser: String,
     val createdBy: String = REGISTER,
     val updatedBy: String = REGISTER,
-    val agreementDTO: AgreementDTO,
     val agreementData: AgreementData,
     val version: Long? = 0L
 )
@@ -68,13 +65,13 @@ fun AgreementDTO.toData(): AgreementData = AgreementData(
 fun AgreementRegistration.toDTO(): AgreementRegistrationDTO = AgreementRegistrationDTO(
     id = id, draftStatus = draftStatus, title = title, reference = reference, created = created,
     updated = updated, published = published, expired = expired, createdByUser = createdByUser,
-    updatedByUser = updatedByUser, createdBy= createdBy, updatedBy = updatedBy, agreementDTO = agreementDTO,
+    updatedByUser = updatedByUser, createdBy= createdBy, updatedBy = updatedBy,
     agreementData = agreementData, version = version
 )
 
 fun AgreementRegistrationDTO.toEntity(): AgreementRegistration = AgreementRegistration(
     id = id, draftStatus = draftStatus, title = title, reference = reference, created = created,
     updated = updated, published = published, expired = expired, createdByUser = createdByUser,
-    updatedByUser = updatedByUser, createdBy= createdBy, updatedBy = updatedBy, agreementDTO = agreementDTO,
+    updatedByUser = updatedByUser, createdBy= createdBy, updatedBy = updatedBy,
     agreementData = agreementData, version = version
 )
