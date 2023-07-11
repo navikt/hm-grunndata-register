@@ -83,5 +83,4 @@ CREATE TABLE IF NOT EXISTS agreement_reg_v1(
 
 CREATE INDEX agreement_reg_v1_draft_status_idx ON agreement_reg_v1(draft_status);
 CREATE INDEX agreement_reg_v1_updated_idx ON agreement_reg_v1(updated);
-CREATE INDEX agreement_reg_v1_created_by_user_idx ON agreement_reg_v1(created_by_user);
-CREATE INDEX agreement_reg_v1_updated_by_user_idx ON agreement_reg_v1(updated_by_user);
+CREATE INDEX agreement_reg_v1_title_idx ON agreement_reg_v1(title);
