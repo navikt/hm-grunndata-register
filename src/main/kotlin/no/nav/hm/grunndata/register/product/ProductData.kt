@@ -12,6 +12,7 @@ data class ProductData (
     val techData: List<TechData> = emptyList(),
     val media: List<MediaInfo> = emptyList(),
     val agreementInfo: AgreementInfo?=null,
+    val agreements: List<AgreementInfo> = emptyList()
 )
 
 
@@ -24,5 +25,6 @@ fun ProductRapidDTO.toProductData(): ProductData = ProductData (
     techData = techData,
     media = media,
     agreementInfo = agreementInfo,
+    agreements = agreements,
     attributes = attributes
 )

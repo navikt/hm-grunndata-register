@@ -61,6 +61,7 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
         published = registration.published ?: LocalDateTime.now(),
         expired = registration.expired ?: LocalDateTime.now().plusYears(10),
         agreementInfo = agreementInfo,
+        agreements = agreements,
         hasAgreement = agreementInfo!=null,
         createdBy = registration.createdBy,
         updatedBy = registration.updatedBy,
