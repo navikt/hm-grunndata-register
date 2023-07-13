@@ -19,7 +19,8 @@ import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(AgreementRegistrationAdminApiController.API_V1_ADMIN_AGREEMENT_REGISTRATIONS)
-class AgreementRegistrationAdminApiController(private val agreementRegistrationRepository: AgreementRegistrationRepository) {
+class AgreementRegistrationAdminApiController(private val agreementRegistrationRepository: AgreementRegistrationRepository,
+                                              private val agreementRegistrationHandler: AgreementRegistrationHandler) {
 
     companion object {
         const val API_V1_ADMIN_AGREEMENT_REGISTRATIONS = "/api/v1/admin/agreement/registrations"
@@ -57,9 +58,11 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationR
             agreementRegistrationRepository.findById(registrationDTO.id)?.let {
                 throw BadRequestException("agreement ${registrationDTO.id} already exists")
             } ?: run {
-                HttpResponse.created(agreementRegistrationRepository.save(registrationDTO
+                val dto = agreementRegistrationRepository.save(registrationDTO
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name)
-                    .toEntity()).toDTO())
+                    .toEntity()).toDTO()
+                agreementRegistrationHandler.pushToRapidIfNotDraft(dto)
+                HttpResponse.created(dto)
             }
 
     @Put("/{id}")
@@ -69,7 +72,9 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationR
                 ?.let { inDb ->
                     val updated = registrationDTO.copy(id = inDb.id, created = inDb.created, createdByUser = inDb.createdByUser,
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = inDb.createdBy)
-                    HttpResponse.ok(agreementRegistrationRepository.update(updated.toEntity()).toDTO()) }
+                    val dto = agreementRegistrationRepository.update(updated.toEntity()).toDTO()
+                    agreementRegistrationHandler.pushToRapidIfNotDraft(dto)
+                    HttpResponse.ok(dto) }
                 ?: run {
                     throw BadRequestException("${registrationDTO.id} does not exists")}
 
