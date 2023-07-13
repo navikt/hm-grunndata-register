@@ -28,6 +28,7 @@ class AgreementRepositoryTest(private val agreementRegistrationRepository: Agree
             created = LocalDateTime.now(), updated = LocalDateTime.now())
         val data = AgreementData(
             text = "some text", resume = "resume",
+            identifier = UUID.randomUUID().toString(),
             posts = listOf(
                 AgreementPost(identifier = "unik-post1", title = "Post title",
                     description = "post description", nr = 1), AgreementPost(identifier = "unik-post2", title = "Post title 2",

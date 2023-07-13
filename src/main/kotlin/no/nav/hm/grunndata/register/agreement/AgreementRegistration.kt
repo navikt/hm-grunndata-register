@@ -36,7 +36,7 @@ data class AgreementRegistration(
 data class AgreementData (
     val resume: String?,
     val text: String?,
-    val status: AgreementStatus = AgreementStatus.ACTIVE,
+    val identifier: String,
     val attachments: List<AgreementAttachment> = emptyList(),
     val posts: List<AgreementPost> = emptyList(),
 )
@@ -44,6 +44,7 @@ data class AgreementData (
 data class AgreementRegistrationDTO (
     val id: UUID,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
+    val agreementStatus: AgreementStatus = AgreementStatus.INACTIVE,
     val title: String,
     val reference: String,
     val created: LocalDateTime = LocalDateTime.now(),
@@ -59,7 +60,7 @@ data class AgreementRegistrationDTO (
 )
 
 fun AgreementDTO.toData(): AgreementData = AgreementData(
-    resume = resume, text = text, status = status, attachments = attachments, posts = posts
+    resume = resume, text = text, identifier = identifier, attachments = attachments, posts = posts
 )
 
 fun AgreementRegistration.toDTO(): AgreementRegistrationDTO = AgreementRegistrationDTO(
