@@ -25,7 +25,7 @@ class ProductSyncRiver(river: RiverHead,
 
     init {
         river
-            .validate { it.demandValue("eventName", EventName.hmdbproductsyncV1) }
+            .validate { it.demandAny("eventName", listOf(EventName.hmdbproductsyncV1, EventName.expiredProductAgreementV1)) }
             .validate { it.demandKey("payload") }
             .validate { it.demandKey("eventId") }
             .validate { it.demandKey("dtoVersion") }

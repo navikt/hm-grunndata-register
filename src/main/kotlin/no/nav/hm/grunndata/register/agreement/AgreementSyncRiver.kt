@@ -27,7 +27,7 @@ class AgreementSyncRiver(river: RiverHead,
     }
     init {
         river
-            .validate { it.demandValue("eventName", EventName.hmdbagreementsyncV1)}
+            .validate { it.demandAny("eventName", listOf(EventName.hmdbagreementsyncV1, EventName.expiredAgreementV1))}
             .validate { it.demandKey("payload")}
             .validate { it.demandKey("eventId")}
             .register(this)
