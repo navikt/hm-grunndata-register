@@ -10,6 +10,7 @@ import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
+import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
 
@@ -25,6 +26,7 @@ class ProductSyncRiver(river: RiverHead,
 
     init {
         river
+            .validate { it .demandValue("createdBy", RapidApp.grunndata_db)}
             .validate { it.demandAny("eventName", listOf(EventName.hmdbproductsyncV1, EventName.expiredProductAgreementV1)) }
             .validate { it.demandKey("payload") }
             .validate { it.demandKey("eventId") }

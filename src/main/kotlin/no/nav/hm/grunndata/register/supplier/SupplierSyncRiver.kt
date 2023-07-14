@@ -11,6 +11,7 @@ import no.nav.helse.rapids_rivers.River
 import no.nav.hm.grunndata.rapid.dto.SupplierDTO
 import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
+import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
 
@@ -25,6 +26,7 @@ class SupplierSyncRiver(river: RiverHead,
     }
     init {
         river
+            .validate { it .demandValue("createdBy", RapidApp.grunndata_db)}
             .validate { it.demandValue("eventName", EventName.hmdbsuppliersyncV1)}
             .validate { it.demandKey("payload")}
             .validate { it.demandKey("eventId")}
