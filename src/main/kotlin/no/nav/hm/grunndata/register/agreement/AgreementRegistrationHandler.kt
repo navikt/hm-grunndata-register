@@ -14,7 +14,7 @@ class AgreementRegistrationHandler(private val registerRapidPushService: Registe
     fun pushToRapidIfNotDraft(dto: AgreementRegistrationDTO) {
         runBlocking {
             if (dto.draftStatus == DraftStatus.DONE) {
-                registerRapidPushService.pushDTOToKafka(dto.toRapidDTO(), EventName.registerAgreementV1)
+                registerRapidPushService.pushDTOToKafka(dto.toRapidDTO(), EventName.registeredAgreementV1)
             }
         }
     }
