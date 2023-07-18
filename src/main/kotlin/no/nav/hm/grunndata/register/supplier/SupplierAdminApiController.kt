@@ -3,7 +3,7 @@ package no.nav.hm.grunndata.register.supplier
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
-import no.nav.hm.grunndata.rapid.dto.SupplierDTO
+import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
@@ -23,31 +23,32 @@ class SupplierAdminApiController(private val supplierService: SupplierService,
     }
 
     @Get("/{id}")
-    suspend fun getById(id: UUID): HttpResponse<SupplierRegistrationDTO> = supplierService.findById(id)?.let {
+    suspend fun getById(id: UUID, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> = supplierService.findById(id)?.let {
             HttpResponse.ok(it) } ?: HttpResponse.notFound()
 
     @Post("/")
-    suspend fun createSupplier(@Body supplier: SupplierRegistrationDTO): HttpResponse<SupplierRegistrationDTO> =
+    suspend fun createSupplier(@Body supplier: SupplierRegistrationDTO, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
         supplierService.findById(supplier.id)
             ?.let { throw BadRequestException("supplier ${supplier.id} already exists") }
-            ?:run { val saved = supplierService.saveAndPushToKafka(supplier, isUpdate = false)
+            ?:run { val saved = supplierService.saveAndPushToKafka(supplier.copy(
+                updatedByUser = authentication.name, createdByUser = authentication.name), isUpdate = false)
                 HttpResponse.created(saved)
             }
 
     @Put("/{id}")
-    suspend fun updateSupplier(@Body supplier: SupplierRegistrationDTO, id: UUID): HttpResponse<SupplierRegistrationDTO> =
-        supplierService.findById(id)
-            ?.let { HttpResponse.ok(supplierService.saveAndPushToKafka(
-                supplier = supplier.copy(created = it.created, identifier = it.identifier, createdByUser = it.createdByUser,
-                    updated = LocalDateTime.now()),
+    suspend fun updateSupplier(@Body supplier: SupplierRegistrationDTO, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
+        supplierService.findById(supplier.id)
+            ?.let { inDb -> HttpResponse.ok(supplierService.saveAndPushToKafka(
+                supplier = supplier.copy(created = inDb.created, identifier = inDb.identifier,
+                    createdByUser = inDb.createdByUser, updated = LocalDateTime.now(), updatedByUser = authentication.name),
                 isUpdate = true )
             ) } ?:run { HttpResponse.notFound() }
 
     @Delete("/{id}")
-    suspend fun deactivateSupplier(id: UUID): HttpResponse<SupplierRegistrationDTO> =
+    suspend fun deactivateSupplier(id: UUID, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
         supplierService.findById(id)
-            ?.let { HttpResponse.ok(supplierService.saveAndPushToKafka (
-                supplier = it.copy(status = SupplierStatus.INACTIVE),
+            ?.let { inDb -> HttpResponse.ok(supplierService.saveAndPushToKafka (
+                supplier = inDb.copy(status = SupplierStatus.INACTIVE),
                 isUpdate = true)
             )} ?:run { HttpResponse.notFound()}
 
