@@ -25,6 +25,11 @@ fun SupplierRegistrationDTO.toRapidDTO(): SupplierDTO = SupplierDTO (
     id = id, status = status, name=name, info = supplierData.toInfo() , identifier = identifier, created = created, updated = updated,
     createdBy = createdBy, updatedBy = updatedBy)
 
+fun SupplierRegistration.toRapidDTO(): SupplierDTO = SupplierDTO(
+    id = id, status = status, name=name, info = supplierData.toInfo() , identifier = identifier, created = created, updated = updated,
+    createdBy = createdBy, updatedBy = updatedBy
+)
+
 private fun SupplierData.toInfo(): SupplierInfo = SupplierInfo (
     address = address, postNr = postNr, postLocation = postLocation, countryCode = countryCode, email = email,
     phone = phone, homepage = homepage

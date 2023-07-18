@@ -7,6 +7,7 @@ import io.micronaut.data.model.DataType
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierDTO
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
+import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.REGISTER
 import java.awt.SystemColor.info
 import java.time.LocalDateTime
@@ -18,18 +19,18 @@ const val SUPPLIER_V1= "supplier_reg_v1"
 data class SupplierRegistration (
     @field:Id
     val id: UUID,
-    val status: SupplierStatus,
-    val draftStatus: DraftStatus,
+    val status: SupplierStatus = SupplierStatus.ACTIVE,
+    val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val name: String,
     @field:TypeDef(type= DataType.JSON)
     val supplierData: SupplierData,
     val identifier: String,
-    val created: LocalDateTime,
+    val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
-    val createdBy: String,
-    val updatedBy: String,
-    val updatedByUser: String,
-    val createdByUser: String
+    val createdBy: String = RapidApp.grunndata_register,
+    val updatedBy: String = RapidApp.grunndata_register,
+    val updatedByUser: String = "admin",
+    val createdByUser: String = "admin"
 )
 
 data class SupplierData(
@@ -63,6 +64,7 @@ fun SupplierRegistration.toDTO(): SupplierRegistrationDTO = SupplierRegistration
     identifier = identifier, created = created, updated = updated, createdBy = createdBy, updatedBy = updatedBy,
     updatedByUser = updatedByUser, createdByUser = createdByUser
 )
+
 
 
 fun SupplierRegistrationDTO.toEntity(): SupplierRegistration = SupplierRegistration(

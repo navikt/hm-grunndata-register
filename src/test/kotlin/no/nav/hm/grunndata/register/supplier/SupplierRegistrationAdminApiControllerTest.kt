@@ -10,9 +10,11 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierDTO
 import no.nav.hm.grunndata.rapid.dto.SupplierInfo
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
+import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
@@ -43,12 +45,19 @@ class SupplierRegistrationAdminApiControllerTest(private val supplierService: Su
         runBlocking {
             val testSupplierRegistration = supplierService.save(
                 SupplierRegistration(
-                    info = SupplierInfo(
+                    id = UUID.randomUUID(),
+                    supplierData = SupplierData(
                         email = "admintester@test.test",
                         address = "address 1",
                         homepage = "https://www.hompage.no",
                         phone = "+47 12345678"
                     ),
+                    status = SupplierStatus.ACTIVE,
+                    draftStatus = DraftStatus.DONE,
+                    createdByUser = "admin",
+                    updatedByUser = "admin",
+                    createdBy = RapidApp.grunndata_register,
+                    updatedBy = RapidApp.grunndata_register,
                     identifier = "adminsupplier-unique-name",
                     name = "Admin Company",
 

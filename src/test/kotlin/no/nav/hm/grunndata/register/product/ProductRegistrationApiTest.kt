@@ -9,6 +9,7 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
@@ -56,7 +57,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                         email = "supplier3@test.test",
                     ),
                     identifier =  name1,
-                    name =  name1
+                    name =  name1,
                 )
             ).toRapidDTO()
             testSupplier2 = supplierService.save(

@@ -6,10 +6,14 @@ import io.micronaut.http.HttpStatus
 import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierDTO
 import no.nav.hm.grunndata.rapid.dto.SupplierInfo
+import no.nav.hm.grunndata.rapid.dto.SupplierStatus
+import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistration
 import no.nav.hm.grunndata.register.supplier.SupplierService
 import no.nav.hm.grunndata.register.supplier.toRapidDTO
@@ -41,12 +45,18 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
             testSupplier = supplierService.save(
                 SupplierRegistration(
                     id = supplierId,
-                    info = SupplierInfo(
+                    supplierData = SupplierData (
                         address = "address 4",
                         homepage = "https://www.hompage.no",
                         phone = "+47 12345678",
                         email = "supplier5@test.test",
                     ),
+                    status = SupplierStatus.ACTIVE,
+                    draftStatus = DraftStatus.DONE,
+                    createdByUser = "admin",
+                    updatedByUser = "admin",
+                    createdBy = RapidApp.grunndata_register,
+                    updatedBy = RapidApp.grunndata_register,
                     identifier = "supplier5-unique-name",
                     name = "Supplier AS5",
                 )

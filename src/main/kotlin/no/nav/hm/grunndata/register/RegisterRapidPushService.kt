@@ -4,9 +4,7 @@ import jakarta.inject.Singleton
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.RapidApp
-import no.nav.hm.grunndata.register.product.REGISTER
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
-import java.time.LocalDateTime
 
 @Singleton
 class RegisterRapidPushService(private val kafkaRapidService: RapidPushService) {

@@ -7,9 +7,11 @@ import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import no.nav.hm.grunndata.rapid.dto.SupplierInfo
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistration
 import no.nav.hm.grunndata.register.supplier.SupplierService
 import org.junit.jupiter.api.Test
+import java.util.UUID
 
 @MicronautTest
 class UserRepositoryTest(private val userRepository: UserRepository, private val supplierService: SupplierService) {
@@ -19,15 +21,15 @@ class UserRepositoryTest(private val userRepository: UserRepository, private val
         runBlocking {
             val testSupplierRegistration = supplierService.save(
                 SupplierRegistration(
-                    info = SupplierInfo(
+                    id = UUID.randomUUID(),
+                    supplierData = SupplierData (
                         email = "supplier1@test.test",
                         address = "address 1",
                         homepage = "https://www.hompage.no",
                         phone = "+47 12345678"
                     ),
                     identifier = "supplier1-unique-name",
-                    name = "Supplier AS1",
-
+                    name = "Supplier AS1"
                 )
             )
             userRepository.createUser(
