@@ -6,8 +6,8 @@ import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
 import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.register.REGISTER
 
-import no.nav.hm.grunndata.register.product.REGISTER
 import java.time.LocalDateTime
 import java.util.*
 
