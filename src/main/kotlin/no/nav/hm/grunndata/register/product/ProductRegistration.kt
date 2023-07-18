@@ -7,6 +7,7 @@ import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
 import jakarta.persistence.Column
 import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.register.REGISTER
 import java.time.LocalDateTime
 import java.util.*
 
@@ -49,9 +50,6 @@ fun ProductRegistration.approve(approvedByName: String): ProductRegistration =
     this.copy(adminInfo = AdminInfo(approvedBy = approvedByName), adminStatus = AdminStatus.APPROVED,
         registrationStatus = RegistrationStatus.ACTIVE, draftStatus = DraftStatus.DONE, published = LocalDateTime.now())
 
-
-const val REGISTER = "REGISTER"
-
 data class ProductRegistrationDTO (
     val id: UUID = UUID.randomUUID(),
     val supplierId: UUID,
@@ -70,8 +68,8 @@ data class ProductRegistrationDTO (
     val expired: LocalDateTime?=null,
     val updatedByUser: String="system",
     val createdByUser: String="system",
-    val createdBy: String = "REGISTER",
-    val updatedBy: String = "REGISTER",
+    val createdBy: String = REGISTER,
+    val updatedBy: String = REGISTER,
     val createdByAdmin: Boolean = false,
     val productData: ProductData,
     val version: Long? = 0L

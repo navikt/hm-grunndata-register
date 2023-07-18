@@ -28,6 +28,19 @@ data class Supplier (
     val updatedBy: String = REGISTER
 )
 
+data class SupplierRegistration (
+    @field:Id
+    val id: UUID = UUID.randomUUID(),
+    val status: SupplierStatus = SupplierStatus.ACTIVE,
+    val name: String,
+    @field:TypeDef(type= DataType.JSON)
+    val info: SupplierInfo,
+    val identifier: String,
+    val created: LocalDateTime = LocalDateTime.now(),
+    val updated: LocalDateTime = LocalDateTime.now(),
+    val createdBy: String = REGISTER,
+    val updatedBy: String = REGISTER
+)
 fun Supplier.toDTO(): SupplierDTO = SupplierDTO (
     id = id, status = status, name=name, info = info, identifier = identifier, created = created, updated = updated,
     createdBy = createdBy, updatedBy = updatedBy)
