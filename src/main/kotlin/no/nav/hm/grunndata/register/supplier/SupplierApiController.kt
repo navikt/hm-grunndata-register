@@ -23,18 +23,26 @@ class SupplierApiController(private val supplierService: SupplierService) {
     }
 
     @Get("/")
-    suspend fun getById(authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
-        supplierService.findById(authentication.supplierId())?.let {
-            HttpResponse.ok(it.toDTO())
+    suspend fun getById(authentication: Authentication): HttpResponse<SupplierRegistrationDTO> {
+        return supplierService.findById(authentication.supplierId())?.let {
+            HttpResponse.ok(it)
         } ?: HttpResponse.notFound()
+    }
 
 
     @Put("/")
-    suspend fun updateSupplier(@Body supplier: SupplierRegistrationDTO, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
-        supplierService.findById(authentication.supplierId())
-            ?.let { HttpResponse.ok(supplierService.update(supplier.toEntity()
-                // supplier can not change its status
-                .copy(status = it.status, created = it.created, identifier = it.identifier, updated = LocalDateTime.now())).toDTO()) }
+    suspend fun updateSupplier(@Body supplier: SupplierRegistrationDTO, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> {
+        if (supplier.id != authentication.supplierId()) {
+            LOG.error("user made an unauthorized request for supplier ${supplier.id}")
+            return HttpResponse.unauthorized()
+        }
+        return supplierService.findById(authentication.supplierId())
+            ?.let { inDb -> HttpResponse.ok(supplierService.saveAndPushToKafka(
+                supplier.copy(
+                    status = inDb.status, created = inDb.created, identifier = inDb.identifier,
+                    updated = LocalDateTime.now()), isUpdate = true))
+            }
             ?:run { HttpResponse.notFound() }
+    }
 
 }

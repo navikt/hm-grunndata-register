@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.supplier
 
+import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierDTO
@@ -8,6 +9,8 @@ import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.RegisterRapidPushService
 import java.awt.SystemColor
 
+
+@Singleton
 class SupplierRegistrationHandler(private val registerRapidPushService: RegisterRapidPushService) {
 
     fun pushToRapidIfNotDraft(dto: SupplierRegistrationDTO) {

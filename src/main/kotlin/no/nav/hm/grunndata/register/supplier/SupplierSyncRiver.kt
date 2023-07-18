@@ -43,12 +43,11 @@ class SupplierSyncRiver(river: RiverHead,
         if (version > rapidDTOVersion) LOG.warn("Old dto version detected, please update to $version")
         runBlocking {
             supplierService.findById(dto.id)?.let { inDb ->
-
                 supplierService.update(inDb.copy(
                     status = dto.status, name = dto.name, supplierData  = dto.info.toSupplierData(),
                     updated = dto.updated, updatedBy = dto.updatedBy, updatedByUser = RapidApp.grunndata_db
                 )) } ?: supplierService.save(
-                    SupplierRegistration(
+                    SupplierRegistrationDTO(
                         id = dto.id, status = dto.status, draftStatus = DraftStatus.DONE, name = dto.name,
                         supplierData = dto.info.toSupplierData(), identifier = dto.identifier, created = dto.created,
                         updated = dto.updated, createdBy = dto.createdBy, updatedBy = dto.updatedBy,
