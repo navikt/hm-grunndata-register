@@ -4,23 +4,28 @@ import io.kotest.common.runBlocking
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
-import no.nav.hm.grunndata.rapid.dto.SupplierInfo
+import io.mockk.mockk
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierData
-import no.nav.hm.grunndata.register.supplier.SupplierRegistration
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierService
+import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 
 @MicronautTest
 class UserRepositoryTest(private val userRepository: UserRepository, private val supplierService: SupplierService) {
+
+    @MockBean(RapidPushService::class)
+    fun rapidPushService(): RapidPushService = mockk(relaxed = true)
 
     @Test
     fun testUserCrud() {
         runBlocking {
             val testSupplierRegistration = supplierService.save(
-                SupplierRegistration(
+                SupplierRegistrationDTO(
                     id = UUID.randomUUID(),
                     supplierData = SupplierData (
                         email = "supplier1@test.test",

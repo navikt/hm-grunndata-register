@@ -4,19 +4,18 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.http.HttpStatus
 import io.micronaut.security.authentication.UsernamePasswordCredentials
+import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierDTO
-import no.nav.hm.grunndata.rapid.dto.SupplierInfo
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.SupplierData
-import no.nav.hm.grunndata.register.supplier.SupplierRegistration
-import no.nav.hm.grunndata.register.supplier.SupplierService
-import no.nav.hm.grunndata.register.supplier.toRapidDTO
+import no.nav.hm.grunndata.register.supplier.*
+import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -37,13 +36,14 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
 
     private var testSupplier: SupplierDTO? = null
 
-
+    @MockBean(RapidPushService::class)
+    fun rapidPushService(): RapidPushService = mockk(relaxed = true)
 
     @BeforeEach
     fun createAdminUser() {
         runBlocking {
             testSupplier = supplierService.save(
-                SupplierRegistration(
+                SupplierRegistrationDTO(
                     id = supplierId,
                     supplierData = SupplierData (
                         address = "address 4",

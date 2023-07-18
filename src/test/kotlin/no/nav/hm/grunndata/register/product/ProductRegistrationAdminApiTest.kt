@@ -10,13 +10,9 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
-import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.SupplierData
-import no.nav.hm.grunndata.register.supplier.SupplierRegistration
-import no.nav.hm.grunndata.register.supplier.SupplierService
-import no.nav.hm.grunndata.register.supplier.toRapidDTO
+import no.nav.hm.grunndata.register.supplier.*
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
@@ -44,7 +40,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
     fun createUserSupplier() {
         runBlocking {
             testSupplier = supplierService.save(
-                SupplierRegistration(
+                SupplierRegistrationDTO(
                     id = supplierId,
                     supplierData = SupplierData(
                         address = "address 4",

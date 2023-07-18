@@ -8,15 +8,17 @@ import io.micronaut.http.MediaType
 import io.micronaut.http.client.HttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.security.authentication.UsernamePasswordCredentials
+import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import io.mockk.mockk
 import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.rapid.dto.SupplierInfo
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierData
-import no.nav.hm.grunndata.register.supplier.SupplierRegistration
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierService
+import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
@@ -39,11 +41,14 @@ class UserControllerTest(private val userRepository: UserRepository,
     val email = "user@test.test"
     val token = "token-123"
 
+    @MockBean(RapidPushService::class)
+    fun rapidPushService(): RapidPushService = mockk(relaxed = true)
+
     @BeforeEach
     fun createUserSupplier() {
         runBlocking {
             val testSupplierRegistration = supplierService.save(
-                SupplierRegistration(
+                SupplierRegistrationDTO(
                     id = UUID.randomUUID(),
                     supplierData = SupplierData (
                         email = "supplier@test.test",

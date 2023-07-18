@@ -2,22 +2,28 @@ package no.nav.hm.grunndata.register.supplier
 
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierInfo
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.rapid.event.RapidApp
+import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
 import java.util.*
 
 @MicronautTest
 class SupplierRegistrationRepositoryTest(private val supplierService: SupplierService) {
 
+    @MockBean(RapidPushService::class)
+    fun rapidPushService(): RapidPushService = mockk(relaxed = true)
+
     @Test
     fun crudSupplierTest() {
         val name = "Leverandør AS ${UUID.randomUUID()}"
-        val supplierRegistration = SupplierRegistration(
+        val supplierRegistration = SupplierRegistrationDTO(
             id = UUID.randomUUID(),
             name = name,
             supplierData = SupplierData(

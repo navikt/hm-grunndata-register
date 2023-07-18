@@ -13,10 +13,7 @@ import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.SupplierData
-import no.nav.hm.grunndata.register.supplier.SupplierRegistration
-import no.nav.hm.grunndata.register.supplier.SupplierService
-import no.nav.hm.grunndata.register.supplier.toRapidDTO
+import no.nav.hm.grunndata.register.supplier.*
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserAttribute
 import no.nav.hm.grunndata.register.user.UserRepository
@@ -48,7 +45,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         val name2 = UUID.randomUUID().toString()
         runBlocking {
             testSupplier = supplierService.save(
-                SupplierRegistration(
+                SupplierRegistrationDTO(
                     id = supplierId,
                     supplierData = SupplierData(
                         address = "address 3",
@@ -61,7 +58,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                 )
             ).toRapidDTO()
             testSupplier2 = supplierService.save(
-                SupplierRegistration(
+                SupplierRegistrationDTO(
                     id = supplierId2,
                     supplierData = SupplierData(
                     address = "address 4",
