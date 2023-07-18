@@ -65,7 +65,9 @@ fun SupplierRegistration.toDTO(): SupplierRegistrationDTO = SupplierRegistration
 )
 
 
-fun SupplierDTO.toEntity(): SupplierRegistration = SupplierRegistration(
-    id = id, status = status, name = name, info = info, identifier = identifier, created = created, updated = updated,
-    createdBy = createdBy, updatedBy=updatedBy)
+fun SupplierRegistrationDTO.toEntity(): SupplierRegistration = SupplierRegistration(
+    id = id, status = status, name = name, supplierData = supplierData, identifier = identifier, created = created,
+    updated = updated, createdBy = createdBy, updatedBy=updatedBy, createdByUser = createdByUser,
+    draftStatus = draftStatus, updatedByUser = updatedByUser
+)
 
