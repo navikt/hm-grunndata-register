@@ -7,7 +7,6 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import no.nav.hm.grunndata.rapid.dto.SupplierDTO
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
@@ -24,18 +23,18 @@ class SupplierApiController(private val supplierService: SupplierService) {
     }
 
     @Get("/")
-    suspend fun getById(authentication: Authentication): HttpResponse<SupplierDTO> =
+    suspend fun getById(authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
         supplierService.findById(authentication.supplierId())?.let {
-            HttpResponse.ok(it.toRapidDTO())
+            HttpResponse.ok(it.toDTO())
         } ?: HttpResponse.notFound()
 
 
     @Put("/")
-    suspend fun updateSupplier(@Body supplier: SupplierDTO, authentication: Authentication): HttpResponse<SupplierDTO> =
+    suspend fun updateSupplier(@Body supplier: SupplierRegistrationDTO, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
         supplierService.findById(authentication.supplierId())
             ?.let { HttpResponse.ok(supplierService.update(supplier.toEntity()
                 // supplier can not change its status
-                .copy(status = it.status, created = it.created, identifier = it.identifier, updated = LocalDateTime.now())).toRapidDTO()) }
+                .copy(status = it.status, created = it.created, identifier = it.identifier, updated = LocalDateTime.now())).toDTO()) }
             ?:run { HttpResponse.notFound() }
 
 }
