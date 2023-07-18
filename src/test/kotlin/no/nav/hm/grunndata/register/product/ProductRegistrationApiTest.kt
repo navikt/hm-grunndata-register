@@ -9,8 +9,10 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistration
 import no.nav.hm.grunndata.register.supplier.SupplierService
 import no.nav.hm.grunndata.register.supplier.toRapidDTO
@@ -47,7 +49,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             testSupplier = supplierService.save(
                 SupplierRegistration(
                     id = supplierId,
-                    info = SupplierInfo(
+                    supplierData = SupplierData(
                         address = "address 3",
                         homepage = "https://www.hompage.no",
                         phone = "+47 12345678",
@@ -60,7 +62,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             testSupplier2 = supplierService.save(
                 SupplierRegistration(
                     id = supplierId2,
-                    info = SupplierInfo(
+                    supplierData = SupplierData(
                     address = "address 4",
                     homepage = "https://www.hompage.no",
                     phone = "+47 12345678",

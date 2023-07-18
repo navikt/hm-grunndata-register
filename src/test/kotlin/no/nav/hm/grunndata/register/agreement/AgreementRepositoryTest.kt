@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import no.nav.hm.grunndata.rapid.dto.AgreementDTO
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
-import no.nav.hm.grunndata.register.product.REGISTER
+import no.nav.hm.grunndata.register.REGISTER
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.util.*

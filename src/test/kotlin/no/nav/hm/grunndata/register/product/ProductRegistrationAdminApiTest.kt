@@ -12,6 +12,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistration
 import no.nav.hm.grunndata.register.supplier.SupplierService
 import no.nav.hm.grunndata.register.supplier.toRapidDTO
@@ -44,7 +45,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
             testSupplier = supplierService.save(
                 SupplierRegistration(
                     id = supplierId,
-                    info = SupplierInfo(
+                    supplierData = SupplierData(
                         address = "address 4",
                         homepage = "https://www.hompage.no",
                         phone = "+47 12345678",
