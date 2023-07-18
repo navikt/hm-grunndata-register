@@ -14,7 +14,8 @@ import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(API_V1_ADMIN_SUPPLIER_REGISTRATIONS)
-class SupplierAdminApiController(private val supplierService: SupplierService) {
+class SupplierAdminApiController(private val supplierService: SupplierService,
+                                 private val supplierRegistrationHandler: SupplierRegistrationHandler) {
 
     companion object {
         const val API_V1_ADMIN_SUPPLIER_REGISTRATIONS = "/api/v1/admin/supplier/registrations"
@@ -23,29 +24,31 @@ class SupplierAdminApiController(private val supplierService: SupplierService) {
 
     @Get("/{id}")
     suspend fun getById(id: UUID): HttpResponse<SupplierRegistrationDTO> = supplierService.findById(id)?.let {
-            HttpResponse.ok(it.toDTO()) } ?: HttpResponse.notFound()
+            HttpResponse.ok(it) } ?: HttpResponse.notFound()
 
     @Post("/")
     suspend fun createSupplier(@Body supplier: SupplierRegistrationDTO): HttpResponse<SupplierRegistrationDTO> =
         supplierService.findById(supplier.id)
             ?.let { throw BadRequestException("supplier ${supplier.id} already exists") }
-            ?:run { val saved = supplierService.save(supplier.toEntity())
-                LOG.info("supplier ${saved.id} created")
-                HttpResponse.created(saved.toDTO())
+            ?:run { val saved = supplierService.saveAndPushToKafka(supplier, isUpdate = false)
+                HttpResponse.created(saved)
             }
 
     @Put("/{id}")
     suspend fun updateSupplier(@Body supplier: SupplierRegistrationDTO, id: UUID): HttpResponse<SupplierRegistrationDTO> =
         supplierService.findById(id)
-            ?.let { HttpResponse.ok(supplierService.update(supplier.toEntity()
-                //identifier can not be changed during migration
-                .copy(created = it.created, identifier = it.identifier, updated = LocalDateTime.now())).toDTO()) }
-            ?:run { HttpResponse.notFound() }
+            ?.let { HttpResponse.ok(supplierService.saveAndPushToKafka(
+                supplier = supplier.copy(created = it.created, identifier = it.identifier, createdByUser = it.createdByUser,
+                    updated = LocalDateTime.now()),
+                isUpdate = true )
+            ) } ?:run { HttpResponse.notFound() }
 
     @Delete("/{id}")
     suspend fun deactivateSupplier(id: UUID): HttpResponse<SupplierRegistrationDTO> =
         supplierService.findById(id)
-            ?.let { HttpResponse.ok(supplierService.update(it.copy(status = SupplierStatus.INACTIVE)).toDTO()) }
-            ?:run { HttpResponse.notFound()}
+            ?.let { HttpResponse.ok(supplierService.saveAndPushToKafka (
+                supplier = it.copy(status = SupplierStatus.INACTIVE),
+                isUpdate = true)
+            )} ?:run { HttpResponse.notFound()}
 
 }

@@ -5,18 +5,27 @@ import io.micronaut.cache.annotation.CacheInvalidate
 import io.micronaut.cache.annotation.Cacheable
 import jakarta.inject.Singleton
 import java.util.*
+import javax.transaction.Transactional
 
 @Singleton
 @CacheConfig("suppliers")
-open class SupplierService(private val supplierRepository: SupplierRepository) {
+open class SupplierService(private val supplierRepository: SupplierRepository,
+                           private val supplierRegistrationHandler: SupplierRegistrationHandler) {
 
     @Cacheable
-    open suspend fun findById(id: UUID): SupplierRegistration? = supplierRepository.findById(id)
+    open suspend fun findById(id: UUID): SupplierRegistrationDTO? = supplierRepository.findById(id)?.toDTO()
 
     @CacheInvalidate(parameters = ["id"])
-    open suspend fun update(supplierRegistration: SupplierRegistration, id: UUID = supplierRegistration.id) = supplierRepository.update(supplierRegistration)
+    open suspend fun update(dto: SupplierRegistrationDTO, id: UUID = dto.id) = supplierRepository.update(dto.toEntity()).toDTO()
 
     @CacheInvalidate(parameters = ["id"])
-    open suspend fun save(supplierRegistration: SupplierRegistration, id: UUID = supplierRegistration.id) = supplierRepository.save(supplierRegistration)
+    open suspend fun save(dto: SupplierRegistrationDTO, id: UUID = dto.id) = supplierRepository.save(dto.toEntity()).toDTO()
+
+    @Transactional
+    open suspend fun saveAndPushToKafka(supplier: SupplierRegistrationDTO, isUpdate: Boolean): SupplierRegistrationDTO {
+        val saved = if (isUpdate) update(supplier) else save(supplier)
+        supplierRegistrationHandler.pushToRapidIfNotDraft(saved)
+        return saved
+    }
 
 }
