@@ -7,8 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import no.nav.hm.grunndata.rapid.dto.SupplierInfo
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.Supplier
-import no.nav.hm.grunndata.register.supplier.SupplierRepository
+import no.nav.hm.grunndata.register.supplier.SupplierRegistration
 import no.nav.hm.grunndata.register.supplier.SupplierService
 import org.junit.jupiter.api.Test
 
@@ -18,8 +17,8 @@ class UserRepositoryTest(private val userRepository: UserRepository, private val
     @Test
     fun testUserCrud() {
         runBlocking {
-            val testSupplier = supplierService.save(
-                Supplier(
+            val testSupplierRegistration = supplierService.save(
+                SupplierRegistration(
                     info = SupplierInfo(
                         email = "supplier1@test.test",
                         address = "address 1",
@@ -37,7 +36,7 @@ class UserRepositoryTest(private val userRepository: UserRepository, private val
                     email = "user@name.com",
                     token = "token123",
                     roles = listOf(Roles.ROLE_SUPPLIER),
-                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier.id.toString()))
+                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplierRegistration.id.toString()))
                 )
             )
             val db = userRepository.findByEmail("user@name.com")

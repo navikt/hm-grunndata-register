@@ -11,18 +11,15 @@ import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.Supplier
-import no.nav.hm.grunndata.register.supplier.SupplierRepository
+import no.nav.hm.grunndata.register.supplier.SupplierRegistration
 import no.nav.hm.grunndata.register.supplier.SupplierService
-import no.nav.hm.grunndata.register.supplier.toDTO
+import no.nav.hm.grunndata.register.supplier.toRapidDTO
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserAttribute
 import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.testcontainers.shaded.org.bouncycastle.asn1.x500.style.RFC4519Style.title
-import java.awt.SystemColor.text
 import java.time.LocalDateTime
 import java.util.*
 
@@ -48,7 +45,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         val name2 = UUID.randomUUID().toString()
         runBlocking {
             testSupplier = supplierService.save(
-                Supplier(
+                SupplierRegistration(
                     id = supplierId,
                     info = SupplierInfo(
                         address = "address 3",
@@ -59,9 +56,9 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                     identifier =  name1,
                     name =  name1
                 )
-            ).toDTO()
+            ).toRapidDTO()
             testSupplier2 = supplierService.save(
-                Supplier(
+                SupplierRegistration(
                     id = supplierId2,
                     info = SupplierInfo(
                     address = "address 4",
@@ -71,7 +68,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                 ),
                 identifier = name2,
                 name = name2
-            )).toDTO()
+            )).toRapidDTO()
             userRepository.createUser(
                 User(
                     email = email, token = password, name = "User tester", roles = listOf(Roles.ROLE_SUPPLIER),

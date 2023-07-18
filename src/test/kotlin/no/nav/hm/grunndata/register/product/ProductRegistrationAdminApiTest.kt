@@ -12,9 +12,9 @@ import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.Supplier
+import no.nav.hm.grunndata.register.supplier.SupplierRegistration
 import no.nav.hm.grunndata.register.supplier.SupplierService
-import no.nav.hm.grunndata.register.supplier.toDTO
+import no.nav.hm.grunndata.register.supplier.toRapidDTO
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
@@ -42,7 +42,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
     fun createUserSupplier() {
         runBlocking {
             testSupplier = supplierService.save(
-                Supplier(
+                SupplierRegistration(
                     id = supplierId,
                     info = SupplierInfo(
                         address = "address 4",
@@ -53,7 +53,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
                     identifier = "supplier4-unique-name",
                     name = "Supplier AS4",
                 )
-            ).toDTO()
+            ).toRapidDTO()
             userRepository.createUser(
                 User(
                     email = email, token = password, name = "User tester", roles = listOf(Roles.ROLE_ADMIN)

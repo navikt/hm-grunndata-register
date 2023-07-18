@@ -14,8 +14,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.SupplierInfo
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.Supplier
-import no.nav.hm.grunndata.register.supplier.SupplierRepository
+import no.nav.hm.grunndata.register.supplier.SupplierRegistration
 import no.nav.hm.grunndata.register.supplier.SupplierService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -42,8 +41,8 @@ class UserControllerTest(private val userRepository: UserRepository,
     @BeforeEach
     fun createUserSupplier() {
         runBlocking {
-            val testSupplier = supplierService.save(
-                Supplier(
+            val testSupplierRegistration = supplierService.save(
+                SupplierRegistration(
                     info = SupplierInfo(
                         email = "supplier@test.test",
                         address = "address 1",
@@ -58,10 +57,10 @@ class UserControllerTest(private val userRepository: UserRepository,
             val user = User(
                 email = email, token = token,
                 name = "User tester", roles = listOf(Roles.ROLE_SUPPLIER),
-                attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier.id.toString()))
+                attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplierRegistration.id.toString()))
             )
             userRepository.createUser(user)
-            LOG.info("created supplier: ${objectMapper.writeValueAsString(testSupplier)}")
+            LOG.info("created supplier: ${objectMapper.writeValueAsString(testSupplierRegistration)}")
             LOG.info("created user: ${objectMapper.writeValueAsString(user)}")
         }
     }

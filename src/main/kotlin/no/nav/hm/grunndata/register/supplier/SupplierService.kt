@@ -11,12 +11,12 @@ import java.util.*
 open class SupplierService(private val supplierRepository: SupplierRepository) {
 
     @Cacheable
-    open suspend fun findById(id: UUID): Supplier? = supplierRepository.findById(id)
+    open suspend fun findById(id: UUID): SupplierRegistration? = supplierRepository.findById(id)
 
     @CacheInvalidate(parameters = ["id"])
-    open suspend fun update(supplier: Supplier, id: UUID = supplier.id) = supplierRepository.update(supplier)
+    open suspend fun update(supplierRegistration: SupplierRegistration, id: UUID = supplierRegistration.id) = supplierRepository.update(supplierRegistration)
 
     @CacheInvalidate(parameters = ["id"])
-    open suspend fun save(supplier: Supplier, id: UUID = supplier.id) = supplierRepository.save(supplier)
+    open suspend fun save(supplierRegistration: SupplierRegistration, id: UUID = supplierRegistration.id) = supplierRepository.save(supplierRegistration)
 
 }

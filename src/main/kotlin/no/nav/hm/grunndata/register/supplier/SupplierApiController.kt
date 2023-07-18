@@ -26,7 +26,7 @@ class SupplierApiController(private val supplierService: SupplierService) {
     @Get("/")
     suspend fun getById(authentication: Authentication): HttpResponse<SupplierDTO> =
         supplierService.findById(authentication.supplierId())?.let {
-            HttpResponse.ok(it.toDTO())
+            HttpResponse.ok(it.toRapidDTO())
         } ?: HttpResponse.notFound()
 
 
@@ -35,7 +35,7 @@ class SupplierApiController(private val supplierService: SupplierService) {
         supplierService.findById(authentication.supplierId())
             ?.let { HttpResponse.ok(supplierService.update(supplier.toEntity()
                 // supplier can not change its status
-                .copy(status = it.status, created = it.created, identifier = it.identifier, updated = LocalDateTime.now())).toDTO()) }
+                .copy(status = it.status, created = it.created, identifier = it.identifier, updated = LocalDateTime.now())).toRapidDTO()) }
             ?:run { HttpResponse.notFound() }
 
 }

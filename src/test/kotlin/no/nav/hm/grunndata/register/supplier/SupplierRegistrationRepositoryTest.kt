@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test
 import java.util.*
 
 @MicronautTest
-class SupplierRepositoryTest(private val supplierService: SupplierService) {
+class SupplierRegistrationRepositoryTest(private val supplierService: SupplierService) {
 
     @Test
     fun crudSupplierTest() {
         val name = "Leverandør AS ${UUID.randomUUID()}"
-        val supplier = Supplier(
+        val supplierRegistration = SupplierRegistration(
             name = name,
             info = SupplierInfo(
                 address = "veien 1",
@@ -24,9 +24,9 @@ class SupplierRepositoryTest(private val supplierService: SupplierService) {
                 email = "email@email.com"),
             identifier = name)
         runBlocking {
-            val saved = supplierService.save(supplier)
+            val saved = supplierService.save(supplierRegistration)
             saved.shouldNotBeNull()
-            saved.id shouldBe supplier.id
+            saved.id shouldBe supplierRegistration.id
             val inDb = supplierService.findById(saved.id)
             inDb.shouldNotBeNull()
             inDb.name shouldBe name

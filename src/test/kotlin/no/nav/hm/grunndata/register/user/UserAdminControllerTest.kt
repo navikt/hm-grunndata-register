@@ -10,10 +10,9 @@ import no.nav.hm.grunndata.rapid.dto.SupplierDTO
 import no.nav.hm.grunndata.rapid.dto.SupplierInfo
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.Supplier
-import no.nav.hm.grunndata.register.supplier.SupplierRepository
+import no.nav.hm.grunndata.register.supplier.SupplierRegistration
 import no.nav.hm.grunndata.register.supplier.SupplierService
-import no.nav.hm.grunndata.register.supplier.toDTO
+import no.nav.hm.grunndata.register.supplier.toRapidDTO
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -40,7 +39,7 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
     fun createAdminUser() {
         runBlocking {
             testSupplier = supplierService.save(
-                Supplier(
+                SupplierRegistration(
                     id = supplierId,
                     info = SupplierInfo(
                         address = "address 4",
@@ -51,7 +50,7 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
                     identifier = "supplier5-unique-name",
                     name = "Supplier AS5",
                 )
-            ).toDTO()
+            ).toRapidDTO()
             userRepository.createUser(
                 User(
                     email = adminEmail, token = password, name = "Admin tester", roles = listOf(Roles.ROLE_ADMIN)

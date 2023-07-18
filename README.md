@@ -50,13 +50,31 @@ VALUES (gen_random_uuid(), 'admin', 'admin@test.test', '["ROLE_ADMIN"]','{}', cr
 
 ```
 
+Login to get JWT Token:
 ```
 curl -v -X POST -H "Content-type: application/json" -d '{"username":"admin@test.test", "password":"test123"}' http://localhost:8080/login
-
 ```
-This will give you the JWT cookie in the header to use for authentication.
 
-Create another user in localhost:
+export JWT token:
+``
+export JWT=<copy and paste from the previous command>
+``
+
+Create a supplier in the local database:
+```
+curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" -d '{
+  "name": "Supplier AS",
+  "info": {
+    "address": "address 1",
+    "email": "supplier@test.test",
+    "phone": "+47 12345678",
+    "homepage": "https://www.hompage.no"
+  }
+}' http://localhost:8080/api/v1/admin/supplier/registrations
+```
+
+
+Create a supplier user in the local database:
 ```
  curl -v -X POST -H "Content-type: application/json" --cookie "JWT=<jwttokenhere>" -d '{
   "name" : "User tester",
@@ -82,3 +100,7 @@ Update the draft:
 ```
 curl -v -X PUT -H "Content-type: application/json" --cookie "JWT=<jwttokenhere>" -d '<json_here>' http://localhost:8080/api/v1/admin/product/registrations/<uuid>
 ```
+
+## Openapi is also available here:
+
+http://localhost:8080/swagger-ui
