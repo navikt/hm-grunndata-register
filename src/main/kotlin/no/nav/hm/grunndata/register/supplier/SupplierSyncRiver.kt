@@ -8,7 +8,9 @@ import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.KafkaRapid
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierDTO
+import no.nav.hm.grunndata.rapid.dto.SupplierInfo
 import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
@@ -39,12 +41,27 @@ class SupplierSyncRiver(river: RiverHead,
         val version = packet["dtoVersion"].asLong()
         val dto = objectMapper.treeToValue(packet["payload"], SupplierDTO::class.java)
         if (version > rapidDTOVersion) LOG.warn("Old dto version detected, please update to $version")
-        val supplier = dto.toEntity()
         runBlocking {
-            supplierService.findById(supplier.id)?.let { inDb ->
-                supplierService.update(supplier.copy(created = inDb.created)) } ?: supplierService.save(supplier)
-            LOG.info("supplier ${supplier.id} with eventId $eventId synced from HMDB")
+            supplierService.findById(dto.id)?.let { inDb ->
+
+                supplierService.update(inDb.copy(
+                    status = dto.status, name = dto.name, supplierData  = dto.info.toSupplierData(),
+                    updated = dto.updated, updatedBy = dto.updatedBy, updatedByUser = RapidApp.grunndata_db
+                )) } ?: supplierService.save(
+                    SupplierRegistration(
+                        id = dto.id, status = dto.status, draftStatus = DraftStatus.DONE, name = dto.name,
+                        supplierData = dto.info.toSupplierData(), identifier = dto.identifier, created = dto.created,
+                        updated = dto.updated, createdBy = dto.createdBy, updatedBy = dto.updatedBy,
+                        updatedByUser = RapidApp.grunndata_db, createdByUser = RapidApp.grunndata_db
+                    )
+                )
+            LOG.info("supplier ${dto.id} with eventId $eventId synced from HMDB")
         }
     }
 
 }
+
+fun SupplierInfo.toSupplierData(): SupplierData = SupplierData(
+    address = address, postNr = postNr, postLocation = postLocation, countryCode = countryCode, email = email, phone = phone,
+    homepage = homepage
+)
