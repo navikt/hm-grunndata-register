@@ -22,30 +22,30 @@ class SupplierAdminApiController(private val supplierService: SupplierService) {
     }
 
     @Get("/{id}")
-    suspend fun getById(id: UUID): HttpResponse<SupplierDTO> = supplierService.findById(id)?.let {
-            HttpResponse.ok(it.toRapidDTO()) } ?: HttpResponse.notFound()
+    suspend fun getById(id: UUID): HttpResponse<SupplierRegistrationDTO> = supplierService.findById(id)?.let {
+            HttpResponse.ok(it.toDTO()) } ?: HttpResponse.notFound()
 
     @Post("/")
-    suspend fun createSupplier(@Body supplier: SupplierDTO): HttpResponse<SupplierDTO> =
+    suspend fun createSupplier(@Body supplier: SupplierRegistrationDTO): HttpResponse<SupplierRegistrationDTO> =
         supplierService.findById(supplier.id)
             ?.let { throw BadRequestException("supplier ${supplier.id} already exists") }
             ?:run { val saved = supplierService.save(supplier.toEntity())
                 LOG.info("supplier ${saved.id} created")
-                HttpResponse.created(saved.toRapidDTO())
+                HttpResponse.created(saved.toDTO())
             }
 
     @Put("/{id}")
-    suspend fun updateSupplier(@Body supplier: SupplierDTO, id: UUID): HttpResponse<SupplierDTO> =
+    suspend fun updateSupplier(@Body supplier: SupplierRegistrationDTO, id: UUID): HttpResponse<SupplierRegistrationDTO> =
         supplierService.findById(id)
             ?.let { HttpResponse.ok(supplierService.update(supplier.toEntity()
                 //identifier can not be changed during migration
-                .copy(created = it.created, identifier = it.identifier, updated = LocalDateTime.now())).toRapidDTO()) }
+                .copy(created = it.created, identifier = it.identifier, updated = LocalDateTime.now())).toDTO()) }
             ?:run { HttpResponse.notFound() }
 
     @Delete("/{id}")
-    suspend fun deactivateSupplier(id: UUID): HttpResponse<SupplierDTO> =
+    suspend fun deactivateSupplier(id: UUID): HttpResponse<SupplierRegistrationDTO> =
         supplierService.findById(id)
-            ?.let { HttpResponse.ok(supplierService.update(it.copy(status = SupplierStatus.INACTIVE)).toRapidDTO()) }
+            ?.let { HttpResponse.ok(supplierService.update(it.copy(status = SupplierStatus.INACTIVE)).toDTO()) }
             ?:run { HttpResponse.notFound()}
 
 }
