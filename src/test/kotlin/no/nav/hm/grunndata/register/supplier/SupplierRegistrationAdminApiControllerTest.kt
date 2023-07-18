@@ -12,10 +12,8 @@ import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierDTO
-import no.nav.hm.grunndata.rapid.dto.SupplierInfo
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.rapid.event.RapidApp
-import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierAdminApiController.Companion.API_V1_ADMIN_SUPPLIER_REGISTRATIONS
@@ -23,9 +21,7 @@ import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
 import java.util.*
-
 
 
 @MicronautTest
@@ -77,26 +73,21 @@ class SupplierRegistrationAdminApiControllerTest(private val supplierService: Su
     fun crudAPItest() {
         // login
         val jwt = loginClient.login(UsernamePasswordCredentials(email, token)).getCookie("JWT").get()
-        val supplier = SupplierDTO(
-            id = UUID.randomUUID(),
+        val supplier = SupplierRegistrationDTO(
             status = SupplierStatus.ACTIVE,
             name = "Leverandør AS",
-            info = SupplierInfo(
+            supplierData = SupplierData(
                 address = "veien 1",
                 homepage = "www.hjemmesiden.no",
                 phone = "+47 12345678",
                 email = "email@email.com",
             ),
-            identifier = "leverandor-as",
-            created = LocalDateTime.now(),
-            updated = LocalDateTime.now(),
-            createdBy = REGISTER,
-            updatedBy = REGISTER
+            identifier = "leverandor-as"
         )
         val respons = client.toBlocking().exchange(
             HttpRequest.POST(API_V1_ADMIN_SUPPLIER_REGISTRATIONS, supplier)
                 .accept(MediaType.APPLICATION_JSON)
-                .cookie(jwt), SupplierDTO::class.java
+                .cookie(jwt), SupplierRegistrationDTO::class.java
         )
         respons.shouldNotBeNull()
         respons.body.shouldNotBeNull()
