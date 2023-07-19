@@ -9,7 +9,7 @@ import javax.transaction.Transactional
 
 @Singleton
 open class AgreementRegistrationService(private val agreementRegistrationRepository: AgreementRegistrationRepository,
-                                        private val agreementRegstrationHandler: AgreementRegistrationHandler) {
+                                        private val agreementRegistrationHandler: AgreementRegistrationHandler) {
 
 
     open suspend fun findById(id: UUID): AgreementRegistrationDTO? = agreementRegistrationRepository.findById(id)?.toDTO()
@@ -23,7 +23,7 @@ open class AgreementRegistrationService(private val agreementRegistrationReposit
     @Transactional
     open suspend fun saveAndPushToRapid(dto: AgreementRegistrationDTO, isUpdate:Boolean): AgreementRegistrationDTO {
         val saved = if (isUpdate) update(dto) else save(dto)
-        agreementRegstrationHandler.pushToRapidIfNotDraft(dto)
+        agreementRegistrationHandler.pushToRapidIfNotDraft(dto)
         return saved
     }
 
