@@ -16,10 +16,12 @@ open class SupplierService(private val supplierRepository: SupplierRepository,
     open suspend fun findById(id: UUID): SupplierRegistrationDTO? = supplierRepository.findById(id)?.toDTO()
 
     @CacheInvalidate(parameters = ["id"])
-    open suspend fun update(dto: SupplierRegistrationDTO, id: UUID = dto.id) = supplierRepository.update(dto.toEntity()).toDTO()
+    open suspend fun update(dto: SupplierRegistrationDTO, id: UUID = dto.id) =
+        supplierRepository.update(dto.toEntity()).toDTO()
 
     @CacheInvalidate(parameters = ["id"])
-    open suspend fun save(dto: SupplierRegistrationDTO, id: UUID = dto.id) = supplierRepository.save(dto.toEntity()).toDTO()
+    open suspend fun save(dto: SupplierRegistrationDTO, id: UUID = dto.id) =
+        supplierRepository.save(dto.toEntity()).toDTO()
 
     @Transactional
     open suspend fun saveAndPushToKafka(supplier: SupplierRegistrationDTO, isUpdate: Boolean): SupplierRegistrationDTO {
