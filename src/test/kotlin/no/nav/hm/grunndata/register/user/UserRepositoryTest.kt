@@ -10,13 +10,13 @@ import io.mockk.mockk
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
-import no.nav.hm.grunndata.register.supplier.SupplierService
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
 import java.util.*
 
 @MicronautTest
-class UserRepositoryTest(private val userRepository: UserRepository, private val supplierService: SupplierService) {
+class UserRepositoryTest(private val userRepository: UserRepository, private val supplierRegistrationService: SupplierRegistrationService) {
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -24,7 +24,7 @@ class UserRepositoryTest(private val userRepository: UserRepository, private val
     @Test
     fun testUserCrud() {
         runBlocking {
-            val testSupplierRegistration = supplierService.save(
+            val testSupplierRegistration = supplierRegistrationService.save(
                 SupplierRegistrationDTO(
                     id = UUID.randomUUID(),
                     supplierData = SupplierData (

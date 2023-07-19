@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory
 @Requires(bean = KafkaRapid::class)
 class SupplierSyncRiver(river: RiverHead,
                         private val objectMapper: ObjectMapper,
-                        private val supplierService: SupplierService): River.PacketListener {
+                        private val supplierRegistrationService: SupplierRegistrationService): River.PacketListener {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(SupplierSyncRiver::class.java)
@@ -42,11 +42,11 @@ class SupplierSyncRiver(river: RiverHead,
         val dto = objectMapper.treeToValue(packet["payload"], SupplierDTO::class.java)
         if (version > rapidDTOVersion) LOG.warn("Old dto version detected, please update to $version")
         runBlocking {
-            supplierService.findById(dto.id)?.let { inDb ->
-                supplierService.update(inDb.copy(
+            supplierRegistrationService.findById(dto.id)?.let { inDb ->
+                supplierRegistrationService.update(inDb.copy(
                     status = dto.status, name = dto.name, supplierData  = dto.info.toSupplierData(),
                     updated = dto.updated, updatedBy = dto.updatedBy, updatedByUser = RapidApp.grunndata_db
-                )) } ?: supplierService.save(
+                )) } ?: supplierRegistrationService.save(
                     SupplierRegistrationDTO(
                         id = dto.id, status = dto.status, draftStatus = DraftStatus.DONE, name = dto.name,
                         supplierData = dto.info.toSupplierData(), identifier = dto.identifier, created = dto.created,

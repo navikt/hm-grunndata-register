@@ -9,7 +9,6 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
-import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
@@ -27,7 +26,7 @@ import java.util.*
 class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationApiClient,
                                  private val loginClient: LoginClient,
                                  private val userRepository: UserRepository,
-                                 private val supplierService: SupplierService) {
+                                 private val supplierRegistrationService: SupplierRegistrationService) {
 
     val email = "api@test.test"
     val password = "api-123"
@@ -44,7 +43,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         val name1 = UUID.randomUUID().toString()
         val name2 = UUID.randomUUID().toString()
         runBlocking {
-            testSupplier = supplierService.save(
+            testSupplier = supplierRegistrationService.save(
                 SupplierRegistrationDTO(
                     id = supplierId,
                     supplierData = SupplierData(
@@ -57,7 +56,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                     name =  name1,
                 )
             ).toRapidDTO()
-            testSupplier2 = supplierService.save(
+            testSupplier2 = supplierRegistrationService.save(
                 SupplierRegistrationDTO(
                     id = supplierId2,
                     supplierData = SupplierData(

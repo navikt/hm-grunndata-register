@@ -33,7 +33,7 @@ open class ProductRegistrationService(private val productRegistrationRepository:
     open suspend fun findByIdAndSupplierId(id: UUID, supplierId: UUID) = productRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.toDTO()
 
     @Transactional
-    open suspend fun saveAndPushToKafka(dto: ProductRegistrationDTO, isUpdate: Boolean): ProductRegistrationDTO {
+    open suspend fun saveAndPushToRapid(dto: ProductRegistrationDTO, isUpdate: Boolean): ProductRegistrationDTO {
 
         val saved = if (isUpdate) update(dto) else save(dto)
         productRegistrationHandler.pushToRapidIfNotDraft(saved)

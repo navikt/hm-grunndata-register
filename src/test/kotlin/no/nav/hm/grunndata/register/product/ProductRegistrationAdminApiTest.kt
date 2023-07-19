@@ -25,7 +25,7 @@ import java.util.*
 class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrationAdminApiClient,
                                       private val loginClient: LoginClient,
                                       private val userRepository: UserRepository,
-                                      private val supplierService: SupplierService,
+                                      private val supplierRegistrationService: SupplierRegistrationService,
                                       private val objectMapper: ObjectMapper) {
 
     val email = "ProductRegistrationAdminApiTest@test.test"
@@ -39,7 +39,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
     @BeforeEach
     fun createUserSupplier() {
         runBlocking {
-            testSupplier = supplierService.save(
+            testSupplier = supplierRegistrationService.save(
                 SupplierRegistrationDTO(
                     id = supplierId,
                     supplierData = SupplierData(

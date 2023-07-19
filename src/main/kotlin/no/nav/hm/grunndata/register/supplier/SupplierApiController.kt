@@ -15,7 +15,7 @@ import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SupplierApiController.API_V1_SUPPLIER_REGISTRATIONS)
-class SupplierApiController(private val supplierService: SupplierService) {
+class SupplierApiController(private val supplierRegistrationService: SupplierRegistrationService) {
 
     companion object {
         const val API_V1_SUPPLIER_REGISTRATIONS = "/api/v1/supplier/registrations"
@@ -24,7 +24,7 @@ class SupplierApiController(private val supplierService: SupplierService) {
 
     @Get("/")
     suspend fun getById(authentication: Authentication): HttpResponse<SupplierRegistrationDTO> {
-        return supplierService.findById(authentication.supplierId())?.let {
+        return supplierRegistrationService.findById(authentication.supplierId())?.let {
             HttpResponse.ok(it)
         } ?: HttpResponse.notFound()
     }
@@ -36,8 +36,8 @@ class SupplierApiController(private val supplierService: SupplierService) {
             LOG.error("user made an unauthorized request for supplier ${supplier.id}")
             return HttpResponse.unauthorized()
         }
-        return supplierService.findById(authentication.supplierId())
-            ?.let { inDb -> HttpResponse.ok(supplierService.saveAndPushToKafka(
+        return supplierRegistrationService.findById(authentication.supplierId())
+            ?.let { inDb -> HttpResponse.ok(supplierRegistrationService.saveAndPushToRapid(
                 supplier.copy(
                     status = inDb.status, created = inDb.created, identifier = inDb.identifier,
                     updated = LocalDateTime.now()), isUpdate = true))

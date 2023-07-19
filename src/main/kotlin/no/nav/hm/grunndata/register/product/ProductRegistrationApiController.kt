@@ -67,7 +67,7 @@ class ProductRegistrationApiController(private val productRegistrationService: P
             productRegistrationService.findById(registrationDTO.id)?.let {
                 throw BadRequestException("Product registration already exists ${registrationDTO.id}")
             } ?: run {
-                val dto = productRegistrationService.saveAndPushToKafka(registrationDTO
+                val dto = productRegistrationService.saveAndPushToRapid(registrationDTO
                     .copy(updatedByUser =  authentication.name, createdByUser = authentication.name,
                         created = LocalDateTime.now(), updated = LocalDateTime.now()), isUpdate = false)
                 HttpResponse.created(dto)
@@ -79,7 +79,7 @@ class ProductRegistrationApiController(private val productRegistrationService: P
         if (registrationDTO.supplierId != authentication.supplierId()) HttpResponse.unauthorized()
         else productRegistrationService.findByIdAndSupplierId(id, registrationDTO.supplierId)
                 ?.let { inDb ->
-                    val dto = productRegistrationService.saveAndPushToKafka(registrationDTO
+                    val dto = productRegistrationService.saveAndPushToRapid(registrationDTO
                         .copy(id = inDb.id, created = inDb.created,
                             updatedBy = REGISTER, updatedByUser = authentication.name, createdByUser = inDb.createdByUser,
                             createdBy = inDb.createdBy, createdByAdmin = inDb.createdByAdmin, adminStatus = inDb.adminStatus,
@@ -92,7 +92,7 @@ class ProductRegistrationApiController(private val productRegistrationService: P
     suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
             ?.let {
-                val deleteDTO = productRegistrationService.saveAndPushToKafka(it
+                val deleteDTO = productRegistrationService.saveAndPushToRapid(it
                     .copy(registrationStatus = RegistrationStatus.DELETED, updatedByUser = authentication.name), isUpdate = true)
                 HttpResponse.ok(deleteDTO)
             } ?: HttpResponse.notFound()

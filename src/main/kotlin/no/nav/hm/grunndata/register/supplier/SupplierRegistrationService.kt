@@ -9,8 +9,8 @@ import javax.transaction.Transactional
 
 @Singleton
 @CacheConfig("suppliers")
-open class SupplierService(private val supplierRepository: SupplierRepository,
-                           private val supplierRegistrationHandler: SupplierRegistrationHandler) {
+open class SupplierRegistrationService(private val supplierRepository: SupplierRepository,
+                                       private val supplierRegistrationHandler: SupplierRegistrationHandler) {
 
     @Cacheable
     open suspend fun findById(id: UUID): SupplierRegistrationDTO? = supplierRepository.findById(id)?.toDTO()
@@ -24,7 +24,7 @@ open class SupplierService(private val supplierRepository: SupplierRepository,
         supplierRepository.save(dto.toEntity()).toDTO()
 
     @Transactional
-    open suspend fun saveAndPushToKafka(supplier: SupplierRegistrationDTO, isUpdate: Boolean): SupplierRegistrationDTO {
+    open suspend fun saveAndPushToRapid(supplier: SupplierRegistrationDTO, isUpdate: Boolean): SupplierRegistrationDTO {
         val saved = if (isUpdate) update(supplier) else save(supplier)
         supplierRegistrationHandler.pushToRapidIfNotDraft(saved)
         return saved

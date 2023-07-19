@@ -14,7 +14,7 @@ import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(API_V1_ADMIN_SUPPLIER_REGISTRATIONS)
-class SupplierAdminApiController(private val supplierService: SupplierService,
+class SupplierAdminApiController(private val supplierRegistrationService: SupplierRegistrationService,
                                  private val supplierRegistrationHandler: SupplierRegistrationHandler) {
 
     companion object {
@@ -23,22 +23,22 @@ class SupplierAdminApiController(private val supplierService: SupplierService,
     }
 
     @Get("/{id}")
-    suspend fun getById(id: UUID, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> = supplierService.findById(id)?.let {
+    suspend fun getById(id: UUID, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> = supplierRegistrationService.findById(id)?.let {
             HttpResponse.ok(it) } ?: HttpResponse.notFound()
 
     @Post("/")
     suspend fun createSupplier(@Body supplier: SupplierRegistrationDTO, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
-        supplierService.findById(supplier.id)
+        supplierRegistrationService.findById(supplier.id)
             ?.let { throw BadRequestException("supplier ${supplier.id} already exists") }
-            ?:run { val saved = supplierService.saveAndPushToKafka(supplier.copy(
+            ?:run { val saved = supplierRegistrationService.saveAndPushToRapid(supplier.copy(
                 updatedByUser = authentication.name, createdByUser = authentication.name), isUpdate = false)
                 HttpResponse.created(saved)
             }
 
     @Put("/{id}")
     suspend fun updateSupplier(@Body supplier: SupplierRegistrationDTO, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
-        supplierService.findById(supplier.id)
-            ?.let { inDb -> HttpResponse.ok(supplierService.saveAndPushToKafka(
+        supplierRegistrationService.findById(supplier.id)
+            ?.let { inDb -> HttpResponse.ok(supplierRegistrationService.saveAndPushToRapid(
                 supplier = supplier.copy(created = inDb.created, identifier = inDb.identifier,
                     createdByUser = inDb.createdByUser, updated = LocalDateTime.now(), updatedByUser = authentication.name),
                 isUpdate = true )
@@ -46,8 +46,8 @@ class SupplierAdminApiController(private val supplierService: SupplierService,
 
     @Delete("/{id}")
     suspend fun deactivateSupplier(id: UUID, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
-        supplierService.findById(id)
-            ?.let { inDb -> HttpResponse.ok(supplierService.saveAndPushToKafka (
+        supplierRegistrationService.findById(id)
+            ?.let { inDb -> HttpResponse.ok(supplierRegistrationService.saveAndPushToRapid (
                 supplier = inDb.copy(status = SupplierStatus.INACTIVE),
                 isUpdate = true)
             )} ?:run { HttpResponse.notFound()}

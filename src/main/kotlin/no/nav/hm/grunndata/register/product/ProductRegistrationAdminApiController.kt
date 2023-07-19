@@ -14,7 +14,7 @@ import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.SupplierService
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
@@ -22,7 +22,7 @@ import java.util.*
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
 class ProductRegistrationAdminApiController(private val productRegistrationService: ProductRegistrationService,
-                                            private val supplierService: SupplierService) {
+                                            private val supplierRegistrationService: SupplierRegistrationService) {
 
     companion object {
         const val API_V1_ADMIN_PRODUCT_REGISTRATIONS = "/api/v1/admin/product/registrations"
@@ -60,7 +60,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
     suspend fun draftProduct(supplierId: UUID, supplierRef: String, authentication: Authentication,
                              @QueryValue(defaultValue = "false") isAccessory: Boolean,
                              @QueryValue(defaultValue = "false") isSparePart: Boolean): HttpResponse<ProductRegistrationDTO> =
-        supplierService.findById(supplierId)?.let {
+        supplierRegistrationService.findById(supplierId)?.let {
             if (productRegistrationService.findBySupplierIdAndSupplierRef(supplierId, supplierRef)!=null) {
                 throw BadRequestException("$supplierId and $supplierRef duplicate error")
             }
@@ -100,7 +100,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
         productRegistrationService.findById(registrationDTO.id)?.let {
                 throw BadRequestException("Product registration already exists ${registrationDTO.id}")
             } ?: run {
-                val dto = productRegistrationService.saveAndPushToKafka(registrationDTO
+                val dto = productRegistrationService.saveAndPushToRapid(registrationDTO
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name, createdByAdmin = true,
                         created = LocalDateTime.now(), updated = LocalDateTime.now()), isUpdate = false)
                 HttpResponse.created(dto)
@@ -119,7 +119,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = inDb.createdBy,
                         createdByAdmin = inDb.createdByAdmin, updated = LocalDateTime.now()
                     )
-                    val dto = productRegistrationService.saveAndPushToKafka(updated, isUpdate = true)
+                    val dto = productRegistrationService.saveAndPushToRapid(updated, isUpdate = true)
                     HttpResponse.ok(dto) }
                 ?: run {
                     throw BadRequestException("Product registration already exists $id") }
@@ -128,7 +128,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
     suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findById(id)
             ?.let {
-                val dto = productRegistrationService.saveAndPushToKafka(it.copy(registrationStatus= RegistrationStatus.DELETED), isUpdate = true)
+                val dto = productRegistrationService.saveAndPushToRapid(it.copy(registrationStatus= RegistrationStatus.DELETED), isUpdate = true)
                 HttpResponse.ok(dto)}
             ?: HttpResponse.notFound()
 

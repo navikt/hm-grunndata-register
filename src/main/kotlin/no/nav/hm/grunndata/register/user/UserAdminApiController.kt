@@ -8,14 +8,9 @@ import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
-import io.swagger.v3.oas.annotations.security.SecurityRequirement
-import io.swagger.v3.oas.annotations.security.SecurityScheme
 import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.SupplierRepository
-import no.nav.hm.grunndata.register.supplier.SupplierService
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.user.UserAdminApiController.Companion.API_V1_ADMIN_USER_REGISTRATIONS
 import no.nav.hm.grunndata.register.user.UserAttribute.SUPPLIER_ID
 import org.slf4j.LoggerFactory
@@ -25,7 +20,7 @@ import java.util.*
 @Secured(Roles.ROLE_ADMIN)
 @Controller(API_V1_ADMIN_USER_REGISTRATIONS)
 class UserAdminApiController(private val userRepository: UserRepository,
-                             private val supplierService: SupplierService
+                             private val supplierRegistrationService: SupplierRegistrationService
 ) {
 
     companion object {
@@ -55,7 +50,7 @@ class UserAdminApiController(private val userRepository: UserRepository,
         LOG.info("Creating user ${dto.id} ")
         if (dto.attributes.containsKey(SUPPLIER_ID)) {
             val supplierId = UUID.fromString(dto.attributes[SUPPLIER_ID])
-            supplierService.findById(supplierId) ?: throw BadRequestException("Unknown supplier id $supplierId")
+            supplierRegistrationService.findById(supplierId) ?: throw BadRequestException("Unknown supplier id $supplierId")
         }
         val entity = User(
             id = dto.id, name = dto.name, email = dto.email, token = dto.password, roles = dto.roles,

@@ -13,7 +13,6 @@ import io.mockk.mockk
 import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.SupplierDTO
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.security.LoginClient
@@ -28,7 +27,7 @@ import java.util.*
 
 
 @MicronautTest
-class SupplierRegistrationAdminApiControllerTest(private val supplierService: SupplierService,
+class SupplierRegistrationAdminApiControllerTest(private val supplierRegistrationService: SupplierRegistrationService,
                                                  private val userRepository: UserRepository,
                                                  private val loginClient: LoginClient) {
 
@@ -45,7 +44,7 @@ class SupplierRegistrationAdminApiControllerTest(private val supplierService: Su
     @BeforeEach
     fun createUserSupplier() {
         runBlocking {
-            val testSupplierRegistration = supplierService.save(
+            val testSupplierRegistration = supplierRegistrationService.save(
                 SupplierRegistrationDTO(
                     id = UUID.randomUUID(),
                     supplierData = SupplierData(

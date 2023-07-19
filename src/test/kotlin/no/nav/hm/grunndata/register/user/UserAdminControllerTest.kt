@@ -24,7 +24,7 @@ import java.util.*
 class UserAdminControllerTest(private val userRepository: UserRepository,
                               private val loginClient: LoginClient,
                               private val userAdminApiClient: UserAdminApiClient,
-                              private val supplierService: SupplierService) {
+                              private val supplierRegistrationService: SupplierRegistrationService) {
 
     val adminEmail = "randomAdmin@test.test"
     val password = "test123"
@@ -42,7 +42,7 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
     @BeforeEach
     fun createAdminUser() {
         runBlocking {
-            testSupplier = supplierService.save(
+            testSupplier = supplierRegistrationService.save(
                 SupplierRegistrationDTO(
                     id = supplierId,
                     supplierData = SupplierData (

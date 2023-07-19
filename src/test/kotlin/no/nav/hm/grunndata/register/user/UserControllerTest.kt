@@ -17,7 +17,7 @@ import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
-import no.nav.hm.grunndata.register.supplier.SupplierService
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -26,7 +26,7 @@ import java.util.*
 
 @MicronautTest
 class UserControllerTest(private val userRepository: UserRepository,
-                         private val supplierService: SupplierService,
+                         private val supplierRegistrationService: SupplierRegistrationService,
                          private val loginClient: LoginClient,
                          private val objectMapper: ObjectMapper) {
 
@@ -47,7 +47,7 @@ class UserControllerTest(private val userRepository: UserRepository,
     @BeforeEach
     fun createUserSupplier() {
         runBlocking {
-            val testSupplierRegistration = supplierService.save(
+            val testSupplierRegistration = supplierRegistrationService.save(
                 SupplierRegistrationDTO(
                     id = UUID.randomUUID(),
                     supplierData = SupplierData (

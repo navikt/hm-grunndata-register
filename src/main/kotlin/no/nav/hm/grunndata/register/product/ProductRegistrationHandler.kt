@@ -7,14 +7,13 @@ import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.RegisterRapidPushService
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.SupplierService
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.supplier.toRapidDTO
 import java.time.LocalDateTime
-import java.util.*
 
 @Singleton
 class ProductRegistrationHandler(private val registerRapidPushService: RegisterRapidPushService,
-                                 private val supplierService: SupplierService) {
+                                 private val supplierRegistrationService: SupplierRegistrationService) {
     fun pushToRapidIfNotDraft(dto: ProductRegistrationDTO) {
         runBlocking {
             if (dto.draftStatus == DraftStatus.DONE) {
@@ -43,7 +42,7 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
 
     private suspend fun ProductData.toProductDTO(registration: ProductRegistrationDTO): ProductRapidDTO = ProductRapidDTO (
         id = registration.id,
-        supplier = supplierService.findById(registration.supplierId)!!.toRapidDTO(),
+        supplier = supplierRegistrationService.findById(registration.supplierId)!!.toRapidDTO(),
         supplierRef = registration.supplierRef,
         title =  registration.title,
         articleName = registration.articleName,
