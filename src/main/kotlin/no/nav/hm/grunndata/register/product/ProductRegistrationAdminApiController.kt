@@ -21,9 +21,8 @@ import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
-class ProductRegistrationAdminApiController(private val productRegistrationRepository: ProductRegistrationRepository,
-                                            private val supplierService: SupplierService,
-                                            private val productRegistrationHandler: ProductRegistrationHandler) {
+class ProductRegistrationAdminApiController(private val productRegistrationService: ProductRegistrationService,
+                                            private val supplierService: SupplierService) {
 
     companion object {
         const val API_V1_ADMIN_PRODUCT_REGISTRATIONS = "/api/v1/admin/product/registrations"
@@ -33,30 +32,15 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
     @Get("/{?params*}")
     suspend fun findProducts(@QueryValue params: HashMap<String,String>?,
                              pageable: Pageable): Page<ProductRegistrationDTO> =
-        productRegistrationRepository.findAll(buildCriteriaSpec(params), pageable).map { it.toDTO() }
-
-
-    private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<ProductRegistration>?
-    = params?.let {
-        where {
-            if (params.contains("supplierRef")) root[ProductRegistration::supplierRef] eq params["supplierRef"]
-            if (params.contains("hmsArtNr")) root[ProductRegistration::hmsArtNr] eq params["hmsArtNr"]
-            if (params.contains("adminStatus")) root[ProductRegistration::adminStatus] eq AdminStatus.valueOf(params["adminStatus"]!!)
-            if (params.contains("supplierId"))  root[ProductRegistration::supplierId] eq UUID.fromString(params["supplierId"]!!)
-            if (params.contains("draft")) root[ProductRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
-            if (params.contains("createdByUser")) root[ProductRegistration::createdByUser] eq params["createdByUser"]
-            if (params.contains("updatedByUser")) root[ProductRegistration::updatedByUser] eq params["updatedByUser"]
-            if (params.contains("title")) criteriaBuilder.like(root[ProductRegistration::title], params["title"])
-        }
-    }
+        productRegistrationService.findAll(params, pageable)
 
 
 
     @Get("/{id}")
     suspend fun getProductById(id: UUID): HttpResponse<ProductRegistrationDTO> =
-        productRegistrationRepository.findById(id)
+        productRegistrationService.findById(id)
             ?.let {
-                HttpResponse.ok(it.toDTO()) }
+                HttpResponse.ok(it) }
             ?: HttpResponse.notFound()
 
     @Post("/draft/supplier/{supplierId}/reference/{supplierRef}{?isAccessory}{?isSparePart}")
@@ -64,7 +48,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                              @QueryValue(defaultValue = "false") isAccessory: Boolean,
                              @QueryValue(defaultValue = "false") isSparePart: Boolean): HttpResponse<ProductRegistrationDTO> =
         supplierService.findById(supplierId)?.let {
-            if (productRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)!=null) {
+            if (productRegistrationService.findBySupplierIdAndSupplierRef(supplierId, supplierRef)!=null) {
                 throw BadRequestException("$supplierId and $supplierRef duplicate error")
             }
             val productId = UUID.randomUUID()
@@ -94,19 +78,18 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
                 updatedByUser = authentication.name,
                 createdByAdmin = true,
                 version = 0)
-            HttpResponse.ok(productRegistrationRepository.save(registration.toEntity()).toDTO())
+            HttpResponse.ok(productRegistrationService.save(registration))
         } ?: throw BadRequestException("$supplierId does not exist")
 
 
     @Post("/")
     suspend fun createProduct(@Body registrationDTO: ProductRegistrationDTO, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
-            productRegistrationRepository.findById(registrationDTO.id)?.let {
+        productRegistrationService.findById(registrationDTO.id)?.let {
                 throw BadRequestException("Product registration already exists ${registrationDTO.id}")
             } ?: run {
-                val dto = productRegistrationRepository.save(registrationDTO
+                val dto = productRegistrationService.saveAndPushToKafka(registrationDTO
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name, createdByAdmin = true,
-                        created = LocalDateTime.now(), updated = LocalDateTime.now()).toEntity()).toDTO()
-                productRegistrationHandler.pushToRapidIfNotDraft(dto)
+                        created = LocalDateTime.now(), updated = LocalDateTime.now()), isUpdate = false)
                 HttpResponse.created(dto)
             }
 
@@ -116,33 +99,33 @@ class ProductRegistrationAdminApiController(private val productRegistrationRepos
     @Put("/{id}")
     suspend fun updateProduct(@Body registrationDTO: ProductRegistrationDTO, @PathVariable id: UUID, authentication: Authentication):
             HttpResponse<ProductRegistrationDTO> =
-        productRegistrationRepository.findById(id)
+        productRegistrationService.findById(id)
                 ?.let { inDb ->
                     val updated = registrationDTO.copy(
                         id = inDb.id, created = inDb.created,
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = inDb.createdBy,
                         createdByAdmin = inDb.createdByAdmin, updated = LocalDateTime.now()
                     )
-                    val dto = productRegistrationRepository.update(updated.toEntity()).toDTO()
-                    productRegistrationHandler.pushToRapidIfNotDraft(dto)
+                    val dto = productRegistrationService.saveAndPushToKafka(updated, isUpdate = true)
                     HttpResponse.ok(dto) }
                 ?: run {
                     throw BadRequestException("Product registration already exists $id") }
 
     @Delete("/{id}")
     suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
-        productRegistrationRepository.findById(id)
+        productRegistrationService.findById(id)
             ?.let {
-                val dto = productRegistrationRepository.update(it.copy(registrationStatus= RegistrationStatus.DELETED)).toDTO()
-                productRegistrationHandler.pushToRapidIfNotDraft(dto)
+                val dto = productRegistrationService.saveAndPushToKafka(it.copy(registrationStatus= RegistrationStatus.DELETED), isUpdate = true)
                 HttpResponse.ok(dto)}
             ?: HttpResponse.notFound()
 
 
     @Post("/draft/variant/{id}/reference/{supplierRef}")
     suspend fun createProductVariant(@PathVariable id:UUID, supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
-        return productRegistrationRepository.findById(id)?.let {
-            HttpResponse.ok(productRegistrationHandler.createProductVariant(it, supplierRef, authentication))
+        return productRegistrationService.createProductVariant(id, supplierRef,authentication)?.let {
+            HttpResponse.ok(it)
         } ?: HttpResponse.notFound()
     }
+
+
 }

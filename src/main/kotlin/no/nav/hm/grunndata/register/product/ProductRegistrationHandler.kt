@@ -77,26 +77,6 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
         else
             ProductStatus.ACTIVE
 
-    fun createProductVariant(registration: ProductRegistration, supplierRef: String, authentication: Authentication): ProductRegistrationDTO {
-        val productId = UUID.randomUUID()
-        return registration.toDTO().copy(
-            supplierRef = supplierRef,
-            id = productId,
-            draftStatus =  DraftStatus.DRAFT,
-            adminStatus = AdminStatus.PENDING,
-            registrationStatus = RegistrationStatus.ACTIVE,
-            message = null,
-            adminInfo = null,
-            created = LocalDateTime.now(),
-            updated = LocalDateTime.now(),
-            published = LocalDateTime.now(),
-            expired = LocalDateTime.now().plusYears(10),
-            updatedByUser = authentication.name,
-            createdByUser = authentication.name,
-            createdByAdmin = authentication.isAdmin(),
-        )
-    }
-
 }
 fun Authentication.isAdmin(): Boolean  = roles.contains(Roles.ROLE_ADMIN)
 
