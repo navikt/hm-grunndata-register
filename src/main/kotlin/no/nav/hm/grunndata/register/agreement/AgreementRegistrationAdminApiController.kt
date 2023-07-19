@@ -19,8 +19,7 @@ import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(AgreementRegistrationAdminApiController.API_V1_ADMIN_AGREEMENT_REGISTRATIONS)
-class AgreementRegistrationAdminApiController(private val agreementRegistrationRepository: AgreementRegistrationRepository,
-                                              private val agreementRegistrationHandler: AgreementRegistrationHandler) {
+class AgreementRegistrationAdminApiController(private val agreementRegistrationService: AgreementRegistrationService) {
 
     companion object {
         const val API_V1_ADMIN_AGREEMENT_REGISTRATIONS = "/api/v1/admin/agreement/registrations"
@@ -31,7 +30,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationR
     @Get("/{?params*}")
     suspend fun findAgreements(@QueryValue params: HashMap<String,String>?,
                              pageable: Pageable): Page<AgreementRegistrationDTO> =
-        agreementRegistrationRepository.findAll(buildCriteriaSpec(params), pageable).map { it.toDTO() }
+        agreementRegistrationService.findAll(buildCriteriaSpec(params), pageable)
 
 
     private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<AgreementRegistration>?
@@ -48,32 +47,29 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationR
 
     @Get("/{id}")
     suspend fun getAgreementById(id: UUID): HttpResponse<AgreementRegistrationDTO> =
-        agreementRegistrationRepository.findById(id)
+        agreementRegistrationService.findById(id)
             ?.let {
-                HttpResponse.ok(it.toDTO()) }
+                HttpResponse.ok(it) }
             ?: HttpResponse.notFound()
 
     @Post("/")
     suspend fun createAgreement(@Body registrationDTO: AgreementRegistrationDTO, authentication: Authentication): HttpResponse<AgreementRegistrationDTO> =
-            agreementRegistrationRepository.findById(registrationDTO.id)?.let {
+        agreementRegistrationService.findById(registrationDTO.id)?.let {
                 throw BadRequestException("agreement ${registrationDTO.id} already exists")
             } ?: run {
-                val dto = agreementRegistrationRepository.save(registrationDTO
-                    .copy(createdByUser = authentication.name, updatedByUser = authentication.name)
-                    .toEntity()).toDTO()
-                agreementRegistrationHandler.pushToRapidIfNotDraft(dto)
+                val dto = agreementRegistrationService.saveAndPushToRapid(registrationDTO
+                    .copy(createdByUser = authentication.name, updatedByUser = authentication.name), isUpdate = false)
                 HttpResponse.created(dto)
             }
 
     @Put("/{id}")
     suspend fun updateAgreement(@Body registrationDTO: AgreementRegistrationDTO, @PathVariable id: UUID, authentication: Authentication):
             HttpResponse<AgreementRegistrationDTO> =
-        agreementRegistrationRepository.findById(id)
+        agreementRegistrationService.findById(id)
                 ?.let { inDb ->
                     val updated = registrationDTO.copy(id = inDb.id, created = inDb.created, createdByUser = inDb.createdByUser,
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = inDb.createdBy)
-                    val dto = agreementRegistrationRepository.update(updated.toEntity()).toDTO()
-                    agreementRegistrationHandler.pushToRapidIfNotDraft(dto)
+                    val dto = agreementRegistrationService.saveAndPushToRapid(updated, isUpdate = true)
                     HttpResponse.ok(dto) }
                 ?: run {
                     throw BadRequestException("${registrationDTO.id} does not exists")}
