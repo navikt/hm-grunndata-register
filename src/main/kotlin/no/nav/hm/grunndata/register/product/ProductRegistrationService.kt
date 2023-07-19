@@ -3,8 +3,6 @@ package no.nav.hm.grunndata.register.product
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
-import io.micronaut.data.runtime.criteria.get
-import io.micronaut.data.runtime.criteria.where
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
@@ -25,12 +23,14 @@ class ProductRegistrationService(private val productRegistrationRepository: Prod
 
     open suspend fun update(dto: ProductRegistrationDTO) = productRegistrationRepository.update(dto.toEntity()).toDTO()
 
-    open suspend fun findAll(params: HashMap<String,String>?, pageable: Pageable): Page<ProductRegistrationDTO> =
-        productRegistrationRepository.findAll(buildCriteriaSpec(params), pageable).map { it.toDTO() }
+    open suspend fun findAll(spec: PredicateSpecification<ProductRegistration>?, pageable: Pageable): Page<ProductRegistrationDTO> =
+        productRegistrationRepository.findAll(spec, pageable).map { it.toDTO() }
 
 
     open suspend fun findBySupplierIdAndSupplierRef(supplierId: UUID, supplierRef: String) =
         productRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)?.toDTO()
+
+    open suspend fun findByIdAndSupplierId(supplierId: UUID, id: UUID) = productRegistrationRepository.findByIdAndSupplierId(id, supplierId)
 
     @Transactional
     open suspend fun saveAndPushToKafka(dto: ProductRegistrationDTO, isUpdate: Boolean): ProductRegistrationDTO {
@@ -40,19 +40,6 @@ class ProductRegistrationService(private val productRegistrationRepository: Prod
         return saved
     }
 
-    private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<ProductRegistration>?
-            = params?.let {
-        where {
-            if (params.contains("supplierRef")) root[ProductRegistration::supplierRef] eq params["supplierRef"]
-            if (params.contains("hmsArtNr")) root[ProductRegistration::hmsArtNr] eq params["hmsArtNr"]
-            if (params.contains("adminStatus")) root[ProductRegistration::adminStatus] eq AdminStatus.valueOf(params["adminStatus"]!!)
-            if (params.contains("supplierId"))  root[ProductRegistration::supplierId] eq UUID.fromString(params["supplierId"]!!)
-            if (params.contains("draft")) root[ProductRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
-            if (params.contains("createdByUser")) root[ProductRegistration::createdByUser] eq params["createdByUser"]
-            if (params.contains("updatedByUser")) root[ProductRegistration::updatedByUser] eq params["updatedByUser"]
-            if (params.contains("title")) criteriaBuilder.like(root[ProductRegistration::title], params["title"])
-        }
-    }
 
     private fun createProductVariant(registration: ProductRegistrationDTO, supplierRef: String, authentication: Authentication): ProductRegistrationDTO {
         val productId = UUID.randomUUID()
@@ -76,6 +63,7 @@ class ProductRegistrationService(private val productRegistrationRepository: Prod
 
     suspend fun createProductVariant(id: UUID, supplierRef: String, authentication: Authentication) =
         findById(id)?.let { createProductVariant(it, supplierRef, authentication) }
+
 
 
 }

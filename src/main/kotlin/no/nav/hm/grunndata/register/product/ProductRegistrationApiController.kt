@@ -23,8 +23,7 @@ import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS)
-class ProductRegistrationApiController(private val productRegistrationRepository: ProductRegistrationRepository,
-                                       private val productRegistrationHandler: ProductRegistrationHandler) {
+class ProductRegistrationApiController(private val productRegistrationService: ProductRegistrationService) {
 
     companion object {
         const val API_V1_PRODUCT_REGISTRATIONS = "/api/v1/product/registrations"
@@ -35,7 +34,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
     @Get("/{?params*}")
     suspend fun findProducts(@QueryValue params: HashMap<String,String>?,
                              pageable: Pageable, authentication: Authentication): Page<ProductRegistrationDTO> =
-        productRegistrationRepository.findAll(buildCriteriaSpec(params, authentication.supplierId()), pageable).map { it.toDTO() }
+        productRegistrationService.findAll(buildCriteriaSpec(params, authentication.supplierId()), pageable)
 
 
     private fun buildCriteriaSpec(params: HashMap<String, String>?, supplierId: UUID): PredicateSpecification<ProductRegistration>?
@@ -51,7 +50,7 @@ class ProductRegistrationApiController(private val productRegistrationRepository
 
     @Get("/{id}")
     suspend fun getProductById(id: UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
-        productRegistrationRepository.findByIdAndSupplierId(id, authentication.supplierId())
+        productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
             ?.let {
                 HttpResponse.ok(it.toDTO()) }
             ?: HttpResponse.notFound()
