@@ -13,7 +13,7 @@ import java.util.*
 import javax.transaction.Transactional
 
 @Singleton
-class ProductRegistrationService(private val productRegistrationRepository: ProductRegistrationRepository,
+open class ProductRegistrationService(private val productRegistrationRepository: ProductRegistrationRepository,
                                  private val productRegistrationHandler: ProductRegistrationHandler) {
 
 
@@ -30,7 +30,7 @@ class ProductRegistrationService(private val productRegistrationRepository: Prod
     open suspend fun findBySupplierIdAndSupplierRef(supplierId: UUID, supplierRef: String) =
         productRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)?.toDTO()
 
-    open suspend fun findByIdAndSupplierId(supplierId: UUID, id: UUID) = productRegistrationRepository.findByIdAndSupplierId(id, supplierId)
+    open suspend fun findByIdAndSupplierId(id: UUID, supplierId: UUID) = productRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.toDTO()
 
     @Transactional
     open suspend fun saveAndPushToKafka(dto: ProductRegistrationDTO, isUpdate: Boolean): ProductRegistrationDTO {
@@ -61,7 +61,7 @@ class ProductRegistrationService(private val productRegistrationRepository: Prod
         )
     }
 
-    suspend fun createProductVariant(id: UUID, supplierRef: String, authentication: Authentication) =
+    open suspend fun createProductVariant(id: UUID, supplierRef: String, authentication: Authentication) =
         findById(id)?.let { createProductVariant(it, supplierRef, authentication) }
 
 

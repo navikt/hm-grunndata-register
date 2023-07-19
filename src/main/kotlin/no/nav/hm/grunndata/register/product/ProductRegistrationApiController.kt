@@ -52,25 +52,24 @@ class ProductRegistrationApiController(private val productRegistrationService: P
     suspend fun getProductById(id: UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
             ?.let {
-                HttpResponse.ok(it.toDTO()) }
+                HttpResponse.ok(it) }
             ?: HttpResponse.notFound()
 
     @Post("/")
-    suspend fun createProduct(@Body registrationDTO: ProductRegistrationDTO, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
+    suspend fun createProduct(@Body registrationDTO: ProductRegistrationDTO, authentication: Authentication):
+            HttpResponse<ProductRegistrationDTO> =
         if (registrationDTO.supplierId != authentication.supplierId()) {
             LOG.warn("Got unauthorized attempt for ${registrationDTO.supplierId}")
             HttpResponse.unauthorized()
         }
         else if (registrationDTO.createdByAdmin || registrationDTO.adminStatus == AdminStatus.APPROVED) HttpResponse.unauthorized()
         else
-            productRegistrationRepository.findById(registrationDTO.id)?.let {
+            productRegistrationService.findById(registrationDTO.id)?.let {
                 throw BadRequestException("Product registration already exists ${registrationDTO.id}")
             } ?: run {
-                val dto = productRegistrationRepository.save(registrationDTO
+                val dto = productRegistrationService.saveAndPushToKafka(registrationDTO
                     .copy(updatedByUser =  authentication.name, createdByUser = authentication.name,
-                        created = LocalDateTime.now(), updated = LocalDateTime.now())
-                    .toEntity()).toDTO()
-                productRegistrationHandler.pushToRapidIfNotDraft(dto)
+                        created = LocalDateTime.now(), updated = LocalDateTime.now()), isUpdate = false)
                 HttpResponse.created(dto)
             }
 
@@ -78,33 +77,30 @@ class ProductRegistrationApiController(private val productRegistrationService: P
     suspend fun updateProduct(@Body registrationDTO: ProductRegistrationDTO, @PathVariable id: UUID, authentication: Authentication):
             HttpResponse<ProductRegistrationDTO> =
         if (registrationDTO.supplierId != authentication.supplierId()) HttpResponse.unauthorized()
-        else productRegistrationRepository.findByIdAndSupplierId(id, registrationDTO.supplierId)
+        else productRegistrationService.findByIdAndSupplierId(id, registrationDTO.supplierId)
                 ?.let { inDb ->
-                    val dto = productRegistrationRepository.update(registrationDTO
+                    val dto = productRegistrationService.saveAndPushToKafka(registrationDTO
                         .copy(id = inDb.id, created = inDb.created,
                             updatedBy = REGISTER, updatedByUser = authentication.name, createdByUser = inDb.createdByUser,
                             createdBy = inDb.createdBy, createdByAdmin = inDb.createdByAdmin, adminStatus = inDb.adminStatus,
-                            adminInfo = inDb.adminInfo, updated = LocalDateTime.now())
-                        .toEntity()).toDTO()
-                    productRegistrationHandler.pushToRapidIfNotDraft(dto)
+                            adminInfo = inDb.adminInfo, updated = LocalDateTime.now()), isUpdate = true)
                     HttpResponse.ok(dto) }
                 ?: run {
                     throw BadRequestException("Product does not exists $id") }
 
     @Delete("/{id}")
     suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
-        productRegistrationRepository.findByIdAndSupplierId(id, authentication.supplierId())
+        productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
             ?.let {
-                val deleteDTO = productRegistrationRepository.update(it
-                    .copy(registrationStatus = RegistrationStatus.DELETED, updatedByUser = authentication.name))
-                    .toDTO()
+                val deleteDTO = productRegistrationService.saveAndPushToKafka(it
+                    .copy(registrationStatus = RegistrationStatus.DELETED, updatedByUser = authentication.name), isUpdate = true)
                 HttpResponse.ok(deleteDTO)
             } ?: HttpResponse.notFound()
 
     @Get("/draft/{supplierRef}")
     suspend fun draftProduct(@PathVariable supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
         val supplierId = authentication.supplierId()
-        productRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)?.let {
+        productRegistrationService.findBySupplierIdAndSupplierRef(supplierId, supplierRef)?.let {
             throw BadRequestException("$supplierId and $supplierRef already exists")
         } ?: run {
             val productId = UUID.randomUUID()
@@ -127,8 +123,8 @@ class ProductRegistrationApiController(private val productRegistrationService: P
 
     @Post("/draft/variant/{id}/reference/{supplierRef}")
     suspend fun createProductVariant(@PathVariable id:UUID, supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
-        return productRegistrationRepository.findById(id)?.let {
-            HttpResponse.ok(productRegistrationHandler.createProductVariant(it, supplierRef, authentication))
+        return productRegistrationService.createProductVariant(id, supplierRef, authentication)?.let {
+            HttpResponse.ok(it)
         } ?: HttpResponse.notFound()
     }
 }
