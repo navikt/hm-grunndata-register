@@ -64,6 +64,7 @@ Create a supplier in the local database:
 ```
 curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" -d '{
   "name": "Supplier AS",
+  "draftStatus": "DONE",
   "supplierData": {
     "address": "address 1",
     "email": "supplier@test.test",
@@ -73,7 +74,6 @@ curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" -d '{
 }' http://localhost:8080/api/v1/admin/supplier/registrations
 ```
 
-
 Create a supplier user in the local database:
 ```
  curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" -d '{
@@ -81,19 +81,19 @@ Create a supplier user in the local database:
   "email" : "user1@test.test",
   "password" : "token123",
   "roles" : [ "ROLE_SUPPLIER" ],
-  "attributes" : {"supplierId" : "<supplierid>"}
+  "attributes" : {"supplierId" : "<supplierId from the last request here>"}
 }' http://localhost:8080/api/v1/admin/users
 
 ```
 
-Get registrations (admin user):
-```
-curl -v -X GET -H "Content-type: application/json" --cookie "JWT=<jwttokenhere>" http://localhost:8080/api/v1/admin/product/registrations
-```
-
-Start a draft 
+Start a draft
 ```
 curl -v -X POST -H "Content-type: application/json" --cookie "JWT=<jwttokenhere>" http://localhost:8080/api/v1/admin/product/registrations/draft/supplier/<supplierId>/reference/TEST2
+```
+
+Get registrations (admin user):
+```
+curl -v -X GET -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/admin/product/registrations
 ```
 
 Update the draft:
@@ -102,5 +102,4 @@ curl -v -X PUT -H "Content-type: application/json" --cookie "JWT=<jwttokenhere>"
 ```
 
 ## Openapi is also available here:
-
 http://localhost:8080/swagger-ui
