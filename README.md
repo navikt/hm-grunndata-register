@@ -76,7 +76,7 @@ curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" -d '{
 
 Create a supplier user in the local database:
 ```
- curl -v -X POST -H "Content-type: application/json" --cookie "JWT=<jwttokenhere>" -d '{
+ curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" -d '{
   "name" : "User tester",
   "email" : "user1@test.test",
   "password" : "token123",
