@@ -13,7 +13,6 @@ services:
     command: ["postgres", "-c", "log_statement=none"]
     networks:
       - register-net
-
   kafkaregister:
     hostname: kafka
     container_name: kafkaregister
@@ -89,5 +88,22 @@ services:
     environment:
       MEDIA_STORAGE_CDNURL: "https://media:8080/local"
       REDIS_HOST: "redis"
+  register:
+    hostname: register
+    container_name: register
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-register:23.201.103310
+    platform: linux/amd64
+    ports:
+      - "8080:8080"
+    environment:
+      DB_DRIVER: org.postgresql.Driver
+      DB_JDBC_URL: "jdbc:postgresql://postgres:5432/register"
+      KAFKA_BROKERS: "kafka:9092"
+    depends_on:
+      - postgresregister
+      - kafkaregister
+    networks:
+      - register-net
+
 networks:
   register-net:
