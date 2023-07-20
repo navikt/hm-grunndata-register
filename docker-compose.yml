@@ -65,16 +65,29 @@ services:
     depends_on:
       - postgresregister
     ports:
-      - "8080:8080"
+      - "8081:8080"
     networks:
       - register-net
     environment:
       DB_DRIVER: org.postgresql.Driver
       DB_JDBC_URL: "jdbc:postgresql://postgres:5432/media"
-      GCP_BUCKET_NAME: "hm-grunndata-media-dev"
       MICRONAUT_ENVIRONMENTS: local
       RAPIDSANDRIVERS_ENABLED: true
       KAFKA_BROKERS: "kafka:9092"
-
+  mediaproxyregister:
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media-proxy:23.194.130158
+    platform: linux/amd64
+    hostname: mediaproxy
+    container_name: mediaproxyregister
+    depends_on:
+      - redisregister
+      - mediaregister
+    ports:
+      - "8082:8080"
+    networks:
+      - register-net
+    environment:
+      MEDIA_STORAGE_CDNURL: "https://media:8080/local"
+      REDIS_HOST: "redis"
 networks:
   register-net:
