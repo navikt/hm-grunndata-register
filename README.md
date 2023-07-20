@@ -64,7 +64,7 @@ Create a supplier in the local database:
 ```
 curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" -d '{
   "name": "Supplier AS",
-  "info": {
+  "supplierData": {
     "address": "address 1",
     "email": "supplier@test.test",
     "phone": "+47 12345678",

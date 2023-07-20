@@ -50,7 +50,7 @@ data class SupplierRegistrationDTO (
     val name: String,
     @field:TypeDef(type= DataType.JSON)
     val supplierData: SupplierData,
-    val identifier: String,
+    val identifier: String = UUID.randomUUID().toString(),
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val createdBy: String = REGISTER,
