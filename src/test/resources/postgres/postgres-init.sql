@@ -1,4 +1,4 @@
-CREATE USER register with password 'register';
+CREATE USER register  with password 'register';
 CREATE DATABASE register owner register;
 CREATE USER media with password 'media';
-CREATE DATABASE register owner register;
+CREATE DATABASE media owner media;

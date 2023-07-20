@@ -13,8 +13,9 @@ services:
     command: ["postgres", "-c", "log_statement=none"]
     networks:
       - register-net
+
   kafkaregister:
-    hostname: kafkaregister
+    hostname: kafka
     container_name: kafkaregister
     image: confluentinc/cp-kafka:7.3.1
     logging:
@@ -26,9 +27,9 @@ services:
       - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeperregister:2181'
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafkaregister:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -37,7 +38,7 @@ services:
       - register-net
   zookeeperregister:
     image: confluentinc/cp-zookeeper:7.3.1
-    hostname: zookeeperregister
+    hostname: zookeeper
     logging:
       driver: none
     container_name: zookeeperregister
@@ -56,8 +57,24 @@ services:
       - "6379:6379"
     networks:
       - register-net
-
   mediaregister:
-    image:
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media:23.201.070942
+    platform: linux/amd64
+    hostname: media
+    container_name: mediaregister
+    depends_on:
+      - postgresregister
+    ports:
+      - "8080:8080"
+    networks:
+      - register-net
+    environment:
+      DB_DRIVER: org.postgresql.Driver
+      DB_JDBC_URL: "jdbc:postgresql://postgres:5432/media"
+      GCP_BUCKET_NAME: "hm-grunndata-media-dev"
+      MICRONAUT_ENVIRONMENTS: local
+      RAPIDSANDRIVERS_ENABLED: true
+      KAFKA_BROKERS: "kafka:9092"
+
 networks:
   register-net:
