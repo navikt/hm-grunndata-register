@@ -6,6 +6,7 @@ on:
       - ".gitignore"
       - "LICENCE"
       - "CODEOWNERS"
+      - "docker-compose.yml"
     branches:
       - main
 
