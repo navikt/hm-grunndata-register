@@ -17,6 +17,7 @@ data class ProductRegistration(
     val id: UUID,
     val supplierId: UUID,
     val supplierRef: String,
+    val seriesId: String,
     @field:Column(name="hms_artnr")
     val hmsArtNr: String?,
     val isoCategory: String,
@@ -56,6 +57,7 @@ data class ProductRegistrationDTO (
     val supplierId: UUID,
     val supplierRef: String,
     val hmsArtNr: String?,
+    val seriesId: String,
     val isoCategory: String,
     val title: String,
     val articleName: String,

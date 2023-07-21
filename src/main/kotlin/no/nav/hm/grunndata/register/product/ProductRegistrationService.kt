@@ -68,7 +68,6 @@ open class ProductRegistrationService(private val productRegistrationRepository:
         val product = ProductData (
             accessory = isAccessory,
             sparePart = isSparePart,
-            seriesId = productId.toString(),
             attributes = Attributes (
                 shortdescription = "kort beskrivelse",
                 text = "en lang beskrivelse",
@@ -77,6 +76,7 @@ open class ProductRegistrationService(private val productRegistrationRepository:
         )
         val registration = ProductRegistrationDTO(
             id = productId,
+            seriesId = productId.toString(),
             isoCategory = "0",
             supplierId = supplierId,
             supplierRef = supplierRef,

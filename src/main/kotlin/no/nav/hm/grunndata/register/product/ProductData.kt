@@ -7,7 +7,6 @@ data class ProductData (
     val attributes: Attributes = Attributes(),
     val accessory: Boolean = false,
     val sparePart: Boolean = false,
-    val seriesId: String,
     val techData: List<TechData> = emptyList(),
     val media: List<MediaInfo> = emptyList(),
     val agreementInfo: AgreementInfo?=null,
@@ -19,7 +18,6 @@ data class ProductData (
 fun ProductRapidDTO.toProductData(): ProductData = ProductData (
     accessory = accessory,
     sparePart = sparePart,
-    seriesId = seriesId!!,
     techData = techData,
     media = media,
     agreementInfo = agreementInfo,

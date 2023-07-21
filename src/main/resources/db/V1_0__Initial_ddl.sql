@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS product_reg_v1 (
     id uuid NOT NULL PRIMARY KEY,
     supplier_id uuid NOT NULL,
     supplier_ref VARCHAR(255) NOT NULL,
+    series_id VARCHAR(255) NOT NULL,
     iso_category VARCHAR(255) NOT NULL,
     hms_artnr VARCHAR(255),
     title VARCHAR(255) NOT NULL,
@@ -64,6 +65,7 @@ CREATE INDEX product_reg_v1_draft_status_idx ON product_reg_v1(draft_status);
 CREATE INDEX product_reg_v1_updated_idx ON product_reg_v1(updated);
 CREATE INDEX product_reg_v1_created_by_user_idx ON product_reg_v1(created_by_user);
 CREATE INDEX product_reg_v1_updated_by_user_idx ON product_reg_v1(updated_by_user);
+CREATE INDEX product_reg_v1_series_id_idx ON product_reg_v1(series_id);
 
 CREATE TABLE IF NOT EXISTS agreement_reg_v1(
     id uuid NOT NULL PRIMARY KEY,

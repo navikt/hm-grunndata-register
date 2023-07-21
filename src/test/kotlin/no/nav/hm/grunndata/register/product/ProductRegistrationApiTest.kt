@@ -88,7 +88,6 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             ),
             accessory = false,
             sparePart = false,
-            seriesId = "series-123",
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
             media = listOf(
                 MediaInfo(
@@ -109,6 +108,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         )
 
         val registration = ProductRegistrationDTO(
+            seriesId = "series-123",
             title = "Dette er produkt 1",
             articleName = "Dette er produkt 1 med og med",
             id = UUID.randomUUID(),
@@ -143,7 +143,6 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             ),
             accessory = false,
             sparePart = false,
-            seriesId = "series-123",
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
             media = listOf(
                 MediaInfo(
@@ -167,6 +166,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             title = "en veldig fin tittel",
             articleName = "en veldig fin tittel med og med",
             id = UUID.randomUUID(),
+            seriesId = "series-123",
             isoCategory = "12001314",
             supplierId = testSupplier!!.id,
             hmsArtNr = "222",
@@ -223,7 +223,6 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             ),
             accessory = false,
             sparePart = false,
-            seriesId = "series-123",
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
             media = listOf(
                 MediaInfo(
@@ -244,6 +243,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         )
         val registration3 = ProductRegistrationDTO(
             id = UUID.randomUUID(),
+            seriesId = "series-123",
             isoCategory = "12001314",
             supplierId = testSupplier2!!.id,
             title = "Dette er produkt 1",

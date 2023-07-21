@@ -53,7 +53,7 @@ class ProductSyncRiver(river: RiverHead,
             } ?: productRegistrationRepository.save(
                 ProductRegistration(
                     id = dto.id, isoCategory = dto.isoCategory, supplierId = dto.supplier.id, supplierRef = dto.supplierRef,
-                    registrationStatus = mapStatus(dto.status), adminStatus = mapAdminStatus(dto.status),
+                    seriesId = dto.seriesId!!, registrationStatus = mapStatus(dto.status), adminStatus = mapAdminStatus(dto.status),
                     createdBy = dto.createdBy, updatedBy = dto.updatedBy, created = dto.created, updated = dto.updated,
                     draftStatus = DraftStatus.DONE, expired = dto.expired, hmsArtNr = dto.hmsArtNr,
                     published = dto.published, title = dto.title, articleName = dto.articleName,

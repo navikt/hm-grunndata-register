@@ -23,7 +23,6 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             ),
             accessory = false,
             sparePart = false,
-            seriesId = "series-123",
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
             media = listOf(MediaInfo(uri="123.jpg", text = "bilde av produktet", source = MediaSourceType.EXTERNALURL,
                 sourceUri = "https://ekstern.url/123.jpg")),
@@ -32,6 +31,7 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
         )
         val registration = ProductRegistration (
             id = UUID.randomUUID(),
+            seriesId = "series-123",
             isoCategory = "12001314",
             supplierId = UUID.randomUUID(),
             title = "Dette er produkt title",

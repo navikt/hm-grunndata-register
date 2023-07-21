@@ -81,7 +81,6 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
             ),
             accessory = false,
             sparePart = false,
-            seriesId = "series-123",
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
             media = listOf(
                 MediaInfo(
@@ -102,6 +101,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         )
         val hmsArtNr = UUID.randomUUID().toString()
         val registration = draft.copy(
+            seriesId = "series-123",
             isoCategory = "12001314",
             hmsArtNr = hmsArtNr,
             draftStatus = DraftStatus.DRAFT,
