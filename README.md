@@ -81,7 +81,7 @@ Create a supplier user in the local database:
   "email" : "user1@test.test",
   "password" : "token123",
   "roles" : [ "ROLE_SUPPLIER" ],
-  "attributes" : {"supplierId" : "<supplierId from the last request here>"}
+  "attributes" : {"supplierId" : "<supplierId from previous request here>"}
 }' http://localhost:8080/api/v1/admin/users
 
 ```
@@ -90,6 +90,12 @@ Login with this user:
 ```
 curl -v -X POST -H "Content-type: application/json" -d '{"username":"user1@test.test", "password":"token123"}' http://localhost:8080/login
 ```
+
+export JWT token for this user, we are going to use this user from now on:
+``
+export JWT=<copy and paste from the previous command>
+``
+
 
 Get current user:
 

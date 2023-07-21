@@ -46,6 +46,7 @@ open class ProductRegistrationService(private val productRegistrationRepository:
             save(it.copy(
                 supplierRef = supplierRef,
                 id = productId,
+                hmsArtNr = null,
                 draftStatus =  DraftStatus.DRAFT,
                 adminStatus = AdminStatus.PENDING,
                 registrationStatus = RegistrationStatus.ACTIVE,
@@ -79,7 +80,7 @@ open class ProductRegistrationService(private val productRegistrationRepository:
             isoCategory = "0",
             supplierId = supplierId,
             supplierRef = supplierRef,
-            hmsArtNr = "",
+            hmsArtNr = null,
             title = "",
             articleName = "",
             createdBy = REGISTER,
