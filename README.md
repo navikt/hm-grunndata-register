@@ -86,9 +86,21 @@ Create a supplier user in the local database:
 
 ```
 
-Start a draft
+Login with this user:
 ```
-curl -v -X POST -H "Content-type: application/json" --cookie "JWT=<jwttokenhere>" http://localhost:8080/api/v1/admin/product/registrations/draft/supplier/<supplierId>/reference/TEST2
+curl -v -X POST -H "Content-type: application/json" -d '{"username":"user1@test.test", "password":"token123"}' http://localhost:8080/login
+```
+
+Get current user:
+
+```
+curl -v -X GET -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/user
+```
+
+
+Start a draft with this user token
+```
+curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/admin/product/registrations/draft/supplier/<supplierId>/reference/TEST2
 ```
 
 Get registrations (admin user):
