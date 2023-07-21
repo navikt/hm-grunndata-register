@@ -1,0 +1,33 @@
+{
+  "id" : "3a9a8c6b-a7f4-4563-9a0b-f2432e697aa7",
+  "supplierId" : "872ab978-0093-4cf6-a812-dbaf7a82c6d0",
+  "supplierRef" : "test-1",
+  "seriesId" : "3a9a8c6b-a7f4-4563-9a0b-f2432e697aa7",
+  "isoCategory" : "0",
+  "title" : "En fin tittel",
+  "articleName" : "",
+  "draftStatus" : "DRAFT",
+  "adminStatus" : "PENDING",
+  "registrationStatus" : "ACTIVE",
+  "created" : "2023-07-21T13:21:15.653836",
+  "updated" : "2023-07-21T13:21:15.653841",
+  "published" : "2023-07-21T13:21:15.653144",
+  "expired" : "2033-07-21T13:21:15.653151",
+  "updatedByUser" : "user1@test.test",
+  "createdByUser" : "user1@test.test",
+  "createdBy" : "REGISTER",
+  "updatedBy" : "REGISTER",
+  "createdByAdmin" : true,
+  "productData" : {
+    "attributes" : {
+      "shortdescription" : "kort beskrivelse",
+      "text" : "en lang beskrivelse"
+    },
+    "accessory" : false,
+    "sparePart" : false,
+    "techData" : [ ],
+    "media" : [ ],
+    "agreements" : [ ]
+  },
+  "version" : 0
+}

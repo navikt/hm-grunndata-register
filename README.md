@@ -120,7 +120,7 @@ curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://l
 
 Update the draft:
 ```
-curl -v -X PUT -H "Content-type: application/json" --cookie "JWT=<jwttokenhere>" -d '<json_here>' http://localhost:8080/api/v1/admin/product/registrations/<uuid>
+curl -v -X PUT -H "Content-type: application/json" --cookie "JWT=$JWT" -d '<json_here>' http://localhost:8080/api/v1/product/registrations/<uuid>
 ```
 
 ## Openapi is also available here:
