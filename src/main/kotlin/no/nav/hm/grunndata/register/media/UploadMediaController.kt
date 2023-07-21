@@ -18,7 +18,7 @@ import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import java.util.*
 
-@Secured(Roles.ROLE_ADMIN)
+@Secured(Roles.ROLE_ADMIN, Roles.ROLE_SUPPLIER)
 @Controller(V1_UPLOAD_MEDIA)
 class UploadMediaController(private val mediaUploadClient: MediaUploadClient) {
 

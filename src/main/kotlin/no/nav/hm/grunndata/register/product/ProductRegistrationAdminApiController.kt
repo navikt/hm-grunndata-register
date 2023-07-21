@@ -99,7 +99,8 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
     suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findById(id)
             ?.let {
-                val dto = productRegistrationService.saveAndPushToRapid(it.copy(registrationStatus= RegistrationStatus.DELETED), isUpdate = true)
+                val dto = productRegistrationService.saveAndPushToRapid(it.copy(registrationStatus= RegistrationStatus.DELETED,
+                    updatedByUser = authentication.name, updatedBy = REGISTER), isUpdate = true)
                 HttpResponse.ok(dto)}
             ?: HttpResponse.notFound()
 
