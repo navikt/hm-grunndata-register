@@ -100,7 +100,7 @@ curl -v -X GET -H "Content-type: application/json" --cookie "JWT=$JWT" http://lo
 
 Start a draft with this user token
 ```
-curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/admin/product/registrations/draft/supplier/<supplierId>/reference/TEST2
+curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/product/registrations/draft/<unique reference>
 ```
 
 Get registrations (admin user):
