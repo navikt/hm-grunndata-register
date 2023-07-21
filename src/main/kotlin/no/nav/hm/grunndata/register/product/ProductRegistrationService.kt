@@ -40,28 +40,26 @@ open class ProductRegistrationService(private val productRegistrationRepository:
     }
 
 
-    private fun createProductVariant(registration: ProductRegistrationDTO, supplierRef: String, authentication: Authentication): ProductRegistrationDTO {
-        val productId = UUID.randomUUID()
-        return registration.copy(
-            supplierRef = supplierRef,
-            id = productId,
-            draftStatus =  DraftStatus.DRAFT,
-            adminStatus = AdminStatus.PENDING,
-            registrationStatus = RegistrationStatus.ACTIVE,
-            message = null,
-            adminInfo = null,
-            created = LocalDateTime.now(),
-            updated = LocalDateTime.now(),
-            published = LocalDateTime.now(),
-            expired = LocalDateTime.now().plusYears(10),
-            updatedByUser = authentication.name,
-            createdByUser = authentication.name,
-            createdByAdmin = authentication.isAdmin(),
-        )
-    }
-
     open suspend fun createProductVariant(id: UUID, supplierRef: String, authentication: Authentication) =
-        findById(id)?.let { createProductVariant(it, supplierRef, authentication) }
+        findById(id)?.let {
+            val productId = UUID.randomUUID()
+            save(it.copy(
+                supplierRef = supplierRef,
+                id = productId,
+                draftStatus =  DraftStatus.DRAFT,
+                adminStatus = AdminStatus.PENDING,
+                registrationStatus = RegistrationStatus.ACTIVE,
+                message = null,
+                adminInfo = null,
+                created = LocalDateTime.now(),
+                updated = LocalDateTime.now(),
+                published = LocalDateTime.now(),
+                expired = LocalDateTime.now().plusYears(10),
+                updatedByUser = authentication.name,
+                createdByUser = authentication.name,
+                createdByAdmin = authentication.isAdmin(),
+            ))
+        }
 
     open suspend fun createDraft(supplierId: UUID, supplierRef: String, authentication: Authentication,
                                  isAccessory:Boolean, isSparePart: Boolean): ProductRegistrationDTO {

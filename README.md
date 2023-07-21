@@ -97,15 +97,19 @@ Get current user:
 curl -v -X GET -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/user
 ```
 
-
 Start a draft with this user token
 ```
 curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/product/registrations/draft/<unique reference>
 ```
 
-Get registrations (admin user):
+Get registrations (user):
 ```
-curl -v -X GET -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/admin/product/registrations
+curl -v -X GET -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/product/registrations
+```
+
+Create product variant registrations (user):
+```
+curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/product/registrations/draft/variant/<product id>/reference/<unik reference>
 ```
 
 Update the draft:
