@@ -5,7 +5,6 @@ import no.nav.hm.grunndata.rapid.dto.*
 
 data class ProductData (
     val attributes: Attributes = Attributes(),
-    val isoCategory: String,
     val accessory: Boolean = false,
     val sparePart: Boolean = false,
     val seriesId: String,
@@ -18,7 +17,6 @@ data class ProductData (
 
 
 fun ProductRapidDTO.toProductData(): ProductData = ProductData (
-    isoCategory = isoCategory,
     accessory = accessory,
     sparePart = sparePart,
     seriesId = seriesId!!,

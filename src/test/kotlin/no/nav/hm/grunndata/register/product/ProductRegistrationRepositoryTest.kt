@@ -21,8 +21,6 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
                 shortdescription = "En kort beskrivelse av produktet",
                 text = "En lang beskrivelse av produktet"
             ),
-
-            isoCategory = "12001314",
             accessory = false,
             sparePart = false,
             seriesId = "series-123",
@@ -34,6 +32,7 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
         )
         val registration = ProductRegistration (
             id = UUID.randomUUID(),
+            isoCategory = "12001314",
             supplierId = UUID.randomUUID(),
             title = "Dette er produkt title",
             articleName = "Dette er produkt 1 med og med",

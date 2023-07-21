@@ -19,6 +19,7 @@ data class ProductRegistration(
     val supplierRef: String,
     @field:Column(name="hms_artnr")
     val hmsArtNr: String?,
+    val isoCategory: String,
     val title: String,
     val articleName: String,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
@@ -55,6 +56,7 @@ data class ProductRegistrationDTO (
     val supplierId: UUID,
     val supplierRef: String,
     val hmsArtNr: String?,
+    val isoCategory: String,
     val title: String,
     val articleName: String,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,

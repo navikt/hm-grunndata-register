@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS product_reg_v1 (
     id uuid NOT NULL PRIMARY KEY,
     supplier_id uuid NOT NULL,
     supplier_ref VARCHAR(255) NOT NULL,
+    iso_category VARCHAR(255) NOT NULL,
     hms_artnr VARCHAR(255),
     title VARCHAR(255) NOT NULL,
     article_name VARCHAR(255) NOT NULL,

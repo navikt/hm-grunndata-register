@@ -69,13 +69,14 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
                     accessory = isAccessory,
                     sparePart = isSparePart,
                     seriesId = productId.toString(),
-                    isoCategory = "", attributes = Attributes (
+                    attributes = Attributes (
                     shortdescription = "kort beskrivelse",
                     text = "en lang beskrivelse",
                     compatible = if (isSparePart || isAccessory) listOf(CompatibleAttribute(hmsArtNr = "", supplierRef = "")) else null
                 ))
             val registration = ProductRegistrationDTO(
                 id = productId,
+                isoCategory = "0",
                 supplierId = supplierId,
                 supplierRef = supplierRef,
                 hmsArtNr = "",

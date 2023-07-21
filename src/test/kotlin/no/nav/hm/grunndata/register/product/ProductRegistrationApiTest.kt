@@ -86,7 +86,6 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                 shortdescription = "En kort beskrivelse av produktet",
                 text = "En lang beskrivelse av produktet"
             ),
-            isoCategory = "12001314",
             accessory = false,
             sparePart = false,
             seriesId = "series-123",
@@ -113,6 +112,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             title = "Dette er produkt 1",
             articleName = "Dette er produkt 1 med og med",
             id = UUID.randomUUID(),
+            isoCategory = "12001314",
             supplierId = testSupplier!!.id,
             hmsArtNr = "111",
             supplierRef = "eksternref-111",
@@ -141,7 +141,6 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                 shortdescription = "En kort beskrivelse av produktet",
                 text = "En lang beskrivelse av produktet"
             ),
-            isoCategory = "12001314",
             accessory = false,
             sparePart = false,
             seriesId = "series-123",
@@ -168,6 +167,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             title = "en veldig fin tittel",
             articleName = "en veldig fin tittel med og med",
             id = UUID.randomUUID(),
+            isoCategory = "12001314",
             supplierId = testSupplier!!.id,
             hmsArtNr = "222",
             supplierRef = "eksternref-222",
@@ -221,7 +221,6 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                 shortdescription = "En kort beskrivelse av produktet",
                 text = "En lang beskrivelse av produktet"
             ),
-            isoCategory = "12001314",
             accessory = false,
             sparePart = false,
             seriesId = "series-123",
@@ -245,6 +244,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         )
         val registration3 = ProductRegistrationDTO(
             id = UUID.randomUUID(),
+            isoCategory = "12001314",
             supplierId = testSupplier2!!.id,
             title = "Dette er produkt 1",
             articleName = "Dette er produkt 1 med og med",

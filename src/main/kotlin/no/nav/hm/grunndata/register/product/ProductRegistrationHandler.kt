@@ -48,7 +48,7 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
         articleName = registration.articleName,
         hmsArtNr = registration.hmsArtNr,
         identifier = registration.id.toString(),
-        isoCategory = isoCategory,
+        isoCategory = registration.isoCategory,
         accessory = accessory,
         sparePart = sparePart,
         seriesId = seriesId,
@@ -85,7 +85,7 @@ fun ProductRegistrationDTO.toEntity(): ProductRegistration = ProductRegistration
     registrationStatus = registrationStatus, message = message, adminInfo = adminInfo, created = created,
     updated = updated, published = published, expired = expired, updatedByUser = updatedByUser,
     createdByUser = createdByUser, createdBy = createdBy, updatedBy = updatedBy, createdByAdmin = createdByAdmin,
-    productData = productData, version = version
+    productData = productData, isoCategory = isoCategory, version = version
 )
 
 fun ProductRegistration.toDTO(): ProductRegistrationDTO = ProductRegistrationDTO(
@@ -94,5 +94,5 @@ fun ProductRegistration.toDTO(): ProductRegistrationDTO = ProductRegistrationDTO
     registrationStatus = registrationStatus, message = message, adminInfo = adminInfo, created = created,
     updated = updated, published = published, expired = expired, updatedByUser = updatedByUser,
     createdByUser = createdByUser, createdBy = createdBy, updatedBy = updatedBy, createdByAdmin = createdByAdmin,
-    productData = productData, version = version
+    productData = productData, isoCategory = isoCategory, version = version
 )

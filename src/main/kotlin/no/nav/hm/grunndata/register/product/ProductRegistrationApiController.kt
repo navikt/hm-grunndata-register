@@ -97,7 +97,7 @@ class ProductRegistrationApiController(private val productRegistrationService: P
                 HttpResponse.ok(deleteDTO)
             } ?: HttpResponse.notFound()
 
-    @Get("/draft/{supplierRef}")
+    @Post("/draft/{supplierRef}")
     suspend fun draftProduct(@PathVariable supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
         val supplierId = authentication.supplierId()
         productRegistrationService.findBySupplierIdAndSupplierRef(supplierId, supplierRef)?.let {
@@ -106,14 +106,13 @@ class ProductRegistrationApiController(private val productRegistrationService: P
             val productId = UUID.randomUUID()
             val product = ProductData (
                 seriesId = productId.toString(),
-                isoCategory = "",
                 attributes = Attributes(
                     shortdescription = "",
                     text = "",
                     compatible = listOf(CompatibleAttribute(hmsArtNr = "", supplierRef = ""))
                 )
             )
-            val registration = ProductRegistrationDTO(id = productId, title = "", articleName = "", hmsArtNr = "",
+            val registration = ProductRegistrationDTO(id = productId, isoCategory = "0", title = "", articleName = "", hmsArtNr = "",
                 createdBy = REGISTER, supplierId = supplierId, supplierRef = supplierRef, updatedBy = REGISTER,
                 message = null, published = LocalDateTime.now(), expired = LocalDateTime.now().plusYears(10),
                 productData = product, version = 0 )

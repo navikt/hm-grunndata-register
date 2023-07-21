@@ -79,7 +79,6 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
                 shortdescription = "En kort beskrivelse av produktet",
                 text = "En lang beskrivelse av produktet"
             ),
-            isoCategory = "12001314",
             accessory = false,
             sparePart = false,
             seriesId = "series-123",
@@ -103,6 +102,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         )
         val hmsArtNr = UUID.randomUUID().toString()
         val registration = draft.copy(
+            isoCategory = "12001314",
             hmsArtNr = hmsArtNr,
             draftStatus = DraftStatus.DRAFT,
             adminStatus = AdminStatus.PENDING,
