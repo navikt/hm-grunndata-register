@@ -97,21 +97,15 @@ class ProductRegistrationApiController(private val productRegistrationService: P
                 HttpResponse.ok(deleteDTO)
             } ?: HttpResponse.notFound()
 
-    @Post("/draft/{supplierRef}")
-    suspend fun draftProduct(@PathVariable supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
+    @Post("/draft/{supplierRef}{?isAccessory}{isSparePart}")
+    suspend fun draftProduct(@PathVariable supplierRef: String, authentication: Authentication,
+                             @QueryValue(defaultValue = "false") isAccessory: Boolean,
+                             @QueryValue(defaultValue = "false") isSparePart: Boolean): HttpResponse<ProductRegistrationDTO> {
         val supplierId = authentication.supplierId()
         productRegistrationService.findBySupplierIdAndSupplierRef(supplierId, supplierRef)?.let {
-            throw BadRequestException("$supplierId and $supplierRef already exists")
+            throw BadRequestException("$supplierRef already exists for supplierId $supplierId")
         } ?: run {
-            val productId = UUID.randomUUID()
-            val product = ProductData (
-                seriesId = productId.toString(),
-                attributes = Attributes (shortdescription = "", text = ""))
-            val registration = ProductRegistrationDTO(id = productId, isoCategory = "0", title = "", articleName = "", hmsArtNr = "",
-                createdBy = REGISTER, supplierId = supplierId, supplierRef = supplierRef, updatedBy = REGISTER,
-                message = null, published = LocalDateTime.now(), expired = LocalDateTime.now().plusYears(10),
-                productData = product, version = 0 )
-            return HttpResponse.ok(productRegistrationService.save(registration))
+            return HttpResponse.ok(productRegistrationService.createDraft(supplierId, supplierRef, authentication, isAccessory, isSparePart))
         }
     }
 

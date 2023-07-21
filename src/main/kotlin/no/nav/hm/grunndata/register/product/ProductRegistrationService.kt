@@ -5,9 +5,8 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
-import no.nav.hm.grunndata.rapid.dto.AdminStatus
-import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.register.REGISTER
 import java.time.LocalDateTime
 import java.util.*
 import javax.transaction.Transactional
@@ -64,6 +63,38 @@ open class ProductRegistrationService(private val productRegistrationRepository:
     open suspend fun createProductVariant(id: UUID, supplierRef: String, authentication: Authentication) =
         findById(id)?.let { createProductVariant(it, supplierRef, authentication) }
 
-
+    open suspend fun createDraft(supplierId: UUID, supplierRef: String, authentication: Authentication,
+                                 isAccessory:Boolean, isSparePart: Boolean): ProductRegistrationDTO {
+        val productId = UUID.randomUUID()
+        val product = ProductData (
+            accessory = isAccessory,
+            sparePart = isSparePart,
+            seriesId = productId.toString(),
+            attributes = Attributes (
+                shortdescription = "kort beskrivelse",
+                text = "en lang beskrivelse",
+                compatible = if (isSparePart || isAccessory) listOf(CompatibleAttribute(hmsArtNr = "", supplierRef = "")) else null
+            )
+        )
+        val registration = ProductRegistrationDTO(
+            id = productId,
+            isoCategory = "0",
+            supplierId = supplierId,
+            supplierRef = supplierRef,
+            hmsArtNr = "",
+            title = "",
+            articleName = "",
+            createdBy = REGISTER,
+            updatedBy = REGISTER,
+            message = null,
+            published = LocalDateTime.now(),
+            expired = LocalDateTime.now().plusYears(10),
+            productData = product,
+            createdByUser = authentication.name,
+            updatedByUser = authentication.name,
+            createdByAdmin = true,
+            version = 0)
+        return save(registration)
+    }
 
 }

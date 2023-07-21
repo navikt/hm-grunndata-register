@@ -64,35 +64,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
             if (productRegistrationService.findBySupplierIdAndSupplierRef(supplierId, supplierRef)!=null) {
                 throw BadRequestException("$supplierId and $supplierRef duplicate error")
             }
-            val productId = UUID.randomUUID()
-            val product = ProductData (
-                    accessory = isAccessory,
-                    sparePart = isSparePart,
-                    seriesId = productId.toString(),
-                    attributes = Attributes (
-                    shortdescription = "kort beskrivelse",
-                    text = "en lang beskrivelse",
-                    compatible = if (isSparePart || isAccessory) listOf(CompatibleAttribute(hmsArtNr = "", supplierRef = "")) else null
-                ))
-            val registration = ProductRegistrationDTO(
-                id = productId,
-                isoCategory = "0",
-                supplierId = supplierId,
-                supplierRef = supplierRef,
-                hmsArtNr = "",
-                title = "",
-                articleName = "",
-                createdBy = REGISTER,
-                updatedBy = REGISTER,
-                message = null,
-                published = LocalDateTime.now(),
-                expired = LocalDateTime.now().plusYears(10),
-                productData = product,
-                createdByUser = authentication.name,
-                updatedByUser = authentication.name,
-                createdByAdmin = true,
-                version = 0)
-            HttpResponse.ok(productRegistrationService.save(registration))
+            HttpResponse.ok(productRegistrationService.createDraft(supplierId, supplierRef, authentication, isAccessory, isSparePart))
         } ?: throw BadRequestException("$supplierId does not exist")
 
 
@@ -106,8 +78,6 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
                         created = LocalDateTime.now(), updated = LocalDateTime.now()), isUpdate = false)
                 HttpResponse.created(dto)
             }
-
-
 
 
     @Put("/{id}")
