@@ -91,7 +91,7 @@ services:
   register:
     hostname: register
     container_name: register
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-register:23.201.125410
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-register:23.202.075343
     platform: linux/amd64
     ports:
       - "8080:8080"
