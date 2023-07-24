@@ -3,7 +3,6 @@ package no.nav.hm.grunndata.register.media
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
-import io.micronaut.http.client.multipart.MultipartBody
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
@@ -11,11 +10,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import no.nav.hm.grunndata.rapid.dto.MediaDTO
-import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.media.UploadMediaController.Companion.API_V1_UPLOAD_MEDIA
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.security.supplierId
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -40,7 +39,7 @@ class UploadMediaController(private val mediaUploadService: MediaUploadService,
                            type: String,
                            file: CompletedFileUpload,
                            authentication: Authentication): HttpResponse<MediaDTO> {
-        if (typeExists(type, oid)) {
+        if (typeExists(type, oid, authentication.supplierId())) {
             return HttpResponse.created(mediaUploadService.uploadMedia(file, oid))
         }
         throw BadRequestException("Unknown oid, must be of product or agreement")
@@ -55,15 +54,14 @@ class UploadMediaController(private val mediaUploadService: MediaUploadService,
                             type: String,
                             files: Publisher<CompletedFileUpload>,
                             authentication: Authentication): HttpResponse<List<MediaDTO>>  {
-        if (typeExists(type, oid)) {
+        if (typeExists(type, oid, authentication.supplierId())) {
             return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid) }.toList())
         }
         throw BadRequestException("Unknown oid, must be of product or agreement")
     }
 
-    private suspend fun typeExists(type: String, oid: UUID) =
-        ("product" == type && productRegistrationService.findById(oid) != null
-                || "agreement" == type && agreementRegistrationService.findById(oid) != null)
+    private suspend fun typeExists(type: String, oid: UUID, supplierId: UUID) =
+        ("product" == type && productRegistrationService.findByIdAndSupplierId(oid, supplierId) != null)
 }
 
 
