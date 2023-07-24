@@ -1,8 +1,6 @@
 package no.nav.hm.grunndata.register.product
 
 import io.micronaut.data.jdbc.annotation.JdbcRepository
-import io.micronaut.data.model.Page
-import io.micronaut.data.model.Pageable
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
@@ -16,6 +14,8 @@ interface ProductRegistrationRepository : CoroutineCrudRepository<ProductRegistr
 
     suspend fun findByHmsArtNrAndSupplierId(hmsArtNr: String, supplierId: UUID): ProductRegistration?
 
-    suspend fun findBySupplierIdAndSupplierRef(supplierId: UUID, supplierRef: String): ProductRegistration?
+    suspend fun findBySupplierRefAndSupplierId(supplierRef: String, supplierId: UUID): ProductRegistration?
+
+    suspend fun findBySeriesIdAndSupplierId(seriesId: String, supplierId: UUID): ProductRegistration?
 
 }

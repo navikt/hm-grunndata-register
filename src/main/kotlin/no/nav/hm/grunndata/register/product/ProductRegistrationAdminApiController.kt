@@ -61,7 +61,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
                              @QueryValue(defaultValue = "false") isAccessory: Boolean,
                              @QueryValue(defaultValue = "false") isSparePart: Boolean): HttpResponse<ProductRegistrationDTO> =
         supplierRegistrationService.findById(supplierId)?.let {
-            if (productRegistrationService.findBySupplierIdAndSupplierRef(supplierId, supplierRef)!=null) {
+            if (productRegistrationService.findBySupplierRefAndSupplierId(supplierRef, supplierId)!=null) {
                 throw BadRequestException("$supplierId and $supplierRef duplicate error")
             }
             HttpResponse.ok(productRegistrationService.createDraft(supplierId, supplierRef, authentication, isAccessory, isSparePart))

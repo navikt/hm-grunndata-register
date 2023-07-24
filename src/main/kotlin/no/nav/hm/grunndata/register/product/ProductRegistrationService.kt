@@ -26,10 +26,14 @@ open class ProductRegistrationService(private val productRegistrationRepository:
         productRegistrationRepository.findAll(spec, pageable).map { it.toDTO() }
 
 
-    open suspend fun findBySupplierIdAndSupplierRef(supplierId: UUID, supplierRef: String) =
-        productRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)?.toDTO()
+    open suspend fun findBySupplierRefAndSupplierId(supplierRef: String, supplierId: UUID) =
+        productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)?.toDTO()
 
-    open suspend fun findByIdAndSupplierId(id: UUID, supplierId: UUID) = productRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.toDTO()
+    open suspend fun findByIdAndSupplierId(id: UUID, supplierId: UUID) =
+        productRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.toDTO()
+
+    open suspend fun findBySeriesIdAndSupplierId(seriesId: String, supplierId: UUID) =
+        productRegistrationRepository.findBySeriesIdAndSupplierId(seriesId, supplierId)?.toDTO()
 
     @Transactional
     open suspend fun saveAndPushToRapid(dto: ProductRegistrationDTO, isUpdate: Boolean): ProductRegistrationDTO {
