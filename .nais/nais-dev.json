@@ -5,5 +5,5 @@
   "rapidsandrivers_enabled": true,
   "min_replicas": 1,
   "max_replicas": 1,
-  "media_upload_url": "http://hm-grunndata-media/api/v1/upload/media/register"
+  "media_upload_url": "http://hm-grunndata-media/api/v1/upload/media"
 }
