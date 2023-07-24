@@ -42,6 +42,10 @@ export RAPIDSANDRIVERS_ENABLED=true
 ./gradlew build run
 ```
 
+## Openapi is available here:
+http://localhost:8080/swagger-ui
+
+
 Create an admin user in the local database:
 
 ```
@@ -123,5 +127,7 @@ Update the draft:
 curl -v -X PUT -H "Content-type: application/json" --cookie "JWT=$JWT" -d '<json_here>' http://localhost:8080/api/v1/product/registrations/<uuid>
 ```
 
-## Openapi is also available here:
-http://localhost:8080/swagger-ui
+Upload a media for a product:
+```
+curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" -F 'file=@path/to/file.jpg' http://localhost:8080/api/v1/media/product/file/<uuid>
+```
