@@ -22,9 +22,9 @@ import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(API_V1_UPLOAD_MEDIA)
-class UploadMediaController(private val mediaUploadClient: MediaUploadClient,
-                                 private val productRegistrationService: ProductRegistrationService,
-                                 private val agreementRegistrationService: ProductRegistrationService) {
+class UploadMediaController(private val mediaUploadService: MediaUploadService,
+                            private val productRegistrationService: ProductRegistrationService,
+                            private val agreementRegistrationService: ProductRegistrationService) {
 
     companion object {
         const val API_V1_UPLOAD_MEDIA = "/api/v1/media"
@@ -41,7 +41,7 @@ class UploadMediaController(private val mediaUploadClient: MediaUploadClient,
                            file: CompletedFileUpload,
                            authentication: Authentication): HttpResponse<MediaDTO> {
         if (typeExists(type, oid)) {
-            return HttpResponse.created(createMedia(file, oid))
+            return HttpResponse.created(mediaUploadService.uploadMedia(file, oid))
         }
         throw BadRequestException("Unknown oid, must be of product or agreement")
     }
@@ -56,21 +56,9 @@ class UploadMediaController(private val mediaUploadClient: MediaUploadClient,
                             files: Publisher<CompletedFileUpload>,
                             authentication: Authentication): HttpResponse<List<MediaDTO>>  {
         if (typeExists(type, oid)) {
-            return HttpResponse.created(files.asFlow().map {createMedia(it, oid) }.toList())
+            return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid) }.toList())
         }
         throw BadRequestException("Unknown oid, must be of product or agreement")
-    }
-
-    private suspend fun createMedia(file: CompletedFileUpload,
-                                    oid: UUID): MediaDTO {
-        val type = getMediaType(file)
-        if (type == MediaType.OTHER) throw UknownMediaSource("only png, jpg, pdf is supported")
-        val body = MultipartBody.builder().addPart(
-            "file", file.filename,
-            io.micronaut.http.MediaType.MULTIPART_FORM_DATA_TYPE, file.bytes
-        ).build()
-        LOG.info("upload media ${file.filename} for $oid")
-        return mediaUploadClient.uploadFile(oid, body)
     }
 
     private suspend fun typeExists(type: String, oid: UUID) =
@@ -78,13 +66,6 @@ class UploadMediaController(private val mediaUploadClient: MediaUploadClient,
                 || "agreement" == type && agreementRegistrationService.findById(oid) != null)
 }
 
-fun getMediaType(file: CompletedFileUpload): MediaType {
-    return when (file.extension.lowercase()) {
-        "jpg", "jpeg", "png" -> MediaType.IMAGE
-        "pdf" -> MediaType.PDF
-        else -> MediaType.OTHER
-    }
-}
 
 val CompletedFileUpload.extension: String
     get() = filename.substringAfterLast('.', "")

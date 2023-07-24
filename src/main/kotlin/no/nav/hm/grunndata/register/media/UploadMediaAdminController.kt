@@ -22,7 +22,7 @@ import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(API_V1_ADMIN_UPLOAD_MEDIA)
-class UploadMediaAdminController(private val mediaUploadClient: MediaUploadClient,
+class UploadMediaAdminController(private val mediaUploadService: MediaUploadService,
                                  private val productRegistrationService: ProductRegistrationService,
                                  private val agreementRegistrationService: ProductRegistrationService) {
 
@@ -41,7 +41,7 @@ class UploadMediaAdminController(private val mediaUploadClient: MediaUploadClien
                            file: CompletedFileUpload,
                            authentication: Authentication): HttpResponse<MediaDTO> {
         if (typeExists(type, oid)) {
-            return HttpResponse.created(createMedia(file, oid))
+            return HttpResponse.created(mediaUploadService.uploadMedia(file, oid))
         }
         throw BadRequestException("Unknown oid, must be of product or agreement")
     }
@@ -56,24 +56,11 @@ class UploadMediaAdminController(private val mediaUploadClient: MediaUploadClien
                             files: Publisher<CompletedFileUpload>,
                             authentication: Authentication): HttpResponse<List<MediaDTO>>  {
         if (typeExists(type,oid)) {
-            return HttpResponse.created(files.asFlow().map {createMedia(it, oid) }.toList())
+            return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid) }.toList())
         }
         throw BadRequestException("Unknown oid, must be of product or agreement")
     }
 
-
-
-    private suspend fun createMedia(file: CompletedFileUpload,
-                                    oid: UUID): MediaDTO {
-        val type = getMediaType(file)
-        if (type == MediaType.OTHER) throw UknownMediaSource("only png, jpg, pdf is supported")
-        val body = MultipartBody.builder().addPart(
-            "file", file.filename,
-            io.micronaut.http.MediaType.MULTIPART_FORM_DATA_TYPE, file.bytes
-        ).build()
-        LOG.info("upload media ${file.filename} for $oid")
-        return mediaUploadClient.uploadFile(oid, body)
-    }
 
     private suspend fun typeExists(type: String, oid: UUID) =
         ("product" == type && productRegistrationService.findById(oid) != null
