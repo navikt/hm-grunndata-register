@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.media
 
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
+import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.multipart.MultipartBody
@@ -22,5 +23,8 @@ interface MediaUploadClient {
         produces = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA]
     )
     suspend fun uploadFiles(oid: UUID, @Body files: List<MultipartBody>): List<MediaDTO>
+
+    @Get(value = "/oid/{oid}")
+    suspend fun getMediaList(oid:UUID): List<MediaDTO>
 
 }

@@ -26,6 +26,9 @@ class MediaUploadService(private val mediaUploadClient: MediaUploadClient) {
         return mediaUploadClient.uploadFile(oid, body)
     }
 
+    suspend fun getMediaList(oid: UUID): List<MediaDTO> = mediaUploadClient.getMediaList(oid)
+
+
     private fun getMediaType(file: CompletedFileUpload): MediaType {
         return when (file.extension.lowercase()) {
             "jpg", "jpeg", "png" -> MediaType.IMAGE
@@ -33,4 +36,6 @@ class MediaUploadService(private val mediaUploadClient: MediaUploadClient) {
             else -> MediaType.OTHER
         }
     }
+
+
 }

@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.media
 
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
@@ -22,8 +23,7 @@ import java.util.*
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(API_V1_UPLOAD_MEDIA)
 class UploadMediaController(private val mediaUploadService: MediaUploadService,
-                            private val productRegistrationService: ProductRegistrationService,
-                            private val agreementRegistrationService: ProductRegistrationService) {
+                            private val productRegistrationService: ProductRegistrationService) {
 
     companion object {
         const val API_V1_UPLOAD_MEDIA = "/api/v1/media"
@@ -42,7 +42,15 @@ class UploadMediaController(private val mediaUploadService: MediaUploadService,
         if (typeExists(type, oid, authentication.supplierId())) {
             return HttpResponse.created(mediaUploadService.uploadMedia(file, oid))
         }
-        throw BadRequestException("Unknown oid, must be of product or agreement")
+        throw BadRequestException("Wrong id?")
+    }
+
+    @Get("/{oid}")
+    suspend fun getMediaList(oid:UUID, authentication: Authentication): HttpResponse<List<MediaDTO>> {
+        if (productRegistrationService.findByIdAndSupplierId(oid, authentication.supplierId())!=null) {
+            return HttpResponse.ok(mediaUploadService.getMediaList(oid))
+        }
+        throw BadRequestException("Wrong id?")
     }
 
     @Post(
