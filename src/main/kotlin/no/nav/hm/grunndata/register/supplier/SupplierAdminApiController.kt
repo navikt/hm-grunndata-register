@@ -18,7 +18,7 @@ class SupplierAdminApiController(private val supplierRegistrationService: Suppli
                                  private val supplierRegistrationHandler: SupplierRegistrationHandler) {
 
     companion object {
-        const val API_V1_ADMIN_SUPPLIER_REGISTRATIONS = "/api/v1/admin/supplier/registrations"
+        const val API_V1_ADMIN_SUPPLIER_REGISTRATIONS = "/admin/api/v1/supplier/registrations"
         private val LOG = LoggerFactory.getLogger(SupplierAdminApiController::class.java)
     }
 

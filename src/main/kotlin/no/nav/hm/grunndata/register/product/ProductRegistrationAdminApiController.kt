@@ -25,7 +25,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
                                             private val supplierRegistrationService: SupplierRegistrationService) {
 
     companion object {
-        const val API_V1_ADMIN_PRODUCT_REGISTRATIONS = "/api/v1/admin/product/registrations"
+        const val API_V1_ADMIN_PRODUCT_REGISTRATIONS = "/admin/api/v1/product/registrations"
         private val LOG = LoggerFactory.getLogger(ProductRegistrationAdminApiController::class.java)
     }
 

@@ -25,7 +25,7 @@ class UploadMediaAdminController(private val mediaUploadService: MediaUploadServ
                                  private val agreementRegistrationService: ProductRegistrationService) {
 
     companion object {
-        const val API_V1_ADMIN_UPLOAD_MEDIA = "/api/v1/admin/media"
+        const val API_V1_ADMIN_UPLOAD_MEDIA = "/admin/api/v1/media"
         private val LOG = LoggerFactory.getLogger(UploadMediaAdminController::class.java)
     }
 

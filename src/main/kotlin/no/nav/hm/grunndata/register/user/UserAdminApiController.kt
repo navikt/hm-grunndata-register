@@ -24,7 +24,7 @@ class UserAdminApiController(private val userRepository: UserRepository,
 ) {
 
     companion object {
-        const val API_V1_ADMIN_USER_REGISTRATIONS = "/api/v1/admin/users"
+        const val API_V1_ADMIN_USER_REGISTRATIONS = "/admin/api/v1/users"
         private val LOG = LoggerFactory.getLogger(UserAdminApiController::class.java)
     }
 

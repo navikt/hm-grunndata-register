@@ -65,7 +65,7 @@ class UploadMediaController(private val mediaUploadService: MediaUploadService,
         if (typeExists(type, oid, authentication.supplierId())) {
             return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid) }.toList())
         }
-        throw BadRequestException("Unknown oid, must be of product or agreement")
+        throw BadRequestException("Wrong id?")
     }
 
     private suspend fun typeExists(type: String, oid: UUID, supplierId: UUID) =
