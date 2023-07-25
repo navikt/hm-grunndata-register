@@ -134,4 +134,4 @@ kafka:
     enabled: false
 media:
   upload:
-    url: ${MEDIA_UPLOAD_URL:`http://localhost:8282/api/v1/upload/media`}
+    url: ${MEDIA_UPLOAD_URL:`http://localhost:8081/api/v1/upload/media`}

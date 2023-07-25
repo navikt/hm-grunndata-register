@@ -39,6 +39,7 @@ class UploadMediaController(private val mediaUploadService: MediaUploadService,
                            type: String,
                            file: CompletedFileUpload,
                            authentication: Authentication): HttpResponse<MediaDTO> {
+        LOG.info("supplier: ${authentication.supplierId()} uploading file for object $oid")
         if (typeExists(type, oid, authentication.supplierId())) {
             return HttpResponse.created(mediaUploadService.uploadMedia(file, oid))
         }
@@ -62,6 +63,7 @@ class UploadMediaController(private val mediaUploadService: MediaUploadService,
                             type: String,
                             files: Publisher<CompletedFileUpload>,
                             authentication: Authentication): HttpResponse<List<MediaDTO>>  {
+        LOG.info("supplier: ${authentication.supplierId()} uploading files for object $oid")
         if (typeExists(type, oid, authentication.supplierId())) {
             return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid) }.toList())
         }

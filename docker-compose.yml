@@ -68,6 +68,7 @@ services:
       MICRONAUT_ENVIRONMENTS: local
       RAPIDSANDRIVERS_ENABLED: true
       KAFKA_BROKERS: "kafka:9092"
+      MEDIA_STORAGE_CDNURL: http://localhost:8081/local
   mediaproxyregister:
     image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media-proxy:23.194.130158
     platform: linux/amd64
@@ -80,7 +81,7 @@ services:
     networks:
       - register-net
     environment:
-      MEDIA_STORAGE_CDNURL: "https://media:8080/local"
+      MEDIA_STORAGE_CDNURL: "http://media:8080/local"
       REDIS_HOST: "redis"
 
 networks:

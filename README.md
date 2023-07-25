@@ -129,5 +129,5 @@ curl -v -X PUT -H "Content-type: application/json" --cookie "JWT=$JWT" -d '<json
 
 Upload a media for a product:
 ```
-curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" -F 'file=@path/to/file.jpg' http://localhost:8080/api/v1/media/product/file/<uuid>
+curl -v -X POST --cookie "JWT=$JWT" -F 'file=@path/to/file.jpg' http://localhost:8080/api/v1/media/product/file/<uuid>
 ```
