@@ -3,7 +3,6 @@ package no.nav.hm.grunndata.register.media
 import io.micronaut.http.client.multipart.MultipartBody
 import io.micronaut.http.multipart.CompletedFileUpload
 import jakarta.inject.Singleton
-import no.nav.hm.grunndata.rapid.dto.MediaDTO
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import org.slf4j.LoggerFactory
 import java.util.*

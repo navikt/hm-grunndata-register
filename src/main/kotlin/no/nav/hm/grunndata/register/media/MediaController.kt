@@ -10,9 +10,8 @@ import io.micronaut.security.authentication.Authentication
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
-import no.nav.hm.grunndata.rapid.dto.MediaDTO
 import no.nav.hm.grunndata.register.api.BadRequestException
-import no.nav.hm.grunndata.register.media.UploadMediaController.Companion.API_V1_UPLOAD_MEDIA
+import no.nav.hm.grunndata.register.media.MediaController.Companion.API_V1_UPLOAD_MEDIA
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
@@ -22,12 +21,12 @@ import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(API_V1_UPLOAD_MEDIA)
-class UploadMediaController(private val mediaUploadService: MediaUploadService,
-                            private val productRegistrationService: ProductRegistrationService) {
+class MediaController(private val mediaUploadService: MediaUploadService,
+                      private val productRegistrationService: ProductRegistrationService) {
 
     companion object {
         const val API_V1_UPLOAD_MEDIA = "/api/v1/media"
-        private val LOG = LoggerFactory.getLogger(UploadMediaAdminController::class.java)
+        private val LOG = LoggerFactory.getLogger(MediaAdminController::class.java)
     }
 
     @Post(
