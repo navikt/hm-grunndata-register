@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.media
 
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
@@ -56,6 +57,12 @@ class MediaAdminController(private val mediaUploadService: MediaUploadService,
             return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid) }.toList())
         }
         throw BadRequestException("Unknown oid, must be of product or agreement")
+    }
+
+
+    @Get("/{oid}")
+    suspend fun getMediaList(oid:UUID, authentication: Authentication): HttpResponse<List<MediaDTO>> {
+        return HttpResponse.ok(mediaUploadService.getMediaList(oid))
     }
 
 

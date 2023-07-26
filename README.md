@@ -75,7 +75,7 @@ curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" -d '{
     "phone": "+47 12345678",
     "homepage": "https://www.hompage.no"
   }
-}' http://localhost:8080/api/v1/admin/supplier/registrations
+}' http://localhost:8080/admin/api/v1/supplier/registrations
 ```
 
 Create a supplier user in the local database:
@@ -86,7 +86,7 @@ Create a supplier user in the local database:
   "password" : "token123",
   "roles" : [ "ROLE_SUPPLIER" ],
   "attributes" : {"supplierId" : "<supplierId from previous request here>"}
-}' http://localhost:8080/api/v1/admin/users
+}' http://localhost:8080/admin/api/v1/users
 
 ```
 
@@ -107,7 +107,7 @@ Get current user:
 curl -v -X GET -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/user
 ```
 
-Start a draft with this user token
+Start a draft:
 ```
 curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/product/registrations/draft/<unique reference>
 ```
@@ -127,7 +127,14 @@ Update the draft:
 curl -v -X PUT -H "Content-type: application/json" --cookie "JWT=$JWT" -d '<json_here>' http://localhost:8080/api/v1/product/registrations/<uuid>
 ```
 
-Upload a media for a product:
+Upload a media file for a product:
 ```
 curl -v -X POST --cookie "JWT=$JWT" -F 'file=@path/to/file.jpg' http://localhost:8080/api/v1/media/product/file/<uuid>
 ```
+
+Image versions can then be retrieved here:
+
+````
+http://localhost:8082/imageproxy/400d/register/<oid>/<uuid.jpg>
+````
+
