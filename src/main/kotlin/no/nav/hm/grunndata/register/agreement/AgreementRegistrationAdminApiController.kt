@@ -22,7 +22,7 @@ import java.util.*
 class AgreementRegistrationAdminApiController(private val agreementRegistrationService: AgreementRegistrationService) {
 
     companion object {
-        const val API_V1_ADMIN_AGREEMENT_REGISTRATIONS = "/api/v1/admin/agreement/registrations"
+        const val API_V1_ADMIN_AGREEMENT_REGISTRATIONS = "/admin/api/v1/agreement/registrations"
         private val LOG = LoggerFactory.getLogger(AgreementRegistrationAdminApiController::class.java)
     }
 
@@ -37,6 +37,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
     = params?.let {
         where {
             if (params.contains("reference")) root[AgreementRegistration::reference] eq params["reference"]
+            if (params.contains("title")) criteriaBuilder.like(root[AgreementRegistration::title], params["title"])
             if (params.contains("draftStatus")) root[AgreementRegistration::draftStatus] eq DraftStatus.valueOf(params["draftStatus"]!!)
             if (params.contains("createdByUser")) root[AgreementRegistration::createdByUser] eq params["createdByUser"]
             if (params.contains("updatedByUser")) root[AgreementRegistration::updatedByUser] eq params["updatedByUser"]

@@ -140,5 +140,5 @@ http://localhost:8082/imageproxy/400d/register/<oid>/<uuid.jpg>
 
 Upload many files at the same time:
 ````
-curl -v -X POST --cookie "JWT=$JWT" -F 'files[]=@66131.jpg' -F 'files[]=@66131_4.jpg' http://localhost:8080/api/v1/media/product/files/<uuid>
+curl -v -X POST --cookie "JWT=$JWT" -F 'files=@@path/to/file1.jpg' -F 'files=@path/to/file2.jpg' http://localhost:8080/api/v1/media/product/files/<uuid>
 ````
