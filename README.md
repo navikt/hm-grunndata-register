@@ -109,7 +109,7 @@ curl -v -X GET -H "Content-type: application/json" --cookie "JWT=$JWT" http://lo
 
 Start a draft:
 ```
-curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/product/registrations/draft/<unique reference>
+curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/product/registrations/draft/test1
 ```
 
 Get registrations (user):
@@ -138,3 +138,7 @@ Image versions can then be retrieved here:
 http://localhost:8082/imageproxy/400d/register/<oid>/<uuid.jpg>
 ````
 
+Upload many files at the same time:
+````
+
+````

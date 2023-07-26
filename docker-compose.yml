@@ -1,4 +1,5 @@
 version: '3'
+
 services:
   postgresregister:
     hostname: postgres
@@ -53,7 +54,7 @@ services:
     networks:
       - register-net
   mediaregister:
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media:23.206.114504
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media:23.207.090948
     platform: linux/amd64
     hostname: media
     depends_on:
@@ -69,6 +70,8 @@ services:
       RAPIDSANDRIVERS_ENABLED: true
       KAFKA_BROKERS: "kafka:9092"
       MEDIA_STORAGE_CDNURL: http://localhost:8081/local
+    volumes:
+      - ./teamdigihot/grunndata/media/v1:/teamdigihot/grunndata/media/v1
   mediaproxyregister:
     image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media-proxy:23.194.130158
     platform: linux/amd64
