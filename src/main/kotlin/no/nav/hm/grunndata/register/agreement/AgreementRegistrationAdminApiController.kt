@@ -10,11 +10,13 @@ import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
@@ -62,6 +64,26 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name), isUpdate = false)
                 HttpResponse.created(dto)
             }
+
+
+    @Post("/draft/from/{id}/reference/{reference}")
+    suspend fun createAgreementFromAnother(id: UUID, reference: String, authentication: Authentication): HttpResponse<AgreementRegistrationDTO> =
+        agreementRegistrationService.findById(id)?.let {
+            HttpResponse.created(agreementRegistrationService.save(it.copy(
+                id = UUID.randomUUID(),
+                reference = reference,
+                draftStatus = DraftStatus.DRAFT,
+                agreementStatus = AgreementStatus.INACTIVE,
+                created = LocalDateTime.now(),
+                updated = LocalDateTime.now(),
+                expired = LocalDateTime.now().plusYears(5),
+                createdByUser = authentication.name,
+                updatedByUser = authentication.name,
+                createdBy = REGISTER,
+                updatedBy = REGISTER
+            )))
+        } ?: throw BadRequestException("wrong $id")
+
 
     @Put("/{id}")
     suspend fun updateAgreement(@Body registrationDTO: AgreementRegistrationDTO, @PathVariable id: UUID, authentication: Authentication):
