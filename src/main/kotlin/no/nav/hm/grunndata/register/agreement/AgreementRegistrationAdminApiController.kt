@@ -10,6 +10,7 @@ import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import no.nav.hm.grunndata.rapid.dto.AgreementAttachment
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.register.REGISTER
@@ -60,11 +61,29 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
         agreementRegistrationService.findById(registrationDTO.id)?.let {
                 throw BadRequestException("agreement ${registrationDTO.id} already exists")
             } ?: run {
-                val dto = agreementRegistrationService.saveAndPushToRapid(registrationDTO
+                val dto = agreementRegistrationService.saveAndPushToRapidIfNotDraft(registrationDTO
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name), isUpdate = false)
                 HttpResponse.created(dto)
             }
 
+
+    @Post("/draft/reference/{reference}")
+    suspend fun draftAgreement(reference: String, authentication: Authentication): HttpResponse<AgreementRegistrationDTO> =
+        agreementRegistrationService.findByReference(reference)?.let {
+            throw BadRequestException("agreement reference $reference already exists")
+        } ?: run {
+            val draft = AgreementRegistrationDTO(id = UUID.randomUUID(), draftStatus = DraftStatus.DRAFT,
+                agreementStatus = AgreementStatus.INACTIVE, title = "Fyll ut title", reference = reference,
+            expired = LocalDateTime.now().plusYears(3), createdByUser = authentication.name, updatedByUser = authentication.name,
+            agreementData = AgreementData(
+                resume = "kort beskrivelse", text = "rammeavtale tekst her", identifier = UUID.randomUUID().toString(),
+                attachments = listOf(AgreementAttachment(title = null, description = null, media = emptyList())),
+                posts = emptyList(),
+                )
+            )
+            val dto = agreementRegistrationService.saveAndPushToRapidIfNotDraft(draft, isUpdate = false)
+            HttpResponse.created(dto)
+        }
 
     @Post("/draft/from/{id}/reference/{reference}")
     suspend fun createAgreementFromAnother(id: UUID, reference: String, authentication: Authentication): HttpResponse<AgreementRegistrationDTO> =
@@ -92,7 +111,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                 ?.let { inDb ->
                     val updated = registrationDTO.copy(id = inDb.id, created = inDb.created, createdByUser = inDb.createdByUser,
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = inDb.createdBy)
-                    val dto = agreementRegistrationService.saveAndPushToRapid(updated, isUpdate = true)
+                    val dto = agreementRegistrationService.saveAndPushToRapidIfNotDraft(updated, isUpdate = true)
                     HttpResponse.ok(dto) }
                 ?: run {
                     throw BadRequestException("${registrationDTO.id} does not exists")}

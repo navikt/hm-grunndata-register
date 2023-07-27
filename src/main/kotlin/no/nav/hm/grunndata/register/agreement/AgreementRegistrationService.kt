@@ -21,7 +21,7 @@ open class AgreementRegistrationService(private val agreementRegistrationReposit
         agreementRegistrationRepository.update(dto.toEntity()).toDTO()
 
     @Transactional
-    open suspend fun saveAndPushToRapid(dto: AgreementRegistrationDTO, isUpdate:Boolean): AgreementRegistrationDTO {
+    open suspend fun saveAndPushToRapidIfNotDraft(dto: AgreementRegistrationDTO, isUpdate:Boolean): AgreementRegistrationDTO {
         val saved = if (isUpdate) update(dto) else save(dto)
         agreementRegistrationHandler.pushToRapidIfNotDraft(dto)
         return saved
@@ -31,6 +31,8 @@ open class AgreementRegistrationService(private val agreementRegistrationReposit
         agreementRegistrationRepository.findAll(spec, pageable).map { it.toDTO() }
 
 
+    open suspend fun findByReference(reference: String): AgreementRegistrationDTO? =
+        agreementRegistrationRepository.findByReference(reference)?.toDTO()
 
 
 }
