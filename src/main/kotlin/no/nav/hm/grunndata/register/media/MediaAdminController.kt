@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.media
 
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.multipart.CompletedFileUpload
@@ -63,6 +64,12 @@ class MediaAdminController(private val mediaUploadService: MediaUploadService,
     @Get("/{oid}")
     suspend fun getMediaList(oid:UUID, authentication: Authentication): HttpResponse<List<MediaDTO>> {
         return HttpResponse.ok(mediaUploadService.getMediaList(oid))
+    }
+
+    @Delete("/{oid}/{uri}")
+    suspend fun deleteFile(oid: UUID, uri: String, authentication: Authentication): HttpResponse<MediaDTO> {
+        LOG.info("Deleting media file oid: $oid and $uri")
+        return HttpResponse.ok(mediaUploadService.deleteByOidAndUri(oid, uri))
     }
 
 
