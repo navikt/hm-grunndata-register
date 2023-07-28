@@ -37,7 +37,7 @@ class SupplierApiController(private val supplierRegistrationService: SupplierReg
             return HttpResponse.unauthorized()
         }
         return supplierRegistrationService.findById(authentication.supplierId())
-            ?.let { inDb -> HttpResponse.ok(supplierRegistrationService.saveAndPushToRapid(
+            ?.let { inDb -> HttpResponse.ok(supplierRegistrationService.saveAndPushToRapidIfNotDraft(
                 supplier.copy(
                     status = inDb.status, created = inDb.created, identifier = inDb.identifier,
                     updated = LocalDateTime.now()), isUpdate = true))

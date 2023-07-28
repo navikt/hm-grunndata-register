@@ -24,7 +24,7 @@ open class SupplierRegistrationService(private val supplierRepository: SupplierR
         supplierRepository.save(dto.toEntity()).toDTO()
 
     @Transactional
-    open suspend fun saveAndPushToRapid(supplier: SupplierRegistrationDTO, isUpdate: Boolean): SupplierRegistrationDTO {
+    open suspend fun saveAndPushToRapidIfNotDraft(supplier: SupplierRegistrationDTO, isUpdate: Boolean): SupplierRegistrationDTO {
         val saved = if (isUpdate) update(supplier) else save(supplier)
         supplierRegistrationHandler.pushToRapidIfNotDraft(saved)
         return saved
