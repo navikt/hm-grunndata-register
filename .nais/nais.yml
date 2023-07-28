@@ -39,6 +39,8 @@ spec:
       value: "{{ rapidsandrivers_enabled }}"
     - name: MEDIA_UPLOAD_URL
       value: "{{ media_upload_url }}"
+    - name: GRUNNDATA_DB_URL
+      value: "http://hm-grunndata-db"
   gcp:
     sqlInstances:
       - name: hm-grunndata-register

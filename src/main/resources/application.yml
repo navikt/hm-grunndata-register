@@ -135,3 +135,7 @@ kafka:
 media:
   upload:
     url: ${MEDIA_UPLOAD_URL:`http://localhost:8081/api/v1/upload/media/register`}
+
+grunndata:
+  db:
+    url: ${GRUNNDATA_DB_URL:`http://localhost:8888`}
