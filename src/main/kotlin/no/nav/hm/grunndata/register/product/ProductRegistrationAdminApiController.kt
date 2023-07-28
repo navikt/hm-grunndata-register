@@ -73,7 +73,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
         productRegistrationService.findById(registrationDTO.id)?.let {
                 throw BadRequestException("Product registration already exists ${registrationDTO.id}")
             } ?: run {
-                val dto = productRegistrationService.saveAndPushToRapid(registrationDTO
+                val dto = productRegistrationService.saveAndPushToRapidIfNotDraftAndApproved(registrationDTO
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name, createdByAdmin = true,
                         created = LocalDateTime.now(), updated = LocalDateTime.now()), isUpdate = false)
                 HttpResponse.created(dto)
@@ -90,7 +90,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = inDb.createdBy,
                         createdByAdmin = inDb.createdByAdmin, updated = LocalDateTime.now()
                     )
-                    val dto = productRegistrationService.saveAndPushToRapid(updated, isUpdate = true)
+                    val dto = productRegistrationService.saveAndPushToRapidIfNotDraftAndApproved(updated, isUpdate = true)
                     HttpResponse.ok(dto) }
                 ?: run {
                     throw BadRequestException("Product registration already exists $id") }
@@ -99,7 +99,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
     suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findById(id)
             ?.let {
-                val dto = productRegistrationService.saveAndPushToRapid(it.copy(registrationStatus= RegistrationStatus.DELETED,
+                val dto = productRegistrationService.saveAndPushToRapidIfNotDraftAndApproved(it.copy(registrationStatus= RegistrationStatus.DELETED,
                     updatedByUser = authentication.name, updatedBy = REGISTER), isUpdate = true)
                 HttpResponse.ok(dto)}
             ?: HttpResponse.notFound()

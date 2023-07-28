@@ -14,9 +14,9 @@ import java.time.LocalDateTime
 @Singleton
 class ProductRegistrationHandler(private val registerRapidPushService: RegisterRapidPushService,
                                  private val supplierRegistrationService: SupplierRegistrationService) {
-    fun pushToRapidIfNotDraft(dto: ProductRegistrationDTO) {
+    fun pushToRapidIfNotDraftAndApproved(dto: ProductRegistrationDTO) {
         runBlocking {
-            if (dto.draftStatus == DraftStatus.DONE) {
+            if (dto.draftStatus == DraftStatus.DONE && dto.adminStatus == AdminStatus.APPROVED) {
                 val rapidDTO = dto.toRapidDTO()
                 registerRapidPushService.pushDTOToKafka(rapidDTO, EventName.registeredProductV1)
             }

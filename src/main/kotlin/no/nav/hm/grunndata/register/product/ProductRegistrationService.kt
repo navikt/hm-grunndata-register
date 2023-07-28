@@ -36,10 +36,10 @@ open class ProductRegistrationService(private val productRegistrationRepository:
         productRegistrationRepository.findBySeriesIdAndSupplierId(seriesId, supplierId)?.toDTO()
 
     @Transactional
-    open suspend fun saveAndPushToRapid(dto: ProductRegistrationDTO, isUpdate: Boolean): ProductRegistrationDTO {
+    open suspend fun saveAndPushToRapidIfNotDraftAndApproved(dto: ProductRegistrationDTO, isUpdate: Boolean): ProductRegistrationDTO {
 
         val saved = if (isUpdate) update(dto) else save(dto)
-        productRegistrationHandler.pushToRapidIfNotDraft(saved)
+        productRegistrationHandler.pushToRapidIfNotDraftAndApproved(saved)
         return saved
     }
 
