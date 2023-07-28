@@ -17,7 +17,7 @@ class SupplierRegistrationHandler(private val registerRapidPushService: Register
         runBlocking {
             if (dto.draftStatus == DraftStatus.DONE) {
                 val rapidDTO = dto.toRapidDTO()
-                registerRapidPushService.pushDTOToKafka(rapidDTO, EventName.registeredProductV1)
+                registerRapidPushService.pushDTOToKafka(rapidDTO, EventName.registeredSupplierV1)
             }
         }
     }
