@@ -4,8 +4,8 @@ import io.micronaut.cache.annotation.CacheConfig
 import io.micronaut.cache.annotation.CacheInvalidate
 import io.micronaut.cache.annotation.Cacheable
 import jakarta.inject.Singleton
+import jakarta.transaction.Transactional
 import java.util.*
-import javax.transaction.Transactional
 
 @Singleton
 @CacheConfig("suppliers")

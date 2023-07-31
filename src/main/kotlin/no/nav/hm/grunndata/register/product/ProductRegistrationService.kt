@@ -5,11 +5,11 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
+import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.REGISTER
 import java.time.LocalDateTime
 import java.util.*
-import javax.transaction.Transactional
 
 @Singleton
 open class ProductRegistrationService(private val productRegistrationRepository: ProductRegistrationRepository,

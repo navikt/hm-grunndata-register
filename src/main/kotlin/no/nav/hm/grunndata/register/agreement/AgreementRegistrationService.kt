@@ -4,8 +4,8 @@ import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import jakarta.inject.Singleton
+import jakarta.transaction.Transactional
 import java.util.UUID
-import javax.transaction.Transactional
 
 @Singleton
 open class AgreementRegistrationService(private val agreementRegistrationRepository: AgreementRegistrationRepository,

@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory
 
 
 @Singleton
-class UserPasswordAuthenticationProvider(private val userRepository: UserRepository): AuthenticationProvider {
+class UserPasswordAuthenticationProvider(private val userRepository: UserRepository): AuthenticationProvider<HttpRequest<*>> {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(UserPasswordAuthenticationProvider::class.java)
