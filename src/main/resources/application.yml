@@ -28,7 +28,7 @@ micronaut:
     endpoints:
       login:
         enabled: true
-        path: "/login"
+        path: /login
     authentication: cookie
     token:
       jwt:

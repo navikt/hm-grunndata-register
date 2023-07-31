@@ -4,9 +4,10 @@ import io.micronaut.data.model.Page
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
+import no.nav.hm.grunndata.register.CONTEXT_PATH
 import java.util.*
 
-@Client(UserAdminApiController.API_V1_ADMIN_USER_REGISTRATIONS)
+@Client("$CONTEXT_PATH/${UserAdminApiController.API_V1_ADMIN_USER_REGISTRATIONS}")
 interface UserAdminApiClient {
 
     @Post("/")

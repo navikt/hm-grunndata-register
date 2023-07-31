@@ -4,11 +4,12 @@ import io.micronaut.data.model.Page
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
+import no.nav.hm.grunndata.register.CONTEXT_PATH
 
 import java.util.*
 
 
-@Client(ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS)
+@Client("$CONTEXT_PATH/${ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS}")
 interface ProductionRegistrationApiClient {
 
     @Get(uri = "/", consumes = [APPLICATION_JSON])

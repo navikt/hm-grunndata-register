@@ -6,10 +6,11 @@ import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.register.CONTEXT_PATH
 import java.util.*
 
 
-@Client(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
+@Client("$CONTEXT_PATH/${ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS}")
 interface ProductionRegistrationAdminApiClient {
 
     @Get(uri = "/", consumes = [APPLICATION_JSON])

@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.agreement
 
+import io.micronaut.context.annotation.Value
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification

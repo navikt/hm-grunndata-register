@@ -15,6 +15,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.rapid.event.RapidApp
+import no.nav.hm.grunndata.register.CONTEXT_PATH
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierAdminApiController.Companion.API_V1_ADMIN_SUPPLIER_REGISTRATIONS
@@ -90,7 +91,7 @@ class SupplierRegistrationAdminApiControllerTest(private val supplierRegistratio
             identifier = "leverandor-as"
         )
         val respons = client.toBlocking().exchange(
-            HttpRequest.POST(API_V1_ADMIN_SUPPLIER_REGISTRATIONS, supplier)
+            HttpRequest.POST("$CONTEXT_PATH/$API_V1_ADMIN_SUPPLIER_REGISTRATIONS", supplier)
                 .accept(MediaType.APPLICATION_JSON)
                 .cookie(jwt), SupplierRegistrationDTO::class.java
         )

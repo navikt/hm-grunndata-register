@@ -13,6 +13,7 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.register.CONTEXT_PATH
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierData
@@ -35,7 +36,7 @@ class UserControllerTest(private val userRepository: UserRepository,
     }
 
     @Inject
-    @field:Client("/")
+    @field:Client("$CONTEXT_PATH/")
     lateinit var client: HttpClient
 
     val email = "user@test.test"
