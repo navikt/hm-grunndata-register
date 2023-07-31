@@ -43,7 +43,7 @@ export RAPIDSANDRIVERS_ENABLED=true
 ```
 
 ## Openapi is available here:
-http://localhost:8080/swagger-ui
+http://localhost:8080/admregswagger-ui
 
 
 Create an admin user in the local database:
@@ -56,7 +56,7 @@ VALUES (gen_random_uuid(), 'admin', 'admin@test.test', '["ROLE_ADMIN"]','{}', cr
 
 Login to get JWT Token:
 ```
-curl -v -X POST -H "Content-type: application/json" -d '{"username":"admin@test.test", "password":"test123"}' http://localhost:8080/login
+curl -v -X POST -H "Content-type: application/json" -d '{"username":"admin@test.test", "password":"test123"}' http://localhost:8080/admreglogin
 ```
 
 export JWT token:
@@ -75,7 +75,7 @@ curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" -d '{
     "phone": "+47 12345678",
     "homepage": "https://www.hompage.no"
   }
-}' http://localhost:8080/admin/api/v1/supplier/registrations
+}' http://localhost:8080/admregadmin/api/v1/supplier/registrations
 ```
 
 Create a supplier user in the local database:
@@ -86,13 +86,13 @@ Create a supplier user in the local database:
   "password" : "token123",
   "roles" : [ "ROLE_SUPPLIER" ],
   "attributes" : {"supplierId" : "<supplierId from previous request here>"}
-}' http://localhost:8080/admin/api/v1/users
+}' http://localhost:8080/admregadmin/api/v1/users
 
 ```
 
 Login with this user:
 ```
-curl -v -X POST -H "Content-type: application/json" -d '{"username":"user1@test.test", "password":"token123"}' http://localhost:8080/login
+curl -v -X POST -H "Content-type: application/json" -d '{"username":"user1@test.test", "password":"token123"}' http://localhost:8080/admreglogin
 ```
 
 export JWT token for this user, we are going to use this user from now on:
@@ -104,32 +104,32 @@ export JWT=<copy and paste from the previous command>
 Get current user:
 
 ```
-curl -v -X GET -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/user
+curl -v -X GET -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/admregapi/v1/user
 ```
 
 Start a draft:
 ```
-curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/product/registrations/draft/test1
+curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/admregapi/v1/product/registrations/draft/test1
 ```
 
 Get registrations (user):
 ```
-curl -v -X GET -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/product/registrations
+curl -v -X GET -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/admregapi/v1/product/registrations
 ```
 
 Create product variant registrations (user):
 ```
-curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/api/v1/product/registrations/draft/variant/<product id>/reference/<unik reference>
+curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/admregapi/v1/product/registrations/draft/variant/<product id>/reference/<unik reference>
 ```
 
 Update the draft:
 ```
-curl -v -X PUT -H "Content-type: application/json" --cookie "JWT=$JWT" -d '<json_here>' http://localhost:8080/api/v1/product/registrations/<uuid>
+curl -v -X PUT -H "Content-type: application/json" --cookie "JWT=$JWT" -d '<json_here>' http://localhost:8080/admregapi/v1/product/registrations/<uuid>
 ```
 
 Upload a media file for a product:
 ```
-curl -v -X POST --cookie "JWT=$JWT" -F 'file=@path/to/file.jpg' http://localhost:8080/api/v1/media/product/file/<uuid>
+curl -v -X POST --cookie "JWT=$JWT" -F 'file=@path/to/file.jpg' http://localhost:8080/admregapi/v1/media/product/file/<uuid>
 ```
 
 Image versions can then be retrieved here:
@@ -140,5 +140,5 @@ http://localhost:8082/imageproxy/400d/register/<oid>/<uuid.jpg>
 
 Upload many files at the same time:
 ````
-curl -v -X POST --cookie "JWT=$JWT" -F 'files=@@path/to/file1.jpg' -F 'files=@path/to/file2.jpg' http://localhost:8080/api/v1/media/product/files/<uuid>
+curl -v -X POST --cookie "JWT=$JWT" -F 'files=@@path/to/file1.jpg' -F 'files=@path/to/file2.jpg' http://localhost:8080/admregapi/v1/media/product/files/<uuid>
 ````

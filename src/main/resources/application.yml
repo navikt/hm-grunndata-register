@@ -3,7 +3,7 @@ micronaut:
     multipart:
       max-file-size: 2097152
     port: ${SERVER_PORT:8080}
-    context-path: /
+    context-path: /admreg
   application:
     name: hm-grunndata-register
     thread-selection: auto
