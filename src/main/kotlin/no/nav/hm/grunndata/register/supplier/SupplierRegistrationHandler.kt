@@ -6,8 +6,7 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierDTO
 import no.nav.hm.grunndata.rapid.dto.SupplierInfo
 import no.nav.hm.grunndata.rapid.event.EventName
-import no.nav.hm.grunndata.register.RegisterRapidPushService
-import java.awt.SystemColor
+import no.nav.hm.grunndata.register.rapid.RegisterRapidPushService
 
 
 @Singleton

@@ -6,7 +6,7 @@ import no.nav.hm.grunndata.rapid.dto.AgreementDTO
 import no.nav.hm.grunndata.rapid.dto.AgreementRegistrationRapidDTO
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.event.EventName
-import no.nav.hm.grunndata.register.RegisterRapidPushService
+import no.nav.hm.grunndata.register.rapid.RegisterRapidPushService
 
 @Singleton
 class AgreementRegistrationHandler(private val registerRapidPushService: RegisterRapidPushService) {

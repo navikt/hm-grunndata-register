@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register
+package no.nav.hm.grunndata.register.rapid
 
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.rapid.dto.RapidDTO

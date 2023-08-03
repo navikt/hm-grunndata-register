@@ -56,7 +56,7 @@ VALUES (gen_random_uuid(), 'admin', 'admin@test.test', '["ROLE_ADMIN"]','{}', cr
 
 Login to get JWT Token:
 ```
-curl -v -X POST -H "Content-type: application/json" -d '{"username":"admin@test.test", "password":"test123"}' http://localhost:8080/admreglogin
+curl -v -X POST -H "Content-type: application/json" -d '{"username":"admin@test.test", "password":"test123"}' http://localhost:8080/admreg/login
 ```
 
 export JWT token:
@@ -92,7 +92,7 @@ Create a supplier user in the local database:
 
 Login with this user:
 ```
-curl -v -X POST -H "Content-type: application/json" -d '{"username":"user1@test.test", "password":"token123"}' http://localhost:8080/admreglogin
+curl -v -X POST -H "Content-type: application/json" -d '{"username":"user1@test.test", "password":"token123"}' http://localhost:8080/admreg/login
 ```
 
 export JWT token for this user, we are going to use this user from now on:

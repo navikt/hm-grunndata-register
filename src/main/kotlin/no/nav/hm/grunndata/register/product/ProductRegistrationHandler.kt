@@ -5,7 +5,7 @@ import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
-import no.nav.hm.grunndata.register.RegisterRapidPushService
+import no.nav.hm.grunndata.register.rapid.RegisterRapidPushService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.supplier.toRapidDTO
