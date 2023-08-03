@@ -54,7 +54,7 @@ services:
     networks:
       - register-net
   mediaregister:
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media:23.207.130417
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media:23.214.105129
     platform: linux/amd64
     hostname: media
     depends_on:
@@ -73,7 +73,7 @@ services:
     volumes:
       - /tmp/teamdigihot/grunndata/media/v1:/app/teamdigihot/grunndata/media/v1
   mediaproxyregister:
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media-proxy:23.194.130158
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media-proxy:23.214.105354
     platform: linux/amd64
     hostname: mediaproxy
     depends_on:

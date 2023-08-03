@@ -18,11 +18,11 @@ micronaut:
       login-failure: "login-failure"
       login-success: "login-success"
     intercept-url-map:
-      - pattern: ${micronaut.server.context-path}/swagger/**
+      - pattern: /swagger/**
         http-method: GET
         access:
           - isAnonymous()
-      - pattern: ${micronaut.server.context-path}/swagger-ui/**
+      - pattern: /swagger-ui/**
         access:
           - isAnonymous()
     endpoints:
