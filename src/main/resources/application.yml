@@ -98,6 +98,8 @@ endpoints:
   prometheus:
     sensitive: false
     enabled: true
+  flyway:
+    enabled: false
   all:
     path: "/internal"
 
@@ -117,16 +119,16 @@ datasources:
     pool-name: default
 
 flyway:
+  enabled: true
   datasources:
     default:
       locations: classpath:db
-      clean-disabled: false
       clean-on-validation-error: true
-      enabled: true
-
+      clean-schema: true
 
 rapidsandrivers:
   enabled: ${RAPIDSANDRIVERS_ENABLED:false}
+
 kafka:
   topic: teamdigihot.hm-grunndata-v1
   consumerGroupId: hm-grunndata-register-g1
