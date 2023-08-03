@@ -43,7 +43,7 @@ export RAPIDSANDRIVERS_ENABLED=true
 ```
 
 ## Openapi is available here:
-http://localhost:8080/admregswagger-ui
+http://localhost:8080/admreg/swagger-ui
 
 
 Create an admin user in the local database:
