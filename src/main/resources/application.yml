@@ -31,18 +31,19 @@ micronaut:
         path: /login
     authentication: cookie
     token:
+      generator:
+        access-token:
+          expiration: ${ACCESS_TOKEN_EXPIRATION:10800}
+      cookie:
+        enabled: true
+        cookie-max-age: 8h
+        cookie-domain: ${COOKIE_DOMAIN:localhost}
       jwt:
         signatures:
           secret:
             generator:
               secret: ${JWT_GENERATOR_SECRET:MustBeAVeryLongSecretAndUsedThisForTestOnly}
               jws-algorithm: HS256
-        cookie:
-          cookie-max-age: ${COOKIE_MAX_AGE:3h}
-
-        generator:
-          access-token:
-            expiration: ${ACCESS_TOKEN_EXPIRATION:10800}
   metrics:
     enabled: true
     sensitive: false

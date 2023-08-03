@@ -75,7 +75,7 @@ curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" -d '{
     "phone": "+47 12345678",
     "homepage": "https://www.hompage.no"
   }
-}' http://localhost:8080/admregadmin/api/v1/supplier/registrations
+}' http://localhost:8080/admreg/admin/api/v1/supplier/registrations
 ```
 
 Create a supplier user in the local database:
@@ -86,7 +86,7 @@ Create a supplier user in the local database:
   "password" : "token123",
   "roles" : [ "ROLE_SUPPLIER" ],
   "attributes" : {"supplierId" : "<supplierId from previous request here>"}
-}' http://localhost:8080/admregadmin/api/v1/users
+}' http://localhost:8080/admreg/admin/api/v1/users
 
 ```
 
