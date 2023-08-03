@@ -2,7 +2,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jvmTarget = "17"
-val micronautVersion="4.0.1"
+val micronautVersion="4.0.2"
 val kafkaVersion = "3.2.1"
 val junitJupiterVersion = "5.9.0"
 val logbackClassicVersion = "1.4.7"
@@ -36,12 +36,14 @@ dependencies {
 
     api("ch.qos.logback:logback-classic:$logbackClassicVersion")
     api("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
+
     runtimeOnly("org.yaml:snakeyaml")
+    implementation("io.micronaut:micronaut-jackson-databind")
 
     // coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
-    implementation("io.micronaut:micronaut-jackson-databind")
+
     // security
     implementation("io.micronaut.security:micronaut-security-jwt")
     kapt("io.micronaut.security:micronaut-security-annotations")
