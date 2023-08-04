@@ -44,6 +44,8 @@ spec:
       value: "{{ media_upload_url }}"
     - name: GRUNNDATA_DB_URL
       value: "http://hm-grunndata-db"
+    - name: COOKIE_DOMAIN
+      value: "{{ cookie_domain }}"
   gcp:
     sqlInstances:
       - name: hm-grunndata-register
