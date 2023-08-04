@@ -119,12 +119,9 @@ datasources:
     pool-name: default
 
 flyway:
-  enabled: true
   datasources:
     default:
       locations: classpath:db
-      clean-on-validation-error: true
-      clean-schema: true
 
 rapidsandrivers:
   enabled: ${RAPIDSANDRIVERS_ENABLED:false}
