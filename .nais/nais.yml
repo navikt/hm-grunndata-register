@@ -20,14 +20,13 @@ spec:
     cpuThresholdPercentage: 50
   resources:
     limits:
-      cpu: 1000m
       memory: 2048Mi
     requests:
       cpu: 200m
       memory: 256Mi
   prometheus:
     enabled: true
-    path: /internal/prometheus
+    path: /admreg/internal/prometheus
   ingresses:
   {{#each ingress as |url|}}
       - {{url}}
