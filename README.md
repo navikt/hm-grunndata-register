@@ -50,7 +50,7 @@ Create an admin user in the local database:
 
 ```
 INSERT INTO user_v1(id, name, email,roles,attributes,token) 
-VALUES (gen_random_uuid(), 'admin', 'admin@test.test', '["ROLE_ADMIN"]','{}', crypt('test123', gen_salt('bf', 8)));
+VALUES (gen_random_uuid(), 'admin', 'admin@test.test', '["ROLE_ADMIN"]','{}', crypt('test123', gen_salt('bf', 8)))
 
 ```
 
