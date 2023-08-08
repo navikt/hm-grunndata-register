@@ -26,7 +26,7 @@ class MediaController(private val mediaUploadService: MediaUploadService,
                       private val productRegistrationService: ProductRegistrationService) {
 
     companion object {
-        const val API_V1_UPLOAD_PRODUCT_MEDIA = "/api/v1/products/media"
+        const val API_V1_UPLOAD_PRODUCT_MEDIA = "/api/v1/product/media"
         private val LOG = LoggerFactory.getLogger(MediaAdminController::class.java)
     }
 
