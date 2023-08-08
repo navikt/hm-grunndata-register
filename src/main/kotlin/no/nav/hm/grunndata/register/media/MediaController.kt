@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import no.nav.hm.grunndata.register.api.BadRequestException
-import no.nav.hm.grunndata.register.media.MediaController.Companion.API_V1_UPLOAD_MEDIA
+import no.nav.hm.grunndata.register.media.MediaController.Companion.API_V1_UPLOAD_PRODUCT_MEDIA
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
@@ -21,26 +21,25 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
-@Controller(API_V1_UPLOAD_MEDIA)
+@Controller(API_V1_UPLOAD_PRODUCT_MEDIA)
 class MediaController(private val mediaUploadService: MediaUploadService,
                       private val productRegistrationService: ProductRegistrationService) {
 
     companion object {
-        const val API_V1_UPLOAD_MEDIA = "/api/v1/media"
+        const val API_V1_UPLOAD_PRODUCT_MEDIA = "/api/v1/products/media"
         private val LOG = LoggerFactory.getLogger(MediaAdminController::class.java)
     }
 
     @Post(
-        value = "/{type}/file/{oid}",
+        value = "/file/{oid}",
         consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
         produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
     )
     suspend fun uploadFile(oid: UUID,
-                           type: String,
                            file: CompletedFileUpload,
                            authentication: Authentication): HttpResponse<MediaDTO> {
         LOG.info("supplier: ${authentication.supplierId()} uploading file for object $oid")
-        if (typeExists(type, oid, authentication.supplierId())) {
+        if (oidExists(oid, authentication.supplierId())) {
             return HttpResponse.created(mediaUploadService.uploadMedia(file, oid))
         }
         throw BadRequestException("Wrong id?")
@@ -55,16 +54,15 @@ class MediaController(private val mediaUploadService: MediaUploadService,
     }
 
     @Post(
-        value = "/{type}/files/{oid}",
+        value = "/files/{oid}",
         consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
         produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
     )
     suspend fun uploadFiles(oid: UUID,
-                            type: String,
                             files: Publisher<CompletedFileUpload>,
                             authentication: Authentication): HttpResponse<List<MediaDTO>>  {
         LOG.info("supplier: ${authentication.supplierId()} uploading files for object $oid")
-        if (typeExists(type, oid, authentication.supplierId())) {
+        if (oidExists(oid, authentication.supplierId())) {
             return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid) }.toList())
         }
         throw BadRequestException("Wrong id?")
@@ -78,8 +76,8 @@ class MediaController(private val mediaUploadService: MediaUploadService,
         throw BadRequestException("Not found $oid $uri")
     }
 
-    private suspend fun typeExists(type: String, oid: UUID, supplierId: UUID) =
-        ("product" == type && productRegistrationService.findByIdAndSupplierId(oid, supplierId) != null)
+    private suspend fun oidExists(oid: UUID, supplierId: UUID) =
+        productRegistrationService.findByIdAndSupplierId(oid, supplierId) != null
 }
 
 
