@@ -48,7 +48,6 @@ data class SupplierRegistrationDTO (
     val status: SupplierStatus = SupplierStatus.ACTIVE,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val name: String,
-    @field:TypeDef(type= DataType.JSON)
     val supplierData: SupplierData,
     val identifier: String = UUID.randomUUID().toString(),
     val created: LocalDateTime = LocalDateTime.now(),

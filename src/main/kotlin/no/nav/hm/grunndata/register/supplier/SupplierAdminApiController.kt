@@ -28,8 +28,8 @@ class SupplierAdminApiController(private val supplierRegistrationService: Suppli
 
     @Post("/")
     suspend fun createSupplier(@Body supplier: SupplierRegistrationDTO, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
-        supplierRegistrationService.findById(supplier.id)
-            ?.let { throw BadRequestException("supplier ${supplier.id} already exists") }
+        supplierRegistrationService.findByName(supplier.name)
+            ?.let { throw BadRequestException("supplier ${supplier.name} already exists") }
             ?:run { val saved = supplierRegistrationService.saveAndPushToRapidIfNotDraft(supplier.copy(
                 updatedByUser = authentication.name, createdByUser = authentication.name), isUpdate = false)
                 HttpResponse.created(saved)
