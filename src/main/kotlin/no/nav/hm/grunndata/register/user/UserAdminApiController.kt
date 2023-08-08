@@ -48,7 +48,9 @@ class UserAdminApiController(private val userRepository: UserRepository,
     @Post("/")
     suspend fun createUser(@Body dto: UserRegistrationDTO): HttpResponse<UserDTO> {
         LOG.info("Creating user ${dto.id} ")
-        if (dto.attributes.containsKey(SUPPLIER_ID)) {
+        if (dto.roles.isEmpty()) throw BadRequestException("User does not have any role")
+        if (dto.roles.contains(Roles.ROLE_SUPPLIER)) {
+            if (!dto.attributes.containsKey(SUPPLIER_ID)) throw BadRequestException("User must be connected to a supplierId")
             val supplierId = UUID.fromString(dto.attributes[SUPPLIER_ID])
             supplierRegistrationService.findById(supplierId)
                 ?: throw BadRequestException("Unknown supplier id $supplierId")
