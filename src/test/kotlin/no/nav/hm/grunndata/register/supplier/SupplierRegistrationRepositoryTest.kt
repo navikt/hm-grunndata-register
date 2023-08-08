@@ -43,6 +43,9 @@ class SupplierRegistrationRepositoryTest(private val supplierRegistrationService
             val deactivated = supplierRegistrationService.update(updated.copy(status = SupplierStatus.INACTIVE))
             deactivated.shouldNotBeNull()
             deactivated.status shouldBe SupplierStatus.INACTIVE
+
+            val findByName = supplierRegistrationService.findByName("Leverandør AS-2")
+            findByName.shouldNotBeNull()
         }
     }
 

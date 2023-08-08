@@ -15,6 +15,8 @@ open class SupplierRegistrationService(private val supplierRepository: SupplierR
     @Cacheable
     open suspend fun findById(id: UUID): SupplierRegistrationDTO? = supplierRepository.findById(id)?.toDTO()
 
+    open suspend fun findByName(name: String): SupplierRegistrationDTO?= supplierRepository.findByName(name)?.toDTO()
+
     @CacheInvalidate(parameters = ["id"])
     open suspend fun update(dto: SupplierRegistrationDTO, id: UUID = dto.id) =
         supplierRepository.update(dto.toEntity()).toDTO()
