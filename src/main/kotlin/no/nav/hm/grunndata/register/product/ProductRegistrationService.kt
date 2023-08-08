@@ -95,7 +95,7 @@ open class ProductRegistrationService(private val productRegistrationRepository:
             productData = product,
             createdByUser = authentication.name,
             updatedByUser = authentication.name,
-            createdByAdmin = true,
+            createdByAdmin = authentication.isAdmin(),
             version = 0)
         return save(registration)
     }
