@@ -36,7 +36,7 @@ class SupplierAdminApiController(private val supplierRegistrationService: Suppli
             }
 
     @Put("/{id}")
-    suspend fun updateSupplier(@Body supplier: SupplierRegistrationDTO, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
+    suspend fun updateSupplier(@Body supplier: SupplierRegistrationDTO, id: UUID, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
         supplierRegistrationService.findById(supplier.id)
             ?.let { inDb -> HttpResponse.ok(supplierRegistrationService.saveAndPushToRapidIfNotDraft(
                 supplier = supplier.copy(created = inDb.created, identifier = inDb.identifier,
