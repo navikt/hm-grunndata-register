@@ -30,6 +30,9 @@ micronaut:
       login:
         enabled: true
         path: /login
+      logout:
+        enabled: true
+        path: /logout
     authentication: cookie
     token:
       generator:
