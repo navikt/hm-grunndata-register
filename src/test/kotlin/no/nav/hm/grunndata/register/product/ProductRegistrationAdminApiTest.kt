@@ -125,11 +125,17 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
 
         // make some changes, with approved by admin
         val updated = apiClient.updateProduct(jwt, read.id, read.copy(title = "Changed title",
-            adminStatus = AdminStatus.APPROVED))
+            draftStatus = DraftStatus.DONE, registrationStatus = RegistrationStatus.ACTIVE))
 
         updated.shouldNotBeNull()
         updated.title shouldBe "Changed title"
-        updated.adminStatus shouldBe AdminStatus.APPROVED
+
+        // approve the product
+        val approved = apiClient.approveProduct(jwt, updated.id)
+
+        approved.adminStatus shouldBe AdminStatus.APPROVED
+        approved.adminInfo.shouldNotBeNull()
+        approved.adminInfo?.approvedBy shouldBe  email
 
         // flag the registration to deleted
         val deleted = apiClient.deleteProduct(jwt, updated.id)
