@@ -15,7 +15,7 @@ micronaut:
   security:
     enabled: true
     redirect:
-      enabled: false # must set this to true fixed in micronaut 4.0
+      enabled: false
       login-failure: "login-failure"
       login-success: "login-success"
     intercept-url-map:
