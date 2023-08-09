@@ -10,12 +10,17 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.security.SecurityScheme
 import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
+import org.slf4j.LoggerFactory
 import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
-@Controller("/api/v1/user")
+@Controller(UserController.API_V1_USER_REGISTRATIONS)
 class UserController(private val userRepository: UserRepository) {
 
+    companion object {
+        private val LOG = LoggerFactory.getLogger(UserController::class.java)
+        const val API_V1_USER_REGISTRATIONS = "/vendor/api/v1/users"
+    }
     @Get("/")
     suspend fun getUser(authentication: Authentication?) : HttpResponse<UserDTO> =
         if (authentication!=null) {

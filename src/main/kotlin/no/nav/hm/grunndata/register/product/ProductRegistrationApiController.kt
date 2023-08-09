@@ -26,7 +26,7 @@ import java.util.*
 class ProductRegistrationApiController(private val productRegistrationService: ProductRegistrationService) {
 
     companion object {
-        const val API_V1_PRODUCT_REGISTRATIONS = "/api/v1/product/registrations"
+        const val API_V1_PRODUCT_REGISTRATIONS = "/vendor/api/v1/product/registrations"
         private val LOG = LoggerFactory.getLogger(ProductRegistrationApiController::class.java)
     }
 

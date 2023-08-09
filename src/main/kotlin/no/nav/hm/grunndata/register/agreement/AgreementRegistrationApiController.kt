@@ -18,7 +18,7 @@ import java.util.HashMap
 class AgreementRegistrationApiController(private val agreementRegistrationService: AgreementRegistrationService) {
 
     companion object {
-        const val API_V1_AGREEMENT_REGISTRATIONS = "/api/v1/agreement/registrations"
+        const val API_V1_AGREEMENT_REGISTRATIONS = "/vendor/api/v1/agreement/registrations"
         private val LOG = LoggerFactory.getLogger(AgreementRegistrationApiController::class.java)
     }
 

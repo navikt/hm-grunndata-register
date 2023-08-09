@@ -77,7 +77,7 @@ class UserControllerTest(private val userRepository: UserRepository,
         val jwt = loginClient.login(UsernamePasswordCredentials(email, token)).getCookie("JWT").get()
 
         val respons = client.toBlocking().exchange(
-            HttpRequest.GET<UserDTO>("/api/v1/user")
+            HttpRequest.GET<UserDTO>(UserController.API_V1_USER_REGISTRATIONS)
                 .accept(MediaType.APPLICATION_JSON)
                 .cookie(jwt), UserDTO::class.java
         )
@@ -86,7 +86,7 @@ class UserControllerTest(private val userRepository: UserRepository,
         val user = respons.body.get()
         user.name shouldBe "User tester"
         val changeUserResp = client.toBlocking().exchange(
-            HttpRequest.PUT("/api/v1/user", user.copy(name = "New name"))
+            HttpRequest.PUT(UserController.API_V1_USER_REGISTRATIONS, user.copy(name = "New name"))
             .accept(MediaType.APPLICATION_JSON)
             .cookie(jwt), UserDTO::class.java)
         changeUserResp.shouldNotBeNull()

@@ -26,24 +26,24 @@ class MediaController(private val mediaUploadService: MediaUploadService,
                       private val productRegistrationService: ProductRegistrationService) {
 
     companion object {
-        const val API_V1_UPLOAD_PRODUCT_MEDIA = "/api/v1/product/media"
+        const val API_V1_UPLOAD_PRODUCT_MEDIA = "/vendor/api/v1/product/media"
         private val LOG = LoggerFactory.getLogger(MediaAdminController::class.java)
     }
 
-    @Post(
-        value = "/file/{oid}",
-        consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
-        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
-    )
-    suspend fun uploadFile(oid: UUID,
-                           file: CompletedFileUpload,
-                           authentication: Authentication): HttpResponse<MediaDTO> {
-        LOG.info("supplier: ${authentication.supplierId()} uploading file for object $oid")
-        if (oidExists(oid, authentication.supplierId())) {
-            return HttpResponse.created(mediaUploadService.uploadMedia(file, oid))
-        }
-        throw BadRequestException("Wrong id?")
-    }
+//    @Post(
+//        value = "/file/{oid}",
+//        consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
+//        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
+//    )
+//    suspend fun uploadFile(oid: UUID,
+//                           file: CompletedFileUpload,
+//                           authentication: Authentication): HttpResponse<MediaDTO> {
+//        LOG.info("supplier: ${authentication.supplierId()} uploading file for object $oid")
+//        if (oidExists(oid, authentication.supplierId())) {
+//            return HttpResponse.created(mediaUploadService.uploadMedia(file, oid))
+//        }
+//        throw BadRequestException("Wrong id?")
+//    }
 
     @Get("/{oid}")
     suspend fun getMediaList(oid:UUID, authentication: Authentication): HttpResponse<List<MediaDTO>> {
