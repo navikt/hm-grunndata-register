@@ -30,20 +30,20 @@ class MediaAdminController(private val mediaUploadService: MediaUploadService,
         private val LOG = LoggerFactory.getLogger(MediaAdminController::class.java)
     }
 
-    @Post(
-        value = "/{type}/file/{oid}",
-        consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
-        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
-    )
-    suspend fun uploadFile(oid: UUID,
-                           type: String,
-                           file: CompletedFileUpload,
-                           authentication: Authentication): HttpResponse<MediaDTO> {
-        if (typeExists(type, oid)) {
-            return HttpResponse.created(mediaUploadService.uploadMedia(file, oid))
-        }
-        throw BadRequestException("Unknown oid, must be of product or agreement")
-    }
+//    @Post(
+//        value = "/{type}/file/{oid}",
+//        consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
+//        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
+//    )
+//    suspend fun uploadFile(oid: UUID,
+//                           type: String,
+//                           file: CompletedFileUpload,
+//                           authentication: Authentication): HttpResponse<MediaDTO> {
+//        if (typeExists(type, oid)) {
+//            return HttpResponse.created(mediaUploadService.uploadMedia(file, oid))
+//        }
+//        throw BadRequestException("Unknown oid, must be of product or agreement")
+//    } Disabled, for now
 
     @Post(
         value = "/{type}/files/{oid}",
