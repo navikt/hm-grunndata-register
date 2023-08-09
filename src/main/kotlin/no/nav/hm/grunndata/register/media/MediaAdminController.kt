@@ -30,36 +30,33 @@ class MediaAdminController(private val mediaUploadService: MediaUploadService,
         private val LOG = LoggerFactory.getLogger(MediaAdminController::class.java)
     }
 
-//    @Post(
-//        value = "/{type}/file/{oid}",
-//        consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
-//        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
-//    )
-//    suspend fun uploadFile(oid: UUID,
-//                           type: String,
-//                           file: CompletedFileUpload,
-//                           authentication: Authentication): HttpResponse<MediaDTO> {
-//        if (typeExists(type, oid)) {
-//            return HttpResponse.created(mediaUploadService.uploadMedia(file, oid))
-//        }
-//        throw BadRequestException("Unknown oid, must be of product or agreement")
-//    } Disabled, for now
-
     @Post(
-        value = "/{type}/files/{oid}",
+        value = "/product/files/{oid}",
         consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
         produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
     )
-    suspend fun uploadFiles(oid: UUID,
-                            type: String,
+    suspend fun uploadProductFiles(oid: UUID,
                             files: Publisher<CompletedFileUpload>,
                             authentication: Authentication): HttpResponse<List<MediaDTO>>  {
-        if (typeExists(type,oid)) {
+        if (productRegistrationService.findById(oid) != null) {
             return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid) }.toList())
         }
-        throw BadRequestException("Unknown oid, must be of product or agreement")
+        throw BadRequestException("Unknown oid, must be of product")
     }
 
+    @Post(
+        value = "/agreement/files/{oid}",
+        consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
+    )
+    suspend fun uploadAgreementFiles(oid: UUID,
+                            files: Publisher<CompletedFileUpload>,
+                            authentication: Authentication): HttpResponse<List<MediaDTO>>  {
+        if (agreementRegistrationService.findById(oid) != null) {
+            return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid) }.toList())
+        }
+        throw BadRequestException("Unknown oid, must be of agreement")
+    }
 
     @Get("/{oid}")
     suspend fun getMediaList(oid:UUID, authentication: Authentication): HttpResponse<List<MediaDTO>> {
@@ -72,9 +69,5 @@ class MediaAdminController(private val mediaUploadService: MediaUploadService,
         return HttpResponse.ok(mediaUploadService.deleteByOidAndUri(oid, uri))
     }
 
-
-    private suspend fun typeExists(type: String, oid: UUID) =
-        ("product" == type && productRegistrationService.findById(oid) != null
-                || "agreement" == type && agreementRegistrationService.findById(oid) != null)
 }
 
