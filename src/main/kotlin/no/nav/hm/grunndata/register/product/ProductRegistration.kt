@@ -43,7 +43,7 @@ data class ProductRegistration(
     @field:Version
     val version: Long?=0L)
 
-data class AdminInfo(val approvedBy: String?, val note: String?=null)
+data class AdminInfo(val approvedBy: String?, val note: String?=null, val approved: LocalDateTime?=null)
 
 
 fun ProductRegistration.isDraft(): Boolean = draftStatus == DraftStatus.DRAFT

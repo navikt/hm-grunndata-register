@@ -85,8 +85,8 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
             HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findById(id)
                 ?.let { inDb ->
-                    val updated = registrationDTO.copy(
-                        id = inDb.id, created = inDb.created,
+                    val updated = registrationDTO.copy(adminStatus = inDb.adminStatus,
+                        adminInfo = inDb.adminInfo, id = inDb.id, created = inDb.created,
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = inDb.createdBy,
                         createdByAdmin = inDb.createdByAdmin, updated = LocalDateTime.now()
                     )
@@ -106,11 +106,23 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
 
 
     @Post("/draft/variant/{id}/reference/{supplierRef}")
-    suspend fun createProductVariant(@PathVariable id:UUID, supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
-        return productRegistrationService.createProductVariant(id, supplierRef,authentication)?.let {
+    suspend fun createProductVariant(@PathVariable id:UUID, supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
+        productRegistrationService.createProductVariant(id, supplierRef,authentication)?.let {
             HttpResponse.ok(it)
         } ?: HttpResponse.notFound()
-    }
 
+
+    @Put("/approve/{id}")
+    suspend fun approveProduct(id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
+        productRegistrationService.findById(id)?.let {
+            if (it.adminStatus == AdminStatus.APPROVED) throw BadRequestException("$id is already approved")
+            if (it.draftStatus != DraftStatus.DONE) throw  BadRequestException("product is not done")
+            if (it.registrationStatus != RegistrationStatus.ACTIVE) throw BadRequestException("RegistrationStatus should be Active")
+            val dto = productRegistrationService.saveAndPushToRapidIfNotDraftAndApproved(
+                it.copy(adminStatus = AdminStatus.APPROVED, adminInfo = AdminInfo(approvedBy = authentication.name, approved = LocalDateTime.now()),
+                    updated = LocalDateTime.now(), updatedBy = REGISTER
+            ), isUpdate = true)
+            HttpResponse.ok(dto)
+        }?: HttpResponse.notFound()
 
 }
