@@ -1,5 +1,10 @@
 package no.nav.hm.grunndata.register.supplier
 
+import io.micronaut.data.model.Page
+import io.micronaut.data.model.Pageable
+import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
+import io.micronaut.data.runtime.criteria.get
+import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
@@ -10,17 +15,31 @@ import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierAdminApiController.Companion.API_V1_ADMIN_SUPPLIER_REGISTRATIONS
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(API_V1_ADMIN_SUPPLIER_REGISTRATIONS)
-class SupplierAdminApiController(private val supplierRegistrationService: SupplierRegistrationService,
-                                 private val supplierRegistrationHandler: SupplierRegistrationHandler) {
+class SupplierAdminApiController(private val supplierRegistrationService: SupplierRegistrationService) {
 
     companion object {
         const val API_V1_ADMIN_SUPPLIER_REGISTRATIONS = "/admin/api/v1/supplier/registrations"
         private val LOG = LoggerFactory.getLogger(SupplierAdminApiController::class.java)
     }
+
+
+    @Get("/{?params*}")
+    suspend fun findSuppliers(@QueryValue params: HashMap<String, String>?,
+                             pageable: Pageable
+    ): Page<SupplierRegistrationDTO> =
+        supplierRegistrationService.findAll(buildCriteriaSpec(params), pageable)
+
+    private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<SupplierRegistration>? = params?.let {
+        where {
+            if (params.contains("name")) root[SupplierRegistration::name] eq params["name"]
+            if (params.contains("status")) root[SupplierRegistration::status] eq params["status"]
+        }
+    }
+
 
     @Get("/{id}")
     suspend fun getById(id: UUID, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> = supplierRegistrationService.findById(id)?.let {
