@@ -7,6 +7,7 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.client.annotation.Client
 import no.nav.hm.grunndata.rapid.dto.IsoCategoryDTO
 import no.nav.hm.grunndata.rapid.dto.ProductRapidDTO
+import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
 
 @Client("\${grunndata.db.url}")
 interface GdbApiClient {
@@ -19,5 +20,8 @@ interface GdbApiClient {
 
     @Get(uri="/api/v1/isocategories", consumes = [APPLICATION_JSON])
     fun retrieveIsoCategories(): List<IsoCategoryDTO>
+
+    @Get(uri="/api/v1/techlabels", consumes = [APPLICATION_JSON])
+    fun fetchAllTechLabels(): List<TechLabelDTO>
 
 }
