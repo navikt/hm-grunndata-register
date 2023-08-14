@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.gdb
+package no.nav.hm.grunndata.register.iso
 
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get

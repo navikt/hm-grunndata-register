@@ -1,7 +1,8 @@
-package no.nav.hm.grunndata.register.gdb
+package no.nav.hm.grunndata.register.iso
 
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.rapid.dto.IsoCategoryDTO
+import no.nav.hm.grunndata.register.gdb.GdbApiClient
 import org.slf4j.LoggerFactory
 
 @Singleton
