@@ -10,6 +10,7 @@ on:
       - "dev**"
     branches:
       - main
+      - adminregister-frontend
 
 jobs:
   call-workflow:
