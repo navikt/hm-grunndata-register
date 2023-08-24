@@ -68,4 +68,20 @@ spec:
     outbound:
       rules:
         - application: hm-grunndata-media
+          namespace: teamdigihot
+          cluster: dev-gcp
         - application: hm-grunndata-db
+          namespace: teamdigihot
+          cluster: dev-gcp
+        - application: hm-adminregister-frontend
+          namespace: teamdigihot
+          cluster: dev-gcp
+    inbound:
+      rules:
+        - application: hm-adminregister-frontend
+          namespace: teamdigihot
+          cluster: dev-gcp
+      external:
+        - host: adminregister.intern.dev.nav.no
+        - host: adminregister-alpha.intern.dev.nav.no
+

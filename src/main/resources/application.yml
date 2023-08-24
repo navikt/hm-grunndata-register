@@ -5,6 +5,14 @@ micronaut:
     port: ${SERVER_PORT:8080}
     context-path: /admreg
     max-request-size: 10000000
+    cors:
+      enabled: true
+      configurations:
+        web:
+          allowed-origins:
+            - http://localhost:3000
+            - https://adminregister-alpha.intern.dev.nav.no
+            - https://adminregister.intern.dev.nav.no
   application:
     name: hm-grunndata-register
     thread-selection: auto
