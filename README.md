@@ -25,6 +25,11 @@ Flagget AdminStatus settes til APPROVED når produktet blir godkjent.
 # Development
 
 ## Running in localhost, for frontend developing.
+Login in to gcloud and run naisdevice in the background, authenticate to google docker repository:
+
+```
+gcloud auth configure-docker europe-north1-docker.pkg.dev
+```
 
 This will run register, database, kafka, media and proxy in the background. 
 
@@ -36,7 +41,7 @@ docker-compose up -d
 Register should be running on: http://localhost:8080/admreg/swagger-ui
 
 
-Running hm-grunndata-register for backend:
+Running hm-grunndata-register for backend developing:
 ```
 cd hm-grunndata-db
 docker-compose up -d
