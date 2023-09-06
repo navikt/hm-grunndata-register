@@ -54,7 +54,7 @@ services:
     networks:
       - register-net
   mediaregister:
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media:23.214.105129
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media:23.223.111226
     platform: linux/amd64
     hostname: media
     depends_on:
@@ -73,7 +73,7 @@ services:
     volumes:
       - /tmp/teamdigihot/grunndata/media/v1:/app/teamdigihot/grunndata/media/v1
   mediaproxyregister:
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media-proxy:23.214.105354
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media-proxy:23.233.175541
     platform: linux/amd64
     hostname: mediaproxy
     depends_on:
@@ -86,6 +86,23 @@ services:
     environment:
       MEDIA_STORAGE_CDNURL: "http://media:8080/local"
       REDIS_HOST: "redis"
-
+  register:
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-register:23.226.125846
+    platform: linux/amd64
+    hostname: register
+    depends_on:
+      - postgresregister
+    ports:
+      - "8080:8080"
+    networks:
+      - register-net
+    environment:
+      MEDIA_UPLOAD_URL: "http://media:8080/api/v1/upload/media/register"
+      GRUNNDATA_DB_URL: "http://localhost:8080/"
+      COOKIE_DOMAIN: localhost
+      DB_DRIVER: org.postgresql.Driver
+      DB_JDBC_URL: "jdbc:postgresql://postgres:5432/register"
+      RAPIDSANDRIVERS_ENABLED: true
+      KAFKA_BROKERS: "kafka:9092"
 networks:
   register-net:

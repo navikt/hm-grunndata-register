@@ -24,21 +24,27 @@ Flagget AdminStatus settes til APPROVED når produktet blir godkjent.
 
 # Development
 
-## Running in localhost
+## Running in localhost, for frontend developing.
 
-This use docker-compose.yml file located in hm-grunndata-db, startup database and kafka 
+This will run register, database, kafka, media and proxy in the background. 
 
+```
+cd hm-grunndata-register
+docker-compose up -d
+
+```
+Register should be running on: http://localhost:8080/admreg/swagger-ui
+
+
+Running hm-grunndata-register for backend:
 ```
 cd hm-grunndata-db
 docker-compose up -d
 
-```
-
-Running the hm-grunndata-register:
-```
 export DB_DRIVER=org.postgresql.Driver
 export DB_JDBC_URL=jdbc:postgresql://localhost:5432/register
 export RAPIDSANDRIVERS_ENABLED=true
+
 ./gradlew build run
 ```
 
@@ -46,7 +52,8 @@ export RAPIDSANDRIVERS_ENABLED=true
 http://localhost:8080/admreg/swagger-ui
 
 
-Create an admin user in the local database:
+Login into local postgresql to create an admin user:
+psql -h localhost -U register, using password "register", then run these commands:
 
 ```
 INSERT INTO user_v1(id, name, email,roles,attributes,token) 
