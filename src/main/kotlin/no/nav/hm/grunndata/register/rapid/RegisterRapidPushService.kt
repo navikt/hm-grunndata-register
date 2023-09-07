@@ -9,11 +9,12 @@ import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 @Singleton
 class RegisterRapidPushService(private val kafkaRapidService: RapidPushService) {
 
-    fun pushDTOToKafka(dto: RapidDTO, eventName: String) {
+    fun pushDTOToKafka(dto: RapidDTO, eventName: String, extraKeyValues: Map<String, Any> = emptyMap()) {
         kafkaRapidService.pushToRapid(
             key = "$eventName-${dto.id}",
-            eventName = eventName, payload = dto, keyValues = mapOf("createdBy" to RapidApp.grunndata_register,
-                "dtoVersion" to rapidDTOVersion)
+            eventName = eventName, payload = dto,
+            keyValues = mapOf("createdBy" to RapidApp.grunndata_register,
+                "dtoVersion" to rapidDTOVersion) + extraKeyValues
         )
     }
 }

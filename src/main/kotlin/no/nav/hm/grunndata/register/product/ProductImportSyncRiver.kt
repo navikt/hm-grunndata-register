@@ -82,7 +82,9 @@ class ProductImportSyncRiver(river: RiverHead,
                 )
             )
         }
-        productRegistrationHandler.pushToRapidIfNotDraftAndApproved(registration.toDTO())
+        val extraImportKeyValues =
+            mapOf("transferId" to importDTO.transferId, "version" to importDTO.version)
+        productRegistrationHandler.pushToRapidIfNotDraftAndApproved(registration.toDTO(), extraImportKeyValues)
         LOG.info("imported product ${importDTO.id} with eventId $eventId synced")
     }
 
