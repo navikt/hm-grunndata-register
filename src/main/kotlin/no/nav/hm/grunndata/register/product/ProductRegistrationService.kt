@@ -74,8 +74,7 @@ open class ProductRegistrationService(private val productRegistrationRepository:
             sparePart = isSparePart,
             attributes = Attributes (
                 shortdescription = "kort beskrivelse",
-                text = "en lang beskrivelse",
-                compatible = if (isSparePart || isAccessory) listOf(CompatibleAttribute(hmsArtNr = "", supplierRef = "")) else null
+                text = "en lang beskrivelse"
             )
         )
         val registration = ProductRegistrationDTO(
