@@ -1,0 +1,54 @@
+{
+  "id": "9c68e99a-a730-4048-ad2c-2ba8ff466b8f",
+  "supplierId": "f639825c-2fc6-49cd-82ae-31b8ffa449a6",
+  "supplierRef": "99521146",
+  "seriesId": "9c68e99a-a730-4048-ad2c-2ba8ff466b8f",
+  "isoCategory": "12230303",
+  "title": "Blimo Gatsby X",
+  "articleName": "",
+  "draftStatus": "DRAFT",
+  "adminStatus": "PENDING",
+  "registrationStatus": "ACTIVE",
+  "created": "2023-08-08T12:09:19.136615",
+  "updated": "2023-08-08T14:59:57.974076626",
+  "published": "2023-08-08T12:09:19.135969841",
+  "expired": "2033-08-08T12:09:19.13597404",
+  "updatedByUser": "finnhans@finnhjelpemidler.no",
+  "createdByUser": "finnhans@finnhjelpemidler.no",
+  "createdBy": "REGISTER",
+  "updatedBy": "REGISTER",
+  "createdByAdmin": false,
+  "productData": {
+    "attributes": {
+      "shortdescription": "Modellen har et praktisk og pedagogiskt utformet digitalt kontrollpanel der føreren enkelt ser hvor mye batteri som er igjen, hastighet, klokke m.m. Her finnes det mulighet å raskt stille ned motorstyrken for lavere fart i trange miljøer. Regulering finnes også for belysning og blinkers, som samtlige har energisnåle LED-lamper",
+      "text": "Det er enkelt å kjøre en atsby: Gasse gjør du gjennom å trykke ned høyre gasshåndtak og bremse gjør du gjennom å slippe det. Når kjøretøyet har stoppet aktiveres en automatisk parkeringsbremse. For å rygge gjør du motsvarende, men med venster sides gasshåndtak.<br/><br/><br/>Modellen har et praktisk og pedagogiskt utformet digitalt kontrollpanel der føreren enkelt ser hvor mye batteri som er igjen, hastighet, klokke m.m. Her finnes det mulighet å raskt stille ned motorstyrken for lavere fart i trange miljøer. Regulering finnes også for belysning og blinkers, som samtlige har energisnåle LED-lamper.<br/><br/><br/>Setet er av riktig komfortmodell på Blimo Gatsby der du har en stor sitteyte, høy ryggstøtte med nakkestøtte samt justerbare armlen. Det går å stille inn setet i høyden samt skyve den i lengden. Også styret kan justeres slik ar alle førere skal finne en ergonomisk sittestilling. Setet kan vinkles til begge sider for å enkelt gå inn og ut av kjøretøyet.",
+      "series": "Blimo GatsBy",
+      "url": "https://www.blimo.no/elekriske-kjoretoy/elscootere/blimo-gatsby-x"
+    },
+    "accessory": false,
+    "sparePart": false,
+    "techData": [
+      {"key": "Hastighet maks", "value": "15", "unit": "km/t"},
+      {"key": "Motorstyrke", "value": "950", "unit":  "watt"},
+      {"key": "Totallengde", "value": "155", "unit":  "cm"},
+      {"key": "Totalbredde", "value":  "65", "unit": "cm"},
+      {"key": "Vekt inkl batteri", "value": "150", "unit":  "kg"},
+      {"key": "Kjørelengde maks", "value": "48", "unit": "km"},
+      {"key": "Brukervekt maks",  "value": "150", "unit": "kg"}
+    ],
+    "media": [
+      {
+        "sourceUri": "https://cdn.dev.nav.no/teamdigihot/grunndata/media/v1/register/9c68e99a-a730-4048-ad2c-2ba8ff466b8f/3f435458-cdb5-4b6f-837b-0e950b4dcc6b.jpg",
+        "uri": "register/9c68e99a-a730-4048-ad2c-2ba8ff466b8f/3f435458-cdb5-4b6f-837b-0e950b4dcc6b.jpg",
+        "priority": 1,
+        "type": "IMAGE",
+        "text": "hovedbilde",
+        "source": "REGISTER",
+        "updated": "2023-08-08T13:12:49.045718"
+      }
+    ],
+    "agreements": []
+  },
+  "version": 2
+}
+
