@@ -104,6 +104,6 @@ services:
       DB_JDBC_URL: "jdbc:postgresql://postgres:5432/register"
       RAPIDSANDRIVERS_ENABLED: true
       KAFKA_BROKERS: "kafka:9092"
-      SERVER_CORS_ENABLED: true
+      MICRONAUT_SERVER_CORS_ENABLED: true
 networks:
   register-net:
