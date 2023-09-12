@@ -40,7 +40,6 @@ docker-compose up -d
 ```
 Register should be running on: http://localhost:8080/admreg/swagger-ui
 
-
 Running hm-grunndata-register for backend developing:
 ```
 cd hm-grunndata-db
@@ -48,6 +47,7 @@ docker-compose up -d
 
 export DB_DRIVER=org.postgresql.Driver
 export DB_JDBC_URL=jdbc:postgresql://localhost:5432/register
+export KAFKA_BROKERS=localhost:29092
 export RAPIDSANDRIVERS_ENABLED=true
 
 ./gradlew build run
@@ -62,13 +62,13 @@ psql -h localhost -U register, using password "register", then run these command
 
 ```
 INSERT INTO user_v1(id, name, email,roles,attributes,token) 
-VALUES (gen_random_uuid(), 'admin', 'admin@test.test', '["ROLE_ADMIN"]','{}', crypt('test123', gen_salt('bf', 8)))
+VALUES (gen_random_uuid(), 'admin', 'admin@test.test', '["ROLE_ADMIN"]','{}', crypt('test12345', gen_salt('bf', 8)));
 
 ```
 
 Login to get JWT Token:
 ```
-curl -v -X POST -H "Content-type: application/json" -d '{"username":"admin@test.test", "password":"test123"}' http://localhost:8080/admreg/login
+curl -v -X POST -H "Content-type: application/json" -d '{"username":"admin@test.test", "password":"test12345"}' http://localhost:8080/admreg/login
 ```
 
 export JWT token:
