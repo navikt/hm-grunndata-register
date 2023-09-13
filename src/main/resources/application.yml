@@ -148,3 +148,4 @@ grunndata:
     url: ${GRUNNDATA_DB_URL:`http://localhost:8888`}
   import:
     url: ${GRUNNDATA_IMPORT_URL:`http://localhost:3333`}
+    token: ${GRUNNDATA_IMPORT_TOKEN:`bearer token123`}

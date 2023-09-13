@@ -7,12 +7,9 @@ import io.micronaut.http.client.annotation.Client
 import java.util.*
 
 @Client("\${grunndata.import.url}/internal/token")
-interface ImportAPITokenClient {
+interface ImportApiTokenClient {
 
     @Post("/{supplierId}", processes = [MediaType.APPLICATION_JSON])
-    fun createSupplierToken(supplierId: UUID, @Header authorization: String): String
-
-    @Post("/admin/{subject}", processes = [MediaType.APPLICATION_JSON])
-    fun createAdminToken(subject: String, @Header authorization: String): String
+    suspend fun createSupplierToken(supplierId: UUID, @Header authorization: String): String
 
 }
