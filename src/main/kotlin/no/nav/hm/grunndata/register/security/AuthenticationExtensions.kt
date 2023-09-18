@@ -6,3 +6,7 @@ import java.util.*
 
 fun Authentication.supplierId(): UUID = UUID.fromString(
     attributes[UserAttribute.SUPPLIER_ID] as String )
+
+fun Authentication.userId(): UUID = UUID.fromString (
+    attributes[UserAttribute.USER_ID] as String )
+
