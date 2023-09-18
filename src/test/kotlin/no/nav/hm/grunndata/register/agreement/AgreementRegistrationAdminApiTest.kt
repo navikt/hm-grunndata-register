@@ -47,17 +47,7 @@ class AgreementRegistrationAdminApiTest(private val apiClient: AgreementRegistra
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
         val agreementId = UUID.randomUUID()
-        val agreement = AgreementDTO(id = agreementId, published = LocalDateTime.now(),
-            expired = LocalDateTime.now().plusYears(2), title = "Title of agreement",
-            text = "some text", reference = "unik-ref4", identifier = "unik-ref4", resume = "resume",
-            posts = listOf(
-                AgreementPost(identifier = "unik-post1", title = "Post title",
-                    description = "post description", nr = 1), AgreementPost(identifier = "unik-post2", title = "Post title 2",
-                    description = "post description 2", nr = 2)
-            ), createdBy = REGISTER, updatedBy = REGISTER,
-            created = LocalDateTime.now(),
-            updated = LocalDateTime.now()
-        )
+
 
         val data = AgreementData(
             text = "some text",
@@ -70,19 +60,43 @@ class AgreementRegistrationAdminApiTest(private val apiClient: AgreementRegistra
             )
         )
 
-        val agreementRegistration = AgreementRegistrationDTO(
-            id = agreementId, published = agreement.published, expired = agreement.expired, title = agreement.title,
-            reference = agreement.reference, updatedByUser = email, createdByUser = email, agreementData =data
+        val agreementRegistration = AgreementRegistrationDTO (
+            id = agreementId, published = LocalDateTime.now(), expired = LocalDateTime.now().plusYears(2),
+            title = "Rammeavtale 1", reference = "unik-ref4", updatedByUser = email, createdByUser = email, agreementData =data
         )
 
-        val created = apiClient.createAgreement(jwt, agreementRegistration).body()
-        created.shouldNotBeNull()
+        val agreementId2 = UUID.randomUUID()
 
-        val read = apiClient.getAgreementById(jwt, created.id).body()
+        val data2 = AgreementData(
+            text = "some text",
+            resume = "resume",
+            identifier = UUID.randomUUID().toString(),
+            posts = listOf(
+                AgreementPost(identifier = "unik-post1", title = "Post title",
+                    description = "post description", nr = 1), AgreementPost(identifier = "unik-post2", title = "Post title 2",
+                    description = "post description 2", nr = 2)
+            )
+        )
+
+        val agreementRegistration2  = AgreementRegistrationDTO (
+            id = agreementId2, published = LocalDateTime.now(), expired = LocalDateTime.now().plusYears(2),
+            title = "Rammeavtale 2", reference = "unik-ref5", updatedByUser = email, createdByUser = email, agreementData =data2
+        )
+
+        val created1 = apiClient.createAgreement(jwt, agreementRegistration).body()
+        created1.shouldNotBeNull()
+
+        val created2 = apiClient.createAgreement(jwt, agreementRegistration2).body()
+        created2.shouldNotBeNull()
+
+        val read = apiClient.getAgreementById(jwt, created1.id).body()
         read.shouldNotBeNull()
-        read.title shouldBe created.title
+        read.title shouldBe created1.title
         read.createdByUser shouldBe email
         read.reference shouldBe "unik-ref4"
+
+        val find = apiClient.findAgreements(jwt = jwt, reference = "unik-ref4")
+        find.totalSize shouldBe 1
 
         val updated = apiClient.updateAgreement(jwt, read.id, read.copy(title="new title")).body()
         updated.shouldNotBeNull()
@@ -90,7 +104,7 @@ class AgreementRegistrationAdminApiTest(private val apiClient: AgreementRegistra
 
         val page = apiClient.findAgreements(jwt = jwt,
             size = 20, page = 0, sort = "created,asc")
-        page.totalSize shouldBe 1
+        page.totalSize shouldBe 2
 
         val updatedVersion = apiClient.getAgreementById(jwt, updated.id).body()
         updatedVersion.version!! shouldBeGreaterThan 0
