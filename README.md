@@ -28,6 +28,7 @@ Flagget AdminStatus settes til APPROVED når produktet blir godkjent.
 Login in to gcloud and run naisdevice in the background, authenticate to google docker repository:
 
 ```
+gcloud auth login (if you have not done it yet)
 gcloud auth configure-docker europe-north1-docker.pkg.dev
 ```
 

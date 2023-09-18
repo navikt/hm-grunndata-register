@@ -8,6 +8,7 @@ import io.micronaut.security.authentication.AuthenticationResponse
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.user.UserAttribute.SUPPLIER_ID
+import no.nav.hm.grunndata.register.user.UserAttribute.USER_ID
 
 import no.nav.hm.grunndata.register.user.UserRepository
 import org.reactivestreams.Publisher
@@ -27,7 +28,7 @@ class UserPasswordAuthenticationProvider(private val userRepository: UserReposit
             val secret = authenticationRequest.secret.toString()
              userRepository.loginUser(identity, secret)
                  ?.let {  LOG.debug("User ${it.email} with ${it.roles} logged in ")
-                     val userIdMap = mapOf("userId" to it.id.toString())
+                     val userIdMap = mapOf(USER_ID to it.id.toString())
                      val attributes = userIdMap + it.attributes
                      Publishers.just(AuthenticationResponse.success(it.email, it.roles, attributes)) }
                  ?: run {
