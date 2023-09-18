@@ -38,6 +38,7 @@ class UserController(private val userRepository: UserRepository) {
     suspend fun getUserId(userId: UUID, authentication: Authentication?): HttpResponse<UserDTO> =
         if (authentication != null) {
             userRepository.findById(userId)
+                ?.takeIf { it.attributes[SUPPLIER_ID] == authentication.attributes[SUPPLIER_ID] }
                 ?.let {
                     HttpResponse.ok(it.toDTO())
                 } ?: HttpResponse.notFound()

@@ -1,16 +1,16 @@
 package no.nav.hm.grunndata.register.user
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
-import io.kotest.matchers.optional.shouldBePresent
-import io.kotest.matchers.optional.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import io.micronaut.core.type.Argument
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.MediaType
 import io.micronaut.http.client.HttpClient
 import io.micronaut.http.client.annotation.Client
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
@@ -46,6 +46,10 @@ class UserControllerTest(private val userRepository: UserRepository,
     val email = "user@test.test"
     val token = "token-123"
 
+    val email2 = "user2@test.test"
+    val token2 = "token2-123"
+    lateinit var uuid2: String
+
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
 
@@ -55,7 +59,7 @@ class UserControllerTest(private val userRepository: UserRepository,
             val testSupplierRegistration = supplierRegistrationService.save(
                 SupplierRegistrationDTO(
                     id = UUID.randomUUID(),
-                    supplierData = SupplierData (
+                    supplierData = SupplierData(
                         email = "supplier@test.test",
                         address = "address 1",
                         homepage = "https://www.hompage.no",
@@ -71,8 +75,33 @@ class UserControllerTest(private val userRepository: UserRepository,
                 attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplierRegistration.id.toString()))
             )
             userRepository.createUser(user)
+
             LOG.info("created supplier: ${objectMapper.writeValueAsString(testSupplierRegistration)}")
             LOG.info("created user: ${objectMapper.writeValueAsString(user)}")
+
+            val testSupplierRegistration2 = supplierRegistrationService.save(
+                SupplierRegistrationDTO(
+                    id = UUID.randomUUID(),
+                    supplierData = SupplierData(
+                        email = "supplier@test.test",
+                        address = "address 1",
+                        homepage = "https://www.hompage.no",
+                        phone = "+47 12345678"
+                    ),
+                    identifier = "supplier-unique-name2",
+                    name = "Supplier2 AS"
+                )
+            )
+
+            val user2 = User(
+                email = email2, token = token2,
+                name = "User tester", roles = listOf(Roles.ROLE_SUPPLIER),
+                attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplierRegistration2.id.toString()))
+            )
+            userRepository.createUser(user2)
+            uuid2 = user2.id.toString()
+            LOG.info("created supplier: ${objectMapper.writeValueAsString(testSupplierRegistration2)}")
+            LOG.info("created user: ${objectMapper.writeValueAsString(user2)}")
         }
     }
 
@@ -90,22 +119,32 @@ class UserControllerTest(private val userRepository: UserRepository,
         respons.body.get().shouldNotBeEmpty()
         val user = respons.body.get()[0]
         user.name shouldBe "User tester"
-        val changeUserResp = client.toBlocking().exchange(
+        client.toBlocking().exchange(
             HttpRequest.PUT(UserController.API_V1_USER_REGISTRATIONS, user.copy(name = "New name"))
-            .accept(MediaType.APPLICATION_JSON)
-            .cookie(jwt), UserDTO::class.java)
-        changeUserResp.shouldNotBeNull()
-        changeUserResp.body().shouldNotBeNull()
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(jwt), UserDTO::class.java
+        )
+            .shouldNotBeNull()
+            .body().shouldNotBeNull()
 
         val userUri = "${UserController.API_V1_USER_REGISTRATIONS}/${user.id}"
-        val userResponse = client.toBlocking().exchange(
+        client.toBlocking().exchange(
             HttpRequest.GET<UserDTO>(userUri)
                 .accept(MediaType.APPLICATION_JSON)
                 .cookie(jwt),
             UserDTO::class.java
         )
+            .shouldNotBeNull()
+            .body().shouldNotBeNull()
 
-        userResponse.shouldNotBeNull()
-        userResponse.body.shouldNotBeNull()
+        shouldThrow<HttpClientResponseException> {
+            val otherSupplierUserUri = "${UserController.API_V1_USER_REGISTRATIONS}/${uuid2}"
+            client.toBlocking().exchange(
+                HttpRequest.GET<UserDTO>(otherSupplierUserUri)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .cookie(jwt),
+                UserDTO::class.java
+            )
+        }
     }
 }
