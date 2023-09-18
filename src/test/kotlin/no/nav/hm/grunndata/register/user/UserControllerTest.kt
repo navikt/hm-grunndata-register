@@ -1,8 +1,12 @@
 package no.nav.hm.grunndata.register.user
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.optional.shouldBePresent
+import io.kotest.matchers.optional.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
+import io.micronaut.core.type.Argument
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.MediaType
 import io.micronaut.http.client.HttpClient
@@ -12,6 +16,7 @@ import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import jakarta.inject.Inject
+import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.CONTEXT_PATH
 import no.nav.hm.grunndata.register.security.LoginClient
@@ -23,7 +28,6 @@ import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
-import java.util.*
 
 @MicronautTest
 class UserControllerTest(private val userRepository: UserRepository,
@@ -77,13 +81,14 @@ class UserControllerTest(private val userRepository: UserRepository,
         val jwt = loginClient.login(UsernamePasswordCredentials(email, token)).getCookie("JWT").get()
 
         val respons = client.toBlocking().exchange(
-            HttpRequest.GET<UserDTO>(UserController.API_V1_USER_REGISTRATIONS)
+            HttpRequest.GET<List<UserDTO>>(UserController.API_V1_USER_REGISTRATIONS)
                 .accept(MediaType.APPLICATION_JSON)
-                .cookie(jwt), UserDTO::class.java
+                .cookie(jwt), Argument.listOf(UserDTO::class.java)
         )
         respons.shouldNotBeNull()
         respons.body.shouldNotBeNull()
-        val user = respons.body.get()
+        respons.body.get().shouldNotBeEmpty()
+        val user = respons.body.get()[0]
         user.name shouldBe "User tester"
         val changeUserResp = client.toBlocking().exchange(
             HttpRequest.PUT(UserController.API_V1_USER_REGISTRATIONS, user.copy(name = "New name"))
@@ -91,5 +96,16 @@ class UserControllerTest(private val userRepository: UserRepository,
             .cookie(jwt), UserDTO::class.java)
         changeUserResp.shouldNotBeNull()
         changeUserResp.body().shouldNotBeNull()
+
+        val userUri = "${UserController.API_V1_USER_REGISTRATIONS}/${user.id}"
+        val userResponse = client.toBlocking().exchange(
+            HttpRequest.GET<UserDTO>(userUri)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(jwt),
+            UserDTO::class.java
+        )
+
+        userResponse.shouldNotBeNull()
+        userResponse.body.shouldNotBeNull()
     }
 }
