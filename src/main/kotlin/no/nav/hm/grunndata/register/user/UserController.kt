@@ -12,6 +12,8 @@ import no.nav.hm.grunndata.register.api.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
 import java.util.*
+import no.nav.hm.grunndata.register.user.UserAttribute.SUPPLIER_ID
+import kotlin.collections.List
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(UserController.API_V1_USER_REGISTRATIONS)
@@ -22,14 +24,25 @@ class UserController(private val userRepository: UserRepository) {
         const val API_V1_USER_REGISTRATIONS = "/vendor/api/v1/users"
     }
     @Get("/")
-    suspend fun getUser(authentication: Authentication?) : HttpResponse<UserDTO> =
+    suspend fun getUsers(authentication: Authentication?): HttpResponse<List<UserDTO>> =
         if (authentication!=null) {
-            userRepository.findByEmail(authentication.name)
-                ?.let {
-                    HttpResponse.ok(it.toDTO())
+            userRepository.getUsersBySupplierId(authentication.attributes[SUPPLIER_ID].toString())
+                .map { it.toDTO() }
+                .let {
+                    HttpResponse.ok(it)
                 } ?: HttpResponse.notFound()
         }
         else HttpResponse.unauthorized()
+
+    @Get("/{userId}")
+    suspend fun getUserId(userId: UUID, authentication: Authentication?): HttpResponse<UserDTO> =
+        if (authentication != null) {
+            userRepository.findById(userId)
+                ?.takeIf { it.attributes[SUPPLIER_ID] == authentication.attributes[SUPPLIER_ID] }
+                ?.let {
+                    HttpResponse.ok(it.toDTO())
+                } ?: HttpResponse.notFound()
+        } else HttpResponse.unauthorized()
 
     @Put("/")
     suspend fun updateUser(authentication: Authentication?, @Body userDTO: UserDTO): HttpResponse<UserDTO> =
