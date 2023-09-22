@@ -6,6 +6,6 @@
   "min_replicas": 1,
   "max_replicas": 1,
   "media_upload_url": "http://hm-grunndata-media/api/v1/upload/media/register",
-  "ingress": ["https://finnhjelpemidler.intern.dev.nav.no/admreg"],
-  "cookie_domain": "finnhjelpemidler.intern.dev.nav.no"
+  "ingress": ["https://finnhjelpemidler.intern.dev.nav.no/admreg", "https://finnhjelpemidler-alpha.intern.dev.nav.no/admreg"],
+  "cookie_domain": "intern.dev.nav.no"
 }
