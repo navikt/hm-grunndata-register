@@ -4,6 +4,7 @@ import io.kotest.common.runBlocking
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -16,7 +17,8 @@ class SeriesRegistrationRepositoryTest(private val seriesRegistrationRepository:
             id = UUID.randomUUID(),
             supplierId = UUID.randomUUID(),
             identifier = "HMDB-123",
-            name = "Series 1"
+            name = "Series 1",
+            status = SeriesStatus.ACTIVE
         )
         runBlocking {
             val saved = seriesRegistrationRepository.save(series)
@@ -27,6 +29,7 @@ class SeriesRegistrationRepositoryTest(private val seriesRegistrationRepository:
             found.name shouldBe identifier.name
             val updated = seriesRegistrationRepository.update(found.copy(name="Series 2"))
             updated.name shouldBe "Series 2"
+            updated.status shouldBe SeriesStatus.ACTIVE
         }
     }
 }
