@@ -18,9 +18,11 @@ import java.time.LocalDateTime
 
 @Context
 @Requires(bean = KafkaRapid::class)
-class SeriesSyncRiver(river: RiverHead,
-                      private val objectMapper: ObjectMapper,
-                      private val seriesRegistrationService: SeriesRegistrationService): River.PacketListener {
+class SeriesSyncRiver(
+    river: RiverHead,
+    private val objectMapper: ObjectMapper,
+    private val seriesRegistrationService: SeriesRegistrationService
+) : River.PacketListener {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesSyncRiver::class.java)
@@ -28,7 +30,7 @@ class SeriesSyncRiver(river: RiverHead,
 
     init {
         river
-            .validate { it .demandValue("createdBy", RapidApp.grunndata_db)}
+            .validate { it.demandValue("createdBy", RapidApp.grunndata_db) }
             .validate { it.demandAny("eventName", listOf(EventName.hmdbseriessyncV1)) }
             .validate { it.demandKey("payload") }
             .validate { it.demandKey("eventId") }
@@ -51,22 +53,22 @@ class SeriesSyncRiver(river: RiverHead,
                     )
                 )
             } ?: seriesRegistrationService.save(
-                SeriesRegistrationDTO (
-                    id = dto.id, supplierId = dto.supplierId, identifier = dto.identifier, name = dto.name,
-                    draftStatus = DraftStatus.DONE, status = dto.status, createdBy = dto.createdBy, updatedBy = dto.updatedBy,
-                    createdByUser = HMDB, updatedByUser = HMDB, createdByAdmin = false)
+                SeriesRegistrationDTO(
+                    id = dto.id,
+                    supplierId = dto.supplierId,
+                    identifier = dto.identifier,
+                    name = dto.name,
+                    draftStatus = DraftStatus.DONE,
+                    status = dto.status,
+                    createdBy = dto.createdBy,
+                    updatedBy = dto.updatedBy,
+                    createdByUser = HMDB,
+                    updatedByUser = HMDB,
+                    createdByAdmin = false
                 )
+            )
             LOG.info("series ${series.id} with eventId $eventId synced")
         }
     }
-
-    private fun mapAdminStatus(status: ProductStatus): AdminStatus =
-        if (status == ProductStatus.ACTIVE) AdminStatus.APPROVED else AdminStatus.PENDING
-
-    private fun mapStatus(status: ProductStatus): RegistrationStatus =
-        when (status) {
-            ProductStatus.ACTIVE -> RegistrationStatus.ACTIVE
-            ProductStatus.DELETED -> RegistrationStatus.DELETED
-            else -> RegistrationStatus.INACTIVE
-        }
 }
+
