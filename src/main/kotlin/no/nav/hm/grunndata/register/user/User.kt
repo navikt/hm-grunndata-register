@@ -27,4 +27,6 @@ const val USER_V1 = "user_v1"
 object UserAttribute {
     const val SUPPLIER_ID = "supplierId"
     const val USER_ID = "userId"
+    const val USER_NAME = "userName"
+    const val SUPPLIER_NAME = "supplierName"
 }
