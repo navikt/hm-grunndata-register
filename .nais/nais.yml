@@ -47,7 +47,7 @@ spec:
     - name: GRUNNDATA_DB_URL
       value: "http://hm-grunndata-db"
     - name: COOKIE_DOMAIN
-      value: "{{ cookie_domain }}",
+      value: "{{ cookie_domain }}"
     - name: MEDIA_UPLOAD_URL
       value: "http://hm-grunndata-media"
   gcp:
