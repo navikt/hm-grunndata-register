@@ -35,8 +35,8 @@ class SupplierAdminApiController(private val supplierRegistrationService: Suppli
 
     private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<SupplierRegistration>? = params?.let {
         where {
-            if (params.contains("name")) root[SupplierRegistration::name] eq params["name"]
             if (params.contains("status")) root[SupplierRegistration::status] eq params["status"]
+            if (params.contains("name")) criteriaBuilder.like(root[SupplierRegistration::name], params["name"])
         }
     }
 
