@@ -13,7 +13,7 @@ import io.micronaut.security.authentication.Authentication
 
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.REGISTER
-import no.nav.hm.grunndata.register.api.BadRequestException
+import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 
 import no.nav.hm.grunndata.register.security.supplierId
