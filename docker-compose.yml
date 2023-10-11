@@ -71,7 +71,7 @@ services:
       KAFKA_BROKERS: "kafka:9092"
       MEDIA_STORAGE_CDNURL: http://localhost:8081/local
     volumes:
-      - /tmp/teamdigihot/grunndata/media/v1:/app/teamdigihot/grunndata/media/v1
+      - ./build/tmp:/app/teamdigihot/grunndata/media/v1
   mediaproxyregister:
     image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media-proxy:23.233.175541
     platform: linux/amd64
