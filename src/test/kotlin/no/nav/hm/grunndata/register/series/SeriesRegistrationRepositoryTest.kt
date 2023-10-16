@@ -17,7 +17,7 @@ class SeriesRegistrationRepositoryTest(private val seriesRegistrationRepository:
             id = UUID.randomUUID(),
             supplierId = UUID.randomUUID(),
             identifier = "HMDB-123",
-            name = "Series 1",
+            title = "Series 1",
             status = SeriesStatus.ACTIVE
         )
         runBlocking {
@@ -26,9 +26,9 @@ class SeriesRegistrationRepositoryTest(private val seriesRegistrationRepository:
             found.shouldNotBeNull()
             val identifier = seriesRegistrationRepository.findByIdentifier(series.identifier)
             identifier.shouldNotBeNull()
-            found.name shouldBe identifier.name
-            val updated = seriesRegistrationRepository.update(found.copy(name="Series 2"))
-            updated.name shouldBe "Series 2"
+            found.title shouldBe identifier.title
+            val updated = seriesRegistrationRepository.update(found.copy(title="Series 2"))
+            updated.title shouldBe "Series 2"
             updated.status shouldBe SeriesStatus.ACTIVE
         }
     }

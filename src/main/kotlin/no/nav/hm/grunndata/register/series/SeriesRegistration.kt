@@ -15,7 +15,7 @@ data class SeriesRegistration (
     val id: UUID,
     val supplierId:UUID,
     val identifier: String,
-    val name: String,
+    val title: String,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val status: SeriesStatus = SeriesStatus.INACTIVE,
     val created: LocalDateTime = LocalDateTime.now(),
@@ -33,7 +33,7 @@ data class SeriesRegistrationDTO (
     val id: UUID,
     val supplierId:UUID,
     val identifier: String,
-    val name: String,
+    val title: String,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val status: SeriesStatus = SeriesStatus.ACTIVE,
     val created: LocalDateTime = LocalDateTime.now(),
@@ -47,13 +47,13 @@ data class SeriesRegistrationDTO (
 )
 
 fun SeriesRegistration.toDTO() = SeriesRegistrationDTO(id = id, supplierId = supplierId, identifier = identifier,
-    name = name, draftStatus = draftStatus, status = status, created = created, updated = updated,
+    title = title, draftStatus = draftStatus, status = status, created = created, updated = updated,
     createdBy = createdBy, updatedBy=updatedBy, updatedByUser = updatedByUser, createdByUser = createdByUser,
     createdByAdmin = createdByAdmin, version = version
 )
 
 fun SeriesRegistrationDTO.toEntity() = SeriesRegistration(
-    id = id, supplierId = supplierId, identifier = identifier, name = name, draftStatus = draftStatus,
+    id = id, supplierId = supplierId, identifier = identifier, title = title, draftStatus = draftStatus,
     status = status, created = created, updated = updated, createdBy = createdBy,
     updatedBy = updatedBy, updatedByUser = updatedByUser, version = version
 )

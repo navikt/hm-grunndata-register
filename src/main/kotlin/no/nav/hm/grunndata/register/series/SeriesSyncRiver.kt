@@ -48,7 +48,7 @@ class SeriesSyncRiver(
             val series = seriesRegistrationService.findById(dto.id)?.let { inDb ->
                 seriesRegistrationService.update(
                     inDb.copy(
-                        identifier = dto.identifier, name = dto.name, status = dto.status, updatedBy = HMDB,
+                        identifier = dto.identifier, title = dto.title, status = dto.status, updatedBy = HMDB,
                         updatedByUser = HMDB, updated = LocalDateTime.now()
                     )
                 )
@@ -57,7 +57,7 @@ class SeriesSyncRiver(
                     id = dto.id,
                     supplierId = dto.supplierId,
                     identifier = dto.identifier,
-                    name = dto.name,
+                    title = dto.title,
                     draftStatus = DraftStatus.DONE,
                     status = dto.status,
                     createdBy = dto.createdBy,
