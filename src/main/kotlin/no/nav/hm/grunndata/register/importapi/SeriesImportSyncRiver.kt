@@ -10,15 +10,13 @@ import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesImportRapidDTO
-import no.nav.hm.grunndata.rapid.dto.SeriesRapidDTO
 import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
-import no.nav.hm.grunndata.register.HMDB
-import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
+import no.nav.hm.grunndata.register.series.SeriesRegistrationHandler
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
-import no.nav.hm.grunndata.register.series.SeriesSyncRiver
+
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -27,7 +25,8 @@ import java.time.LocalDateTime
 @Requires(bean = KafkaRapid::class)
 class SeriesImportSyncRiver(river: RiverHead,
                             private val objectMapper: ObjectMapper,
-                            private val seriesRegistrationService: SeriesRegistrationService
+                            private val seriesRegistrationService: SeriesRegistrationService,
+                            private val seriesRegistrationHandler: SeriesRegistrationHandler
 ): River.PacketListener {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesImportSyncRiver::class.java)
@@ -52,29 +51,30 @@ class SeriesImportSyncRiver(river: RiverHead,
             val series = seriesRegistrationService.findById(dto.id)?.let { inDb ->
                 seriesRegistrationService.update(
                     inDb.copy(
-                        identifier = dto.seriesDTO.identifier, title = dto.seriesDTO.title, status = dto.seriesDTO.status,
-                        updatedBy = dto.seriesDTO.updatedBy, updatedByUser = dto.seriesDTO.updatedBy,
-                        updated = LocalDateTime.now(), expired = dto.seriesDTO.expired
+                        identifier = dto.id.toString(), title = dto.title, status = dto.status,
+                        updatedBy = "IMPORT", updatedByUser = "IMPORT",
+                        updated = LocalDateTime.now(), expired = dto.expired
                     )
                 )
             } ?: seriesRegistrationService.save(
                 SeriesRegistrationDTO(
                     id = dto.id,
-                    supplierId = dto.seriesDTO.supplierId,
-                    identifier = dto.seriesDTO.identifier,
-                    title = dto.seriesDTO.title,
+                    supplierId = dto.supplierId,
+                    identifier = dto.id.toString(),
+                    title = dto.title,
                     draftStatus = DraftStatus.DONE,
-                    status = dto.seriesDTO.status,
-                    createdBy = dto.seriesDTO.createdBy,
-                    updatedBy = dto.seriesDTO.updatedBy,
-                    createdByUser = dto.seriesDTO.createdBy,
-                    updatedByUser = dto.seriesDTO.updatedBy,
+                    status = dto.status,
+                    createdBy = "IMPORT",
+                    updatedBy = "IMPORT",
+                    createdByUser = "IMPORT",
+                    updatedByUser = "IMPORT",
                     createdByAdmin = false
                 )
             )
-           LOG.info("series import: ${series.id} with eventId $eventId synced")
+            val extraImportKeyValues =
+                mapOf("transferId" to dto.transferId, "version" to dto.version)
+            seriesRegistrationHandler.pushToRapidIfNotDraft(series, extraImportKeyValues)
+            LOG.info("series import: ${dto.id} transferId: ${dto.transferId} version: ${dto.version} eventId: $eventId synced")
         }
-
     }
-
 }
