@@ -13,27 +13,22 @@ import no.nav.hm.grunndata.register.product.toDTO
 import java.util.*
 
 @Singleton
-@CacheConfig("series")
-open class SeriesRegistrationService(private val seriesRegistrationRepository: SeriesRegistrationRepository) {
+class SeriesRegistrationService(private val seriesRegistrationRepository: SeriesRegistrationRepository) {
 
-    @Cacheable
-    open suspend fun findById(id: UUID): SeriesRegistrationDTO? = seriesRegistrationRepository.findById(id)?.toDTO()
+    suspend fun findById(id: UUID): SeriesRegistrationDTO? = seriesRegistrationRepository.findById(id)?.toDTO()
 
 
-    @CacheInvalidate(parameters = ["id"])
-    open suspend fun update(dto: SeriesRegistrationDTO, id: UUID = dto.id) =
+    suspend fun update(dto: SeriesRegistrationDTO, id: UUID = dto.id) =
         seriesRegistrationRepository.update(dto.toEntity()).toDTO()
 
-    @CacheInvalidate(parameters = ["id"])
-    open suspend fun save(dto: SeriesRegistrationDTO, id: UUID = dto.id) =
+    suspend fun save(dto: SeriesRegistrationDTO, id: UUID = dto.id) =
         seriesRegistrationRepository.save(dto.toEntity()).toDTO()
 
-    @Transactional
-    open suspend fun saveAndPushToRapidIfNotDraft(dto: SeriesRegistrationDTO, isUpdate: Boolean): SeriesRegistrationDTO {
+    suspend fun saveAndPushToRapidIfNotDraft(dto: SeriesRegistrationDTO, isUpdate: Boolean): SeriesRegistrationDTO {
         return if (isUpdate) update(dto) else save(dto)
     }
 
-    open suspend fun findAll(spec: PredicateSpecification<SeriesRegistration>?, pageable: Pageable): Page<SeriesRegistrationDTO> =
+    suspend fun findAll(spec: PredicateSpecification<SeriesRegistration>?, pageable: Pageable): Page<SeriesRegistrationDTO> =
         seriesRegistrationRepository.findAll(spec, pageable).map { it.toDTO() }
 
 }
