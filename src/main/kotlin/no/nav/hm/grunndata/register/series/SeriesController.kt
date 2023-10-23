@@ -23,13 +23,15 @@ class SeriesController(private val seriesRegistrationService: SeriesRegistration
         const val API_V1_SERIES = "/vendor/api/v1/series"
     }
 
-    @Get("/")
+    @Get("/{?params*}")
     suspend fun getSeries(
         @QueryValue params: HashMap<String, String>?,
         pageable: Pageable,
         authentication: Authentication
-    ): Page<SeriesRegistrationDTO> =
-        seriesRegistrationService.findAll(buildCriteriaSpec(params), pageable)
+    ): Page<SeriesRegistrationDTO> {
+        println(params)
+        return seriesRegistrationService.findAll(buildCriteriaSpec(params), pageable)
+    }
 
     private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<SeriesRegistration>? =
         params?.let {

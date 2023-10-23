@@ -86,9 +86,19 @@ class SeriesControllerTest(
                 )
             )
 
+            val serie2 = seriesRegistrationService.save(
+                SeriesRegistrationDTO(
+                    id = UUID.randomUUID(),
+                    supplierId = testSupplierRegistration.id,
+                    identifier = "testtest",
+                    title = "enda en serie"
+                )
+            )
+
             LOG.info("created supplier: ${objectMapper.writeValueAsString(testSupplierRegistration)}")
             LOG.info("created user: ${objectMapper.writeValueAsString(user)}")
             LOG.info("created series: ${objectMapper.writeValueAsString(serie)}")
+            LOG.info("created series: ${objectMapper.writeValueAsString(serie2)}")
         }
     }
 
@@ -97,7 +107,7 @@ class SeriesControllerTest(
     fun testert() {
         val jwt = loginClient.login(UsernamePasswordCredentials(email, token)).getCookie("JWT").get()
 
-        val uri = "${SeriesController.API_V1_SERIES}/?title=superserie"
+        val uri = "${SeriesController.API_V1_SERIES}/?identifier=testtest"
 
         val response = client.toBlocking().exchange(
             HttpRequest.GET<Page<SeriesRegistrationDTO>>(uri)
