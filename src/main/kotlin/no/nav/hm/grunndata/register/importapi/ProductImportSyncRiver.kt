@@ -57,7 +57,8 @@ class ProductImportSyncRiver(river: RiverHead,
                         supplierRef = importDTO.supplierRef,
                         supplierId = importDTO.supplierId,
                         published = importDTO.productDTO.published,
-                        expired = importDTO.productDTO.expired
+                        expired = importDTO.productDTO.expired,
+                        adminStatus = if (inDb.adminStatus == AdminStatus.PENDING) AdminStatus.APPROVED else inDb.adminStatus
                     )
                 )
             } ?: productRegistrationRepository.save(
