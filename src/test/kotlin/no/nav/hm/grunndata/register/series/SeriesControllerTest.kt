@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.data.model.Page
-import io.micronaut.data.model.Pageable
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.MediaType
 import io.micronaut.http.client.HttpClient
@@ -48,7 +47,7 @@ class SeriesControllerTest(
     @field:Client("$CONTEXT_PATH/")
     lateinit var client: HttpClient
 
-    val email = "user@test.test"
+    val email = "user33@test.test"
     val token = "token-123"
 
     @MockBean(RapidPushService::class)
@@ -66,8 +65,8 @@ class SeriesControllerTest(
                         homepage = "https://www.hompage.no",
                         phone = "+47 12345678"
                     ),
-                    identifier = "supplier-unique-name",
-                    name = "Supplier AS"
+                    identifier = "supplier-name",
+                    name = "Supplier AB"
                 )
             )
             val user = User(
@@ -104,12 +103,21 @@ class SeriesControllerTest(
 
 
     @Test
-    fun testert() {
+    fun seriesApiTest() {
         val jwt = loginClient.login(UsernamePasswordCredentials(email, token)).getCookie("JWT").get()
 
+        val allSeries = client.toBlocking().exchange(
+            HttpRequest.GET<Page<SeriesRegistrationDTO>>(SeriesController.API_V1_SERIES)
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(jwt),
+            Page::class.java
+        )
+            .shouldNotBeNull()
+            .body().shouldNotBeNull()
+        allSeries.totalSize shouldBe 2
+        
         val uri = "${SeriesController.API_V1_SERIES}/?identifier=testtest"
-
-        val response = client.toBlocking().exchange(
+        val filteredSeries = client.toBlocking().exchange(
             HttpRequest.GET<Page<SeriesRegistrationDTO>>(uri)
                 .accept(MediaType.APPLICATION_JSON)
                 .cookie(jwt),
@@ -117,10 +125,7 @@ class SeriesControllerTest(
         )
             .shouldNotBeNull()
             .body().shouldNotBeNull()
-
-        response.totalSize shouldBe 1
-
-        println(objectMapper.writeValueAsString(response))
+        filteredSeries.totalSize shouldBe 1
     }
 
 }

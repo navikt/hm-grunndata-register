@@ -29,7 +29,6 @@ class SeriesController(private val seriesRegistrationService: SeriesRegistration
         pageable: Pageable,
         authentication: Authentication
     ): Page<SeriesRegistrationDTO> {
-        println(params)
         return seriesRegistrationService.findAll(buildCriteriaSpec(params), pageable)
     }
 
