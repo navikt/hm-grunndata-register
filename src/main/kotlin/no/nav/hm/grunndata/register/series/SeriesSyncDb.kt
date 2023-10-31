@@ -47,7 +47,7 @@ class SeriesSyncDb(
                             SeriesRegistrationDTO(
                                 id = it.id,
                                 supplierId = it.supplierId,
-                                identifier = it.id.toString(),
+                                identifier = it.identifier,
                                 title = it.title,
                                 draftStatus = DraftStatus.DONE,
                                 status = it.status,
