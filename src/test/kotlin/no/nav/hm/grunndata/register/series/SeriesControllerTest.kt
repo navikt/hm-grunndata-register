@@ -116,7 +116,7 @@ class SeriesControllerTest(
             .body().shouldNotBeNull()
         allSeries.totalSize shouldBe 2
         
-        val uri = "${SeriesController.API_V1_SERIES}/?identifier=testtest"
+        val uri = "${SeriesController.API_V1_SERIES}/?title=superserie"
         val filteredSeries = client.toBlocking().exchange(
             HttpRequest.GET<Page<SeriesRegistrationDTO>>(uri)
                 .accept(MediaType.APPLICATION_JSON)
