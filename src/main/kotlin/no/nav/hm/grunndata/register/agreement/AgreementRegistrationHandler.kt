@@ -28,7 +28,7 @@ class AgreementRegistrationHandler(private val registerRapidPushService: Registe
         id = registration.id, identifier = identifier, title = registration.title, resume = resume, text = text,
         status = registration.agreementStatus, reference = registration.reference, published = registration.published,
         expired = registration.expired, attachments = attachments, posts = posts, createdBy = registration.createdBy,
-        updatedBy = registration.updatedBy, created = registration.created, updated = registration.updated
+        updatedBy = registration.updatedBy, created = registration.created, updated = registration.updated, isoCategory = isoCategory
     )
 
 }

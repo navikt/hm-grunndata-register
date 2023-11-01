@@ -39,6 +39,7 @@ data class AgreementData (
     val identifier: String,
     val attachments: List<AgreementAttachment> = emptyList(),
     val posts: List<AgreementPost> = emptyList(),
+    val isoCategory: List<String> = emptyList(),
 )
 
 data class AgreementRegistrationDTO (
@@ -60,14 +61,14 @@ data class AgreementRegistrationDTO (
 )
 
 fun AgreementDTO.toData(): AgreementData = AgreementData(
-    resume = resume, text = text, identifier = identifier, attachments = attachments, posts = posts
+    resume = resume, text = text, identifier = identifier, attachments = attachments, posts = posts, isoCategory = isoCategory
 )
 
 fun AgreementRegistration.toDTO(): AgreementRegistrationDTO = AgreementRegistrationDTO(
     id = id, draftStatus = draftStatus, title = title, reference = reference, created = created,
     updated = updated, published = published, expired = expired, createdByUser = createdByUser,
     updatedByUser = updatedByUser, createdBy= createdBy, updatedBy = updatedBy,
-    agreementData = agreementData, version = version
+    agreementData = agreementData, version = version,
 )
 
 fun AgreementRegistrationDTO.toEntity(): AgreementRegistration = AgreementRegistration(
