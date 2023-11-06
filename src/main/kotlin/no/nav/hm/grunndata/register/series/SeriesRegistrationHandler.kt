@@ -27,6 +27,7 @@ class SeriesRegistrationHandler(private val registerRapidPushService: RegisterRa
         supplierId = supplierId,
         identifier = identifier,
         title = title,
+        text = text,
         draftStatus = draftStatus,
         status = status,
         created = created,

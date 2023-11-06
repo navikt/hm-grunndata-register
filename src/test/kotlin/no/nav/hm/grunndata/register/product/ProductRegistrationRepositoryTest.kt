@@ -24,8 +24,12 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             accessory = false,
             sparePart = false,
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
-            media = listOf(MediaInfo(uri="123.jpg", text = "bilde av produktet", source = MediaSourceType.EXTERNALURL,
-                sourceUri = "https://ekstern.url/123.jpg")),
+            media = setOf(
+                MediaInfo(uri="123.jpg", text = "bilde av produktet", source = MediaSourceType.EXTERNALURL,
+                sourceUri = "https://ekstern.url/123.jpg"),
+                MediaInfo(uri="124.jpg", text = "bilde av produktet 2", source = MediaSourceType.EXTERNALURL,
+                    sourceUri = "https://ekstern.url/124.jpg")
+            ),
             agreementInfo = AgreementInfo(id = UUID.randomUUID(), identifier = "hmdbid-1", rank = 1, postNr = 1,
                 reference = "AV-142", expired = LocalDateTime.now())
         )
@@ -60,6 +64,7 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             updated.isApproved() shouldBe true
             updated.isDraft() shouldBe false
             updated.published.shouldNotBeNull()
+            updated.productData.media.size shouldBe 2
             val byHMSArtNr = productRegistrationRepository.findByHmsArtNrAndSupplierId(saved.hmsArtNr!!, saved.supplierId)
             byHMSArtNr.shouldNotBeNull()
         }

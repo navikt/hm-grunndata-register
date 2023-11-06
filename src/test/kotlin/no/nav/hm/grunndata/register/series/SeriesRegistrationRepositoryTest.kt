@@ -19,6 +19,7 @@ class SeriesRegistrationRepositoryTest(private val seriesRegistrationRepository:
             supplierId = UUID.randomUUID(),
             identifier = "HMDB-123",
             title = "Series 1",
+            text = "Series 1 text",
             status = SeriesStatus.ACTIVE
         )
         runBlocking {

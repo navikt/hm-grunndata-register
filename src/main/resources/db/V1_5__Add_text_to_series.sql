@@ -1,0 +1,1 @@
+ALTER TABLE series_reg_v1 ADD COLUMN text TEXT NOT NULL DEFAULT '';

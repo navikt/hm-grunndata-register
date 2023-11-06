@@ -35,6 +35,7 @@ class SeriesSyncDb(
                             inDb.copy(
                                 identifier = it.id.toString(),
                                 title = it.title,
+                                text = it.text,
                                 status = it.status,
                                 updatedBy = it.updatedBy,
                                 updated = LocalDateTime.now(),
@@ -49,6 +50,7 @@ class SeriesSyncDb(
                                 supplierId = it.supplierId,
                                 identifier = it.identifier,
                                 title = it.title,
+                                text = it.text,
                                 draftStatus = DraftStatus.DONE,
                                 status = it.status,
                                 createdBy = it.createdBy,

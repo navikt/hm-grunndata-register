@@ -8,7 +8,7 @@ data class ProductData (
     val accessory: Boolean = false,
     val sparePart: Boolean = false,
     val techData: List<TechData> = emptyList(),
-    val media: List<MediaInfo> = emptyList(),
+    val media: Set<MediaInfo> = emptySet(),
     @Deprecated("use agreements")
     val agreementInfo: AgreementInfo?=null,
     val agreements: List<AgreementInfo> = emptyList()

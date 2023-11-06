@@ -58,6 +58,7 @@ class SeriesSyncRiver(
                     supplierId = dto.supplierId,
                     identifier = dto.identifier,
                     title = dto.title,
+                    text = dto.text,
                     draftStatus = DraftStatus.DONE,
                     status = dto.status,
                     createdBy = dto.createdBy,

@@ -82,7 +82,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
             accessory = false,
             sparePart = false,
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
-            media = listOf(
+            media = setOf(
                 MediaInfo(
                     uri = "123.jpg",
                     text = "bilde av produktet",
