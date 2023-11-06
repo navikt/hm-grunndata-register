@@ -50,6 +50,8 @@ spec:
       value: "{{ cookie_domain }}"
     - name: MEDIA_UPLOAD_URL
       value: "http://hm-grunndata-media"
+    - name: SWAGGER_ENABLED
+      value: "{{ swagger_enabled }}"
   gcp:
     sqlInstances:
       - name: hm-grunndata-register
