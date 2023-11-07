@@ -48,8 +48,8 @@ class SeriesSyncRiver(
             val series = seriesRegistrationService.findById(dto.id)?.let { inDb ->
                 seriesRegistrationService.update(
                     inDb.copy(
-                        identifier = dto.identifier, title = dto.title, status = dto.status, updatedBy = HMDB,
-                        updatedByUser = HMDB, updated = LocalDateTime.now()
+                        identifier = dto.identifier, title = dto.title, text= dto.text, isoCategory = dto.isoCategory,
+                        status = dto.status, updatedBy = HMDB, updatedByUser = HMDB, updated = LocalDateTime.now()
                     )
                 )
             } ?: seriesRegistrationService.save(
@@ -59,6 +59,7 @@ class SeriesSyncRiver(
                     identifier = dto.identifier,
                     title = dto.title,
                     text = dto.text,
+                    isoCategory = dto.isoCategory,
                     draftStatus = DraftStatus.DONE,
                     status = dto.status,
                     createdBy = dto.createdBy,

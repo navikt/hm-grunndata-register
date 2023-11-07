@@ -28,6 +28,7 @@ class SeriesRegistrationHandler(private val registerRapidPushService: RegisterRa
         identifier = identifier,
         title = title,
         text = text,
+        isoCategory = isoCategory,
         draftStatus = draftStatus,
         status = status,
         created = created,

@@ -1,0 +1,1 @@
+ALTER TABLE series_reg_v1 ADD COLUMN iso_category VARCHAR(255) NOT NULL DEFAULT '';

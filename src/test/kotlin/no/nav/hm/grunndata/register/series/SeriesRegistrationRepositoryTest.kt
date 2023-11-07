@@ -20,6 +20,7 @@ class SeriesRegistrationRepositoryTest(private val seriesRegistrationRepository:
             identifier = "HMDB-123",
             title = "Series 1",
             text = "Series 1 text",
+            isoCategory = "12343212",
             status = SeriesStatus.ACTIVE
         )
         runBlocking {
@@ -33,6 +34,7 @@ class SeriesRegistrationRepositoryTest(private val seriesRegistrationRepository:
             updated.title shouldBe "Series 2"
             updated.status shouldBe SeriesStatus.ACTIVE
             updated.expired shouldBeAfter updated.created
+            updated.isoCategory shouldBe "12343212"
         }
     }
 }
