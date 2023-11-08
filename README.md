@@ -114,35 +114,37 @@ export JWT=<copy and paste from the previous command>
 ``
 
 
-Get current user:
+Get current LoggedIn User:
 
 ```
-curl -v -X GET -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/admreg/api/v1/user
+curl -v -X GET -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/admreg/loggedInUser
 ```
+
+All vendor (Leverandør) user need to use /vendor in the path, for admin role change this to /admin
 
 Start a draft:
 ```
-curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/admreg/api/v1/product/registrations/draft/test1
+curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/admreg/vendor/api/v1/product/registrations/draft/test1
 ```
 
 Get registrations (user):
 ```
-curl -v -X GET -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/admreg/api/v1/product/registrations
+curl -v -X GET -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/admreg/vendor/api/v1/product/registrations
 ```
 
 Create product variant registrations (user):
 ```
-curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/admreg/api/v1/product/registrations/draft/variant/<product id>/reference/<unik reference>
+curl -v -X POST -H "Content-type: application/json" --cookie "JWT=$JWT" http://localhost:8080/admreg/vendor/api/v1/product/registrations/draft/variant/<product id>/reference/<unik reference>
 ```
 
 Update the draft:
 ```
-curl -v -X PUT -H "Content-type: application/json" --cookie "JWT=$JWT" -d '<json_here>' http://localhost:8080/admreg/api/v1/product/registrations/<uuid>
+curl -v -X PUT -H "Content-type: application/json" --cookie "JWT=$JWT" -d '<json_here>' http://localhost:8080/admreg/vendor/api/v1/product/registrations/<uuid>
 ```
 
 Upload a media file for a product:
 ```
-curl -v -X POST --cookie "JWT=$JWT" -F 'file=@path/to/file.jpg' http://localhost:8080/admreg/api/v1/media/product/file/<uuid>
+curl -v -X POST --cookie "JWT=$JWT" -F 'file=@path/to/file.jpg' http://localhost:8080/admreg/vendor/api/v1/media/product/file/<uuid>
 ```
 
 Image versions can then be retrieved here:
@@ -153,5 +155,5 @@ http://localhost:8082/imageproxy/400d/register/<oid>/<uuid.jpg>
 
 Upload many files at the same time:
 ````
-curl -v -X POST --cookie "JWT=$JWT" -F 'files=@@path/to/file1.jpg' -F 'files=@path/to/file2.jpg' http://localhost:8080/admreg/api/v1/media/product/files/<uuid>
+curl -v -X POST --cookie "JWT=$JWT" -F 'files=@@path/to/file1.jpg' -F 'files=@path/to/file2.jpg' http://localhost:8080/admreg/vendor/api/v1/media/product/files/<uuid>
 ````
