@@ -8,6 +8,7 @@ import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.event.EventItem
 import java.time.LocalDateTime
 import java.util.*
 
@@ -97,6 +98,11 @@ open class ProductRegistrationService(private val productRegistrationRepository:
             createdByAdmin = authentication.isAdmin(),
             version = 0)
         return save(registration)
+    }
+
+    suspend fun handleEventItem(eventItem: EventItem) {
+        val dto = eventItem.payload as ProductRegistrationDTO
+        productRegistrationHandler.pushToRapidIfNotDraftAndApproved(dto, eventItem.extraKeyValues)
     }
 
 }

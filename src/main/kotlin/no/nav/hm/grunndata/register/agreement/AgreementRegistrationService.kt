@@ -5,6 +5,7 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import no.nav.hm.grunndata.register.event.EventItem
 import java.util.UUID
 
 @Singleton
@@ -34,5 +35,9 @@ open class AgreementRegistrationService(private val agreementRegistrationReposit
     open suspend fun findByReference(reference: String): AgreementRegistrationDTO? =
         agreementRegistrationRepository.findByReference(reference)?.toDTO()
 
+    fun handleEventItem(eventItem: EventItem) {
+        val dto = eventItem.payload as AgreementRegistrationDTO
+        agreementRegistrationHandler.pushToRapidIfNotDraft(dto)
+    }
 
 }
