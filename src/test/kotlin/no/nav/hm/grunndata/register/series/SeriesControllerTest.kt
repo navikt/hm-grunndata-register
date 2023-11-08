@@ -81,7 +81,9 @@ class SeriesControllerTest(
                     id = UUID.randomUUID(),
                     supplierId = testSupplierRegistration.id,
                     identifier = "testerino",
-                    title = "superserie"
+                    title = "superserie",
+                    text = "text",
+                    isoCategory = "12345678"
                 )
             )
 
@@ -90,7 +92,9 @@ class SeriesControllerTest(
                     id = UUID.randomUUID(),
                     supplierId = testSupplierRegistration.id,
                     identifier = "testtest",
-                    title = "enda en serie"
+                    title = "enda en serie",
+                    text = "tekst",
+                    isoCategory = "12345678"
                 )
             )
 
