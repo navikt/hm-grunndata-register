@@ -8,6 +8,7 @@ import no.nav.hm.grunndata.register.LeaderElection
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
@@ -18,7 +19,8 @@ class EventItemScheduler(
     private val leaderElection: LeaderElection,
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productRegistrationService: ProductRegistrationService,
-    private val seriesRegistrationService: SeriesRegistrationService
+    private val seriesRegistrationService: SeriesRegistrationService,
+    private val supplierRegistrationService: SupplierRegistrationService
 ) {
 
     companion object {
@@ -37,6 +39,7 @@ class EventItemScheduler(
                         EventItemType.AGREEMENT -> agreementRegistrationService.handleEventItem(it)
                         EventItemType.PRODUCT -> productRegistrationService.handleEventItem(it)
                         EventItemType.SERIES -> seriesRegistrationService.handleEventItem(it)
+                        EventItemType.SUPPLIER -> supplierRegistrationService.handleEventItem(it)
                     }
                     eventItemService.setEventItemStatusToSent(it)
                 }

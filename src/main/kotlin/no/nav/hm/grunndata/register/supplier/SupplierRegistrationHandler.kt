@@ -12,11 +12,11 @@ import no.nav.hm.grunndata.register.rapid.RegisterRapidPushService
 @Singleton
 class SupplierRegistrationHandler(private val registerRapidPushService: RegisterRapidPushService) {
 
-    fun pushToRapidIfNotDraft(dto: SupplierRegistrationDTO) {
+    fun pushToRapid(dto: SupplierRegistrationDTO, extraKeyValues: Map<String, Any> = emptyMap()) {
         runBlocking {
             if (dto.draftStatus == DraftStatus.DONE) {
                 val rapidDTO = dto.toRapidDTO()
-                registerRapidPushService.pushDTOToKafka(rapidDTO, EventName.registeredSupplierV1)
+                registerRapidPushService.pushDTOToKafka(rapidDTO, EventName.registeredSupplierV1, extraKeyValues)
             }
         }
     }

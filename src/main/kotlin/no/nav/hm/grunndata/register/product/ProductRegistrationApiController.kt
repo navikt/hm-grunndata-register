@@ -6,7 +6,6 @@ import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
@@ -67,7 +66,7 @@ class ProductRegistrationApiController(private val productRegistrationService: P
             productRegistrationService.findById(registrationDTO.id)?.let {
                 throw BadRequestException("Product registration already exists ${registrationDTO.id}")
             } ?: run {
-                val dto = productRegistrationService.saveAndPushToRapidIfNotDraftAndApproved(registrationDTO
+                val dto = productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(registrationDTO
                     .copy(updatedByUser =  authentication.name, createdByUser = authentication.name,
                         created = LocalDateTime.now(), updated = LocalDateTime.now()), isUpdate = false)
                 HttpResponse.created(dto)
@@ -79,7 +78,7 @@ class ProductRegistrationApiController(private val productRegistrationService: P
         if (registrationDTO.supplierId != authentication.supplierId()) HttpResponse.unauthorized()
         else productRegistrationService.findByIdAndSupplierId(id, registrationDTO.supplierId)
                 ?.let { inDb ->
-                    val dto = productRegistrationService.saveAndPushToRapidIfNotDraftAndApproved(registrationDTO
+                    val dto = productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(registrationDTO
                         .copy(id = inDb.id, created = inDb.created,
                             updatedBy = REGISTER, updatedByUser = authentication.name, createdByUser = inDb.createdByUser,
                             createdBy = inDb.createdBy, createdByAdmin = inDb.createdByAdmin, adminStatus = inDb.adminStatus,
@@ -92,7 +91,7 @@ class ProductRegistrationApiController(private val productRegistrationService: P
     suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
             ?.let {
-                val deleteDTO = productRegistrationService.saveAndPushToRapidIfNotDraftAndApproved(it
+                val deleteDTO = productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(it
                     .copy(registrationStatus = RegistrationStatus.DELETED, updatedByUser = authentication.name), isUpdate = true)
                 HttpResponse.ok(deleteDTO)
             } ?: HttpResponse.notFound()

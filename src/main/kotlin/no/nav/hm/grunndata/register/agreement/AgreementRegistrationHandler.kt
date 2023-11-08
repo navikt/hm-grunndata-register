@@ -11,11 +11,9 @@ import no.nav.hm.grunndata.register.rapid.RegisterRapidPushService
 @Singleton
 class AgreementRegistrationHandler(private val registerRapidPushService: RegisterRapidPushService) {
 
-    fun pushToRapidIfNotDraft(dto: AgreementRegistrationDTO) {
-        runBlocking {
-            if (dto.draftStatus == DraftStatus.DONE) {
+    fun pushToRapid(dto: AgreementRegistrationDTO) {
+        if (dto.draftStatus == DraftStatus.DONE) {
                 registerRapidPushService.pushDTOToKafka(dto.toRapidDTO(), EventName.registeredAgreementV1)
-            }
         }
     }
 

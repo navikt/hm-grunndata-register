@@ -49,7 +49,7 @@ class SupplierAdminApiController(private val supplierRegistrationService: Suppli
     suspend fun createSupplier(@Body supplier: SupplierRegistrationDTO, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
         supplierRegistrationService.findByName(supplier.name)
             ?.let { throw BadRequestException("supplier ${supplier.name} already exists") }
-            ?:run { val saved = supplierRegistrationService.saveAndPushToRapidIfNotDraft(supplier.copy(
+            ?:run { val saved = supplierRegistrationService.saveAndCreateEventIfNotDraft(supplier.copy(
                 updatedByUser = authentication.name, createdByUser = authentication.name), isUpdate = false)
                 HttpResponse.created(saved)
             }
@@ -57,7 +57,7 @@ class SupplierAdminApiController(private val supplierRegistrationService: Suppli
     @Put("/{id}")
     suspend fun updateSupplier(@Body supplier: SupplierRegistrationDTO, id: UUID, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
         supplierRegistrationService.findById(supplier.id)
-            ?.let { inDb -> HttpResponse.ok(supplierRegistrationService.saveAndPushToRapidIfNotDraft(
+            ?.let { inDb -> HttpResponse.ok(supplierRegistrationService.saveAndCreateEventIfNotDraft(
                 supplier = supplier.copy(created = inDb.created, identifier = inDb.identifier,
                     createdByUser = inDb.createdByUser, updated = LocalDateTime.now(), updatedByUser = authentication.name),
                 isUpdate = true )
@@ -66,7 +66,7 @@ class SupplierAdminApiController(private val supplierRegistrationService: Suppli
     @Delete("/{id}")
     suspend fun deactivateSupplier(id: UUID, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
         supplierRegistrationService.findById(id)
-            ?.let { inDb -> HttpResponse.ok(supplierRegistrationService.saveAndPushToRapidIfNotDraft (
+            ?.let { inDb -> HttpResponse.ok(supplierRegistrationService.saveAndCreateEventIfNotDraft (
                 supplier = inDb.copy(status = SupplierStatus.INACTIVE),
                 isUpdate = true)
             )} ?:run { HttpResponse.notFound()}

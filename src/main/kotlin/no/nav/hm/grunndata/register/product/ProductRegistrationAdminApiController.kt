@@ -6,7 +6,6 @@ import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
@@ -73,7 +72,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
         productRegistrationService.findById(registrationDTO.id)?.let {
                 throw BadRequestException("Product registration already exists ${registrationDTO.id}")
             } ?: run {
-                val dto = productRegistrationService.saveAndPushToRapidIfNotDraftAndApproved(registrationDTO
+                val dto = productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(registrationDTO
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name, createdByAdmin = true,
                         created = LocalDateTime.now(), updated = LocalDateTime.now()), isUpdate = false)
                 HttpResponse.created(dto)
@@ -90,7 +89,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = inDb.createdBy,
                         createdByAdmin = inDb.createdByAdmin, updated = LocalDateTime.now()
                     )
-                    val dto = productRegistrationService.saveAndPushToRapidIfNotDraftAndApproved(updated, isUpdate = true)
+                    val dto = productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updated, isUpdate = true)
                     HttpResponse.ok(dto) }
                 ?: run {
                     throw BadRequestException("Product registration already exists $id") }
@@ -99,7 +98,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
     suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findById(id)
             ?.let {
-                val dto = productRegistrationService.saveAndPushToRapidIfNotDraftAndApproved(it.copy(registrationStatus= RegistrationStatus.DELETED,
+                val dto = productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(it.copy(registrationStatus= RegistrationStatus.DELETED,
                     updatedByUser = authentication.name, updatedBy = REGISTER), isUpdate = true)
                 HttpResponse.ok(dto)}
             ?: HttpResponse.notFound()
@@ -118,7 +117,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
             if (it.adminStatus == AdminStatus.APPROVED) throw BadRequestException("$id is already approved")
             if (it.draftStatus != DraftStatus.DONE) throw  BadRequestException("product is not done")
             if (it.registrationStatus != RegistrationStatus.ACTIVE) throw BadRequestException("RegistrationStatus should be Active")
-            val dto = productRegistrationService.saveAndPushToRapidIfNotDraftAndApproved(
+            val dto = productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                 it.copy(adminStatus = AdminStatus.APPROVED, adminInfo = AdminInfo(approvedBy = authentication.name, approved = LocalDateTime.now()),
                     updated = LocalDateTime.now(), updatedBy = REGISTER
             ), isUpdate = true)

@@ -14,7 +14,7 @@ import java.time.LocalDateTime
 @Singleton
 class ProductRegistrationHandler(private val registerRapidPushService: RegisterRapidPushService,
                                  private val supplierRegistrationService: SupplierRegistrationService) {
-    fun pushToRapidIfNotDraftAndApproved(dto: ProductRegistrationDTO, extraKeyValues:Map<String, Any> = emptyMap()) {
+    fun pushToRapid(dto: ProductRegistrationDTO, extraKeyValues:Map<String, Any> = emptyMap()) {
         runBlocking {
             if (dto.draftStatus == DraftStatus.DONE && dto.adminStatus == AdminStatus.APPROVED) {
                 val rapidDTO = dto.toRapidDTO()

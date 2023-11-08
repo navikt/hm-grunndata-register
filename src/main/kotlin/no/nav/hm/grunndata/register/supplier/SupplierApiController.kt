@@ -11,7 +11,6 @@ import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SupplierApiController.API_V1_SUPPLIER_REGISTRATIONS)
@@ -37,7 +36,7 @@ class SupplierApiController(private val supplierRegistrationService: SupplierReg
             return HttpResponse.unauthorized()
         }
         return supplierRegistrationService.findById(authentication.supplierId())
-            ?.let { inDb -> HttpResponse.ok(supplierRegistrationService.saveAndPushToRapidIfNotDraft(
+            ?.let { inDb -> HttpResponse.ok(supplierRegistrationService.saveAndCreateEventIfNotDraft(
                 supplier.copy(
                     status = inDb.status, created = inDb.created, identifier = inDb.identifier,
                     updated = LocalDateTime.now()), isUpdate = true))

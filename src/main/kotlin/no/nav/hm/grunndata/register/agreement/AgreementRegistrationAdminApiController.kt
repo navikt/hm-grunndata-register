@@ -6,7 +6,6 @@ import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
@@ -61,7 +60,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
         agreementRegistrationService.findById(registrationDTO.id)?.let {
                 throw BadRequestException("agreement ${registrationDTO.id} already exists")
             } ?: run {
-                val dto = agreementRegistrationService.saveAndPushToRapidIfNotDraft(registrationDTO
+                val dto = agreementRegistrationService.saveAndCreateEventIfNotDraft(registrationDTO
                     .copy(createdByUser = authentication.name, updatedByUser = authentication.name), isUpdate = false)
                 HttpResponse.created(dto)
             }
@@ -81,7 +80,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                 posts = emptyList(),
                 )
             )
-            val dto = agreementRegistrationService.saveAndPushToRapidIfNotDraft(draft, isUpdate = false)
+            val dto = agreementRegistrationService.saveAndCreateEventIfNotDraft(draft, isUpdate = false)
             HttpResponse.created(dto)
         }
 
@@ -111,7 +110,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                 ?.let { inDb ->
                     val updated = registrationDTO.copy(id = inDb.id, created = inDb.created, createdByUser = inDb.createdByUser,
                         updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = inDb.createdBy)
-                    val dto = agreementRegistrationService.saveAndPushToRapidIfNotDraft(updated, isUpdate = true)
+                    val dto = agreementRegistrationService.saveAndCreateEventIfNotDraft(updated, isUpdate = true)
                     HttpResponse.ok(dto) }
                 ?: run {
                     throw BadRequestException("${registrationDTO.id} does not exists")}

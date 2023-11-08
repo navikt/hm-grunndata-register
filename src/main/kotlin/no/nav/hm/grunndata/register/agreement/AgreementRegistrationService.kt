@@ -5,12 +5,17 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.event.EventItem
+import no.nav.hm.grunndata.register.event.EventItemService
+import no.nav.hm.grunndata.register.event.EventItemType
 import java.util.UUID
 
 @Singleton
 open class AgreementRegistrationService(private val agreementRegistrationRepository: AgreementRegistrationRepository,
-                                        private val agreementRegistrationHandler: AgreementRegistrationHandler) {
+                                        private val agreementRegistrationHandler: AgreementRegistrationHandler,
+                                        private val eventItemService: EventItemService) {
 
 
     open suspend fun findById(id: UUID): AgreementRegistrationDTO? = agreementRegistrationRepository.findById(id)?.toDTO()
@@ -22,9 +27,17 @@ open class AgreementRegistrationService(private val agreementRegistrationReposit
         agreementRegistrationRepository.update(dto.toEntity()).toDTO()
 
     @Transactional
-    open suspend fun saveAndPushToRapidIfNotDraft(dto: AgreementRegistrationDTO, isUpdate:Boolean): AgreementRegistrationDTO {
+    open suspend fun saveAndCreateEventIfNotDraft(dto: AgreementRegistrationDTO, isUpdate:Boolean): AgreementRegistrationDTO {
         val saved = if (isUpdate) update(dto) else save(dto)
-        agreementRegistrationHandler.pushToRapidIfNotDraft(dto)
+        if (saved.draftStatus == DraftStatus.DONE) {
+            eventItemService.createNewEventItem(
+                type = EventItemType.AGREEMENT,
+                oid = saved.id,
+                byUser = saved.updatedByUser,
+                eventName = EventName.registeredAgreementV1,
+                payload = saved
+            )
+        }
         return saved
     }
 
@@ -37,7 +50,7 @@ open class AgreementRegistrationService(private val agreementRegistrationReposit
 
     fun handleEventItem(eventItem: EventItem) {
         val dto = eventItem.payload as AgreementRegistrationDTO
-        agreementRegistrationHandler.pushToRapidIfNotDraft(dto)
+        agreementRegistrationHandler.pushToRapid(dto)
     }
 
 }

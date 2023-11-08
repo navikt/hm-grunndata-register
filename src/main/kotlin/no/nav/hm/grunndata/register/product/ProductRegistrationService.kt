@@ -7,14 +7,18 @@ import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventItem
+import no.nav.hm.grunndata.register.event.EventItemService
+import no.nav.hm.grunndata.register.event.EventItemType
 import java.time.LocalDateTime
 import java.util.*
 
 @Singleton
 open class ProductRegistrationService(private val productRegistrationRepository: ProductRegistrationRepository,
-                                 private val productRegistrationHandler: ProductRegistrationHandler) {
+                                      private val productRegistrationHandler: ProductRegistrationHandler,
+                                      private val eventItemService: EventItemService) {
 
 
     open suspend fun findById(id: UUID) = productRegistrationRepository.findById(id)?.toDTO()
@@ -37,10 +41,18 @@ open class ProductRegistrationService(private val productRegistrationRepository:
         productRegistrationRepository.findBySeriesIdAndSupplierId(seriesId, supplierId)?.toDTO()
 
     @Transactional
-    open suspend fun saveAndPushToRapidIfNotDraftAndApproved(dto: ProductRegistrationDTO, isUpdate: Boolean): ProductRegistrationDTO {
+    open suspend fun saveAndCreateEventIfNotDraftAndApproved(dto: ProductRegistrationDTO, isUpdate: Boolean): ProductRegistrationDTO {
 
         val saved = if (isUpdate) update(dto) else save(dto)
-        productRegistrationHandler.pushToRapidIfNotDraftAndApproved(saved)
+        if (saved.draftStatus == DraftStatus.DONE && saved.adminStatus == AdminStatus.APPROVED) {
+            eventItemService.createNewEventItem(
+                type = EventItemType.PRODUCT,
+                oid = saved.id,
+                byUser = saved.updatedByUser,
+                eventName = EventName.registeredProductV1,
+                payload = saved
+            )
+        }
         return saved
     }
 
@@ -100,9 +112,9 @@ open class ProductRegistrationService(private val productRegistrationRepository:
         return save(registration)
     }
 
-    suspend fun handleEventItem(eventItem: EventItem) {
+    fun handleEventItem(eventItem: EventItem) {
         val dto = eventItem.payload as ProductRegistrationDTO
-        productRegistrationHandler.pushToRapidIfNotDraftAndApproved(dto, eventItem.extraKeyValues)
+        productRegistrationHandler.pushToRapid(dto, eventItem.extraKeyValues)
     }
 
 }
