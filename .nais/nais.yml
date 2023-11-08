@@ -52,8 +52,8 @@ spec:
       value: "http://hm-grunndata-media"
     - name: SWAGGER_ENABLED
       value: "{{ swagger_enabled }}"
-    - name: SCHEDULER_ENABLED
-      value: "{{ scheduler_enabled }}"
+    - name: SCHEDULERS_ENABLED
+      value: "{{ schedulers_enabled }}"
   gcp:
     sqlInstances:
       - name: hm-grunndata-register
