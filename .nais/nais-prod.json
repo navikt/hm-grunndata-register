@@ -7,5 +7,6 @@
   "max_replicas": 2,
   "media_upload_url": "http://hm-grunndata-media/api/v1/upload/media/register",
   "cookie_domain": "finnhjelpemidler.nav.no",
-  "swagger_enabled": false
+  "swagger_enabled": false,
+  "scheduler_enabled": false
 }

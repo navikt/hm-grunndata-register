@@ -8,5 +8,6 @@
   "media_upload_url": "http://hm-grunndata-media/api/v1/upload/media/register",
   "ingress": ["https://finnhjelpemidler.intern.dev.nav.no/admreg", "https://finnhjelpemidler-alpha.intern.dev.nav.no/admreg"],
   "cookie_domain": "intern.dev.nav.no",
-  "swagger_enabled": true
+  "swagger_enabled": true,
+  "scheduler_enabled": true
 }
