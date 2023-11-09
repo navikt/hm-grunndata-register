@@ -3,6 +3,7 @@ package no.nav.hm.grunndata.register.importapi
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.context.annotation.Context
 import io.micronaut.context.annotation.Requires
+import io.micronaut.context.annotation.Value
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.KafkaRapid
@@ -27,7 +28,8 @@ class ProductImportSyncRiver(
     river: RiverHead,
     private val objectMapper: ObjectMapper,
     private val productRegistrationRepository: ProductRegistrationRepository,
-    private val eventItemService: EventItemService
+    private val eventItemService: EventItemService,
+    @Value("\${IMPORT_AUTOAPPROVE}") private val autoApprove: Boolean
 ) : River.PacketListener {
 
     companion object {
@@ -43,6 +45,7 @@ class ProductImportSyncRiver(
             .validate { it.demandKey("dtoVersion") }
             .validate { it.demandKey("createdTime") }
             .register(this)
+        LOG.info("Import auto approve is: $autoApprove")
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
@@ -65,7 +68,6 @@ class ProductImportSyncRiver(
                             supplierId = importDTO.supplierId,
                             published = importDTO.productDTO.published,
                             expired = importDTO.productDTO.expired,
-                            adminStatus = if (inDb.adminStatus == AdminStatus.PENDING) AdminStatus.APPROVED else inDb.adminStatus
                         )
                     )
                 } ?: productRegistrationRepository.save(
@@ -78,8 +80,8 @@ class ProductImportSyncRiver(
                         supplierRef = importDTO.supplierRef,
                         seriesId = importDTO.productDTO.seriesId!!,
                         registrationStatus = mapStatus(importDTO.productDTO.status),
-                        adminStatus = AdminStatus.APPROVED,
-                        adminInfo = AdminInfo(approvedBy = "AUTO", approved = LocalDateTime.now()),
+                        adminStatus = if (autoApprove) AdminStatus.APPROVED else AdminStatus.PENDING,
+                        adminInfo = if (autoApprove) AdminInfo(approvedBy = "AUTO", approved = LocalDateTime.now()) else null,
                         createdBy = importDTO.productDTO.createdBy,
                         updatedBy = importDTO.productDTO.updatedBy,
                         created = importDTO.created, updated = importDTO.updated,

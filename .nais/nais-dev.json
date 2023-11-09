@@ -9,5 +9,6 @@
   "ingress": ["https://finnhjelpemidler.intern.dev.nav.no/admreg", "https://finnhjelpemidler-alpha.intern.dev.nav.no/admreg"],
   "cookie_domain": "intern.dev.nav.no",
   "swagger_enabled": true,
-  "schedulers_enabled": true
+  "schedulers_enabled": true,
+  "import_autoapprove": true
 }

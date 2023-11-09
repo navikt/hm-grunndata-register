@@ -54,6 +54,8 @@ spec:
       value: "{{ swagger_enabled }}"
     - name: SCHEDULERS_ENABLED
       value: "{{ schedulers_enabled }}"
+    - name: IMPORT_AUTOAPPROVE
+      value: "{{ import_autoapprove }}"
   gcp:
     sqlInstances:
       - name: hm-grunndata-register

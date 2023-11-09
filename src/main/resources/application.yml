@@ -157,3 +157,6 @@ grunndata:
 
 schedulers:
   enabled: ${SCHEDULERS_ENABLED:false}
+
+import:
+  autoapprove: ${IMPORT_AUTOAPPROVE:false}
