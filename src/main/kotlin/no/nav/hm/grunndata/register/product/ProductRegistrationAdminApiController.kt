@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.product
 
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
+import io.micronaut.data.model.Slice
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
@@ -13,6 +14,7 @@ import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -27,6 +29,15 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
         const val API_V1_ADMIN_PRODUCT_REGISTRATIONS = "/admin/api/v1/product/registrations"
         private val LOG = LoggerFactory.getLogger(ProductRegistrationAdminApiController::class.java)
     }
+
+    @Get("/series/group?{?params*}")
+    suspend fun findSeriesGroup(@QueryValue params: HashMap<String,String>?,
+                                pageable: Pageable): Slice<SeriesGroupDTO> =
+        productRegistrationService.findSeriesGroup(pageable)
+
+    @Get("/series/{seriesId}")
+    suspend fun findBySeriesIdAndSupplierId(seriesId: String) =
+        productRegistrationService.findBySeriesId(seriesId)
 
     @Get("/{?params*}")
     suspend fun findProducts(@QueryValue params: HashMap<String,String>?,

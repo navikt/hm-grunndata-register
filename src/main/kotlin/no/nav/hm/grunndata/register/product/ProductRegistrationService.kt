@@ -37,8 +37,6 @@ open class ProductRegistrationService(private val productRegistrationRepository:
     open suspend fun findByIdAndSupplierId(id: UUID, supplierId: UUID) =
         productRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.toDTO()
 
-    open suspend fun findBySeriesIdAndSupplierId(seriesId: String, supplierId: UUID) =
-        productRegistrationRepository.findBySeriesIdAndSupplierId(seriesId, supplierId)?.toDTO()
 
     @Transactional
     open suspend fun saveAndCreateEventIfNotDraftAndApproved(dto: ProductRegistrationDTO, isUpdate: Boolean): ProductRegistrationDTO {
@@ -56,7 +54,11 @@ open class ProductRegistrationService(private val productRegistrationRepository:
         return saved
     }
 
+    suspend fun findBySeriesId(seriesId: String) = productRegistrationRepository.findBySeriesId(seriesId).map { it.toDTO() }
 
+    suspend fun findBySeriesIdAndSupplierId(seriesId: String, supplierId: UUID) = productRegistrationRepository.findBySeriesIdAndSupplierId(seriesId, supplierId).map { it.toDTO() }
+    suspend fun findSeriesGroup(supplierId: UUID, pageable: Pageable) = productRegistrationRepository.findSeriesGroup(supplierId, pageable)
+    suspend fun findSeriesGroup(pageable: Pageable) = productRegistrationRepository.findSeriesGroup(pageable)
     open suspend fun createProductVariant(id: UUID, supplierRef: String, authentication: Authentication) =
         findById(id)?.let {
             val productId = UUID.randomUUID()

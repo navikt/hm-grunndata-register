@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.product
 
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
+import io.micronaut.data.model.Slice
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
@@ -29,6 +30,15 @@ class ProductRegistrationApiController(private val productRegistrationService: P
         private val LOG = LoggerFactory.getLogger(ProductRegistrationApiController::class.java)
     }
 
+    @Get("/series/group?{?params*}")
+    suspend fun findSeriesGroup(@QueryValue params: HashMap<String,String>?,
+                                pageable: Pageable, authentication: Authentication): Slice<SeriesGroupDTO> =
+        productRegistrationService.findSeriesGroup(authentication.supplierId(), pageable)
+
+
+    @Get("/series/{seriesId}")
+    suspend fun findBySeriesIdAndSupplierId(seriesId: String, authentication: Authentication) =
+        productRegistrationService.findBySeriesIdAndSupplierId(seriesId, authentication.supplierId())
 
     @Get("/{?params*}")
     suspend fun findProducts(@QueryValue params: HashMap<String,String>?,
