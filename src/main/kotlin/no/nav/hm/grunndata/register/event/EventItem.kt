@@ -18,8 +18,7 @@ data class EventItem(
     val byUser: String,
     @field:TypeDef(type = DataType.JSON)
     val extraKeyValues: Map<String, Any> = emptyMap(),
-    @field:TypeDef(type = DataType.JSON)
-    val payload: Any,
+    val payload: String,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now()
 )

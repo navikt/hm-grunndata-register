@@ -5,9 +5,13 @@ import io.micronaut.scheduling.annotation.Scheduled
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.LeaderElection
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationHandler
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
+import no.nav.hm.grunndata.register.product.ProductRegistrationHandler
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
+import no.nav.hm.grunndata.register.series.SeriesRegistrationHandler
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationHandler
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -17,10 +21,10 @@ import java.time.LocalDateTime
 class EventItemScheduler(
     private val eventItemService: EventItemService,
     private val leaderElection: LeaderElection,
-    private val agreementRegistrationService: AgreementRegistrationService,
-    private val productRegistrationService: ProductRegistrationService,
-    private val seriesRegistrationService: SeriesRegistrationService,
-    private val supplierRegistrationService: SupplierRegistrationService
+    private val agreementRegistrationHandler: AgreementRegistrationHandler,
+    private val productRegistrationHandler: ProductRegistrationHandler,
+    private val seriesRegistrationHandler: SeriesRegistrationHandler,
+    private val supplierRegistrationHandler: SupplierRegistrationHandler
 ) {
 
     companion object {
@@ -36,10 +40,10 @@ class EventItemScheduler(
                 items.forEach {
                     LOG.info("sending event ${it.oid} with type ${it.type}")
                     when (it.type) {
-                        EventItemType.AGREEMENT -> agreementRegistrationService.handleEventItem(it)
-                        EventItemType.PRODUCT -> productRegistrationService.handleEventItem(it)
-                        EventItemType.SERIES -> seriesRegistrationService.handleEventItem(it)
-                        EventItemType.SUPPLIER -> supplierRegistrationService.handleEventItem(it)
+                        EventItemType.AGREEMENT -> agreementRegistrationHandler.sendRapidEvent(it)
+                        EventItemType.PRODUCT -> productRegistrationHandler.sendRapidEvent(it)
+                        EventItemType.SERIES -> seriesRegistrationHandler.sendRapidEvent(it)
+                        EventItemType.SUPPLIER -> supplierRegistrationHandler.sendRapidEvent(it)
                     }
                     eventItemService.setEventItemStatusToSent(it)
                 }

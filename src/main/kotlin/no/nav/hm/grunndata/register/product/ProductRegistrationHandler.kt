@@ -1,25 +1,49 @@
 package no.nav.hm.grunndata.register.product
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
+import no.nav.hm.grunndata.register.event.EventItem
+import no.nav.hm.grunndata.register.event.EventItemService
+import no.nav.hm.grunndata.register.event.EventItemType
 import no.nav.hm.grunndata.register.rapid.RegisterRapidPushService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.supplier.toRapidDTO
+import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
 @Singleton
 class ProductRegistrationHandler(private val registerRapidPushService: RegisterRapidPushService,
-                                 private val supplierRegistrationService: SupplierRegistrationService) {
-    fun pushToRapid(dto: ProductRegistrationDTO, extraKeyValues:Map<String, Any> = emptyMap()) {
-        runBlocking {
-            if (dto.draftStatus == DraftStatus.DONE && dto.adminStatus == AdminStatus.APPROVED) {
-                val rapidDTO = dto.toRapidDTO()
-                registerRapidPushService.pushDTOToKafka(rapidDTO, EventName.registeredProductV1, extraKeyValues)
-            }
+                                 private val supplierRegistrationService: SupplierRegistrationService,
+                                 private val objectMapper: ObjectMapper,
+                                 private val eventItemService: EventItemService) {
+
+    companion object {
+        private val LOG = LoggerFactory.getLogger(ProductRegistrationHandler::class.java)
+    }
+
+    fun sendRapidEvent(eventItem: EventItem) {
+        val dto = objectMapper.readValue(eventItem.payload, ProductRegistrationRapidDTO::class.java)
+        registerRapidPushService.pushDTOToKafka(dto, eventItem.eventName, eventItem.extraKeyValues)
+    }
+
+    suspend fun queueDTORapidEvent(dto: ProductRegistrationDTO,
+                                   eventName: String = EventName.registeredProductV1,
+                                   extraKeyValues:Map<String, Any> = emptyMap()) {
+        if (dto.draftStatus == DraftStatus.DONE && dto.adminStatus == AdminStatus.APPROVED) {
+            LOG.info("queueDTORapidEvent for ${dto.id} with adminstatus ${dto.adminStatus} ")
+            eventItemService.createNewEventItem(
+                type = EventItemType.PRODUCT,
+                oid = dto.id,
+                byUser = dto.updatedByUser,
+                eventName = eventName,
+                payload = dto.toRapidDTO(),
+                extraKeyValues = extraKeyValues
+            )
         }
     }
 

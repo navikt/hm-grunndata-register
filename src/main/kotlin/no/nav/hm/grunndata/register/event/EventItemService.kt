@@ -1,11 +1,14 @@
 package no.nav.hm.grunndata.register.event
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.inject.Singleton
+import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import java.time.LocalDateTime
 import java.util.*
 
 @Singleton
-class EventItemService(private val eventItemRepository: EventItemRepository) {
+class EventItemService(private val eventItemRepository: EventItemRepository,
+                       private val objectMapper: ObjectMapper) {
 
     suspend fun getAllPendingStatus() = eventItemRepository.findByStatus(EventItemStatus.PENDING)
 
@@ -21,13 +24,14 @@ class EventItemService(private val eventItemRepository: EventItemRepository) {
                                    oid: UUID,
                                    byUser: String,
                                    eventName: String,
-                                   payload: Any, extraKeyValues: Map<String, Any> = emptyMap()
+                                   payload: RapidDTO,
+                                   extraKeyValues: Map<String, Any> = emptyMap()
     ): EventItem {
         val event = EventItem(
             oid = oid,
             type =type,
             status = EventItemStatus.PENDING,
-            payload = payload,
+            payload = objectMapper.writeValueAsString(payload),
             byUser = byUser,
             eventName = eventName,
             extraKeyValues = extraKeyValues,

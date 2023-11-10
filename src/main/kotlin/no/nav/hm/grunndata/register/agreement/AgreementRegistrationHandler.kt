@@ -1,19 +1,46 @@
 package no.nav.hm.grunndata.register.agreement
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.rapid.dto.AgreementDTO
-import no.nav.hm.grunndata.rapid.dto.AgreementRegistrationRapidDTO
-import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
+import no.nav.hm.grunndata.register.event.EventItem
+import no.nav.hm.grunndata.register.event.EventItemService
+import no.nav.hm.grunndata.register.event.EventItemType
+import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
+import no.nav.hm.grunndata.register.product.ProductRegistrationHandler
 import no.nav.hm.grunndata.register.rapid.RegisterRapidPushService
+import org.slf4j.LoggerFactory
 
 @Singleton
-class AgreementRegistrationHandler(private val registerRapidPushService: RegisterRapidPushService) {
+class AgreementRegistrationHandler(private val registerRapidPushService: RegisterRapidPushService,
+                                   private val objectMapper: ObjectMapper,
+                                   private val eventItemService: EventItemService
+) {
 
-    fun pushToRapid(dto: AgreementRegistrationDTO) {
+    companion object {
+        private val LOG = LoggerFactory.getLogger(AgreementRegistrationHandler::class.java)
+    }
+
+    fun sendRapidEvent(eventItem: EventItem) {
+        val dto = objectMapper.readValue(eventItem.payload, AgreementRegistrationRapidDTO::class.java)
+        registerRapidPushService.pushDTOToKafka(dto, EventName.registeredProductV1, eventItem.extraKeyValues)
+    }
+
+    suspend fun queueDTORapidEvent(dto: AgreementRegistrationDTO,
+                                   eventName: String = EventName.registeredAgreementV1,
+                                   extraKeyValues:Map<String, Any> = emptyMap()) {
         if (dto.draftStatus == DraftStatus.DONE) {
-                registerRapidPushService.pushDTOToKafka(dto.toRapidDTO(), EventName.registeredAgreementV1)
+            LOG.info("queueDTORapidEvent for ${dto.id} with draft status: ${dto.draftStatus}")
+            eventItemService.createNewEventItem(
+                type = EventItemType.AGREEMENT,
+                oid = dto.id,
+                byUser = dto.updatedByUser,
+                eventName = eventName,
+                payload = dto.toRapidDTO(),
+                extraKeyValues = extraKeyValues
+            )
         }
     }
 

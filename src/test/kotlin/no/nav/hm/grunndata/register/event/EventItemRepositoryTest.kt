@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.event
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.common.runBlocking
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -11,7 +12,8 @@ import org.junit.jupiter.api.Test
 import java.util.*
 
 @MicronautTest
-class EventItemRepositoryTest(private val eventItemRepository: EventItemRepository) {
+class EventItemRepositoryTest(private val eventItemRepository: EventItemRepository,
+                              private val objectMapper: ObjectMapper) {
 
     @Test
     fun crudTest() {
@@ -30,7 +32,7 @@ class EventItemRepositoryTest(private val eventItemRepository: EventItemReposito
             type = EventItemType.AGREEMENT,
             eventName = "test",
             byUser = "test",
-            payload = seriesRegistrationDTO
+            payload = objectMapper.writeValueAsString(seriesRegistrationDTO)
         )
 
         runBlocking {
@@ -42,6 +44,8 @@ class EventItemRepositoryTest(private val eventItemRepository: EventItemReposito
             found.status shouldBe EventItemStatus.PENDING
             val updated = eventItemRepository.update(found.copy(status = EventItemStatus.SENT))
             updated.status shouldBe EventItemStatus.SENT
+            updated.payload.shouldNotBeNull()
+            objectMapper.readValue(updated.payload, SeriesRegistrationDTO::class.java) shouldBe seriesRegistrationDTO
         }
     }
 }

@@ -14,8 +14,7 @@ import java.util.UUID
 
 @Singleton
 open class AgreementRegistrationService(private val agreementRegistrationRepository: AgreementRegistrationRepository,
-                                        private val agreementRegistrationHandler: AgreementRegistrationHandler,
-                                        private val eventItemService: EventItemService) {
+                                        private val agreementRegistrationHandler: AgreementRegistrationHandler) {
 
 
     open suspend fun findById(id: UUID): AgreementRegistrationDTO? = agreementRegistrationRepository.findById(id)?.toDTO()
@@ -30,13 +29,7 @@ open class AgreementRegistrationService(private val agreementRegistrationReposit
     open suspend fun saveAndCreateEventIfNotDraft(dto: AgreementRegistrationDTO, isUpdate:Boolean): AgreementRegistrationDTO {
         val saved = if (isUpdate) update(dto) else save(dto)
         if (saved.draftStatus == DraftStatus.DONE) {
-            eventItemService.createNewEventItem(
-                type = EventItemType.AGREEMENT,
-                oid = saved.id,
-                byUser = saved.updatedByUser,
-                eventName = EventName.registeredAgreementV1,
-                payload = saved
-            )
+            agreementRegistrationHandler.queueDTORapidEvent(saved)
         }
         return saved
     }
@@ -47,10 +40,5 @@ open class AgreementRegistrationService(private val agreementRegistrationReposit
 
     open suspend fun findByReference(reference: String): AgreementRegistrationDTO? =
         agreementRegistrationRepository.findByReference(reference)?.toDTO()
-
-    fun handleEventItem(eventItem: EventItem) {
-        val dto = eventItem.payload as AgreementRegistrationDTO
-        agreementRegistrationHandler.pushToRapid(dto)
-    }
 
 }

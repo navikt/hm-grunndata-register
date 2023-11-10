@@ -33,10 +33,6 @@ class SeriesRegistrationService(private val seriesRegistrationRepository: Series
     suspend fun findAll(spec: PredicateSpecification<SeriesRegistration>?, pageable: Pageable): Page<SeriesRegistrationDTO> =
         seriesRegistrationRepository.findAll(spec, pageable).map { it.toDTO() }
 
-    suspend fun handleEventItem(eventItem: EventItem) {
-        val dto = eventItem.payload as SeriesRegistrationDTO
-        seriesRegistrationHandler.pushToRapidIfNotDraft(dto, eventItem.extraKeyValues)
-    }
 
 
 }

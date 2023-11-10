@@ -75,7 +75,7 @@ class SeriesImportSyncRiver(river: RiverHead,
             )
             val extraImportKeyValues =
                 mapOf("transferId" to dto.transferId, "version" to dto.version)
-            seriesRegistrationHandler.pushToRapidIfNotDraft(series, extraImportKeyValues)
+            seriesRegistrationHandler.queueDTORapidEvent(series, extraKeyValues = extraImportKeyValues)
             LOG.info("series import: ${dto.id} transferId: ${dto.transferId} version: ${dto.version} eventId: $eventId synced")
         }
     }

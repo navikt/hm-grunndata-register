@@ -25,7 +25,7 @@ class ProductImportSyncRiver(
     river: RiverHead,
     private val objectMapper: ObjectMapper,
     private val productRegistrationRepository: ProductRegistrationRepository,
-    private val eventItemService: EventItemService,
+    private val productRegistrationHandler: ProductRegistrationHandler,
     @Value("\${IMPORT_AUTOAPPROVE}") private val autoApprove: Boolean
 ) : River.PacketListener {
 
@@ -91,16 +91,7 @@ class ProductImportSyncRiver(
                 )
             val extraImportKeyValues =
                 mapOf("transferId" to importDTO.transferId, "version" to importDTO.version)
-            if (registration.draftStatus == DraftStatus.DONE && registration.adminStatus == AdminStatus.APPROVED) {
-                eventItemService.createNewEventItem(
-                    type = EventItemType.PRODUCT,
-                    oid = registration.id,
-                    byUser = registration.updatedByUser,
-                    eventName = EventName.registeredProductV1,
-                    extraKeyValues = extraImportKeyValues,
-                    payload = registration.toDTO() 
-                )
-            }
+            productRegistrationHandler.queueDTORapidEvent(registration.toDTO(), extraKeyValues = extraImportKeyValues)
             LOG.info(
                 """imported product ${importDTO.id} with eventId $eventId 
             |and version: ${importDTO.version} synced, adminstatus: ${registration.adminStatus}""".trimMargin()
