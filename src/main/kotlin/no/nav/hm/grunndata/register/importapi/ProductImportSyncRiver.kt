@@ -14,10 +14,7 @@ import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.event.EventItemService
 import no.nav.hm.grunndata.register.event.EventItemType
-import no.nav.hm.grunndata.register.product.AdminInfo
-import no.nav.hm.grunndata.register.product.ProductRegistration
-import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
-import no.nav.hm.grunndata.register.product.toProductData
+import no.nav.hm.grunndata.register.product.*
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -101,7 +98,7 @@ class ProductImportSyncRiver(
                     byUser = registration.updatedByUser,
                     eventName = EventName.registeredProductV1,
                     extraKeyValues = extraImportKeyValues,
-                    payload = registration
+                    payload = registration.toDTO() 
                 )
             }
             LOG.info(
