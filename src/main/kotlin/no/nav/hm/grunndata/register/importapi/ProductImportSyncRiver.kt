@@ -26,7 +26,7 @@ class ProductImportSyncRiver(
     private val objectMapper: ObjectMapper,
     private val productRegistrationRepository: ProductRegistrationRepository,
     private val productRegistrationHandler: ProductRegistrationHandler,
-    @Value("\${IMPORT_AUTOAPPROVE}") private val autoApprove: Boolean
+    @Value("\${import.autoapprove}") private val autoApprove: Boolean
 ) : River.PacketListener {
 
     companion object {
