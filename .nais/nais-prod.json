@@ -6,7 +6,7 @@
   "min_replicas": 2,
   "max_replicas": 2,
   "media_upload_url": "http://hm-grunndata-media/api/v1/upload/media/register",
-  "cookie_domain": "finnhjelpemidler.nav.no",
+  "cookie_domain": "finnhjelpemiddel.nav.no",
   "swagger_enabled": false,
   "schedulers_enabled": false,
   "import_autoapprove": true
