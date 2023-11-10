@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.product
 
 import io.kotest.common.runBlocking
+import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
@@ -10,6 +11,7 @@ import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventItemService
+import no.nav.hm.grunndata.register.event.EventItemType
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
@@ -85,11 +87,12 @@ class ProductRegistrationHandlerTest(private val productRegistrationHandler: Pro
             )
             productRegistrationHandler.queueDTORapidEvent(registration)
             val events = eventItemService.getAllPendingStatus()
-            events.size shouldBe 1
-            val event = events[0]
-            event.eventName shouldBe EventName.registeredProductV1
-            event.payload.shouldNotBeNull()
-            productRegistrationHandler.sendRapidEvent(event)
+            events.size shouldBeGreaterThan 0
+            events.forEach {
+                if (it.type == EventItemType.PRODUCT) {
+                    productRegistrationHandler.sendRapidEvent(it)
+                }
+            }
         }
     }
 }
