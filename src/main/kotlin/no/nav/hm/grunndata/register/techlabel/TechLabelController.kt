@@ -14,4 +14,9 @@ class TechLabelController(private val techLabelService: TechLabelService) {
 
     @Get("/{isocode}")
     fun fetchTechLabelsByIsocode(isocode: String) = techLabelService.fetchLabelsByIsoCode(isocode)
+
+    @Get("/name/{name}")
+    fun fetchTechLabelsByName(name: String) = techLabelService.fetchLabelsByName(name)
+
+
 }
