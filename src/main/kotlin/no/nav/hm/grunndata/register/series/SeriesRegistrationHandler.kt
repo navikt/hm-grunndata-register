@@ -1,22 +1,14 @@
 package no.nav.hm.grunndata.register.series
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
-import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.event.EventItem
 import no.nav.hm.grunndata.register.event.EventItemService
 import no.nav.hm.grunndata.register.event.EventItemType
-import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
-import no.nav.hm.grunndata.register.product.ProductRegistrationHandler
-import no.nav.hm.grunndata.register.rapid.RegisterRapidPushService
-import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
-import no.nav.hm.grunndata.register.supplier.toRapidDTO
+import no.nav.hm.grunndata.register.event.RegisterRapidPushService
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 
 @Singleton
 class SeriesRegistrationHandler(private val registerRapidPushService: RegisterRapidPushService,

@@ -9,7 +9,7 @@ import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.event.EventItem
 import no.nav.hm.grunndata.register.event.EventItemService
 import no.nav.hm.grunndata.register.event.EventItemType
-import no.nav.hm.grunndata.register.rapid.RegisterRapidPushService
+import no.nav.hm.grunndata.register.event.RegisterRapidPushService
 import org.slf4j.LoggerFactory
 
 
