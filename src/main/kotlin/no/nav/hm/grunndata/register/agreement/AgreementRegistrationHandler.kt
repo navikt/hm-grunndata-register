@@ -24,8 +24,8 @@ class AgreementRegistrationHandler(private val registerRapidPushService: Registe
     }
 
     fun sendRapidEvent(eventItem: EventItem) {
-        val dto = objectMapper.readValue(eventItem.payload, AgreementRegistrationRapidDTO::class.java)
-        registerRapidPushService.pushDTOToKafka(dto, EventName.registeredProductV1, eventItem.extraKeyValues)
+        val dto = objectMapper.readValue(eventItem.payload, AgreementRegistrationDTO::class.java)
+        registerRapidPushService.pushToRapid(dto.toRapidDTO(), eventItem)
     }
 
     suspend fun queueDTORapidEvent(dto: AgreementRegistrationDTO,
@@ -38,7 +38,7 @@ class AgreementRegistrationHandler(private val registerRapidPushService: Registe
                 oid = dto.id,
                 byUser = dto.updatedByUser,
                 eventName = eventName,
-                payload = dto.toRapidDTO(),
+                payload = dto,
                 extraKeyValues = extraKeyValues
             )
         }

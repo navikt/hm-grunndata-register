@@ -6,6 +6,7 @@ import io.micronaut.data.annotation.Version
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.event.EventPayload
 import java.time.LocalDateTime
 import java.util.*
 
@@ -50,7 +51,7 @@ data class SeriesRegistrationDTO (
     val createdByUser: String = "system",
     val createdByAdmin: Boolean = false,
     val version: Long? = 0L
-)
+): EventPayload
 
 fun SeriesRegistration.toDTO() = SeriesRegistrationDTO(id = id, supplierId = supplierId, identifier = identifier,
     title = title, text = text, isoCategory = isoCategory, draftStatus = draftStatus, status = status, created = created,

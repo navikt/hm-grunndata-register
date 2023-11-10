@@ -7,6 +7,7 @@ import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.event.EventPayload
 
 import java.time.LocalDateTime
 import java.util.*
@@ -58,7 +59,7 @@ data class AgreementRegistrationDTO (
     val updatedBy: String = REGISTER,
     val agreementData: AgreementData,
     val version: Long? = 0L
-)
+): EventPayload
 
 fun AgreementDTO.toData(): AgreementData = AgreementData(
     resume = resume, text = text, identifier = identifier, attachments = attachments, posts = posts, isoCategory = isoCategory

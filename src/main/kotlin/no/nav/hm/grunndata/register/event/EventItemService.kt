@@ -2,7 +2,6 @@ package no.nav.hm.grunndata.register.event
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.inject.Singleton
-import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import java.time.LocalDateTime
 import java.util.*
 
@@ -24,7 +23,7 @@ class EventItemService(private val eventItemRepository: EventItemRepository,
                                    oid: UUID,
                                    byUser: String,
                                    eventName: String,
-                                   payload: RapidDTO,
+                                   payload: EventPayload,
                                    extraKeyValues: Map<String, Any> = emptyMap()
     ): EventItem {
         val event = EventItem(

@@ -26,9 +26,9 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
         private val LOG = LoggerFactory.getLogger(ProductRegistrationHandler::class.java)
     }
 
-    fun sendRapidEvent(eventItem: EventItem) {
-        val dto = objectMapper.readValue(eventItem.payload, ProductRegistrationRapidDTO::class.java)
-        registerRapidPushService.pushDTOToKafka(dto, eventItem.eventName, eventItem.extraKeyValues)
+    suspend fun sendRapidEvent(eventItem: EventItem) {
+        val dto = objectMapper.readValue(eventItem.payload, ProductRegistrationDTO::class.java)
+        registerRapidPushService.pushToRapid(dto.toRapidDTO(), eventItem)
     }
 
     suspend fun queueDTORapidEvent(dto: ProductRegistrationDTO,
@@ -41,7 +41,7 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
                 oid = dto.id,
                 byUser = dto.updatedByUser,
                 eventName = eventName,
-                payload = dto.toRapidDTO(),
+                payload = dto,
                 extraKeyValues = extraKeyValues
             )
         }

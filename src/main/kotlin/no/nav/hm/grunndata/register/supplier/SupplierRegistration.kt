@@ -9,6 +9,7 @@ import no.nav.hm.grunndata.rapid.dto.SupplierDTO
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.event.EventPayload
 import java.awt.SystemColor.info
 import java.time.LocalDateTime
 import java.util.*
@@ -56,7 +57,7 @@ data class SupplierRegistrationDTO (
     val updatedBy: String = REGISTER,
     val updatedByUser: String="system",
     val createdByUser: String="system",
-)
+): EventPayload
 
 fun SupplierRegistration.toDTO(): SupplierRegistrationDTO = SupplierRegistrationDTO (
     id = id, status = status, draftStatus = draftStatus, name = name, supplierData = supplierData,
