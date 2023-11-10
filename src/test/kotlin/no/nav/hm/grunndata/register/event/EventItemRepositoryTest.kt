@@ -27,11 +27,13 @@ class EventItemRepositoryTest(private val eventItemRepository: EventItemReposito
             draftStatus = DraftStatus.DONE,
             status = SeriesStatus.ACTIVE
         )
+        val extraKeyValues = mapOf("key" to "value")
         val item = EventItem(
             oid = UUID.randomUUID(),
             type = EventItemType.AGREEMENT,
             eventName = "test",
             byUser = "test",
+            extraKeyValues = extraKeyValues,
             payload = objectMapper.writeValueAsString(seriesRegistrationDTO)
         )
 
@@ -42,9 +44,12 @@ class EventItemRepositoryTest(private val eventItemRepository: EventItemReposito
             found.type shouldBe EventItemType.AGREEMENT
             found.payload.shouldNotBeNull()
             found.status shouldBe EventItemStatus.PENDING
+            found.extraKeyValues shouldBe extraKeyValues
+            found.extraKeyValues["key"] shouldBe "value"
             val updated = eventItemRepository.update(found.copy(status = EventItemStatus.SENT))
             updated.status shouldBe EventItemStatus.SENT
             updated.payload.shouldNotBeNull()
+
             objectMapper.readValue(updated.payload, SeriesRegistrationDTO::class.java) shouldBe seriesRegistrationDTO
         }
     }
