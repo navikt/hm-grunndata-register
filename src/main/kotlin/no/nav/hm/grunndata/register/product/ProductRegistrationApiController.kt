@@ -30,7 +30,7 @@ class ProductRegistrationApiController(private val productRegistrationService: P
         private val LOG = LoggerFactory.getLogger(ProductRegistrationApiController::class.java)
     }
 
-    @Get("/series/group?{?params*}")
+    @Get("/series/group{?params*}")
     suspend fun findSeriesGroup(@QueryValue params: HashMap<String,String>?,
                                 pageable: Pageable, authentication: Authentication): Slice<SeriesGroupDTO> =
         productRegistrationService.findSeriesGroup(authentication.supplierId(), pageable)
