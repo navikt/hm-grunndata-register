@@ -31,7 +31,7 @@ class EventItemScheduler(
         private val LOG = LoggerFactory.getLogger(EventItemScheduler::class.java)
     }
 
-    @Scheduled(fixedDelay = "1m")
+    @Scheduled(fixedDelay = "15s")
     fun sendEventItemScheduler() {
         runBlocking {
             if (leaderElection.isLeader()) {
