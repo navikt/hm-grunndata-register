@@ -67,7 +67,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         val jwt = resp.getCookie("JWT").get().value
 
         // create a draft to begin product registration
-        val draft = apiClient.draftProduct(jwt, "eksternref-222", testSupplier!!.id)
+        val draft = apiClient.draftProduct(jwt, testSupplier!!.id)
         draft.shouldNotBeNull()
         draft.createdByAdmin shouldBe true
         draft.createdByUser shouldBe email
@@ -124,7 +124,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         read.hmsArtNr shouldBe hmsArtNr
 
         // make some changes, with approved by admin
-        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title = "Changed title",
+        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title = "Changed title", supplierRef = "eksternref-222",
             draftStatus = DraftStatus.DONE, registrationStatus = RegistrationStatus.ACTIVE))
 
         updated.shouldNotBeNull()

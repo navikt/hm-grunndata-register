@@ -12,6 +12,7 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventItem
 import no.nav.hm.grunndata.register.event.EventItemService
 import no.nav.hm.grunndata.register.event.EventItemType
+import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
 
@@ -19,6 +20,9 @@ import java.util.*
 open class ProductRegistrationService(private val productRegistrationRepository: ProductRegistrationRepository,
                                       private val productRegistrationHandler: ProductRegistrationHandler) {
 
+    companion object {
+        private val LOG = LoggerFactory.getLogger(ProductRegistration::class.java)
+    }
 
     open suspend fun findById(id: UUID) = productRegistrationRepository.findById(id)?.toDTO()
 
@@ -72,7 +76,8 @@ open class ProductRegistrationService(private val productRegistrationRepository:
             ))
         }
 
-    open suspend fun createDraft(supplierId: UUID, supplierRef: String, authentication: Authentication,
+
+    open suspend fun createDraft(supplierId: UUID, authentication: Authentication,
                                  isAccessory:Boolean, isSparePart: Boolean): ProductRegistrationDTO {
         val productId = UUID.randomUUID()
         val product = ProductData (
@@ -88,7 +93,7 @@ open class ProductRegistrationService(private val productRegistrationRepository:
             seriesId = productId.toString(),
             isoCategory = "0",
             supplierId = supplierId,
-            supplierRef = supplierRef,
+            supplierRef = productId.toString(),
             hmsArtNr = null,
             title = "",
             articleName = "",
@@ -102,7 +107,9 @@ open class ProductRegistrationService(private val productRegistrationRepository:
             updatedByUser = authentication.name,
             createdByAdmin = authentication.isAdmin(),
             version = 0)
-        return save(registration)
+        val draft = save(registration)
+        LOG.info("Draft was created ${draft.id} by $supplierId")
+        return draft
     }
 
 }

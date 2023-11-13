@@ -66,15 +66,12 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
                 HttpResponse.ok(it) }
             ?: HttpResponse.notFound()
 
-    @Post("/draft/supplier/{supplierId}/reference/{supplierRef}{?isAccessory}{?isSparePart}")
-    suspend fun draftProduct(supplierId: UUID, supplierRef: String, authentication: Authentication,
+    @Post("/draft/supplier/{supplierId}{?isAccessory}{?isSparePart}")
+    suspend fun draftProduct(supplierId: UUID, authentication: Authentication,
                              @QueryValue(defaultValue = "false") isAccessory: Boolean,
                              @QueryValue(defaultValue = "false") isSparePart: Boolean): HttpResponse<ProductRegistrationDTO> =
         supplierRegistrationService.findById(supplierId)?.let {
-            if (productRegistrationService.findBySupplierRefAndSupplierId(supplierRef, supplierId)!=null) {
-                throw BadRequestException("$supplierId and $supplierRef duplicate error")
-            }
-            HttpResponse.ok(productRegistrationService.createDraft(supplierId, supplierRef, authentication, isAccessory, isSparePart))
+            HttpResponse.ok(productRegistrationService.createDraft(supplierId, authentication, isAccessory, isSparePart))
         } ?: throw BadRequestException("$supplierId does not exist")
 
 
