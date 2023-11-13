@@ -22,10 +22,10 @@ interface ProductRegistrationRepository : CoroutineCrudRepository<ProductRegistr
 
     suspend fun findBySeriesIdAndSupplierId(seriesId: String, supplierId: UUID): List<ProductRegistration>
 
-    @Query("select title, series_id,count(*) from product_v1 WHERE supplier_id= :supplierId group by (title, series_id)")
+    @Query("select title, series_id,count(*) from product_reg_v1 WHERE supplier_id= :supplierId group by (title, series_id)")
     suspend fun findSeriesGroup(supplierId: UUID, pageable: Pageable): Slice<SeriesGroupDTO>
 
-    @Query("select title, series_id,count(*) from product_v1 group by (title, series_id)")
+    @Query("select title, series_id,count(*) from product_reg_v1 group by (title, series_id)")
     suspend fun findSeriesGroup(pageable: Pageable): Slice<SeriesGroupDTO>
     suspend fun findBySeriesId(seriesId: String): List<ProductRegistration>
 
