@@ -1,8 +1,10 @@
 package no.nav.hm.grunndata.register.product
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.common.runBlocking
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.micronaut.data.model.Pageable
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import no.nav.hm.grunndata.rapid.dto.*
 import org.junit.jupiter.api.Test
@@ -12,7 +14,8 @@ import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest
-class ProductRegistrationRepositoryTest(private val productRegistrationRepository: ProductRegistrationRepository) {
+class ProductRegistrationRepositoryTest(private val productRegistrationRepository: ProductRegistrationRepository,
+                                        private val objectMapper: ObjectMapper) {
 
     @Test
     fun crudRepositoryTest() {
@@ -33,11 +36,12 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             agreementInfo = AgreementInfo(id = UUID.randomUUID(), identifier = "hmdbid-1", rank = 1, postNr = 1,
                 reference = "AV-142", expired = LocalDateTime.now())
         )
+        val supplierId =  UUID.randomUUID()
         val registration = ProductRegistration (
             id = UUID.randomUUID(),
             seriesId = "series-123",
             isoCategory = "12001314",
-            supplierId = UUID.randomUUID(),
+            supplierId = supplierId,
             title = "Dette er produkt title",
             articleName = "Dette er produkt 1 med og med",
             hmsArtNr = "123",
@@ -67,6 +71,10 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             updated.productData.media.size shouldBe 2
             val byHMSArtNr = productRegistrationRepository.findByHmsArtNrAndSupplierId(saved.hmsArtNr!!, saved.supplierId)
             byHMSArtNr.shouldNotBeNull()
+            val seriesGroup = productRegistrationRepository.findSeriesGroup(Pageable.UNPAGED)
+            val seriesGroupSupplier = productRegistrationRepository.findSeriesGroup(supplierId, Pageable.UNPAGED)
+            println(objectMapper.writeValueAsString(seriesGroupSupplier))
+
         }
     }
 }
