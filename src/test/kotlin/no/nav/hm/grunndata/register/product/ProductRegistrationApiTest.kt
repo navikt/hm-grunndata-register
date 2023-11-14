@@ -268,7 +268,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         runCatching {
             val created3 = apiClient.createProduct(jwt, registration3)
         }.isFailure shouldBe true
-
+        apiClient.findSeriesGroup(jwt, 20,1, null)
     }
 
 }

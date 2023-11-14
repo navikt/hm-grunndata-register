@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.product
 
 import io.micronaut.data.model.Page
+import io.micronaut.data.model.Slice
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.MediaType.*
 import io.micronaut.http.annotation.*
@@ -35,5 +36,11 @@ interface ProductionRegistrationApiClient {
 
     @Delete(uri="/{id}", consumes = [APPLICATION_JSON])
     fun deleteProduct(@CookieValue("JWT") jwt: String, id:UUID): ProductRegistrationDTO
+
+    @Get( uri="/series/group", consumes = [APPLICATION_JSON])
+    fun findSeriesGroup(@CookieValue("JWT") jwt: String,
+                        @QueryValue("size") size: Int? = null,
+                        @QueryValue("page") page: Int?=null,
+                        @QueryValue("sort") sort: String? = null): Slice<SeriesGroupDTO>
 
 }
