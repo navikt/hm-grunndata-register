@@ -5,7 +5,6 @@
   "rapidsandrivers_enabled": true,
   "min_replicas": 2,
   "max_replicas": 2,
-  "media_upload_url": "http://hm-grunndata-media/api/v1/upload/media/register",
   "cookie_domain": "finnhjelpemiddel.nav.no",
   "swagger_enabled": false,
   "schedulers_enabled": false,

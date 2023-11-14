@@ -54,7 +54,7 @@ services:
     networks:
       - register-net
   mediaregister:
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media:23.284.144200
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media:23.317.134839
     platform: linux/amd64
     hostname: media
     depends_on:
@@ -97,7 +97,7 @@ services:
     networks:
       - register-net
     environment:
-      MEDIA_UPLOAD_URL: "http://media:8080/api/v1/upload/media/register"
+      MEDIA_UPLOAD_URL: "http://media:8080"
       GRUNNDATA_DB_URL: "http://localhost:8080/"
       COOKIE_DOMAIN: localhost
       DB_DRIVER: org.postgresql.Driver
