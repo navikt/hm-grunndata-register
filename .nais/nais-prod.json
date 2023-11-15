@@ -6,7 +6,8 @@
   "min_replicas": 2,
   "max_replicas": 2,
   "cookie_domain": "finnhjelpemiddel.nav.no",
+  "ingress": ["https://finnhjelpemidler.nav.no/admreg", "https://finnhjelpemiddel.nav.no/admreg"],
   "swagger_enabled": false,
   "schedulers_enabled": false,
-  "import_autoapprove": true
+  "import_autoapprove": false
 }
