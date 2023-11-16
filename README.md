@@ -157,3 +157,20 @@ Upload many files at the same time:
 ````
 curl -v -X POST --cookie "JWT=$JWT" -F 'files=@@path/to/file1.jpg' -F 'files=@path/to/file2.jpg' http://localhost:8080/admreg/vendor/api/v1/media/product/files/<uuid>
 ````
+
+Using test database for local development:
+First Get the database dump from google cloud bucket storage, after that drop previous "register" database, 
+default localhost postgres user is "postgres" and password is "postgres":
+
+```
+psql -h localhost -U postgres
+DROP DATABASE register;
+CREATE DATABASE register owner register;
+
+```
+Then dump the database from the downloaded file:
+
+```
+gunzip register-db-dump.gz
+psql -h localhost -U register < register-db-dump
+```
