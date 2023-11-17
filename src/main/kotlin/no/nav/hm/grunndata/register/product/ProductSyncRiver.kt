@@ -11,6 +11,8 @@ import no.nav.helse.rapids_rivers.River
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
+import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
+import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
 
@@ -18,7 +20,8 @@ import org.slf4j.LoggerFactory
 @Requires(bean = KafkaRapid::class)
 class ProductSyncRiver(river: RiverHead,
                        private val objectMapper: ObjectMapper,
-                       private val productRegistrationRepository: ProductRegistrationRepository): River.PacketListener {
+                       private val productRegistrationRepository: ProductRegistrationRepository,
+                       private val seriesRegistrationService: SeriesRegistrationService): River.PacketListener {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductSyncRiver::class.java)
@@ -51,6 +54,7 @@ class ProductSyncRiver(river: RiverHead,
                         supplierId = dto.supplier.id, published = dto.published, expired = dto.expired
                     )
                 )
+
             } ?: productRegistrationRepository.save(
                 ProductRegistration(
                     id = dto.id, isoCategory = dto.isoCategory, supplierId = dto.supplier.id, supplierRef = dto.supplierRef,
@@ -61,6 +65,25 @@ class ProductSyncRiver(river: RiverHead,
                     productData = dto.toProductData()
                 )
             )
+            dto.seriesUUID?.let {uuid ->
+                seriesRegistrationService.findById(uuid) ?: seriesRegistrationService.save(
+                    SeriesRegistrationDTO(
+                        id = uuid,
+                        supplierId = dto.supplier.id,
+                        identifier = dto.seriesIdentifier ?: uuid.toString(),
+                        title = dto.title,
+                        text = dto.attributes.text ?: "",
+                        isoCategory = dto.isoCategory,
+                        draftStatus = DraftStatus.DONE,
+                        status = SeriesStatus.ACTIVE,
+                        createdBy = dto.createdBy,
+                        updatedBy = dto.updatedBy,
+                        created = dto.created,
+                        updated = dto.updated,
+                        expired = dto.expired
+                    )
+                )
+            }
         }
         LOG.info("product ${dto.id} with eventId $eventId synced")
     }
