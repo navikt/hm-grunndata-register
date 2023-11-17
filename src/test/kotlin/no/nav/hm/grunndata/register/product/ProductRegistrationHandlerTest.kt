@@ -63,6 +63,7 @@ class ProductRegistrationHandlerTest(private val productRegistrationHandler: Pro
             )
             val registration = ProductRegistrationDTO(
                 seriesId = "series-123",
+                seriesUUID = UUID.randomUUID(),
                 title = "Dette er produkt 1",
                 articleName = "Dette er produkt 1 med og med",
                 id = UUID.randomUUID(),

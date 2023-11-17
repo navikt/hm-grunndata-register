@@ -37,9 +37,11 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
                 reference = "AV-142", expired = LocalDateTime.now())
         )
         val supplierId =  UUID.randomUUID()
+        val seriesUUID = UUID.randomUUID()
         val registration = ProductRegistration (
             id = UUID.randomUUID(),
             seriesId = "series-123",
+            seriesUUID = seriesUUID,
             isoCategory = "12001314",
             supplierId = supplierId,
             title = "Dette er produkt title",
@@ -69,6 +71,7 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             updated.isDraft() shouldBe false
             updated.published.shouldNotBeNull()
             updated.productData.media.size shouldBe 2
+            updated.seriesUUID shouldBe seriesUUID
             val byHMSArtNr = productRegistrationRepository.findByHmsArtNrAndSupplierId(saved.hmsArtNr!!, saved.supplierId)
             byHMSArtNr.shouldNotBeNull()
             val seriesGroup = productRegistrationRepository.findSeriesGroup(Pageable.UNPAGED)

@@ -12,13 +12,16 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventItem
 import no.nav.hm.grunndata.register.event.EventItemService
 import no.nav.hm.grunndata.register.event.EventItemType
+import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
+import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
 
 @Singleton
 open class ProductRegistrationService(private val productRegistrationRepository: ProductRegistrationRepository,
-                                      private val productRegistrationHandler: ProductRegistrationHandler) {
+                                      private val productRegistrationHandler: ProductRegistrationHandler,
+                                      private val seriesRegistrationService: SeriesRegistrationService) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductRegistration::class.java)
@@ -43,7 +46,6 @@ open class ProductRegistrationService(private val productRegistrationRepository:
 
     @Transactional
     open suspend fun saveAndCreateEventIfNotDraftAndApproved(dto: ProductRegistrationDTO, isUpdate: Boolean): ProductRegistrationDTO {
-
         val saved = if (isUpdate) update(dto) else save(dto)
         productRegistrationHandler.queueDTORapidEvent(saved)
         return saved
@@ -90,6 +92,7 @@ open class ProductRegistrationService(private val productRegistrationRepository:
         )
         val registration = ProductRegistrationDTO(
             id = productId,
+            seriesUUID = productId, // we just use the productId as seriesUUID
             seriesId = productId.toString(),
             isoCategory = "0",
             supplierId = supplierId,

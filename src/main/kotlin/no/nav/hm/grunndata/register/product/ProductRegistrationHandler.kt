@@ -74,6 +74,7 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
         isoCategory = registration.isoCategory,
         accessory = accessory,
         sparePart = sparePart,
+        seriesUUID = registration.seriesUUID,
         seriesId = registration.seriesId,
         techData = techData,
         media = media,
@@ -103,7 +104,7 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
 fun Authentication.isAdmin(): Boolean  = roles.contains(Roles.ROLE_ADMIN)
 
 fun ProductRegistrationDTO.toEntity(): ProductRegistration = ProductRegistration(
-    id = id, supplierId = supplierId, seriesId = seriesId, supplierRef = supplierRef, hmsArtNr = hmsArtNr, title = title,
+    id = id, supplierId = supplierId, seriesId = seriesId, seriesUUID = seriesUUID, supplierRef = supplierRef, hmsArtNr = hmsArtNr, title = title,
     articleName = articleName, draftStatus = draftStatus, adminStatus = adminStatus,
     registrationStatus = registrationStatus, message = message, adminInfo = adminInfo, created = created,
     updated = updated, published = published, expired = expired, updatedByUser = updatedByUser,
@@ -112,7 +113,7 @@ fun ProductRegistrationDTO.toEntity(): ProductRegistration = ProductRegistration
 )
 
 fun ProductRegistration.toDTO(): ProductRegistrationDTO = ProductRegistrationDTO(
-    id = id, supplierId = supplierId, seriesId = seriesId, supplierRef = supplierRef, hmsArtNr = hmsArtNr, title = title,
+    id = id, supplierId = supplierId, seriesId = seriesId, seriesUUID = seriesUUID, supplierRef = supplierRef, hmsArtNr = hmsArtNr, title = title,
     articleName = articleName, draftStatus = draftStatus, adminStatus = adminStatus,
     registrationStatus = registrationStatus, message = message, adminInfo = adminInfo, created = created,
     updated = updated, published = published, expired = expired, updatedByUser = updatedByUser,

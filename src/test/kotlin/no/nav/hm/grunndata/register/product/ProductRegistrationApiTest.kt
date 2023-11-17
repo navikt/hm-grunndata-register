@@ -109,6 +109,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
 
         val registration = ProductRegistrationDTO(
             seriesId = "series-123",
+            seriesUUID = UUID.randomUUID(),
             title = "Dette er produkt 1",
             articleName = "Dette er produkt 1 med og med",
             id = UUID.randomUUID(),
@@ -167,6 +168,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             articleName = "en veldig fin tittel med og med",
             id = UUID.randomUUID(),
             seriesId = "series-123",
+            seriesUUID = UUID.randomUUID(),
             isoCategory = "12001314",
             supplierId = testSupplier!!.id,
             hmsArtNr = "222",
@@ -244,6 +246,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         val registration3 = ProductRegistrationDTO(
             id = UUID.randomUUID(),
             seriesId = "series-123",
+            seriesUUID = UUID.randomUUID(),
             isoCategory = "12001314",
             supplierId = testSupplier2!!.id,
             title = "Dette er produkt 1",
