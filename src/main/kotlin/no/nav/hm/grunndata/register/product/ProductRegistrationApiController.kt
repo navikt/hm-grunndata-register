@@ -113,6 +113,17 @@ class ProductRegistrationApiController(private val productRegistrationService: P
         return HttpResponse.ok(productRegistrationService.createDraft(supplierId, authentication, isAccessory, isSparePart))
     }
 
+    @Post("/draftWith{?isAccessory}{?isSparePart}")
+    suspend fun draftProductWith(@QueryValue(defaultValue = "false") isAccessory: Boolean,
+                                 @QueryValue(defaultValue = "false") isSparePart: Boolean,
+                                 @Body draftWith: ProductDraftWithDTO,
+                                 authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
+        val supplierId = authentication.supplierId()
+        return HttpResponse.ok(
+            productRegistrationService.createDraftWith(supplierId, authentication, isAccessory, isSparePart, draftWith)
+        )
+    }
+
     @Post("/draft/variant/{id}/reference/{supplierRef}")
     suspend fun createProductVariant(@PathVariable id:UUID, supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
         return productRegistrationService.createProductVariant(id, supplierRef, authentication)?.let {
@@ -120,3 +131,5 @@ class ProductRegistrationApiController(private val productRegistrationService: P
         } ?: HttpResponse.notFound()
     }
 }
+
+data class ProductDraftWithDTO(val title: String, val text: String, val isoCategory: String)

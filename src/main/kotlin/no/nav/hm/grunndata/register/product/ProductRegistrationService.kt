@@ -86,7 +86,7 @@ open class ProductRegistrationService(private val productRegistrationRepository:
             accessory = isAccessory,
             sparePart = isSparePart,
             attributes = Attributes (
-                shortdescription = "kort beskrivelse",
+                shortdescription = "",
                 text = "en lang beskrivelse"
             )
         )
@@ -115,4 +115,39 @@ open class ProductRegistrationService(private val productRegistrationRepository:
         return draft
     }
 
+    open suspend fun createDraftWith(supplierId: UUID, authentication: Authentication, isAccessory: Boolean,
+                                     isSparePart: Boolean, draftWithDTO: ProductDraftWithDTO): ProductRegistrationDTO {
+        val productId = UUID.randomUUID()
+        val product = ProductData (
+            accessory = isAccessory,
+            sparePart = isSparePart,
+            attributes = Attributes (
+                shortdescription = "",
+                text = draftWithDTO.text
+            )
+        )
+        val registration = ProductRegistrationDTO(
+            id = productId,
+            seriesUUID = productId, // we just use the productId as seriesUUID
+            seriesId = productId.toString(),
+            isoCategory = draftWithDTO.isoCategory,
+            supplierId = supplierId,
+            supplierRef = productId.toString(),
+            hmsArtNr = null,
+            title = draftWithDTO.title,
+            articleName = "",
+            createdBy = REGISTER,
+            updatedBy = REGISTER,
+            message = null,
+            published = LocalDateTime.now(),
+            expired = LocalDateTime.now().plusYears(10),
+            productData = product,
+            createdByUser = authentication.name,
+            updatedByUser = authentication.name,
+            createdByAdmin = authentication.isAdmin(),
+            version = 0)
+        val draft = save(registration)
+        LOG.info("Draft was created ${draft.id} by $supplierId")
+        return draft
+    }
 }

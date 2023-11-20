@@ -74,6 +74,17 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
             HttpResponse.ok(productRegistrationService.createDraft(supplierId, authentication, isAccessory, isSparePart))
         } ?: throw BadRequestException("$supplierId does not exist")
 
+    @Post("/draftWith/supplier/{supplierId}{?isAccessory}{?isSparePart}")
+    suspend fun draftProductWith(supplierId: UUID,
+                                 @QueryValue(defaultValue = "false") isAccessory: Boolean,
+                                 @QueryValue(defaultValue = "false") isSparePart: Boolean,
+                                 @Body draftWith: ProductDraftWithDTO,
+                                 authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
+        supplierRegistrationService.findById(supplierId)?.let {
+            HttpResponse.ok(
+                productRegistrationService.createDraftWith(supplierId, authentication, isAccessory, isSparePart, draftWith))
+            } ?: throw BadRequestException("$supplierId does not exist")
+
 
     @Post("/")
     suspend fun createProduct(@Body registrationDTO: ProductRegistrationDTO, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
