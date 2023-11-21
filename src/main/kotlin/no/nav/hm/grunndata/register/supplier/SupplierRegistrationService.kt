@@ -2,7 +2,12 @@ package no.nav.hm.grunndata.register.supplier
 
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
+import io.micronaut.data.model.PersistentEntity
+import io.micronaut.data.model.jpa.criteria.PersistentEntityCriteriaBuilder
+import io.micronaut.data.model.jpa.criteria.impl.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
+import io.micronaut.data.runtime.criteria.get
+import io.micronaut.data.runtime.criteria.where
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
@@ -33,7 +38,20 @@ open class SupplierRegistrationService(private val supplierRepository: SupplierR
         return saved
     }
 
+    open suspend fun findAll(params: Map<String, String>?, pageable: Pageable): Page<SupplierRegistrationDTO> =
+        findAll(buildCriteriaSpec(params), pageable)
+
     open suspend fun findAll(spec: PredicateSpecification<SupplierRegistration>?, pageable: Pageable): Page<SupplierRegistrationDTO> =
     supplierRepository.findAll(spec, pageable).map { it.toDTO() }
+
+    private fun buildCriteriaSpec(params: Map<String, String>?): PredicateSpecification<SupplierRegistration>? = params?.let {
+        where {
+            if (params.contains("status")) root[SupplierRegistration::status] eq params["status"]
+
+        }.and { root, criteriaBuilder -> if (params.contains("name")) {
+                criteriaBuilder.like(root[SupplierRegistration::name], LiteralExpression("%${params["name"]}%"))
+            } else null
+        }
+    }
 
 }

@@ -31,14 +31,7 @@ class SupplierAdminApiController(private val supplierRegistrationService: Suppli
     suspend fun findSuppliers(@QueryValue params: HashMap<String, String>?,
                              pageable: Pageable
     ): Page<SupplierRegistrationDTO> =
-        supplierRegistrationService.findAll(buildCriteriaSpec(params), pageable)
-
-    private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<SupplierRegistration>? = params?.let {
-        where {
-            if (params.contains("status")) root[SupplierRegistration::status] eq params["status"]
-            if (params.contains("name")) criteriaBuilder.like(root[SupplierRegistration::name], params["name"])
-        }
-    }
+        supplierRegistrationService.findAll(params, pageable)
 
 
     @Get("/{id}")
