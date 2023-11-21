@@ -12,6 +12,7 @@ val postgresqlVersion= "42.5.4"
 val tcVersion= "1.17.6"
 val mockkVersion = "1.13.4"
 val kotestVersion = "5.5.5"
+val poiVersion = "5.1.0"
 val rapidsRiversVersion = "202311021234"
 val grunndataDtoVersion = "202311161301"
 
@@ -82,6 +83,11 @@ dependencies {
     kapt("io.micronaut.openapi:micronaut-openapi")
     implementation("io.micronaut.openapi:micronaut-openapi")
     implementation("io.swagger.core.v3:swagger-annotations")
+
+    // excel import
+    implementation("org.apache.poi:poi:$poiVersion")
+    implementation("org.apache.poi:poi-ooxml:$poiVersion")
+
 }
 
 micronaut {

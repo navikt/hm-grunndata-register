@@ -54,4 +54,7 @@ open class SupplierRegistrationService(private val supplierRepository: SupplierR
         }
     }
 
+    open suspend fun findNameAndId(): List<SupplierNameAndId> = supplierRepository.findNameAndId()
+
+
 }
