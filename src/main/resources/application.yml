@@ -42,6 +42,7 @@ micronaut:
         enabled: true
         cookie-max-age: 8h
         cookie-domain: ${COOKIE_DOMAIN:localhost}
+        cookie-secure: true
       jwt:
         signatures:
           secret:
