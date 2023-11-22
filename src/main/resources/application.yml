@@ -37,7 +37,7 @@ micronaut:
     token:
       generator:
         access-token:
-          expiration: ${ACCESS_TOKEN_EXPIRATION:10800}
+          expiration: ${ACCESS_TOKEN_EXPIRATION:28800}
       cookie:
         enabled: true
         cookie-max-age: 8h

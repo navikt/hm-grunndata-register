@@ -45,8 +45,8 @@ class ProductAgreementImportTest(private val supplierRegistrationService: Suppli
                         phone = "+47 12345678",
                         email = "supplier4@test.test",
                     ),
-                    identifier = "supplier4-unique-name",
-                    name = "Leverandør AS",
+                    identifier = "$supplierId-unique-name",
+                    name = "Leverandør AS -$supplierId"
                 )
             ).toRapidDTO()
             ProductAgreementImportTest::class.java.classLoader.getResourceAsStream("productagreement/katalog-test.xls").use {
