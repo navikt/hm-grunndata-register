@@ -3,7 +3,7 @@ package no.nav.hm.grunndata.register.productagreement
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
-import no.nav.hm.grunndata.register.agreement.AgreementTitleReferenceId
+import no.nav.hm.grunndata.register.agreement.AgreementPDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.Row
@@ -51,19 +51,19 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
             hmsArtNr = parseHMSNr(hmsArtNr),
             agreementId = agreement.id,
             agreementTitle = agreement.title,
-            info = ProductAgreementRegistrationInfo(title=title, iso = iso, targetGroup = targetGroup),
             supplierRef = supplierRef,
             reference = reference,
             productId = null,
-            sparePartsOrAccessory = parseType(articleType),
             post = parsePost(subContractNr),
             rank = parseRank(subContractNr),
             supplierId = parseSupplierName(supplierName),
-            supplierName = this.supplierName
+            supplierName = this.supplierName,
+            published = agreement.published,
+            expired = agreement.expired
         )
     }
 
-    private fun findAgreementByReference(reference: String): AgreementTitleReferenceId = runBlocking {
+    private fun findAgreementByReference(reference: String): AgreementPDTO = runBlocking {
         agreementRegistrationService.findReferenceAndId().find {
             (it.reference.lowercase().indexOf(reference.lowercase()) > -1)
         } ?: throw Exception("Agreement $reference not found")
@@ -117,7 +117,7 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
                 dateFrom = row.getCell(columnMap[datofom.column]!!).toString(),
                 dateTo = row.getCell(columnMap[datotom.column]!!).toString(),
                 articleType = type!!,
-                targetGroup = row.getCell(columnMap[malgruppebarn.column]!!).toString(),
+                forChildren = row.getCell(columnMap[malgruppebarn.column]!!).toString(),
                 supplierName = row.getCell(columnMap[leverandorfirmanavn.column]!!).toString(),
                 supplierCity = row.getCell(columnMap[leverandorsted.column]!!).toString()
             )
@@ -160,17 +160,10 @@ data class ProductAgreementExcelDTO(
     val dateFrom: String,
     val dateTo: String,
     val articleType: String,
-    val targetGroup: String,
+    val forChildren: String,
     val supplierName: String,
     val supplierCity: String
-) {
-
-    override fun toString(): String =
-        "hmsArtNr: $hmsArtNr, iso: $iso, text: $title, supplierRef: $supplierRef, tenderNr: $reference, " +
-                "subContractNr: $subContractNr, dateFrom: $dateFrom, dateTo: $dateTo, articleType: $articleType, " +
-                "targetGroup: $targetGroup, supplierName: $supplierName, supplierCity: $supplierCity"
-
-}
+)
 
 data class ProductAgreementRegistrationDTO(
     val id: UUID = UUID.randomUUID(),
@@ -184,17 +177,9 @@ data class ProductAgreementRegistrationDTO(
     val reference: String,
     val post: Int,
     val rank: Int,
-    val info: ProductAgreementRegistrationInfo,
     val status: ProductAgreementStatus = ProductAgreementStatus.ACTIVE,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
-    val published: LocalDateTime = LocalDateTime.now(),
-    val expired: LocalDateTime = LocalDateTime.now().plusYears(4),
-    val sparePartsOrAccessory: Boolean = false,
-) {
-    override fun toString(): String {
-        return "hmsArtNr: $hmsArtNr, info: $info, agreementTitle: $agreementTitle, supplierRef: $supplierRef, " +
-                "reference: $reference,  sparePartsOrAccessory: $sparePartsOrAccessory, post: $post, rank: $rank, " +
-                "supplierId: $supplierId, supplierName: $supplierName"
-    }
-}
+    val published: LocalDateTime,
+    val expired: LocalDateTime,
+)

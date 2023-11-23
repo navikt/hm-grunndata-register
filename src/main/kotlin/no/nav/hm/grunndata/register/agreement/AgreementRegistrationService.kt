@@ -37,6 +37,6 @@ open class AgreementRegistrationService(private val agreementRegistrationReposit
     open suspend fun findByReference(reference: String): AgreementRegistrationDTO? =
         agreementRegistrationRepository.findByReference(reference)?.toDTO()
 
-    open suspend fun findReferenceAndId(): List<AgreementTitleReferenceId> = agreementRegistrationRepository.findTitleAndReferenceAndId()
+    open suspend fun findReferenceAndId(): List<AgreementPDTO> = agreementRegistrationRepository.find()
 
 }
