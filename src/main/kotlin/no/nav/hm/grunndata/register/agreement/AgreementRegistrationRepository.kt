@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.agreement
 
+import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
@@ -10,5 +11,10 @@ import java.util.UUID
 interface AgreementRegistrationRepository: CoroutineCrudRepository<AgreementRegistration, UUID>,
     CoroutineJpaSpecificationExecutor<AgreementRegistration> {
 
-        fun findByReference(reference: String): AgreementRegistration?
+        suspend fun findByReference(reference: String): AgreementRegistration?
+
+        suspend fun findTitleAndReferenceAndId(): List<AgreementTitleReferenceId>
 }
+
+@Introspected
+data class AgreementTitleReferenceId(val title:String, val reference: String, val id: UUID)

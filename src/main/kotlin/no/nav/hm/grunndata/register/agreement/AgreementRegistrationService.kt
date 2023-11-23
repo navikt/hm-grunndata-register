@@ -6,10 +6,6 @@ import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.event.EventName
-import no.nav.hm.grunndata.register.event.EventItem
-import no.nav.hm.grunndata.register.event.EventItemService
-import no.nav.hm.grunndata.register.event.EventItemType
 import java.util.UUID
 
 @Singleton
@@ -40,5 +36,7 @@ open class AgreementRegistrationService(private val agreementRegistrationReposit
 
     open suspend fun findByReference(reference: String): AgreementRegistrationDTO? =
         agreementRegistrationRepository.findByReference(reference)?.toDTO()
+
+    open suspend fun findReferenceAndId(): List<AgreementTitleReferenceId> = agreementRegistrationRepository.findTitleAndReferenceAndId()
 
 }

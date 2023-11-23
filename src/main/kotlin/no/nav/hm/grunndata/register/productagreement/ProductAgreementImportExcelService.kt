@@ -2,6 +2,8 @@ package no.nav.hm.grunndata.register.productagreement
 
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
+import no.nav.hm.grunndata.register.agreement.AgreementTitleReferenceId
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.Row
@@ -12,16 +14,18 @@ import java.io.InputStream
 import java.lang.Exception
 import java.util.*
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.*
+import java.time.LocalDateTime
 
 
 @Singleton
-class ProductAgreementImportExcelService(private val supplierRegistrationService: SupplierRegistrationService) {
+class ProductAgreementImportExcelService(private val supplierRegistrationService: SupplierRegistrationService,
+                                         private val agreementRegistrationService: AgreementRegistrationService) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementImportExcelService::class.java)
     }
 
-    fun importExcelFile(inputStream: InputStream): List<ProductAgreementDTO> {
+    fun importExcelFile(inputStream: InputStream): List<ProductAgreementRegistrationDTO> {
         LOG.info("Reading xls file using Apache POI")
         val workbook = WorkbookFactory.create(inputStream)
         val productAgreementList = readProductData(workbook)
@@ -30,7 +34,7 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
         return productAgreementList
     }
 
-    fun readProductData(workbook: Workbook): List<ProductAgreementDTO> {
+    fun readProductData(workbook: Workbook): List<ProductAgreementRegistrationDTO> {
         val main = workbook.getSheet("Gjeldende") ?: workbook.getSheet("gjeldende")
         LOG.info("First row num ${main.firstRowNum}")
         val columnMap = readColumnMapIndex(main.first())
@@ -41,18 +45,32 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
         return productExcel.map { it.toProductAgreementDTO() }.toList()
     }
 
-    private fun ProductAgreementExcelDTO.toProductAgreementDTO(): ProductAgreementDTO {
-        return ProductAgreementDTO(
+    private fun ProductAgreementExcelDTO.toProductAgreementDTO(): ProductAgreementRegistrationDTO {
+        val agreement = findAgreementByReference(reference)
+        return ProductAgreementRegistrationDTO(
             hmsArtNr = parseHMSNr(hmsArtNr),
-            text = text,
+            agreementId = agreement.id,
+            agreementTitle = agreement.title,
+            info = ProductAgreementRegistrationInfo(title=title, iso = iso, targetGroup = targetGroup),
             supplierRef = supplierRef,
             reference = reference,
-            type = articleType,
+            productId = null,
+            sparePartsOrAccessory = parseType(articleType),
             post = parsePost(subContractNr),
             rank = parseRank(subContractNr),
             supplierId = parseSupplierName(supplierName),
             supplierName = this.supplierName
         )
+    }
+
+    private fun findAgreementByReference(reference: String): AgreementTitleReferenceId = runBlocking {
+        agreementRegistrationService.findReferenceAndId().find {
+            (it.reference.lowercase().indexOf(reference.lowercase()) > -1)
+        } ?: throw Exception("Agreement $reference not found")
+    }
+
+    private fun parseType(articleType: String): Boolean {
+       return articleType.lowercase().indexOf("hms del") > -1
     }
 
 
@@ -92,7 +110,7 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
             return ProductAgreementExcelDTO(
                 hmsArtNr = row.getCell(columnMap[hms_ArtNr.column]!!).toString(),
                 iso = row.getCell(columnMap[kategori.column]!!).toString(),
-                text = row.getCell(columnMap[beskrivelse.column]!!).toString(),
+                title = row.getCell(columnMap[beskrivelse.column]!!).toString(),
                 supplierRef = leveartNr!!,
                 reference = row.getCell(columnMap[anbudsnr.column]!!).toString(),
                 subContractNr = row.getCell(columnMap[delkontraktnummer.column]!!).toString(),
@@ -135,7 +153,7 @@ enum class ColumnNames(val column:String) {
 data class ProductAgreementExcelDTO(
     val hmsArtNr: String,
     val iso: String,
-    val text: String,
+    val title: String,
     val supplierRef: String,
     val reference: String,
     val subContractNr: String,
@@ -148,25 +166,35 @@ data class ProductAgreementExcelDTO(
 ) {
 
     override fun toString(): String =
-        "hmsArtNr: $hmsArtNr, iso: $iso, text: $text, supplierRef: $supplierRef, tenderNr: $reference, " +
+        "hmsArtNr: $hmsArtNr, iso: $iso, text: $title, supplierRef: $supplierRef, tenderNr: $reference, " +
                 "subContractNr: $subContractNr, dateFrom: $dateFrom, dateTo: $dateTo, articleType: $articleType, " +
                 "targetGroup: $targetGroup, supplierName: $supplierName, supplierCity: $supplierCity"
 
 }
 
-data class ProductAgreementDTO(
-    val hmsArtNr: String,
-    val text: String,
+data class ProductAgreementRegistrationDTO(
+    val id: UUID = UUID.randomUUID(),
+    val productId: UUID?,
+    val supplierId: UUID,
     val supplierRef: String,
-    val type: String,
+    val supplierName: String,
+    val hmsArtNr: String,
+    val agreementId: UUID,
+    val agreementTitle: String,
     val reference: String,
     val post: Int,
     val rank: Int,
-    val supplierId: UUID,
-    val supplierName: String,
+    val info: ProductAgreementRegistrationInfo,
+    val status: ProductAgreementStatus = ProductAgreementStatus.ACTIVE,
+    val created: LocalDateTime = LocalDateTime.now(),
+    val updated: LocalDateTime = LocalDateTime.now(),
+    val published: LocalDateTime = LocalDateTime.now(),
+    val expired: LocalDateTime = LocalDateTime.now().plusYears(4),
+    val sparePartsOrAccessory: Boolean = false,
 ) {
     override fun toString(): String {
-        return "hmsArtNr: $hmsArtNr, text: $text, supplierRef: $supplierRef, reference: $reference, type: $type, " +
-                "post: $post, rank: $rank, supplierId: $supplierId, supplierName: $supplierName"
+        return "hmsArtNr: $hmsArtNr, info: $info, agreementTitle: $agreementTitle, supplierRef: $supplierRef, " +
+                "reference: $reference,  sparePartsOrAccessory: $sparePartsOrAccessory, post: $post, rank: $rank, " +
+                "supplierId: $supplierId, supplierName: $supplierName"
     }
 }
