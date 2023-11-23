@@ -14,6 +14,7 @@ import java.io.InputStream
 import java.lang.Exception
 import java.util.*
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.*
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService.Companion.EXCEL
 import java.time.LocalDateTime
 
 
@@ -23,6 +24,7 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
 
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementImportExcelService::class.java)
+        const val EXCEL = "EXCEL"
     }
 
     fun importExcelFile(inputStream: InputStream): List<ProductAgreementRegistrationDTO> {
@@ -30,7 +32,6 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
         val workbook = WorkbookFactory.create(inputStream)
         val productAgreementList = readProductData(workbook)
         workbook.close()
-        inputStream.close()
         return productAgreementList
     }
 
@@ -50,14 +51,12 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
         return ProductAgreementRegistrationDTO(
             hmsArtNr = parseHMSNr(hmsArtNr),
             agreementId = agreement.id,
-            agreementTitle = agreement.title,
             supplierRef = supplierRef,
             reference = reference,
             productId = null,
             post = parsePost(subContractNr),
             rank = parseRank(subContractNr),
             supplierId = parseSupplierName(supplierName),
-            supplierName = this.supplierName,
             published = agreement.published,
             expired = agreement.expired
         )
@@ -104,7 +103,7 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
 
 
     private fun mapRowToProductAgreement(row: Row, columnMap: Map<String, Int>): ProductAgreementExcelDTO? {
-        val leveartNr = row.getCell(columnMap[leverandorfirmanavn.column]!!)?.toString()
+        val leveartNr = row.getCell(columnMap[leverandørensartnr.column]!!)?.toString()
         val type = row.getCell(columnMap[malTypeartikkel.column]!!)?.toString()
         if (leveartNr != null && "" != leveartNr && "HMS Servicetjeneste" != type) {
             return ProductAgreementExcelDTO(
@@ -170,14 +169,13 @@ data class ProductAgreementRegistrationDTO(
     val productId: UUID?,
     val supplierId: UUID,
     val supplierRef: String,
-    val supplierName: String,
     val hmsArtNr: String,
     val agreementId: UUID,
-    val agreementTitle: String,
     val reference: String,
     val post: Int,
     val rank: Int,
     val status: ProductAgreementStatus = ProductAgreementStatus.ACTIVE,
+    val createdBy: String = EXCEL,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime,
