@@ -8,6 +8,7 @@ import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
+import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
@@ -96,5 +97,15 @@ class UserAdminApiController(private val userRepository: UserRepository,
         LOG.info("User $id has been deleted by admin")
         return HttpResponse.ok("User $id has been deleted")
     }
+
+    @Put("/password")
+    suspend fun changePassword(
+        authentication: Authentication,
+        @Body changePassword: ChangePasswordDTO
+    ): HttpResponse<Any> =
+        userRepository.loginUser(authentication.name, changePassword.oldPassword)?.let {
+            userRepository.changePassword(it.id, changePassword.oldPassword, changePassword.newPassword)
+            HttpResponse.ok()
+        } ?: throw BadRequestException("Wrong user info, please check password and email is correct")
 
 }
