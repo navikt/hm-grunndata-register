@@ -123,12 +123,13 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
             ?: HttpResponse.notFound()
 
 
-    @Post("/draft/variant/{id}/reference/{supplierRef}")
-    suspend fun createProductVariant(@PathVariable id:UUID, supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
-        productRegistrationService.createProductVariant(id, supplierRef,authentication)?.let {
+
+    @Post("/draft/variant/{id}")
+    suspend fun createProductVariant(@PathVariable id:UUID, @Body draftVariant: DraftVariantDTO, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
+        return productRegistrationService.createProductVariant(id, draftVariant, authentication)?.let {
             HttpResponse.ok(it)
         } ?: HttpResponse.notFound()
-
+    }
 
     @Put("/approve/{id}")
     suspend fun approveProduct(id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =

@@ -56,11 +56,12 @@ open class ProductRegistrationService(private val productRegistrationRepository:
     suspend fun findBySeriesIdAndSupplierId(seriesId: String, supplierId: UUID) = productRegistrationRepository.findBySeriesIdAndSupplierId(seriesId, supplierId).map { it.toDTO() }
     suspend fun findSeriesGroup(supplierId: UUID, pageable: Pageable) = productRegistrationRepository.findSeriesGroup(supplierId, pageable)
     suspend fun findSeriesGroup(pageable: Pageable) = productRegistrationRepository.findSeriesGroup(pageable)
-    open suspend fun createProductVariant(id: UUID, supplierRef: String, authentication: Authentication) =
+    open suspend fun createProductVariant(id: UUID, dto: DraftVariantDTO, authentication: Authentication) =
         findById(id)?.let {
             val productId = UUID.randomUUID()
             save(it.copy(
-                supplierRef = supplierRef,
+                supplierRef = dto.supplierRef,
+                articleName = dto.articleName,
                 id = productId,
                 hmsArtNr = null,
                 draftStatus =  DraftStatus.DRAFT,

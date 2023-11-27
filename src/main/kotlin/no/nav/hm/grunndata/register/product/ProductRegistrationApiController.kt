@@ -124,12 +124,13 @@ class ProductRegistrationApiController(private val productRegistrationService: P
         )
     }
 
-    @Post("/draft/variant/{id}/reference/{supplierRef}")
-    suspend fun createProductVariant(@PathVariable id:UUID, supplierRef: String, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
-        return productRegistrationService.createProductVariant(id, supplierRef, authentication)?.let {
+    @Post("/draft/variant/{id}")
+    suspend fun createProductVariant(@PathVariable id:UUID, @Body draftVariant: DraftVariantDTO, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
+        return productRegistrationService.createProductVariant(id, draftVariant, authentication)?.let {
             HttpResponse.ok(it)
         } ?: HttpResponse.notFound()
     }
 }
 
 data class ProductDraftWithDTO(val title: String, val text: String, val isoCategory: String)
+data class DraftVariantDTO(val articleName: String, val supplierRef: String)
