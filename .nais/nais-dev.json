@@ -5,8 +5,8 @@
   "rapidsandrivers_enabled": true,
   "min_replicas": 1,
   "max_replicas": 1,
-  "ingress": ["https://finnhjelpemiddel-alpha.intern.dev.nav.no/admreg", "https://finnhjelpemiddel.intern.dev.nav.no/admreg"],
-  "cookie_domain": "intern.dev.nav.no",
+  "ingress": ["https://finnhjelpemiddel-alpha.intern.dev.nav.no/admreg", "https://finnhjelpemiddel.intern.dev.nav.no/admreg", "https://finnhjelpemiddel.ekstern.dev.nav.no/admreg"],
+  "cookie_domain": "dev.nav.no",
   "swagger_enabled": true,
   "schedulers_enabled": true,
   "import_autoapprove": true
