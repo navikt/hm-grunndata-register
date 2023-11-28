@@ -101,7 +101,8 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
     @Put("/{id}")
     suspend fun updateProduct(@Body registrationDTO: ProductRegistrationDTO, @PathVariable id: UUID, authentication: Authentication):
             HttpResponse<ProductRegistrationDTO> =
-        productRegistrationService.findById(id)
+        if (registrationDTO.id != id) throw BadRequestException("Product id $id does not match ${registrationDTO.id}")
+        else productRegistrationService.findById(id)
                 ?.let { inDb ->
                     val updated = registrationDTO.copy(adminStatus = inDb.adminStatus,
                         adminInfo = inDb.adminInfo, id = inDb.id, created = inDb.created,

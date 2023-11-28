@@ -86,6 +86,7 @@ class ProductRegistrationApiController(private val productRegistrationService: P
     suspend fun updateProduct(@Body registrationDTO: ProductRegistrationDTO, @PathVariable id: UUID, authentication: Authentication):
             HttpResponse<ProductRegistrationDTO> =
         if (registrationDTO.supplierId != authentication.supplierId()) HttpResponse.unauthorized()
+        else if (registrationDTO.id != id) throw BadRequestException("Product id $id does not match ${registrationDTO.id}")
         else productRegistrationService.findByIdAndSupplierId(id, registrationDTO.supplierId)
                 ?.let { inDb ->
                     val dto = productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(registrationDTO
