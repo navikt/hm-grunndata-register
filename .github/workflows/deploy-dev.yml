@@ -8,6 +8,7 @@ on:
       - "CODEOWNERS"
       - "docker-compose**"
       - "dev**"
+      - ".nais/azure-emailer.yml"
     branches:
       - main
 
