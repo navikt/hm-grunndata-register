@@ -22,7 +22,8 @@ class MediaUploadService(private val mediaUploadClient: MediaUploadClient) {
             io.micronaut.http.MediaType.MULTIPART_FORM_DATA_TYPE, file.bytes
         ).build()
         LOG.info("upload media ${file.filename} for $oid")
-        return mediaUploadClient.uploadFile(oid, body)
+        val uploadDTO = mediaUploadClient.uploadFile(oid, body)
+        return uploadDTO.copy(filename = file.filename)
     }
 
     suspend fun getMediaList(oid: UUID): List<MediaDTO> = mediaUploadClient.getMediaList(oid)

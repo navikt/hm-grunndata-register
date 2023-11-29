@@ -8,6 +8,7 @@ data class MediaDTO(
     val oid: UUID,
     val uri: String,
     val sourceUri: String,
+    val filename: String?=null,
     val type: String,
     val size: Long,
     val md5: String,
