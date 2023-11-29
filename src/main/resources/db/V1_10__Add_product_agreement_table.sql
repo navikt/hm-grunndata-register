@@ -14,7 +14,7 @@ CREATE TABLE product_agreement_reg_v1 (
     updated TIMESTAMP NOT NULL DEFAULT  CURRENT_TIMESTAMP,
     published TIMESTAMP NOT NULL DEFAULT  CURRENT_TIMESTAMP,
     expired TIMESTAMP NOT NULL DEFAULT  CURRENT_TIMESTAMP,
-    UNIQUE (supplier_id, supplier_ref, agreement_id, reference, post, rank)
+    UNIQUE (supplier_id, supplier_ref, agreement_id, post, rank)
 );
 
 CREATE INDEX product_agreement_reg_v1_supplier_id_supplier_ref_idx ON product_agreement_reg_v1 (supplier_id, supplier_ref);

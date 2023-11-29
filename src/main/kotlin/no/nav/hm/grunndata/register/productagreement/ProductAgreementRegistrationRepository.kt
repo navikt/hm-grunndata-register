@@ -10,4 +10,7 @@ import java.util.*
 interface ProductAgreementRegistrationRepository: CoroutineCrudRepository<ProductAgreementRegistration, UUID>,
     CoroutineJpaSpecificationExecutor<ProductAgreementRegistration> {
 
+        suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(supplierId: UUID, supplierRef: String, agreementId: UUID, post: Int, rank: Int): ProductAgreementRegistration?
+
+
 }
