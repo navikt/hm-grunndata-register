@@ -14,4 +14,4 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          RESOURCE: .nais/azureapp-emailer.yml
+          RESOURCE: ".nais/azure-emailer.yml"
