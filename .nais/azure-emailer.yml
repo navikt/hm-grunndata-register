@@ -1,0 +1,9 @@
+apiVersion: nais.io/v1
+kind: AzureAdApplication
+metadata:
+  name: hm-email-service
+  namespace: teamdigihot
+  labels:
+    team: teamdigihot
+spec:
+  secretName: azure-hm-email-service
