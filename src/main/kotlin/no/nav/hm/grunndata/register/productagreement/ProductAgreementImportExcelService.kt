@@ -44,6 +44,7 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
         val productExcel = main.toList().mapIndexed { index, row ->
             if (index > 0) mapRowToProductAgreement(row, columnMap) else null
         }.filterNotNull()
+        if (productExcel.isEmpty()) throw Exception("No product agreements found in Excel file")
         LOG.info("Total product agreements in Excel file: ${productExcel.size}")
         return productExcel.map { it.toProductAgreementDTO() }.toList()
     }

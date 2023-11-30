@@ -27,13 +27,13 @@ class ProductAgreementAdminController(private val productAgreementImportExcelSer
     )
     suspend fun excelImport(file: CompletedFileUpload,
                             @QueryValue dryRun: Boolean = true,
-                            authentication: Authentication): List<ProductAgreementRegistrationDTO> {
+                            authentication: Authentication): ProductAgreementImportDTO {
         LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()}")
-        val productsAgreements = file.inputStream.use {input -> productAgreementImportExcelService.importExcelFile(input) }
+        val productAgreements = file.inputStream.use { input -> productAgreementImportExcelService.importExcelFile(input) }
         if (!dryRun) {
             LOG.info("Saving product agreements")
-            productAgreementRegistrationService.saveAll(productsAgreements)
+            productAgreementRegistrationService.saveAll(productAgreements)
         }
-        return productsAgreements
+        return ProductAgreementImportDTO(dryRun = dryRun, count = productAgreements.size, productAgreements = productAgreements)
     }
 }
