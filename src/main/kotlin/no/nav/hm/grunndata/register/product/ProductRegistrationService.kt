@@ -14,6 +14,7 @@ import no.nav.hm.grunndata.register.event.EventItemService
 import no.nav.hm.grunndata.register.event.EventItemType
 import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
+import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
@@ -21,6 +22,7 @@ import java.util.*
 @Singleton
 open class ProductRegistrationService(private val productRegistrationRepository: ProductRegistrationRepository,
                                       private val productRegistrationHandler: ProductRegistrationHandler,
+                                      private val techLabelService: TechLabelService,
                                       private val seriesRegistrationService: SeriesRegistrationService) {
 
     companion object {
@@ -122,6 +124,7 @@ open class ProductRegistrationService(private val productRegistrationRepository:
         val product = ProductData (
             accessory = isAccessory,
             sparePart = isSparePart,
+            techData = createTechDataDraft(draftWithDTO),
             attributes = Attributes (
                 shortdescription = "",
                 text = draftWithDTO.text
@@ -151,4 +154,9 @@ open class ProductRegistrationService(private val productRegistrationRepository:
         LOG.info("Draft was created ${draft.id} by $supplierId")
         return draft
     }
+
+    private fun createTechDataDraft(draftWithDTO: ProductDraftWithDTO): List<TechData> =
+        techLabelService.fetchLabelsByIsoCode(draftWithDTO.isoCategory)?.map {
+            TechData(key = it.label, value = "", unit = it.unit ?:"")
+        }?: emptyList()
 }
