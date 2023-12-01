@@ -127,9 +127,14 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
 
     @Post("/draft/variant/{id}")
     suspend fun createProductVariant(@PathVariable id:UUID, @Body draftVariant: DraftVariantDTO, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
-        return productRegistrationService.createProductVariant(id, draftVariant, authentication)?.let {
-            HttpResponse.ok(it)
-        } ?: HttpResponse.notFound()
+        return try {
+            productRegistrationService.createProductVariant(id, draftVariant, authentication)?.let {
+                HttpResponse.ok(it)
+            } ?: HttpResponse.notFound()
+        } catch (e: Exception) {
+            ProductRegistrationApiController.LOG.error("Got exception while creating variant ${draftVariant.supplierRef}", e)
+            throw BadRequestException("Could not create variant for ${draftVariant.supplierRef}, already exists")
+        }
     }
 
     @Put("/approve/{id}")
