@@ -132,7 +132,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
                 HttpResponse.ok(it)
             } ?: HttpResponse.notFound()
         } catch (e: Exception) {
-            ProductRegistrationApiController.LOG.error("Got exception while creating variant ${draftVariant.supplierRef}", e)
+            LOG.error("Got exception while creating variant ${draftVariant.supplierRef}", e)
             throw BadRequestException("Could not create variant for ${draftVariant.supplierRef}, already exists")
         }
     }
