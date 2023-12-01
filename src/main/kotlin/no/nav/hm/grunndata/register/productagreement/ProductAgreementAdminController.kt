@@ -6,9 +6,12 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
+import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
+import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
@@ -36,4 +39,6 @@ class ProductAgreementAdminController(private val productAgreementImportExcelSer
         }
         return ProductAgreementImportDTO(dryRun = dryRun, count = productAgreements.size, productAgreements = productAgreements)
     }
+
+
 }

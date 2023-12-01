@@ -1,6 +1,7 @@
 CREATE TABLE product_agreement_reg_v1 (
     id uuid PRIMARY KEY,
     product_id uuid,
+    title VARCHAR(255) NOT NULL,
     supplier_id uuid NOT NULL,
     supplier_ref VARCHAR(255) NOT NULL,
     hms_artnr VARCHAR(255),

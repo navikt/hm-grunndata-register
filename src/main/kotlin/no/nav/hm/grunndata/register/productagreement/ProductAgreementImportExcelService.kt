@@ -58,6 +58,7 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
             agreementId = agreement.id,
             supplierRef = supplierRef,
             productId = product?.id,
+            title = product?.title ?: title,
             reference = reference,
             post = parsePost(subContractNr),
             rank = parseRank(subContractNr),
@@ -172,6 +173,7 @@ data class ProductAgreementExcelDTO(
 data class ProductAgreementRegistrationDTO(
     val id: UUID = UUID.randomUUID(),
     val productId: UUID?,
+    val title: String,
     val supplierId: UUID,
     val supplierRef: String,
     val hmsArtNr: String,

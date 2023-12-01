@@ -15,6 +15,7 @@ data class ProductAgreementRegistration(
     @field:Id
     val id: UUID=UUID.randomUUID(),
     val productId: UUID?=null,
+    val title: String,
     val supplierId: UUID,
     val supplierRef: String,
     @field:Column(name="hms_artnr")
@@ -40,6 +41,7 @@ fun ProductAgreementRegistrationDTO.toEntity(): ProductAgreementRegistration {
     return ProductAgreementRegistration(
         id = id,
         productId = productId,
+        title = title,
         supplierId = supplierId,
         supplierRef = supplierRef,
         hmsArtNr = hmsArtNr,
@@ -60,6 +62,7 @@ fun ProductAgreementRegistration.toDTO(): ProductAgreementRegistrationDTO {
     return ProductAgreementRegistrationDTO(
         id = id,
         productId = productId,
+        title = title,
         supplierId = supplierId,
         supplierRef = supplierRef,
         hmsArtNr = hmsArtNr,
