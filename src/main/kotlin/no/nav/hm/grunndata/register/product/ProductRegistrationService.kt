@@ -22,8 +22,7 @@ import java.util.*
 @Singleton
 open class ProductRegistrationService(private val productRegistrationRepository: ProductRegistrationRepository,
                                       private val productRegistrationHandler: ProductRegistrationHandler,
-                                      private val techLabelService: TechLabelService,
-                                      private val seriesRegistrationService: SeriesRegistrationService) {
+                                      private val techLabelService: TechLabelService) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductRegistration::class.java)

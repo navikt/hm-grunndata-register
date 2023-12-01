@@ -10,6 +10,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.gdb.GdbApiClient
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.*
@@ -37,6 +38,9 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
+
+    @MockBean(GdbApiClient::class)
+    fun mockGdbApiClient(): GdbApiClient = mockk(relaxed = true)
 
     @BeforeEach
     fun createUserSupplier() {

@@ -22,7 +22,7 @@ import java.time.LocalDateTime
 @Singleton
 class ProductAgreementImportExcelService(private val supplierRegistrationService: SupplierRegistrationService,
                                          private val agreementRegistrationService: AgreementRegistrationService,
-                                         val productRegistrationService: ProductRegistrationService) {
+                                         private val productRegistrationService: ProductRegistrationService) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementImportExcelService::class.java)
