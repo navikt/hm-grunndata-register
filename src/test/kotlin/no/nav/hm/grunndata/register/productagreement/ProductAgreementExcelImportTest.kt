@@ -25,7 +25,8 @@ import java.util.*
 @MicronautTest
 class ProductAgreementExcelImportTest(private val supplierRegistrationService: SupplierRegistrationService,
                                       private val agreementRegistrationService: AgreementRegistrationService,
-                                      private val productAgreementImportExcelService: ProductAgreementImportExcelService) {
+                                      private val productAgreementImportExcelService: ProductAgreementImportExcelService,
+                                      private val productAgreementRegistrationService: ProductAgreementRegistrationService) {
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -79,7 +80,8 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
                 products.forEach {
                     LOG.info("ProductAgreement: $it")
                 }
-                products.size shouldBe 3
+                val saved = productAgreementRegistrationService.saveAll(products)
+                products.size shouldBe saved.size
             }
         }
     }

@@ -13,6 +13,7 @@ import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
@@ -23,7 +24,8 @@ import java.util.*
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
 class ProductRegistrationAdminApiController(private val productRegistrationService: ProductRegistrationService,
-                                            private val supplierRegistrationService: SupplierRegistrationService) {
+                                            private val supplierRegistrationService: SupplierRegistrationService,
+                                            private val productAgreementRegistrationService: ProductAgreementRegistrationService) {
 
     companion object {
         const val API_V1_ADMIN_PRODUCT_REGISTRATIONS = "/admin/api/v1/product/registrations"

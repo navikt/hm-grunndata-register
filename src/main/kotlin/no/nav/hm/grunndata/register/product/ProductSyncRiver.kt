@@ -11,6 +11,10 @@ import no.nav.helse.rapids_rivers.River
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementStatus
 import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
@@ -21,7 +25,9 @@ import org.slf4j.LoggerFactory
 class ProductSyncRiver(river: RiverHead,
                        private val objectMapper: ObjectMapper,
                        private val productRegistrationRepository: ProductRegistrationRepository,
-                       private val seriesRegistrationService: SeriesRegistrationService): River.PacketListener {
+                       private val seriesRegistrationService: SeriesRegistrationService,
+                       private val agreementRegistrationService: AgreementRegistrationService,
+                       private val productAgreementRegistrationService: ProductAgreementRegistrationService): River.PacketListener {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductSyncRiver::class.java)
@@ -83,6 +89,30 @@ class ProductSyncRiver(river: RiverHead,
                         expired = dto.expired
                     )
                 )
+            }
+            dto.agreements.forEach { agreementInfo ->
+                agreementRegistrationService.findById(agreementInfo.id)?.let { agreement ->
+                    productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
+                        dto.supplier.id, dto.supplierRef, agreementInfo.id, agreementInfo.postNr, agreementInfo.rank) ?: productAgreementRegistrationService.save(
+                        ProductAgreementRegistrationDTO(
+                            supplierId = dto.supplier.id,
+                            supplierRef = dto.supplierRef,
+                            productId = dto.id,
+                            title = dto.title,
+                            agreementId = agreement.id,
+                            hmsArtNr = dto.hmsArtNr!!,
+                            post = agreementInfo.postNr,
+                            rank = agreementInfo.rank,
+                            reference = agreement.reference,
+                            expired = agreement.expired,
+                            created = dto.created,
+                            updated = dto.updated,
+                            createdBy = dto.createdBy,
+                            published = agreement.published,
+                            status = if (agreement.agreementStatus == AgreementStatus.ACTIVE)
+                                ProductAgreementStatus.ACTIVE else ProductAgreementStatus.INACTIVE
+                    ))
+                }
             }
         }
         LOG.info("product ${dto.id} with eventId $eventId synced")
