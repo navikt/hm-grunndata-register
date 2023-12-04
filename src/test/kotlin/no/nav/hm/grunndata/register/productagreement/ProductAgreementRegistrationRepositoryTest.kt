@@ -25,7 +25,8 @@ class ProductAgreementRegistrationRepositoryTest(private val productAgreementReg
                     supplierId = UUID.randomUUID(),
                     supplierRef = "TK1235-213",
                     createdBy = EXCEL,
-                    title = "Test product agreement"
+                    title = "Test product agreement",
+                    status = ProductAgreementStatus.ACTIVE
                 )
             )
 
@@ -35,6 +36,7 @@ class ProductAgreementRegistrationRepositoryTest(private val productAgreementReg
             found.agreementId shouldBe saved.agreementId
             found.createdBy shouldBe EXCEL
             found.title shouldBe "Test product agreement"
+            found.status shouldBe ProductAgreementStatus.ACTIVE
         }
     }
 
