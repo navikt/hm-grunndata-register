@@ -38,7 +38,7 @@ class ProductRegistrationApiController(private val productRegistrationService: P
 
     @Get("/series/{seriesId}")
     suspend fun findBySeriesIdAndSupplierId(seriesId: String, authentication: Authentication) =
-        productRegistrationService.findBySeriesIdAndSupplierId(seriesId, authentication.supplierId())
+        productRegistrationService.findBySeriesIdAndSupplierId(seriesId, authentication.supplierId()).sortedBy { it.created }
 
     @Get("/{?params*}")
     suspend fun findProducts(@QueryValue params: HashMap<String,String>?,
