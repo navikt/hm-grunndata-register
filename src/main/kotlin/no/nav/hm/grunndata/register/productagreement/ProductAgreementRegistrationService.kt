@@ -32,4 +32,9 @@ open class ProductAgreementRegistrationService(private val productAgreementRegis
     open suspend fun findBySupplierIdAndSupplierRef(supplierId: UUID, supplierRef: String): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef).map { it.toDTO() }
 
+
+    open suspend fun findByAgreementId(agreementId: UUID): List<ProductAgreementRegistrationDTO> =
+        productAgreementRegistrationRepository.findByAgreementId(agreementId).map { it.toDTO() }
+
+
 }

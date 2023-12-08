@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.productagreement
 
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
@@ -16,6 +17,7 @@ import java.util.*
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
 class ProductAgreementAdminController(private val productAgreementImportExcelService: ProductAgreementImportExcelService,
+                                      private val productRegistrationService: ProductRegistrationService,
                                       private val productAgreementRegistrationService: ProductAgreementRegistrationService) {
 
     companion object {
@@ -41,4 +43,17 @@ class ProductAgreementAdminController(private val productAgreementImportExcelSer
     }
 
 
+    @Put(  value = "/products/connect/{agreementId}",
+            consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
+            produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
+    )
+    suspend fun connectProductsToAgreement(agreementId: UUID): List<ProductAgreementRegistrationDTO> {
+        LOG.info("Connecting products to agreement: $agreementId")
+        val products = productAgreementRegistrationService.findByAgreementId(agreementId).filter { it.productId == null }
+        LOG.info("Got ${products.size} products to connect")
+        return products.map {
+            val product = productRegistrationService.findBySupplierRefAndSupplierId(it.supplierRef, it.supplierId)
+            it.copy(productId = product?.id)
+        }
+    }
 }
