@@ -2,10 +2,9 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jvmTarget = "17"
-val micronautVersion="4.1.6"
+val micronautVersion="4.2.1"
 val kafkaVersion = "3.2.1"
 val junitJupiterVersion = "5.9.0"
-val logbackClassicVersion = "1.4.7"
 val logbackEncoderVersion = "7.3"
 val kafkaEmbeddedVersion = "3.2.1"
 val postgresqlVersion= "42.5.4"
@@ -24,7 +23,7 @@ plugins {
     kotlin("kapt") version "1.8.22"
     id("java")
     id("com.github.johnrengelman.shadow") version "7.1.0"
-    id("io.micronaut.application") version "4.1.1"
+    id("io.micronaut.application") version "4.2.1"
 }
 
 configurations.all {
@@ -35,7 +34,7 @@ configurations.all {
 
 dependencies {
 
-    api("ch.qos.logback:logback-classic:$logbackClassicVersion")
+    api("ch.qos.logback:logback-classic")
     api("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
 
     runtimeOnly("org.yaml:snakeyaml")

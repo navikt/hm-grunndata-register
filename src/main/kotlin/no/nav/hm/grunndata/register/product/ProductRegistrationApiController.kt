@@ -17,6 +17,7 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 
 import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.series.SeriesGroupDTO
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
