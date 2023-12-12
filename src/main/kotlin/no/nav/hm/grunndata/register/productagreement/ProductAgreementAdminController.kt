@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.productagreement
 
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
@@ -109,6 +110,18 @@ class ProductAgreementAdminController(private val productAgreementImportExcelSer
                 reference = agreement.reference
             )
         )
+    }
+
+    @Delete("/{id}")
+    suspend fun deleteProductAgreementById(id: UUID, authentication: Authentication): Int {
+        LOG.info("deleting product agreement: $id by ${authentication.userId()}")
+        return productAgreementRegistrationService.deleteById(id)
+    }
+
+    @Delete("/ids")
+    suspend fun deleteProductAgreementByIds(@Body ids: List<UUID>, authentication: Authentication): Int {
+        LOG.info("deleting product agreements: $ids by ${authentication.userId()}")
+        return productAgreementRegistrationService.deleteByIds(ids)
     }
 
 }

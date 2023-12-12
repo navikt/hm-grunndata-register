@@ -17,26 +17,32 @@ open class ProductAgreementRegistrationService(private val productAgreementRegis
                     productAgreement.agreementId,
                     productAgreement.post,
                     productAgreement.rank
-                )?.let {
-                    productAgreementRegistrationRepository.update(productAgreement.toEntity()).toDTO()
-            } ?: productAgreementRegistrationRepository.save(productAgreement.toEntity()).toDTO()
-        }
+                ) ?: productAgreementRegistrationRepository.save(productAgreement.toEntity()).toDTO()
+            }
 
 
-    open suspend fun save(dto: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO =
+    suspend fun save(dto: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO =
         productAgreementRegistrationRepository.save(dto.toEntity()).toDTO()
 
-    open suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
+    suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
         supplierId: UUID, supplierRef: String, agreementId: UUID, post: Int, rank: Int): ProductAgreementRegistrationDTO? =
         productAgreementRegistrationRepository.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
             supplierId, supplierRef, agreementId, post, rank)?.toDTO()
 
-    open suspend fun findBySupplierIdAndSupplierRef(supplierId: UUID, supplierRef: String): List<ProductAgreementRegistrationDTO> =
+    suspend fun findBySupplierIdAndSupplierRef(supplierId: UUID, supplierRef: String): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef).map { it.toDTO() }
 
 
-    open suspend fun findByAgreementId(agreementId: UUID): List<ProductAgreementRegistrationDTO> =
+    suspend fun findByAgreementId(agreementId: UUID): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findByAgreementId(agreementId).map { it.toDTO() }
+
+    suspend fun deleteById(id: UUID): Int = productAgreementRegistrationRepository.deleteById(id)
+
+    @Transactional
+    open suspend fun deleteByIds(ids: List<UUID>): Int {
+        ids.forEach { productAgreementRegistrationRepository.deleteById(it) }
+        return ids.size
+    }
 
 
 }
