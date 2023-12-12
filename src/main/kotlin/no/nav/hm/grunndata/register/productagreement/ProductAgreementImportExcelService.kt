@@ -58,7 +58,7 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
             agreementId = agreement.id,
             supplierRef = supplierRef,
             productId = product?.id,
-            title = product?.title ?: title,
+            title = title,
             reference = reference,
             post = parsePost(subContractNr),
             rank = parseRank(subContractNr),

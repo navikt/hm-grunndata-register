@@ -79,3 +79,13 @@ fun ProductAgreementRegistration.toDTO(): ProductAgreementRegistrationDTO {
     )
 }
 
+data class ProductAgreementRegistrationInfo(
+    val productId: UUID?, val agreementId: UUID, val reference: String, val post: Int, val rank: Int,
+    val status: ProductAgreementStatus, val published: LocalDateTime, val expired: LocalDateTime
+)
+
+fun ProductAgreementRegistration.toInfo() = ProductAgreementRegistrationInfo (
+    productId = productId, agreementId = agreementId, reference = reference, post = post, rank = rank,
+    status = status, published = published, expired = expired
+)
+

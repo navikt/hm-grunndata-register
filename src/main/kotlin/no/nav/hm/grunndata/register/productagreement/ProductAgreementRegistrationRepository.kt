@@ -24,4 +24,6 @@ interface ProductAgreementRegistrationRepository : CoroutineCrudRepository<Produ
     ): List<ProductAgreementRegistration>
 
 
+    suspend fun findByAgreementId(agreementId: UUID): List<ProductAgreementRegistration>
+
 }
