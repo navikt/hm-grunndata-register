@@ -17,8 +17,10 @@ open class ProductAgreementRegistrationService(private val productAgreementRegis
                     productAgreement.agreementId,
                     productAgreement.post,
                     productAgreement.rank
-                ) ?: productAgreementRegistrationRepository.save(productAgreement.toEntity()).toDTO()
-            }
+                )?.let {
+                    productAgreementRegistrationRepository.update(productAgreement.toEntity()).toDTO()
+            } ?: productAgreementRegistrationRepository.save(productAgreement.toEntity()).toDTO()
+        }
 
 
     open suspend fun save(dto: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO =
