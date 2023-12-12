@@ -176,7 +176,7 @@ data class ProductAgreementRegistrationDTO(
     val title: String,
     val supplierId: UUID,
     val supplierRef: String,
-    val hmsArtNr: String,
+    val hmsArtNr: String?,
     val agreementId: UUID,
     val reference: String,
     val post: Int,

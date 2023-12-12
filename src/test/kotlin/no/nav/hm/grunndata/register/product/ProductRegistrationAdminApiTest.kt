@@ -95,14 +95,6 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
                     sourceUri = "https://ekstern.url/123.jpg"
                 )
             ),
-            agreementInfo = AgreementInfo(
-                id = UUID.randomUUID(),
-                identifier = "hmdbid-1",
-                rank = 1,
-                postNr = 1,
-                reference = "AV-142",
-                expired =  LocalDateTime.now()
-            )
         )
         val hmsArtNr = UUID.randomUUID().toString()
         val registration = draft.copy(

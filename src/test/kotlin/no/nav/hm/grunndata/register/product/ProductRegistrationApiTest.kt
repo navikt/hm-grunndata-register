@@ -101,14 +101,6 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                     sourceUri = "https://ekstern.url/123.jpg"
                 )
             ),
-            agreementInfo = AgreementInfo(
-                id = UUID.randomUUID(),
-                identifier = "hmdbid-1",
-                rank = 1,
-                postNr = 1,
-                reference = "AV-142",
-                expired = LocalDateTime.now()
-            )
         )
 
         val registration = ProductRegistrationDTO(
@@ -156,14 +148,6 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                     source = MediaSourceType.EXTERNALURL,
                     sourceUri = "https://ekstern.url/123.jpg"
                 )
-            ),
-            agreementInfo = AgreementInfo(
-                id = UUID.randomUUID(),
-                identifier = "hmdbid-1",
-                rank = 1,
-                postNr = 1,
-                reference = "AV-142",
-                expired = LocalDateTime.now()
             )
         )
 
@@ -237,14 +221,6 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                     source = MediaSourceType.EXTERNALURL,
                     sourceUri = "https://ekstern.url/123.jpg"
                 )
-            ),
-            agreementInfo = AgreementInfo(
-                id = UUID.randomUUID(),
-                identifier = "hmdbid-1",
-                rank = 1,
-                postNr = 1,
-                reference = "AV-142",
-                expired = LocalDateTime.now()
             )
         )
         val registration3 = ProductRegistrationDTO(

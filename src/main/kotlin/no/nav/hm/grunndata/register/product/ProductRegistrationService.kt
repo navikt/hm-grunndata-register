@@ -107,6 +107,7 @@ open class ProductRegistrationService(private val productRegistrationRepository:
             createdByUser = authentication.name,
             updatedByUser = authentication.name,
             createdByAdmin = authentication.isAdmin(),
+            agreements = emptyList(),
             version = 0)
         val draft = save(registration)
         LOG.info("Draft was created ${draft.id} by $supplierId")
@@ -143,6 +144,7 @@ open class ProductRegistrationService(private val productRegistrationRepository:
             productData = product,
             createdByUser = authentication.name,
             updatedByUser = authentication.name,
+            agreements = emptyList(),
             createdByAdmin = authentication.isAdmin(),
             version = 0)
         val draft = save(registration)

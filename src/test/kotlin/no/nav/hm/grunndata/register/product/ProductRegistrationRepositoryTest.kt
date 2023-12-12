@@ -34,9 +34,7 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
                 sourceUri = "https://ekstern.url/123.jpg"),
                 MediaInfo(uri="124.jpg", text = "bilde av produktet 2", source = MediaSourceType.EXTERNALURL,
                     sourceUri = "https://ekstern.url/124.jpg")
-            ),
-            agreementInfo = AgreementInfo(id = UUID.randomUUID(), identifier = "hmdbid-1", rank = 1, postNr = 1,
-                reference = "AV-142", expired = LocalDateTime.now())
+            )
         )
         val supplierId =  UUID.randomUUID()
         val seriesUUID = UUID.randomUUID()

@@ -8,10 +8,7 @@ data class ProductData (
     val accessory: Boolean = false,
     val sparePart: Boolean = false,
     val techData: List<TechData> = emptyList(),
-    val media: Set<MediaInfo> = emptySet(),
-    @Deprecated("use agreements")
-    val agreementInfo: AgreementInfo?=null,
-    val agreements: List<AgreementInfo> = emptyList()
+    val media: Set<MediaInfo> = emptySet()
 )
 
 
@@ -21,7 +18,5 @@ fun ProductRapidDTO.toProductData(): ProductData = ProductData (
     sparePart = sparePart,
     techData = techData,
     media = media,
-    agreementInfo = agreementInfo,
-    agreements = agreements,
     attributes = attributes
 )

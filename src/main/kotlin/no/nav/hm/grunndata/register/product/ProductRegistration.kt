@@ -7,6 +7,7 @@ import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
 import java.time.LocalDateTime
 import java.util.*
 
@@ -81,6 +82,7 @@ data class ProductRegistrationDTO (
     val updatedBy: String = REGISTER,
     val createdByAdmin: Boolean = false,
     val productData: ProductData,
+    val agreements: List<ProductAgreementRegistrationDTO> = emptyList(),
     val version: Long? = 0L
 ): EventPayload
 
