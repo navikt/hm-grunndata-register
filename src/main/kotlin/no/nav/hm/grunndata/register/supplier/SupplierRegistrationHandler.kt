@@ -35,7 +35,7 @@ class SupplierRegistrationHandler(private val registerRapidPushService: Register
         if (dto.draftStatus == DraftStatus.DONE) {
            LOG.info("queueDTORapidEvent for ${dto.id} with draftStatus: ${dto.draftStatus} ")
             eventItemService.createNewEventItem(
-                type = EventItemType.PRODUCT,
+                type = EventItemType.SUPPLIER,
                 oid = dto.id,
                 byUser = dto.updatedByUser,
                 eventName = eventName,
