@@ -1,26 +1,29 @@
 package no.nav.hm.grunndata.register.techlabel
 
 import jakarta.inject.Singleton
+import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.gdb.GdbApiClient
 import org.slf4j.LoggerFactory
 
 @Singleton
 class TechLabelService(private val gdbApiClient: GdbApiClient) {
 
-    private val techLabelsByIso: Map<String, List<TechLabelDTO>> =
-        gdbApiClient.fetchAllTechLabels().groupBy { it.isocode }
-
-    private val techLabelsByName: Map<String, List<TechLabelDTO>> =
-        gdbApiClient.fetchAllTechLabels().groupBy { it.label }
+    private var techLabelsByIso: Map<String, List<TechLabelDTO>>
 
 
+    private var techLabelsByName: Map<String, List<TechLabelDTO>>
 
     companion object {
         private val LOG = LoggerFactory.getLogger(TechLabelService::class.java)
     }
 
     init {
-        LOG.info("Init techlabels size ${techLabelsByIso.size}")
+        runBlocking {
+            val techLabels = gdbApiClient.fetchAllTechLabels()
+            techLabelsByIso = techLabels.groupBy { it.isocode }
+            techLabelsByName = techLabels.groupBy { it.label }
+            LOG.info("Init techlabels size ${techLabelsByIso.size}")
+        }
     }
 
     fun fetchLabelsByIsoCode(isocode: String): List<TechLabelDTO>? = techLabelsByIso[isocode]

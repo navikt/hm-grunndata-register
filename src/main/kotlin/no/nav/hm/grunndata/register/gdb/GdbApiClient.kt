@@ -14,19 +14,19 @@ import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
 interface GdbApiClient {
 
     @Get(uri="/api/v1/products", consumes = [APPLICATION_JSON])
-    fun findProducts(params: Map<String, String>?=null,
+    suspend fun findProducts(params: Map<String, String>?=null,
                      @QueryValue("size") size: Int? = null,
                      @QueryValue("page") page: Int?=null,
                      @QueryValue("sort") sort: String? = null): Page<ProductRapidDTO>
 
     @Get(uri="/api/v1/isocategories", consumes = [APPLICATION_JSON])
-    fun retrieveIsoCategories(): List<IsoCategoryDTO>
+    suspend fun retrieveIsoCategories(): List<IsoCategoryDTO>
 
     @Get(uri="/api/v1/techlabels", consumes = [APPLICATION_JSON])
-    fun fetchAllTechLabels(): List<TechLabelDTO>
+    suspend fun fetchAllTechLabels(): List<TechLabelDTO>
 
     @Get(uri="/api/v1/series", consumes = [APPLICATION_JSON])
-    fun fetchSeries(params: Map<String, String>?=null,
+    suspend fun fetchSeries(params: Map<String, String>?=null,
                     @QueryValue("size") size: Int? = null,
                     @QueryValue("page") page: Int?=null,
                     @QueryValue("sort") sort: String? = null): Page<SeriesRapidDTO>
