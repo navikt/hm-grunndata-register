@@ -83,6 +83,7 @@ open class ProductRegistrationService(private val productRegistrationRepository:
         val product = ProductData (
             accessory = isAccessory,
             sparePart = isSparePart,
+            identifier = "HMDB-123",
             attributes = Attributes (
                 shortdescription = "",
                 text = "en lang beskrivelse"
@@ -120,6 +121,7 @@ open class ProductRegistrationService(private val productRegistrationRepository:
         val product = ProductData (
             accessory = isAccessory,
             sparePart = isSparePart,
+            identifier = "HMDB-123",
             techData = createTechDataDraft(draftWithDTO),
             attributes = Attributes (
                 shortdescription = "",

@@ -93,6 +93,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             accessory = false,
             sparePart = false,
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
+            identifier = "HMDB-123",
             media = setOf(
                 MediaInfo(
                     uri = "123.jpg",
@@ -141,6 +142,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             accessory = false,
             sparePart = false,
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
+            identifier = "HMDB-123",
             media = setOf(
                 MediaInfo(
                     uri = "123.jpg",
@@ -213,6 +215,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             ),
             accessory = false,
             sparePart = false,
+            identifier = "HMDB-123",
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
             media = setOf(
                 MediaInfo(

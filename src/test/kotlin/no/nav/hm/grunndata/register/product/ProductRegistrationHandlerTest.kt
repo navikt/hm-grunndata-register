@@ -51,6 +51,7 @@ class ProductRegistrationHandlerTest(private val productRegistrationHandler: Pro
                 ),
                 accessory = false,
                 sparePart = false,
+                identifier = "HMDB-123",
                 techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
                 media = setOf(
                     MediaInfo(uri="123.jpg", text = "bilde av produktet", source = MediaSourceType.EXTERNALURL,

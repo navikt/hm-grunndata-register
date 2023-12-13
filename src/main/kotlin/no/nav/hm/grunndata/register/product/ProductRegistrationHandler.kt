@@ -72,7 +72,7 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
         title =  registration.title,
         articleName = registration.articleName,
         hmsArtNr = registration.hmsArtNr,
-        identifier = registration.id.toString(),
+        identifier = registration.productData.identifier ?: registration.id.toString(),
         isoCategory = registration.isoCategory,
         accessory = accessory,
         sparePart = sparePart,

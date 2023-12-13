@@ -4,6 +4,7 @@ import no.nav.hm.grunndata.rapid.dto.*
 
 
 data class ProductData (
+    val identifier: String? = null,
     val attributes: Attributes = Attributes(),
     val accessory: Boolean = false,
     val sparePart: Boolean = false,
@@ -18,5 +19,6 @@ fun ProductRapidDTO.toProductData(): ProductData = ProductData (
     sparePart = sparePart,
     techData = techData,
     media = media,
+    identifier = identifier,
     attributes = attributes
 )
