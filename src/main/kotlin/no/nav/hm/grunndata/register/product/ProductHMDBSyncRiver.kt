@@ -14,7 +14,6 @@ import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
-import no.nav.hm.grunndata.register.productagreement.ProductAgreementStatus
 import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
@@ -22,21 +21,21 @@ import org.slf4j.LoggerFactory
 
 @Context
 @Requires(bean = KafkaRapid::class)
-class ProductSyncRiver(river: RiverHead,
-                       private val objectMapper: ObjectMapper,
-                       private val productRegistrationRepository: ProductRegistrationRepository,
-                       private val seriesRegistrationService: SeriesRegistrationService,
-                       private val agreementRegistrationService: AgreementRegistrationService,
-                       private val productAgreementRegistrationService: ProductAgreementRegistrationService): River.PacketListener {
+class ProductHMDBSyncRiver(river: RiverHead,
+                           private val objectMapper: ObjectMapper,
+                           private val productRegistrationRepository: ProductRegistrationRepository,
+                           private val seriesRegistrationService: SeriesRegistrationService,
+                           private val agreementRegistrationService: AgreementRegistrationService,
+                           private val productAgreementRegistrationService: ProductAgreementRegistrationService): River.PacketListener {
 
     companion object {
-        private val LOG = LoggerFactory.getLogger(ProductSyncRiver::class.java)
+        private val LOG = LoggerFactory.getLogger(ProductHMDBSyncRiver::class.java)
     }
 
     init {
         river
             .validate { it .demandValue("createdBy", RapidApp.grunndata_db)}
-            .validate { it.demandAny("eventName", listOf(EventName.hmdbproductsyncV1, EventName.expiredProductAgreementV1)) }
+            .validate { it.demandAny("eventName", listOf(EventName.hmdbproductsyncV1)) }
             .validate { it.demandKey("payload") }
             .validate { it.demandKey("eventId") }
             .validate { it.demandKey("dtoVersion") }

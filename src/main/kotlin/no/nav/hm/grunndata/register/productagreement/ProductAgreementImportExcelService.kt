@@ -2,8 +2,10 @@ package no.nav.hm.grunndata.register.productagreement
 
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.agreement.AgreementPDTO
+import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.apache.poi.ss.usermodel.Cell
@@ -187,4 +189,4 @@ data class ProductAgreementRegistrationDTO(
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime,
     val expired: LocalDateTime,
-)
+): EventPayload

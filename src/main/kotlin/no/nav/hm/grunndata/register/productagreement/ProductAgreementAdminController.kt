@@ -7,6 +7,7 @@ import io.micronaut.http.annotation.*
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
@@ -78,7 +79,7 @@ class ProductAgreementAdminController(private val productAgreementImportExcelSer
             ?: throw BadRequestException("Product not found")
         val agreement = agreementRegistrationService.findById(regDTO.agreementId)
             ?: throw BadRequestException("Agreement ${regDTO.agreementId} not found")
-        return productAgreementRegistrationService.save(
+        return productAgreementRegistrationService.saveAndCreateEvent(
             ProductAgreementRegistrationDTO(
                 supplierRef = regDTO.supplierRef,
                 supplierId = regDTO.supplierId,
@@ -92,20 +93,26 @@ class ProductAgreementAdminController(private val productAgreementImportExcelSer
                 productId = product.id,
                 title = regDTO.title,
                 reference = agreement.reference
-            )
+            ), isUpdate = false
         )
     }
 
     @Delete("/{id}")
-    suspend fun deleteProductAgreementById(id: UUID, authentication: Authentication): Int {
+    suspend fun deleteProductAgreementById(id: UUID, authentication: Authentication) {
         LOG.info("deleting product agreement: $id by ${authentication.userId()}")
-        return productAgreementRegistrationService.deleteById(id)
+        productAgreementRegistrationService.findById(id)?.let {
+            productAgreementRegistrationService.saveAndCreateEvent(it.copy(status = ProductAgreementStatus.DELETED), isUpdate = true)
+        } ?: throw BadRequestException("Product agreement $id not found")
     }
 
     @Delete("/ids")
-    suspend fun deleteProductAgreementByIds(@Body ids: List<UUID>, authentication: Authentication): Int {
+    suspend fun deleteProductAgreementByIds(@Body ids: List<UUID>, authentication: Authentication) {
         LOG.info("deleting product agreements: $ids by ${authentication.userId()}")
-        return productAgreementRegistrationService.deleteByIds(ids)
+        ids.forEach {
+            productAgreementRegistrationService.findById(it)?.let {
+                productAgreementRegistrationService.saveAndCreateEvent(it.copy(status = ProductAgreementStatus.DELETED), isUpdate = true)
+            } ?: throw BadRequestException("Product agreement $it not found")
+        }
     }
 
 }

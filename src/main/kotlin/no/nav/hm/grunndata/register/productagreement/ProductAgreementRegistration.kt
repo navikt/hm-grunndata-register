@@ -7,6 +7,7 @@ import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.model.DataType.JSON
 import jakarta.persistence.Column
 import no.nav.hm.grunndata.rapid.dto.AgreementInfo
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import java.time.LocalDateTime
 import java.util.*
 
@@ -33,10 +34,7 @@ data class ProductAgreementRegistration(
     val expired: LocalDateTime = LocalDateTime.now().plusYears(4)
 )
 
-enum class ProductAgreementStatus {
-    ACTIVE,
-    INACTIVE
-}
+
 
 fun ProductAgreementRegistrationDTO.toEntity(): ProductAgreementRegistration {
     return ProductAgreementRegistration(

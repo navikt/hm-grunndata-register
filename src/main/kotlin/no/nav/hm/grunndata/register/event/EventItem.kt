@@ -32,6 +32,7 @@ enum class EventItemType {
     AGREEMENT,
     PRODUCT,
     SERIES,
-    SUPPLIER
+    SUPPLIER,
+    PRODUCTAGREEMENT
 }
 

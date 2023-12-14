@@ -3,11 +3,14 @@ package no.nav.hm.grunndata.register.productagreement
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import kotlinx.coroutines.flow.map
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import java.util.*
 
 
 @Singleton
-open class ProductAgreementRegistrationService(private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository) {
+open class ProductAgreementRegistrationService(private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
+                                               private val productAgreementRegistrationHandler: ProductAgreementRegistrationHandler) {
 
     @Transactional
     open suspend fun saveAll(dtos: List<ProductAgreementRegistrationDTO>): List<ProductAgreementRegistrationDTO> =
@@ -17,7 +20,7 @@ open class ProductAgreementRegistrationService(private val productAgreementRegis
                     productAgreement.agreementId,
                     productAgreement.post,
                     productAgreement.rank
-                ) ?: productAgreementRegistrationRepository.save(productAgreement.toEntity()).toDTO()
+                ) ?:saveAndCreateEvent(productAgreement, false)
             }
 
 
@@ -32,6 +35,7 @@ open class ProductAgreementRegistrationService(private val productAgreementRegis
     suspend fun findBySupplierIdAndSupplierRef(supplierId: UUID, supplierRef: String): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef).map { it.toDTO() }
 
+    suspend fun findById(id: UUID): ProductAgreementRegistrationDTO? = productAgreementRegistrationRepository.findById(id)?.toDTO()
 
     suspend fun findByAgreementId(agreementId: UUID): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findByAgreementId(agreementId).map { it.toDTO() }
@@ -42,6 +46,20 @@ open class ProductAgreementRegistrationService(private val productAgreementRegis
     open suspend fun deleteByIds(ids: List<UUID>): Int {
         ids.forEach { productAgreementRegistrationRepository.deleteById(it) }
         return ids.size
+    }
+
+
+    @Transactional
+    open suspend fun saveAndCreateEvent(dto: ProductAgreementRegistrationDTO, isUpdate:Boolean): ProductAgreementRegistrationDTO {
+        val saved = if (isUpdate) update(dto) else save(dto)
+        if (dto.productId!= null) {
+            productAgreementRegistrationHandler.queueDTORapidEvent(saved)
+        }
+        return saved
+    }
+
+    suspend fun update(dto: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO {
+        return productAgreementRegistrationRepository.update(dto.toEntity()).toDTO()
     }
 
 
