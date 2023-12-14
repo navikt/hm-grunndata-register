@@ -55,29 +55,13 @@ class ProductAgreementAdminController(private val productAgreementImportExcelSer
     }
 
 
-    @Put(
-        value = "/products/connect/{agreementId}",
-        consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
-        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
-    )
-    suspend fun connectProductsToAgreement(agreementId: UUID): List<ProductAgreementRegistrationDTO> {
-        LOG.info("Connecting products to agreement: $agreementId")
-        val products =
-            productAgreementRegistrationService.findByAgreementId(agreementId).filter { it.productId == null }
-        LOG.info("Got ${products.size} products to connect")
-        return products.map {
-            val product = productRegistrationService.findBySupplierRefAndSupplierId(it.supplierRef, it.supplierId)
-            it.copy(productId = product?.id)
-        }
-    }
-
     @Post(
         value = "/",
         consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
         produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
     )
     suspend fun createProductAgreement(
-        @Body regDTO: ProductAgreementRegistrationSubDTO,
+        @Body regDTO: ProductAgreementRegistrationDTO,
         authentication: Authentication
     ): ProductAgreementRegistrationDTO {
         LOG.info("Creating product agreement: ${regDTO.agreementId} ${regDTO.supplierId} ${regDTO.supplierRef} by ${authentication.userId()}")
@@ -104,9 +88,9 @@ class ProductAgreementAdminController(private val productAgreementImportExcelSer
                 createdBy = "REGISTER",
                 published = agreement.published,
                 expired = agreement.expired,
-                hmsArtNr = product.hmsArtNr!!,
+                hmsArtNr = product.hmsArtNr,
                 productId = product.id,
-                title = product.title,
+                title = regDTO.title,
                 reference = agreement.reference
             )
         )
@@ -126,12 +110,3 @@ class ProductAgreementAdminController(private val productAgreementImportExcelSer
 
 }
 
-
-
-data class ProductAgreementRegistrationSubDTO (
-    val supplierRef: String,
-    val supplierId: UUID,
-    val agreementId: UUID,
-    val post: Int,
-    val rank: Int
-)
