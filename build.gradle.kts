@@ -87,6 +87,9 @@ dependencies {
     implementation("org.apache.poi:poi:$poiVersion")
     implementation("org.apache.poi:poi-ooxml:$poiVersion")
 
+    // Microsoft Graph
+    implementation("com.microsoft.graph:microsoft-graph:5.77.0")
+    implementation("com.azure:azure-identity:1.2.5")
 }
 
 micronaut {
