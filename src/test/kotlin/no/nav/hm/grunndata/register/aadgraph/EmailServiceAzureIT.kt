@@ -12,7 +12,7 @@ class EmailServiceAzureIT(private val emailServiceAzure: EmailServiceAzure) {
     @Test
     fun sendEmailAzure() {
         emailServiceAzure.sendSimpleMessage(
-            "aasmund.nordstoga@nav.no",
+            "somemailadress",
             "Dette er en test",
             BodyType.TEXT,
             "Dette er en test",
