@@ -2,8 +2,11 @@ package no.nav.hm.grunndata.register.productagreement
 
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.agreement.AgreementPDTO
+import no.nav.hm.grunndata.register.event.EventPayload
+import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.Row
@@ -14,60 +17,64 @@ import java.io.InputStream
 import java.lang.Exception
 import java.util.*
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.*
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService.Companion.EXCEL
 import java.time.LocalDateTime
 
 
 @Singleton
 class ProductAgreementImportExcelService(private val supplierRegistrationService: SupplierRegistrationService,
-                                         private val agreementRegistrationService: AgreementRegistrationService) {
+                                         private val agreementRegistrationService: AgreementRegistrationService,
+                                         private val productRegistrationService: ProductRegistrationService) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementImportExcelService::class.java)
+        const val EXCEL = "EXCEL"
     }
 
-    fun importExcelFile(inputStream: InputStream): List<ProductAgreementRegistrationDTO> {
+    suspend fun importExcelFile(inputStream: InputStream): List<ProductAgreementRegistrationDTO> {
         LOG.info("Reading xls file using Apache POI")
         val workbook = WorkbookFactory.create(inputStream)
         val productAgreementList = readProductData(workbook)
         workbook.close()
-        inputStream.close()
         return productAgreementList
     }
 
-    fun readProductData(workbook: Workbook): List<ProductAgreementRegistrationDTO> {
+    suspend fun readProductData(workbook: Workbook): List<ProductAgreementRegistrationDTO> {
         val main = workbook.getSheet("Gjeldende") ?: workbook.getSheet("gjeldende")
         LOG.info("First row num ${main.firstRowNum}")
         val columnMap = readColumnMapIndex(main.first())
         val productExcel = main.toList().mapIndexed { index, row ->
             if (index > 0) mapRowToProductAgreement(row, columnMap) else null
         }.filterNotNull()
+        if (productExcel.isEmpty()) throw Exception("No product agreements found in Excel file")
         LOG.info("Total product agreements in Excel file: ${productExcel.size}")
         return productExcel.map { it.toProductAgreementDTO() }.toList()
     }
 
-    private fun ProductAgreementExcelDTO.toProductAgreementDTO(): ProductAgreementRegistrationDTO {
+    private suspend fun ProductAgreementExcelDTO.toProductAgreementDTO(): ProductAgreementRegistrationDTO {
         val agreement = findAgreementByReference(reference)
+        val supplierId =  parseSupplierName(supplierName)
+        val product = productRegistrationService.findBySupplierRefAndSupplierId(supplierRef, supplierId)
         return ProductAgreementRegistrationDTO(
             hmsArtNr = parseHMSNr(hmsArtNr),
             agreementId = agreement.id,
-            agreementTitle = agreement.title,
             supplierRef = supplierRef,
+            productId = product?.id,
+            title = title,
             reference = reference,
-            productId = null,
             post = parsePost(subContractNr),
             rank = parseRank(subContractNr),
-            supplierId = parseSupplierName(supplierName),
-            supplierName = this.supplierName,
+            supplierId = supplierId,
             published = agreement.published,
             expired = agreement.expired
         )
     }
 
-    private fun findAgreementByReference(reference: String): AgreementPDTO = runBlocking {
+    suspend fun findAgreementByReference(reference: String): AgreementPDTO =
         agreementRegistrationService.findReferenceAndId().find {
-            (it.reference.lowercase().indexOf(reference.lowercase()) > -1)
+            (it.reference.lowercase().replace("/", "-").indexOf(reference.lowercase()) > -1)
         } ?: throw Exception("Agreement $reference not found")
-    }
+
 
     private fun parseType(articleType: String): Boolean {
        return articleType.lowercase().indexOf("hms del") > -1
@@ -104,22 +111,22 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
 
 
     private fun mapRowToProductAgreement(row: Row, columnMap: Map<String, Int>): ProductAgreementExcelDTO? {
-        val leveartNr = row.getCell(columnMap[leverandorfirmanavn.column]!!)?.toString()
-        val type = row.getCell(columnMap[malTypeartikkel.column]!!)?.toString()
-        if (leveartNr != null && "" != leveartNr && "HMS Servicetjeneste" != type) {
+        val leveartNr = row.getCell(columnMap[leverandørensartnr.column]!!)?.toString()?.trim()
+        val type = row.getCell(columnMap[malTypeartikkel.column]!!)?.toString()?.trim()
+        if (leveartNr!=null && "" != leveartNr && type!=null && "HMS Servicetjeneste" != type) {
             return ProductAgreementExcelDTO(
-                hmsArtNr = row.getCell(columnMap[hms_ArtNr.column]!!).toString(),
-                iso = row.getCell(columnMap[kategori.column]!!).toString(),
-                title = row.getCell(columnMap[beskrivelse.column]!!).toString(),
-                supplierRef = leveartNr!!,
-                reference = row.getCell(columnMap[anbudsnr.column]!!).toString(),
-                subContractNr = row.getCell(columnMap[delkontraktnummer.column]!!).toString(),
-                dateFrom = row.getCell(columnMap[datofom.column]!!).toString(),
-                dateTo = row.getCell(columnMap[datotom.column]!!).toString(),
-                articleType = type!!,
-                forChildren = row.getCell(columnMap[malgruppebarn.column]!!).toString(),
-                supplierName = row.getCell(columnMap[leverandorfirmanavn.column]!!).toString(),
-                supplierCity = row.getCell(columnMap[leverandorsted.column]!!).toString()
+                hmsArtNr = row.getCell(columnMap[hms_ArtNr.column]!!).toString().trim(),
+                iso = row.getCell(columnMap[kategori.column]!!).toString().trim(),
+                title = row.getCell(columnMap[beskrivelse.column]!!).toString().trim(),
+                supplierRef = leveartNr,
+                reference = row.getCell(columnMap[anbudsnr.column]!!).toString().trim(),
+                subContractNr = row.getCell(columnMap[delkontraktnummer.column]!!).toString().trim(),
+                dateFrom = row.getCell(columnMap[datofom.column]!!).toString().trim(),
+                dateTo = row.getCell(columnMap[datotom.column]!!).toString().trim(),
+                articleType = type,
+                forChildren = row.getCell(columnMap[malgruppebarn.column]!!).toString().trim(),
+                supplierName = row.getCell(columnMap[leverandorfirmanavn.column]!!).toString().trim(),
+                supplierCity = row.getCell(columnMap[leverandorsted.column]!!).toString().trim()
             )
         }
         return null
@@ -168,18 +175,18 @@ data class ProductAgreementExcelDTO(
 data class ProductAgreementRegistrationDTO(
     val id: UUID = UUID.randomUUID(),
     val productId: UUID?,
+    val title: String,
     val supplierId: UUID,
     val supplierRef: String,
-    val supplierName: String,
-    val hmsArtNr: String,
+    val hmsArtNr: String?,
     val agreementId: UUID,
-    val agreementTitle: String,
     val reference: String,
     val post: Int,
     val rank: Int,
     val status: ProductAgreementStatus = ProductAgreementStatus.ACTIVE,
+    val createdBy: String = EXCEL,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime,
     val expired: LocalDateTime,
-)
+): EventPayload

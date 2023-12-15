@@ -54,7 +54,7 @@ services:
     networks:
       - register-net
   mediaregister:
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media:23.317.134839
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media:23.338.105649
     platform: linux/amd64
     hostname: media
     depends_on:
@@ -87,7 +87,7 @@ services:
       MEDIA_STORAGE_CDNURL: "http://media:8080/local"
       REDIS_HOST: "redis"
   register:
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-register:23.333.143705
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-register:23.347.143327
     platform: linux/amd64
     hostname: register
     depends_on:
@@ -105,5 +105,6 @@ services:
       RAPIDSANDRIVERS_ENABLED: true
       KAFKA_BROKERS: "kafka:9092"
       MICRONAUT_SERVER_CORS_ENABLED: true
+      SERVER_PORT: 8080
 networks:
   register-net:

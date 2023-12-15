@@ -9,6 +9,8 @@ import no.nav.hm.grunndata.register.event.EventItem
 import no.nav.hm.grunndata.register.event.EventItemService
 import no.nav.hm.grunndata.register.event.EventItemType
 import no.nav.hm.grunndata.register.event.RegisterRapidPushService
+import no.nav.hm.grunndata.register.productagreement.toDTO
+import no.nav.hm.grunndata.register.productagreement.toInfo
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.supplier.toRapidDTO
@@ -82,9 +84,8 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
         updated = registration.updated,
         published = registration.published ?: LocalDateTime.now(),
         expired = registration.expired ?: LocalDateTime.now().plusYears(10),
-        agreementInfo = agreementInfo,
-        agreements = agreements,
-        hasAgreement = agreementInfo!=null,
+        agreements = registration.agreements.map { it.toInfo() },
+        hasAgreement = registration.agreements.isNotEmpty(),
         createdBy = registration.createdBy,
         updatedBy = registration.updatedBy,
         attributes = attributes,
@@ -118,5 +119,5 @@ fun ProductRegistration.toDTO(): ProductRegistrationDTO = ProductRegistrationDTO
     registrationStatus = registrationStatus, message = message, adminInfo = adminInfo, created = created,
     updated = updated, published = published, expired = expired, updatedByUser = updatedByUser,
     createdByUser = createdByUser, createdBy = createdBy, updatedBy = updatedBy, createdByAdmin = createdByAdmin,
-    productData = productData, isoCategory = isoCategory, version = version
+    productData = productData, isoCategory = isoCategory, agreements = agreements.map { it.toDTO() }, version = version
 )

@@ -7,21 +7,18 @@ import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.*
-import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
-import no.nav.hm.grunndata.register.event.EventItem
-import no.nav.hm.grunndata.register.event.EventItemService
-import no.nav.hm.grunndata.register.event.EventItemType
-import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
-import no.nav.hm.grunndata.register.series.SeriesRegistrationService
+import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
+import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
 
 @Singleton
 open class ProductRegistrationService(private val productRegistrationRepository: ProductRegistrationRepository,
+                                      private val seriesRegistrationRepository: SeriesRegistrationRepository,
                                       private val productRegistrationHandler: ProductRegistrationHandler,
-                                      private val seriesRegistrationService: SeriesRegistrationService) {
+                                      private val techLabelService: TechLabelService) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductRegistration::class.java)
@@ -54,8 +51,8 @@ open class ProductRegistrationService(private val productRegistrationRepository:
     suspend fun findBySeriesId(seriesId: String) = productRegistrationRepository.findBySeriesId(seriesId).map { it.toDTO() }
 
     suspend fun findBySeriesIdAndSupplierId(seriesId: String, supplierId: UUID) = productRegistrationRepository.findBySeriesIdAndSupplierId(seriesId, supplierId).map { it.toDTO() }
-    suspend fun findSeriesGroup(supplierId: UUID, pageable: Pageable) = productRegistrationRepository.findSeriesGroup(supplierId, pageable)
-    suspend fun findSeriesGroup(pageable: Pageable) = productRegistrationRepository.findSeriesGroup(pageable)
+    suspend fun findSeriesGroup(supplierId: UUID, pageable: Pageable) = seriesRegistrationRepository.findSeriesGroup(supplierId, pageable)
+    suspend fun findSeriesGroup(pageable: Pageable) = seriesRegistrationRepository.findSeriesGroup(pageable)
     open suspend fun createProductVariant(id: UUID, dto: DraftVariantDTO, authentication: Authentication) =
         findById(id)?.let {
             val productId = UUID.randomUUID()
@@ -110,6 +107,7 @@ open class ProductRegistrationService(private val productRegistrationRepository:
             createdByUser = authentication.name,
             updatedByUser = authentication.name,
             createdByAdmin = authentication.isAdmin(),
+            agreements = emptyList(),
             version = 0)
         val draft = save(registration)
         LOG.info("Draft was created ${draft.id} by $supplierId")
@@ -122,6 +120,7 @@ open class ProductRegistrationService(private val productRegistrationRepository:
         val product = ProductData (
             accessory = isAccessory,
             sparePart = isSparePart,
+            techData = createTechDataDraft(draftWithDTO),
             attributes = Attributes (
                 shortdescription = "",
                 text = draftWithDTO.text
@@ -145,10 +144,16 @@ open class ProductRegistrationService(private val productRegistrationRepository:
             productData = product,
             createdByUser = authentication.name,
             updatedByUser = authentication.name,
+            agreements = emptyList(),
             createdByAdmin = authentication.isAdmin(),
             version = 0)
         val draft = save(registration)
         LOG.info("Draft was created ${draft.id} by $supplierId")
         return draft
     }
+
+    private fun createTechDataDraft(draftWithDTO: ProductDraftWithDTO): List<TechData> =
+        techLabelService.fetchLabelsByIsoCode(draftWithDTO.isoCategory)?.map {
+            TechData(key = it.label, value = "", unit = it.unit ?:"")
+        }?: emptyList()
 }

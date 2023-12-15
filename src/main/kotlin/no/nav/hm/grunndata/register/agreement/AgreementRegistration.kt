@@ -66,14 +66,16 @@ fun AgreementDTO.toData(): AgreementData = AgreementData(
 )
 
 fun AgreementRegistration.toDTO(): AgreementRegistrationDTO = AgreementRegistrationDTO(
-    id = id, draftStatus = draftStatus, title = title, reference = reference, created = created,
+    id = id, draftStatus = draftStatus, agreementStatus = agreementStatus,
+    title = title, reference = reference, created = created,
     updated = updated, published = published, expired = expired, createdByUser = createdByUser,
     updatedByUser = updatedByUser, createdBy= createdBy, updatedBy = updatedBy,
     agreementData = agreementData, version = version,
 )
 
 fun AgreementRegistrationDTO.toEntity(): AgreementRegistration = AgreementRegistration(
-    id = id, draftStatus = draftStatus, title = title, reference = reference, created = created,
+    id = id, draftStatus = draftStatus, agreementStatus = agreementStatus,
+    title = title, reference = reference, created = created,
     updated = updated, published = published, expired = expired, createdByUser = createdByUser,
     updatedByUser = updatedByUser, createdBy= createdBy, updatedBy = updatedBy,
     agreementData = agreementData, version = version

@@ -17,6 +17,7 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 
 import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.series.SeriesGroupDTO
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
@@ -38,7 +39,7 @@ class ProductRegistrationApiController(private val productRegistrationService: P
 
     @Get("/series/{seriesId}")
     suspend fun findBySeriesIdAndSupplierId(seriesId: String, authentication: Authentication) =
-        productRegistrationService.findBySeriesIdAndSupplierId(seriesId, authentication.supplierId())
+        productRegistrationService.findBySeriesIdAndSupplierId(seriesId, authentication.supplierId()).sortedBy { it.created }
 
     @Get("/{?params*}")
     suspend fun findProducts(@QueryValue params: HashMap<String,String>?,

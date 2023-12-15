@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.micronaut.data.model.Pageable
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import org.junit.jupiter.api.Test
 import org.testcontainers.shaded.org.bouncycastle.asn1.x500.style.RFC4519Style.title
 import java.awt.SystemColor.text
@@ -15,6 +16,7 @@ import java.util.*
 
 @MicronautTest
 class ProductRegistrationRepositoryTest(private val productRegistrationRepository: ProductRegistrationRepository,
+                                        private val seriesGroupRepository: SeriesRegistrationRepository,
                                         private val objectMapper: ObjectMapper) {
 
     @Test
@@ -32,9 +34,7 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
                 sourceUri = "https://ekstern.url/123.jpg"),
                 MediaInfo(uri="124.jpg", text = "bilde av produktet 2", source = MediaSourceType.EXTERNALURL,
                     sourceUri = "https://ekstern.url/124.jpg")
-            ),
-            agreementInfo = AgreementInfo(id = UUID.randomUUID(), identifier = "hmdbid-1", rank = 1, postNr = 1,
-                reference = "AV-142", expired = LocalDateTime.now())
+            )
         )
         val supplierId =  UUID.randomUUID()
         val seriesUUID = UUID.randomUUID()
@@ -74,8 +74,8 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             updated.seriesUUID shouldBe seriesUUID
             val byHMSArtNr = productRegistrationRepository.findByHmsArtNrAndSupplierId(saved.hmsArtNr!!, saved.supplierId)
             byHMSArtNr.shouldNotBeNull()
-            val seriesGroup = productRegistrationRepository.findSeriesGroup(Pageable.UNPAGED)
-            val seriesGroupSupplier = productRegistrationRepository.findSeriesGroup(supplierId, Pageable.UNPAGED)
+            val seriesGroup = seriesGroupRepository.findSeriesGroup(Pageable.from(0, 10))
+            val seriesGroupSupplier = seriesGroupRepository.findSeriesGroup(supplierId, Pageable.UNPAGED)
             println(objectMapper.writeValueAsString(seriesGroupSupplier))
 
         }

@@ -10,9 +10,11 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.register.gdb.GdbApiClient
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.*
+import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
@@ -35,6 +37,9 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
+
+    @MockBean(GdbApiClient::class)
+    fun mockGdbApiClient(): GdbApiClient = mockk(relaxed = true)
 
     @BeforeEach
     fun createUserSupplier() {
@@ -90,14 +95,6 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
                     sourceUri = "https://ekstern.url/123.jpg"
                 )
             ),
-            agreementInfo = AgreementInfo(
-                id = UUID.randomUUID(),
-                identifier = "hmdbid-1",
-                rank = 1,
-                postNr = 1,
-                reference = "AV-142",
-                expired =  LocalDateTime.now()
-            )
         )
         val hmsArtNr = UUID.randomUUID().toString()
         val registration = draft.copy(

@@ -56,6 +56,8 @@ spec:
       value: "{{ schedulers_enabled }}"
     - name: IMPORT_AUTOAPPROVE
       value: "{{ import_autoapprove }}"
+    - name: SERVER_PORT
+      value: "8080"
   gcp:
     sqlInstances:
       - name: hm-grunndata-register

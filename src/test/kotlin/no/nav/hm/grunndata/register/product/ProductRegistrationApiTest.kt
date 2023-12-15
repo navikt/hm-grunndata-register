@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.product
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -10,6 +11,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.gdb.GdbApiClient
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.*
@@ -26,6 +28,7 @@ import java.util.*
 class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationApiClient,
                                  private val loginClient: LoginClient,
                                  private val userRepository: UserRepository,
+                                 private val objectMapper: ObjectMapper,
                                  private val supplierRegistrationService: SupplierRegistrationService) {
 
     val email = "api@test.test"
@@ -37,6 +40,9 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
+
+    @MockBean(GdbApiClient::class)
+    fun mockGdbApiClient(): GdbApiClient = mockk(relaxed = true)
 
     @BeforeEach
     fun createUserSupplier() {
@@ -81,6 +87,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
     fun apiTest() {
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
+        val seriesId = UUID.randomUUID()
         val productData = ProductData(
             attributes = Attributes(
                 shortdescription = "En kort beskrivelse av produktet",
@@ -97,19 +104,11 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                     sourceUri = "https://ekstern.url/123.jpg"
                 )
             ),
-            agreementInfo = AgreementInfo(
-                id = UUID.randomUUID(),
-                identifier = "hmdbid-1",
-                rank = 1,
-                postNr = 1,
-                reference = "AV-142",
-                expired = LocalDateTime.now()
-            )
         )
 
         val registration = ProductRegistrationDTO(
             seriesId = "series-123",
-            seriesUUID = UUID.randomUUID(),
+            seriesUUID = seriesId,
             title = "Dette er produkt 1",
             articleName = "Dette er produkt 1 med og med",
             id = UUID.randomUUID(),
@@ -152,23 +151,15 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                     source = MediaSourceType.EXTERNALURL,
                     sourceUri = "https://ekstern.url/123.jpg"
                 )
-            ),
-            agreementInfo = AgreementInfo(
-                id = UUID.randomUUID(),
-                identifier = "hmdbid-1",
-                rank = 1,
-                postNr = 1,
-                reference = "AV-142",
-                expired = LocalDateTime.now()
             )
         )
 
         val registration2 = ProductRegistrationDTO(
-            title = "en veldig fin tittel",
+            title = "Dette er produkt 1",
             articleName = "en veldig fin tittel med og med",
             id = UUID.randomUUID(),
             seriesId = "series-123",
-            seriesUUID = UUID.randomUUID(),
+            seriesUUID = seriesId,
             isoCategory = "12001314",
             supplierId = testSupplier!!.id,
             hmsArtNr = "222",
@@ -192,6 +183,8 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         val created2 = apiClient.createProduct(jwt, registration2)
         created2.shouldNotBeNull()
 
+        println(objectMapper.writeValueAsString(apiClient.findSeriesGroup(jwt, 20,0, null)))
+
         val read = apiClient.readProduct(jwt, created.id)
         read.shouldNotBeNull()
         read.createdByUser shouldBe email
@@ -210,7 +203,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         val page2 = apiClient.findProducts(jwt,"222", null, 30,1,"created,asc")
         page2.totalSize shouldBe 1
 
-        val page3 = apiClient.findProducts(jwt,null, "%en veldig%", 30,1,"created,asc")
+        val page3 = apiClient.findProducts(jwt,null, "%Dette er produkt%", 30,1,"created,asc")
         page3.totalSize shouldBe 1
 
         val updatedVersion = apiClient.readProduct(jwt, updated.id)
@@ -233,14 +226,6 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                     source = MediaSourceType.EXTERNALURL,
                     sourceUri = "https://ekstern.url/123.jpg"
                 )
-            ),
-            agreementInfo = AgreementInfo(
-                id = UUID.randomUUID(),
-                identifier = "hmdbid-1",
-                rank = 1,
-                postNr = 1,
-                reference = "AV-142",
-                expired = LocalDateTime.now()
             )
         )
         val registration3 = ProductRegistrationDTO(
@@ -271,7 +256,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         runCatching {
             val created3 = apiClient.createProduct(jwt, registration3)
         }.isFailure shouldBe true
-        apiClient.findSeriesGroup(jwt, 20,1, null)
+
     }
 
 }

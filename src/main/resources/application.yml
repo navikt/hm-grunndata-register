@@ -2,7 +2,7 @@ micronaut:
   server:
     multipart:
       max-file-size: 10000000
-    port: ${SERVER_PORT:8080}
+    port: ${SERVER_PORT:1337}
     context-path: /admreg
     max-request-size: 10000000
   application:
