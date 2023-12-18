@@ -8,6 +8,6 @@
   "cookie_domain": "finnhjelpemiddel.nav.no",
   "ingress": ["https://finnhjelpemidler.nav.no/admreg", "https://finnhjelpemiddel.nav.no/admreg"],
   "swagger_enabled": false,
-  "schedulers_enabled": false,
+  "schedulers_enabled": true,
   "import_autoapprove": false
 }
