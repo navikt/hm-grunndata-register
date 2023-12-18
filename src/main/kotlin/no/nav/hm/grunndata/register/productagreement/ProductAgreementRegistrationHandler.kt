@@ -27,10 +27,10 @@ class ProductAgreementRegistrationHandler(private val registerRapidPushService: 
     suspend fun queueDTORapidEvent(dto: ProductAgreementRegistrationDTO,
                                    eventName: String = EventName.registeredProductAgreementV1,
                                    extraKeyValues: Map<String, Any> = emptyMap()) {
-        LOG.info("queueDTORapidEvent for ${dto.id} wit status ${dto.status}")
+        LOG.info("queueDTORapidEvent for ${dto.id} - ${dto.productId} wit status ${dto.status}")
         eventItemService.createNewEventItem(
             type = EventItemType.PRODUCTAGREEMENT,
-            oid = dto.id,
+            oid = dto.productId!!,
             byUser = "REGISTER",
             eventName = eventName,
             payload = dto,
