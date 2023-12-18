@@ -26,7 +26,11 @@ class TechLabelService(private val gdbApiClient: GdbApiClient) {
         }
     }
 
-    fun fetchLabelsByIsoCode(isocode: String): List<TechLabelDTO>? = techLabelsByIso[isocode]
+    fun fetchLabelsByIsoCode(isocode: String): List<TechLabelDTO>? {
+        return if (isocode.length == 6) techLabelsByIso[isocode]
+        else return techLabelsByIso[isocode.substring(0, 6)]?.plus(techLabelsByIso[isocode]?: emptyList())
+            ?.distinctBy { it.label }
+    }
 
     fun fetchLabelsByName(name: String): List<TechLabelDTO>? = techLabelsByName[name]
 
