@@ -24,8 +24,7 @@ import java.util.*
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
 class ProductRegistrationAdminApiController(private val productRegistrationService: ProductRegistrationService,
-                                            private val supplierRegistrationService: SupplierRegistrationService,
-                                            private val productAgreementRegistrationService: ProductAgreementRegistrationService) {
+                                            private val supplierRegistrationService: SupplierRegistrationService) {
 
     companion object {
         const val API_V1_ADMIN_PRODUCT_REGISTRATIONS = "/admin/api/v1/product/registrations"
