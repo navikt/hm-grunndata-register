@@ -5,6 +5,7 @@ import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
+import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -14,7 +15,9 @@ interface AgreementRegistrationRepository: CoroutineCrudRepository<AgreementRegi
 
         suspend fun findByReference(reference: String): AgreementRegistration?
 
+        suspend fun findByAgreementStatusAndExpiredBefore(status: AgreementStatus, expired: LocalDateTime? = LocalDateTime.now()): List<AgreementRegistration>
         suspend fun find(): List<AgreementPDTO>
+
 }
 
 @Introspected

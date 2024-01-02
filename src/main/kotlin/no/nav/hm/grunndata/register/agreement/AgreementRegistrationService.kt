@@ -5,7 +5,9 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Singleton
@@ -38,5 +40,8 @@ open class AgreementRegistrationService(private val agreementRegistrationReposit
         agreementRegistrationRepository.findByReference(reference)?.toDTO()
 
     open suspend fun findReferenceAndId(): List<AgreementPDTO> = agreementRegistrationRepository.find()
+
+    open suspend fun findByAgreementStatusAndExpiredBefore(status: AgreementStatus, expired: LocalDateTime? = LocalDateTime.now())
+        = agreementRegistrationRepository.findByAgreementStatusAndExpiredBefore(status, expired).map { it.toDTO() }
 
 }
