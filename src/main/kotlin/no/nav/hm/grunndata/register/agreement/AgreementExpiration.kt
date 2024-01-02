@@ -19,12 +19,13 @@ open class AgreementExpiration(private val agreementService: AgreementRegistrati
         private val LOG = LoggerFactory.getLogger(AgreementExpiration::class.java)
 
     }
-    suspend fun expiredAgreements() {
+    suspend fun expiredAgreements(): List<AgreementRegistrationDTO> {
         val expiredList = agreementService.findByAgreementStatusAndExpiredBefore(AgreementStatus.ACTIVE)
         LOG.info("Found ${expiredList.size} expired agreements")
         expiredList.forEach {
             deactiveProductsInExpiredAgreement(it)
         }
+        return expiredList
     }
 
     @Transactional
