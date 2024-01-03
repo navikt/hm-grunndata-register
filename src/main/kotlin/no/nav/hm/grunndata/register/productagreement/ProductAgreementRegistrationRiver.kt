@@ -5,7 +5,8 @@ import io.micronaut.context.annotation.Context
 import io.micronaut.context.annotation.Requires
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.*
-import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementRegistrationRapidDTO
+import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.product.ProductRegistrationHandler
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
@@ -46,12 +47,7 @@ class ProductAgreementRegistrationRiver(river: RiverHead,
                 "eventId $eventId eventTime: $createdTime")
         runBlocking {
             productRegistrationService.findById(dto.productId!!)?.let { product ->
-                if (product.adminStatus == AdminStatus.APPROVED && product.draftStatus == DraftStatus.DONE) {
-                    productRegistrationHandler.queueDTORapidEvent(product)
-                } else {
-                    LOG.info("product ${dto.productId} not sending rapid event because adminStatus: " +
-                            "${product.adminStatus} and draftStatus: ${product.draftStatus}")
-                }
+                productRegistrationHandler.queueDTORapidEvent(product)
             }
         }
     }

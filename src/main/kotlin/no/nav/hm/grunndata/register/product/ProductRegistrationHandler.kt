@@ -46,6 +46,9 @@ class ProductRegistrationHandler(private val registerRapidPushService: RegisterR
                 extraKeyValues = extraKeyValues
             )
         }
+        else {
+            LOG.info("did not queueDTORapidEvent for ${dto.id} with adminstatus ${dto.adminStatus} and draftstatus ${dto.draftStatus}")
+        }
     }
 
     private suspend fun ProductRegistrationDTO.toRapidDTO() = ProductRegistrationRapidDTO (
