@@ -44,7 +44,7 @@ open class AgreementRegistrationService(private val agreementRegistrationReposit
     open suspend fun findByAgreementStatusAndExpiredBefore(status: AgreementStatus, expired: LocalDateTime? = LocalDateTime.now())
         = agreementRegistrationRepository.findByDraftStatusAndAgreementStatusAndExpiredBefore(status=status, expired = expired).map { it.toDTO() }
 
-    open suspend fun findByAgreementStatusAndPublishedAfter(status: AgreementStatus, published: LocalDateTime? = LocalDateTime.now())
-        = agreementRegistrationRepository.findByDraftStatusAndAgreementStatusAndPublishedAfter(status=status, published = published).map { it.toDTO() }
+    open suspend fun findByAgreementStatusAndPublishedBeforeAndExpiredAfter(status: AgreementStatus, published: LocalDateTime? = LocalDateTime.now(), expired: LocalDateTime? = LocalDateTime.now())
+        = agreementRegistrationRepository.findByDraftStatusAndAgreementStatusAndPublishedBeforeAndExpiredAfter(status=status, published = published, expired = expired).map { it.toDTO() }
 
 }

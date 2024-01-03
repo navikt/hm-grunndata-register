@@ -18,7 +18,7 @@ class AgreementPublish(private val agreementRegigstrationService: AgreementRegis
 
 
     suspend fun publishAgreements(): List<AgreementRegistrationDTO> {
-        val publishList = agreementRegigstrationService.findByAgreementStatusAndPublishedAfter(AgreementStatus.INACTIVE)
+        val publishList = agreementRegigstrationService.findByAgreementStatusAndPublishedBeforeAndExpiredAfter(AgreementStatus.INACTIVE)
         LOG.info("Found ${publishList.size} agreements to be publish")
         publishList.forEach {
             publishAgreement(it)

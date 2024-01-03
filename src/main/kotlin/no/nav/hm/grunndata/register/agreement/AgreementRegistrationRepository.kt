@@ -18,7 +18,9 @@ interface AgreementRegistrationRepository: CoroutineCrudRepository<AgreementRegi
 
         suspend fun findByDraftStatusAndAgreementStatusAndExpiredBefore(draftStatus: DraftStatus = DraftStatus.DONE, status: AgreementStatus, expired: LocalDateTime? = LocalDateTime.now()): List<AgreementRegistration>
 
-        suspend fun findByDraftStatusAndAgreementStatusAndPublishedAfter(draftStatus: DraftStatus = DraftStatus.DONE, status: AgreementStatus, published: LocalDateTime? = LocalDateTime.now()): List<AgreementRegistration>
+        suspend fun findByDraftStatusAndAgreementStatusAndPublishedBeforeAndExpiredAfter(draftStatus: DraftStatus = DraftStatus.DONE,
+                                                                                         status: AgreementStatus, published: LocalDateTime? = LocalDateTime.now(),
+                                                                                         expired: LocalDateTime? = LocalDateTime.now()): List<AgreementRegistration>
 
         suspend fun find(): List<AgreementPDTO>
 
