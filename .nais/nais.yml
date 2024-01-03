@@ -58,6 +58,8 @@ spec:
       value: "{{ import_autoapprove }}"
     - name: SERVER_PORT
       value: "8080"
+    - name: JAVA_OPTS
+      value: "{{ java_opts }}"
   gcp:
     sqlInstances:
       - name: hm-grunndata-register

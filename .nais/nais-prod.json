@@ -9,5 +9,6 @@
   "ingress": ["https://finnhjelpemidler.nav.no/admreg", "https://finnhjelpemiddel.nav.no/admreg"],
   "swagger_enabled": false,
   "schedulers_enabled": true,
-  "import_autoapprove": false
+  "import_autoapprove": false,
+  "java_opts": "-Xms256m -Xmx1024m -XX:+UseG1GC"
 }
