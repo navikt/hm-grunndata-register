@@ -1,9 +1,10 @@
 package no.nav.hm.grunndata.register.agreement
 
+import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.db.agreement.AgreementExpiration
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
@@ -11,15 +12,14 @@ import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistratio
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
-import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.util.*
 
-class AgreementPublishTest(private val agreementExpiration: AgreementExpiration,
+@MicronautTest
+class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                            private val agreementService: AgreementRegistrationService,
-                           private val supplierService: SupplierRegistrationService,
                            private val productAgreementService: ProductAgreementRegistrationService
 ) {
 
@@ -47,7 +47,7 @@ class AgreementPublishTest(private val agreementExpiration: AgreementExpiration,
             val publishing = AgreementRegistrationDTO(
                 draftStatus = DraftStatus.DONE, agreementStatus = AgreementStatus.INACTIVE,
                 id = agreementId2, title = "Rammeavtale Rullestoler 2", reference = "24-10234",
-                published = LocalDateTime.now(), expired = LocalDateTime.now().minusDays(1),
+                published = LocalDateTime.now(), expired = LocalDateTime.now().plusYears(1),
                 agreementData = AgreementData(
                     identifier = "HMDB-124",
                     resume = "En kort beskrivelse",
@@ -81,14 +81,14 @@ class AgreementPublishTest(private val agreementExpiration: AgreementExpiration,
             )
 
             val productAgreement2 = ProductAgreementRegistrationDTO(
-                agreementId = expired.id,
+                agreementId = publishing.id,
                 productId = UUID.randomUUID(),
-                reference = expired.reference,
-                published = expired.published,
-                expired = expired.expired,
+                reference = publishing.reference,
+                published = publishing.published,
+                expired = publishing.expired,
                 post = 1,
                 rank = 2,
-                title = expired.title,
+                title = publishing.title,
                 createdBy = "tester",
                 hmsArtNr = "123456",
                 supplierId = supplier.id,
@@ -96,6 +96,14 @@ class AgreementPublishTest(private val agreementExpiration: AgreementExpiration,
             )
 
             agreementService.saveAndCreateEventIfNotDraft(agreement, false)
+            agreementService.saveAndCreateEventIfNotDraft(publishing, false)
+            productAgreementService.saveAndCreateEvent(productAgreement, false)
+            productAgreementService.saveAndCreateEvent(productAgreement2, false)
+
+            val publishList = agreementPublish.publishAgreements()
+
+            publishList.size shouldBe 1
+
         }
     }
 }
