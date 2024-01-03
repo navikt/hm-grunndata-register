@@ -10,10 +10,8 @@ jobs:
       id-token: write
       security-events: write
       actions: read
-    uses: navikt/pam-deploy/.github/workflows/deploy-prod.yml@v4
+    uses: navikt/pam-deploy/.github/workflows/deploy-prod.yml@v6
     with:
       NAIS_RESOURCE: ".nais/nais.yml"
       NAIS_VARS: ".nais/nais-prod.json"
       TEAM: "teamdigihot"
-    secrets:
-      NAIS_DEPLOY_APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
