@@ -8,7 +8,7 @@ import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Singleton
 open class AgreementRegistrationService(private val agreementRegistrationRepository: AgreementRegistrationRepository,
@@ -42,6 +42,9 @@ open class AgreementRegistrationService(private val agreementRegistrationReposit
     open suspend fun findReferenceAndId(): List<AgreementPDTO> = agreementRegistrationRepository.find()
 
     open suspend fun findByAgreementStatusAndExpiredBefore(status: AgreementStatus, expired: LocalDateTime? = LocalDateTime.now())
-        = agreementRegistrationRepository.findByAgreementStatusAndExpiredBefore(status, expired).map { it.toDTO() }
+        = agreementRegistrationRepository.findByDraftStatusAndAgreementStatusAndExpiredBefore(status=status, expired = expired).map { it.toDTO() }
+
+    open suspend fun findByAgreementStatusAndPublishedAfter(status: AgreementStatus, published: LocalDateTime? = LocalDateTime.now())
+        = agreementRegistrationRepository.findByDraftStatusAndAgreementStatusAndPublishedAfter(status=status, published = published).map { it.toDTO() }
 
 }
