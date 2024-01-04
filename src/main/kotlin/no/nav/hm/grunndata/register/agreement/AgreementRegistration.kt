@@ -61,6 +61,12 @@ data class AgreementRegistrationDTO (
     val version: Long? = 0L
 ): EventPayload
 
+data class AgreementBasicInformationDto (
+    val id: UUID,
+    val title: String,
+    val reference: String,
+)
+
 fun AgreementDTO.toData(): AgreementData = AgreementData(
     resume = resume, text = text, identifier = identifier, attachments = attachments, posts = posts, isoCategory = isoCategory
 )
@@ -71,6 +77,10 @@ fun AgreementRegistration.toDTO(): AgreementRegistrationDTO = AgreementRegistrat
     updated = updated, published = published, expired = expired, createdByUser = createdByUser,
     updatedByUser = updatedByUser, createdBy= createdBy, updatedBy = updatedBy,
     agreementData = agreementData, version = version,
+)
+
+fun AgreementRegistration.toBasicInformationDto(): AgreementBasicInformationDto = AgreementBasicInformationDto(
+    id = id, title = title, reference = reference
 )
 
 fun AgreementRegistrationDTO.toEntity(): AgreementRegistration = AgreementRegistration(

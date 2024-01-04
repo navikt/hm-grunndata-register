@@ -32,7 +32,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
     suspend fun findAgreements(
         @QueryValue params: HashMap<String, String>?,
         pageable: Pageable,
-    ): Page<AgreementRegistrationDTO> =
+    ): Page<AgreementBasicInformationDto> =
         agreementRegistrationService.findAll(buildCriteriaSpec(params), pageable)
 
     private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<AgreementRegistration>? =

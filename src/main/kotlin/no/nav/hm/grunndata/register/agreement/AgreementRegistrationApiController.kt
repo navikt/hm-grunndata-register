@@ -25,7 +25,7 @@ class AgreementRegistrationApiController(private val agreementRegistrationServic
     @Get("/{?params*}")
     suspend fun findAgreements(@QueryValue params: HashMap<String, String>?,
                                pageable: Pageable
-    ): Page<AgreementRegistrationDTO> =
+    ): Page<AgreementBasicInformationDto> =
         agreementRegistrationService.findAll(buildCriteriaSpec(params), pageable)
 
 

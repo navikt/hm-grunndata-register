@@ -32,9 +32,8 @@ open class AgreementRegistrationService(private val agreementRegistrationReposit
         return saved
     }
 
-    open suspend fun findAll(spec: PredicateSpecification<AgreementRegistration>?, pageable: Pageable): Page<AgreementRegistrationDTO>  =
-        agreementRegistrationRepository.findAll(spec, pageable).map { it.toDTO() }
-
+    open suspend fun findAll(spec: PredicateSpecification<AgreementRegistration>?, pageable: Pageable): Page<AgreementBasicInformationDto>  =
+        agreementRegistrationRepository.findAll(spec, pageable).map { it.toBasicInformationDto() }
 
     open suspend fun findByReference(reference: String): AgreementRegistrationDTO? =
         agreementRegistrationRepository.findByReference(reference)?.toDTO()

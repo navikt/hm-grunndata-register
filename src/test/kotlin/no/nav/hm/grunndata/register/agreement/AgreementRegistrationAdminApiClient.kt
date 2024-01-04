@@ -25,7 +25,7 @@ interface AgreementRegistrationAdminApiClient {
                        @QueryValue updatedByUser: String? = null,
                        @QueryValue("size") size: Int? = null,
                        @QueryValue("page") page: Int?=null,
-                       @QueryValue("sort") sort: String? = null): Page<AgreementRegistrationDTO>
+                       @QueryValue("sort") sort: String? = null): Page<AgreementBasicInformationDto>
 
     @Get(uri = "/{id}", consumes = [MediaType.APPLICATION_JSON])
     fun getAgreementById(@CookieValue("JWT") jwt: String, id: UUID): HttpResponse<AgreementRegistrationDTO>
