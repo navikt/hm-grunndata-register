@@ -11,6 +11,7 @@ import io.micronaut.security.authentication.Authentication
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.media.MediaAdminController.Companion.API_V1_ADMIN_UPLOAD_MEDIA
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
@@ -23,7 +24,7 @@ import java.util.*
 @Controller(API_V1_ADMIN_UPLOAD_MEDIA)
 class MediaAdminController(private val mediaUploadService: MediaUploadService,
                            private val productRegistrationService: ProductRegistrationService,
-                           private val agreementRegistrationService: ProductRegistrationService) {
+                           private val agreementRegistrationService: AgreementRegistrationService) {
 
     companion object {
         const val API_V1_ADMIN_UPLOAD_MEDIA = "/admin/api/v1/media"
