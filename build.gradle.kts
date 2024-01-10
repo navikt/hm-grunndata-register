@@ -10,7 +10,7 @@ val tcVersion= "1.17.6"
 val mockkVersion = "1.13.4"
 val kotestVersion = "5.5.5"
 val poiVersion = "5.1.0"
-val rapidsRiversVersion = "202401100958"
+val rapidsRiversVersion = "202401101532"
 val grunndataDtoVersion = "202312141645"
 
 group = "no.nav.hm"
