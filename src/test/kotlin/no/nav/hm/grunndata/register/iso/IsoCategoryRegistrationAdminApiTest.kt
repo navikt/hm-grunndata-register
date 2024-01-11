@@ -22,7 +22,7 @@ class IsoCategoryRegistrationAdminApiTest(private val client: IsoCategoryRegistr
                                           private val userRepository: UserRepository,
                                           private val loginClient: LoginClient) {
 
-    val email = "admin@test.test"
+    val email = "admin2@test.test"
     val password = "admin-123"
 
     @MockBean(RapidPushService::class)
