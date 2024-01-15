@@ -8,5 +8,10 @@ import java.util.*
 @JdbcRepository(dialect = Dialect.POSTGRES)
 interface BestillingsordningRegistrationRepository: CoroutineCrudRepository<BestillingsordningRegistration, UUID> {
 
+    suspend fun findByHmsArtNr(hmsArtNr: String): BestillingsordningRegistration?
+
+    suspend fun findByStatus(status: BestillingsordningStatus): List<BestillingsordningRegistration>
+
+
 
 }
