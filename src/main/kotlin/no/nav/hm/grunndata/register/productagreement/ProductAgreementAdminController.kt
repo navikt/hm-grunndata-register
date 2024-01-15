@@ -71,6 +71,19 @@ class ProductAgreementAdminController(
     }
 
 
+    @Get(
+        value = "/variants/{id}",
+        consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
+    )
+    suspend fun getProductVariantsByAgreementId(
+        id: UUID,
+        authentication: Authentication
+    ):  List<ProductAgreementRegistrationService.ProduktvarianterForDelkontrakterDTO> {
+        LOG.info("Getting product variants for agreement {$id} by ${authentication.userId()}")
+        return productAgreementRegistrationService.findGroupedProductVariantsByAgreementId(id)
+    }
+
     @Post(
         value = "/",
         consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
