@@ -16,7 +16,7 @@ data class BestillingsordningRegistration(
     val createdByUser: String = "system",
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
-    val deactivated: LocalDateTime = LocalDateTime.now()
+    val deactivated: LocalDateTime? = null
 )
 
 enum class BestillingsordningStatus {
