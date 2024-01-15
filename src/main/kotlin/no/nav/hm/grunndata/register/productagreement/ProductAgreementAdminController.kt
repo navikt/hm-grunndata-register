@@ -3,6 +3,7 @@ package no.nav.hm.grunndata.register.productagreement
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
+import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.multipart.CompletedFileUpload
@@ -56,7 +57,7 @@ class ProductAgreementAdminController(
         )
     }
 
-    @Post(
+    @Get(
         value = "/{id}",
         consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
         produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
@@ -65,7 +66,6 @@ class ProductAgreementAdminController(
         id: UUID,
         authentication: Authentication
     ): List<ProductAgreementRegistrationDTO> {
-
         LOG.info("Getting products for agreement {$id} by ${authentication.userId()}")
         return productAgreementRegistrationService.findByAgreementId(id)
     }
