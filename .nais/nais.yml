@@ -93,3 +93,8 @@ spec:
             - port: 443
               name: https
               protocol: HTTPS
+        - host: navikt.github.io
+          ports:
+            - port: 443
+              name: https
+              protocol: HTTPS

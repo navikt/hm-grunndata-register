@@ -161,3 +161,6 @@ schedulers:
 
 import:
   autoapprove: ${IMPORT_AUTOAPPROVE:false}
+
+bestillingsordning:
+  url: ${BESTILLINGSORDNING_URL:`https://navikt.github.io/digihot-sortiment/bestillingsordning_sortiment.json`}
