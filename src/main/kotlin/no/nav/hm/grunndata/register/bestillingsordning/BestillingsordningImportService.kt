@@ -6,8 +6,17 @@ import io.micronaut.context.annotation.Value
 import jakarta.inject.Singleton
 import java.net.URL
 
+
+
+
+
+data class BestillingsordningDTO(
+    val hmsnr: String,
+    val navn: String
+)
+
 @Singleton
-class Bestillingsordning(
+class BestillingsordningImportService(
     @Value("\${bestillingsordning.url}")
     private val url : String,
     private val objectMapper: ObjectMapper) {
@@ -20,10 +29,3 @@ class Bestillingsordning(
     fun getBestillingsorning(hmsnr: String): BestillingsordningDTO? = boMap[hmsnr]
 
 }
-
-data class BestillingsordningDTO(
-    val hmsnr: String,
-    val navn: String
-)
-
-
