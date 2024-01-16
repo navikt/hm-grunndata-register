@@ -79,7 +79,7 @@ class ProductAgreementAdminController(
     suspend fun getProductVariantsByAgreementId(
         id: UUID,
         authentication: Authentication
-    ):  List<ProductAgreementRegistrationService.ProduktvarianterForDelkontrakterDTO> {
+    ):  List<ProduktvarianterForDelkontrakterDTO> {
         LOG.info("Getting product variants for agreement {$id} by ${authentication.userId()}")
         return productAgreementRegistrationService.findGroupedProductVariantsByAgreementId(id)
     }

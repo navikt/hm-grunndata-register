@@ -94,11 +94,10 @@ open class ProductAgreementRegistrationService(
         return productAgreementRegistrationRepository.update(dto.toEntity()).toDTO()
     }
 
-
-    data class ProduktvarianterForDelkontrakterDTO(
-        val delkontraktNr: Int,
-        val produktTittel: String,
-        val produktvarianter: List<ProductAgreementRegistrationDTO>
-    ) : EventPayload
-
 }
+
+data class ProduktvarianterForDelkontrakterDTO(
+    val delkontraktNr: Int,
+    val produktTittel: String,
+    val produktvarianter: List<ProductAgreementRegistrationDTO>
+) : EventPayload
