@@ -69,7 +69,7 @@ spec:
         highAvailability: true
         diskSize: {{ disk_size }}
         diskAutoresize: true
-        autoBackupTime: "03:00"
+        autoBackupHour: 3
         databases:
           - name: register
             envVarPrefix: DB
@@ -84,17 +84,5 @@ spec:
         - application: hm-grunndata-db
       external:
         - host: login.microsoftonline.com
-          ports:
-            - port: 443
-              name: https
-              protocol: HTTPS
         - host: graph.microsoft.com
-          ports:
-            - port: 443
-              name: https
-              protocol: HTTPS
         - host: navikt.github.io
-          ports:
-            - port: 443
-              name: https
-              protocol: HTTPS
