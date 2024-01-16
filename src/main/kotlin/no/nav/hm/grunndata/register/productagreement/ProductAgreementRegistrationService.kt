@@ -3,7 +3,7 @@ package no.nav.hm.grunndata.register.productagreement
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.register.event.EventPayload
-import no.nav.hm.grunndata.register.product.ProductRegistrationService
+import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import java.util.UUID
 
 
@@ -11,6 +11,7 @@ import java.util.UUID
 open class ProductAgreementRegistrationService(
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
     private val productAgreementRegistrationHandler: ProductAgreementRegistrationHandler,
+    private val productRegistrationRepository: ProductRegistrationRepository
 ) {
 
     @Transactional
@@ -63,8 +64,7 @@ open class ProductAgreementRegistrationService(
                         produktTittel = tittel,
                         produktvarianter = varianter,
                         rangering = varianter.first().rank,
-                        produktserie = UUID.randomUUID()
-                        //produktserie = productRegistrationService.findById(varianter.first().productId!!)?.seriesUUID!!
+                        produktserie = productRegistrationRepository.findById(varianter.first().productId!!)?.seriesUUID!!
                     )
                 )
             }
