@@ -23,7 +23,7 @@ data class BestillingsordningRegistration(
 
 
 data class BestillingsordningRegistrationDTO(
-    val id: UUID,
+    val id: UUID = UUID.randomUUID(),
     val hmsArtNr: String,
     val navn: String,
     val status: BestillingsordningStatus = BestillingsordningStatus.ACTIVE,

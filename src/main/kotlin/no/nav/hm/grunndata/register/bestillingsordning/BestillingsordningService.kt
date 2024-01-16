@@ -32,9 +32,9 @@ open class BestillingsordningService(
     private var boMap: Map<String, BestillingsordningDTO> =
         objectMapper.readValue(URL(url), object : TypeReference<List<BestillingsordningDTO>>(){}).associateBy { it.hmsnr }
 
-    fun isBestillingsordning(hmsnr: String): Boolean = boMap.containsKey(hmsnr)
 
-    fun getBestillingsorning(hmsnr: String): BestillingsordningDTO? = boMap[hmsnr]
+    suspend fun findByHmsArtNr(hmsArtNr: String): BestillingsordningRegistrationDTO? = bestillingsordningRegistrationRepository.findByHmsArtNr(hmsArtNr)?.toDTO()
+
 
     suspend fun importAndUpdateDb() {
         boMap = objectMapper.readValue(URL(url), object : TypeReference<List<BestillingsordningDTO>>(){}).associateBy { it.hmsnr }
@@ -46,25 +46,27 @@ open class BestillingsordningService(
                 // new bestillingsordning
                 LOG.info("New bestillingsordning for $hmsnr")
                 val bestillingsordningRegistration = BestillingsordningRegistration(hmsArtNr = hmsnr, navn = bestillingsordningDTO.navn)
-                saveAndCreateEvent(bestillingsordningRegistration, update = false)
+                saveAndCreateEvent(bestillingsordningRegistration.toDTO(), update = false)
             }
 
         }
         deactiveList.forEach {
             LOG.info("Deactivate bestillingsordning for ${it.hmsArtNr}")
             saveAndCreateEvent(it.copy(status = BestillingsordningStatus.INACTIVE,
-                updated = LocalDateTime.now(), deactivated = LocalDateTime.now()), update = true)
+                updated = LocalDateTime.now(), deactivated = LocalDateTime.now()).toDTO(), update = true)
         }
     }
 
     @Transactional
-    open suspend fun saveAndCreateEvent(bestillingsordningRegistration: BestillingsordningRegistration, update:Boolean) {
+    open suspend fun saveAndCreateEvent(bestillingsordningRegistration: BestillingsordningRegistrationDTO, update:Boolean): BestillingsordningRegistrationDTO {
         val saved = if (update) {
-            bestillingsordningRegistrationRepository.update(bestillingsordningRegistration)
+            bestillingsordningRegistrationRepository.update(bestillingsordningRegistration.toEntity())
         } else {
-            bestillingsordningRegistrationRepository.save(bestillingsordningRegistration)
+            bestillingsordningRegistrationRepository.save(bestillingsordningRegistration.toEntity())
         }
-        bestillingsordningEventHandler.queueDTORapidEvent(saved.toDTO(), eventName = EventName.registeredBestillingsordningV1)
+        val dto = saved.toDTO()
+        bestillingsordningEventHandler.queueDTORapidEvent(dto, eventName = EventName.registeredBestillingsordningV1)
+        return dto
     }
 
 }
