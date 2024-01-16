@@ -6,14 +6,11 @@ import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.LeaderElection
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationHandler
-import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
+import no.nav.hm.grunndata.register.bestillingsordning.BestillingsordningEventHandler
 import no.nav.hm.grunndata.register.product.ProductRegistrationHandler
-import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationHandler
 import no.nav.hm.grunndata.register.series.SeriesRegistrationHandler
-import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationHandler
-import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
@@ -26,7 +23,8 @@ class EventItemScheduler(
     private val productRegistrationHandler: ProductRegistrationHandler,
     private val seriesRegistrationHandler: SeriesRegistrationHandler,
     private val supplierRegistrationHandler: SupplierRegistrationHandler,
-    private val productAgreementRegistrationHandler: ProductAgreementRegistrationHandler
+    private val productAgreementRegistrationHandler: ProductAgreementRegistrationHandler,
+    private val bestillingsordningEventHandler: BestillingsordningEventHandler
 ) {
 
     companion object {
@@ -47,6 +45,7 @@ class EventItemScheduler(
                         EventItemType.SERIES -> seriesRegistrationHandler.sendRapidEvent(it)
                         EventItemType.SUPPLIER -> supplierRegistrationHandler.sendRapidEvent(it)
                         EventItemType.PRODUCTAGREEMENT -> productAgreementRegistrationHandler.sendRapidEvent(it)
+                        EventItemType.BESTILLINGSORDNING -> bestillingsordningEventHandler.sendRapidEvent(it)
                     }
                     eventItemService.setEventItemStatusToSent(it)
                 }

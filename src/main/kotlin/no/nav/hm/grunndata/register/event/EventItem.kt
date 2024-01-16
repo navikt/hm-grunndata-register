@@ -33,6 +33,7 @@ enum class EventItemType {
     PRODUCT,
     SERIES,
     SUPPLIER,
-    PRODUCTAGREEMENT
+    PRODUCTAGREEMENT,
+    BESTILLINGSORDNING
 }
 

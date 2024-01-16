@@ -10,7 +10,7 @@ import no.nav.hm.grunndata.register.LeaderElection
 @Singleton
 @Requires(property = "schedulers.enabled", value = "true")
 class BestillingsordningScheduler(private val leaderElection: LeaderElection,
-                                  private val bestillingsordningImportService: BestillingsordningImportService) {
+                                  private val bestillingsordningService: BestillingsordningService) {
 
     companion object {
         private val LOG = org.slf4j.LoggerFactory.getLogger(BestillingsordningScheduler::class.java)
@@ -21,7 +21,7 @@ class BestillingsordningScheduler(private val leaderElection: LeaderElection,
         if (leaderElection.isLeader()) {
             LOG.info("Running bestillingsordning scheduler")
             runBlocking {
-                bestillingsordningImportService.importAndUpdateDb()
+                bestillingsordningService.importAndUpdateDb()
             }
         }
     }

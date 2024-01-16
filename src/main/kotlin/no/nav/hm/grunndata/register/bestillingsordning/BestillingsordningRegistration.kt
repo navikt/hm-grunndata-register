@@ -2,6 +2,8 @@ package no.nav.hm.grunndata.register.bestillingsordning
 
 import io.micronaut.data.annotation.MappedEntity
 import jakarta.persistence.Id
+import no.nav.hm.grunndata.rapid.dto.BestillingsordningStatus
+import no.nav.hm.grunndata.register.event.EventPayload
 import java.time.LocalDateTime
 import java.util.*
 
@@ -19,9 +21,6 @@ data class BestillingsordningRegistration(
     val deactivated: LocalDateTime? = null
 )
 
-enum class BestillingsordningStatus {
-    ACTIVE, INACTIVE
-}
 
 data class BestillingsordningRegistrationDTO(
     val id: UUID,
@@ -33,7 +32,7 @@ data class BestillingsordningRegistrationDTO(
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val deactivated: LocalDateTime? = null
-)
+): EventPayload
 
 fun BestillingsordningRegistration.toDTO(): BestillingsordningRegistrationDTO = BestillingsordningRegistrationDTO(
     id = id,
