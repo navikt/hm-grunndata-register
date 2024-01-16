@@ -5,10 +5,10 @@ import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
-import no.nav.hm.grunndata.db.agreement.AgreementExpiration
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
+import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierData
@@ -24,7 +24,7 @@ class AgreementExpirationTest(
     private val agreementExpiration: AgreementExpiration,
     private val agreementService: AgreementRegistrationService,
     private val supplierService: SupplierRegistrationService,
-    private val productAgreementService: ProductAgreementRegistrationService
+    private val productAgreementService: ProductAgreementRegistrationService,
 ) {
 
 

@@ -11,7 +11,6 @@ import java.util.UUID
 open class ProductAgreementRegistrationService(
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
     private val productAgreementRegistrationHandler: ProductAgreementRegistrationHandler,
-    private val productRegistrationService: ProductRegistrationService
 ) {
 
     @Transactional
@@ -64,7 +63,8 @@ open class ProductAgreementRegistrationService(
                         produktTittel = tittel,
                         produktvarianter = varianter,
                         rangering = varianter.first().rank,
-                        produktserie = productRegistrationService.findById(varianter.first().productId!!)?.seriesUUID!!
+                        produktserie = UUID.randomUUID()
+                        //produktserie = productRegistrationService.findById(varianter.first().productId!!)?.seriesUUID!!
                     )
                 )
             }

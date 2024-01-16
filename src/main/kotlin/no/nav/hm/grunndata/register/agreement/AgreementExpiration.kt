@@ -1,11 +1,9 @@
-package no.nav.hm.grunndata.db.agreement
+package no.nav.hm.grunndata.register.agreement
 
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
-import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
-import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -32,7 +30,8 @@ open class AgreementExpiration(private val agreementService: AgreementRegistrati
     open suspend fun deactiveProductsInExpiredAgreement(expiredAgreement: AgreementRegistrationDTO) {
         LOG.info("Agreement ${expiredAgreement.id} ${expiredAgreement.reference} has expired")
         agreementService.saveAndCreateEventIfNotDraft(dto = expiredAgreement.copy(agreementStatus = AgreementStatus.INACTIVE,
-            updated = LocalDateTime.now(), updatedBy = expiration), isUpdate = true)
+            updated = LocalDateTime.now(), updatedBy = expiration
+        ), isUpdate = true)
         val productsInAgreement = productAgreementService.findByAgreementId(expiredAgreement.id)
         productsInAgreement.forEach { product ->
             LOG.info("Found product: ${product.id} in expired agreement")
