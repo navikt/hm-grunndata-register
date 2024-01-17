@@ -70,6 +70,7 @@ open class ProductAgreementRegistrationService(
             }
         }
 
+        liste.sortBy { it.rangering }
         return liste
     }
 
