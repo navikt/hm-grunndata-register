@@ -5,11 +5,11 @@ import io.micronaut.scheduling.annotation.Scheduled
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.LeaderElection
-import no.nav.hm.grunndata.register.agreement.AgreementRegistrationHandler
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationEventHandler
 import no.nav.hm.grunndata.register.bestillingsordning.BestillingsordningEventHandler
-import no.nav.hm.grunndata.register.product.ProductRegistrationHandler
-import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationHandler
-import no.nav.hm.grunndata.register.series.SeriesRegistrationHandler
+import no.nav.hm.grunndata.register.product.ProductRegistrationEventHandler
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationEventHandler
+import no.nav.hm.grunndata.register.series.SeriesRegistrationEventHandler
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationHandler
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -19,11 +19,11 @@ import java.time.LocalDateTime
 class EventItemScheduler(
     private val eventItemService: EventItemService,
     private val leaderElection: LeaderElection,
-    private val agreementRegistrationHandler: AgreementRegistrationHandler,
-    private val productRegistrationHandler: ProductRegistrationHandler,
-    private val seriesRegistrationHandler: SeriesRegistrationHandler,
+    private val agreementRegistrationEventHandler: AgreementRegistrationEventHandler,
+    private val productRegistrationEventHandler: ProductRegistrationEventHandler,
+    private val seriesRegistrationEventHandler: SeriesRegistrationEventHandler,
     private val supplierRegistrationHandler: SupplierRegistrationHandler,
-    private val productAgreementRegistrationHandler: ProductAgreementRegistrationHandler,
+    private val productAgreementRegistrationHandler: ProductAgreementRegistrationEventHandler,
     private val bestillingsordningEventHandler: BestillingsordningEventHandler
 ) {
 
@@ -40,9 +40,9 @@ class EventItemScheduler(
                 items.forEach {
                     LOG.info("sending event ${it.oid} with type ${it.type}")
                     when (it.type) {
-                        EventItemType.AGREEMENT -> agreementRegistrationHandler.sendRapidEvent(it)
-                        EventItemType.PRODUCT -> productRegistrationHandler.sendRapidEvent(it)
-                        EventItemType.SERIES -> seriesRegistrationHandler.sendRapidEvent(it)
+                        EventItemType.AGREEMENT -> agreementRegistrationEventHandler.sendRapidEvent(it)
+                        EventItemType.PRODUCT -> productRegistrationEventHandler.sendRapidEvent(it)
+                        EventItemType.SERIES -> seriesRegistrationEventHandler.sendRapidEvent(it)
                         EventItemType.SUPPLIER -> supplierRegistrationHandler.sendRapidEvent(it)
                         EventItemType.PRODUCTAGREEMENT -> productAgreementRegistrationHandler.sendRapidEvent(it)
                         EventItemType.BESTILLINGSORDNING -> bestillingsordningEventHandler.sendRapidEvent(it)

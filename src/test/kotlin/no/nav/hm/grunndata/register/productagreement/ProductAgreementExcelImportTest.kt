@@ -1,7 +1,6 @@
 package no.nav.hm.grunndata.register.productagreement
 
 import io.micronaut.test.annotation.MockBean
-import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AgreementDTO
@@ -15,9 +14,7 @@ import no.nav.hm.grunndata.register.gdb.GdbApiClient
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
-import no.nav.hm.grunndata.register.supplier.toRapidDTO
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
-import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*

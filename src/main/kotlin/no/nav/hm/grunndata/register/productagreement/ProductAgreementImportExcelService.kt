@@ -2,11 +2,10 @@ package no.nav.hm.grunndata.register.productagreement
 
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
-import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.agreement.AgreementPDTO
-import no.nav.hm.grunndata.register.event.EventPayload
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
+import no.nav.hm.grunndata.register.productagreement.ColumnNames.*
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.Row
@@ -14,11 +13,7 @@ import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.slf4j.LoggerFactory
 import java.io.InputStream
-import java.lang.Exception
 import java.util.*
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.*
-import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService.Companion.EXCEL
-import java.time.LocalDateTime
 
 
 @Singleton
@@ -171,22 +166,3 @@ data class ProductAgreementExcelDTO(
     val supplierName: String,
     val supplierCity: String
 )
-
-data class ProductAgreementRegistrationDTO(
-    val id: UUID = UUID.randomUUID(),
-    val productId: UUID?,
-    val title: String,
-    val supplierId: UUID,
-    val supplierRef: String,
-    val hmsArtNr: String?,
-    val agreementId: UUID,
-    val reference: String,
-    val post: Int,
-    val rank: Int,
-    val status: ProductAgreementStatus = ProductAgreementStatus.ACTIVE,
-    val createdBy: String = EXCEL,
-    val created: LocalDateTime = LocalDateTime.now(),
-    val updated: LocalDateTime = LocalDateTime.now(),
-    val published: LocalDateTime,
-    val expired: LocalDateTime,
-): EventPayload

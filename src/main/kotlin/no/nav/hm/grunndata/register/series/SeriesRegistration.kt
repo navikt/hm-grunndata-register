@@ -4,6 +4,8 @@ import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.Version
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.RapidDTO
+import no.nav.hm.grunndata.rapid.dto.SeriesRegistrationRapidDTO
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
@@ -34,7 +36,7 @@ data class SeriesRegistration (
 )
 
 data class SeriesRegistrationDTO (
-    val id: UUID,
+    override val id: UUID,
     val supplierId:UUID,
     val identifier: String,
     val title: String,
@@ -47,11 +49,31 @@ data class SeriesRegistrationDTO (
     val expired: LocalDateTime = LocalDateTime.now().plusYears(15),
     val createdBy: String = REGISTER,
     val updatedBy: String = REGISTER,
-    val updatedByUser: String = "system",
+    override val updatedByUser: String = "system",
     val createdByUser: String = "system",
     val createdByAdmin: Boolean = false,
     val version: Long? = 0L
-): EventPayload
+): EventPayload {
+    override fun toRapidDTO(): RapidDTO= SeriesRegistrationRapidDTO(
+    id = id,
+    supplierId = supplierId,
+    identifier = identifier,
+    title = title,
+    text = text,
+    isoCategory = isoCategory,
+    draftStatus = draftStatus,
+    status = status,
+    created = created,
+    updated = updated,
+    expired = expired,
+    createdBy = createdBy,
+    updatedBy = updatedBy,
+    updatedByUser = updatedByUser,
+    createdByUser = createdByUser,
+    createdByAdmin = createdByAdmin,
+    version = version
+    )
+}
 
 fun SeriesRegistration.toDTO() = SeriesRegistrationDTO(id = id, supplierId = supplierId, identifier = identifier,
     title = title, text = text, isoCategory = isoCategory, draftStatus = draftStatus, status = status, created = created,

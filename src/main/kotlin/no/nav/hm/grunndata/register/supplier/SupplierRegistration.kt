@@ -4,13 +4,10 @@ import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.model.DataType
-import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.SupplierDTO
-import no.nav.hm.grunndata.rapid.dto.SupplierStatus
+import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
-import java.awt.SystemColor.info
 import java.time.LocalDateTime
 import java.util.*
 
@@ -45,7 +42,7 @@ data class SupplierData(
 )
 
 data class SupplierRegistrationDTO (
-    val id: UUID = UUID.randomUUID(),
+    override val id: UUID = UUID.randomUUID(),
     val status: SupplierStatus = SupplierStatus.ACTIVE,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val name: String,
@@ -55,9 +52,20 @@ data class SupplierRegistrationDTO (
     val updated: LocalDateTime = LocalDateTime.now(),
     val createdBy: String = REGISTER,
     val updatedBy: String = REGISTER,
-    val updatedByUser: String="system",
+    override val updatedByUser: String="system",
     val createdByUser: String="system",
-): EventPayload
+): EventPayload {
+    override fun toRapidDTO(): RapidDTO = SupplierDTO (
+        id = id, status = status, name=name, info = supplierData.toInfo() , identifier = identifier, created = created, updated = updated,
+        createdBy = createdBy, updatedBy = updatedBy)
+
+
+    private fun SupplierData.toInfo(): SupplierInfo = SupplierInfo (
+        address = address, postNr = postNr, postLocation = postLocation, countryCode = countryCode, email = email,
+        phone = phone, homepage = homepage
+    )
+
+}
 
 fun SupplierRegistration.toDTO(): SupplierRegistrationDTO = SupplierRegistrationDTO (
     id = id, status = status, draftStatus = draftStatus, name = name, supplierData = supplierData,

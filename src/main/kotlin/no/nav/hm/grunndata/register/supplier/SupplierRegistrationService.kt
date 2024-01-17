@@ -2,24 +2,29 @@ package no.nav.hm.grunndata.register.supplier
 
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
-import io.micronaut.data.model.PersistentEntity
-import io.micronaut.data.model.jpa.criteria.PersistentEntityCriteriaBuilder
 import io.micronaut.data.model.jpa.criteria.impl.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import kotlinx.coroutines.flow.map
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.event.EventName
-import no.nav.hm.grunndata.register.event.EventItem
-import no.nav.hm.grunndata.register.event.EventItemService
-import no.nav.hm.grunndata.register.event.EventItemType
 import java.util.*
 
 @Singleton
 open class SupplierRegistrationService(private val supplierRepository: SupplierRepository,
                                        private val supplierRegistrationHandler: SupplierRegistrationHandler) {
+
+
+    companion object {
+        var CACHE: MutableMap<UUID, SupplierRegistrationDTO> = mutableMapOf()
+    }
+
+    init {
+        supplierRepository.findAll().map { CACHE.put(it.id, it.toDTO()) }
+    }
 
     open suspend fun findById(id: UUID): SupplierRegistrationDTO? = supplierRepository.findById(id)?.toDTO()
 
@@ -34,7 +39,9 @@ open class SupplierRegistrationService(private val supplierRepository: SupplierR
     @Transactional
     open suspend fun saveAndCreateEventIfNotDraft(supplier: SupplierRegistrationDTO, isUpdate: Boolean): SupplierRegistrationDTO {
         val saved = if (isUpdate) update(supplier) else save(supplier)
-        supplierRegistrationHandler.queueDTORapidEvent(saved)
+        if (saved.draftStatus == DraftStatus.DONE) {
+            supplierRegistrationHandler.queueDTORapidEvent(saved, eventName = EventName.registeredSupplierV1)
+        }
         return saved
     }
 

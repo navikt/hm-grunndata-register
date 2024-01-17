@@ -14,7 +14,7 @@ import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
-import no.nav.hm.grunndata.register.series.SeriesRegistrationHandler
+import no.nav.hm.grunndata.register.series.SeriesRegistrationEventHandler
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
@@ -26,7 +26,7 @@ import java.time.LocalDateTime
 class SeriesImportSyncRiver(river: RiverHead,
                             private val objectMapper: ObjectMapper,
                             private val seriesRegistrationService: SeriesRegistrationService,
-                            private val seriesRegistrationHandler: SeriesRegistrationHandler
+                            private val seriesRegistrationEventHandler: SeriesRegistrationEventHandler
 ): River.PacketListener {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesImportSyncRiver::class.java)
@@ -75,7 +75,7 @@ class SeriesImportSyncRiver(river: RiverHead,
             )
             val extraImportKeyValues =
                 mapOf("transferId" to dto.transferId, "version" to dto.version)
-            seriesRegistrationHandler.queueDTORapidEvent(series, extraKeyValues = extraImportKeyValues)
+            seriesRegistrationEventHandler.queueDTORapidEvent(series, eventName = EventName.registeredSeriesV1, extraKeyValues = extraImportKeyValues)
             LOG.info("series import: ${dto.id} transferId: ${dto.transferId} version: ${dto.version} eventId: $eventId synced")
         }
     }

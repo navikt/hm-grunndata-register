@@ -12,8 +12,6 @@ import no.nav.helse.rapids_rivers.River
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
-import no.nav.hm.grunndata.register.event.EventItemService
-import no.nav.hm.grunndata.register.event.EventItemType
 import no.nav.hm.grunndata.register.product.*
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
@@ -25,7 +23,7 @@ class ProductImportSyncRiver(
     river: RiverHead,
     private val objectMapper: ObjectMapper,
     private val productRegistrationRepository: ProductRegistrationRepository,
-    private val productRegistrationHandler: ProductRegistrationHandler,
+    private val productRegistrationEventHandler: ProductRegistrationEventHandler,
     @Value("\${import.autoapprove}") private val autoApprove: Boolean
 ) : River.PacketListener {
 
@@ -93,7 +91,7 @@ class ProductImportSyncRiver(
                 )
             val extraImportKeyValues =
                 mapOf("transferId" to importDTO.transferId, "version" to importDTO.version)
-            productRegistrationHandler.queueDTORapidEvent(registration.toDTO(), extraKeyValues = extraImportKeyValues)
+            productRegistrationEventHandler.queueDTORapidEvent(registration.toDTO(), eventName = EventName.registeredProductV1, extraKeyValues = extraImportKeyValues)
             LOG.info(
                 """imported product ${importDTO.id} with eventId $eventId 
             |and version: ${importDTO.version} synced, adminstatus: ${registration.adminStatus}""".trimMargin()

@@ -9,12 +9,13 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.SupplierDTO
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.*
+import no.nav.hm.grunndata.register.supplier.SupplierData
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -34,7 +35,7 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
 
     val supplierId = UUID.randomUUID()
 
-    private var testSupplier: SupplierDTO? = null
+    private var testSupplier: SupplierRegistrationDTO? = null
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -60,7 +61,7 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
                     identifier = "supplier5-unique-name",
                     name = "Supplier AS5",
                 )
-            ).toRapidDTO()
+            )
             userRepository.createUser(
                 User(
                     email = adminEmail, token = password, name = "Admin tester", roles = listOf(Roles.ROLE_ADMIN)

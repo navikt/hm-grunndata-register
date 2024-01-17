@@ -8,7 +8,7 @@ import no.nav.helse.rapids_rivers.*
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementRegistrationRapidDTO
 import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
-import no.nav.hm.grunndata.register.product.ProductRegistrationHandler
+import no.nav.hm.grunndata.register.product.ProductRegistrationEventHandler
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
 class ProductAgreementRegistrationRiver(river: RiverHead,
                                         private val objectMapper: ObjectMapper,
                                         private val productRegistrationService: ProductRegistrationService,
-                                        private val productRegistrationHandler: ProductRegistrationHandler
+                                        private val productRegistrationEventHandler: ProductRegistrationEventHandler
 ): River.PacketListener {
 
     companion object {
@@ -47,7 +47,7 @@ class ProductAgreementRegistrationRiver(river: RiverHead,
                 "eventId $eventId eventTime: $createdTime")
         runBlocking {
             productRegistrationService.findById(dto.productId!!)?.let { product ->
-                productRegistrationHandler.queueDTORapidEvent(product)
+                productRegistrationEventHandler.queueDTORapidEvent(product, eventName = EventName.registeredProductV1)
             }
         }
     }

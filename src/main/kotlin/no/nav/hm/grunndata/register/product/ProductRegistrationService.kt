@@ -7,6 +7,7 @@ import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.techlabel.TechLabelService
@@ -17,7 +18,7 @@ import java.util.*
 @Singleton
 open class ProductRegistrationService(private val productRegistrationRepository: ProductRegistrationRepository,
                                       private val seriesRegistrationRepository: SeriesRegistrationRepository,
-                                      private val productRegistrationHandler: ProductRegistrationHandler,
+                                      private val productRegistrationEventHandler: ProductRegistrationEventHandler,
                                       private val techLabelService: TechLabelService) {
 
     companion object {
@@ -44,7 +45,8 @@ open class ProductRegistrationService(private val productRegistrationRepository:
     @Transactional
     open suspend fun saveAndCreateEventIfNotDraftAndApproved(dto: ProductRegistrationDTO, isUpdate: Boolean): ProductRegistrationDTO {
         val saved = if (isUpdate) update(dto) else save(dto)
-        productRegistrationHandler.queueDTORapidEvent(saved)
+        if (saved.draftStatus == DraftStatus.DONE && saved.adminStatus == AdminStatus.APPROVED)
+            productRegistrationEventHandler.queueDTORapidEvent(saved, eventName = EventName.registeredProductV1)
         return saved
     }
 
