@@ -64,7 +64,7 @@ open class ProductAgreementRegistrationService(
                         produktTittel = tittel,
                         produktvarianter = varianter,
                         rangering = varianter.first().rank,
-                        produktserie = productRegistrationRepository.findById(varianter.first().productId!!)?.seriesUUID!!
+                        produktserie = varianter.first().productId?.let { productRegistrationRepository.findById(it)?.seriesUUID }
                     )
                 )
             }
@@ -105,6 +105,6 @@ data class ProduktvarianterForDelkontrakterDTO(
     val delkontraktNr: Int,
     val produktTittel: String,
     val rangering: Int,
-    val produktserie: UUID,
+    val produktserie: UUID?,
     val produktvarianter: List<ProductAgreementRegistrationDTO>
 ) : EventPayload
