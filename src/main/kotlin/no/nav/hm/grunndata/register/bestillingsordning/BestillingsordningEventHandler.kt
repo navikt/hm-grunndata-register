@@ -1,9 +1,11 @@
 package no.nav.hm.grunndata.register.bestillingsordning
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import jakarta.inject.Singleton
 import no.nav.hm.grunndata.rapid.dto.BestillingsordningRegistrationRapidDTO
 import no.nav.hm.grunndata.register.event.*
 
+@Singleton
 class BestillingsordningEventHandler(
     private val registerRapidPushService: RegisterRapidPushService,
     private val objectMapper: ObjectMapper,
@@ -13,6 +15,9 @@ class BestillingsordningEventHandler(
     companion object {
         private val LOG = org.slf4j.LoggerFactory.getLogger(BestillingsordningEventHandler::class.java)
     }
+
+    override fun isRapidEventType(eventItemType: EventItemType): Boolean = eventItemType == EventItemType.BESTILLINGSORDNING
+
     override fun sendRapidEvent(eventItem: EventItem) {
         val dto = objectMapper.readValue(eventItem.payload, BestillingsordningRegistrationDTO::class.java)
         registerRapidPushService.pushToRapid(dto.toRapidDTO(), eventItem)
