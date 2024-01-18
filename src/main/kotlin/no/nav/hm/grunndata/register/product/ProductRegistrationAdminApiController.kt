@@ -66,6 +66,13 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
                 HttpResponse.ok(it) }
             ?: HttpResponse.notFound()
 
+    @Get("/hmsArtNr/{hmsArtNr}")
+    suspend fun getProductByHmsArtNr(hmsArtNr: String): HttpResponse<ProductRegistrationDTO> =
+        productRegistrationService.findByHmsArtNr(hmsArtNr)
+            ?.let {
+                HttpResponse.ok(it) }
+            ?: HttpResponse.notFound()
+
     @Post("/draft/supplier/{supplierId}{?isAccessory}{?isSparePart}")
     suspend fun draftProduct(supplierId: UUID, authentication: Authentication,
                              @QueryValue(defaultValue = "false") isAccessory: Boolean,

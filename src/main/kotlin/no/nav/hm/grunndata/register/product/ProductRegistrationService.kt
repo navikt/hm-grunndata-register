@@ -26,6 +26,8 @@ open class ProductRegistrationService(private val productRegistrationRepository:
 
     open suspend fun findById(id: UUID) = productRegistrationRepository.findById(id)?.toDTO()
 
+    open suspend fun findByHmsArtNr(hmsArtNr: String) = productRegistrationRepository.findByHmsArtNr(hmsArtNr)?.toDTO()
+
     open suspend fun save(dto: ProductRegistrationDTO) = productRegistrationRepository.save(dto.toEntity()).toDTO()
 
     open suspend fun update(dto: ProductRegistrationDTO) = productRegistrationRepository.update(dto.toEntity()).toDTO()
