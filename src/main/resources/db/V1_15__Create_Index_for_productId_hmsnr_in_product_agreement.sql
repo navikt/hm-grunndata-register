@@ -1,0 +1,2 @@
+CREATE INDEX product_agreement_product_id_index ON product_agreement_reg_v1(product_id);
+CREATE INDEX product_agreement_hms_artnr_index ON product_agreement_reg_v1(hms_artnr);
