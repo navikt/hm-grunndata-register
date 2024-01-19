@@ -10,6 +10,7 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.rapid.dto.AgreementAttachment
+import no.nav.hm.grunndata.rapid.dto.AgreementPost
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.register.REGISTER
@@ -55,6 +56,17 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
         agreementRegistrationService.findById(id)
             ?.let {
                 HttpResponse.ok(it)
+            }
+            ?: HttpResponse.notFound()
+
+
+    @Get("/{id}/delkontrakt/{delkontraktId}")
+    suspend fun getDelkontraktById(id: UUID, delkontraktId: String): HttpResponse<AgreementPost> =
+        agreementRegistrationService.findById(id)
+            ?.let {
+                it.agreementData.posts.find { post -> post.identifier == delkontraktId }
+                    ?.let { post -> HttpResponse.ok(post) }
+                    ?: HttpResponse.notFound()
             }
             ?: HttpResponse.notFound()
 
