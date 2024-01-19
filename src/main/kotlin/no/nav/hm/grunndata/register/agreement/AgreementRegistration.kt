@@ -44,7 +44,7 @@ data class AgreementData (
 )
 
 data class AgreementRegistrationDTO (
-    val id: UUID,
+    override val id: UUID,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val agreementStatus: AgreementStatus = AgreementStatus.INACTIVE,
     val title: String,
@@ -54,12 +54,24 @@ data class AgreementRegistrationDTO (
     val published: LocalDateTime = LocalDateTime.now(),
     val expired: LocalDateTime = LocalDateTime.now(),
     val createdByUser: String,
-    val updatedByUser: String,
+    override val updatedByUser: String,
     val createdBy: String = REGISTER,
     val updatedBy: String = REGISTER,
     val agreementData: AgreementData,
     val version: Long? = 0L
-): EventPayload
+): EventPayload {
+    override fun toRapidDTO(): RapidDTO = AgreementRegistrationRapidDTO(
+        id = id, draftStatus = draftStatus, created = created, updated = updated, published = published, expired = expired, createdByUser = createdByUser,
+        updatedByUser = updatedByUser, createdBy = createdBy, updatedBy = updatedBy, version = version, agreementDTO = agreementData.toDTO(this)
+    )
+
+    private fun AgreementData.toDTO(registration: AgreementRegistrationDTO): AgreementDTO = AgreementDTO(
+        id = registration.id, identifier = identifier, title = registration.title, resume = resume, text = text,
+        status = registration.agreementStatus, reference = registration.reference, published = registration.published,
+        expired = registration.expired, attachments = attachments, posts = posts, createdBy = registration.createdBy,
+        updatedBy = registration.updatedBy, created = registration.created, updated = registration.updated, isoCategory = isoCategory
+    )
+}
 
 data class AgreementBasicInformationDto (
     val id: UUID,

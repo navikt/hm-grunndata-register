@@ -10,7 +10,9 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
@@ -119,7 +121,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
                     val dto = productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updated, isUpdate = true)
                     HttpResponse.ok(dto) }
                 ?: run {
-                    throw BadRequestException("Product registration already exists $id") }
+                    throw BadRequestException("Product registration does not exists $id") }
 
     @Delete("/{id}")
     suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
@@ -158,3 +160,5 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
         }?: HttpResponse.notFound()
 
 }
+
+fun Authentication.isAdmin(): Boolean  = roles.contains(Roles.ROLE_ADMIN)

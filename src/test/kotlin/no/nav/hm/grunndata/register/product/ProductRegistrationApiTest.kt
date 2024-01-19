@@ -14,14 +14,15 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.gdb.GdbApiClient
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.*
+import no.nav.hm.grunndata.register.supplier.SupplierData
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserAttribute
 import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest
@@ -35,8 +36,8 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
     val password = "api-123"
     val supplierId = UUID.randomUUID()
     val supplierId2 = UUID.randomUUID()
-    var testSupplier: SupplierDTO? = null
-    var testSupplier2: SupplierDTO? = null
+    var testSupplier: SupplierRegistrationDTO? = null
+    var testSupplier2: SupplierRegistrationDTO? = null
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -61,7 +62,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                     identifier =  name1,
                     name =  name1,
                 )
-            ).toRapidDTO()
+            )
             testSupplier2 = supplierRegistrationService.save(
                 SupplierRegistrationDTO(
                     id = supplierId2,
@@ -73,7 +74,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
                 ),
                 identifier = name2,
                 name = name2
-            )).toRapidDTO()
+            ))
             userRepository.createUser(
                 User(
                     email = email, token = password, name = "User tester", roles = listOf(Roles.ROLE_SUPPLIER),

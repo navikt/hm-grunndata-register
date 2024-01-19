@@ -2,15 +2,15 @@ package no.nav.hm.grunndata.register.productagreement
 
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
-import no.nav.hm.grunndata.register.event.EventPayload
+import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
-import java.util.UUID
+import java.util.*
 
 
 @Singleton
 open class ProductAgreementRegistrationService(
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
-    private val productAgreementRegistrationHandler: ProductAgreementRegistrationHandler,
+    private val productAgreementRegistrationHandler: ProductAgreementRegistrationEventHandler,
     private val productRegistrationRepository: ProductRegistrationRepository
 ) {
 
@@ -91,7 +91,7 @@ open class ProductAgreementRegistrationService(
     ): ProductAgreementRegistrationDTO {
         val saved = if (isUpdate) update(dto) else save(dto)
         if (dto.productId != null) {
-            productAgreementRegistrationHandler.queueDTORapidEvent(saved)
+            productAgreementRegistrationHandler.queueDTORapidEvent(saved, eventName = EventName.registeredProductAgreementV1)
         }
         return saved
     }
@@ -108,4 +108,4 @@ data class ProduktvarianterForDelkontrakterDTO(
     val rangering: Int,
     val produktserie: UUID?,
     val produktvarianter: List<ProductAgreementRegistrationDTO>
-) : EventPayload
+)

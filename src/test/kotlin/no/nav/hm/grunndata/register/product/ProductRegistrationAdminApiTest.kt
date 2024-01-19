@@ -13,14 +13,14 @@ import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.gdb.GdbApiClient
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.supplier.*
-import no.nav.hm.grunndata.register.techlabel.TechLabelService
+import no.nav.hm.grunndata.register.supplier.SupplierData
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest
@@ -33,7 +33,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
     val email = "ProductRegistrationAdminApiTest@test.test"
     val password = "admin-123"
     val supplierId = UUID.randomUUID()
-    var testSupplier : SupplierDTO? = null
+    var testSupplier : SupplierRegistrationDTO? = null
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -56,7 +56,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
                     identifier = "supplier4-unique-name",
                     name = "Supplier AS4",
                 )
-            ).toRapidDTO()
+            )
             userRepository.createUser(
                 User(
                     email = email, token = password, name = "User tester", roles = listOf(Roles.ROLE_ADMIN)

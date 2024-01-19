@@ -8,7 +8,7 @@ import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
 import java.util.UUID
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
-@Join(value = "agreements", type = Join.Type.LEFT)
+@Join(value = "agreements", type = Join.Type.LEFT_FETCH)
 interface ProductRegistrationRepository : CoroutineCrudRepository<ProductRegistration, UUID>,
     CoroutineJpaSpecificationExecutor<ProductRegistration> {
     suspend fun findByIdAndSupplierId(id:UUID, supplierId: UUID): ProductRegistration?

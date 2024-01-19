@@ -7,12 +7,13 @@ import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.event.EventName
 import java.time.LocalDateTime
 import java.util.*
 
 @Singleton
 open class AgreementRegistrationService(private val agreementRegistrationRepository: AgreementRegistrationRepository,
-                                        private val agreementRegistrationHandler: AgreementRegistrationHandler) {
+                                        private val agreementRegistrationEventHandler: AgreementRegistrationEventHandler) {
 
 
     open suspend fun findById(id: UUID): AgreementRegistrationDTO? = agreementRegistrationRepository.findById(id)?.toDTO()
@@ -27,7 +28,7 @@ open class AgreementRegistrationService(private val agreementRegistrationReposit
     open suspend fun saveAndCreateEventIfNotDraft(dto: AgreementRegistrationDTO, isUpdate:Boolean): AgreementRegistrationDTO {
         val saved = if (isUpdate) update(dto) else save(dto)
         if (saved.draftStatus == DraftStatus.DONE) {
-            agreementRegistrationHandler.queueDTORapidEvent(saved)
+            agreementRegistrationEventHandler.queueDTORapidEvent(saved, eventName = EventName.registeredAgreementV1)
         }
         return saved
     }

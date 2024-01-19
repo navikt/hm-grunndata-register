@@ -2,8 +2,6 @@ package no.nav.hm.grunndata.register.product
 
 import io.kotest.common.runBlocking
 import io.kotest.matchers.ints.shouldBeGreaterThan
-import io.kotest.matchers.nulls.shouldNotBeNull
-import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
@@ -21,9 +19,9 @@ import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest
-class ProductRegistrationHandlerTest(private val productRegistrationHandler: ProductRegistrationHandler,
-                                     private val supplierRegistrationService: SupplierRegistrationService,
-                                     private val eventItemService: EventItemService) {
+class ProductRegistrationEventHandlerTest(private val productRegistrationEventHandler: ProductRegistrationEventHandler,
+                                          private val supplierRegistrationService: SupplierRegistrationService,
+                                          private val eventItemService: EventItemService) {
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -84,12 +82,12 @@ class ProductRegistrationHandlerTest(private val productRegistrationHandler: Pro
                 createdBy = REGISTER,
                 updatedBy = REGISTER
             )
-            productRegistrationHandler.queueDTORapidEvent(registration)
+            productRegistrationEventHandler.queueDTORapidEvent(registration, eventName = EventName.registeredProductV1)
             val events = eventItemService.getAllPendingStatus()
             events.size shouldBeGreaterThan 0
             events.forEach {
                 if (it.type == EventItemType.PRODUCT) {
-                    productRegistrationHandler.sendRapidEvent(it)
+                    productRegistrationEventHandler.sendRapidEvent(it)
                 }
             }
         }

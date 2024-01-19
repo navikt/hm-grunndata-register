@@ -2,12 +2,12 @@ package no.nav.hm.grunndata.register.productagreement
 
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
-import io.micronaut.data.annotation.TypeDef
-
-import io.micronaut.data.model.DataType.JSON
 import jakarta.persistence.Column
 import no.nav.hm.grunndata.rapid.dto.AgreementInfo
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementRegistrationRapidDTO
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
+import no.nav.hm.grunndata.rapid.dto.RapidDTO
+import no.nav.hm.grunndata.register.event.EventPayload
 import java.time.LocalDateTime
 import java.util.*
 
@@ -15,12 +15,12 @@ import java.util.*
 @MappedEntity("product_agreement_reg_v1")
 data class ProductAgreementRegistration(
     @field:Id
-    val id: UUID=UUID.randomUUID(),
-    val productId: UUID?=null,
+    val id: UUID = UUID.randomUUID(),
+    val productId: UUID? = null,
     val title: String,
     val supplierId: UUID,
     val supplierRef: String,
-    @field:Column(name="hms_artnr")
+    @field:Column(name = "hms_artnr")
     val hmsArtNr: String?,
     val agreementId: UUID,
     val reference: String,
@@ -34,6 +34,34 @@ data class ProductAgreementRegistration(
     val expired: LocalDateTime = LocalDateTime.now().plusYears(4)
 )
 
+data class ProductAgreementRegistrationDTO(
+    override val id: UUID = UUID.randomUUID(),
+    val productId: UUID?,
+    val title: String,
+    val supplierId: UUID,
+    val supplierRef: String,
+    val hmsArtNr: String?,
+    val agreementId: UUID,
+    val reference: String,
+    val post: Int,
+    val rank: Int,
+    val status: ProductAgreementStatus = ProductAgreementStatus.ACTIVE,
+    val createdBy: String = ProductAgreementImportExcelService.EXCEL,
+    val created: LocalDateTime = LocalDateTime.now(),
+    val updated: LocalDateTime = LocalDateTime.now(),
+    val published: LocalDateTime,
+    val expired: LocalDateTime,
+    override val updatedByUser: String = "system",
+) : EventPayload {
+    override fun toRapidDTO(): RapidDTO = ProductAgreementRegistrationRapidDTO(
+        id = id, productId = productId,
+        agreementId = agreementId, post = post,
+        rank = rank, hmsArtNr = hmsArtNr, reference = reference, status = status, title = title,
+        supplierId = supplierId, supplierRef = supplierRef, created = created, updated = updated,
+        published = published, expired = expired, createdBy = createdBy
+    )
+
+}
 
 
 fun ProductAgreementRegistrationDTO.toEntity(): ProductAgreementRegistration {
@@ -78,8 +106,11 @@ fun ProductAgreementRegistration.toDTO(): ProductAgreementRegistrationDTO {
     )
 }
 
+fun ProductAgreementRegistration.toInfo() = AgreementInfo(
+    id = agreementId, reference = reference, postNr = post, rank = rank, expired = expired
+)
 
-fun ProductAgreementRegistrationDTO.toInfo() = AgreementInfo (
-   id = agreementId, reference = reference, postNr = post, rank = rank, expired = expired
+fun ProductAgreementRegistrationDTO.toInfo() = AgreementInfo(
+    id = agreementId, reference = reference, postNr = post, rank = rank, expired = expired
 )
 
