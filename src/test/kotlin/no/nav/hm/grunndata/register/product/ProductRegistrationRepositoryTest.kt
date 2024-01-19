@@ -74,7 +74,7 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
         )
         val agreement2 = ProductAgreementRegistration(
             agreementId = agreementId,
-            hmsArtNr = "123",
+            hmsArtNr = "1234",
             post = 2,
             rank = 2,
             reference = "20-1423",
@@ -85,9 +85,23 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             title = "Test product agreement",
             status = ProductAgreementStatus.ACTIVE
         )
+        val agreement3 = ProductAgreementRegistration(
+            agreementId = agreementId,
+            hmsArtNr = "12345",
+            post = 3,
+            rank = 3,
+            reference = "20-1423",
+            productId = UUID.randomUUID(),
+            supplierId = supplierId,
+            supplierRef = "eksternref-1234",
+            createdBy = "user",
+            title = "Test product agreement",
+            status = ProductAgreementStatus.ACTIVE
+        )
         runBlocking {
             val savedAgreement = productAgreementRegistrationRepository.save(agreement)
             val savedAgreement2 = productAgreementRegistrationRepository.save(agreement2)
+            val savedAgreement3 = productAgreementRegistrationRepository.save(agreement3)
             val foundAgreement = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
                 agreement.supplierId, agreement.supplierRef, agreement.agreementId, agreement.post, agreement.rank)
             foundAgreement.shouldNotBeNull()

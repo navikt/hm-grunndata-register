@@ -1,8 +1,14 @@
 package no.nav.hm.grunndata.register.product
 
-import io.micronaut.data.annotation.*
+import io.micronaut.data.annotation.Id
+import io.micronaut.data.annotation.MappedEntity
+import io.micronaut.data.annotation.TypeDef
+import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
 import jakarta.persistence.Column
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.JoinColumns
+import jakarta.persistence.OneToMany
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
@@ -45,7 +51,11 @@ data class ProductRegistration(
     val createdByAdmin: Boolean = false,
     @field:TypeDef(type = DataType.JSON)
     val productData: ProductData,
-    @Relation(Relation.Kind.ONE_TO_MANY, mappedBy = "productId", cascade = [Relation.Cascade.NONE])
+    @field:OneToMany
+    @field:JoinColumns(
+        JoinColumn(name = "supplier_ref", referencedColumnName = "supplier_ref"),
+        JoinColumn(name = "supplier_id", referencedColumnName = "supplier_id")
+    )
     val agreements: List<ProductAgreementRegistration> = emptyList(),
     @field:Version
     val version: Long? = 0L
