@@ -106,6 +106,9 @@ fun ProductAgreementRegistration.toDTO(): ProductAgreementRegistrationDTO {
     )
 }
 
+fun ProductAgreementRegistration.toInfo() = AgreementInfo(
+    id = agreementId, reference = reference, postNr = post, rank = rank, expired = expired
+)
 
 fun ProductAgreementRegistrationDTO.toInfo() = AgreementInfo(
     id = agreementId, reference = reference, postNr = post, rank = rank, expired = expired

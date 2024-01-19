@@ -7,16 +7,16 @@ import io.kotest.matchers.shouldBe
 import io.micronaut.data.model.Pageable
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import org.junit.jupiter.api.Test
-import org.testcontainers.shaded.org.bouncycastle.asn1.x500.style.RFC4519Style.title
-import java.awt.SystemColor.text
-import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest
 class ProductRegistrationRepositoryTest(private val productRegistrationRepository: ProductRegistrationRepository,
                                         private val seriesGroupRepository: SeriesRegistrationRepository,
+                                        private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
                                         private val objectMapper: ObjectMapper) {
 
     @Test
@@ -58,11 +58,44 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             createdByUser = "user",
             version = 1
         )
+        val agreementId = UUID.randomUUID()
+        val agreement = ProductAgreementRegistration(
+            agreementId = agreementId,
+            hmsArtNr = "123",
+            post = 1,
+            rank = 1,
+            reference = "20-1423",
+            productId = registration.id,
+            supplierId = supplierId,
+            supplierRef = registration.supplierRef,
+            createdBy = "user",
+            title = "Test product agreement",
+            status = ProductAgreementStatus.ACTIVE
+        )
+        val agreement2 = ProductAgreementRegistration(
+            agreementId = agreementId,
+            hmsArtNr = "123",
+            post = 2,
+            rank = 2,
+            reference = "20-1423",
+            productId = registration.id,
+            supplierId = supplierId,
+            supplierRef = registration.supplierRef,
+            createdBy = "user",
+            title = "Test product agreement",
+            status = ProductAgreementStatus.ACTIVE
+        )
         runBlocking {
+            val savedAgreement = productAgreementRegistrationRepository.save(agreement)
+            val savedAgreement2 = productAgreementRegistrationRepository.save(agreement2)
+            val foundAgreement = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
+                agreement.supplierId, agreement.supplierRef, agreement.agreementId, agreement.post, agreement.rank)
+            foundAgreement.shouldNotBeNull()
             val saved  = productRegistrationRepository.save(registration)
             saved.shouldNotBeNull()
             val inDb = productRegistrationRepository.findById(saved.id)
             inDb.shouldNotBeNull()
+            inDb.agreements.size shouldBe 2
             saved.hmsArtNr shouldBe inDb.hmsArtNr
             val approve = inDb.approve("NAVN1")
             val updated = productRegistrationRepository.update(approve)

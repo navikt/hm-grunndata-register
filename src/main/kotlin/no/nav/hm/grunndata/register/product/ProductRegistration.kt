@@ -7,8 +7,6 @@ import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
-import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
-import no.nav.hm.grunndata.register.productagreement.toDTO
 import no.nav.hm.grunndata.register.productagreement.toInfo
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
@@ -90,7 +88,7 @@ data class ProductRegistrationDTO(
     val updatedBy: String = REGISTER,
     val createdByAdmin: Boolean = false,
     val productData: ProductData,
-    val agreements: List<ProductAgreementRegistrationDTO> = emptyList(),
+    val agreements: List<AgreementInfo> = emptyList(),
     val version: Long? = 0L
 ) : EventPayload {
     override fun toRapidDTO(): RapidDTO = ProductRegistrationRapidDTO(
@@ -134,7 +132,7 @@ data class ProductRegistrationDTO(
             updated = registration.updated,
             published = registration.published ?: LocalDateTime.now(),
             expired = registration.expired ?: LocalDateTime.now().plusYears(10),
-            agreements = registration.agreements.map { it.toInfo() },
+            agreements = registration.agreements,
             hasAgreement = registration.agreements.isNotEmpty(),
             createdBy = registration.createdBy,
             updatedBy = registration.updatedBy,
@@ -206,7 +204,8 @@ fun ProductRegistration.toDTO(): ProductRegistrationDTO = ProductRegistrationDTO
     createdByAdmin = createdByAdmin,
     productData = productData,
     isoCategory = isoCategory,
-    agreements = agreements.map { it.toDTO() },
+    agreements = agreements.map { it.toInfo() },
     version = version
 )
+
 

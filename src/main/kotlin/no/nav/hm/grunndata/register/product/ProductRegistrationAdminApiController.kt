@@ -114,7 +114,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
                     val dto = productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updated, isUpdate = true)
                     HttpResponse.ok(dto) }
                 ?: run {
-                    throw BadRequestException("Product registration already exists $id") }
+                    throw BadRequestException("Product registration does not exists $id") }
 
     @Delete("/{id}")
     suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
