@@ -57,14 +57,14 @@ open class ProductAgreementRegistrationService(
 
 
         alleVarianter.groupBy { it.post }.map { (post, produkterIPost) ->
-            produkterIPost.groupBy { it.title }.map { (tittel, varianter) ->
+            produkterIPost.groupBy { it.seriesId }.map { (_, varianter) ->
                 liste.add(
                     ProduktvarianterForDelkontrakterDTO(
                         delkontraktNr = post,
-                        produktTittel = tittel,
+                        produktTittel = varianter.first().title,
                         produktvarianter = varianter,
                         rangering = varianter.first().rank,
-                        produktserie = varianter.first().productId?.let { productRegistrationRepository.findById(it)?.seriesUUID }
+                        produktserie = varianter.first().seriesId
                     )
                 )
             }

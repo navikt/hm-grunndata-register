@@ -79,7 +79,7 @@ class ProductAgreementAdminController(
     suspend fun getProductVariantsByAgreementId(
         id: UUID,
         authentication: Authentication
-    ):  List<ProduktvarianterForDelkontrakterDTO> {
+    ): List<ProduktvarianterForDelkontrakterDTO> {
         LOG.info("Getting product variants for agreement {$id} by ${authentication.userId()}")
         return productAgreementRegistrationService.findGroupedProductVariantsByAgreementId(id)
     }
@@ -119,6 +119,8 @@ class ProductAgreementAdminController(
                 expired = agreement.expired,
                 hmsArtNr = product.hmsArtNr,
                 productId = product.id,
+                seriesId = product.seriesUUID,
+                articleName = product.articleName,
                 title = regDTO.title,
                 reference = agreement.reference
             ), isUpdate = false

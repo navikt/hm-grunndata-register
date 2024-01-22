@@ -8,7 +8,6 @@ import io.mockk.mockk
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
-import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierData
@@ -69,12 +68,14 @@ class AgreementExpirationTest(
             val productAgreement = ProductAgreementRegistrationDTO(
                 agreementId = agreement.id,
                 productId = UUID.randomUUID(),
+                seriesId = UUID.randomUUID(),
                 reference = agreement.reference,
                 published = agreement.published,
                 expired = agreement.expired,
                 post = 1,
                 rank = 1,
                 title = agreement.title,
+                articleName = agreement.title,
                 createdBy = "tester",
                 hmsArtNr = "12345",
                 supplierId = supplier.id,
@@ -84,12 +85,14 @@ class AgreementExpirationTest(
             val productAgreement2 = ProductAgreementRegistrationDTO(
                 agreementId = expired.id,
                 productId = UUID.randomUUID(),
+                seriesId = UUID.randomUUID(),
                 reference = expired.reference,
                 published = expired.published,
                 expired = expired.expired,
                 post = 1,
                 rank = 2,
                 title = expired.title,
+                articleName = expired.title,
                 createdBy = "tester",
                 hmsArtNr = "123456",
                 supplierId = supplier.id,
