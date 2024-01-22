@@ -37,7 +37,7 @@ data class ProductAgreementRegistration(
 )
 
 data class ProductAgreementRegistrationDTO(
-    override val id: UUID = UUID.randomUUID(),
+    override var id: UUID = UUID.randomUUID(),
     val productId: UUID?,
     val seriesId: UUID?,
     val title: String,

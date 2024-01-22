@@ -8,7 +8,15 @@ import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.KafkaRapid
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
-import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.AgreementStatus
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
+import no.nav.hm.grunndata.rapid.dto.ProductRapidDTO
+import no.nav.hm.grunndata.rapid.dto.ProductStatus
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
@@ -21,12 +29,14 @@ import org.slf4j.LoggerFactory
 
 @Context
 @Requires(bean = KafkaRapid::class)
-class ProductHMDBSyncRiver(river: RiverHead,
-                           private val objectMapper: ObjectMapper,
-                           private val productRegistrationRepository: ProductRegistrationRepository,
-                           private val seriesRegistrationService: SeriesRegistrationService,
-                           private val agreementRegistrationService: AgreementRegistrationService,
-                           private val productAgreementRegistrationService: ProductAgreementRegistrationService): River.PacketListener {
+class ProductHMDBSyncRiver(
+    river: RiverHead,
+    private val objectMapper: ObjectMapper,
+    private val productRegistrationRepository: ProductRegistrationRepository,
+    private val seriesRegistrationService: SeriesRegistrationService,
+    private val agreementRegistrationService: AgreementRegistrationService,
+    private val productAgreementRegistrationService: ProductAgreementRegistrationService
+) : River.PacketListener {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductHMDBSyncRiver::class.java)
@@ -34,7 +44,7 @@ class ProductHMDBSyncRiver(river: RiverHead,
 
     init {
         river
-            .validate { it .demandValue("createdBy", RapidApp.grunndata_db)}
+            .validate { it.demandValue("createdBy", RapidApp.grunndata_db) }
             .validate { it.demandAny("eventName", listOf(EventName.hmdbproductsyncV1)) }
             .validate { it.demandKey("payload") }
             .validate { it.demandKey("eventId") }
@@ -62,15 +72,28 @@ class ProductHMDBSyncRiver(river: RiverHead,
 
             } ?: productRegistrationRepository.save(
                 ProductRegistration(
-                    id = dto.id, isoCategory = dto.isoCategory, supplierId = dto.supplier.id, supplierRef = dto.supplierRef,
-                    seriesId = dto.seriesId!!, seriesUUID = dto.seriesUUID, registrationStatus = mapStatus(dto.status), adminStatus = mapAdminStatus(dto.status),
-                    createdBy = dto.createdBy, updatedBy = dto.updatedBy, created = dto.created, updated = dto.updated,
-                    draftStatus = DraftStatus.DONE, expired = dto.expired, hmsArtNr = dto.hmsArtNr,
-                    published = dto.published, title = dto.title, articleName = dto.articleName,
+                    id = dto.id,
+                    isoCategory = dto.isoCategory,
+                    supplierId = dto.supplier.id,
+                    supplierRef = dto.supplierRef,
+                    seriesId = dto.seriesId!!,
+                    seriesUUID = dto.seriesUUID,
+                    registrationStatus = mapStatus(dto.status),
+                    adminStatus = mapAdminStatus(dto.status),
+                    createdBy = dto.createdBy,
+                    updatedBy = dto.updatedBy,
+                    created = dto.created,
+                    updated = dto.updated,
+                    draftStatus = DraftStatus.DONE,
+                    expired = dto.expired,
+                    hmsArtNr = dto.hmsArtNr,
+                    published = dto.published,
+                    title = dto.title,
+                    articleName = dto.articleName,
                     productData = dto.toProductData()
                 )
             )
-            dto.seriesUUID?.let {uuid ->
+            dto.seriesUUID?.let { uuid ->
                 seriesRegistrationService.findById(uuid) ?: seriesRegistrationService.save(
                     SeriesRegistrationDTO(
                         id = uuid,
@@ -92,7 +115,31 @@ class ProductHMDBSyncRiver(river: RiverHead,
             dto.agreements.forEach { agreementInfo ->
                 agreementRegistrationService.findById(agreementInfo.id)?.let { agreement ->
                     productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
-                        dto.supplier.id, dto.supplierRef, agreementInfo.id, agreementInfo.postNr, agreementInfo.rank) ?: productAgreementRegistrationService.save(
+                        dto.supplier.id, dto.supplierRef, agreementInfo.id, agreementInfo.postNr, agreementInfo.rank
+                    )?.let { inDb ->
+                        productAgreementRegistrationService.update(
+                            inDb.copy(
+                                supplierId = dto.supplier.id,
+                                supplierRef = dto.supplierRef,
+                                productId = dto.id,
+                                seriesId = dto.seriesUUID,
+                                title = dto.title,
+                                articleName = dto.articleName,
+                                agreementId = agreement.id,
+                                hmsArtNr = dto.hmsArtNr,
+                                post = agreementInfo.postNr,
+                                rank = agreementInfo.rank,
+                                reference = agreement.reference,
+                                expired = agreement.expired,
+                                created = dto.created,
+                                updated = dto.updated,
+                                createdBy = dto.createdBy,
+                                published = agreement.published,
+                                status = if (agreement.agreementStatus == AgreementStatus.ACTIVE)
+                                    ProductAgreementStatus.ACTIVE else ProductAgreementStatus.INACTIVE
+                            )
+                        )
+                    } ?: productAgreementRegistrationService.save(
                         ProductAgreementRegistrationDTO(
                             supplierId = dto.supplier.id,
                             supplierRef = dto.supplierRef,
@@ -112,7 +159,8 @@ class ProductHMDBSyncRiver(river: RiverHead,
                             published = agreement.published,
                             status = if (agreement.agreementStatus == AgreementStatus.ACTIVE)
                                 ProductAgreementStatus.ACTIVE else ProductAgreementStatus.INACTIVE
-                    ))
+                        )
+                    )
                 }
             }
         }
