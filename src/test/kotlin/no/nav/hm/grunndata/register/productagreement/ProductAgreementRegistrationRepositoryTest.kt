@@ -27,7 +27,8 @@ class ProductAgreementRegistrationRepositoryTest(private val productAgreementReg
                     supplierRef = "TK1235-213",
                     createdBy = EXCEL,
                     title = "Test product agreement",
-                    status = ProductAgreementStatus.ACTIVE
+                    status = ProductAgreementStatus.ACTIVE,
+                    articleName = "Test article"
                 )
             )
 

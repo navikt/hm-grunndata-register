@@ -9,7 +9,7 @@ import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import no.nav.hm.grunndata.register.event.EventPayload
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 
 @MappedEntity("product_agreement_reg_v1")
@@ -17,7 +17,9 @@ data class ProductAgreementRegistration(
     @field:Id
     val id: UUID = UUID.randomUUID(),
     val productId: UUID? = null,
+    val seriesId: UUID? = null,
     val title: String,
+    val articleName: String?,
     val supplierId: UUID,
     val supplierRef: String,
     @field:Column(name = "hms_artnr")
@@ -37,7 +39,9 @@ data class ProductAgreementRegistration(
 data class ProductAgreementRegistrationDTO(
     override val id: UUID = UUID.randomUUID(),
     val productId: UUID?,
+    val seriesId: UUID?,
     val title: String,
+    val articleName: String?,
     val supplierId: UUID,
     val supplierRef: String,
     val hmsArtNr: String?,
@@ -68,7 +72,9 @@ fun ProductAgreementRegistrationDTO.toEntity(): ProductAgreementRegistration {
     return ProductAgreementRegistration(
         id = id,
         productId = productId,
+        seriesId = seriesId,
         title = title,
+        articleName = articleName,
         supplierId = supplierId,
         supplierRef = supplierRef,
         hmsArtNr = hmsArtNr,
@@ -89,7 +95,9 @@ fun ProductAgreementRegistration.toDTO(): ProductAgreementRegistrationDTO {
     return ProductAgreementRegistrationDTO(
         id = id,
         productId = productId,
+        seriesId = seriesId,
         title = title,
+        articleName = articleName,
         supplierId = supplierId,
         supplierRef = supplierRef,
         hmsArtNr = hmsArtNr,

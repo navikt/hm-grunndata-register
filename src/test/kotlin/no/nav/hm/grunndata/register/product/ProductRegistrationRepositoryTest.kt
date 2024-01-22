@@ -66,10 +66,12 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             rank = 1,
             reference = "20-1423",
             productId = registration.id,
+            seriesId = registration.seriesUUID,
             supplierId = supplierId,
             supplierRef = registration.supplierRef,
             createdBy = "user",
             title = "Test product agreement",
+            articleName = "Test article",
             status = ProductAgreementStatus.ACTIVE
         )
         val agreement2 = ProductAgreementRegistration(
@@ -79,10 +81,12 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             rank = 2,
             reference = "20-1423",
             productId = registration.id,
+            seriesId = registration.seriesUUID,
             supplierId = supplierId,
             supplierRef = registration.supplierRef,
             createdBy = "user",
             title = "Test product agreement",
+            articleName = "Test article",
             status = ProductAgreementStatus.ACTIVE
         )
         val agreement3 = ProductAgreementRegistration(
@@ -92,10 +96,12 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             rank = 3,
             reference = "20-1423",
             productId = UUID.randomUUID(),
+            seriesId = UUID.randomUUID(),
             supplierId = supplierId,
             supplierRef = "eksternref-1234",
             createdBy = "user",
             title = "Test product agreement",
+            articleName = "Test article",
             status = ProductAgreementStatus.ACTIVE
         )
         runBlocking {
