@@ -17,7 +17,7 @@ data class ProductAgreementRegistration(
     @field:Id
     val id: UUID = UUID.randomUUID(),
     val productId: UUID? = null,
-    val seriesId: UUID? = null,
+    val seriesId: String? = null,
     val title: String,
     val articleName: String?,
     val supplierId: UUID,
@@ -37,9 +37,9 @@ data class ProductAgreementRegistration(
 )
 
 data class ProductAgreementRegistrationDTO(
-    override var id: UUID = UUID.randomUUID(),
+    override val id: UUID = UUID.randomUUID(),
     val productId: UUID?,
-    val seriesId: UUID?,
+    val seriesId: String?,
     val title: String,
     val articleName: String?,
     val supplierId: UUID,

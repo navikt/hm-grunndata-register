@@ -106,6 +106,6 @@ data class ProduktvarianterForDelkontrakterDTO(
     val delkontraktNr: Int,
     val produktTittel: String,
     val rangering: Int,
-    val produktserie: UUID?,
+    val produktserie: String?,
     val produktvarianter: List<ProductAgreementRegistrationDTO>
 )

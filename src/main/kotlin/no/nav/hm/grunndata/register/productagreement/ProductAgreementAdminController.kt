@@ -119,7 +119,7 @@ class ProductAgreementAdminController(
                 expired = agreement.expired,
                 hmsArtNr = product.hmsArtNr,
                 productId = product.id,
-                seriesId = product.seriesUUID,
+                seriesId = product.seriesId,
                 articleName = product.articleName,
                 title = regDTO.title,
                 reference = agreement.reference

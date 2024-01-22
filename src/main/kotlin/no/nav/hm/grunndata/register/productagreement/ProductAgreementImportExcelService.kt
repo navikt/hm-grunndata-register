@@ -55,7 +55,7 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
             agreementId = agreement.id,
             supplierRef = supplierRef,
             productId = product?.id,
-            seriesId = product?.seriesUUID,
+            seriesId = product?.seriesId,
             title = title,
             articleName = product?.articleName,
             reference = reference,
