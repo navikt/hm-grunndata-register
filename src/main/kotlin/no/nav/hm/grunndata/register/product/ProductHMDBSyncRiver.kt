@@ -8,7 +8,15 @@ import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.KafkaRapid
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
-import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.AgreementStatus
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
+import no.nav.hm.grunndata.rapid.dto.ProductRapidDTO
+import no.nav.hm.grunndata.rapid.dto.ProductStatus
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
@@ -50,6 +58,8 @@ class ProductHMDBSyncRiver(
         val dtoVersion = packet["dtoVersion"].asLong()
         if (dtoVersion > rapidDTOVersion) LOG.warn("dto version $dtoVersion is newer than $rapidDTOVersion")
         val dto = objectMapper.treeToValue(packet["payload"], ProductRapidDTO::class.java)
+        LOG.info("syncing product ${dto.id} with eventId $eventId, seriesUUID = ${dto.seriesUUID}, seriesId = ${dto.seriesId}")
+        LOG.info("Detailed event info: ${packet.toJson()}")
         runBlocking {
             productRegistrationRepository.findById(dto.id)?.let { inDb ->
                 productRegistrationRepository.update(
@@ -114,7 +124,7 @@ class ProductHMDBSyncRiver(
                                 supplierId = dto.supplier.id,
                                 supplierRef = dto.supplierRef,
                                 productId = dto.id,
-                                seriesId =series?.id.toString(),
+                                seriesId = series?.id.toString(),
                                 title = dto.title,
                                 articleName = dto.articleName,
                                 agreementId = agreement.id,
