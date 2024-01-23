@@ -26,6 +26,6 @@ jobs:
       JAVA_VERSION: 17
       TEAM: "teamdigihot"
       CODEQL_ENABLED: false
-      DRAFTS_MAX: 2
+      DRAFTS_MAX: 3
     secrets:
       NAIS_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
