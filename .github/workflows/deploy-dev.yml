@@ -19,12 +19,13 @@ jobs:
       id-token: write
       security-events: write
       actions: read
-    uses: navikt/pam-deploy/.github/workflows/deploy-dev.yml@v6
+    uses: navikt/pam-deploy/.github/workflows/deploy-dev.yml@v7
     with:
       NAIS_RESOURCE: ".nais/nais.yml"
       NAIS_VARS: ".nais/nais-dev.json"
       JAVA_VERSION: 17
       TEAM: "teamdigihot"
       CODEQL_ENABLED: false
+      DRAFTS_MAX: 2
     secrets:
       NAIS_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
