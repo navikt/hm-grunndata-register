@@ -57,14 +57,14 @@ open class ProductAgreementRegistrationService(
 
 
         alleVarianter.groupBy { it.post }.map { (post, produkterIPost) ->
-            produkterIPost.groupBy { it.seriesId }.map { (_, varianter) ->
+            produkterIPost.groupBy { it.seriesUuid }.map { (_, varianter) ->
                 liste.add(
                     ProduktvarianterForDelkontrakterDTO(
                         delkontraktNr = post,
                         produktTittel = varianter.first().title,
                         produktvarianter = varianter,
                         rangering = varianter.first().rank,
-                        produktserie = varianter.first().seriesId
+                        produktserie = varianter.first().seriesUuid
                     )
                 )
             }
@@ -106,6 +106,6 @@ data class ProduktvarianterForDelkontrakterDTO(
     val delkontraktNr: Int,
     val produktTittel: String,
     val rangering: Int,
-    val produktserie: String?,
+    val produktserie: UUID?,
     val produktvarianter: List<ProductAgreementRegistrationDTO>
 )
