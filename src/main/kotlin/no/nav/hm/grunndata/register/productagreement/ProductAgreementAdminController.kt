@@ -127,6 +127,22 @@ class ProductAgreementAdminController(
         )
     }
 
+    @Post(
+        value = "/batch",
+        consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
+    )
+    suspend fun createProductAgreements(
+        @Body regDTOs: List<ProductAgreementRegistrationDTO>,
+        authentication: Authentication
+    ): List<ProductAgreementRegistrationDTO> {
+        LOG.info("Creating ${regDTOs.size} product agreements by ${authentication.userId()}")
+        val lagrede = productAgreementRegistrationService.saveAll(
+            regDTOs
+        )
+        return lagrede
+    }
+
     @Delete("/{id}")
     suspend fun deleteProductAgreementById(id: UUID, authentication: Authentication) {
         LOG.info("deleting product agreement: $id by ${authentication.userId()}")
