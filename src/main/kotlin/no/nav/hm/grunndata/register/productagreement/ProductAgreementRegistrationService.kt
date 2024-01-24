@@ -4,15 +4,20 @@ import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
+import java.time.LocalDateTime
 import java.util.*
 
 
 @Singleton
 open class ProductAgreementRegistrationService(
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
-    private val productAgreementRegistrationHandler: ProductAgreementRegistrationEventHandler,
-    private val productRegistrationRepository: ProductRegistrationRepository
+    private val productRegistrationRepository: ProductRegistrationRepository,
+    private val productAgreementRegistrationHandler: ProductAgreementRegistrationEventHandler
 ) {
+
+    companion object {
+        private val LOG = org.slf4j.LoggerFactory.getLogger(ProductAgreementRegistrationService::class.java)
+    }
 
     @Transactional
     open suspend fun saveAll(dtos: List<ProductAgreementRegistrationDTO>): List<ProductAgreementRegistrationDTO> =
@@ -100,8 +105,18 @@ open class ProductAgreementRegistrationService(
         return productAgreementRegistrationRepository.update(dto.toEntity()).toDTO()
     }
 
-    open suspend fun findProductAgreementWithNoConnection(): List<ProductAgreementRegistrationDTO> =
-        productAgreementRegistrationRepository.findByProductIdIsNull().map { it.toDTO() }
+
+
+    open suspend fun connectProductAgreementToProduct() {
+        val productAgreementList = productAgreementRegistrationRepository.findByProductIdIsNull()
+        LOG.info("Found product agreements with no connection: ${productAgreementList.size}")
+        productAgreementList.forEach {
+            productRegistrationRepository.findBySupplierRefAndSupplierId(it.supplierRef, it.supplierId)?.let { product ->
+                LOG.info("Found product ${product.id} with supplierRef: ${it.supplierRef} and supplierId: ${it.supplierId}")
+               productAgreementRegistrationRepository.update(it.copy(productId = product.id, updated = LocalDateTime.now()))
+            }
+        }
+    }
 
 }
 
