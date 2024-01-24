@@ -100,6 +100,9 @@ open class ProductAgreementRegistrationService(
         return productAgreementRegistrationRepository.update(dto.toEntity()).toDTO()
     }
 
+    open suspend fun findProductAgreementWithNoConnection(): List<ProductAgreementRegistrationDTO> =
+        productAgreementRegistrationRepository.findByProductIdIsNull().map { it.toDTO() }
+
 }
 
 data class ProduktvarianterForDelkontrakterDTO(

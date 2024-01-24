@@ -195,7 +195,7 @@ fun ProductRegistration.toDTO(): ProductRegistrationDTO = ProductRegistrationDTO
     seriesId = seriesId,
     seriesUUID = seriesUUID,
     supplierRef = supplierRef,
-    hmsArtNr = hmsArtNr,
+    hmsArtNr = if (agreements.isNotEmpty() && agreements[0].hmsArtNr != null) agreements[0].hmsArtNr else hmsArtNr,
     title = title,
     articleName = articleName,
     draftStatus = draftStatus,
