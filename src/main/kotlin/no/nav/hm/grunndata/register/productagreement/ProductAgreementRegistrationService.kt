@@ -2,10 +2,12 @@ package no.nav.hm.grunndata.register.productagreement
 
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import java.time.LocalDateTime
 import java.util.*
+import java.util.UUID
 
 
 @Singleton
@@ -56,7 +58,10 @@ open class ProductAgreementRegistrationService(
         productAgreementRegistrationRepository.findByAgreementId(agreementId).map { it.toDTO() }
 
     suspend fun findGroupedProductVariantsByAgreementId(agreementId: UUID): List<ProduktvarianterForDelkontrakterDTO> {
-        val alleVarianter = productAgreementRegistrationRepository.findByAgreementId(agreementId).map { it.toDTO() }
+        val alleVarianter = productAgreementRegistrationRepository.findByAgreementIdAndStatus(
+            agreementId,
+            ProductAgreementStatus.ACTIVE
+        ).map { it.toDTO() }
 
         val liste = mutableListOf<ProduktvarianterForDelkontrakterDTO>()
 
@@ -96,7 +101,10 @@ open class ProductAgreementRegistrationService(
     ): ProductAgreementRegistrationDTO {
         val saved = if (isUpdate) update(dto) else save(dto)
         if (dto.productId != null) {
-            productAgreementRegistrationHandler.queueDTORapidEvent(saved, eventName = EventName.registeredProductAgreementV1)
+            productAgreementRegistrationHandler.queueDTORapidEvent(
+                saved,
+                eventName = EventName.registeredProductAgreementV1
+            )
         }
         return saved
     }

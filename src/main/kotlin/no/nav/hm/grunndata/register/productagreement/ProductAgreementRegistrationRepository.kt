@@ -4,6 +4,7 @@ import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import java.util.*
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
@@ -27,5 +28,7 @@ interface ProductAgreementRegistrationRepository : CoroutineCrudRepository<Produ
 
     suspend fun findByAgreementId(agreementId: UUID): List<ProductAgreementRegistration>
     suspend fun findByProductIdIsNull(): List<ProductAgreementRegistration>
+
+    suspend fun findByAgreementIdAndStatus(agreementId: UUID, status: ProductAgreementStatus): List<ProductAgreementRegistration>
 
 }
