@@ -6,7 +6,6 @@ import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import java.time.LocalDateTime
-import java.util.*
 import java.util.UUID
 
 
@@ -33,6 +32,19 @@ open class ProductAgreementRegistrationService(
             ) ?: saveAndCreateEvent(productAgreement, false)
         }
 
+    @Transactional
+    open suspend fun saveAllV2(dtos: List<ProductAgreementRegistrationDTO>): List<ProductAgreementRegistrationDTO> =
+        dtos.map { productAgreement ->
+            findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRankAndStatus(
+                productAgreement.supplierId,
+                productAgreement.supplierRef,
+                productAgreement.agreementId,
+                productAgreement.post,
+                productAgreement.rank,
+                productAgreement.status
+            ) ?: saveAndCreateEvent(productAgreement, false)
+        }
+
 
     suspend fun save(dto: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO =
         productAgreementRegistrationRepository.save(dto.toEntity()).toDTO()
@@ -42,6 +54,13 @@ open class ProductAgreementRegistrationService(
     ): ProductAgreementRegistrationDTO? =
         productAgreementRegistrationRepository.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
             supplierId, supplierRef, agreementId, post, rank
+        )?.toDTO()
+
+    suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRankAndStatus(
+        supplierId: UUID, supplierRef: String, agreementId: UUID, post: Int, rank: Int, status: ProductAgreementStatus
+    ): ProductAgreementRegistrationDTO? =
+        productAgreementRegistrationRepository.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRankAndStatus(
+            supplierId, supplierRef, agreementId, post, rank, status
         )?.toDTO()
 
     suspend fun findBySupplierIdAndSupplierRef(
@@ -114,15 +133,20 @@ open class ProductAgreementRegistrationService(
     }
 
 
-
     open suspend fun connectProductAgreementToProduct() {
         val productAgreementList = productAgreementRegistrationRepository.findByProductIdIsNull()
         LOG.info("Found product agreements with no connection: ${productAgreementList.size}")
         productAgreementList.forEach {
-            productRegistrationRepository.findBySupplierRefAndSupplierId(it.supplierRef, it.supplierId)?.let { product ->
-                LOG.info("Found product ${product.id} with supplierRef: ${it.supplierRef} and supplierId: ${it.supplierId}")
-               productAgreementRegistrationRepository.update(it.copy(productId = product.id, updated = LocalDateTime.now()))
-            }
+            productRegistrationRepository.findBySupplierRefAndSupplierId(it.supplierRef, it.supplierId)
+                ?.let { product ->
+                    LOG.info("Found product ${product.id} with supplierRef: ${it.supplierRef} and supplierId: ${it.supplierId}")
+                    productAgreementRegistrationRepository.update(
+                        it.copy(
+                            productId = product.id,
+                            updated = LocalDateTime.now()
+                        )
+                    )
+                }
         }
     }
 

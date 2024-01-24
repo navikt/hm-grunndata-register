@@ -6,7 +6,14 @@ import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.annotation.*
+import io.micronaut.http.annotation.Body
+import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
+import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.PathVariable
+import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Put
+import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.rapid.dto.AgreementAttachment
@@ -18,7 +25,7 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(AgreementRegistrationAdminApiController.API_V1_ADMIN_AGREEMENT_REGISTRATIONS)
@@ -67,6 +74,20 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                 it.agreementData.posts.find { post -> post.identifier == delkontraktId }
                     ?.let { post -> HttpResponse.ok(post) }
                     ?: HttpResponse.notFound()
+            }
+            ?: HttpResponse.notFound()
+
+    @Delete("/{id}/delkontrakt/{delkontraktId}")
+    suspend fun deleteDelkontraktById(id: UUID, delkontraktId: String) =
+        agreementRegistrationService.findById(id)
+            ?.let { inDb ->
+                val updated = inDb.copy(
+                    agreementData = inDb.agreementData.copy(
+                        posts = inDb.agreementData.posts.filter { post -> post.identifier != delkontraktId },
+                    ),
+                )
+                val dto = agreementRegistrationService.saveAndCreateEventIfNotDraft(updated, isUpdate = true)
+                HttpResponse.ok(dto)
             }
             ?: HttpResponse.notFound()
 

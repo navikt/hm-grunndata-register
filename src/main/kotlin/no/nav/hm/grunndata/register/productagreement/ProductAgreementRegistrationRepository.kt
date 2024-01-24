@@ -20,6 +20,15 @@ interface ProductAgreementRegistrationRepository : CoroutineCrudRepository<Produ
         rank: Int
     ): ProductAgreementRegistration?
 
+    suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRankAndStatus(
+        supplierId: UUID,
+        supplierRef: String,
+        agreementId: UUID,
+        post: Int,
+        rank: Int,
+        status: ProductAgreementStatus
+    ): ProductAgreementRegistration?
+
     suspend fun findBySupplierIdAndSupplierRef(
         supplierId: UUID,
         supplierRef: String
