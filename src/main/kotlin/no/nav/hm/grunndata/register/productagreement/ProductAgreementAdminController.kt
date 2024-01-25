@@ -137,7 +137,7 @@ class ProductAgreementAdminController(
         authentication: Authentication
     ): List<ProductAgreementRegistrationDTO> {
         LOG.info("Creating ${regDTOs.size} product agreements by ${authentication.userId()}")
-        val lagrede = productAgreementRegistrationService.saveAllV2(
+        val lagrede = productAgreementRegistrationService.saveOrUpdateAll(
             regDTOs
         )
         return lagrede
