@@ -91,6 +91,8 @@ fun ProductAgreementRegistrationDTO.toEntity(): ProductAgreementRegistration {
     )
 }
 
+fun List<ProductAgreementRegistrationDTO>.toEntity(): List<ProductAgreementRegistration> = map { it.toEntity() }
+
 fun ProductAgreementRegistration.toDTO(): ProductAgreementRegistrationDTO {
     return ProductAgreementRegistrationDTO(
         id = id,

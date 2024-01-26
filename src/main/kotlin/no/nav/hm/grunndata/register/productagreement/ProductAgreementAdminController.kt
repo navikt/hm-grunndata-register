@@ -5,6 +5,7 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
@@ -150,6 +151,22 @@ class ProductAgreementAdminController(
         authentication: Authentication
     ): List<ProductAgreementRegistrationDTO> {
         LOG.info("Creating ${regDTOs.size} product agreements by ${authentication.userId()}")
+        val lagrede = productAgreementRegistrationService.saveOrUpdateAll(
+            regDTOs
+        )
+        return lagrede
+    }
+
+    @Put(
+        value = "/batch",
+        consumes = [io.micronaut.http.MediaType.APPLICATION_JSON],
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
+    )
+    suspend fun updateProductAgreements(
+        @Body regDTOs: List<ProductAgreementRegistrationDTO>,
+        authentication: Authentication
+    ): List<ProductAgreementRegistrationDTO> {
+        LOG.info("Updating ${regDTOs.size} product agreements by ${authentication.userId()}")
         val lagrede = productAgreementRegistrationService.saveOrUpdateAll(
             regDTOs
         )
