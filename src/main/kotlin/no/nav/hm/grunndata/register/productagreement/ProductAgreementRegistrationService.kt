@@ -61,6 +61,28 @@ open class ProductAgreementRegistrationService(
             } ?: saveAndCreateEvent(productAgreement, false)
         }
 
+    @Transactional
+    open suspend fun updateAll(dtos: List<ProductAgreementRegistrationDTO>): List<ProductAgreementRegistrationDTO> =
+        dtos.map { productAgreement ->
+            findById(
+                productAgreement.id
+            )?.let { inDb ->
+                update(
+                    inDb.copy(
+                        productId = productAgreement.productId,
+                        seriesUuid = productAgreement.seriesUuid,
+                        title = productAgreement.title,
+                        articleName = productAgreement.articleName,
+                        hmsArtNr = productAgreement.hmsArtNr,
+                        reference = productAgreement.reference,
+                        status = productAgreement.status,
+                        updated = LocalDateTime.now(),
+                        published = productAgreement.published,
+                        expired = productAgreement.expired
+                    )
+                )
+            } ?: throw RuntimeException("Product agreement not found")
+        }
 
     suspend fun save(dto: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO =
         productAgreementRegistrationRepository.save(dto.toEntity()).toDTO()
