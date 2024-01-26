@@ -72,7 +72,7 @@ class ProductAgreementAdminController(
     }
 
     @Post(
-        value = "/",
+        value = "/get-by-ids",
         consumes = [io.micronaut.http.MediaType.APPLICATION_JSON],
         produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
     )
