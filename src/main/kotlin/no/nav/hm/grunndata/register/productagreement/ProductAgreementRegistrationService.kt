@@ -78,7 +78,8 @@ open class ProductAgreementRegistrationService(
                         status = productAgreement.status,
                         updated = LocalDateTime.now(),
                         published = productAgreement.published,
-                        expired = productAgreement.expired
+                        expired = productAgreement.expired,
+                        rank = productAgreement.rank
                     )
                 )
             } ?: throw RuntimeException("Product agreement not found")
