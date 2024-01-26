@@ -70,6 +70,19 @@ class ProductAgreementAdminController(
         return productAgreementRegistrationService.findByAgreementId(id)
     }
 
+    @Get(
+        value = "/",
+        consumes = [io.micronaut.http.MediaType.APPLICATION_JSON],
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
+    )
+    suspend fun getProductsAgreementsByIds(
+        @Body ids: List<UUID>,
+        authentication: Authentication
+    ): List<ProductAgreementRegistrationDTO> {
+        LOG.info("Getting productsAgreements by ${authentication.userId()}")
+        return productAgreementRegistrationService.findAllByIds(ids)
+    }
+
 
     @Get(
         value = "/variants/{id}",

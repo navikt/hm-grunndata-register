@@ -114,6 +114,8 @@ fun ProductAgreementRegistration.toDTO(): ProductAgreementRegistrationDTO {
     )
 }
 
+fun List<ProductAgreementRegistration>.toDTO(): List<ProductAgreementRegistrationDTO> = map { it.toDTO() }
+
 fun ProductAgreementRegistration.toInfo() = AgreementInfo(
     id = agreementId, reference = reference, postNr = post, rank = rank, expired = expired
 )
