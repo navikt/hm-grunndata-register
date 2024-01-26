@@ -71,7 +71,7 @@ class ProductAgreementAdminController(
         return productAgreementRegistrationService.findByAgreementId(id)
     }
 
-    @Get(
+    @Post(
         value = "/",
         consumes = [io.micronaut.http.MediaType.APPLICATION_JSON],
         produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
