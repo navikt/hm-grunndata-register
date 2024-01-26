@@ -99,7 +99,7 @@ open class ProductAgreementRegistrationService(
                 liste.add(
                     ProduktvarianterForDelkontrakterDTO(
                         delkontraktNr = post,
-                        produktTittel = seriesInfo?.identifier ?: "Ikke tilknyttet serie",
+                        produktTittel = seriesInfo?.title ?: "",
                         produktvarianter = varianter,
                         rangering = varianter.first().rank,
                         produktserie = seriesUuid,
