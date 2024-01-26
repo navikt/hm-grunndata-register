@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
+import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -13,6 +14,7 @@ import java.util.UUID
 open class ProductAgreementRegistrationService(
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
     private val productRegistrationRepository: ProductRegistrationRepository,
+    private val seriesRegistrationRepository: SeriesRegistrationRepository,
     private val productAgreementRegistrationHandler: ProductAgreementRegistrationEventHandler
 ) {
 
@@ -91,16 +93,17 @@ open class ProductAgreementRegistrationService(
 
         val liste = mutableListOf<ProduktvarianterForDelkontrakterDTO>()
 
-
         alleVarianter.groupBy { it.post }.map { (post, produkterIPost) ->
-            produkterIPost.groupBy { it.seriesUuid }.map { (_, varianter) ->
+            produkterIPost.groupBy { it.seriesUuid }.map { (seriesUuid, varianter) ->
+                val seriesInfo = seriesUuid?.let { seriesRegistrationRepository.findById(it) }
                 liste.add(
                     ProduktvarianterForDelkontrakterDTO(
                         delkontraktNr = post,
-                        produktTittel = varianter.first().title,
+                        produktTittel = seriesInfo?.identifier ?: "Ikke tilknyttet serie",
                         produktvarianter = varianter,
                         rangering = varianter.first().rank,
-                        produktserie = varianter.first().seriesUuid
+                        produktserie = seriesUuid,
+                        serieIdentifier = seriesInfo?.identifier
                     )
                 )
             }
@@ -164,5 +167,6 @@ data class ProduktvarianterForDelkontrakterDTO(
     val produktTittel: String,
     val rangering: Int,
     val produktserie: UUID?,
+    val serieIdentifier: String?,
     val produktvarianter: List<ProductAgreementRegistrationDTO>
 )
