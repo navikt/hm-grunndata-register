@@ -1,8 +1,6 @@
 package no.nav.hm.grunndata.register.event
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.micronaut.context.event.ApplicationEventListener
-import io.micronaut.context.event.BeanCreatedEvent
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import java.time.LocalDateTime
@@ -12,7 +10,7 @@ import java.util.*
 open class EventItemService(
     private val eventItemRepository: EventItemRepository,
     private val objectMapper: ObjectMapper
-) : ApplicationEventListener<BeanCreatedEvent<EventHandler>> {
+) {
 
     companion object {
         private val LOG = org.slf4j.LoggerFactory.getLogger(EventItemService::class.java)
@@ -63,11 +61,9 @@ open class EventItemService(
         }
     }
 
-    override fun onApplicationEvent(eventBean: BeanCreatedEvent<EventHandler>) {
-        eventBean.bean.getEventType().let {
-            LOG.info("Detected EventHandler for type: $it")
-            eventHandlers[it] = eventBean.bean
-        }
+    fun addEventHandler(bean: EventHandler) {
+        eventHandlers[bean.getEventType()] = bean
     }
+
 
 }
