@@ -49,6 +49,7 @@ class TechLabelRegistrationAdminApiTest(private val client: TechLabelRegistratio
             isoCode = "09070601",
             type = "N",
             unit = "cm",
+            sort = 1,
             createdByUser = "tester",
             updatedByUser = "tester",
         )
