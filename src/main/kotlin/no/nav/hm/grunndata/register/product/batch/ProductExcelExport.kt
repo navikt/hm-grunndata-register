@@ -4,7 +4,6 @@ import jakarta.inject.Singleton
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
 import no.nav.hm.grunndata.register.techlabel.LabelService
 import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
-import org.apache.commons.io.output.ByteArrayOutputStream
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -24,9 +23,8 @@ class ProductExcelExport(private val labelService: LabelService) {
         "Delkontrakt",
         "Rangering")
 
-    fun createWorkbookToOutputStream(products: List<ProductRegistrationDTO>, outputStream: OutputStream){
+    fun createWorkbookToOutputStream(products: List<ProductRegistrationDTO>, out: OutputStream){
         val workbook = createWorkbook(products)
-        val out = ByteArrayOutputStream()
         workbook.write(out)
     }
 
