@@ -15,9 +15,11 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.product.batch.ProductExcelExport
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.series.SeriesGroupDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
+import org.apache.commons.io.output.ByteArrayOutputStream
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
@@ -25,7 +27,9 @@ import java.util.*
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
 class ProductRegistrationAdminApiController(private val productRegistrationService: ProductRegistrationService,
-                                            private val supplierRegistrationService: SupplierRegistrationService) {
+                                            private val supplierRegistrationService: SupplierRegistrationService,
+                                            private val export: ProductExcelExport
+) {
 
     companion object {
         const val API_V1_ADMIN_PRODUCT_REGISTRATIONS = "/admin/api/v1/product/registrations"
@@ -159,6 +163,14 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
             HttpResponse.ok(dto)
         }?: HttpResponse.notFound()
 
+    @Post("/export")
+    suspend fun createExport(@Body uuids: List<UUID>, authentication: Authentication): HttpResponse<ByteArrayOutputStream> {
+        val products = uuids.map { productRegistrationService.findById(it)}.filterNotNull()
+        return ByteArrayOutputStream().use {
+            export.createWorkbookToOutputStream(products, it)
+            HttpResponse.ok(it)
+        }
+    }
 }
 
 fun Authentication.isAdmin(): Boolean  = roles.contains(Roles.ROLE_ADMIN)
