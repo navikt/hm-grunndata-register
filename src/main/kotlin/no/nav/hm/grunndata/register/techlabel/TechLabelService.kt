@@ -6,7 +6,7 @@ import no.nav.hm.grunndata.register.gdb.GdbApiClient
 import org.slf4j.LoggerFactory
 
 @Singleton
-class TechLabelService(private val gdbApiClient: GdbApiClient) {
+class TechLabelService(private val gdbApiClient: GdbApiClient): LabelService {
 
     private var techLabelsByIso: Map<String, List<TechLabelDTO>>
 
@@ -26,14 +26,14 @@ class TechLabelService(private val gdbApiClient: GdbApiClient) {
         }
     }
 
-    fun fetchLabelsByIsoCode(isocode: String): List<TechLabelDTO>? {
-        return if (isocode.length == 6) techLabelsByIso[isocode]
+    override fun fetchLabelsByIsoCode(isocode: String): List<TechLabelDTO> {
+        return if (isocode.length == 6) techLabelsByIso[isocode]?: emptyList()
         else return techLabelsByIso[isocode.substring(0, 6)]?.plus(techLabelsByIso[isocode]?: emptyList())
-            ?.distinctBy { it.label }
+            ?.distinctBy { it.label }?: emptyList()
     }
 
-    fun fetchLabelsByName(name: String): List<TechLabelDTO>? = techLabelsByName[name]
+    override fun fetchLabelsByName(name: String): List<TechLabelDTO>? = techLabelsByName[name]
 
-    fun fetchAllLabels(): Map<String, List<TechLabelDTO>> = techLabelsByIso
+    override fun fetchAllLabels(): Map<String, List<TechLabelDTO>> = techLabelsByIso
 
 }
