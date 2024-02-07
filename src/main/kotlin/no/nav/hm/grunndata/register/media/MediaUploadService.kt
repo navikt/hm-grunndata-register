@@ -5,7 +5,7 @@ import io.micronaut.http.multipart.CompletedFileUpload
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 @Singleton
 class MediaUploadService(private val mediaUploadClient: MediaUploadClient) {
@@ -18,7 +18,7 @@ class MediaUploadService(private val mediaUploadClient: MediaUploadClient) {
         val type = getMediaType(file)
         if (type == MediaType.OTHER) throw UknownMediaSource("only png, jpg, pdf is supported")
         val body = MultipartBody.builder().addPart(
-            "file", file.filename,
+            file.filename, file.filename,
             io.micronaut.http.MediaType.MULTIPART_FORM_DATA_TYPE, file.bytes
         ).build()
         LOG.info("upload media ${file.filename} for $oid")
@@ -26,7 +26,7 @@ class MediaUploadService(private val mediaUploadClient: MediaUploadClient) {
     }
 
     suspend fun getMediaList(oid: UUID): List<MediaDTO> = mediaUploadClient.getMediaList(oid)
-        .filter { it.status == "ACTIVE" || it.status == "INACTIVE"  }
+        .filter { it.status == "ACTIVE" || it.status == "INACTIVE" }
 
     suspend fun deleteByOidAndUri(oid: UUID, uri: String): MediaDTO? = mediaUploadClient.deleteByOidAndUri(oid, uri)
 
