@@ -16,7 +16,6 @@ import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import no.nav.hm.grunndata.rapid.dto.AgreementAttachment
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
@@ -128,7 +127,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                     resume = "kort beskrivelse",
                     text = "rammeavtale tekst her",
                     identifier = UUID.randomUUID().toString(),
-                    attachments = listOf(AgreementAttachment(title = null, description = null, media = emptyList())),
+                    attachments = emptyList(),
                     posts = emptyList(),
                 ),
             )
@@ -158,7 +157,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                     resume = "kort beskrivelse",
                     text = "rammeavtaletekst her",
                     identifier = UUID.randomUUID().toString(),
-                    attachments = listOf(AgreementAttachment(title = null, description = null, media = emptyList())),
+                    attachments = emptyList(),
                     posts = emptyList(),
                 ),
             )
