@@ -10,21 +10,24 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-
-import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.product.batch.ProductExcelExport
 import no.nav.hm.grunndata.register.security.Roles
-
 import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesGroupDTO
+import org.apache.commons.io.output.ByteArrayOutputStream
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS)
-class ProductRegistrationApiController(private val productRegistrationService: ProductRegistrationService) {
+class ProductRegistrationApiController(private val productRegistrationService: ProductRegistrationService,
+                                       private val export: ProductExcelExport) {
 
     companion object {
         const val API_V1_PRODUCT_REGISTRATIONS = "/vendor/api/v1/product/registrations"
@@ -135,6 +138,20 @@ class ProductRegistrationApiController(private val productRegistrationService: P
         } catch (e: Exception) {
             LOG.error("Got exception while creating variant ${draftVariant.supplierRef}", e)
             throw BadRequestException("Could not create variant for ${draftVariant.supplierRef}, already exists")
+        }
+    }
+
+    @Post("/export")
+    suspend fun createExport(@Body uuids: List<UUID>, authentication: Authentication): HttpResponse<ByteArrayOutputStream> {
+        val products = uuids.map { productRegistrationService.findById(it)}.filterNotNull()
+        products.forEach {
+            if (it.supplierId != authentication.supplierId()) {
+                throw BadRequestException("Unauthorized access to product ${it.id}")
+            }
+        }
+        return ByteArrayOutputStream().use {
+            export.createWorkbookToOutputStream(products, it)
+            HttpResponse.ok(it)
         }
     }
 }

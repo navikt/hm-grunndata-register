@@ -4,12 +4,14 @@ import jakarta.inject.Singleton
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
 import no.nav.hm.grunndata.register.techlabel.LabelService
 import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
+import org.apache.commons.io.output.ByteArrayOutputStream
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import java.io.OutputStream
 
 @Singleton
-class ExcelExport(private val labelService: LabelService) {
+class ProductExcelExport(private val labelService: LabelService) {
 
     val headerTitle = listOf(
         "Produktserie id",
@@ -21,6 +23,12 @@ class ExcelExport(private val labelService: LabelService) {
         "Leverandør-id",
         "Delkontrakt",
         "Rangering")
+
+    fun createWorkbookToOutputStream(products: List<ProductRegistrationDTO>, outputStream: OutputStream){
+        val workbook = createWorkbook(products)
+        val out = ByteArrayOutputStream()
+        workbook.write(out)
+    }
 
     fun createWorkbook(products: List<ProductRegistrationDTO>): XSSFWorkbook {
         val isoGroups = products.groupBy { it.isoCategory }
@@ -70,5 +78,6 @@ class ExcelExport(private val labelService: LabelService) {
             }
         }
     }
+
 
 }

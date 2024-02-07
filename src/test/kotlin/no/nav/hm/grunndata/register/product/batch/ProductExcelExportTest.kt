@@ -26,8 +26,8 @@ import java.io.FileOutputStream
 import java.util.*
 
 @MicronautTest
-class ExcelExportTest(
-    private val excelExport: ExcelExport,
+class ProductExcelExportTest(
+    private val productExcelExport: ProductExcelExport,
     private val supplierRepository: SupplierRepository,
     private val userRepository: UserRepository,
     private val objectMapper: ObjectMapper
@@ -215,7 +215,7 @@ class ExcelExportTest(
             createdBy = REGISTER,
             updatedBy = REGISTER
         )
-        writeWorkBook(excelExport.createWorkbook(listOf(registration)))
+        writeWorkBook(productExcelExport.createWorkbook(listOf(registration)))
     }
 
 
