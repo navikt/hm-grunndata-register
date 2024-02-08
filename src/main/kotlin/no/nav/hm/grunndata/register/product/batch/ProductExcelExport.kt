@@ -12,16 +12,6 @@ import java.io.OutputStream
 @Singleton
 class ProductExcelExport(private val labelService: LabelService) {
 
-    val headerTitle = listOf(
-        "Produktserie id",
-        "Produktserie navn",
-        "Produkt-id",
-        "HMS-nr.",
-        "Produktnavn",
-        "Lev-artnr.",
-        "Leverandør-id",
-        "Delkontrakt",
-        "Rangering")
 
     fun createWorkbookToOutputStream(products: List<ProductRegistrationDTO>, out: OutputStream){
         val workbook = createWorkbook(products)
@@ -44,9 +34,9 @@ class ProductExcelExport(private val labelService: LabelService) {
     private fun createHeaderRows(sheet: XSSFSheet, iso: String, techLabels: List<TechLabelDTO>): Row {
         val headerRow = sheet.createRow(0)
         var index = 0;
-        for (title in headerTitle)  {
+        for (title in HeaderTitleNew.values())  {
             val headerCell = headerRow.createCell(index++)
-            headerCell.setCellValue(title)
+            headerCell.setCellValue(title.label)
         }
         for (techLabelDTO in techLabels) {
             val headerCell = headerRow.createCell(index++)
@@ -76,6 +66,32 @@ class ProductExcelExport(private val labelService: LabelService) {
             }
         }
     }
+}
 
+enum class HeaderTitleNew(val label: String) {
+    produKtserieid("Produktserie id"),
+    produktseriesnavn("Produktserie navn"),
+    produktseriebeskrivelse("Produktserie beskrivelse"),
+    produktid("Produkt-id"),
+    hmsnr("HMS-nr."),
+    produktnavn("Produktnavn"),
+    andrespesifikasjoner("Andre spesifikasjoner"),
+    levartnr("Lev-artnr."),
+    leverandorid("Leverandør-id"),
+    delkontrakt("Delkontrakt"),
+    rangering("Rangering")
+}
 
+enum class HeaderTitleOld(val label: String) {
+    produktserieid("Produktserie id"),
+    produktserienavn("Produktserie navn"),
+    produktseriebeskrivelse("Produktserie beskrivelse"),
+    produktid("Produkt-id"),
+    hmsnr("HMS-nr."),
+    produktnavn("Produktnavn"),
+    andrespesifikasjoner("Andre spesifikasjoner"),
+    levartnr("Lev-artnr."),
+    leverandorid("Leverandør-id"),
+    postid("Post-id"),
+    rangering("Rangering")
 }

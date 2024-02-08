@@ -20,16 +20,21 @@ class TechLabelService(private val gdbApiClient: GdbApiClient): LabelService {
     init {
         runBlocking {
             val techLabels = gdbApiClient.fetchAllTechLabels()
+            LOG.info("Init techlabels size ${techLabels.size}")
             techLabelsByIso = techLabels.groupBy { it.isocode }
             techLabelsByName = techLabels.groupBy { it.label }
-            LOG.info("Init techlabels size ${techLabelsByIso.size}")
+
         }
     }
 
     override fun fetchLabelsByIsoCode(isocode: String): List<TechLabelDTO> {
-        return if (isocode.length == 6) techLabelsByIso[isocode]?: emptyList()
-        else return techLabelsByIso[isocode.substring(0, 6)]?.plus(techLabelsByIso[isocode]?: emptyList())
-            ?.distinctBy { it.label }?: emptyList()
+        val levels = isocode.length/2
+        val techLabels: MutableList<TechLabelDTO> = mutableListOf()
+        for (i in levels downTo 0) {
+            val iso = isocode.substring(0, i*2)
+            techLabels.addAll(techLabelsByIso[iso] ?: emptyList())
+        }
+        return techLabels.distinctBy { it.id }
     }
 
     override fun fetchLabelsByName(name: String): List<TechLabelDTO>? = techLabelsByName[name]
