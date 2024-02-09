@@ -29,6 +29,7 @@ class ProductExcelImport(private val labelService: LabelService) {
             val isoCategory = if (sheet.sheetName.startsWith("\""))
                 sheet.sheetName.replace("\"","") else sheet.sheetName
             val techLabels = labelService.fetchLabelsByIsoCode(isoCategory).map { it.label }
+            LOG.info("Fetching labels for isoCategory: $isoCategory, got: ${techLabels.size}")
             val firstRow = sheet.getRow(0)
             val headerNames = if (oldVersion(firstRow))
                 HeaderTitleOld.values().map { it.label } + techLabels

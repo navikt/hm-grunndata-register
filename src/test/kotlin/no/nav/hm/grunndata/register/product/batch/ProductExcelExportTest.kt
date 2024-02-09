@@ -34,17 +34,14 @@ class ProductExcelExportTest(
 ) {
 
     @MockBean(LabelService::class)
-    fun mockTechLabelService(): LabelService = mockk(relaxed = true)
-
-    init {
+    fun mockTechLabelService(): LabelService = mockk<LabelService>().apply {
         every {
-            runBlocking {
-                mockTechLabelService().fetchLabelsByIsoCode("04360901")
-            }
+            fetchLabelsByIsoCode("04360901")
         } answers {
             objectMapper.readValue(techlabeljson, object : TypeReference<List<TechLabelDTO>>() {}).sortedBy { it.sort }
         }
     }
+
 
     val email = "export@test.test"
     val password = "export-123"
@@ -127,7 +124,6 @@ class ProductExcelExportTest(
             "updated": "2024-02-06T11:58:09.574865"
           }
         ]
-        Respo
     """.trimIndent()
 
 
