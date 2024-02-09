@@ -102,9 +102,10 @@ class ProductExcelImportTest(private val excelImport: ProductExcelImport,
 
     @Test
     fun testExcelImport() {
-        val inputStream = javaClass.classLoader.getResourceAsStream("import/import.xls")
-        val productRegistrationList = excelImport.importExcelFileForRegistration(inputStream)
-        println(objectMapper.writeValueAsString(productRegistrationList))
+        val inputStream = javaClass.classLoader.getResourceAsStream("import/import.xls").use { input ->
+            val productRegistrationList = excelImport.importExcelFileForRegistration(input)
+            println(objectMapper.writeValueAsString(productRegistrationList))
+        }
     }
 
 }

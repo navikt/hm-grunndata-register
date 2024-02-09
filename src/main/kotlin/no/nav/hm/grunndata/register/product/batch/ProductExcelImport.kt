@@ -1,8 +1,10 @@
 package no.nav.hm.grunndata.register.product.batch
 
 import jakarta.inject.Singleton
+import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.techlabel.LabelService
+import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Workbook
@@ -28,12 +30,13 @@ class ProductExcelImport(private val labelService: LabelService) {
         val products = workbook.sheetIterator().asSequence().toList().map { sheet ->
             val isoCategory = if (sheet.sheetName.startsWith("\""))
                 sheet.sheetName.replace("\"","") else sheet.sheetName
-            val techLabels = labelService.fetchLabelsByIsoCode(isoCategory).map { it.label }
+            val techLabels = labelService.fetchLabelsByIsoCode(isoCategory)
+            val labelList = techLabels.map { it.label }
             LOG.info("Fetching labels for isoCategory: $isoCategory, got: ${techLabels.size}")
             val firstRow = sheet.getRow(0)
             val headerNames = if (oldVersion(firstRow))
-                HeaderTitleOld.values().map { it.label } + techLabels
-            else HeaderTitleNew.values().map { it.label } + techLabels
+                HeaderTitleOld.values().map { it.label } + labelList
+            else HeaderTitleNew.values().map { it.label } + labelList
             val headerMap = readHeaderMapIndex(firstRow, headerNames)
             sheet.toList().mapIndexed { index, row ->
                 if (index > 1) mapRowToProductRegistration(row, headerMap, isoCategory, techLabels) else null
@@ -42,7 +45,7 @@ class ProductExcelImport(private val labelService: LabelService) {
         return products.flatten()
     }
 
-    private fun mapRowToProductRegistration(row: Row, headerMap: Map<String, Int>, isoCategory: String, techLabels: List<String>): ProductRegistrationExcelDTO {
+    private fun mapRowToProductRegistration(row: Row, headerMap: Map<String, Int>, isoCategory: String, techLabels: List<TechLabelDTO>): ProductRegistrationExcelDTO {
         return ProductRegistrationExcelDTO (
             isoCategory = isoCategory,
             produktserieid = row.getCell(headerMap[HeaderTitleNew.produKtserieid.label]!!).toString().trim(),
@@ -56,7 +59,7 @@ class ProductExcelImport(private val labelService: LabelService) {
             leverandorid = row.getCell(headerMap[HeaderTitleNew.leverandorid.label]!!).toString().trim(),
             delkontrakt = row.getCell(headerMap[HeaderTitleNew.delkontrakt.label]?:headerMap[HeaderTitleOld.postid.label]!!).toString().trim(),
             rangering = row.getCell(headerMap[HeaderTitleNew.rangering.label]!!).toString().trim(),
-            techData = techLabels.map { it to row.getCell(headerMap[it]!!).toString().trim() }.toMap()
+            techData = techLabels.map {  TechData(key = it.label, value = row.getCell(headerMap[it.label]!!).toString().trim(), unit = it.unit?:"") }
         )
     }
 
@@ -97,5 +100,5 @@ data class ProductRegistrationExcelDTO(
     val leverandorid: String,
     val delkontrakt: String?,
     val rangering: String?,
-    val techData: Map<String, String> = emptyMap()
+    val techData: List<TechData> = emptyList()
 )
