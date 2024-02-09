@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.slf4j.LoggerFactory
@@ -19,6 +20,7 @@ import java.util.*
 open class ProductRegistrationService(private val productRegistrationRepository: ProductRegistrationRepository,
                                       private val seriesRegistrationRepository: SeriesRegistrationRepository,
                                       private val productRegistrationEventHandler: ProductRegistrationEventHandler,
+                                      private val productExcelImport: ProductExcelImport,
                                       private val techLabelService: TechLabelService) {
 
     companion object {
@@ -160,4 +162,5 @@ open class ProductRegistrationService(private val productRegistrationRepository:
         techLabelService.fetchLabelsByIsoCode(draftWithDTO.isoCategory)?.map {
             TechData(key = it.label, value = "", unit = it.unit ?:"")
         }?: emptyList()
+
 }

@@ -8,6 +8,7 @@ import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
+import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
@@ -16,6 +17,8 @@ import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.batch.ProductExcelExport
+import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
+import no.nav.hm.grunndata.register.product.batch.toRegistrationDTO
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesGroupDTO
@@ -27,7 +30,8 @@ import java.util.*
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS)
 class ProductRegistrationApiController(private val productRegistrationService: ProductRegistrationService,
-                                       private val export: ProductExcelExport) {
+                                       private val xlExport: ProductExcelExport,
+                                       private val xlImport: ProductExcelImport) {
 
     companion object {
         const val API_V1_PRODUCT_REGISTRATIONS = "/vendor/api/v1/product/registrations"
@@ -141,7 +145,7 @@ class ProductRegistrationApiController(private val productRegistrationService: P
         }
     }
 
-    @Post("/export")
+    @Post("/excel/export")
     suspend fun createExport(@Body uuids: List<UUID>, authentication: Authentication): HttpResponse<ByteArrayOutputStream> {
         val products = uuids.map { productRegistrationService.findById(it)}.filterNotNull()
         products.forEach {
@@ -150,8 +154,19 @@ class ProductRegistrationApiController(private val productRegistrationService: P
             }
         }
         return ByteArrayOutputStream().use {
-            export.createWorkbookToOutputStream(products, it)
+            xlExport.createWorkbookToOutputStream(products, it)
             HttpResponse.ok(it)
+        }
+    }
+
+    @Post("/excel/import")
+    suspend fun importExcel(file: CompletedFileUpload,
+                            @QueryValue dryRun: Boolean = true,
+                            authentication: Authentication): HttpResponse<List<ProductRegistrationDTO>> {
+        LOG.info("Importing Excel file ${file.filename} for supplierId ${authentication.supplierId()}")
+        return file.inputStream.use {inputStream ->
+            val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
+            HttpResponse.ok(excelDTOList.map { it.toRegistrationDTO() })
         }
     }
 }

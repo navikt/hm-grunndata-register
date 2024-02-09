@@ -1,8 +1,11 @@
 package no.nav.hm.grunndata.register.product.batch
 
 import jakarta.inject.Singleton
-import no.nav.hm.grunndata.rapid.dto.TechData
+import no.nav.helse.rapids_rivers.toUUID
+import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.product.ProductData
+import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
 import no.nav.hm.grunndata.register.techlabel.LabelService
 import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
 import org.apache.poi.ss.usermodel.Cell
@@ -10,6 +13,7 @@ import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import java.io.InputStream
+import java.util.*
 
 @Singleton
 class ProductExcelImport(private val labelService: LabelService) {
@@ -102,3 +106,30 @@ data class ProductRegistrationExcelDTO(
     val rangering: String?,
     val techData: List<TechData> = emptyList()
 )
+
+fun ProductRegistrationExcelDTO.toRegistrationDTO(): ProductRegistrationDTO {
+    val productId = produktid?.toUUID()?: UUID.randomUUID()
+    val seriesUUID = produktserieid?.toUUID() ?: UUID.randomUUID()
+    val supplierId = leverandorid.toUUID()
+    return ProductRegistrationDTO(
+        id = productId,
+        seriesId = seriesUUID.toString(),
+        seriesUUID = seriesUUID,
+        supplierId = supplierId,
+        supplierRef = levartnr,
+        hmsArtNr = hmsnr,
+        draftStatus = DraftStatus.DRAFT,
+        registrationStatus = RegistrationStatus.ACTIVE,
+        adminStatus = AdminStatus.PENDING,
+        title = produktseriesnavn?: produktnavn?: "",
+        articleName = produktnavn?: produktseriesnavn?: "",
+        isoCategory = isoCategory,
+        productData = ProductData(
+            attributes = Attributes(
+                shortdescription = andrespesifikasjoner,
+                text = produktseriebeskrivelse
+            ),
+            techData = techData,
+        )
+    )
+}
