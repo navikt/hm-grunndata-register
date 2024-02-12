@@ -18,7 +18,6 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.batch.ProductExcelExport
 import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
-import no.nav.hm.grunndata.register.product.batch.toRegistrationDTO
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesGroupDTO
@@ -166,7 +165,9 @@ class ProductRegistrationApiController(private val productRegistrationService: P
         LOG.info("Importing Excel file ${file.filename} for supplierId ${authentication.supplierId()}")
         return file.inputStream.use {inputStream ->
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
-            HttpResponse.ok(excelDTOList.map { it.toRegistrationDTO() })
+            LOG.info("found ${excelDTOList.size} products in Excel file")
+            val products = productRegistrationService.importExcelRegistrations(excelDTOList, dryRun, authentication)
+            HttpResponse.ok(products)
         }
     }
 }

@@ -98,7 +98,7 @@ data class ProductRegistrationExcelDTO(
     val produktseriebeskrivelse: String?,
     val produktid: String?,
     val hmsnr: String?,
-    val produktnavn: String?,
+    val produktnavn: String,
     val andrespesifikasjoner: String?,
     val levartnr: String,
     val leverandorid: String,
@@ -109,7 +109,7 @@ data class ProductRegistrationExcelDTO(
 
 fun ProductRegistrationExcelDTO.toRegistrationDTO(): ProductRegistrationDTO {
     val productId = produktid?.toUUID()?: UUID.randomUUID()
-    val seriesUUID = produktserieid?.toUUID() ?: UUID.randomUUID()
+    val seriesUUID = produktserieid?.toUUID() ?: productId
     val supplierId = leverandorid.toUUID()
     return ProductRegistrationDTO(
         id = productId,

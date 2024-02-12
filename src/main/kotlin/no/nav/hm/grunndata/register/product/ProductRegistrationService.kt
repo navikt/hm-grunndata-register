@@ -6,10 +6,13 @@ import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
+import no.nav.hm.grunndata.register.product.batch.ProductRegistrationExcelDTO
+import no.nav.hm.grunndata.register.product.batch.toRegistrationDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.slf4j.LoggerFactory
@@ -82,6 +85,24 @@ open class ProductRegistrationService(private val productRegistrationRepository:
             ))
         }
 
+
+    open suspend fun importExcelRegistrations(dtos: List<ProductRegistrationExcelDTO>, dryRun: Boolean, authentication: Authentication): List<ProductRegistrationDTO> {
+       return  dtos.map {
+            findBySupplierRefAndSupplierId(it.levartnr, it.leverandorid.toUUID())?.let { inDb ->
+                val product = inDb.copy(title = it.produktseriesnavn?:it.produktnavn, articleName = it.produktnavn,
+                    isoCategory = it.isoCategory,
+                    seriesUUID = it.produktserieid?.toUUID()?: inDb.id, seriesId = it.produktserieid?: inDb.id.toString(),
+                    productData = inDb.productData.copy(
+                        techData = it.techData,
+                        attributes = inDb.productData.attributes.copy(
+                            shortdescription = it.produktseriebeskrivelse,
+                            text = it.andrespesifikasjoner)), updated = LocalDateTime.now(),
+                    updatedByUser = authentication.name
+                )
+                if (!dryRun) saveAndCreateEventIfNotDraftAndApproved(product, isUpdate = true) else product
+            } ?: if (!dryRun) saveAndCreateEventIfNotDraftAndApproved(it.toRegistrationDTO(), isUpdate = false) else it.toRegistrationDTO()
+        }
+    }
 
     open suspend fun createDraft(supplierId: UUID, authentication: Authentication,
                                  isAccessory:Boolean, isSparePart: Boolean): ProductRegistrationDTO {
