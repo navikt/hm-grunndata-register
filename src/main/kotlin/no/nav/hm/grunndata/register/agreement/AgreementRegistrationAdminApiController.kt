@@ -215,6 +215,24 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
             ?: run {
                 throw BadRequestException("${registrationDTO.id} does not exists")
             }
+
+
+    @Delete("/{id}")
+    suspend fun deleteProduct(
+        @PathVariable id: UUID,
+        authentication: Authentication
+    ): HttpResponse<AgreementRegistrationDTO> =
+        agreementRegistrationService.findById(id)
+            ?.let {
+                val dto = agreementRegistrationService.saveAndCreateEventIfNotDraft(
+                    it.copy(
+                        agreementStatus = AgreementStatus.DELETED,
+                        updatedByUser = authentication.name, updatedBy = REGISTER
+                    ), isUpdate = true
+                )
+                HttpResponse.ok(dto)
+            }
+            ?: HttpResponse.notFound()
 }
 
 
