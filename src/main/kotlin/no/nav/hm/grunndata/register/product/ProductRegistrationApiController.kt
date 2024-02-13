@@ -11,6 +11,7 @@ import io.micronaut.http.annotation.*
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
@@ -144,7 +145,7 @@ class ProductRegistrationApiController(private val productRegistrationService: P
         }
     }
 
-    @Post("/excel/export")
+    @Post("/excel/export", consumes = ["application/json"], produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"])
     suspend fun createExport(@Body uuids: List<UUID>, authentication: Authentication): HttpResponse<ByteArrayOutputStream> {
         val products = uuids.map { productRegistrationService.findById(it)}.filterNotNull()
         products.forEach {
@@ -165,6 +166,9 @@ class ProductRegistrationApiController(private val productRegistrationService: P
         LOG.info("Importing Excel file ${file.filename} for supplierId ${authentication.supplierId()}")
         return file.inputStream.use {inputStream ->
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
+            excelDTOList.forEach {
+                if (it.leverandorid.toUUID() != authentication.supplierId()) throw BadRequestException("Unauthorized access to supplier ${it.leverandorid}")
+            }
             LOG.info("found ${excelDTOList.size} products in Excel file")
             val products = productRegistrationService.importExcelRegistrations(excelDTOList, dryRun, authentication)
             HttpResponse.ok(products)
