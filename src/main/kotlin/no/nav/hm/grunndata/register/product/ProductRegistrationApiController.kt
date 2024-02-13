@@ -153,6 +153,7 @@ class ProductRegistrationApiController(private val productRegistrationService: P
                 throw BadRequestException("Unauthorized access to product ${it.id}")
             }
         }
+        if (products.isEmpty()) throw BadRequestException("No products found")
         return ByteArrayOutputStream().use {
             xlExport.createWorkbookToOutputStream(products, it)
             HttpResponse.ok(it)

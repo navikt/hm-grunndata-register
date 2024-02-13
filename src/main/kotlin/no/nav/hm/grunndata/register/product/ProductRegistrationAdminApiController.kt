@@ -169,6 +169,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
     @Get("/excel/export", consumes = ["application/json"], produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"])
     suspend fun createExport(@Body uuids: List<UUID>, authentication: Authentication): HttpResponse<ByteArrayOutputStream> {
         val products = uuids.map { productRegistrationService.findById(it)}.filterNotNull()
+        if (products.isEmpty()) throw BadRequestException("No products found")
         return ByteArrayOutputStream().use {
             xlExport.createWorkbookToOutputStream(products, it)
             HttpResponse.ok(it)
