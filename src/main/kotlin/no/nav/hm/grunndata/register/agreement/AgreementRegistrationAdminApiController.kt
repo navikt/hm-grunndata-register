@@ -52,6 +52,11 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                         params["draftStatus"]!!,
                     )
                 }
+                if(params.contains("agreementStatus")) {
+                    root[AgreementRegistration::agreementStatus] eq AgreementStatus.valueOf(
+                        params["agreementStatus"]!!,
+                    )
+                }
                 if (params.contains("createdByUser")) root[AgreementRegistration::createdByUser] eq params["createdByUser"]
                 if (params.contains("updatedByUser")) root[AgreementRegistration::updatedByUser] eq params["updatedByUser"]
             }
