@@ -7,8 +7,10 @@ import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
+import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.*
 import io.micronaut.http.multipart.CompletedFileUpload
+import io.micronaut.http.server.types.files.StreamedFile
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
@@ -167,12 +169,15 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
         }?: HttpResponse.notFound()
 
     @Post("/excel/export", consumes = ["application/json"], produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"])
-    suspend fun createExport(@Body uuids: List<UUID>, authentication: Authentication): HttpResponse<ByteArrayOutputStream> {
+    suspend fun createExport(@Body uuids: List<UUID>, authentication: Authentication): HttpResponse<StreamedFile> {
         val products = uuids.map { productRegistrationService.findById(it)}.filterNotNull()
         if (products.isEmpty()) throw BadRequestException("No products found")
+        val id = UUID.randomUUID()
+        LOG.info("Generating Excel file: $id.xlsx")
         return ByteArrayOutputStream().use {
             xlExport.createWorkbookToOutputStream(products, it)
-            HttpResponse.ok(it)
+            HttpResponse.ok(StreamedFile(it.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
+                .header("Content-Disposition", "attachment; filename=$id.xlsx")
         }
     }
 
