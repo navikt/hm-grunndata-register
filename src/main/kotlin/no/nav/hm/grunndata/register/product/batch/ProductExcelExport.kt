@@ -4,7 +4,6 @@ import jakarta.inject.Singleton
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
 import no.nav.hm.grunndata.register.techlabel.LabelService
 import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
-import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.OutputStream
@@ -31,20 +30,27 @@ class ProductExcelExport(private val labelService: LabelService) {
         return workbook
     }
 
-    private fun createHeaderRows(sheet: XSSFSheet, iso: String, techLabels: List<TechLabelDTO>): Row {
+    private fun createHeaderRows(sheet: XSSFSheet, iso: String, techLabels: List<TechLabelDTO>) {
         val headerRow = sheet.createRow(0)
-        var index = 0;
-        for (title in HeaderTitleNew.values())  {
-            val headerCell = headerRow.createCell(index++)
-            headerCell.setCellValue(title.label)
-        }
-        for (techLabelDTO in techLabels) {
-            val headerCell = headerRow.createCell(index++)
-            headerCell.setCellValue(techLabelDTO.label +" ("+techLabelDTO.unit+")")
-        }
         val commentRow = sheet.createRow(1)
-        commentRow.createCell(0).setCellValue("Kommentar")
-        return commentRow
+
+        HeaderTitleNew.values().forEachIndexed { index, title ->
+            val headerCell = headerRow.createCell(index)
+            val commentCell = commentRow.createCell(index)
+            headerCell.setCellValue(title.label)
+            commentCell.setCellValue(title.comment)
+        }
+        var index = HeaderTitleNew.values().size
+        for (techLabelDTO in techLabels) {
+            val headerCell = headerRow.createCell(index)
+            val commentCell = commentRow.createCell(index)
+            headerCell.setCellValue(techLabelDTO.label)
+            if (!techLabelDTO.unit.isNullOrEmpty())
+                commentCell.setCellValue(techLabelDTO.unit)
+            else if (techLabelDTO.type == "L") commentCell.setCellValue("JA/NEI")
+            else commentCell.setCellValue(techLabelDTO.definition?:"")
+            index++
+        }
     }
 
     private fun createProductRow(sheet: XSSFSheet, products: List<ProductRegistrationDTO>,techLabels: List<TechLabelDTO>) {
@@ -70,18 +76,18 @@ class ProductExcelExport(private val labelService: LabelService) {
     }
 }
 
-enum class HeaderTitleNew(val label: String) {
-    produKtserieid("Produktserie id"),
-    produktseriesnavn("Produktserie navn"),
-    produktseriebeskrivelse("Produktserie beskrivelse"),
-    produktid("Produkt-id"),
-    hmsnr("HMS-nr."),
-    produktnavn("Produktnavn"),
-    andrespesifikasjoner("Andre spesifikasjoner"),
-    levartnr("Lev-artnr."),
-    leverandorid("Leverandør-id"),
-    delkontrakt("Delkontrakt"),
-    rangering("Rangering")
+enum class HeaderTitleNew(val label: String, val comment: String) {
+    produKtserieid("Produktserie id", "Tom hvis ny serie"),
+    produktseriesnavn("Produktserie navn", ""),
+    produktseriebeskrivelse("Produktserie beskrivelse", ""),
+    produktid("Produkt-id", "Tom hvis nytt produkt"),
+    hmsnr("HMS-nr.", "Kan ikke endres"),
+    produktnavn("Produktnavn", ""),
+    andrespesifikasjoner("Andre spesifikasjoner", ""),
+    levartnr("Lev-artnr.", "Påkrevd, kan ikke endres"),
+    leverandorid("Leverandør-id", "Påkreved, Kan ikke endres"),
+    delkontrakt("Delkontrakt", "Kan ikke endres"),
+    rangering("Rangering", "Kan ikke endres")
 }
 
 enum class HeaderTitleOld(val label: String) {

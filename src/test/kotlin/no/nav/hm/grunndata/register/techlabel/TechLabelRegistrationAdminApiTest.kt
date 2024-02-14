@@ -46,6 +46,7 @@ class TechLabelRegistrationAdminApiTest(private val client: TechLabelRegistratio
             identifier = "HMDB-20816",
             label = "Lengde",
             guide = "Lengde",
+            definition = "Lengde",
             isoCode = "09070601",
             type = "N",
             unit = "cm",
