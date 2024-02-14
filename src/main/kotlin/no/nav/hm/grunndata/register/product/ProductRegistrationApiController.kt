@@ -165,7 +165,9 @@ class ProductRegistrationApiController(private val productRegistrationService: P
         }
     }
 
-    @Post("/excel/import")
+    @Post("/excel/import",
+        consumes = [MediaType.MULTIPART_FORM_DATA],
+        produces = [MediaType.APPLICATION_JSON])
     suspend fun importExcel(file: CompletedFileUpload,
                             @QueryValue dryRun: Boolean = true,
                             authentication: Authentication): HttpResponse<List<ProductRegistrationDTO>> {
