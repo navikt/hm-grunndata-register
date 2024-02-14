@@ -45,11 +45,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                         params["draftStatus"]!!,
                     )
                 }
-                if (params.contains("agreementStatus")) {
-                    val agreementStatusList: List<AgreementStatus> =
-                        params["agreementStatus"]!!.split(",").map { AgreementStatus.valueOf(it) }
-                        root[AgreementRegistration::agreementStatus] eq agreementStatusList
-                }
+                if (params.contains("excludedAgreementStatus")) root[AgreementRegistration::agreementStatus] ne params["excludedAgreementStatus"]
                 if (params.contains("createdByUser")) root[AgreementRegistration::createdByUser] eq params["createdByUser"]
                 if (params.contains("updatedByUser")) root[AgreementRegistration::updatedByUser] eq params["updatedByUser"]
             }
