@@ -9,6 +9,8 @@ CREATE TABLE news_reg_v1 (
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     author VARCHAR(255) NOT NULL,
+    created_by VARCHAR(255) NOT NULL,
+    updated_by VARCHAR(255) NOT NULL,
     created_by_user VARCHAR(255) NOT NULL,
     updated_by_user VARCHAR(255) NOT NULL
 );

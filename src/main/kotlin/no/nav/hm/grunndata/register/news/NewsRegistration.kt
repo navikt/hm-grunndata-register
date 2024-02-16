@@ -22,6 +22,8 @@ data class NewsRegistration(
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val author: String = "Admin",
+    val createdBy: String,
+    val updatedBy: String,
     val createdByUser: String,
     val updatedByUser: String
 )
@@ -37,6 +39,8 @@ data class NewsRegistrationDTO(
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val author: String = "Admin",
+    val createdBy: String,
+    val updatedBy: String,
     val createdByUser: String,
     override val updatedByUser: String
 ): EventPayload {
@@ -51,6 +55,8 @@ data class NewsRegistrationDTO(
         created = created,
         updated = updated,
         author = author,
+        createdBy = createdBy,
+        updatedBy = updatedBy,
         createdByUser = createdByUser,
         updatedByUser = updatedByUser
     )
@@ -68,6 +74,9 @@ fun NewsRegistration.toDTO(): NewsRegistrationDTO = NewsRegistrationDTO(
     expired = expired,
     created = created,
     updated = updated,
+    author = author,
+    updatedBy = updatedBy,
+    createdBy = createdBy,
     createdByUser = createdByUser,
     updatedByUser = updatedByUser
 )
@@ -82,6 +91,9 @@ fun NewsRegistrationDTO.toEntity(): NewsRegistration = NewsRegistration(
     expired = expired,
     created = created,
     updated = updated,
+    author = author,
+    updatedBy = updatedBy,
+    createdBy = createdBy,
     createdByUser = createdByUser,
     updatedByUser = updatedByUser
 )
