@@ -4,6 +4,7 @@ import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.event.EventName
+import java.util.*
 
 @Singleton
 open class NewsRegistrationService(private val newsRegistrationRepository: NewsRegistrationRepository,
@@ -16,6 +17,10 @@ open class NewsRegistrationService(private val newsRegistrationRepository: NewsR
             newsRegistrationEventHandler.queueDTORapidEvent(saved, eventName = EventName.registeredNewsV1)
         }
         return saved
+    }
+
+    suspend fun findById(id: UUID): NewsRegistrationDTO? {
+        return newsRegistrationRepository.findById(id)?.toDTO()
     }
 
     suspend fun save(news: NewsRegistrationDTO): NewsRegistrationDTO {
