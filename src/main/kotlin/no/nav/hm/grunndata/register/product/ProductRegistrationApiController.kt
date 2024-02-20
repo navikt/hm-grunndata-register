@@ -31,112 +31,186 @@ import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS)
-class ProductRegistrationApiController(private val productRegistrationService: ProductRegistrationService,
-                                       private val xlExport: ProductExcelExport,
-                                       private val xlImport: ProductExcelImport) {
-
+class ProductRegistrationApiController(
+    private val productRegistrationService: ProductRegistrationService,
+    private val xlExport: ProductExcelExport,
+    private val xlImport: ProductExcelImport,
+) {
     companion object {
         const val API_V1_PRODUCT_REGISTRATIONS = "/vendor/api/v1/product/registrations"
         private val LOG = LoggerFactory.getLogger(ProductRegistrationApiController::class.java)
     }
 
     @Get("/series/group{?params*}")
-    suspend fun findSeriesGroup(@QueryValue params: HashMap<String,String>?,
-                                pageable: Pageable, authentication: Authentication): Slice<SeriesGroupDTO> =
-        productRegistrationService.findSeriesGroup(authentication.supplierId(), pageable)
-
+    suspend fun findSeriesGroup(
+        @QueryValue params: HashMap<String, String>?,
+        pageable: Pageable,
+        authentication: Authentication,
+    ): Slice<SeriesGroupDTO> = productRegistrationService.findSeriesGroup(authentication.supplierId(), pageable)
 
     @Get("/series/{seriesId}")
-    suspend fun findBySeriesIdAndSupplierId(seriesId: String, authentication: Authentication) =
-        productRegistrationService.findBySeriesIdAndSupplierId(seriesId, authentication.supplierId()).sortedBy { it.created }
+    suspend fun findBySeriesIdAndSupplierId(
+        seriesId: String,
+        authentication: Authentication,
+    ) = productRegistrationService.findBySeriesIdAndSupplierId(seriesId, authentication.supplierId())
+        .sortedBy { it.created }
 
     @Get("/{?params*}")
-    suspend fun findProducts(@QueryValue params: HashMap<String,String>?,
-                             pageable: Pageable, authentication: Authentication): Page<ProductRegistrationDTO> =
-        productRegistrationService.findAll(buildCriteriaSpec(params, authentication.supplierId()), pageable)
+    suspend fun findProducts(
+        @QueryValue params: HashMap<String, String>?,
+        pageable: Pageable,
+        authentication: Authentication,
+    ): Page<ProductRegistrationDTO> = productRegistrationService.findAll(buildCriteriaSpec(params, authentication.supplierId()), pageable)
 
-
-    private fun buildCriteriaSpec(params: HashMap<String, String>?, supplierId: UUID): PredicateSpecification<ProductRegistration>?
-            = params?.let {
-        where {
-            root[ProductRegistration::supplierId] eq supplierId
-            if (params.contains("supplierRef")) root[ProductRegistration::supplierRef] eq params["supplierRef"]
-            if (params.contains("hmsArtNr")) root[ProductRegistration::hmsArtNr] eq params["hmsArtNr"]
-            if (params.contains("draft")) root[ProductRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
-        }.and { root, criteriaBuilder ->
-            if (params.contains("title")) criteriaBuilder.like(root[ProductRegistration::title], params["title"]) else null }
-    }
+    private fun buildCriteriaSpec(
+        params: HashMap<String, String>?,
+        supplierId: UUID,
+    ): PredicateSpecification<ProductRegistration>? =
+        params?.let {
+            where {
+                root[ProductRegistration::supplierId] eq supplierId
+                if (params.contains("supplierRef")) root[ProductRegistration::supplierRef] eq params["supplierRef"]
+                if (params.contains("hmsArtNr")) root[ProductRegistration::hmsArtNr] eq params["hmsArtNr"]
+                if (params.contains("draft")) root[ProductRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
+            }.and { root, criteriaBuilder ->
+                if (params.contains("title")) {
+                    criteriaBuilder.like(
+                        root[ProductRegistration::title],
+                        params["title"],
+                    )
+                } else {
+                    null
+                }
+            }
+        }
 
     @Get("/{id}")
-    suspend fun getProductById(id: UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
+    suspend fun getProductById(
+        id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
             ?.let {
-                HttpResponse.ok(it) }
+                HttpResponse.ok(it)
+            }
             ?: HttpResponse.notFound()
 
     @Post("/")
-    suspend fun createProduct(@Body registrationDTO: ProductRegistrationDTO, authentication: Authentication):
-            HttpResponse<ProductRegistrationDTO> =
+    suspend fun createProduct(
+        @Body registrationDTO: ProductRegistrationDTO,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> =
         if (registrationDTO.supplierId != authentication.supplierId()) {
             LOG.warn("Got unauthorized attempt for ${registrationDTO.supplierId}")
             HttpResponse.unauthorized()
-        }
-        else if (registrationDTO.createdByAdmin || registrationDTO.adminStatus == AdminStatus.APPROVED) HttpResponse.unauthorized()
-        else
+        } else if (registrationDTO.createdByAdmin || registrationDTO.adminStatus == AdminStatus.APPROVED) {
+            HttpResponse.unauthorized()
+        } else {
             productRegistrationService.findById(registrationDTO.id)?.let {
                 throw BadRequestException("Product registration already exists ${registrationDTO.id}")
             } ?: run {
-                val dto = productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(registrationDTO
-                    .copy(updatedByUser =  authentication.name, createdByUser = authentication.name,
-                        created = LocalDateTime.now(), updated = LocalDateTime.now()), isUpdate = false)
+                val dto =
+                    productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                        registrationDTO
+                            .copy(
+                                updatedByUser = authentication.name, createdByUser = authentication.name,
+                                created = LocalDateTime.now(), updated = LocalDateTime.now(),
+                            ),
+                        isUpdate = false,
+                    )
                 HttpResponse.created(dto)
             }
+        }
 
     @Put("/{id}")
-    suspend fun updateProduct(@Body registrationDTO: ProductRegistrationDTO, @PathVariable id: UUID, authentication: Authentication):
-            HttpResponse<ProductRegistrationDTO> =
-        if (registrationDTO.supplierId != authentication.supplierId()) HttpResponse.unauthorized()
-        else if (registrationDTO.id != id) throw BadRequestException("Product id $id does not match ${registrationDTO.id}")
-        else productRegistrationService.findByIdAndSupplierId(id, registrationDTO.supplierId)
+    suspend fun updateProduct(
+        @Body registrationDTO: ProductRegistrationDTO,
+        @PathVariable id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> =
+        if (registrationDTO.supplierId != authentication.supplierId()) {
+            HttpResponse.unauthorized()
+        } else if (registrationDTO.id != id) {
+            throw BadRequestException("Product id $id does not match ${registrationDTO.id}")
+        } else {
+            productRegistrationService.findByIdAndSupplierId(id, registrationDTO.supplierId)
                 ?.let { inDb ->
-                    val dto = productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(registrationDTO
-                        .copy(id = inDb.id, created = inDb.created,
-                            updatedBy = REGISTER, updatedByUser = authentication.name, createdByUser = inDb.createdByUser,
-                            createdBy = inDb.createdBy, createdByAdmin = inDb.createdByAdmin, adminStatus = inDb.adminStatus,
-                            adminInfo = inDb.adminInfo, updated = LocalDateTime.now()), isUpdate = true)
-                    HttpResponse.ok(dto) }
+                    val dto =
+                        productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                            registrationDTO
+                                .copy(
+                                    id = inDb.id,
+                                    created = inDb.created,
+                                    updatedBy = REGISTER,
+                                    updatedByUser = authentication.name,
+                                    createdByUser = inDb.createdByUser,
+                                    createdBy = inDb.createdBy,
+                                    createdByAdmin = inDb.createdByAdmin,
+                                    adminStatus = inDb.adminStatus,
+                                    adminInfo = inDb.adminInfo,
+                                    updated = LocalDateTime.now(),
+                                ),
+                            isUpdate = true,
+                        )
+                    HttpResponse.ok(dto)
+                }
                 ?: run {
-                    throw BadRequestException("Product does not exists $id") }
+                    throw BadRequestException("Product does not exists $id")
+                }
+        }
 
     @Delete("/{id}")
-    suspend fun deleteProduct(@PathVariable id:UUID, authentication: Authentication): HttpResponse<ProductRegistrationDTO> =
+    suspend fun deleteProduct(
+        @PathVariable id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
             ?.let {
-                val deleteDTO = productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(it
-                    .copy(registrationStatus = RegistrationStatus.DELETED, updatedByUser = authentication.name), isUpdate = true)
+                val deleteDTO =
+                    productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                        it
+                            .copy(registrationStatus = RegistrationStatus.DELETED, updatedByUser = authentication.name),
+                        isUpdate = true,
+                    )
                 HttpResponse.ok(deleteDTO)
             } ?: HttpResponse.notFound()
 
     @Post("/draft{?isAccessory}{?isSparePart}")
-    suspend fun draftProduct(@QueryValue(defaultValue = "false") isAccessory: Boolean,
-                             @QueryValue(defaultValue = "false") isSparePart: Boolean, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
+    suspend fun draftProduct(
+        @QueryValue(defaultValue = "false") isAccessory: Boolean,
+        @QueryValue(defaultValue = "false") isSparePart: Boolean,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> {
         val supplierId = authentication.supplierId()
-        return HttpResponse.ok(productRegistrationService.createDraft(supplierId, authentication, isAccessory, isSparePart))
+        return HttpResponse.ok(
+            productRegistrationService.createDraft(
+                supplierId,
+                authentication,
+                isAccessory,
+                isSparePart,
+            ),
+        )
     }
 
     @Post("/draftWith{?isAccessory}{?isSparePart}")
-    suspend fun draftProductWith(@QueryValue(defaultValue = "false") isAccessory: Boolean,
-                                 @QueryValue(defaultValue = "false") isSparePart: Boolean,
-                                 @Body draftWith: ProductDraftWithDTO,
-                                 authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
+    suspend fun draftProductWith(
+        @QueryValue(defaultValue = "false") isAccessory: Boolean,
+        @QueryValue(defaultValue = "false") isSparePart: Boolean,
+        @Body draftWith: ProductDraftWithDTO,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> {
         val supplierId = authentication.supplierId()
         return HttpResponse.ok(
-            productRegistrationService.createDraftWith(supplierId, authentication, isAccessory, isSparePart, draftWith)
+            productRegistrationService.createDraftWith(supplierId, authentication, isAccessory, isSparePart, draftWith),
         )
     }
 
     @Post("/draft/variant/{id}")
-    suspend fun createProductVariant(@PathVariable id:UUID, @Body draftVariant: DraftVariantDTO, authentication: Authentication): HttpResponse<ProductRegistrationDTO> {
+    suspend fun createProductVariant(
+        @PathVariable id: UUID,
+        @Body draftVariant: DraftVariantDTO,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> {
         return try {
             productRegistrationService.createProductVariant(id, draftVariant, authentication)?.let {
                 HttpResponse.ok(it)
@@ -147,9 +221,16 @@ class ProductRegistrationApiController(private val productRegistrationService: P
         }
     }
 
-    @Post("/excel/export", consumes = ["application/json"], produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"])
-    suspend fun createExport(@Body uuids: List<UUID>, authentication: Authentication): HttpResponse<StreamedFile> {
-        val products = uuids.map { productRegistrationService.findById(it)}.filterNotNull()
+    @Post(
+        "/excel/export",
+        consumes = ["application/json"],
+        produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+    )
+    suspend fun createExport(
+        @Body uuids: List<UUID>,
+        authentication: Authentication,
+    ): HttpResponse<StreamedFile> {
+        val products = uuids.map { productRegistrationService.findById(it) }.filterNotNull()
         products.forEach {
             if (it.supplierId != authentication.supplierId()) {
                 throw BadRequestException("Unauthorized access to product ${it.id}")
@@ -165,24 +246,57 @@ class ProductRegistrationApiController(private val productRegistrationService: P
         }
     }
 
-    @Post("/excel/import",
+    @Post(
+        "/excel/import",
         consumes = [MediaType.MULTIPART_FORM_DATA],
-        produces = [MediaType.APPLICATION_JSON])
-    suspend fun importExcel(file: CompletedFileUpload,
-                            @QueryValue dryRun: Boolean = true,
-                            authentication: Authentication): HttpResponse<List<ProductRegistrationDTO>> {
+        produces = [MediaType.APPLICATION_JSON],
+    )
+    suspend fun importExcel(
+        file: CompletedFileUpload,
+        authentication: Authentication,
+    ): HttpResponse<List<ProductRegistrationDTO>> {
         LOG.info("Importing Excel file ${file.filename} for supplierId ${authentication.supplierId()}")
-        return file.inputStream.use {inputStream ->
+        return file.inputStream.use { inputStream ->
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
             excelDTOList.forEach {
-                if (it.leverandorid.toUUID() != authentication.supplierId()) throw BadRequestException("Unauthorized access to supplier ${it.leverandorid}")
+                if (it.leverandorid.toUUID() != authentication.supplierId()) {
+                    throw BadRequestException(
+                        "Unauthorized access to supplier ${it.leverandorid}",
+                    )
+                }
             }
             LOG.info("found ${excelDTOList.size} products in Excel file")
-            val products = productRegistrationService.importExcelRegistrations(excelDTOList, dryRun, authentication)
+            val products = productRegistrationService.importExcelRegistrations(excelDTOList, authentication)
+            HttpResponse.ok(products)
+        }
+    }
+
+    @Post(
+        "/excel/import-dryrun",
+        consumes = [MediaType.MULTIPART_FORM_DATA],
+        produces = [MediaType.APPLICATION_JSON],
+    )
+    suspend fun importExcelDryrun(
+        file: CompletedFileUpload,
+        authentication: Authentication,
+    ): HttpResponse<List<ProductRegistrationDryRunDTO>> {
+        LOG.info("Dryrun for import of Excel file ${file.filename} for supplierId ${authentication.supplierId()}")
+        return file.inputStream.use { inputStream ->
+            val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
+            excelDTOList.forEach {
+                if (it.leverandorid.toUUID() != authentication.supplierId()) {
+                    throw BadRequestException(
+                        "Unauthorized access to supplier ${it.leverandorid}",
+                    )
+                }
+            }
+            LOG.info("found ${excelDTOList.size} products in Excel file")
+            val products = productRegistrationService.importDryRunExcelRegistrations(excelDTOList, authentication)
             HttpResponse.ok(products)
         }
     }
 }
 
 data class ProductDraftWithDTO(val title: String, val text: String, val isoCategory: String)
+
 data class DraftVariantDTO(val articleName: String, val supplierRef: String)

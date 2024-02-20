@@ -191,7 +191,7 @@ class ProductRegistrationAdminApiController(private val productRegistrationServi
         return file.inputStream.use {inputStream ->
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
             LOG.info("found ${excelDTOList.size} products in Excel file")
-            val products = productRegistrationService.importExcelRegistrations(excelDTOList, dryRun, authentication)
+            val products = productRegistrationService.importExcelRegistrations(excelDTOList, authentication)
             HttpResponse.ok(products)
         }
     }
