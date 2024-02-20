@@ -52,10 +52,10 @@ class ProductExcelImport(private val labelService: LabelService) {
     private fun mapRowToProductRegistration(row: Row, headerMap: Map<String, Int>, isoCategory: String, techLabels: List<TechLabelDTO>): ProductRegistrationExcelDTO {
         return ProductRegistrationExcelDTO (
             isoCategory = isoCategory,
-            produktserieid = row.getCell(headerMap[HeaderTitleNew.produKtserieid.label]!!).toString().trim(),
+            produktserieid = row.getCell(headerMap[HeaderTitleNew.produKtserieid.label]!!)?.toString()?.trim(),
             produktseriesnavn = row.getCell(headerMap[HeaderTitleNew.produktseriesnavn.label]!!).toString().trim(),
             produktseriebeskrivelse = row.getCell(headerMap[HeaderTitleNew.produktseriebeskrivelse.label]!!).toString().trim(),
-            produktid = row.getCell(headerMap[HeaderTitleNew.produktid.label]!!).toString().trim(),
+            produktid = row.getCell(headerMap[HeaderTitleNew.produktid.label]!!)?.toString()?.trim(),
             hmsnr = row.getCell(headerMap[HeaderTitleNew.hmsnr.label]!!).toString().trim(),
             produktnavn = row.getCell(headerMap[HeaderTitleNew.produktnavn.label]!!).toString().trim(),
             andrespesifikasjoner = row.getCell(headerMap[HeaderTitleNew.andrespesifikasjoner.label]!!).toString().trim(),
