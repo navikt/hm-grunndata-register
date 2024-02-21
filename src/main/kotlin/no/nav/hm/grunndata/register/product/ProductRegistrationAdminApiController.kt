@@ -283,13 +283,6 @@ class ProductRegistrationAdminApiController(
         LOG.info("Dryrun - Importing Excel file ${file.filename} by admin")
         return file.inputStream.use { inputStream ->
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
-            excelDTOList.forEach {
-                if (it.leverandorid.toUUID() != authentication.supplierId()) {
-                    throw BadRequestException(
-                        "Unauthorized access to supplier ${it.leverandorid}",
-                    )
-                }
-            }
             LOG.info("found ${excelDTOList.size} products in Excel file")
             val products = productRegistrationService.importDryRunExcelRegistrations(excelDTOList, authentication)
             HttpResponse.ok(products)
