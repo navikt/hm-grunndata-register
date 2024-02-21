@@ -25,7 +25,7 @@ jobs:
       NAIS_VARS: ".nais/nais-dev.json"
       JAVA_VERSION: 17
       TEAM: "teamdigihot"
-      CODEQL_ENABLED: false
+      CODEQL_ENABLED: true
       DRAFTS_MAX: 50
     secrets:
       NAIS_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}

@@ -2,7 +2,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jvmTarget = "17"
-val micronautVersion="4.2.3"
+val micronautVersion="4.3.2"
 val junitJupiterVersion = "5.9.0"
 val logbackEncoderVersion = "7.3"
 val postgresqlVersion= "42.5.4"
@@ -88,6 +88,9 @@ dependencies {
     // Microsoft Graph
     implementation("com.microsoft.graph:microsoft-graph:5.77.0")
     implementation("com.azure:azure-identity:1.2.5")
+
+    // flyway postgresql
+    implementation("org.flywaydb:flyway-database-postgresql:10.6.0")
 }
 
 micronaut {
