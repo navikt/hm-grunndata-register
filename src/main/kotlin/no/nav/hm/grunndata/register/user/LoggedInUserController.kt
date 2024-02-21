@@ -11,6 +11,20 @@ import no.nav.hm.grunndata.register.security.Roles
 class LoggedInUserController {
 
     @Get("/")
-    fun getLoggedInUser(authentication: Authentication) = authentication
+    fun getLoggedInUser(authentication: Authentication): RegistrationAuthentication = RegistrationAuthentication(
+        name = authentication.name,
+        attributes = authentication.attributes
+    )
     
+}
+
+data class RegistrationAuthentication (
+    val name: String,
+    val attributes: Map<String, Any>
+
+): Authentication {
+    override fun getName(): String = name
+
+    override fun getAttributes(): Map<String, Any> = attributes
+
 }
