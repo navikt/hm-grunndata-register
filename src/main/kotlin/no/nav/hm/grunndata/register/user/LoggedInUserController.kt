@@ -22,9 +22,4 @@ data class RegistrationAuthentication (
     val name: String,
     val attributes: Map<String, Any>
 
-): Authentication {
-    override fun getName(): String = name
-
-    override fun getAttributes(): Map<String, Any> = attributes
-
-}
+)
