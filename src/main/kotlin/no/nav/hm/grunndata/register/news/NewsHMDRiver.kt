@@ -10,6 +10,8 @@ import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.NewsDTO
+import no.nav.hm.grunndata.rapid.event.EventName
+import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
 
@@ -25,8 +27,8 @@ class NewsHMDRiver(
     }
     init {
         river
-            .validate { it.demandValue("createdBy", "grunndata_db") }
-            .validate { it.demandAny("eventName", listOf("hmdbnewssyncV1")) }
+            .validate { it.demandValue("createdBy", RapidApp.grunndata_db) }
+            .validate { it.demandAny("eventName", listOf(EventName.hmdbnewsyncV1)) }
             .validate { it.demandKey("payload") }
             .validate { it.demandKey("eventId") }
             .register(this)
@@ -63,11 +65,10 @@ class NewsHMDRiver(
                     createdBy = dto.createdBy,
                     updatedBy = dto.updatedBy,
                     createdByUser = dto.createdBy,
-                    updatedByUser = dto.updatedBy,
-                    )
+                    updatedByUser = dto.updatedBy
+                )
             )
         }
     }
-
 
 }
