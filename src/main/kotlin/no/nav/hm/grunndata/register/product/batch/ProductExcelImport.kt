@@ -66,23 +66,23 @@ class ProductExcelImport(private val labelService: LabelService) {
         return ProductRegistrationExcelDTO(
             isoCategory = isoCategory,
             produktserieid = row.getCell(headerMap[HeaderTitleNew.produKtserieid.label]!!)?.toString()?.trim(),
-            produktseriesnavn = row.getCell(headerMap[HeaderTitleNew.produktseriesnavn.label]!!).toString().trim(),
+            produktseriesnavn = row.getCell(headerMap[HeaderTitleNew.produktseriesnavn.label]!!)?.toString()?.trim(),
             produktseriebeskrivelse =
-                row.getCell(headerMap[HeaderTitleNew.produktseriebeskrivelse.label]!!).toString()
-                    .trim(),
+                row.getCell(headerMap[HeaderTitleNew.produktseriebeskrivelse.label]!!)?.toString()
+                    ?.trim(),
             produktid = row.getCell(headerMap[HeaderTitleNew.produktid.label]!!)?.toString()?.trim(),
-            hmsnr = row.getCell(headerMap[HeaderTitleNew.hmsnr.label]!!).toString().trim(),
+            hmsnr = row.getCell(headerMap[HeaderTitleNew.hmsnr.label]!!)?.toString()?.trim(),
             produktnavn = row.getCell(headerMap[HeaderTitleNew.produktnavn.label]!!).toString().trim(),
             andrespesifikasjoner =
-                row.getCell(headerMap[HeaderTitleNew.andrespesifikasjoner.label]!!).toString()
-                    .trim(),
+                row.getCell(headerMap[HeaderTitleNew.andrespesifikasjoner.label]!!)?.toString()
+                    ?.trim(),
             levartnr = row.getCell(headerMap[HeaderTitleNew.levartnr.label]!!).toString().trim(),
             leverandorid = row.getCell(headerMap[HeaderTitleNew.leverandorid.label]!!).toString().trim(),
             delkontrakt =
                 row.getCell(
                     headerMap[HeaderTitleNew.delkontrakt.label] ?: headerMap[HeaderTitleOld.postid.label]!!,
-                ).toString().trim(),
-            rangering = row.getCell(headerMap[HeaderTitleNew.rangering.label]!!).toString().trim(),
+                )?.toString()?.trim(),
+            rangering = row.getCell(headerMap[HeaderTitleNew.rangering.label]!!)?.toString()?.trim(),
             techData =
                 techLabels.map {
                     TechData(
