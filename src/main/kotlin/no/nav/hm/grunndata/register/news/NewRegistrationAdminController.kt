@@ -1,5 +1,10 @@
 package no.nav.hm.grunndata.register.news
 
+import io.micronaut.data.model.Page
+import io.micronaut.data.model.Pageable
+import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
+import io.micronaut.data.runtime.criteria.get
+import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
@@ -18,6 +23,21 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
         private val LOG = LoggerFactory.getLogger(NewRegistrationAdminController::class.java)
         const val ADMIN_API_V1_NEWS = "/admin/api/v1/news"
     }
+
+    @Get("/{?params*}")
+    suspend fun getNews(@QueryValue params: Map<String, String>?, pageable: Pageable): Page<NewsRegistrationDTO> {
+        return newsRegistrationService.findAll(buildSpec(params), pageable)
+    }
+
+    private fun buildSpec(params: Map<String, String>?): PredicateSpecification<NewsRegistration>? =  params?.let {
+        where {
+            if (params.contains("status")) root[NewsRegistration::status] eq params["status"]
+            if (params.contains("draftStatus")) root[NewsRegistration::draftStatus] eq params["draftStatus"]
+            if (params.contains("createdByUser")) root[NewsRegistration::createdByUser] eq params["createdByUser"]
+            if (params.contains("title")) criteriaBuilder.like(root[NewsRegistration::title], params["title"])
+        }
+    }
+
 
     @Post("/")
     suspend fun createNews(@Body news: NewsRegistrationDTO): NewsRegistrationDTO {

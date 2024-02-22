@@ -1,5 +1,8 @@
 package no.nav.hm.grunndata.register.news
 
+import io.micronaut.data.model.Page
+import io.micronaut.data.model.Pageable
+import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
@@ -58,4 +61,9 @@ open class NewsRegistrationService(
         return newsRegistrationRepository.findByStatusAndExpiredAfterAndPublishedBefore(status, expired, published)
             .map { it.toDTO() }
     }
+
+    open suspend fun findAll(spec: PredicateSpecification<NewsRegistration>?,
+                        pageable: Pageable): Page<NewsRegistrationDTO> =
+        newsRegistrationRepository.findAll(spec, pageable).map { it.toDTO() }
+
 }
