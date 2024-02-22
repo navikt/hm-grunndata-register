@@ -7,6 +7,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.NewsStatus
 import no.nav.hm.grunndata.register.HMDB
 import org.junit.jupiter.api.Test
+
 @MicronautTest
 class NewsRegistrationRepositoryTest(private val newsRegistrationRepository: NewsRegistrationRepository) {
 
@@ -28,6 +29,8 @@ class NewsRegistrationRepositoryTest(private val newsRegistrationRepository: New
             updated.shouldNotBeNull()
             updated.text shouldBe "This is a test news updated"
             updated.status shouldBe NewsStatus.INACTIVE
+
+
         }
 
     }
