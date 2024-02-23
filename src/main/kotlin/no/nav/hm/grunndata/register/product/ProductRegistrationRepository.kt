@@ -20,6 +20,8 @@ interface ProductRegistrationRepository : CoroutineCrudRepository<ProductRegistr
 
     suspend fun findBySupplierRefAndSupplierId(supplierRef: String, supplierId: UUID): ProductRegistration?
 
+    suspend fun findBySupplierId(supplierId: UUID): List<ProductRegistration>
+
     suspend fun findBySeriesIdAndSupplierId(seriesId: String, supplierId: UUID): List<ProductRegistration>
 
 

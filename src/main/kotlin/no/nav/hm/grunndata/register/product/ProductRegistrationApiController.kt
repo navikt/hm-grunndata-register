@@ -247,6 +247,25 @@ class ProductRegistrationApiController(
     }
 
     @Post(
+        "/excel/export/supplier",
+        consumes = ["application/json"],
+        produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+    )
+    suspend fun createExportForAllSupplierProducts(
+        authentication: Authentication,
+    ): HttpResponse<StreamedFile> {
+        val products = productRegistrationService.findBySupplierId(authentication.supplierId())
+        if (products.isEmpty()) throw BadRequestException("No products found")
+        val id = UUID.randomUUID()
+        LOG.info("Generating Excel file: $id.xlsx")
+        return ByteArrayOutputStream().use {
+            xlExport.createWorkbookToOutputStream(products, it)
+            HttpResponse.ok(StreamedFile(it.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
+                .header("Content-Disposition", "attachment; filename=$id.xlsx")
+        }
+    }
+
+    @Post(
         "/excel/import",
         consumes = [MediaType.MULTIPART_FORM_DATA],
         produces = [MediaType.APPLICATION_JSON],

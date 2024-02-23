@@ -51,6 +51,10 @@ open class ProductRegistrationService(
         supplierId: UUID,
     ) = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)?.toDTO()
 
+    open suspend fun findBySupplierId(
+        supplierId: UUID,
+    ) = productRegistrationRepository.findBySupplierId(supplierId).map { it.toDTO() }
+
     open suspend fun findByIdAndSupplierId(
         id: UUID,
         supplierId: UUID,
