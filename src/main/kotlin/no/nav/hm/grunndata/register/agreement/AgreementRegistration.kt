@@ -85,7 +85,12 @@ data class AgreementBasicInformationDto (
 )
 
 fun AgreementDTO.toData(): AgreementData = AgreementData(
-    resume = resume, text = text, identifier = identifier, attachments = attachments, posts = posts, isoCategory = isoCategory
+    resume = resume,
+    text = text,
+    identifier = identifier,
+    attachments = attachments,
+    posts = posts,
+    isoCategory = isoCategory
 )
 
 fun AgreementRegistration.toDTO(): AgreementRegistrationDTO = AgreementRegistrationDTO(

@@ -19,7 +19,8 @@ import org.slf4j.LoggerFactory
 @Requires(bean = KafkaRapid::class)
 class AgreementSyncRiver(river: RiverHead,
                          private val objectMapper: ObjectMapper,
-                         private val agreementRegistrationRepository: AgreementRegistrationRepository): River.PacketListener {
+                         private val agreementRegistrationRepository: AgreementRegistrationRepository,
+                         private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository): River.PacketListener {
 
 
     companion object {
@@ -40,7 +41,7 @@ class AgreementSyncRiver(river: RiverHead,
         val dto = objectMapper.treeToValue(packet["payload"], AgreementDTO::class.java)
         runBlocking {
             agreementRegistrationRepository.findById(dto.id)?.let { inDb ->
-                agreementRegistrationRepository.update(inDb.copy(agreementData = dto.toData(), reference = dto.reference,
+                agreementRegistrationRepository.update(inDb.copy(agreementData = dto.toData(), delkontraktList = mapDelkontrakt(dto), reference = dto.reference,
                     agreementStatus = dto.status, title = dto.title, published = dto.published, expired = dto.expired,
                     created = dto.created, updated = dto.updated)) }
                 ?: agreementRegistrationRepository.save(AgreementRegistration(
@@ -53,4 +54,13 @@ class AgreementSyncRiver(river: RiverHead,
         }
     }
 
+    private fun mapDelkontrakt(dto: AgreementDTO): List<DelkontraktRegistration> {
+        TODO()
+    }
+
+}
+
+fun extractDelkontraktNrFromTitle(title: String): String? {
+    val regex = """(\d+)([A-Z]*)([.|:])""".toRegex()
+    return regex.find(title)?.groupValues?.get(0)?.dropLast(1)
 }

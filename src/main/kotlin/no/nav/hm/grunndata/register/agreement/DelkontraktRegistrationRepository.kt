@@ -8,4 +8,6 @@ import java.util.*
 @JdbcRepository(dialect = Dialect.POSTGRES)
 interface DelkontraktRegistrationRepository: CoroutineCrudRepository<DelkontraktRegistration, UUID> {
 
+    suspend fun findByIdentifier(identifier: String): DelkontraktRegistration?
+
 }
