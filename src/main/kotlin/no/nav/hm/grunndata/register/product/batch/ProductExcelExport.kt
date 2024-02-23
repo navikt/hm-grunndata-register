@@ -23,7 +23,8 @@ class ProductExcelExport(private val labelService: LabelService) {
         val workbook = XSSFWorkbook()
         isoKeys.forEachIndexed { index, iso ->
             val techlabels = labelService.fetchLabelsByIsoCode(iso)
-            val sheet = workbook.createSheet(iso)
+
+            val sheet = workbook.createSheet(iso.ifEmpty { "Ingen ISO kode" })
             createHeaderRows(sheet, iso, techlabels)
             createProductRow(sheet, isoGroups[iso]!!, techlabels)
         }
