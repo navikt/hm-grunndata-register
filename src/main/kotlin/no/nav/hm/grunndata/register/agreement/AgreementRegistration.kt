@@ -5,10 +5,10 @@ import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
+import jakarta.persistence.OneToMany
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
-
 import java.time.LocalDateTime
 import java.util.*
 
@@ -30,15 +30,20 @@ data class AgreementRegistration(
     val updatedBy: String = REGISTER,
     @field:TypeDef(type = DataType.JSON)
     val agreementData: AgreementData,
+    @field:OneToMany(mappedBy = "agreementId")
+    val delkontraktList: List<DelkontraktRegistration> = emptyList(),
     @field:Version
     val version: Long? = 0L
 )
+
+
 
 data class AgreementData (
     val resume: String?,
     val text: String?,
     val identifier: String,
     val attachments: List<AgreementAttachment> = emptyList(),
+    @Deprecated("Use delkontraktList instead")
     val posts: List<AgreementPost> = emptyList(),
     val isoCategory: List<String> = emptyList(),
 )
