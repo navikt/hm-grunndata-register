@@ -14,7 +14,6 @@ import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 
 @Context
 @Requires(bean = KafkaRapid::class)

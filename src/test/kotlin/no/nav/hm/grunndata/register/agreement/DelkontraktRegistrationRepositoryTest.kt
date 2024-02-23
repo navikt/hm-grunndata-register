@@ -17,10 +17,10 @@ class DelkontraktRegistrationRepositoryTest(private val delkontraktRegistrationR
         val delKontrakt = DelkontraktRegistration(
              id= UUID.randomUUID(),
             agreementId = agreementId,
-            identifier = "qwerty",
-            title = "1. Delkontrakt tittel",
-            description = "Description of delkontrakt 1",
-            sortNr = 1
+            createdBy = "HMDB",
+            updatedBy = "HMDB",
+            delkontraktData =  DelkontraktData(identifier = "qwerty", title = "1. Delkontrakt tittel",
+                description = "Description of delkontrakt 1", sortNr = 1),
         )
 
         runBlocking {
@@ -28,9 +28,9 @@ class DelkontraktRegistrationRepositoryTest(private val delkontraktRegistrationR
             saved.shouldNotBeNull()
             val found = delkontraktRegistrationRepository.findById(saved.id)
             found.shouldNotBeNull()
-            found.title shouldBe "1. Delkontrakt tittel"
-            found.description shouldBe "Description of delkontrakt 1"
-            found.sortNr shouldBe 1
+            found.delkontraktData.title shouldBe "1. Delkontrakt tittel"
+            found.delkontraktData.description shouldBe "Description of delkontrakt 1"
+            found.delkontraktData.sortNr shouldBe 1
             found.agreementId shouldBe agreementId
         }
     }
