@@ -9,15 +9,13 @@ import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import java.time.LocalDateTime
 import java.util.UUID
 
-
 @Singleton
 open class ProductAgreementRegistrationService(
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
     private val productRegistrationRepository: ProductRegistrationRepository,
     private val seriesRegistrationRepository: SeriesRegistrationRepository,
-    private val productAgreementRegistrationHandler: ProductAgreementRegistrationEventHandler
+    private val productAgreementRegistrationHandler: ProductAgreementRegistrationEventHandler,
 ) {
-
     companion object {
         private val LOG = org.slf4j.LoggerFactory.getLogger(ProductAgreementRegistrationService::class.java)
     }
@@ -30,7 +28,7 @@ open class ProductAgreementRegistrationService(
                 productAgreement.supplierRef,
                 productAgreement.agreementId,
                 productAgreement.post,
-                productAgreement.rank
+                productAgreement.rank,
             ) ?: saveAndCreateEvent(productAgreement, false)
         }
 
@@ -55,8 +53,8 @@ open class ProductAgreementRegistrationService(
                         status = productAgreement.status,
                         updated = LocalDateTime.now(),
                         published = productAgreement.published,
-                        expired = productAgreement.expired
-                    )
+                        expired = productAgreement.expired,
+                    ),
                 )
             } ?: saveAndCreateEvent(productAgreement, false)
         }
@@ -65,7 +63,7 @@ open class ProductAgreementRegistrationService(
     open suspend fun updateAll(dtos: List<ProductAgreementRegistrationDTO>): List<ProductAgreementRegistrationDTO> =
         dtos.map { productAgreement ->
             findById(
-                productAgreement.id
+                productAgreement.id,
             )?.let { inDb ->
                 update(
                     inDb.copy(
@@ -79,8 +77,8 @@ open class ProductAgreementRegistrationService(
                         updated = LocalDateTime.now(),
                         published = productAgreement.published,
                         expired = productAgreement.expired,
-                        rank = productAgreement.rank
-                    )
+                        rank = productAgreement.rank,
+                    ),
                 )
             } ?: throw RuntimeException("Product agreement not found")
         }
@@ -89,21 +87,28 @@ open class ProductAgreementRegistrationService(
         productAgreementRegistrationRepository.save(dto.toEntity()).toDTO()
 
     suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
-        supplierId: UUID, supplierRef: String, agreementId: UUID, post: Int, rank: Int
+        supplierId: UUID,
+        supplierRef: String,
+        agreementId: UUID,
+        post: Int,
+        rank: Int,
     ): ProductAgreementRegistrationDTO? =
         productAgreementRegistrationRepository.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
-            supplierId, supplierRef, agreementId, post, rank
+            supplierId,
+            supplierRef,
+            agreementId,
+            post,
+            rank,
         )?.toDTO()
 
     suspend fun findBySupplierIdAndSupplierRef(
         supplierId: UUID,
-        supplierRef: String
+        supplierRef: String,
     ): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)
             .map { it.toDTO() }
 
-    suspend fun findById(id: UUID): ProductAgreementRegistrationDTO? =
-        productAgreementRegistrationRepository.findById(id)?.toDTO()
+    suspend fun findById(id: UUID): ProductAgreementRegistrationDTO? = productAgreementRegistrationRepository.findById(id)?.toDTO()
 
     suspend fun findAllByIds(ids: List<UUID>): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findAllByIdIn(ids).toDTO()
@@ -111,12 +116,12 @@ open class ProductAgreementRegistrationService(
     suspend fun findByAgreementId(agreementId: UUID): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findByAgreementId(agreementId).map { it.toDTO() }
 
-
     suspend fun findGroupedProductVariantsByAgreementId(agreementId: UUID): List<ProduktvarianterForDelkontrakterDTO> {
-        val alleVarianter = productAgreementRegistrationRepository.findByAgreementIdAndStatus(
-            agreementId,
-            ProductAgreementStatus.ACTIVE
-        ).map { it.toDTO() }
+        val alleVarianter =
+            productAgreementRegistrationRepository.findByAgreementIdAndStatus(
+                agreementId,
+                ProductAgreementStatus.ACTIVE,
+            ).map { it.toDTO() }
 
         val liste = mutableListOf<ProduktvarianterForDelkontrakterDTO>()
 
@@ -130,16 +135,15 @@ open class ProductAgreementRegistrationService(
                         produktvarianter = varianter,
                         rangering = varianter.first().rank,
                         produktserie = seriesUuid,
-                        serieIdentifier = seriesInfo?.identifier
-                    )
+                        serieIdentifier = seriesInfo?.identifier,
+                    ),
                 )
             }
         }
 
-        liste.sortBy { it.rangering }
+        liste.sortBy { it.delkontraktNr }
         return liste
     }
-
 
     suspend fun deleteById(id: UUID): Int = productAgreementRegistrationRepository.deleteById(id)
 
@@ -149,17 +153,16 @@ open class ProductAgreementRegistrationService(
         return ids.size
     }
 
-
     @Transactional
     open suspend fun saveAndCreateEvent(
         dto: ProductAgreementRegistrationDTO,
-        isUpdate: Boolean
+        isUpdate: Boolean,
     ): ProductAgreementRegistrationDTO {
         val saved = if (isUpdate) update(dto) else save(dto)
         if (dto.productId != null) {
             productAgreementRegistrationHandler.queueDTORapidEvent(
                 saved,
-                eventName = EventName.registeredProductAgreementV1
+                eventName = EventName.registeredProductAgreementV1,
             )
         }
         return saved
@@ -168,7 +171,6 @@ open class ProductAgreementRegistrationService(
     suspend fun update(dto: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO {
         return productAgreementRegistrationRepository.update(dto.toEntity()).toDTO()
     }
-
 
     open suspend fun connectProductAgreementToProduct() {
         val productAgreementList = productAgreementRegistrationRepository.findByProductIdIsNull()
@@ -180,13 +182,12 @@ open class ProductAgreementRegistrationService(
                     productAgreementRegistrationRepository.update(
                         it.copy(
                             productId = product.id,
-                            updated = LocalDateTime.now()
-                        )
+                            updated = LocalDateTime.now(),
+                        ),
                     )
                 }
         }
     }
-
 }
 
 data class ProduktvarianterForDelkontrakterDTO(
@@ -195,5 +196,5 @@ data class ProduktvarianterForDelkontrakterDTO(
     val rangering: Int,
     val produktserie: UUID?,
     val serieIdentifier: String?,
-    val produktvarianter: List<ProductAgreementRegistrationDTO>
+    val produktvarianter: List<ProductAgreementRegistrationDTO>,
 )
