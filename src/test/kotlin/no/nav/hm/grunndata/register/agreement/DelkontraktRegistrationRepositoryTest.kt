@@ -21,7 +21,7 @@ class DelkontraktRegistrationRepositoryTest(private val delkontraktRegistrationR
             createdBy = "HMDB",
             updatedBy = "HMDB",
             delkontraktData =  DelkontraktData(title = "1. Delkontrakt tittel",
-                description = "Description of delkontrakt 1", sortNr = 1, delKontraktRefNr = "1A"),
+                description = "Description of delkontrakt 1", sortNr = 1, refNr = "1A"),
         )
 
         runBlocking {
@@ -33,7 +33,7 @@ class DelkontraktRegistrationRepositoryTest(private val delkontraktRegistrationR
             found.delkontraktData.title shouldBe "1. Delkontrakt tittel"
             found.delkontraktData.description shouldBe "Description of delkontrakt 1"
             found.delkontraktData.sortNr shouldBe 1
-            found.delkontraktData.delKontraktRefNr shouldBe "1A"
+            found.delkontraktData.refNr shouldBe "1A"
             found.agreementId shouldBe agreementId
         }
     }

@@ -12,7 +12,7 @@ data class DelkontraktRegistration(
     @field:Id
     val id: UUID = UUID.randomUUID(),
     val agreementId: UUID,
-    val identifier: String = id.toString(),
+    val identifier: String,
     @field:TypeDef(type = DataType.JSON)
     val delkontraktData: DelkontraktData,
     val createdBy: String,
@@ -24,6 +24,7 @@ data class DelkontraktData(
     val title: String?=null,
     val description: String?=null,
     val sortNr: Int=0,
-    val delKontraktRefNr: String?=null // "1" eller "1A"
+    val refNr: String?=null // "1" eller "1A"
 )
+
 
