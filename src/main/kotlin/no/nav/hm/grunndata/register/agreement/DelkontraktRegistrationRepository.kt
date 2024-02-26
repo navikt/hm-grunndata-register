@@ -9,5 +9,6 @@ import java.util.*
 interface DelkontraktRegistrationRepository: CoroutineCrudRepository<DelkontraktRegistration, UUID> {
 
     suspend fun findByIdentifier(identifier: String): DelkontraktRegistration?
+    suspend fun findByAgreementId(agreementId: UUID): List<DelkontraktRegistration>
 
 }
