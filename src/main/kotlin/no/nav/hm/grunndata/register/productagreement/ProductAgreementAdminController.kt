@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.productagreement
 
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
@@ -25,24 +26,22 @@ class ProductAgreementAdminController(
     private val productAgreementImportExcelService: ProductAgreementImportExcelService,
     private val productRegistrationService: ProductRegistrationService,
     private val agreementRegistrationService: AgreementRegistrationService,
-    private val productAgreementRegistrationService: ProductAgreementRegistrationService
+    private val productAgreementRegistrationService: ProductAgreementRegistrationService,
 ) {
-
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementAdminController::class.java)
         const val ADMIN_API_V1_PRODUCT_AGREEMENT = "/admin/api/v1/product-agreement"
     }
 
-
     @Post(
         value = "/excel-import",
         consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
-        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON],
     )
     suspend fun excelImport(
         file: CompletedFileUpload,
         @QueryValue dryRun: Boolean = true,
-        authentication: Authentication
+        authentication: Authentication,
     ): ProductAgreementImportDTO {
         LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()}")
         val productAgreements =
@@ -54,18 +53,18 @@ class ProductAgreementAdminController(
         return ProductAgreementImportDTO(
             dryRun = dryRun,
             count = productAgreements.size,
-            productAgreements = productAgreements
+            productAgreements = productAgreements,
         )
     }
 
     @Get(
         value = "/{id}",
         consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
-        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON],
     )
     suspend fun getProductsByAgreementId(
         id: UUID,
-        authentication: Authentication
+        authentication: Authentication,
     ): List<ProductAgreementRegistrationDTO> {
         LOG.info("Getting products for agreement {$id} by ${authentication.userId()}")
         return productAgreementRegistrationService.findByAgreementId(id)
@@ -74,25 +73,24 @@ class ProductAgreementAdminController(
     @Post(
         value = "/get-by-ids",
         consumes = [io.micronaut.http.MediaType.APPLICATION_JSON],
-        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON],
     )
     suspend fun getProductsAgreementsByIds(
         @Body ids: List<UUID>,
-        authentication: Authentication
+        authentication: Authentication,
     ): List<ProductAgreementRegistrationDTO> {
         LOG.info("Getting productsAgreements by ${authentication.userId()}")
         return productAgreementRegistrationService.findAllByIds(ids)
     }
 
-
     @Get(
         value = "/variants/{id}",
         consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
-        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON],
     )
     suspend fun getProductVariantsByAgreementId(
         id: UUID,
-        authentication: Authentication
+        authentication: Authentication,
     ): List<ProduktvarianterForDelkontrakterDTO> {
         LOG.info("Getting product variants for agreement {$id} by ${authentication.userId()}")
         return productAgreementRegistrationService.findGroupedProductVariantsByAgreementId(id)
@@ -101,13 +99,15 @@ class ProductAgreementAdminController(
     @Post(
         value = "/",
         consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
-        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON],
     )
     suspend fun createProductAgreement(
         @Body regDTO: ProductAgreementRegistrationDTO,
-        authentication: Authentication
+        authentication: Authentication,
     ): ProductAgreementRegistrationDTO {
-        LOG.info("Creating product agreement: ${regDTO.agreementId} ${regDTO.supplierId} ${regDTO.supplierRef} by ${authentication.userId()}")
+        LOG.info(
+            "Creating product agreement: ${regDTO.agreementId} ${regDTO.supplierId} ${regDTO.supplierRef} by ${authentication.userId()}",
+        )
         productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPost(
             regDTO.supplierId,
             regDTO.supplierRef,
@@ -116,10 +116,12 @@ class ProductAgreementAdminController(
         )?.let {
             throw BadRequestException("Product agreement already exists")
         }
-        val product = productRegistrationService.findBySupplierRefAndSupplierId(regDTO.supplierRef, regDTO.supplierId)
-            ?: throw BadRequestException("Product not found")
-        val agreement = agreementRegistrationService.findById(regDTO.agreementId)
-            ?: throw BadRequestException("Agreement ${regDTO.agreementId} not found")
+        val product =
+            productRegistrationService.findBySupplierRefAndSupplierId(regDTO.supplierRef, regDTO.supplierId)
+                ?: throw BadRequestException("Product not found")
+        val agreement =
+            agreementRegistrationService.findById(regDTO.agreementId)
+                ?: throw BadRequestException("Agreement ${regDTO.agreementId} not found")
         return productAgreementRegistrationService.saveAndCreateEvent(
             ProductAgreementRegistrationDTO(
                 supplierRef = regDTO.supplierRef,
@@ -135,66 +137,74 @@ class ProductAgreementAdminController(
                 seriesUuid = product.seriesUUID,
                 articleName = product.articleName,
                 title = regDTO.title,
-                reference = agreement.reference
-            ), isUpdate = false
+                reference = agreement.reference,
+            ),
+            isUpdate = false,
         )
     }
 
     @Post(
         value = "/batch",
         consumes = [io.micronaut.http.MediaType.APPLICATION_JSON],
-        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON],
     )
     suspend fun createProductAgreements(
         @Body regDTOs: List<ProductAgreementRegistrationDTO>,
-        authentication: Authentication
+        authentication: Authentication,
     ): List<ProductAgreementRegistrationDTO> {
         LOG.info("Creating ${regDTOs.size} product agreements by ${authentication.userId()}")
-        val lagrede = productAgreementRegistrationService.saveOrUpdateAll(
-            regDTOs
-        )
+        val lagrede =
+            productAgreementRegistrationService.saveOrUpdateAll(
+                regDTOs,
+            )
         return lagrede
     }
 
     @Put(
         value = "/batch",
         consumes = [io.micronaut.http.MediaType.APPLICATION_JSON],
-        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON],
     )
     suspend fun updateProductAgreements(
         @Body regDTOs: List<ProductAgreementRegistrationDTO>,
-        authentication: Authentication
+        authentication: Authentication,
     ): List<ProductAgreementRegistrationDTO> {
         LOG.info("Updating ${regDTOs.size} product agreements by ${authentication.userId()}")
-        val lagrede = productAgreementRegistrationService.updateAll(
-            regDTOs
-        )
+        val lagrede =
+            productAgreementRegistrationService.updateAll(
+                regDTOs,
+            )
         return lagrede
     }
 
     @Delete("/{id}")
-    suspend fun deleteProductAgreementById(id: UUID, authentication: Authentication) {
+    suspend fun deleteProductAgreementById(
+        id: UUID,
+        authentication: Authentication,
+    ) {
         LOG.info("deleting product agreement: $id by ${authentication.userId()}")
         productAgreementRegistrationService.findById(id)?.let {
             productAgreementRegistrationService.saveAndCreateEvent(
                 it.copy(status = ProductAgreementStatus.DELETED),
-                isUpdate = true
+                isUpdate = true,
             )
         } ?: throw BadRequestException("Product agreement $id not found")
     }
 
     @Delete("/ids")
-    suspend fun deleteProductAgreementByIds(@Body ids: List<UUID>, authentication: Authentication) {
+    suspend fun deleteProductAgreementByIds(
+        @Body ids: List<UUID>,
+        authentication: Authentication,
+    ): HttpResponse<String> {
         LOG.info("deleting product agreements: $ids by ${authentication.userId()}")
         ids.forEach {
             productAgreementRegistrationService.findById(it)?.let {
                 productAgreementRegistrationService.saveAndCreateEvent(
                     it.copy(status = ProductAgreementStatus.DELETED),
-                    isUpdate = true
+                    isUpdate = true,
                 )
             } ?: throw BadRequestException("Product agreement $it not found")
         }
+        return HttpResponse.ok("Product agreements $ids has been deleted")
     }
-
 }
-
