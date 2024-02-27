@@ -191,7 +191,11 @@ class ProductAgreementAdminController(
         } ?: throw BadRequestException("Product agreement $id not found")
     }
 
-    @Delete("/ids")
+    @Delete(
+        value = "/ids",
+        consumes = [io.micronaut.http.MediaType.APPLICATION_JSON],
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON],
+    )
     suspend fun deleteProductAgreementByIds(
         @Body ids: List<UUID>,
         authentication: Authentication,
