@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.agreement
 
 import io.micronaut.core.annotation.Introspected
+import io.micronaut.data.annotation.Join
 import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
@@ -11,6 +12,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
+@Join(value = "delkontraktList", type = Join.Type.LEFT_FETCH)
 interface AgreementRegistrationRepository: CoroutineCrudRepository<AgreementRegistration, UUID>,
     CoroutineJpaSpecificationExecutor<AgreementRegistration> {
 
