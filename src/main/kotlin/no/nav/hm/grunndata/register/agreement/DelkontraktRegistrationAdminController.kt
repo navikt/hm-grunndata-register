@@ -12,14 +12,14 @@ import no.nav.hm.grunndata.register.security.Roles
 import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
-@Controller(DelkontraktRegistrationAdminController.API_V1_ADMIN_DELKONTRAKT_REGISTRATION)
+@Controller(DelkontraktRegistrationAdminController.API_V1_ADMIN_DELKONTRAKT_REGISTRATIONS)
 class DelkontraktRegistrationAdminController(private val delkontraktRegistrationService: DelkontraktRegistrationService) {
 
     companion object {
-        const val API_V1_ADMIN_DELKONTRAKT_REGISTRATION = "/admin/api/v1/agreement/delkontrakt/registrations"
+        const val API_V1_ADMIN_DELKONTRAKT_REGISTRATIONS = "/admin/api/v1/agreement/delkontrakt/registrations"
     }
 
-    @Get("(/{agreementId}")
+    @Get("/agreement/{agreementId}")
     suspend fun findByAgreementId(agreementId: UUID): List<DelkontraktRegistrationDTO> =
         delkontraktRegistrationService.findByAgreementId(agreementId)
 

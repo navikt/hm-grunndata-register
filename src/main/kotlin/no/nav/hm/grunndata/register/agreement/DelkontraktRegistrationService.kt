@@ -1,7 +1,9 @@
 package no.nav.hm.grunndata.register.agreement
 
+import jakarta.inject.Singleton
 import java.util.*
 
+@Singleton
 class DelkontraktRegistrationService(private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository) {
 
     suspend fun findByAgreementId(agreementId: UUID): List<DelkontraktRegistrationDTO> =
