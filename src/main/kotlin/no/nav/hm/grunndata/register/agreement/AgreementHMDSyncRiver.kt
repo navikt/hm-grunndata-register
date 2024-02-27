@@ -16,7 +16,6 @@ import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.HMDB
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
-import java.util.*
 
 @Context
 @Requires(bean = KafkaRapid::class)
@@ -76,9 +75,10 @@ class AgreementSyncRiver(
 
     private suspend fun mapDelkontrakt(dto: AgreementDTO): List<DelkontraktRegistration> =
         dto.posts.map {
-            delkontraktRegistrationRepository.findByIdentifier(it.identifier)?.let { inDb ->
+            delkontraktRegistrationRepository.findById(it.id!!)?.let { inDb ->
                 delkontraktRegistrationRepository.update(
                     inDb.copy(
+                        identifier = it.identifier,
                         delkontraktData = DelkontraktData(
                             title = it.title, description = it.description, sortNr = it.nr,
                             refNr = extractDelkontraktNrFromTitle(it.title)
@@ -91,7 +91,7 @@ class AgreementSyncRiver(
 
 fun AgreementPost.toDelKontrakt(dto: AgreementDTO): DelkontraktRegistration {
     return DelkontraktRegistration(
-        id = UUID.randomUUID(),
+        id = id!!,
         identifier = identifier,
         agreementId = dto.id,
         delkontraktData = DelkontraktData(
