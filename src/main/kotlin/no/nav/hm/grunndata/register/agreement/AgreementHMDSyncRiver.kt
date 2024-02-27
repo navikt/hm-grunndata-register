@@ -75,6 +75,7 @@ class AgreementSyncRiver(
 
     private suspend fun mapDelkontrakt(dto: AgreementDTO): List<DelkontraktRegistration> =
         dto.posts.map {
+            LOG.info("Got delkontrakt ${it.id} with identifier ${it.identifier}")
             delkontraktRegistrationRepository.findById(it.id!!)?.let { inDb ->
                 delkontraktRegistrationRepository.update(
                     inDb.copy(
@@ -96,7 +97,7 @@ fun AgreementPost.toDelKontrakt(dto: AgreementDTO): DelkontraktRegistration {
         agreementId = dto.id,
         delkontraktData = DelkontraktData(
             title = title, description = description,
-            sortNr = nr, refNr = extractDelkontraktNrFromTitle(title)
+            sortNr = nr, refNr =refNr
         ),
         createdBy = HMDB,
         updatedBy = HMDB
