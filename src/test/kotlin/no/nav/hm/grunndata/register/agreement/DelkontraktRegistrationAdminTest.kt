@@ -24,7 +24,7 @@ class DelkontraktRegistrationAdminTest(
     private val userRepository: UserRepository
 ) {
 
-    val email = "admin@test.test"
+    val email = "delkontraktadmin@test.test"
     val password = "admin-123"
 
     @MockBean(RapidPushService::class)
