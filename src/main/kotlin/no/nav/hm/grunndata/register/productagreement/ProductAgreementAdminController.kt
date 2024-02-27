@@ -201,13 +201,13 @@ class ProductAgreementAdminController(
         authentication: Authentication,
     ): HttpResponse<String> {
         LOG.info("deleting product agreements: $ids by ${authentication.userId()}")
-        ids.forEach {
-            productAgreementRegistrationService.findById(it)?.let {
+        ids.forEach { uuid ->
+            productAgreementRegistrationService.findById(uuid)?.let {
                 productAgreementRegistrationService.saveAndCreateEvent(
                     it.copy(status = ProductAgreementStatus.DELETED),
                     isUpdate = true,
                 )
-            } ?: throw BadRequestException("Product agreement $it not found")
+            } ?: throw BadRequestException("Product agreement $uuid not found")
         }
         return HttpResponse.ok("Product agreements $ids has been deleted")
     }
