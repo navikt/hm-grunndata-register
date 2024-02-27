@@ -116,8 +116,8 @@ class ProductHMDBSyncRiver(
             }
             dto.agreements.forEach { agreementInfo ->
                 agreementRegistrationService.findById(agreementInfo.id)?.let { agreement ->
-                    productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
-                        dto.supplier.id, dto.supplierRef, agreementInfo.id, agreementInfo.postNr, agreementInfo.rank
+                    productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPost(
+                        dto.supplier.id, dto.supplierRef, agreementInfo.id, agreementInfo.postNr
                     )?.let { inDb ->
                         productAgreementRegistrationService.update(
                             inDb.copy(

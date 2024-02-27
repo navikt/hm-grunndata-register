@@ -12,12 +12,11 @@ interface ProductAgreementRegistrationRepository : CoroutineCrudRepository<Produ
     CoroutineJpaSpecificationExecutor<ProductAgreementRegistration> {
 
 
-    suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
+    suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPost(
         supplierId: UUID,
         supplierRef: String,
         agreementId: UUID,
         post: Int,
-        rank: Int
     ): ProductAgreementRegistration?
 
     suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRankAndStatus(
