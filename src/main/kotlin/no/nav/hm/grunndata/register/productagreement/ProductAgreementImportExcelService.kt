@@ -51,7 +51,7 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
         val agreement = findAgreementByReference(reference)
         val supplierId =  parseSupplierName(supplierName)
         val product = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)
-        val postRanks: List<Pair<Int,Int>> = parsePostRanks(subContractNr)
+        val postRanks: List<Pair<Int,Int>> = parsedelkontraktNr(delkontraktNr)
         return  postRanks.map { postRank ->
             ProductAgreementRegistrationDTO(
                 hmsArtNr = parseHMSNr(hmsArtNr),
@@ -89,7 +89,7 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
     }
 
 
-    private fun parsePostRanks(subContractNr: String): List<Pair<Int,Int>> {
+    private fun parsedelkontraktNr(subContractNr: String): List<Pair<Int,Int>> {
         try {
             val rankRegex = Regex("d(\\d+)r(\\d+)")
             var matchResult = rankRegex.find(subContractNr)
@@ -120,7 +120,7 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
                 title = row.getCell(columnMap[beskrivelse.column]!!).toString().trim(),
                 supplierRef = leveartNr,
                 reference = row.getCell(columnMap[anbudsnr.column]!!).toString().trim(),
-                subContractNr = row.getCell(columnMap[delkontraktnummer.column]!!).toString().trim(),
+                delkontraktNr = row.getCell(columnMap[delkontraktnummer.column]!!).toString().trim(),
                 dateFrom = row.getCell(columnMap[datofom.column]!!).toString().trim(),
                 dateTo = row.getCell(columnMap[datotom.column]!!).toString().trim(),
                 articleType = type,
@@ -163,7 +163,7 @@ data class ProductAgreementExcelDTO(
     val title: String,
     val supplierRef: String,
     val reference: String,
-    val subContractNr: String,
+    val delkontraktNr: String,
     val dateFrom: String,
     val dateTo: String,
     val articleType: String,
