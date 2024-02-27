@@ -37,8 +37,7 @@ data class AgreementRegistration(
 )
 
 
-
-data class AgreementData (
+data class AgreementData(
     val resume: String?,
     val text: String?,
     val identifier: String,
@@ -48,7 +47,7 @@ data class AgreementData (
     val isoCategory: List<String> = emptyList(),
 )
 
-data class AgreementRegistrationDTO (
+data class AgreementRegistrationDTO(
     override val id: UUID,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val agreementStatus: AgreementStatus = AgreementStatus.INACTIVE,
@@ -63,22 +62,56 @@ data class AgreementRegistrationDTO (
     val createdBy: String = REGISTER,
     val updatedBy: String = REGISTER,
     val agreementData: AgreementData,
+    val delkontraktList: List<DelkontraktRegistrationDTO> = emptyList(),
     val version: Long? = 0L
-): EventPayload {
+) : EventPayload {
     override fun toRapidDTO(): RapidDTO = AgreementRegistrationRapidDTO(
-        id = id, draftStatus = draftStatus, created = created, updated = updated, published = published, expired = expired, createdByUser = createdByUser,
-        updatedByUser = updatedByUser, createdBy = createdBy, updatedBy = updatedBy, version = version, agreementDTO = agreementData.toDTO(this)
+        id = id,
+        draftStatus = draftStatus,
+        created = created,
+        updated = updated,
+        published = published,
+        expired = expired,
+        createdByUser = createdByUser,
+        updatedByUser = updatedByUser,
+        createdBy = createdBy,
+        updatedBy = updatedBy,
+        version = version,
+        agreementDTO = agreementData.toDTO(this)
     )
 
     private fun AgreementData.toDTO(registration: AgreementRegistrationDTO): AgreementDTO = AgreementDTO(
-        id = registration.id, identifier = identifier, title = registration.title, resume = resume, text = text,
-        status = registration.agreementStatus, reference = registration.reference, published = registration.published,
-        expired = registration.expired, attachments = attachments, posts = posts, createdBy = registration.createdBy,
-        updatedBy = registration.updatedBy, created = registration.created, updated = registration.updated, isoCategory = isoCategory
+        id = registration.id,
+        identifier = identifier,
+        title = registration.title,
+        resume = resume,
+        text = text,
+        status = registration.agreementStatus,
+        reference = registration.reference,
+        published = registration.published,
+        expired = registration.expired,
+        attachments = attachments,
+        posts = registration.delkontraktList.map { it.toAgreementPost(registration) },
+        createdBy = registration.createdBy,
+        updatedBy = registration.updatedBy,
+        created = registration.created,
+        updated = registration.updated,
+        isoCategory = isoCategory
     )
 }
 
-data class AgreementBasicInformationDto (
+fun DelkontraktRegistrationDTO.toAgreementPost(agreement: AgreementRegistrationDTO): AgreementPost = AgreementPost(
+    id = id,
+    identifier = identifier,
+    title = delkontraktData.title!!,
+    description = delkontraktData.description!!,
+    nr = delkontraktData.sortNr,
+    refNr = delkontraktData.refNr,
+    created = agreement.created,
+)
+
+
+data class AgreementBasicInformationDto(
     val id: UUID,
     val title: String,
     val reference: String,
@@ -97,8 +130,8 @@ fun AgreementRegistration.toDTO(): AgreementRegistrationDTO = AgreementRegistrat
     id = id, draftStatus = draftStatus, agreementStatus = agreementStatus,
     title = title, reference = reference, created = created,
     updated = updated, published = published, expired = expired, createdByUser = createdByUser,
-    updatedByUser = updatedByUser, createdBy= createdBy, updatedBy = updatedBy,
-    agreementData = agreementData, version = version,
+    updatedByUser = updatedByUser, createdBy = createdBy, updatedBy = updatedBy,
+    agreementData = agreementData, version = version, delkontraktList = delkontraktList.map { it.toDTO() }
 )
 
 fun AgreementRegistration.toBasicInformationDto(): AgreementBasicInformationDto = AgreementBasicInformationDto(
@@ -109,6 +142,6 @@ fun AgreementRegistrationDTO.toEntity(): AgreementRegistration = AgreementRegist
     id = id, draftStatus = draftStatus, agreementStatus = agreementStatus,
     title = title, reference = reference, created = created,
     updated = updated, published = published, expired = expired, createdByUser = createdByUser,
-    updatedByUser = updatedByUser, createdBy= createdBy, updatedBy = updatedBy,
-    agreementData = agreementData, version = version
+    updatedByUser = updatedByUser, createdBy = createdBy, updatedBy = updatedBy,
+    agreementData = agreementData, version = version, delkontraktList = delkontraktList.map { it.toEntity() }
 )
