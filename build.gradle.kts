@@ -12,7 +12,7 @@ val kotestVersion = "5.5.5"
 val poiVersion = "5.1.0"
 val rapidsRiversVersion = "202401101532"
 val grunndataDtoVersion = "202402271240"
-
+val microsoftGrapVersion = "5.77.0"
 group = "no.nav.hm"
 version = properties["version"] ?: "local-build"
 
@@ -86,7 +86,7 @@ dependencies {
     implementation("org.apache.poi:poi-ooxml:$poiVersion")
 
     // Microsoft Graph
-    implementation("com.microsoft.graph:microsoft-graph:5.77.0")
+    implementation("com.microsoft.graph:microsoft-graph:$microsoftGrapVersion")
     implementation("com.azure:azure-identity:1.2.5")
 
     //flyway-postgresql

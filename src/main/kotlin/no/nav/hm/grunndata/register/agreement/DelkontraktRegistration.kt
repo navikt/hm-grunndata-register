@@ -24,7 +24,7 @@ data class DelkontraktData(
     val title: String?=null,
     val description: String?=null,
     val sortNr: Int=0,
-    val refNr: String?=null // "1" eller "1A"
+    val refNr: String? = extractDelkontraktNrFromTitle(title?:"") // "1" eller "1A"
 )
 
 data class DelkontraktRegistrationDTO(
