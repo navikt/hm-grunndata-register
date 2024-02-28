@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.agreement
 
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
+import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.CookieValue
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
@@ -21,13 +22,13 @@ interface DelkontraktRegistrationAdminClient {
     suspend fun updateDelkontrakt(
         @CookieValue("JWT") jwt: String,
         id: UUID,
-        dto: DelkontraktRegistrationDTO
+        @Body dto: DelkontraktRegistrationDTO
     ): HttpResponse<DelkontraktRegistrationDTO>
 
     @Post(uri = "/", consumes = [MediaType.APPLICATION_JSON])
     suspend fun createDelkontrakt(
         @CookieValue("JWT") jwt: String,
-        dto: DelkontraktRegistrationDTO
+        @Body dto: DelkontraktRegistrationDTO
     ): HttpResponse<DelkontraktRegistrationDTO>
 
     @Get(uri = "/agreement/{agreementId}", consumes = [MediaType.APPLICATION_JSON])
