@@ -32,7 +32,7 @@ class DelkontraktRegistrationAdminController(private val delkontraktRegistration
 
     @Post("/")
     suspend fun createDelkontrakt(
-        dto: DelkontraktRegistrationDTO,
+        @Body dto: DelkontraktRegistrationDTO,
         authentication: Authentication
     ): HttpResponse<DelkontraktRegistrationDTO> =
         delkontraktRegistrationService.findById(dto.id)?.let {
@@ -42,7 +42,7 @@ class DelkontraktRegistrationAdminController(private val delkontraktRegistration
     @Put("/{id}")
     suspend fun updateDelkontrakt(
         id: UUID,
-        dto: DelkontraktRegistrationDTO,
+        @Body dto: DelkontraktRegistrationDTO,
         authentication: Authentication
     ): HttpResponse<DelkontraktRegistrationDTO> =
         delkontraktRegistrationService.findById(id)?.let {
