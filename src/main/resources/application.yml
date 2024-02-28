@@ -12,6 +12,9 @@ micronaut:
     consumer:
       type: fixed
       nThreads: 1
+    io:
+      type: fixed
+      nThreads: 100
   security:
     enabled: true
     redirect:

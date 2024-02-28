@@ -49,7 +49,6 @@ class AgreementSyncRiver(
                 agreementRegistrationRepository.update(
                     inDb.copy(
                         agreementData = dto.toData(),
-                        delkontraktList = mapDelkontrakt(dto),
                         reference = dto.reference,
                         agreementStatus = dto.status,
                         title = dto.title,
@@ -59,21 +58,20 @@ class AgreementSyncRiver(
                         updated = dto.updated
                     )
                 )
-            }
-                ?: agreementRegistrationRepository.save(
+            } ?: agreementRegistrationRepository.save(
                     AgreementRegistration(
                         title = dto.title, id = dto.id, createdByUser = dto.createdBy, updatedByUser = dto.updatedBy,
                         createdBy = dto.createdBy, updatedBy = dto.updatedBy, reference = dto.reference,
                         published = dto.published, expired = dto.expired, updated = dto.updated, created = dto.created,
                         draftStatus = DraftStatus.DONE, agreementStatus = dto.status, agreementData = dto.toData(),
-                        delkontraktList = mapDelkontrakt(dto)
                     )
                 )
+            saveDelkontrakt(dto)
             LOG.info("Agreement ${dto.id} with eventId $eventId synced from HMDB")
         }
     }
 
-    private suspend fun mapDelkontrakt(dto: AgreementDTO): List<DelkontraktRegistration> =
+    private suspend fun saveDelkontrakt(dto: AgreementDTO): List<DelkontraktRegistration> =
         dto.posts.map {
             LOG.info("Got delkontrakt ${it.id} with identifier ${it.identifier}")
             delkontraktRegistrationRepository.findById(it.id!!)?.let { inDb ->

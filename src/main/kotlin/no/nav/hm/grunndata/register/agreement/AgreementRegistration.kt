@@ -5,7 +5,6 @@ import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
-import jakarta.persistence.OneToMany
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
@@ -30,8 +29,6 @@ data class AgreementRegistration(
     val updatedBy: String = REGISTER,
     @field:TypeDef(type = DataType.JSON)
     val agreementData: AgreementData,
-    @field:OneToMany(mappedBy = "agreementId")
-    val delkontraktList: List<DelkontraktRegistration> = emptyList(),
     @field:Version
     val version: Long? = 0L
 )
@@ -126,14 +123,6 @@ fun AgreementDTO.toData(): AgreementData = AgreementData(
     isoCategory = isoCategory
 )
 
-fun AgreementRegistration.toDTO(): AgreementRegistrationDTO = AgreementRegistrationDTO(
-    id = id, draftStatus = draftStatus, agreementStatus = agreementStatus,
-    title = title, reference = reference, created = created,
-    updated = updated, published = published, expired = expired, createdByUser = createdByUser,
-    updatedByUser = updatedByUser, createdBy = createdBy, updatedBy = updatedBy,
-    agreementData = agreementData, version = version, delkontraktList = delkontraktList.map { it.toDTO() }
-)
-
 fun AgreementRegistration.toBasicInformationDto(): AgreementBasicInformationDto = AgreementBasicInformationDto(
     id = id, title = title, reference = reference
 )
@@ -143,5 +132,5 @@ fun AgreementRegistrationDTO.toEntity(): AgreementRegistration = AgreementRegist
     title = title, reference = reference, created = created,
     updated = updated, published = published, expired = expired, createdByUser = createdByUser,
     updatedByUser = updatedByUser, createdBy = createdBy, updatedBy = updatedBy,
-    agreementData = agreementData, version = version, delkontraktList = delkontraktList.map { it.toEntity() }
+    agreementData = agreementData, version = version
 )

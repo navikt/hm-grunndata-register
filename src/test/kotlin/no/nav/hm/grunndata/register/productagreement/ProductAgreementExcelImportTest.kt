@@ -9,9 +9,8 @@ import no.nav.hm.grunndata.rapid.dto.AgreementDTO
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementData
-import no.nav.hm.grunndata.register.agreement.AgreementRegistration
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
-import no.nav.hm.grunndata.register.agreement.toDTO
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
@@ -69,11 +68,11 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
                         description = "post description", nr = 1), AgreementPost(identifier = "unik-post2", title = "Post title 2",
                         description = "post description 2", nr = 2)
                 ))
-            val agreementRegistration = AgreementRegistration(
+            val agreementRegistration = AgreementRegistrationDTO(
                 id = agreementId, published = agreement.published, expired = agreement.expired, title = agreement.title,
                 reference = agreement.reference, updatedByUser = "username", createdByUser = "username", agreementData = data
             )
-            agreementRegistrationService.save(agreementRegistration.toDTO())
+            agreementRegistrationService.save(agreementRegistration)
             ProductAgreementExcelImportTest::class.java.classLoader.getResourceAsStream("productagreement/katalog-test.xls").use {
                 val productAgreements = productAgreementImportExcelService.importExcelFile(it!!)
                 productAgreements.size shouldBe 5

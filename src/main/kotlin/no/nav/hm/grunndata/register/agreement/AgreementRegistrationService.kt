@@ -9,12 +9,13 @@ import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Singleton
 open class AgreementRegistrationService(
     private val agreementRegistrationRepository: AgreementRegistrationRepository,
-    private val agreementRegistrationEventHandler: AgreementRegistrationEventHandler
+    private val agreementRegistrationEventHandler: AgreementRegistrationEventHandler,
+    private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository
 ) {
 
 
@@ -70,4 +71,11 @@ open class AgreementRegistrationService(
 
     open suspend fun deleteById(id: UUID) = agreementRegistrationRepository.deleteById(id)
 
+    suspend fun AgreementRegistration.toDTO(): AgreementRegistrationDTO = AgreementRegistrationDTO(
+        id = id, draftStatus = draftStatus, agreementStatus = agreementStatus,
+        title = title, reference = reference, created = created,
+        updated = updated, published = published, expired = expired, createdByUser = createdByUser,
+        updatedByUser = updatedByUser, createdBy = createdBy, updatedBy = updatedBy,
+        agreementData = agreementData, version = version, delkontraktList = delkontraktRegistrationRepository.findByAgreementId(id).map { it.toDTO() }
+    )
 }
