@@ -50,7 +50,7 @@ class DelkontraktRegistrationAdminController(private val delkontraktRegistration
         } ?: HttpResponse.notFound(
     )
 
-    @Delete("/id")
+    @Delete("/{id}")
     suspend fun deleteDelkontraktById(id: UUID, authentication: Authentication): HttpResponse<Unit> {
         LOG.info("deleting delkontrakt $id by user ${authentication.userId()}")
         return delkontraktRegistrationService.findById(id)?.let { inDb ->
