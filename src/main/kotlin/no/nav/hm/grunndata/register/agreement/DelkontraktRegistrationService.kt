@@ -18,6 +18,8 @@ class DelkontraktRegistrationService(private val delkontraktRegistrationReposito
     suspend fun update(dto: DelkontraktRegistrationDTO): DelkontraktRegistrationDTO =
         delkontraktRegistrationRepository.update(dto.toEntity()).toDTO()
 
+    suspend fun deleteById(id: UUID)  = delkontraktRegistrationRepository.deleteById(id)
+
 
 
 }
