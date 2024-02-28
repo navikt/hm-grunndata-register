@@ -1,0 +1,1 @@
+ALTER TABLE product_agreement_reg_v1 ADD COLUMN post_id uuid;

@@ -16,12 +16,14 @@ class ProductAgreementRegistrationRepositoryTest(private val productAgreementReg
     @Test
     fun testProductAgreementRegistrationRepository() {
         runBlocking {
+            val postId = UUID.randomUUID()
             val saved = productAgreementRegistrationRepository.save(
                 ProductAgreementRegistration(
                     agreementId = UUID.randomUUID(),
                     hmsArtNr = "1234",
                     post = 1,
                     rank = 1,
+                    postId = postId,
                     reference = "20-1423",
                     supplierId = UUID.randomUUID(),
                     supplierRef = "TK1235-213",
@@ -39,6 +41,7 @@ class ProductAgreementRegistrationRepositoryTest(private val productAgreementReg
             found.createdBy shouldBe EXCEL
             found.title shouldBe "Test product agreement"
             found.status shouldBe ProductAgreementStatus.ACTIVE
+            found.postId shouldBe postId
         }
     }
 

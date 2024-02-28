@@ -79,6 +79,7 @@ class AgreementExpirationTest(
                 createdBy = "tester",
                 hmsArtNr = "12345",
                 supplierId = supplier.id,
+                postId = UUID.randomUUID(),
                 supplierRef = "12345"
             )
 
@@ -91,6 +92,7 @@ class AgreementExpirationTest(
                 expired = expired.expired,
                 post = 1,
                 rank = 2,
+                postId = UUID.randomUUID(),
                 title = expired.title,
                 articleName = expired.title,
                 createdBy = "tester",

@@ -1,6 +1,5 @@
 package no.nav.hm.grunndata.register.agreement
 
-import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
@@ -22,13 +21,5 @@ interface AgreementRegistrationRepository: CoroutineCrudRepository<AgreementRegi
                                                                                          status: AgreementStatus, published: LocalDateTime? = LocalDateTime.now(),
                                                                                          expired: LocalDateTime? = LocalDateTime.now()): List<AgreementRegistration>
 
-        suspend fun find(): List<AgreementPDTO>
 
 }
-
-@Introspected
-data class AgreementPDTO(val title:String,
-                         val reference: String,
-                         val id: UUID,
-                         val published: LocalDateTime,
-                         val expired: LocalDateTime)

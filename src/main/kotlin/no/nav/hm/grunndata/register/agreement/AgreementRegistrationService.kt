@@ -49,7 +49,8 @@ open class AgreementRegistrationService(
     open suspend fun findByReference(reference: String): AgreementRegistrationDTO? =
         agreementRegistrationRepository.findByReference(reference)?.toDTO()
 
-    open suspend fun findReferenceAndId(): List<AgreementPDTO> = agreementRegistrationRepository.find()
+    open suspend fun findReference(reference: String): AgreementRegistrationDTO? =
+        agreementRegistrationRepository.findByReference(reference)?.toDTO()
 
     open suspend fun findByAgreementStatusAndExpiredBefore(
         status: AgreementStatus,

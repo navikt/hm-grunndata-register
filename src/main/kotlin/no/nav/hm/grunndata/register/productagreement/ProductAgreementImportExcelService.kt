@@ -2,8 +2,9 @@ package no.nav.hm.grunndata.register.productagreement
 
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.register.agreement.AgreementPDTO
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
+import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.*
@@ -48,11 +49,15 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
     }
 
     private suspend fun ProductAgreementExcelDTO.toProductAgreementDTO(): List<ProductAgreementRegistrationDTO> {
-        val agreement = findAgreementByReference(reference)
+        val cleanRef = reference.lowercase().replace("/", "-")
+        val agreement = findAgreementByReference(cleanRef)
         val supplierId =  parseSupplierName(supplierName)
         val product = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)
-        val postRanks: List<Pair<Int,Int>> = parsedelkontraktNr(delkontraktNr)
+        val postRanks: List<Pair<String,Int>> = parsedelkontraktNr(delkontraktNr)
         return  postRanks.map { postRank ->
+            LOG.info("Creating product agreement for agreement $cleanRef, post ${postRank.first}, rank ${postRank.second}")
+            val delkontrakt: DelkontraktRegistrationDTO = agreement.delkontraktList.find { it.delkontraktData.refNr == postRank.first }
+                ?: throw BadRequestException("Delkontrakt ${postRank.first} not found in agreement $cleanRef")
             ProductAgreementRegistrationDTO(
                 hmsArtNr = parseHMSNr(hmsArtNr),
                 agreementId = agreement.id,
@@ -62,8 +67,9 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
                 title = title,
                 articleName = product?.articleName,
                 reference = reference,
-                post = postRank.first,
+                post = delkontrakt.delkontraktData.sortNr,
                 rank = postRank.second,
+                postId = delkontrakt.id,
                 supplierId = supplierId,
                 published = agreement.published,
                 expired = agreement.expired
@@ -71,10 +77,8 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
         }
     }
 
-    suspend fun findAgreementByReference(reference: String): AgreementPDTO =
-        agreementRegistrationService.findReferenceAndId().find {
-            (it.reference.lowercase().replace("/", "-").indexOf(reference.lowercase()) > -1)
-        } ?: throw Exception("Agreement $reference not found")
+    suspend fun findAgreementByReference(reference: String): AgreementRegistrationDTO =
+        agreementRegistrationService.findByReference(reference) ?: throw Exception("Agreement $reference not found")
 
 
     private fun parseType(articleType: String): Boolean {
@@ -89,17 +93,21 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
     }
 
 
-    private fun parsedelkontraktNr(subContractNr: String): List<Pair<Int,Int>> {
+    private fun parsedelkontraktNr(subContractNr: String): List<Pair<String,Int>> {
         try {
-            val rankRegex = Regex("d(\\d+)r(\\d+)")
+            val rankRegex = Regex("(?i)d(\\d+)([A-Z]*)r(\\d+)")
             var matchResult = rankRegex.find(subContractNr)
-            val mutableList: MutableList<Pair<Int,Int>> = mutableListOf()
-            while(matchResult!=null) {
-                val post = rankRegex.find(subContractNr)?.groupValues?.get(1)?.toInt() ?: -1
-                val rank1 = rankRegex.find(subContractNr)?.groupValues?.get(2)?.toInt() ?: -1
+            val mutableList: MutableList<Pair<String,Int>> = mutableListOf()
+            if (matchResult!=null) {
+                while(matchResult!=null) {
+                val groupValues = rankRegex.find(subContractNr)?.groupValues
+                val post = groupValues?.get(1) + groupValues?.get(2)?.uppercase()
+                val rank1 = groupValues?.get(3)?.toInt() ?: 99
                 mutableList.add(Pair(post, rank1))
                 matchResult = matchResult.next()
+                }
             }
+            else throw BadRequestException("Could not parse delkontraktnr $subContractNr")
             return mutableList
         } catch (e: Exception) {
             LOG.error("Error parsing post and rank from $subContractNr", e)

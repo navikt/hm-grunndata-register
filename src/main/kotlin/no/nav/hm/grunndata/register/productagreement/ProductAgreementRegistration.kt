@@ -9,7 +9,7 @@ import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import no.nav.hm.grunndata.register.event.EventPayload
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 
 @MappedEntity("product_agreement_reg_v1")
@@ -28,6 +28,7 @@ data class ProductAgreementRegistration(
     val reference: String,
     val post: Int,
     val rank: Int,
+    val postId: UUID?,
     val status: ProductAgreementStatus = ProductAgreementStatus.ACTIVE,
     val createdBy: String,
     val created: LocalDateTime = LocalDateTime.now(),
@@ -49,6 +50,7 @@ data class ProductAgreementRegistrationDTO(
     val reference: String,
     val post: Int,
     val rank: Int,
+    val postId: UUID?,
     val status: ProductAgreementStatus = ProductAgreementStatus.ACTIVE,
     val createdBy: String = ProductAgreementImportExcelService.EXCEL,
     val created: LocalDateTime = LocalDateTime.now(),
@@ -82,6 +84,7 @@ fun ProductAgreementRegistrationDTO.toEntity(): ProductAgreementRegistration {
         reference = reference,
         post = post,
         rank = rank,
+        postId = postId,
         status = status,
         createdBy = createdBy,
         created = created,
@@ -107,6 +110,7 @@ fun ProductAgreementRegistration.toDTO(): ProductAgreementRegistrationDTO {
         reference = reference,
         post = post,
         rank = rank,
+        postId = postId,
         status = status,
         createdBy = createdBy,
         created = created,
@@ -119,7 +123,8 @@ fun ProductAgreementRegistration.toDTO(): ProductAgreementRegistrationDTO {
 fun List<ProductAgreementRegistration>.toDTO(): List<ProductAgreementRegistrationDTO> = map { it.toDTO() }
 
 fun ProductAgreementRegistration.toInfo() = AgreementInfo(
-    id = agreementId, reference = reference, postNr = post, rank = rank, expired = expired
+    id = agreementId, reference = reference,
+    postNr = post, rank = rank, expired = expired, postId = postId
 )
 
 fun ProductAgreementRegistrationDTO.toInfo() = AgreementInfo(

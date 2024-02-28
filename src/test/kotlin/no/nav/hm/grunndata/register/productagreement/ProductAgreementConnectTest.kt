@@ -71,6 +71,7 @@ class ProductAgreementConnectTest(private val productAgreementRegistrationServic
             hmsArtNr = hmsNr,
             post = 1,
             rank = 1,
+            postId = UUID.randomUUID(),
             reference = "20-1423",
             seriesUuid = registration.seriesUUID,
             supplierId = supplierId,

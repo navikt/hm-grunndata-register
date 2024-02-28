@@ -1,13 +1,7 @@
 package no.nav.hm.grunndata.register.productagreement
 
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.annotation.Body
-import io.micronaut.http.annotation.Controller
-import io.micronaut.http.annotation.Delete
-import io.micronaut.http.annotation.Get
-import io.micronaut.http.annotation.Post
-import io.micronaut.http.annotation.Put
-import io.micronaut.http.annotation.QueryValue
+import io.micronaut.http.annotation.*
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
@@ -18,7 +12,7 @@ import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
-import java.util.UUID
+import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
@@ -129,6 +123,7 @@ class ProductAgreementAdminController(
                 agreementId = regDTO.agreementId,
                 post = regDTO.post,
                 rank = regDTO.rank,
+                postId = regDTO.postId,
                 createdBy = "REGISTER",
                 published = agreement.published,
                 expired = agreement.expired,

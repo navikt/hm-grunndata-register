@@ -8,9 +8,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AgreementDTO
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
 import no.nav.hm.grunndata.register.REGISTER
-import no.nav.hm.grunndata.register.agreement.AgreementData
-import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
-import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
+import no.nav.hm.grunndata.register.agreement.*
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
@@ -23,6 +21,7 @@ import java.util.*
 @MicronautTest
 class ProductAgreementExcelImportTest(private val supplierRegistrationService: SupplierRegistrationService,
                                       private val agreementRegistrationService: AgreementRegistrationService,
+                                      private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository,
                                       private val productAgreementImportExcelService: ProductAgreementImportExcelService) {
 
     @MockBean(RapidPushService::class)
@@ -60,25 +59,97 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
                         description = "post description 2", nr = 2)
                 ), createdBy = REGISTER, updatedBy = REGISTER,
                 created = LocalDateTime.now(), updated = LocalDateTime.now())
+            val delkontrakt1 = DelkontraktRegistration(
+                id = UUID.randomUUID(),
+                agreementId = agreementId,
+                delkontraktData = DelkontraktData(
+                    title = "Delkontrakt 1",
+                    description = "Delkontrakt 1 description",
+                    sortNr = 1,
+                    refNr = "1"
+                ),
+                createdBy = REGISTER,
+                updatedBy = REGISTER
+            )
+
+            val delkontrakt2 = DelkontraktRegistration(
+                id = UUID.randomUUID(),
+                agreementId = agreementId,
+                delkontraktData = DelkontraktData(
+                    title = "Delkontrakt 2",
+                    description = "Delkontrakt 2 description",
+                    sortNr = 2,
+                    refNr = "2"
+                ),
+                createdBy = REGISTER,
+                updatedBy = REGISTER
+            )
+
+            val delkontrakt1A = DelkontraktRegistration(
+                id = UUID.randomUUID(),
+                agreementId = agreementId,
+                delkontraktData = DelkontraktData(
+                    title = "Delkontrakt 1A",
+                    description = "Delkontrakt 1A description",
+                    sortNr = 3,
+                    refNr = "1A"
+                ),
+                createdBy = REGISTER,
+                updatedBy = REGISTER
+            )
+
+
+            val delkontrakt1B = DelkontraktRegistration(
+                id = UUID.randomUUID(),
+                agreementId = agreementId,
+                delkontraktData = DelkontraktData(
+                    title = "Delkontrakt 1B",
+                    description = "Delkontrakt 1B description",
+                    sortNr = 3,
+                    refNr = "1B"
+                ),
+                createdBy = REGISTER,
+                updatedBy = REGISTER
+            )
+
             val data = AgreementData(
                 text = "some text", resume = "resume",
-                identifier = UUID.randomUUID().toString(),
-                posts = listOf(
-                    AgreementPost(identifier = "unik-post1", title = "Post title",
-                        description = "post description", nr = 1), AgreementPost(identifier = "unik-post2", title = "Post title 2",
-                        description = "post description 2", nr = 2)
-                ))
+                identifier = UUID.randomUUID().toString())
+
             val agreementRegistration = AgreementRegistrationDTO(
                 id = agreementId, published = agreement.published, expired = agreement.expired, title = agreement.title,
                 reference = agreement.reference, updatedByUser = "username", createdByUser = "username", agreementData = data
             )
+
             agreementRegistrationService.save(agreementRegistration)
+            delkontraktRegistrationRepository.save(delkontrakt1)
+            delkontraktRegistrationRepository.save(delkontrakt2)
+            delkontraktRegistrationRepository.save(delkontrakt1A)
+            delkontraktRegistrationRepository.save(delkontrakt1B)
+
             ProductAgreementExcelImportTest::class.java.classLoader.getResourceAsStream("productagreement/katalog-test.xls").use {
                 val productAgreements = productAgreementImportExcelService.importExcelFile(it!!)
-                productAgreements.size shouldBe 5
+                productAgreements.size shouldBe 4
 
             }
         }
+    }
+
+    @Test
+    fun testDelkontraktNrExtract() {
+        val regex = "d(\\d+)([A-Z]*)r(\\d+)".toRegex()
+        val del1 = "d1r1"
+        val del2 = "d1Ar1"
+        val del3 = "d1Br99" // mean no rank
+        regex.find(del1)?.groupValues?.get(1) shouldBe "1"
+        regex.find(del1)?.groupValues?.get(2) shouldBe ""
+        regex.find(del1)?.groupValues?.get(3) shouldBe "1"
+        regex.find(del2)?.groupValues?.get(1) shouldBe "1"
+        regex.find(del2)?.groupValues?.get(2) shouldBe "A"
+        regex.find(del2)?.groupValues?.get(3) shouldBe "1"
+        regex.find(del3)?.groupValues?.get(1) shouldBe "1"
+        regex.find(del3)?.groupValues?.get(2) shouldBe "B"
+        regex.find(del3)?.groupValues?.get(3) shouldBe "99"
     }
 
 }

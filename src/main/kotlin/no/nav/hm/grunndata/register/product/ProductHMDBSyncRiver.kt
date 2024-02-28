@@ -8,15 +8,7 @@ import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.KafkaRapid
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
-import no.nav.hm.grunndata.rapid.dto.AdminStatus
-import no.nav.hm.grunndata.rapid.dto.AgreementStatus
-import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
-import no.nav.hm.grunndata.rapid.dto.ProductRapidDTO
-import no.nav.hm.grunndata.rapid.dto.ProductStatus
-import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
-import no.nav.hm.grunndata.rapid.dto.SeriesStatus
-import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
+import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
@@ -131,6 +123,7 @@ class ProductHMDBSyncRiver(
                                 hmsArtNr = dto.hmsArtNr,
                                 post = agreementInfo.postNr,
                                 rank = agreementInfo.rank,
+                                postId = agreementInfo.postId,
                                 reference = agreement.reference,
                                 expired = agreement.expired,
                                 created = dto.created,
@@ -153,6 +146,7 @@ class ProductHMDBSyncRiver(
                             hmsArtNr = dto.hmsArtNr,
                             post = agreementInfo.postNr,
                             rank = agreementInfo.rank,
+                            postId = agreementInfo.postId,
                             reference = agreement.reference,
                             expired = agreement.expired,
                             created = dto.created,
