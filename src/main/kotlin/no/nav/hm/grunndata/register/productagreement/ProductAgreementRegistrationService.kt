@@ -144,7 +144,7 @@ open class ProductAgreementRegistrationService(
             )
         }
 
-        return groupedList
+        return groupedList.sortedBy { it.rank }
     }
 
     suspend fun findGroupedProductVariantsByAgreementId(agreementId: UUID): List<ProduktvarianterForDelkontrakterDTO> {
