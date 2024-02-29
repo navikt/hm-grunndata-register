@@ -40,7 +40,7 @@ open class ProductAgreementRegistrationService(
                 productAgreement.supplierRef,
                 productAgreement.agreementId,
                 productAgreement.post,
-                productAgreement.rank
+                productAgreement.rank,
             )?.let { inDb ->
                 update(
                     inDb.copy(
@@ -99,7 +99,7 @@ open class ProductAgreementRegistrationService(
             supplierRef,
             agreementId,
             post,
-            rank
+            rank,
         )?.toDTO()
 
     suspend fun findBySupplierIdAndSupplierRef(
@@ -121,15 +121,18 @@ open class ProductAgreementRegistrationService(
         productAgreementRegistrationRepository.findByPostId(delkontraktId).map { it.toDTO() }
 
     suspend fun findGroupedProductVariantsByDelkontraktId(delkontraktId: UUID): List<ProductVariantsForDelkontraktDto> {
+        val allVariants =
+            productAgreementRegistrationRepository.findByPostIdAndStatus(
+                delkontraktId,
+                ProductAgreementStatus.ACTIVE,
+            ).map { it.toDTO() }
 
-        val allVariants = productAgreementRegistrationRepository.findByPostIdAndStatus(
-            delkontraktId,
-            ProductAgreementStatus.ACTIVE,
-        ).map { it.toDTO() }
+        val groupedList = mutableListOf<ProductVariantsForDelkontraktDto>()
 
         allVariants.groupBy { it.seriesUuid }.map { (seriesUuid, varianter) ->
             val seriesInfo = seriesUuid?.let { seriesRegistrationRepository.findById(it) }
-            return listOf(
+
+            groupedList.add(
                 ProductVariantsForDelkontraktDto(
                     postId = delkontraktId,
                     productSeries = seriesUuid,
@@ -139,9 +142,9 @@ open class ProductAgreementRegistrationService(
                     productVariants = varianter,
                 ),
             )
-        }.let {
-            return it
         }
+
+        return groupedList
     }
 
     suspend fun findGroupedProductVariantsByAgreementId(agreementId: UUID): List<ProduktvarianterForDelkontrakterDTO> {
