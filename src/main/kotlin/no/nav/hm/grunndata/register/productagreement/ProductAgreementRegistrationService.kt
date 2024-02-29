@@ -120,6 +120,29 @@ open class ProductAgreementRegistrationService(
     suspend fun findByDelkontraktId(delkontraktId: UUID): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findByPostId(delkontraktId).map { it.toDTO() }
 
+    suspend fun findGroupedProductVariantsByDelkontraktId(delkontraktId: UUID): List<ProductVariantsForDelkontraktDto> {
+
+        val allVariants = productAgreementRegistrationRepository.findByPostIdAndStatus(
+            delkontraktId,
+            ProductAgreementStatus.ACTIVE,
+        ).map { it.toDTO() }
+
+        allVariants.groupBy { it.seriesUuid }.map { (seriesUuid, varianter) ->
+            val seriesInfo = seriesUuid?.let { seriesRegistrationRepository.findById(it) }
+            return listOf(
+                ProductVariantsForDelkontraktDto(
+                    postId = delkontraktId,
+                    productSeries = seriesUuid,
+                    productTitle = seriesInfo?.title ?: "",
+                    rank = varianter.first().rank,
+                    productVariants = varianter,
+                ),
+            )
+        }.let {
+            return it
+        }
+    }
+
     suspend fun findGroupedProductVariantsByAgreementId(agreementId: UUID): List<ProduktvarianterForDelkontrakterDTO> {
         val alleVarianter =
             productAgreementRegistrationRepository.findByAgreementIdAndStatus(
@@ -193,6 +216,14 @@ open class ProductAgreementRegistrationService(
         }
     }
 }
+
+data class ProductVariantsForDelkontraktDto(
+    val postId: UUID,
+    val productSeries: UUID?,
+    val productTitle: String,
+    val rank: Int,
+    val productVariants: List<ProductAgreementRegistrationDTO>,
+)
 
 data class ProduktvarianterForDelkontrakterDTO(
     val delkontraktNr: Int,
