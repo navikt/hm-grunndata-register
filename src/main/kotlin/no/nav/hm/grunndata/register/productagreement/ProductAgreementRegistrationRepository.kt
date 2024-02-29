@@ -36,6 +36,8 @@ interface ProductAgreementRegistrationRepository : CoroutineCrudRepository<Produ
 
     suspend fun findByAgreementId(agreementId: UUID): List<ProductAgreementRegistration>
 
+    suspend fun findByPostId(postId: UUID): List<ProductAgreementRegistration>
+
     suspend fun findAllByIdIn(ids: List<UUID>): List<ProductAgreementRegistration>
 
     suspend fun findByProductIdIsNull(): List<ProductAgreementRegistration>

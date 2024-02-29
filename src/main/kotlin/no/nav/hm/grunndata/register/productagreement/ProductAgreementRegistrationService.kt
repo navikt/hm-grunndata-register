@@ -113,6 +113,9 @@ open class ProductAgreementRegistrationService(
     suspend fun findByAgreementId(agreementId: UUID): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findByAgreementId(agreementId).map { it.toDTO() }
 
+    suspend fun findByDelkontraktId(delkontraktId: UUID): List<ProductAgreementRegistrationDTO> =
+        productAgreementRegistrationRepository.findByPostId(delkontraktId).map { it.toDTO() }
+
     suspend fun findGroupedProductVariantsByAgreementId(agreementId: UUID): List<ProduktvarianterForDelkontrakterDTO> {
         val alleVarianter =
             productAgreementRegistrationRepository.findByAgreementIdAndStatus(

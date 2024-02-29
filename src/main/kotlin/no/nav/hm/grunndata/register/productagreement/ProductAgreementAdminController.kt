@@ -1,7 +1,13 @@
 package no.nav.hm.grunndata.register.productagreement
 
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.annotation.*
+import io.micronaut.http.annotation.Body
+import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
+import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Put
+import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
@@ -12,7 +18,7 @@ import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
@@ -88,6 +94,19 @@ class ProductAgreementAdminController(
     ): List<ProduktvarianterForDelkontrakterDTO> {
         LOG.info("Getting product variants for agreement {$id} by ${authentication.userId()}")
         return productAgreementRegistrationService.findGroupedProductVariantsByAgreementId(id)
+    }
+
+    @Get(
+        value = "/variants/delkontrakt/{id}",
+        consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON],
+    )
+    suspend fun getProductVariantsByDelkontraktId(
+        id: UUID,
+        authentication: Authentication,
+    ): List<ProductAgreementRegistrationDTO> {
+        LOG.info("Getting product variants for delkontrakt {$id} by ${authentication.userId()}")
+        return productAgreementRegistrationService.findByDelkontraktId(id)
     }
 
     @Post(
