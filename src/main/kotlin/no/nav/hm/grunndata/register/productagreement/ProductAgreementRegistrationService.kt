@@ -134,6 +134,7 @@ open class ProductAgreementRegistrationService(
                     postId = delkontraktId,
                     productSeries = seriesUuid,
                     productTitle = seriesInfo?.title ?: "",
+                    serieIdentifier = seriesInfo?.identifier,
                     rank = varianter.first().rank,
                     productVariants = varianter,
                 ),
@@ -221,6 +222,7 @@ data class ProductVariantsForDelkontraktDto(
     val postId: UUID,
     val productSeries: UUID?,
     val productTitle: String,
+    val serieIdentifier: String?,
     val rank: Int,
     val productVariants: List<ProductAgreementRegistrationDTO>,
 )
