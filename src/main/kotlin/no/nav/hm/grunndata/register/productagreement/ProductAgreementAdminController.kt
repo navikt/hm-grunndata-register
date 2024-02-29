@@ -121,11 +121,12 @@ class ProductAgreementAdminController(
         LOG.info(
             "Creating product agreement: ${regDTO.agreementId} ${regDTO.supplierId} ${regDTO.supplierRef} by ${authentication.userId()}",
         )
-        productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPost(
+        productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
             regDTO.supplierId,
             regDTO.supplierRef,
             regDTO.agreementId,
             regDTO.post,
+            regDTO.rank
         )?.let {
             throw BadRequestException("Product agreement already exists")
         }
