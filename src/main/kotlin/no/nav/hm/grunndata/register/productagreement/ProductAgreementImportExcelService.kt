@@ -56,7 +56,7 @@ class ProductAgreementImportExcelService(private val supplierRegistrationService
         val postRanks: List<Pair<String,Int>> = parsedelkontraktNr(delkontraktNr)
         return  postRanks.map { postRank ->
             LOG.info("Creating product agreement for agreement $cleanRef, post ${postRank.first}, rank ${postRank.second}")
-            val delkontrakt: DelkontraktRegistrationDTO = agreement.delkontraktList.find { it.delkontraktData.refNr == postRank.first }
+            val delkontrakt: DelkontraktRegistrationDTO = agreement.delkontraktList.find { it.delkontraktData.title?.extractDelkontraktNrFromTitle() == postRank.first }
                 ?: throw BadRequestException("Delkontrakt ${postRank.first} not found in agreement $cleanRef")
             ProductAgreementRegistrationDTO(
                 hmsArtNr = parseHMSNr(hmsArtNr),
@@ -179,3 +179,8 @@ data class ProductAgreementExcelDTO(
     val supplierName: String,
     val supplierCity: String
 )
+
+fun String.extractDelkontraktNrFromTitle(): String? {
+    val regex = """(\d+)([A-Z]*)([.|:])""".toRegex()
+    return regex.find(this)?.groupValues?.get(0)?.dropLast(1)
+}

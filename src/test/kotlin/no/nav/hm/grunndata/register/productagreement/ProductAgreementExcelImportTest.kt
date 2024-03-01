@@ -63,7 +63,7 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
                 id = UUID.randomUUID(),
                 agreementId = agreementId,
                 delkontraktData = DelkontraktData(
-                    title = "Delkontrakt 1",
+                    title = "1: Delkontrakt",
                     description = "Delkontrakt 1 description",
                     sortNr = 1,
                     refNr = "1"
@@ -76,7 +76,7 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
                 id = UUID.randomUUID(),
                 agreementId = agreementId,
                 delkontraktData = DelkontraktData(
-                    title = "Delkontrakt 2",
+                    title = "2: Delkontrakt",
                     description = "Delkontrakt 2 description",
                     sortNr = 2,
                     refNr = "2"
@@ -89,7 +89,7 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
                 id = UUID.randomUUID(),
                 agreementId = agreementId,
                 delkontraktData = DelkontraktData(
-                    title = "Delkontrakt 1A",
+                    title = "1A: Delkontrakt",
                     description = "Delkontrakt 1A description",
                     sortNr = 3,
                     refNr = "1A"
@@ -103,7 +103,7 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
                 id = UUID.randomUUID(),
                 agreementId = agreementId,
                 delkontraktData = DelkontraktData(
-                    title = "Delkontrakt 1B",
+                    title = "1B: Delkontrakt ",
                     description = "Delkontrakt 1B description",
                     sortNr = 3,
                     refNr = "1B"

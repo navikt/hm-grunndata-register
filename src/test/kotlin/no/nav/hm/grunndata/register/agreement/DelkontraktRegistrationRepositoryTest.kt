@@ -43,7 +43,7 @@ class DelkontraktRegistrationRepositoryTest(private val delkontraktRegistrationR
         val title = "1. Delkontrakt tittel"
         val title2 = "1A: Delkontrakt tittel 2"
         val title3 = "1B. Delkontrakt tittel 3"
-        val title4 = "Delkontrakt tittel feil"
+        val title4 = "Delkontrakt 1 tittel feil"
 
         extractDelkontraktNrFromTitle(title) shouldBe "1"
         extractDelkontraktNrFromTitle(title2) shouldBe "1A"
