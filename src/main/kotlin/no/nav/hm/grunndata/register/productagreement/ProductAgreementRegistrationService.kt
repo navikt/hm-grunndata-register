@@ -40,7 +40,7 @@ open class ProductAgreementRegistrationService(
                 productAgreement.supplierRef,
                 productAgreement.agreementId,
                 productAgreement.postId!!,
-                productAgreement.rank
+                productAgreement.rank,
             )?.let { inDb ->
                 update(
                     inDb.copy(
@@ -87,24 +87,20 @@ open class ProductAgreementRegistrationService(
     suspend fun save(dto: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO =
         productAgreementRegistrationRepository.save(dto.toEntity()).toDTO()
 
-
-
-
     suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
         supplierId: UUID,
         supplierRef: String,
         agreementId: UUID,
         postId: UUID,
-        rank: Int
+        rank: Int,
     ): ProductAgreementRegistrationDTO? =
         productAgreementRegistrationRepository.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
             supplierId,
             supplierRef,
             agreementId,
             postId,
-            rank
+            rank,
         )?.toDTO()
-
 
     suspend fun findBySupplierIdAndSupplierRef(
         supplierId: UUID,
@@ -133,7 +129,7 @@ open class ProductAgreementRegistrationService(
 
         val groupedList = mutableListOf<ProductVariantsForDelkontraktDto>()
 
-        allVariants.groupBy { it.seriesUuid }.map { (seriesUuid, varianter) ->
+        allVariants.filter { it.seriesUuid != null }.groupBy { it.seriesUuid }.map { (seriesUuid, varianter) ->
             val seriesInfo = seriesUuid?.let { seriesRegistrationRepository.findById(it) }
 
             groupedList.add(
@@ -144,6 +140,19 @@ open class ProductAgreementRegistrationService(
                     serieIdentifier = seriesInfo?.identifier,
                     rank = varianter.first().rank,
                     productVariants = varianter,
+                ),
+            )
+        }
+
+        allVariants.filter { it.seriesUuid == null }.map { variant ->
+            groupedList.add(
+                ProductVariantsForDelkontraktDto(
+                    postId = delkontraktId,
+                    productSeries = null,
+                    productTitle = variant.title,
+                    serieIdentifier = null,
+                    rank = variant.rank,
+                    productVariants = listOf(variant),
                 ),
             )
         }
