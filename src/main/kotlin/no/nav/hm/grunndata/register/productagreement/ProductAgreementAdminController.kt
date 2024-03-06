@@ -98,9 +98,9 @@ class ProductAgreementAdminController(
     suspend fun getProductVariantsByDelkontraktId(
         id: UUID,
         authentication: Authentication,
-    ): List<ProductAgreementRegistrationDTO> {
+    ): List<ProductVariantsForDelkontraktDto>{
         LOG.info("Getting product variants for delkontrakt {$id} by ${authentication.userId()}")
-        return productAgreementRegistrationService.findByDelkontraktId(id)
+        return productAgreementRegistrationService.findGroupedProductVariantsByDelkontraktId(id)
     }
 
     @Post(
