@@ -55,7 +55,7 @@ class ProductAgreementImportExcelService(
             main.toList().mapIndexed { index, row ->
                 if (index > 0) mapRowToProductAgreement(row, columnMap) else null
             }.filterNotNull()
-        if (productExcel.isEmpty()) throw Exception("No product agreements found in Excel file")
+        if (productExcel.isEmpty()) throw BadRequestException("Fant ingen produkter i Excel-fil")
         LOG.info("Total product agreements in Excel file: ${productExcel.size}")
         return productExcel.map { it.toProductAgreementDTO() }.flatten()
     }
@@ -92,7 +92,7 @@ class ProductAgreementImportExcelService(
 
     suspend fun findAgreementByReference(reference: String): AgreementRegistrationDTO =
         agreementRegistrationService.findByReference(reference)
-            ?: throw Exception("Avtale $reference finnes ikke, må den opprettes?")
+            ?: throw BadRequestException("Avtale $reference finnes ikke, må den opprettes?")
 
     private fun parseType(articleType: String): Boolean {
         return articleType.lowercase().indexOf("hms del") > -1
@@ -102,7 +102,7 @@ class ProductAgreementImportExcelService(
         runBlocking {
             supplierRegistrationService.findNameAndId().find {
                 (it.name.lowercase().indexOf(supplierName.lowercase()) > -1)
-            }?.id ?: throw Exception("Leverandør $supplierName finnes ikke i registeret, må den opprettes?")
+            }?.id ?: throw BadRequestException("Leverandør $supplierName finnes ikke i registeret, må den opprettes?")
         }
 
     private fun parsedelkontraktNr(subContractNr: String): List<Pair<String, Int>> {
