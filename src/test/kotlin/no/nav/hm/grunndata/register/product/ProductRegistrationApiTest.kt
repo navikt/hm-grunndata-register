@@ -195,7 +195,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
 
         val draftStatusChange = apiClient.updateProduct(jwt, updated.id, updated.copy(draftStatus = DraftStatus.DRAFT))
         draftStatusChange.shouldNotBeNull()
-        draftStatusChange.draftStatus shouldBe DraftStatus.DONE
+        draftStatusChange.draftStatus shouldBe DraftStatus.DRAFT // not APPROVED yet allowed to change status
 
 
         val deleted = apiClient.deleteProduct(jwt, updated.id)

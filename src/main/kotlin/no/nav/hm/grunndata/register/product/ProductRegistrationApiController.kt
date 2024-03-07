@@ -140,7 +140,7 @@ class ProductRegistrationApiController(
                         productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                             registrationDTO
                                 .copy(
-                                    draftStatus = if (inDb.draftStatus == DraftStatus.DONE) DraftStatus.DONE else registrationDTO.draftStatus,
+                                    draftStatus = if (inDb.draftStatus == DraftStatus.DONE && inDb.adminStatus == AdminStatus.APPROVED) DraftStatus.DONE else registrationDTO.draftStatus,
                                     id = inDb.id,
                                     created = inDb.created,
                                     updatedBy = REGISTER,
