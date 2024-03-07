@@ -21,6 +21,7 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.batch.ProductExcelExport
 import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
+import no.nav.hm.grunndata.register.product.batch.ProductRegistrationExcelDTO
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesGroupDTO
@@ -251,9 +252,7 @@ class ProductRegistrationApiController(
         consumes = ["application/json"],
         produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
     )
-    suspend fun createExportForAllSupplierProducts(
-        authentication: Authentication,
-    ): HttpResponse<StreamedFile> {
+    suspend fun createExportForAllSupplierProducts(authentication: Authentication): HttpResponse<StreamedFile> {
         val products = productRegistrationService.findBySupplierId(authentication.supplierId())
         if (products.isEmpty()) throw BadRequestException("No products found")
         val id = UUID.randomUUID()
@@ -277,13 +276,7 @@ class ProductRegistrationApiController(
         LOG.info("Importing Excel file ${file.filename} for supplierId ${authentication.supplierId()}")
         return file.inputStream.use { inputStream ->
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
-            excelDTOList.forEach {
-                if (it.leverandorid.toUUID() != authentication.supplierId()) {
-                    throw BadRequestException(
-                        "Unauthorized access to supplier ${it.leverandorid}",
-                    )
-                }
-            }
+            validateProductsToBeImported(excelDTOList, authentication)
             LOG.info("found ${excelDTOList.size} products in Excel file")
             val products = productRegistrationService.importExcelRegistrations(excelDTOList, authentication)
             HttpResponse.ok(products)
@@ -312,6 +305,24 @@ class ProductRegistrationApiController(
             LOG.info("found ${excelDTOList.size} products in Excel file")
             val products = productRegistrationService.importDryRunExcelRegistrations(excelDTOList, authentication)
             HttpResponse.ok(products)
+        }
+    }
+}
+
+private fun validateProductsToBeImported(
+    dtos: List<ProductRegistrationExcelDTO>,
+    authentication: Authentication,
+) {
+    val levArtNrUniqueList = dtos.map { it.levartnr }.distinct()
+    if (levArtNrUniqueList.size < dtos.size) {
+        throw BadRequestException("Det finnes produkter med samme lev-artnr. i filen. Disse må være unike.")
+    }
+
+    dtos.forEach {
+        if (it.leverandorid.toUUID() != authentication.supplierId()) {
+            throw BadRequestException(
+                "Innlogget bruker har ikke rettigheter til leverandørId ${it.leverandorid}",
+            )
         }
     }
 }

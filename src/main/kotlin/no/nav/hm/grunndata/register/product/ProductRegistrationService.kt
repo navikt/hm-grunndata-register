@@ -10,6 +10,7 @@ import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
 import no.nav.hm.grunndata.register.product.batch.ProductRegistrationExcelDTO
 import no.nav.hm.grunndata.register.product.batch.toProductRegistrationDryRunDTO
@@ -51,9 +52,7 @@ open class ProductRegistrationService(
         supplierId: UUID,
     ) = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)?.toDTO()
 
-    open suspend fun findBySupplierId(
-        supplierId: UUID,
-    ) = productRegistrationRepository.findBySupplierId(supplierId).map { it.toDTO() }
+    open suspend fun findBySupplierId(supplierId: UUID) = productRegistrationRepository.findBySupplierId(supplierId).map { it.toDTO() }
 
     open suspend fun findByIdAndSupplierId(
         id: UUID,
@@ -273,4 +272,5 @@ open class ProductRegistrationService(
         techLabelService.fetchLabelsByIsoCode(draftWithDTO.isoCategory)?.map {
             TechData(key = it.label, value = "", unit = it.unit ?: "")
         } ?: emptyList()
+
 }
