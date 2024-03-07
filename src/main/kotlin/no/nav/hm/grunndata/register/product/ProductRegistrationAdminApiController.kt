@@ -160,6 +160,7 @@ class ProductRegistrationAdminApiController(
                 ?.let { inDb ->
                     val updated =
                         registrationDTO.copy(
+                            draftStatus = if (inDb.draftStatus == DraftStatus.DONE) DraftStatus.DONE else registrationDTO.draftStatus,
                             adminStatus = inDb.adminStatus,
                             adminInfo = inDb.adminInfo, id = inDb.id, created = inDb.created,
                             updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = inDb.createdBy,

@@ -8,9 +8,8 @@ import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.rapid.dto.AgreementDTO
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
-import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.user.User
@@ -98,9 +97,14 @@ class AgreementRegistrationAdminApiTest(private val apiClient: AgreementRegistra
         val find = apiClient.findAgreements(jwt = jwt, reference = "unik-ref4")
         find.totalSize shouldBe 1
 
-        val updated = apiClient.updateAgreement(jwt, read.id, read.copy(title="new title")).body()
+        val updated = apiClient.updateAgreement(jwt, read.id, read.copy(title="new title", draftStatus = DraftStatus.DONE)).body()
         updated.shouldNotBeNull()
         updated.title shouldBe "new title"
+
+        val draftStatusChanged = apiClient.updateAgreement(jwt, updated.id, updated.copy(draftStatus = DraftStatus.DRAFT)).body()
+        draftStatusChanged.shouldNotBeNull()
+        draftStatusChanged.draftStatus shouldBe DraftStatus.DONE
+
 
         val page = apiClient.findAgreements(jwt = jwt,
             size = 20, page = 0, sort = "created,asc")

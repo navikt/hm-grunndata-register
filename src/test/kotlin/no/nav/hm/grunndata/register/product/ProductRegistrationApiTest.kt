@@ -190,8 +190,12 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
         read.shouldNotBeNull()
         read.createdByUser shouldBe email
 
-        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title="Changed title", articleName = "Changed articlename"))
+        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title="Changed title", articleName = "Changed articlename", draftStatus = DraftStatus.DONE))
         updated.shouldNotBeNull()
+
+        val draftStatusChange = apiClient.updateProduct(jwt, updated.id, updated.copy(draftStatus = DraftStatus.DRAFT))
+        draftStatusChange.shouldNotBeNull()
+        draftStatusChange.draftStatus shouldBe DraftStatus.DONE
 
 
         val deleted = apiClient.deleteProduct(jwt, updated.id)

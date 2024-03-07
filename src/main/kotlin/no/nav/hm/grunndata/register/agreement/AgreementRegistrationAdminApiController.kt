@@ -6,14 +6,7 @@ import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.annotation.Body
-import io.micronaut.http.annotation.Controller
-import io.micronaut.http.annotation.Delete
-import io.micronaut.http.annotation.Get
-import io.micronaut.http.annotation.PathVariable
-import io.micronaut.http.annotation.Post
-import io.micronaut.http.annotation.Put
-import io.micronaut.http.annotation.QueryValue
+import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
@@ -24,7 +17,7 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(AgreementRegistrationAdminApiController.API_V1_ADMIN_AGREEMENT_REGISTRATIONS)
@@ -204,6 +197,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
             ?.let { inDb ->
                 val updated = registrationDTO.copy(
                     id = inDb.id,
+                    draftStatus = if (inDb.draftStatus == DraftStatus.DONE) DraftStatus.DONE else registrationDTO.draftStatus,
                     created = inDb.created,
                     createdByUser = inDb.createdByUser,
                     updatedByUser = authentication.name,
@@ -219,7 +213,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
 
 
     @Delete("/{id}")
-    suspend fun deleteAgreeent(
+    suspend fun deleteAgreement(
         @PathVariable id: UUID,
         authentication: Authentication
     ): HttpResponse<AgreementRegistrationDTO> =
