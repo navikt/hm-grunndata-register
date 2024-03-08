@@ -196,7 +196,7 @@ class ProductAgreementAdminController(
     suspend fun deleteProductAgreementById(
         id: UUID,
         authentication: Authentication,
-    ): HttpResponse<String> {
+    ): HttpResponse<ProductAgreementDeletedResponse> {
         LOG.info("deleting product agreement: $id by ${authentication.userId()}")
         productAgreementRegistrationService.findById(id)?.let {
             productAgreementRegistrationService.saveAndCreateEvent(
@@ -204,7 +204,7 @@ class ProductAgreementAdminController(
                 isUpdate = true,
             )
         } ?: throw BadRequestException("Product agreement $id not found")
-        return HttpResponse.ok("Product agreement $id has been deleted")
+        return HttpResponse.ok(ProductAgreementDeletedResponse(id))
     }
 
     @Delete(
@@ -215,7 +215,7 @@ class ProductAgreementAdminController(
     suspend fun deleteProductAgreementByIds(
         @Body ids: List<UUID>,
         authentication: Authentication,
-    ): HttpResponse<List<UUID>> {
+    ): HttpResponse<ProductAgreementsDeletedResponse> {
         LOG.info("deleting product agreements: $ids by ${authentication.userId()}")
         ids.forEach { uuid ->
             productAgreementRegistrationService.findById(uuid)?.let {
@@ -225,6 +225,14 @@ class ProductAgreementAdminController(
                 )
             } ?: throw BadRequestException("Product agreement $uuid not found")
         }
-        return HttpResponse.ok(ids)
+        return HttpResponse.ok(ProductAgreementsDeletedResponse(ids))
     }
 }
+
+data class ProductAgreementsDeletedResponse(
+    val ids: List<UUID>,
+)
+
+data class ProductAgreementDeletedResponse(
+    val id: UUID,
+)
