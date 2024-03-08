@@ -1,7 +1,13 @@
 package no.nav.hm.grunndata.register.productagreement
 
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.annotation.*
+import io.micronaut.http.annotation.Body
+import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
+import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Put
+import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
@@ -12,7 +18,7 @@ import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
@@ -98,7 +104,7 @@ class ProductAgreementAdminController(
     suspend fun getProductVariantsByDelkontraktId(
         id: UUID,
         authentication: Authentication,
-    ): List<ProductVariantsForDelkontraktDto>{
+    ): List<ProductVariantsForDelkontraktDto> {
         LOG.info("Getting product variants for delkontrakt {$id} by ${authentication.userId()}")
         return productAgreementRegistrationService.findGroupedProductVariantsByDelkontraktId(id)
     }
@@ -120,7 +126,7 @@ class ProductAgreementAdminController(
             regDTO.supplierRef,
             regDTO.agreementId,
             regDTO.postId!!,
-            regDTO.rank
+            regDTO.rank,
         )?.let {
             throw BadRequestException("Product agreement already exists")
         }
@@ -190,7 +196,7 @@ class ProductAgreementAdminController(
     suspend fun deleteProductAgreementById(
         id: UUID,
         authentication: Authentication,
-    ) {
+    ): HttpResponse<String> {
         LOG.info("deleting product agreement: $id by ${authentication.userId()}")
         productAgreementRegistrationService.findById(id)?.let {
             productAgreementRegistrationService.saveAndCreateEvent(
@@ -198,6 +204,7 @@ class ProductAgreementAdminController(
                 isUpdate = true,
             )
         } ?: throw BadRequestException("Product agreement $id not found")
+        return HttpResponse.ok("Product agreement $id has been deleted")
     }
 
     @Delete(
@@ -208,7 +215,7 @@ class ProductAgreementAdminController(
     suspend fun deleteProductAgreementByIds(
         @Body ids: List<UUID>,
         authentication: Authentication,
-    ): HttpResponse<String> {
+    ): HttpResponse<List<UUID>> {
         LOG.info("deleting product agreements: $ids by ${authentication.userId()}")
         ids.forEach { uuid ->
             productAgreementRegistrationService.findById(uuid)?.let {
@@ -218,6 +225,6 @@ class ProductAgreementAdminController(
                 )
             } ?: throw BadRequestException("Product agreement $uuid not found")
         }
-        return HttpResponse.ok("Product agreements $ids has been deleted")
+        return HttpResponse.ok(ids)
     }
 }
