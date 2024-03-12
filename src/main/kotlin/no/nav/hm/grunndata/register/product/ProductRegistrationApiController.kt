@@ -56,6 +56,46 @@ class ProductRegistrationApiController(
     ) = productRegistrationService.findBySeriesIdAndSupplierId(seriesId, authentication.supplierId())
         .sortedBy { it.created }
 
+    @Get("/series/grouped/{seriesId}")
+    suspend fun getProductSeriesWithVariants(
+        seriesId: String,
+        authentication: Authentication
+    ) = productRegistrationService.findProductSeriesWithVariants(seriesId, authentication.supplierId())
+
+    @Put("/series/grouped/{seriesId}")
+    suspend fun updateProductSeriesWithVariants(
+        @Body productWithVariants: ProductSeriesWithVariantsDTO,
+        @PathVariable seriesId: String,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> =
+        if (productWithVariants.supplierId != authentication.supplierId()) {
+            HttpResponse.unauthorized()
+        } else if (productWithVariants.seriesId != seriesId) {
+            throw BadRequestException("Product id $seriesId does not match ${productWithVariants.id}")
+        } else {
+            productRegistrationService.findBySeriesIdAndSupplierId(seriesId, productWithVariants.supplierId)
+                .minByOrNull { it.created }
+                ?.let { inDb ->
+                    productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                        inDb.copy(
+                            registrationStatus = productWithVariants.registrationStatus,
+                            draftStatus = productWithVariants.draftStatus,
+                            isoCategory = productWithVariants.isoCategory,
+                            productData = productWithVariants.productData,
+                            title = productWithVariants.title,
+                            updatedBy = REGISTER,
+                            updatedByUser = authentication.name,
+                            updated = LocalDateTime.now(),
+                        ),
+                        isUpdate = true
+                    )
+                    HttpResponse.ok(inDb)
+                }
+                ?: run {
+                    throw BadRequestException("Product does not exists $seriesId")
+                }
+        }
+
     @Get("/{?params*}")
     suspend fun findProducts(
         @QueryValue params: HashMap<String, String>?,

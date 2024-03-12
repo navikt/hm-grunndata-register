@@ -35,6 +35,14 @@ interface ProductionRegistrationApiClient {
                       @Body productRegistrationDTO: ProductRegistrationDTO
     ): ProductRegistrationDTO
 
+    @Get(uri = "/series/grouped/{id}", consumes = [APPLICATION_JSON])
+    fun readProductSeriesWithVariants(@CookieValue("JWT") jwt: String, id: String): ProductSeriesWithVariantsDTO
+
+    @Put(uri= "/series/grouped/{id}", processes = [APPLICATION_JSON])
+    fun updateProductSeriesWithVariants(@CookieValue("JWT") jwt: String, id:UUID,
+                      @Body productSeriesWithVariantsDTO: ProductSeriesWithVariantsDTO
+    ): ProductRegistrationDTO
+
     @Delete(uri="/{id}", consumes = [APPLICATION_JSON])
     fun deleteProduct(@CookieValue("JWT") jwt: String, id:UUID): ProductRegistrationDTO
 

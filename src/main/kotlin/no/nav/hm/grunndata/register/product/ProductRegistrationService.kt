@@ -78,6 +78,10 @@ open class ProductRegistrationService(
         supplierId: UUID,
     ) = productRegistrationRepository.findBySeriesIdAndSupplierId(seriesId, supplierId).map { it.toDTO() }
 
+    suspend fun findProductSeriesWithVariants(seriesId: String, supplierId: UUID): ProductSeriesWithVariantsDTO? {
+        return findBySeriesIdAndSupplierId(seriesId, supplierId).toProductSeriesWithVariants()
+    }
+
     suspend fun findSeriesGroup(
         supplierId: UUID,
         pageable: Pageable,
