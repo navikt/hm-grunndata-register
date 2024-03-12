@@ -1,0 +1,66 @@
+[ {
+  "newsDTO" : {
+    "newsid" : 1578,
+    "newstitle" : "Barn",
+    "newsresume" : "Her kan du finne hjelpemidler i små størrelser som er spesielt beregnet for barn, eller er utviklet med tanke på et barns behov for å kunne delta i dagligaktiviteter, lek og fritid.\n",
+    "newstext" : "<p>Hjelpemidler i sm&aring; st&oslash;rrelser som er spesielt beregnet for barn, eller er utviklet med tanke p&aring; et barns behov for &aring; kunne delta i dagligaktiviteter, lek og fritid. Flere av hjelpemidlene kan ogs&aring; passe til sm&aring; voksne.</p>",
+    "newslink" : "r14x.asp?keyitem=21904&amp;keyvaluetrue=1",
+    "newstype" : 32,
+    "newspublisher" : 1045,
+    "newspublish" : "2014-03-05T00:00:00",
+    "ldbid" : 2
+  },
+  "isoCode" : [ ]
+}, {
+  "newsDTO" : {
+    "newsid" : 1579,
+    "newstitle" : "Kognisjon",
+    "newsresume" : "Her kan du finne hjelpemidler til personer som har vansker med å huske, planlegge og organisere egen hverdag.",
+    "newstext" : "<p>Hjelpemidler til personer som har vansker med &aring; huske, planlegge og organisere egen hverdag som f&oslash;lge av for eksempel demens, hjerneslag eller medf&oslash;dte kognitive vansker. Her kan du blant annet finne hjelpemidler som elektroniske kalendere, komfyrvakt, trygghetsalarmer og annet varslingsutstyr som kan bidra til &oslash;kt selvstendighet i egen hverdag.</p>\n<p>Du finner <a href=\"https://www.nav.no/no/person/hjelpemidler/hjelpemidler-og-tilrettelegging/hjelpemidler/kognisjon\">informasjon om kognitive vansker og hjelpemidler p&aring; nav.no.</a></p>\n<p>&nbsp;</p>",
+    "newslink" : "",
+    "newstype" : 32,
+    "newspublisher" : 3759,
+    "newspublish" : "2014-03-05T00:00:00",
+    "ldbid" : 2
+  },
+  "isoCode" : [ "222704", "222712", "222715", "222716", "222721", "222724", "041904", "09060301" ]
+}, {
+  "newsDTO" : {
+    "newsid" : 1580,
+    "newstitle" : "Høy brukervekt",
+    "newsresume" : "Her kan du finne hjelpemidler som skal tåle en brukervekt som er høyere enn 150 kg. Det er mulig å endre søkefunksjonen til en høyere brukervekt for et mer spesifikt søk ved behov.",
+    "newstext" : "<p>Hjelpemidler som skal t&aring;le en brukervekt som er h&oslash;yere enn 150 kg. Det er mulig &aring; endre s&oslash;kefunksjonen til en h&oslash;yere brukervekt for et mer spesifikt s&oslash;k ved behov.<br><br>NB: Selv om et hjelpemiddel t&aring;ler en brukervekt over 150 kg, kan det v&aelig;re at m&aring;lene p&aring; hjelpemiddelet, for eksempel setebredden, allikevel gj&oslash;r det vanskelig &aring; bruke for personer som er sv&aelig;rt overvektige. Sjekk derfor de tekniske dataene for aktuelt hjelpemiddel slik at m&aring;lene vil passe til den som skal bruke det.</p>",
+    "newslink" : "r14x.asp?keyitem=19816&amp;keyvaluemin=150",
+    "newstype" : 32,
+    "newspublisher" : 3759,
+    "newspublish" : "2014-03-05T00:00:00",
+    "ldbid" : 2
+  },
+  "isoCode" : [ ]
+}, {
+  "newsDTO" : {
+    "newsid" : 1581,
+    "newstitle" : "Syn",
+    "newsresume" : "Her kan du finne hjelpemidler til personer som er svaksynte eller blinde, eller har andre synsnedsettelser som følge av andre alvorlige synsdefekter etter sykdom eller skade.",
+    "newstext" : "<p>Hjelpemidler til personer som er svaksynte eller blinde, eller har andre synsnedsettelser som f&oslash;lge av alvorlige synsdefekter etter sykdom eller skade.</p>\n<p>Du finner <a href=\"https://www.nav.no/no/person/hjelpemidler/hjelpemidler-og-tilrettelegging/hjelpemidler/syn\">informasjon om formidling av synshjelpemidler p&aring; nav.no</a>.</p>",
+    "newslink" : "",
+    "newstype" : 32,
+    "newspublisher" : 3759,
+    "newspublish" : "2014-03-05T00:00:00",
+    "ldbid" : 2
+  },
+  "isoCode" : [ "2706", "123903", "123909", "180606", "220309", "220312", "220318", "221209", "221215", "221803", "222403", "222406", "222712", "223015", "223021", "223905", "223906", "223912", "18060301", "22360301", "22391203", "22391204" ]
+}, {
+  "newsDTO" : {
+    "newsid" : 1582,
+    "newstitle" : "Hørsel",
+    "newsresume" : "Her kan du finne hjelpemidler til personer som har nedsatt eller ingen hørsel.",
+    "newstext" : "<p>Hjelpemidler til personer som har nedsatt h&oslash;rsel eller er d&oslash;ve. Hjelpemidlene kan bidra til &aring; utnytte eventuell h&oslash;rselsrest, eller tilrettelegge med visuelle virkemidler i mangel av h&oslash;rsel.</p>\n<p>Du finner<a href=\"https://www.nav.no/har-nedsatt-horsel\"> informasjon om formidling av h&oslash;rselshjelpemidler p&aring; nav.no.</a></p>\n<p>&nbsp;</p>",
+    "newslink" : "",
+    "newstype" : 32,
+    "newspublisher" : 3759,
+    "newspublish" : "2014-03-05T00:00:00",
+    "ldbid" : 2
+  },
+  "isoCode" : [ "221824", "221827", "221830", "221833", "221836", "222106", "222421", "222704", "222712", "222718", "222721", "22242102", "22242103" ]
+} ]
