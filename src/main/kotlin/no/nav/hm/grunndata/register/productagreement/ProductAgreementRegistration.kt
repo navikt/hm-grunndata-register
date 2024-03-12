@@ -61,7 +61,7 @@ data class ProductAgreementRegistrationDTO(
 ) : EventPayload {
     override fun toRapidDTO(): RapidDTO = ProductAgreementRegistrationRapidDTO(
         id = id, productId = productId,
-        agreementId = agreementId, post = post,
+        agreementId = agreementId, post = post, postId = postId,
         rank = rank, hmsArtNr = hmsArtNr, reference = reference, status = status, title = title,
         supplierId = supplierId, supplierRef = supplierRef, created = created, updated = updated,
         published = published, expired = expired, createdBy = createdBy

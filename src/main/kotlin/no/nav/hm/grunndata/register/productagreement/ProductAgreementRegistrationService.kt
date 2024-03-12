@@ -68,6 +68,7 @@ open class ProductAgreementRegistrationService(
             )?.let { inDb ->
                 update(
                     inDb.copy(
+                        agreementId = productAgreement.agreementId,
                         productId = productAgreement.productId,
                         seriesUuid = productAgreement.seriesUuid,
                         title = productAgreement.title,

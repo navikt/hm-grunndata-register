@@ -7,18 +7,7 @@ import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.anbudsnr
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.beskrivelse
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.datofom
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.datotom
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.delkontraktnummer
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.hms_ArtNr
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.kategori
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.leverandorfirmanavn
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.leverandorsted
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.leverandørensartnr
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.malTypeartikkel
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.malgruppebarn
+import no.nav.hm.grunndata.register.productagreement.ColumnNames.*
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.Row
@@ -26,7 +15,7 @@ import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.slf4j.LoggerFactory
 import java.io.InputStream
-import java.util.UUID
+import java.util.*
 
 @Singleton
 class ProductAgreementImportExcelService(
@@ -69,7 +58,7 @@ class ProductAgreementImportExcelService(
         return postRanks.map { postRank ->
             LOG.info("Creating product agreement for agreement $cleanRef, post ${postRank.first}, rank ${postRank.second}")
             val delkontrakt: DelkontraktRegistrationDTO =
-                agreement.delkontraktList.find { it.delkontraktData.title?.extractDelkontraktNrFromTitle() == postRank.first }
+                agreement.delkontraktList.find { it.delkontraktData.refNr == postRank.first }
                     ?: throw BadRequestException("Delkontrakt ${postRank.first} finnes ikke i avtale $cleanRef, må den opprettes?")
             ProductAgreementRegistrationDTO(
                 hmsArtNr = parseHMSNr(hmsArtNr),
