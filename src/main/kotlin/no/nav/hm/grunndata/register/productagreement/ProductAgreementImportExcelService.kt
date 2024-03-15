@@ -67,6 +67,9 @@ class ProductAgreementImportExcelService(
         if (agreement.agreementStatus === AgreementStatus.DELETED) {
             throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er slettet, må den opprettes?")
         }
+        if (agreement.agreementStatus === AgreementStatus.ACTIVE) {
+            throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er publisert")
+        }
         val supplierId = parseSupplierName(supplierName)
         val product = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)
         val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(delkontraktNr)

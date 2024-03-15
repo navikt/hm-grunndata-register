@@ -47,16 +47,21 @@ class ProductAgreementAdminController(
         val productAgreements =
             file.inputStream.use { input -> productAgreementImportExcelService.importExcelFile(input) }
 
-        val existingProductAgreements =
-            productAgreementRegistrationService.findAllByIds(productAgreements.map { it.id }).map { it.id }
-
         val productAgreementsWithInformation =
             productAgreements.map {
                 val information = mutableListOf<Information>()
-                if (existingProductAgreements.contains(it.id)) {
-                    information.add(Information("Produkt finnes allerede", Type.WARNING))
-                }
+                val existingProductAgreement =
+                    productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
+                        it.supplierId,
+                        it.supplierRef,
+                        it.agreementId,
+                        it.postId!!,
+                        it.rank,
+                    )
 
+                if (existingProductAgreement != null) {
+                    information.add(Information("Product agreement already exists", Type.WARNING))
+                }
                 Pair(it, information)
             }
 
