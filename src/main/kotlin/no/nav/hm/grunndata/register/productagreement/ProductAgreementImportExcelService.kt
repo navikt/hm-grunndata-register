@@ -2,12 +2,24 @@ package no.nav.hm.grunndata.register.productagreement
 
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.*
+import no.nav.hm.grunndata.register.productagreement.ColumnNames.anbudsnr
+import no.nav.hm.grunndata.register.productagreement.ColumnNames.beskrivelse
+import no.nav.hm.grunndata.register.productagreement.ColumnNames.datofom
+import no.nav.hm.grunndata.register.productagreement.ColumnNames.datotom
+import no.nav.hm.grunndata.register.productagreement.ColumnNames.delkontraktnummer
+import no.nav.hm.grunndata.register.productagreement.ColumnNames.hms_ArtNr
+import no.nav.hm.grunndata.register.productagreement.ColumnNames.kategori
+import no.nav.hm.grunndata.register.productagreement.ColumnNames.leverandorfirmanavn
+import no.nav.hm.grunndata.register.productagreement.ColumnNames.leverandorsted
+import no.nav.hm.grunndata.register.productagreement.ColumnNames.leverandørensartnr
+import no.nav.hm.grunndata.register.productagreement.ColumnNames.malTypeartikkel
+import no.nav.hm.grunndata.register.productagreement.ColumnNames.malgruppebarn
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.Row
@@ -15,7 +27,7 @@ import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.slf4j.LoggerFactory
 import java.io.InputStream
-import java.util.*
+import java.util.UUID
 
 @Singleton
 class ProductAgreementImportExcelService(
@@ -52,6 +64,9 @@ class ProductAgreementImportExcelService(
     private suspend fun ProductAgreementExcelDTO.toProductAgreementDTO(): List<ProductAgreementRegistrationDTO> {
         val cleanRef = reference.lowercase().replace("/", "-")
         val agreement = findAgreementByReference(cleanRef)
+        if (agreement.agreementStatus === AgreementStatus.DELETED) {
+            throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er slettet, må den opprettes?")
+        }
         val supplierId = parseSupplierName(supplierName)
         val product = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)
         val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(delkontraktNr)

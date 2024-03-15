@@ -46,6 +46,20 @@ class ProductAgreementAdminController(
         LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()}")
         val productAgreements =
             file.inputStream.use { input -> productAgreementImportExcelService.importExcelFile(input) }
+
+        val existingProductAgreements =
+            productAgreementRegistrationService.findAllByIds(productAgreements.map { it.id }).map { it.id }
+
+        val productAgreementsWithInformation =
+            productAgreements.map {
+                val information = mutableListOf<Information>()
+                if (existingProductAgreements.contains(it.id)) {
+                    information.add(Information("Produkt finnes allerede", Type.WARNING))
+                }
+
+                Pair(it, information)
+            }
+
         if (!dryRun) {
             LOG.info("Saving product agreements")
             productAgreementRegistrationService.saveAll(productAgreements)
@@ -54,6 +68,7 @@ class ProductAgreementAdminController(
             dryRun = dryRun,
             count = productAgreements.size,
             productAgreements = productAgreements,
+            productAgreementsWithInformation = productAgreementsWithInformation,
         )
     }
 
