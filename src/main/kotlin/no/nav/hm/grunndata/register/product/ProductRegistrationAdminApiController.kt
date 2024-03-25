@@ -62,6 +62,12 @@ class ProductRegistrationAdminApiController(
                 if (params.contains("supplierRef")) root[ProductRegistration::supplierRef] eq params["supplierRef"]
                 if (params.contains("hmsArtNr")) root[ProductRegistration::hmsArtNr] eq params["hmsArtNr"]
                 if (params.contains("adminStatus")) root[ProductRegistration::adminStatus] eq AdminStatus.valueOf(params["adminStatus"]!!)
+                if (params.contains("registrationStatus")) {
+                    root[ProductRegistration::registrationStatus] eq
+                        RegistrationStatus.valueOf(
+                            params["registrationStatus"]!!,
+                        )
+                }
                 if (params.contains("supplierId")) root[ProductRegistration::supplierId] eq UUID.fromString(params["supplierId"]!!)
                 if (params.contains("draft")) root[ProductRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
                 if (params.contains("createdByUser")) root[ProductRegistration::createdByUser] eq params["createdByUser"]
@@ -160,12 +166,21 @@ class ProductRegistrationAdminApiController(
                 ?.let { inDb ->
                     val updated =
                         registrationDTO.copy(
-                            draftStatus = if (inDb.draftStatus == DraftStatus.DONE && inDb.adminStatus == AdminStatus.APPROVED)
-                                DraftStatus.DONE else registrationDTO.draftStatus,
+                            draftStatus =
+                                if (inDb.draftStatus == DraftStatus.DONE && inDb.adminStatus == AdminStatus.APPROVED) {
+                                    DraftStatus.DONE
+                                } else {
+                                    registrationDTO.draftStatus
+                                },
                             adminStatus = inDb.adminStatus,
-                            adminInfo = inDb.adminInfo, id = inDb.id, created = inDb.created,
-                            updatedByUser = authentication.name, updatedBy = REGISTER, createdBy = inDb.createdBy,
-                            createdByAdmin = inDb.createdByAdmin, updated = LocalDateTime.now(),
+                            adminInfo = inDb.adminInfo,
+                            id = inDb.id,
+                            created = inDb.created,
+                            updatedByUser = authentication.name,
+                            updatedBy = REGISTER,
+                            createdBy = inDb.createdBy,
+                            createdByAdmin = inDb.createdByAdmin,
+                            updated = LocalDateTime.now(),
                         )
                     val dto =
                         productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updated, isUpdate = true)
@@ -187,7 +202,8 @@ class ProductRegistrationAdminApiController(
                     productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                         it.copy(
                             registrationStatus = RegistrationStatus.DELETED,
-                            updatedByUser = authentication.name, updatedBy = REGISTER,
+                            updatedByUser = authentication.name,
+                            updatedBy = REGISTER,
                         ),
                         isUpdate = true,
                     )
