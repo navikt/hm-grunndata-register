@@ -1,0 +1,2 @@
+ALTER TABLE techlabel_reg_v1 DROP CONSTRAINT techlabel_reg_v1_label_key;
+ALTER TABLE techlabel_reg_v1 DROP CONSTRAINT techlabel_reg_v1_identifier_key;
