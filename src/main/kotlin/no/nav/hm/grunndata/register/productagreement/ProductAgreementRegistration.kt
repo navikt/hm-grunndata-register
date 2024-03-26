@@ -36,7 +36,6 @@ data class ProductAgreementRegistration(
     val published: LocalDateTime = LocalDateTime.now(),
     val expired: LocalDateTime = LocalDateTime.now().plusYears(4)
 )
-
 data class ProductAgreementRegistrationDTO(
     override val id: UUID = UUID.randomUUID(),
     val productId: UUID?,

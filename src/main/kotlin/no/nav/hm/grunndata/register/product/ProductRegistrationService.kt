@@ -10,12 +10,13 @@ import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
-import no.nav.hm.grunndata.register.error.BadRequestException
-import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.product.batch.ProductRegistrationExcelDTO
 import no.nav.hm.grunndata.register.product.batch.toProductRegistrationDryRunDTO
 import no.nav.hm.grunndata.register.product.batch.toRegistrationDTO
 import no.nav.hm.grunndata.register.product.batch.toRegistrationDryRunDTO
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.slf4j.LoggerFactory
@@ -27,8 +28,9 @@ open class ProductRegistrationService(
     private val productRegistrationRepository: ProductRegistrationRepository,
     private val seriesRegistrationRepository: SeriesRegistrationRepository,
     private val productRegistrationEventHandler: ProductRegistrationEventHandler,
-    private val productExcelImport: ProductExcelImport,
     private val techLabelService: TechLabelService,
+    private val agreementRegistrationService: AgreementRegistrationService,
+    private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductRegistration::class.java)
@@ -45,7 +47,7 @@ open class ProductRegistrationService(
     open suspend fun findAll(
         spec: PredicateSpecification<ProductRegistration>?,
         pageable: Pageable,
-    ): Page<ProductRegistrationDTO> = productRegistrationRepository.findAll(spec, pageable).map { it.toDTO() }
+    ): Page<ProductRegistrationDTO> = productRegistrationRepository.findAll(spec, pageable).mapSuspend { it.toDTO() }
 
     open suspend fun findBySupplierRefAndSupplierId(
         supplierRef: String,
@@ -273,8 +275,60 @@ open class ProductRegistrationService(
     }
 
     private fun createTechDataDraft(draftWithDTO: ProductDraftWithDTO): List<TechData> =
-        techLabelService.fetchLabelsByIsoCode(draftWithDTO.isoCategory)?.map {
+        techLabelService.fetchLabelsByIsoCode(draftWithDTO.isoCategory).map {
             TechData(key = it.label, value = "", unit = it.unit ?: "")
-        } ?: emptyList()
+        }
 
+    private suspend fun ProductRegistration.toDTO(): ProductRegistrationDTO =
+        ProductRegistrationDTO(
+            id = id,
+            supplierId = supplierId,
+            seriesId = seriesId,
+            seriesUUID = seriesUUID,
+            supplierRef = supplierRef,
+            hmsArtNr =  hmsArtNr,
+            title = title,
+            articleName = articleName,
+            draftStatus = draftStatus,
+            adminStatus = adminStatus,
+            registrationStatus = registrationStatus,
+            message = message,
+            adminInfo = adminInfo,
+            created = created,
+            updated = updated,
+            published = published,
+            expired = expired,
+            updatedByUser = updatedByUser,
+            createdByUser = createdByUser,
+            createdBy = createdBy,
+            updatedBy = updatedBy,
+            createdByAdmin = createdByAdmin,
+            productData = productData,
+            isoCategory = isoCategory,
+            agreements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef).map { it.toAgreementInfo() },
+            version = version,
+        )
+    private suspend fun ProductAgreementRegistration.toAgreementInfo(): AgreementInfo {
+        val agreement = agreementRegistrationService.findById(agreementId) ?: throw RuntimeException("Agreement not found") // consider caching agreements
+        val delKontrakt = if (postId != null) agreement.delkontraktList.find { postId == it.id } else null
+        return AgreementInfo(
+            id = agreementId,
+            title = agreement.title,
+            identifier = agreement.agreementData.identifier,
+            rank = rank,
+            postNr = post,
+            postIdentifier = delKontrakt?.identifier,
+            postId = postId,
+            refNr = delKontrakt?.delkontraktData?.refNr,
+            published = published,
+            expired = expired,
+            reference = reference,
+            postTitle = delKontrakt?.delkontraktData?.title ?: "",
+        )
+    }
+
+}
+suspend fun <T : Any, R : Any> Page<T>.mapSuspend(transform: suspend (T) -> R): Page<R> {
+    val content = this.content.map { transform(it) }
+    return Page.of(content, this.pageable, this.totalSize)
 }

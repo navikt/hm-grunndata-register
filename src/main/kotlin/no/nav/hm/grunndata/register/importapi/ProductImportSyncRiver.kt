@@ -22,7 +22,7 @@ import java.time.LocalDateTime
 class ProductImportSyncRiver(
     river: RiverHead,
     private val objectMapper: ObjectMapper,
-    private val productRegistrationRepository: ProductRegistrationRepository,
+    private val productRegistrationService: ProductRegistrationService,
     private val productRegistrationEventHandler: ProductRegistrationEventHandler,
     @Value("\${import.autoapprove}") private val autoApprove: Boolean
 ) : River.PacketListener {
@@ -50,8 +50,8 @@ class ProductImportSyncRiver(
             if (dtoVersion > rapidDTOVersion) LOG.warn("dto version $dtoVersion is newer than $rapidDTOVersion")
             val importDTO = objectMapper.treeToValue(packet["payload"], ProductImportRapidDTO::class.java)
             val registration =
-                productRegistrationRepository.findById(importDTO.id)?.let { inDb ->
-                    productRegistrationRepository.update(
+                productRegistrationService.findById(importDTO.id)?.let { inDb ->
+                    productRegistrationService.update(
                         inDb.copy(
                             title = importDTO.productDTO.title,
                             articleName = importDTO.productDTO.articleName,
@@ -66,8 +66,8 @@ class ProductImportSyncRiver(
                             expired = importDTO.productDTO.expired,
                         )
                     )
-                } ?: productRegistrationRepository.save(
-                    ProductRegistration(
+                } ?: productRegistrationService.save(
+                    ProductRegistrationDTO(
                         id = importDTO.id,
                         title = importDTO.productDTO.title,
                         articleName = importDTO.productDTO.articleName,
@@ -91,7 +91,7 @@ class ProductImportSyncRiver(
                 )
             val extraImportKeyValues =
                 mapOf("transferId" to importDTO.transferId, "version" to importDTO.version)
-            productRegistrationEventHandler.queueDTORapidEvent(registration.toDTO(), eventName = EventName.registeredProductV1, extraKeyValues = extraImportKeyValues)
+            productRegistrationEventHandler.queueDTORapidEvent(registration, eventName = EventName.registeredProductV1, extraKeyValues = extraImportKeyValues)
             LOG.info(
                 """imported product ${importDTO.id} with eventId $eventId 
             |and version: ${importDTO.version} synced, adminstatus: ${registration.adminStatus}""".trimMargin()

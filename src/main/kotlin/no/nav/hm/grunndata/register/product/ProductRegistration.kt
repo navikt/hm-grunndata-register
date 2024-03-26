@@ -6,14 +6,9 @@ import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
 import jakarta.persistence.Column
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.JoinColumns
-import jakarta.persistence.OneToMany
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
-import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
-import no.nav.hm.grunndata.register.productagreement.toInfo
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
@@ -51,12 +46,6 @@ data class ProductRegistration(
     val createdByAdmin: Boolean = false,
     @field:TypeDef(type = DataType.JSON)
     val productData: ProductData,
-    @field:OneToMany
-    @field:JoinColumns(
-        JoinColumn(name = "supplier_ref", referencedColumnName = "supplier_ref"),
-        JoinColumn(name = "supplier_id", referencedColumnName = "supplier_id"),
-    )
-    val agreements: List<ProductAgreementRegistration> = emptyList(),
     @field:Version
     val version: Long? = 0L,
 )
@@ -199,35 +188,7 @@ fun ProductRegistrationDTO.toEntity(): ProductRegistration =
         version = version,
     )
 
-fun ProductRegistration.toDTO(): ProductRegistrationDTO =
-    ProductRegistrationDTO(
-        id = id,
-        supplierId = supplierId,
-        seriesId = seriesId,
-        seriesUUID = seriesUUID,
-        supplierRef = supplierRef,
-        hmsArtNr = if (agreements.isNotEmpty() && agreements[0].hmsArtNr != null) agreements[0].hmsArtNr else hmsArtNr,
-        title = title,
-        articleName = articleName,
-        draftStatus = draftStatus,
-        adminStatus = adminStatus,
-        registrationStatus = registrationStatus,
-        message = message,
-        adminInfo = adminInfo,
-        created = created,
-        updated = updated,
-        published = published,
-        expired = expired,
-        updatedByUser = updatedByUser,
-        createdByUser = createdByUser,
-        createdBy = createdBy,
-        updatedBy = updatedBy,
-        createdByAdmin = createdByAdmin,
-        productData = productData,
-        isoCategory = isoCategory,
-        agreements = agreements.map { it.toInfo() },
-        version = version,
-    )
+
 
 data class ProductRegistrationDryRunDTO(
     val id: UUID?,

@@ -118,7 +118,6 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             saved.shouldNotBeNull()
             val inDb = productRegistrationRepository.findById(saved.id)
             inDb.shouldNotBeNull()
-            inDb.agreements.size shouldBe 2
             saved.hmsArtNr shouldBe inDb.hmsArtNr
             val approve = inDb.approve("NAVN1")
             val updated = productRegistrationRepository.update(approve)
