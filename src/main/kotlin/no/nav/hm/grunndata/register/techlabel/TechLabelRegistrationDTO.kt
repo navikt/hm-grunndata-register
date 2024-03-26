@@ -101,3 +101,19 @@ data class TechLabelDTO(
     val created: LocalDateTime,
     val updated: LocalDateTime
 )
+
+fun TechLabelRegistration.toTechLabelDTO(): TechLabelDTO = TechLabelDTO(
+    id = id,
+    identifier = identifier,
+    label = label,
+    guide = guide,
+    definition = definition,
+    isocode = isoCode,
+    type = type,
+    unit = unit,
+    sort = sort,
+    createdBy = createdBy,
+    updatedBy = updatedBy,
+    created = created,
+    updated = updated
+)
