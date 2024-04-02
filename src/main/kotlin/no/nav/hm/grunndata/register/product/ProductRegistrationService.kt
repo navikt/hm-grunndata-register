@@ -279,14 +279,16 @@ open class ProductRegistrationService(
             TechData(key = it.label, value = "", unit = it.unit ?: "")
         }
 
-    private suspend fun ProductRegistration.toDTO(): ProductRegistrationDTO =
-        ProductRegistrationDTO(
+    private suspend fun ProductRegistration.toDTO(): ProductRegistrationDTO {
+        // TODO cache agreements
+        val agreeements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)
+        return ProductRegistrationDTO(
             id = id,
             supplierId = supplierId,
             seriesId = seriesId,
             seriesUUID = seriesUUID,
             supplierRef = supplierRef,
-            hmsArtNr =  hmsArtNr,
+            hmsArtNr = if (agreeements.isNotEmpty()) agreeements.first().hmsArtNr else hmsArtNr,
             title = title,
             articleName = articleName,
             draftStatus = draftStatus,
@@ -305,9 +307,11 @@ open class ProductRegistrationService(
             createdByAdmin = createdByAdmin,
             productData = productData,
             isoCategory = isoCategory,
-            agreements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef).map { it.toAgreementInfo() },
+            agreements = agreeements.map { it.toAgreementInfo() },
             version = version,
         )
+    }
+
     private suspend fun ProductAgreementRegistration.toAgreementInfo(): AgreementInfo {
         val agreement = agreementRegistrationService.findById(agreementId) ?: throw RuntimeException("Agreement not found") // consider caching agreements
         val delKontrakt = if (postId != null) agreement.delkontraktList.find { postId == it.id } else null

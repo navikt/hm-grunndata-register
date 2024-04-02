@@ -1,6 +1,5 @@
 package no.nav.hm.grunndata.register.product
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -10,7 +9,14 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.agreement.AgreementData
+import no.nav.hm.grunndata.register.agreement.AgreementRegistration
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationRepository
 import no.nav.hm.grunndata.register.gdb.GdbApiClient
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierData
@@ -21,6 +27,7 @@ import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest
@@ -28,12 +35,18 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
                                       private val loginClient: LoginClient,
                                       private val userRepository: UserRepository,
                                       private val supplierRegistrationService: SupplierRegistrationService,
-                                      private val objectMapper: ObjectMapper) {
+                                      private val agreementRegistrationRepository: AgreementRegistrationRepository,
+                                      private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository
+) {
 
     val email = "ProductRegistrationAdminApiTest@test.test"
     val password = "admin-123"
+    val agreementId = UUID.randomUUID()
+    val postId = UUID.randomUUID()
     val supplierId = UUID.randomUUID()
+    val supplierRef = "eksternref-222"
     var testSupplier : SupplierRegistrationDTO? = null
+    var productAgreement:  ProductAgreementRegistration? = null
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -62,6 +75,45 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
                     email = email, token = password, name = "User tester", roles = listOf(Roles.ROLE_ADMIN)
                 )
             )
+
+            val agreement = AgreementDTO(id = agreementId, published = LocalDateTime.now(),
+                expired = LocalDateTime.now().plusYears(2), title = "Title of agreement",
+                text = "some text", reference = "unik-ref1", identifier = "unik-ref1", resume = "resume",
+                posts = listOf(
+                    AgreementPost(identifier = "unik-post1", title = "Post title",
+                        description = "post description", nr = 1), AgreementPost(identifier = "unik-post2", title = "Post title 2",
+                        description = "post description 2", nr = 2)
+                ), createdBy = REGISTER, updatedBy = REGISTER,
+                created = LocalDateTime.now(), updated = LocalDateTime.now())
+            val data = AgreementData(
+                text = "some text", resume = "resume",
+                identifier = agreement.identifier,
+                posts = listOf(
+                    AgreementPost(identifier = "unik-post1", title = "Post title", id = postId,
+                        description = "post description", nr = 1),
+                ))
+            val agreementRegistration = AgreementRegistration(
+                id = agreementId, published = agreement.published, expired = agreement.expired, title = agreement.title,
+                reference = agreement.reference, updatedByUser = "username", createdByUser = "username", agreementData = data
+            )
+
+            agreementRegistrationRepository.save(agreementRegistration)
+            val productAgreement = productAgreementRegistrationRepository.save(
+                ProductAgreementRegistration(
+                    agreementId = agreementId,
+                    hmsArtNr = "12345",
+                    post = 1,
+                    rank = 1,
+                    postId = postId,
+                    reference = "20-1423",
+                    supplierId = supplierId,
+                    supplierRef = supplierRef,
+                    createdBy = ProductAgreementImportExcelService.EXCEL,
+                    title = "Test product agreement",
+                    status = ProductAgreementStatus.ACTIVE,
+                    articleName = "Test article"
+                )
+            )
         }
     }
 
@@ -76,7 +128,6 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         draft.shouldNotBeNull()
         draft.createdByAdmin shouldBe true
         draft.createdByUser shouldBe email
-        println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(draft))
 
         // Edit the draft
         val productData = draft.productData.copy(
@@ -98,6 +149,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         )
         val hmsArtNr = UUID.randomUUID().toString()
         val registration = draft.copy(
+            supplierRef = supplierRef,
             seriesId = "series-123",
             isoCategory = "12001314",
             hmsArtNr = hmsArtNr,
@@ -114,14 +166,21 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         created.adminStatus shouldBe AdminStatus.PENDING
         created.registrationStatus shouldBe RegistrationStatus.ACTIVE
 
+
+
+
         // read it from database
         val read = apiClient.readProduct(jwt, created.id)
         read.shouldNotBeNull()
         read.createdByUser shouldBe email
-        read.hmsArtNr shouldBe hmsArtNr
+        read.hmsArtNr shouldBe "12345"
+        read.agreements.size shouldBe 1
+        read.agreements[0].id shouldBe agreementId
+        read.agreements[0].postId shouldBe postId
+        read.agreements[0].postNr shouldBe 1
 
         // make some changes, with approved by admin
-        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title = "Changed title", supplierRef = "eksternref-222",
+        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title = "Changed title",
             draftStatus = DraftStatus.DONE, registrationStatus = RegistrationStatus.ACTIVE))
 
         updated.shouldNotBeNull()
@@ -153,6 +212,9 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
         val updatedVersion = apiClient.readProduct(jwt, updated.id)
         updatedVersion.version!! shouldBeGreaterThan 0
         updatedVersion.updatedByUser shouldBe email
+
+
+
 
     }
 
