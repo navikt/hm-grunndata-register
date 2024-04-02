@@ -48,7 +48,8 @@ class ProductRegistrationAdminApiController(
     ): Slice<SeriesGroupDTO> = productRegistrationService.findSeriesGroup(pageable)
 
     @Get("/series/{seriesId}")
-    suspend fun findBySeriesIdAndSupplierId(seriesId: String) = productRegistrationService.findBySeriesId(seriesId)
+    suspend fun findBySeriesIdAndSupplierId(seriesId: String) =
+        productRegistrationService.findBySeriesId(seriesId).sortedBy { it.created }
 
     @Get("/{?params*}")
     suspend fun findProducts(
