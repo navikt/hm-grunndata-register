@@ -17,6 +17,7 @@ import no.nav.hm.grunndata.register.product.batch.toRegistrationDTO
 import no.nav.hm.grunndata.register.product.batch.toRegistrationDryRunDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
+import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.slf4j.LoggerFactory
@@ -40,7 +41,18 @@ open class ProductRegistrationService(
 
     open suspend fun findByHmsArtNr(hmsArtNr: String) = productRegistrationRepository.findByHmsArtNr(hmsArtNr)?.toDTO()
 
-    open suspend fun save(dto: ProductRegistrationDTO) = productRegistrationRepository.save(dto.toEntity()).toDTO()
+    open suspend fun save(dto: ProductRegistrationDTO): ProductRegistrationDTO {
+        if (dto.seriesUUID!=null && seriesRegistrationRepository.findById(dto.seriesUUID) == null) {
+            seriesRegistrationRepository.save(SeriesRegistration(id = dto.seriesUUID,
+                draftStatus = DraftStatus.DONE,
+                title = dto.title,
+                supplierId = dto.supplierId,
+                identifier = dto.productData.seriesIdentifier?:UUID.randomUUID().toString(),
+                isoCategory = dto.isoCategory,
+                text = dto.productData.attributes.text?:""))
+        }
+        return productRegistrationRepository.save(dto.toEntity()).toDTO()
+    }
 
     open suspend fun update(dto: ProductRegistrationDTO) = productRegistrationRepository.update(dto.toEntity()).toDTO()
 

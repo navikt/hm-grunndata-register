@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.series
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.data.model.Page
@@ -13,7 +14,6 @@ import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import jakarta.inject.Inject
-import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.CONTEXT_PATH
 import no.nav.hm.grunndata.register.security.LoginClient
@@ -29,6 +29,7 @@ import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
+import java.util.*
 
 @MicronautTest
 class SeriesControllerTest(
@@ -118,7 +119,7 @@ class SeriesControllerTest(
         )
             .shouldNotBeNull()
             .body().shouldNotBeNull()
-        allSeries.totalSize shouldBe 2
+        allSeries.totalSize shouldBeGreaterThanOrEqual 2
         
         val uri = "${SeriesController.API_V1_SERIES}/?title=superserie"
         val filteredSeries = client.toBlocking().exchange(
