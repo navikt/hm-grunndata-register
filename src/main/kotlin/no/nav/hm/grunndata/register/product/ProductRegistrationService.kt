@@ -43,7 +43,8 @@ open class ProductRegistrationService(
 
     open suspend fun save(dto: ProductRegistrationDTO): ProductRegistrationDTO {
         if (dto.seriesUUID!=null && seriesRegistrationRepository.findById(dto.seriesUUID) == null) {
-            seriesRegistrationRepository.save(SeriesRegistration(id = dto.seriesUUID,
+            seriesRegistrationRepository.save(SeriesRegistration(
+                id = dto.seriesUUID,
                 draftStatus = DraftStatus.DONE,
                 title = dto.title,
                 supplierId = dto.supplierId,

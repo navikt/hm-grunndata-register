@@ -13,7 +13,6 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementData
 import no.nav.hm.grunndata.register.agreement.AgreementRegistration
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationRepository
-import no.nav.hm.grunndata.register.gdb.GdbApiClient
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
@@ -51,8 +50,6 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
 
-    @MockBean(GdbApiClient::class)
-    fun mockGdbApiClient(): GdbApiClient = mockk(relaxed = true)
 
     @BeforeEach
     fun createUserSupplier() {
