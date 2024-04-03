@@ -44,8 +44,6 @@ spec:
       value: "{{ rapidsandrivers_enabled }}"
     - name: MEDIA_UPLOAD_URL
       value: "{{ media_upload_url }}"
-    - name: GRUNNDATA_DB_URL
-      value: "http://hm-grunndata-db"
     - name: COOKIE_DOMAIN
       value: "{{ cookie_domain }}"
     - name: MEDIA_UPLOAD_URL
@@ -81,7 +79,6 @@ spec:
     outbound:
       rules:
         - application: hm-grunndata-media
-        - application: hm-grunndata-db
       external:
         - host: login.microsoftonline.com
         - host: graph.microsoft.com
