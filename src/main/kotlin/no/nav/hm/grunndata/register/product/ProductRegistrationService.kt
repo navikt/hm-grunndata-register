@@ -3,11 +3,18 @@ package no.nav.hm.grunndata.register.product
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
+import io.micronaut.data.runtime.criteria.get
+import io.micronaut.data.runtime.criteria.where
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.helse.rapids_rivers.toUUID
-import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.AgreementInfo
+import no.nav.hm.grunndata.rapid.dto.Attributes
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
@@ -19,10 +26,11 @@ import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistratio
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @Singleton
 open class ProductRegistrationService(
@@ -32,6 +40,7 @@ open class ProductRegistrationService(
     private val techLabelService: TechLabelService,
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
+    private val supplierService: SupplierRegistrationService,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductRegistration::class.java)
@@ -42,15 +51,18 @@ open class ProductRegistrationService(
     open suspend fun findByHmsArtNr(hmsArtNr: String) = productRegistrationRepository.findByHmsArtNr(hmsArtNr)?.toDTO()
 
     open suspend fun save(dto: ProductRegistrationDTO): ProductRegistrationDTO {
-        if (dto.seriesUUID!=null && seriesRegistrationRepository.findById(dto.seriesUUID) == null) {
-            seriesRegistrationRepository.save(SeriesRegistration(
-                id = dto.seriesUUID,
-                draftStatus = DraftStatus.DONE,
-                title = dto.title,
-                supplierId = dto.supplierId,
-                identifier = dto.productData.seriesIdentifier?:UUID.randomUUID().toString(),
-                isoCategory = dto.isoCategory,
-                text = dto.productData.attributes.text?:""))
+        if (dto.seriesUUID != null && seriesRegistrationRepository.findById(dto.seriesUUID) == null) {
+            seriesRegistrationRepository.save(
+                SeriesRegistration(
+                    id = dto.seriesUUID,
+                    draftStatus = DraftStatus.DONE,
+                    title = dto.title,
+                    supplierId = dto.supplierId,
+                    identifier = dto.productData.seriesIdentifier ?: UUID.randomUUID().toString(),
+                    isoCategory = dto.isoCategory,
+                    text = dto.productData.attributes.text ?: "",
+                ),
+            )
         }
         return productRegistrationRepository.save(dto.toEntity()).toDTO()
     }
@@ -61,6 +73,16 @@ open class ProductRegistrationService(
         spec: PredicateSpecification<ProductRegistration>?,
         pageable: Pageable,
     ): Page<ProductRegistrationDTO> = productRegistrationRepository.findAll(spec, pageable).mapSuspend { it.toDTO() }
+
+    open suspend fun findProductsToApprove(pageable: Pageable): Page<ProductToApproveDto> =
+        productRegistrationRepository.findAll(buildCriteriaSpecPendingProducts(), pageable)
+            .mapSuspend { it.toProductToApproveDto() }
+
+    private fun buildCriteriaSpecPendingProducts(): PredicateSpecification<ProductRegistration>? =
+        where {
+            root[ProductRegistration::adminStatus] eq AdminStatus.PENDING
+            root[ProductRegistration::registrationStatus] eq RegistrationStatus.ACTIVE
+        }
 
     open suspend fun findBySupplierRefAndSupplierId(
         supplierRef: String,
@@ -93,7 +115,10 @@ open class ProductRegistrationService(
         supplierId: UUID,
     ) = productRegistrationRepository.findBySeriesIdAndSupplierId(seriesId, supplierId).map { it.toDTO() }
 
-    suspend fun findProductSeriesWithVariants(seriesId: String, supplierId: UUID): ProductSeriesWithVariantsDTO? {
+    suspend fun findProductSeriesWithVariants(
+        seriesId: String,
+        supplierId: UUID,
+    ): ProductSeriesWithVariantsDTO? {
         return findBySeriesIdAndSupplierId(seriesId, supplierId).toProductSeriesWithVariants()
     }
 
@@ -292,6 +317,23 @@ open class ProductRegistrationService(
             TechData(key = it.label, value = "", unit = it.unit ?: "")
         }
 
+    private suspend fun ProductRegistration.toProductToApproveDto(): ProductToApproveDto {
+        val agreeements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)
+        val agreementInfo = agreeements.map { it.toAgreementInfo() }
+        val supplier = supplierService.findById(supplierId)
+
+        val status = if (isDraft()) "DRAFT" else "APPROVED"
+
+        return ProductToApproveDto(
+            title = articleName,
+            supplierName = supplier?.name ?: "",
+            agreementId = agreeements.first().agreementId,
+            delkontrakttittel = agreementInfo.first().title,
+            seriesId = seriesUUID!!,
+            status = status,
+        )
+    }
+
     private suspend fun ProductRegistration.toDTO(): ProductRegistrationDTO {
         // TODO cache agreements
         val agreeements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)
@@ -326,7 +368,9 @@ open class ProductRegistrationService(
     }
 
     private suspend fun ProductAgreementRegistration.toAgreementInfo(): AgreementInfo {
-        val agreement = agreementRegistrationService.findById(agreementId) ?: throw RuntimeException("Agreement not found") // consider caching agreements
+        val agreement =
+            agreementRegistrationService.findById(agreementId)
+                ?: throw RuntimeException("Agreement not found") // consider caching agreements
         val delKontrakt = if (postId != null) agreement.delkontraktList.find { postId == it.id } else null
         return AgreementInfo(
             id = agreementId,
@@ -343,8 +387,8 @@ open class ProductRegistrationService(
             postTitle = delKontrakt?.delkontraktData?.title ?: "",
         )
     }
-
 }
+
 suspend fun <T : Any, R : Any> Page<T>.mapSuspend(transform: suspend (T) -> R): Page<R> {
     val content = this.content.map { transform(it) }
     return Page.of(content, this.pageable, this.totalSize)

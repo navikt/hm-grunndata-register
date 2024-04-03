@@ -57,6 +57,12 @@ class ProductRegistrationAdminApiController(
         pageable: Pageable,
     ): Page<ProductRegistrationDTO> = productRegistrationService.findAll(buildCriteriaSpec(params), pageable)
 
+    @Get("/til-godkjenning")
+    suspend fun findProductsPendingApprove(
+        @QueryValue params: HashMap<String, String>?,
+        pageable: Pageable,
+    ): Page<ProductToApproveDto> = productRegistrationService.findProductsToApprove(pageable)
+
     private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<ProductRegistration>? =
         params?.let {
             where {
