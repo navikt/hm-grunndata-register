@@ -322,13 +322,13 @@ open class ProductRegistrationService(
         val agreementInfo = agreeements.map { it.toAgreementInfo() }
         val supplier = supplierService.findById(supplierId)
 
-        val status = if (isDraft()) "DRAFT" else "APPROVED"
+        val status = if (isDraft()) "NEW" else "EXISTING"
 
         return ProductToApproveDto(
             title = articleName,
             supplierName = supplier?.name ?: "",
-            agreementId = agreeements.first().agreementId,
-            delkontrakttittel = agreementInfo.first().title,
+            agreementId = agreeements.firstOrNull()?.agreementId,
+            delkontrakttittel = agreementInfo.firstOrNull()?.title,
             seriesId = seriesUUID!!,
             status = status,
         )
