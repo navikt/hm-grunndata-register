@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.product
 
+import io.micronaut.data.annotation.Query
 import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
@@ -25,6 +26,8 @@ interface ProductRegistrationRepository : CoroutineCrudRepository<ProductRegistr
     suspend fun findBySeriesId(seriesId: String): List<ProductRegistration>
 
 
+    @Query("SELECT * FROM product_reg_v1 WHERE series_uuid NOT IN (SELECT id FROM series_reg_v1)")
+    suspend fun findBySeriesIdNotExists(): List<ProductRegistration>
 
 
 }
