@@ -21,7 +21,7 @@ data class ProductRegistration(
     val id: UUID,
     val supplierId: UUID,
     val supplierRef: String,
-    val seriesUUID: UUID?,
+    val seriesUUID: UUID,
     @Deprecated("Use seriesUUID instead")
     val seriesId: String,
     @field:Column(name = "hms_artnr")
@@ -70,7 +70,7 @@ data class ProductRegistrationDTO(
     val supplierId: UUID,
     val supplierRef: String,
     val hmsArtNr: String?,
-    val seriesUUID: UUID?,
+    val seriesUUID: UUID,
     @Deprecated("Use seriesUUID instead")
     val seriesId: String,
     val isoCategory: String,

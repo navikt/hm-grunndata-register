@@ -56,7 +56,7 @@ class ProductHMDBSyncRiver(
             productRegistrationRepository.findById(dto.id)?.let { inDb ->
                 productRegistrationRepository.update(
                     inDb.copy(
-                        seriesId = dto.seriesId!!, seriesUUID = dto.seriesUUID, productData = dto.toProductData(),
+                        seriesId = dto.seriesId!!, seriesUUID = dto.seriesUUID?:dto.id, productData = dto.toProductData(),
                         updatedBy = dto.updatedBy, registrationStatus = mapStatus(dto.status),
                         adminStatus = mapAdminStatus(dto.status), created = dto.created, updated = dto.updated,
                         hmsArtNr = dto.hmsArtNr, title = dto.title, supplierRef = dto.supplierRef,
@@ -71,7 +71,7 @@ class ProductHMDBSyncRiver(
                     supplierId = dto.supplier.id,
                     supplierRef = dto.supplierRef,
                     seriesId = dto.seriesId!!,
-                    seriesUUID = dto.seriesUUID,
+                    seriesUUID = dto.seriesUUID?:dto.id,
                     registrationStatus = mapStatus(dto.status),
                     adminStatus = mapAdminStatus(dto.status),
                     createdBy = dto.createdBy,
