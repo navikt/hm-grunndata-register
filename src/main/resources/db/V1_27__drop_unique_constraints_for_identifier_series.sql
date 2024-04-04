@@ -1,0 +1,1 @@
+ALTER TABLE series_reg_v1 DROP CONSTRAINT series_reg_v1_identifier_key;

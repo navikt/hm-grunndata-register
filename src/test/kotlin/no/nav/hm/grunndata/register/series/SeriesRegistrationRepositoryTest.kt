@@ -27,9 +27,6 @@ class SeriesRegistrationRepositoryTest(private val seriesRegistrationRepository:
             val saved = seriesRegistrationRepository.save(series)
             val found = seriesRegistrationRepository.findById(saved.id)
             found.shouldNotBeNull()
-            val identifier = seriesRegistrationRepository.findByIdentifier(series.identifier)
-            identifier.shouldNotBeNull()
-            found.title shouldBe identifier.title
             val updated = seriesRegistrationRepository.update(found.copy(title="Series 2"))
             updated.title shouldBe "Series 2"
             updated.status shouldBe SeriesStatus.ACTIVE

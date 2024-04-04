@@ -26,7 +26,7 @@ interface ProductRegistrationRepository : CoroutineCrudRepository<ProductRegistr
     suspend fun findBySeriesId(seriesId: String): List<ProductRegistration>
 
 
-    @Query("SELECT * FROM product_reg_v1 WHERE series_uuid NOT IN (SELECT id FROM series_reg_v1)")
+    @Query("SELECT a.* from product_reg_v1 a LEFT JOIN series_reg_v1 b on a.series_uuid = b.id where b.id is null")
     suspend fun findBySeriesIdNotExists(): List<ProductRegistration>
 
 

@@ -13,8 +13,6 @@ import java.util.*
 @JdbcRepository(dialect = Dialect.POSTGRES)
 interface SeriesRegistrationRepository: CoroutineCrudRepository<SeriesRegistration, UUID>, CoroutineJpaSpecificationExecutor<SeriesRegistration> {
 
-    suspend fun findByIdentifier(identifier: String): SeriesRegistration?
-
     @Query(value="select title, series_id,count(*) from product_reg_v1 WHERE supplier_id = :supplierId group by (title, series_id) ORDER BY title asc", readOnly = true, nativeQuery = true)
     suspend fun findSeriesGroup(supplierId: UUID, pageable: Pageable): Slice<SeriesGroupDTO>
 
