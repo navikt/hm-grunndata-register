@@ -79,10 +79,11 @@ open class ProductRegistrationService(
         productRegistrationRepository.findAll(buildCriteriaSpecPendingProducts(), pageable)
             .mapSuspend { it.toProductToApproveDto() }
 
-    private fun buildCriteriaSpecPendingProducts(): PredicateSpecification<ProductRegistration>? =
+    private fun buildCriteriaSpecPendingProducts(): PredicateSpecification<ProductRegistration> =
         where {
             root[ProductRegistration::adminStatus] eq AdminStatus.PENDING
             root[ProductRegistration::registrationStatus] eq RegistrationStatus.ACTIVE
+            root[ProductRegistration::draftStatus] eq DraftStatus.DONE
         }
 
     open suspend fun findBySupplierRefAndSupplierId(
