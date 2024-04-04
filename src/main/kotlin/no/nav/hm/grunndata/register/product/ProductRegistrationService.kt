@@ -13,6 +13,7 @@ import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.AgreementInfo
 import no.nav.hm.grunndata.rapid.dto.Attributes
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.rapid.event.EventName
@@ -331,6 +332,7 @@ open class ProductRegistrationService(
             delkontrakttittel = agreementInfo.firstOrNull()?.title,
             seriesId = seriesUUID!!,
             status = status,
+            thumbnail = productData.media.firstOrNull { it.type == MediaType.IMAGE },
         )
     }
 

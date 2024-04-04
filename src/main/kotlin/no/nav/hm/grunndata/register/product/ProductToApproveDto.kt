@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.product
 
+import no.nav.hm.grunndata.rapid.dto.MediaInfo
 import java.util.UUID
 
 data class ProductToApproveDto(
@@ -9,4 +10,5 @@ data class ProductToApproveDto(
     val supplierName: String,
     val agreementId: UUID? = null,
     val delkontrakttittel: String? = null,
+    val thumbnail: MediaInfo? = null,
 )
