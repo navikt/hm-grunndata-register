@@ -90,7 +90,7 @@ class ProductRegistrationAdminApiController(
             }
             ?: HttpResponse.notFound()
 
-    @Get("/ids")
+    @Post("/ids")
     suspend fun getProductsById(
         @Body ids: List<UUID>,
     ): HttpResponse<List<ProductRegistrationDTO>> {
