@@ -48,8 +48,7 @@ class ProductRegistrationAdminApiController(
     ): Slice<SeriesGroupDTO> = productRegistrationService.findSeriesGroup(pageable)
 
     @Get("/series/{seriesId}")
-    suspend fun findBySeriesIdAndSupplierId(seriesId: String) =
-        productRegistrationService.findBySeriesId(seriesId).sortedBy { it.created }
+    suspend fun findBySeriesIdAndSupplierId(seriesId: String) = productRegistrationService.findBySeriesId(seriesId).sortedBy { it.created }
 
     @Get("/{?params*}")
     suspend fun findProducts(
@@ -255,6 +254,34 @@ class ProductRegistrationAdminApiController(
                 )
             HttpResponse.ok(dto)
         } ?: HttpResponse.notFound()
+
+    @Put("/approve")
+    suspend fun approveProducts(
+        @Body ids: List<UUID>,
+        authentication: Authentication,
+    ): HttpResponse<List<ProductRegistrationDTO>> {
+        val productsToUpdate =
+            productRegistrationService.findByIdIn(ids).onEach {
+                if (it.adminStatus == AdminStatus.APPROVED) throw BadRequestException("${it.id} is already approved")
+                if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("product is not done")
+                if (it.registrationStatus != RegistrationStatus.ACTIVE) throw BadRequestException("RegistrationStatus should be Active")
+            }
+
+        val approvedProducts =
+            productsToUpdate.map {
+                it.copy(
+                    adminStatus = AdminStatus.APPROVED,
+                    adminInfo = AdminInfo(approvedBy = authentication.name, approved = LocalDateTime.now()),
+                    updated = LocalDateTime.now(),
+                    updatedBy = REGISTER,
+                )
+            }
+
+        val updated =
+            productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(approvedProducts, isUpdate = true)
+
+        return HttpResponse.ok(updated)
+    }
 
     @Post(
         "/excel/export",

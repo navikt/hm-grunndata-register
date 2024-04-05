@@ -49,6 +49,8 @@ open class ProductRegistrationService(
 
     open suspend fun findById(id: UUID) = productRegistrationRepository.findById(id)?.toDTO()
 
+    open suspend fun findByIdIn(ids: List<UUID>) = productRegistrationRepository.findByIdIn(ids).map { it.toDTO() }
+
     open suspend fun findByHmsArtNr(hmsArtNr: String) = productRegistrationRepository.findByHmsArtNr(hmsArtNr)?.toDTO()
 
     open suspend fun save(dto: ProductRegistrationDTO): ProductRegistrationDTO {
@@ -69,6 +71,8 @@ open class ProductRegistrationService(
     }
 
     open suspend fun update(dto: ProductRegistrationDTO) = productRegistrationRepository.update(dto.toEntity()).toDTO()
+
+    open suspend fun updateAll(dtos: List<ProductRegistrationDTO>) = productRegistrationRepository.updateAll(dtos.map { it.toEntity() })
 
     open suspend fun findAll(
         spec: PredicateSpecification<ProductRegistration>?,
@@ -108,6 +112,23 @@ open class ProductRegistrationService(
             productRegistrationEventHandler.queueDTORapidEvent(saved, eventName = EventName.registeredProductV1)
         }
         return saved
+    }
+
+    @Transactional
+    open suspend fun saveAllAndCreateEventIfNotDraftAndApproved(
+        dtos: List<ProductRegistrationDTO>,
+        isUpdate: Boolean,
+    ): List<ProductRegistrationDTO> {
+        val updated =
+            dtos.map {
+                val saved = if (isUpdate) update(it) else save(it)
+                if (saved.draftStatus == DraftStatus.DONE && saved.adminStatus == AdminStatus.APPROVED) {
+                    productRegistrationEventHandler.queueDTORapidEvent(saved, eventName = EventName.registeredProductV1)
+                }
+                saved
+            }
+
+        return updated
     }
 
     suspend fun findBySeriesId(seriesId: String) = productRegistrationRepository.findBySeriesId(seriesId).map { it.toDTO() }
