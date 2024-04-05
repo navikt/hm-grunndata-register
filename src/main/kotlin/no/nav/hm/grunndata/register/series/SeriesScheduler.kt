@@ -26,7 +26,7 @@ class SeriesScheduler(private val seriesStateHandler: SeriesStateHandler,
     @Scheduled(fixedDelay = "1h")
     fun findEmptySeriesAndDelete() {
         if (leaderElection.isLeader()) {
-            LOG.info("Running syncronizeProductWithSeries scheduler")
+            LOG.info("Running find empty series scheduler")
             runBlocking {
                 seriesStateHandler.findEmptyAndDeleteSeries()
             }
