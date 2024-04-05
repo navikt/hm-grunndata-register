@@ -90,6 +90,19 @@ class ProductRegistrationAdminApiController(
             }
             ?: HttpResponse.notFound()
 
+    @Get("/ids")
+    suspend fun getProductsById(
+        @Body ids: List<UUID>,
+    ): HttpResponse<List<ProductRegistrationDTO>> {
+        val products = productRegistrationService.findByIdIn(ids)
+
+        return if (products.isEmpty()) {
+            HttpResponse.notFound()
+        } else {
+            HttpResponse.ok(products)
+        }
+    }
+
     @Get("/hmsArtNr/{hmsArtNr}")
     suspend fun getProductByHmsArtNr(hmsArtNr: String): HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findByHmsArtNr(hmsArtNr)
