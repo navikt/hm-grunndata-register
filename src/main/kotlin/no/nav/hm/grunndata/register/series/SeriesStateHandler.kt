@@ -35,4 +35,14 @@ class SeriesStateHandler(private val seriesRegistrationRepository: SeriesRegistr
         }
         LOG.info("finished syncronizing products with series")
     }
+
+    suspend fun findEmptyAndDeleteSeries() {
+        val emptySeries = seriesRegistrationRepository.findSeriesThatDoesNotHaveProducts()
+        LOG.info("Found empty ${emptySeries.size} series")
+        emptySeries.filter { it.status != SeriesStatus.DELETED }.forEach {
+             LOG.info("set series ${it.id} to DELETED")
+            seriesRegistrationRepository.update(it.copy(status = SeriesStatus.DELETED))
+        }
+    }
+
 }

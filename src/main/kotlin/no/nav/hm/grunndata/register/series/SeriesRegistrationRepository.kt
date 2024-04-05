@@ -19,6 +19,9 @@ interface SeriesRegistrationRepository: CoroutineCrudRepository<SeriesRegistrati
     @Query(value="select title, series_id,count(*) from product_reg_v1 group by (title, series_id) ORDER BY title asc", readOnly = true, nativeQuery = true)
     suspend fun findSeriesGroup(pageable: Pageable): Slice<SeriesGroupDTO>
 
+    @Query("SELECT a.* from series_reg_v1 a LEFT JOIN product_reg_v1 b on a.id = b.series_uuid where b.series_uuid is null")
+    suspend fun findSeriesThatDoesNotHaveProducts(): List<SeriesRegistration>
+
 }
 
 
