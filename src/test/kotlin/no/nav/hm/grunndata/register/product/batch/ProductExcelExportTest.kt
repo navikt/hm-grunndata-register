@@ -7,8 +7,14 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.Attributes
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.MediaSourceType
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.ProductData
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
 import no.nav.hm.grunndata.register.security.Roles
@@ -177,7 +183,7 @@ class ProductExcelExportTest(
             sparePart = false,
             techData = listOf(TechData(key = "Lengde", unit = "cm", value = "120")),
             media = setOf(
-                MediaInfo(
+                MediaInfoDTO(
                     uri = "123.jpg",
                     text = "bilde av produktet",
                     source = MediaSourceType.EXTERNALURL,

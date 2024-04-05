@@ -6,7 +6,15 @@ import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
 import jakarta.persistence.Column
-import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.AgreementInfo
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.ProductRapidDTO
+import no.nav.hm.grunndata.rapid.dto.ProductRegistrationRapidDTO
+import no.nav.hm.grunndata.rapid.dto.ProductStatus
+import no.nav.hm.grunndata.rapid.dto.RapidDTO
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.rapid.dto.SupplierDTO
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.supplier.SupplierData
@@ -134,7 +142,7 @@ data class ProductRegistrationDTO(
             seriesUUID = registration.seriesUUID,
             seriesId = registration.seriesId,
             techData = techData,
-            media = media,
+            media = media.map { it.toRapidMediaInfo() }.toSet(),
             created = registration.created,
             updated = registration.updated,
             published = registration.published ?: LocalDateTime.now(),

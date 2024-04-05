@@ -30,9 +30,9 @@ class ProductRegistrationRepositoryTest(private val productRegistrationRepositor
             sparePart = false,
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
             media = setOf(
-                MediaInfo(uri="123.jpg", text = "bilde av produktet", source = MediaSourceType.EXTERNALURL,
+                MediaInfoDTO(uri="123.jpg", text = "bilde av produktet", source = MediaSourceType.EXTERNALURL,
                 sourceUri = "https://ekstern.url/123.jpg"),
-                MediaInfo(uri="124.jpg", text = "bilde av produktet 2", source = MediaSourceType.EXTERNALURL,
+                MediaInfoDTO(uri="124.jpg", text = "bilde av produktet 2", source = MediaSourceType.EXTERNALURL,
                     sourceUri = "https://ekstern.url/124.jpg")
             )
         )

@@ -169,7 +169,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             sparePart = false,
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
             media = setOf(
-                MediaInfo(
+                MediaInfoDTO(
                     uri = "123.jpg",
                     text = "bilde av produktet",
                     source = MediaSourceType.EXTERNALURL,
@@ -217,7 +217,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             sparePart = false,
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
             media = setOf(
-                MediaInfo(
+                MediaInfoDTO(
                     uri = "123.jpg",
                     text = "bilde av produktet",
                     source = MediaSourceType.EXTERNALURL,
@@ -293,7 +293,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationAp
             sparePart = false,
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
             media = setOf(
-                MediaInfo(
+                MediaInfoDTO(
                     uri = "123.jpg",
                     text = "bilde av produktet",
                     source = MediaSourceType.EXTERNALURL,
