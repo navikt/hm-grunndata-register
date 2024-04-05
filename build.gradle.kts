@@ -2,7 +2,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jvmTarget = "17"
-val micronautVersion="4.3.6"
+val micronautVersion="4.3.7"
 val junitJupiterVersion = "5.9.0"
 val logbackEncoderVersion = "7.3"
 val postgresqlVersion= "42.7.2"
@@ -11,7 +11,7 @@ val mockkVersion = "1.13.4"
 val kotestVersion = "5.5.5"
 val poiVersion = "5.1.0"
 val rapidsRiversVersion = "202401101532"
-val grunndataDtoVersion = "202403110951"
+val grunndataDtoVersion = "202404050944"
 val microsoftGrapVersion = "5.77.0"
 group = "no.nav.hm"
 version = properties["version"] ?: "local-build"
