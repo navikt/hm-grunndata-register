@@ -327,7 +327,8 @@ open class ProductRegistrationService(
         val status = if (isDraft()) "NEW" else "EXISTING"
 
         return ProductToApproveDto(
-            title = articleName,
+            title = title,
+            articleName = articleName,
             supplierName = supplier?.name ?: "",
             agreementId = agreeements.firstOrNull()?.agreementId,
             delkontrakttittel = agreementInfo.firstOrNull()?.title,
