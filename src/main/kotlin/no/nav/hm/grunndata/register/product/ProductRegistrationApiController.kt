@@ -59,7 +59,7 @@ class ProductRegistrationApiController(
     @Get("/series/grouped/{seriesId}")
     suspend fun getProductSeriesWithVariants(
         seriesId: String,
-        authentication: Authentication
+        authentication: Authentication,
     ) = productRegistrationService.findProductSeriesWithVariants(seriesId, authentication.supplierId())
 
     @Put("/series/grouped/{seriesId}")
@@ -87,7 +87,7 @@ class ProductRegistrationApiController(
                             updatedByUser = authentication.name,
                             updated = LocalDateTime.now(),
                         ),
-                        isUpdate = true
+                        isUpdate = true,
                     )
                     HttpResponse.ok(inDb)
                 }
@@ -154,8 +154,10 @@ class ProductRegistrationApiController(
                     productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                         registrationDTO
                             .copy(
-                                updatedByUser = authentication.name, createdByUser = authentication.name,
-                                created = LocalDateTime.now(), updated = LocalDateTime.now(),
+                                updatedByUser = authentication.name,
+                                createdByUser = authentication.name,
+                                created = LocalDateTime.now(),
+                                updated = LocalDateTime.now(),
                             ),
                         isUpdate = false,
                     )
@@ -200,6 +202,31 @@ class ProductRegistrationApiController(
                     throw BadRequestException("Product does not exists $id")
                 }
         }
+
+    @Put("/til-godkjenning")
+    suspend fun setProductsToBeApproved(
+        @Body ids: List<UUID>,
+        authentication: Authentication,
+    ): HttpResponse<List<ProductRegistrationDTO>> {
+        val productsToUpdate =
+            productRegistrationService.findByIdIn(ids).onEach {
+                if (it.draftStatus != DraftStatus.DRAFT) throw BadRequestException("product is marked as done")
+            }
+
+        val productsToBeApproved =
+            productsToUpdate.map {
+                it.copy(
+                    draftStatus = DraftStatus.DONE,
+                    updated = LocalDateTime.now(),
+                    updatedBy = REGISTER,
+                )
+            }
+
+        val updated =
+            productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(productsToBeApproved, isUpdate = true)
+
+        return HttpResponse.ok(updated)
+    }
 
     @Delete("/{id}")
     suspend fun deleteProduct(
