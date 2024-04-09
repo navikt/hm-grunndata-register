@@ -20,7 +20,8 @@ import java.util.*
 @MicronautTest
 class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                            private val agreementService: AgreementRegistrationService,
-                           private val productAgreementService: ProductAgreementRegistrationService
+                           private val productAgreementService: ProductAgreementRegistrationService,
+                           private val delkontraktRegistrationService: DelkontraktRegistrationService
 ) {
 
 
@@ -65,6 +66,18 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                 createdByUser = "Tester-123",
                 updatedByUser = "Tester-123"
             )
+
+            val postId = UUID.randomUUID()
+
+            val delkontraktToSave =
+                DelkontraktRegistrationDTO(
+                    id = postId,
+                    agreementId = agreementId,
+                    delkontraktData = DelkontraktData(title = "delkontrakt 1", description = "beskrivelse", sortNr = 1),
+                    createdBy = "tester",
+                    updatedBy = "tester",
+                )
+
             val productAgreement = ProductAgreementRegistrationDTO(
                 agreementId = agreement.id,
                 productId = UUID.randomUUID(),
@@ -74,13 +87,13 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                 expired = agreement.expired,
                 post = 1,
                 rank = 1,
-                postId = UUID.randomUUID(),
+                postId = postId,
                 title = agreement.title,
                 articleName = agreement.title,
                 createdBy = "tester",
                 hmsArtNr = "12345",
                 supplierId = supplier.id,
-                supplierRef = "12345"
+                supplierRef = "12345",
             )
 
             val productAgreement2 = ProductAgreementRegistrationDTO(
@@ -92,7 +105,7 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                 expired = publishing.expired,
                 post = 1,
                 rank = 2,
-                postId = UUID.randomUUID(),
+                postId = postId,
                 title = publishing.title,
                 articleName = publishing.title,
                 createdBy = "tester",
@@ -101,8 +114,10 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                 supplierRef = "123456"
             )
 
+
             agreementService.saveAndCreateEventIfNotDraft(agreement, false)
             agreementService.saveAndCreateEventIfNotDraft(publishing, false)
+            val savedDelkontrakt = delkontraktRegistrationService.save(delkontraktToSave)
             productAgreementService.saveAndCreateEvent(productAgreement, false)
             productAgreementService.saveAndCreateEvent(productAgreement2, false)
 

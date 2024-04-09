@@ -13,6 +13,9 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementData
 import no.nav.hm.grunndata.register.agreement.AgreementRegistration
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationRepository
+import no.nav.hm.grunndata.register.agreement.DelkontraktData
+import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
+import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
@@ -35,7 +38,8 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
                                       private val userRepository: UserRepository,
                                       private val supplierRegistrationService: SupplierRegistrationService,
                                       private val agreementRegistrationRepository: AgreementRegistrationRepository,
-                                      private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository
+                                      private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
+                                      private val delkontraktRegistrationService: DelkontraktRegistrationService,
 ) {
 
     val email = "ProductRegistrationAdminApiTest@test.test"
@@ -73,6 +77,8 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
                 )
             )
 
+
+
             val agreement = AgreementDTO(id = agreementId, published = LocalDateTime.now(),
                 expired = LocalDateTime.now().plusYears(2), title = "Title of agreement",
                 text = "some text", reference = "unik-ref1", identifier = "unik-ref1", resume = "resume",
@@ -82,6 +88,18 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
                         description = "post description 2", nr = 2)
                 ), createdBy = REGISTER, updatedBy = REGISTER,
                 created = LocalDateTime.now(), updated = LocalDateTime.now())
+
+
+            val delkontraktToSave = DelkontraktRegistrationDTO(
+                id = postId,
+                agreementId = agreement.id,
+                delkontraktData = DelkontraktData(title = "delkontrakt 1", description = "beskrivelse", sortNr = 1),
+                createdBy = "tester",
+                updatedBy = "tester",
+            )
+
+            delkontraktRegistrationService.save(delkontraktToSave)
+
             val data = AgreementData(
                 text = "some text", resume = "resume",
                 identifier = agreement.identifier,
@@ -95,6 +113,9 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrat
             )
 
             agreementRegistrationRepository.save(agreementRegistration)
+
+
+
             val productAgreement = productAgreementRegistrationRepository.save(
                 ProductAgreementRegistration(
                     agreementId = agreementId,

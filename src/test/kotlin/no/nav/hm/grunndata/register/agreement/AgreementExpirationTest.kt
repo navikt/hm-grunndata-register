@@ -24,9 +24,8 @@ class AgreementExpirationTest(
     private val agreementService: AgreementRegistrationService,
     private val supplierService: SupplierRegistrationService,
     private val productAgreementService: ProductAgreementRegistrationService,
+    private val delkontraktRegistrationService: DelkontraktRegistrationService,
 ) {
-
-
     @MockBean(RapidPushService::class)
     fun mockRapidService(): RapidPushService = mockk(relaxed = true)
 
@@ -35,71 +34,100 @@ class AgreementExpirationTest(
         runBlocking {
             val agreementId = UUID.randomUUID()
             val agreementId2 = UUID.randomUUID()
-            val agreement = AgreementRegistrationDTO(
-                draftStatus = DraftStatus.DONE, agreementStatus = AgreementStatus.ACTIVE,
-                id = agreementId, title = "Rammeavtale Rullestoler", reference = "23-10234",
-                published = LocalDateTime.now(), expired = LocalDateTime.now().plusYears(3),
-                agreementData = AgreementData(
-                    identifier = "HMDB-123",
-                    resume = "En kort beskrivelse",
-                    text = "En lang beskrivelse"
-                ),
-                createdByUser = "Tester-123", updatedByUser = "Tester-123"
-            )
-            val expired = AgreementRegistrationDTO(
-                draftStatus = DraftStatus.DONE, agreementStatus = AgreementStatus.ACTIVE,
-                id = agreementId2, title = "Rammeavtale Rullestoler 2", reference = "24-10234",
-                published = LocalDateTime.now(), expired = LocalDateTime.now().minusDays(1),
-                agreementData = AgreementData(
-                    identifier = "HMDB-124",
-                    resume = "En kort beskrivelse",
-                    text = "En lang beskrivelse"
-                ),
-                createdByUser = "Tester-123", updatedByUser = "Tester-123"
-            )
-
-            val supplier = supplierService.save(
-                SupplierRegistrationDTO(
-                    name = "supplier 1", identifier = "unik-identifier",
-                    status = SupplierStatus.ACTIVE, supplierData = SupplierData(email = "test@test")
+            val agreement =
+                AgreementRegistrationDTO(
+                    draftStatus = DraftStatus.DONE,
+                    agreementStatus = AgreementStatus.ACTIVE,
+                    id = agreementId,
+                    title = "Rammeavtale Rullestoler",
+                    reference = "23-10234",
+                    published = LocalDateTime.now(),
+                    expired = LocalDateTime.now().plusYears(3),
+                    agreementData =
+                        AgreementData(
+                            identifier = "HMDB-123",
+                            resume = "En kort beskrivelse",
+                            text = "En lang beskrivelse",
+                        ),
+                    createdByUser = "Tester-123",
+                    updatedByUser = "Tester-123",
                 )
-            )
+            val expired =
+                AgreementRegistrationDTO(
+                    draftStatus = DraftStatus.DONE,
+                    agreementStatus = AgreementStatus.ACTIVE,
+                    id = agreementId2,
+                    title = "Rammeavtale Rullestoler 2",
+                    reference = "24-10234",
+                    published = LocalDateTime.now(),
+                    expired = LocalDateTime.now().minusDays(1),
+                    agreementData =
+                        AgreementData(
+                            identifier = "HMDB-124",
+                            resume = "En kort beskrivelse",
+                            text = "En lang beskrivelse",
+                        ),
+                    createdByUser = "Tester-123",
+                    updatedByUser = "Tester-123",
+                )
 
-            val productAgreement = ProductAgreementRegistrationDTO(
+            val supplier =
+                supplierService.save(
+                    SupplierRegistrationDTO(
+                        name = "supplier 1",
+                        identifier = "unik-identifier",
+                        status = SupplierStatus.ACTIVE,
+                        supplierData = SupplierData(email = "test@test"),
+                    ),
+                )
+
+
+            val delkontraktToSave = DelkontraktRegistrationDTO(
                 agreementId = agreement.id,
-                productId = UUID.randomUUID(),
-                seriesUuid = UUID.randomUUID(),
-                reference = agreement.reference,
-                published = agreement.published,
-                expired = agreement.expired,
-                post = 1,
-                rank = 1,
-                title = agreement.title,
-                articleName = agreement.title,
+                delkontraktData = DelkontraktData(title = "delkontrakt 1", description = "beskrivelse", sortNr = 1),
                 createdBy = "tester",
-                hmsArtNr = "12345",
-                supplierId = supplier.id,
-                postId = UUID.randomUUID(),
-                supplierRef = "12345"
+                updatedBy = "tester",
             )
 
-            val productAgreement2 = ProductAgreementRegistrationDTO(
-                agreementId = expired.id,
-                productId = UUID.randomUUID(),
-                seriesUuid = UUID.randomUUID(),
-                reference = expired.reference,
-                published = expired.published,
-                expired = expired.expired,
-                post = 1,
-                rank = 2,
-                postId = UUID.randomUUID(),
-                title = expired.title,
-                articleName = expired.title,
-                createdBy = "tester",
-                hmsArtNr = "123456",
-                supplierId = supplier.id,
-                supplierRef = "123456"
-            )
+            val delkontrakt = delkontraktRegistrationService.save(delkontraktToSave)
+
+            val productAgreement =
+                ProductAgreementRegistrationDTO(
+                    agreementId = agreement.id,
+                    productId = UUID.randomUUID(),
+                    seriesUuid = UUID.randomUUID(),
+                    reference = agreement.reference,
+                    published = agreement.published,
+                    expired = agreement.expired,
+                    post = 1,
+                    rank = 1,
+                    title = agreement.title,
+                    articleName = agreement.title,
+                    createdBy = "tester",
+                    hmsArtNr = "12345",
+                    supplierId = supplier.id,
+                    postId = delkontrakt.id,
+                    supplierRef = "12345",
+                )
+
+            val productAgreement2 =
+                ProductAgreementRegistrationDTO(
+                    agreementId = expired.id,
+                    productId = UUID.randomUUID(),
+                    seriesUuid = UUID.randomUUID(),
+                    reference = expired.reference,
+                    published = expired.published,
+                    expired = expired.expired,
+                    post = 1,
+                    rank = 2,
+                    postId = delkontrakt.id,
+                    title = expired.title,
+                    articleName = expired.title,
+                    createdBy = "tester",
+                    hmsArtNr = "123456",
+                    supplierId = supplier.id,
+                    supplierRef = "123456",
+                )
 
             productAgreementService.saveAndCreateEvent(productAgreement, false)
             productAgreementService.saveAndCreateEvent(productAgreement2, false)
@@ -108,8 +136,6 @@ class AgreementExpirationTest(
             agreementService.save(expired)
             val expiredList = agreementExpiration.expiredAgreements()
             expiredList.size shouldBe 1
-
         }
-
     }
 }
