@@ -23,26 +23,24 @@ open class ProductAgreementRegistrationService(
     @Transactional
     open suspend fun saveAll(dtos: List<ProductAgreementRegistrationDTO>): List<ProductAgreementRegistrationDTO> =
         dtos.map { productAgreement ->
-            findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRankStatus(
+            findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
                 productAgreement.supplierId,
                 productAgreement.supplierRef,
                 productAgreement.agreementId,
                 productAgreement.postId!!,
                 productAgreement.rank,
-                productAgreement.status
             ) ?: saveAndCreateEvent(productAgreement, false)
         }
 
     @Transactional
     open suspend fun saveOrUpdateAll(dtos: List<ProductAgreementRegistrationDTO>): List<ProductAgreementRegistrationDTO> =
         dtos.map { productAgreement ->
-            findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRankStatus(
+            findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
                 productAgreement.supplierId,
                 productAgreement.supplierRef,
                 productAgreement.agreementId,
                 productAgreement.postId!!,
                 productAgreement.rank,
-                productAgreement.status
             )?.let { inDb ->
                 update(
                     inDb.copy(
@@ -90,21 +88,19 @@ open class ProductAgreementRegistrationService(
     suspend fun save(dto: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO =
         productAgreementRegistrationRepository.save(dto.toEntity()).toDTO()
 
-    suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRankStatus(
+    suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
         supplierId: UUID,
         supplierRef: String,
         agreementId: UUID,
         postId: UUID,
         rank: Int,
-        status: ProductAgreementStatus
     ): ProductAgreementRegistrationDTO? =
-        productAgreementRegistrationRepository.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRankAndStatus(
+        productAgreementRegistrationRepository.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
             supplierId,
             supplierRef,
             agreementId,
             postId,
             rank,
-            status
         )?.toDTO()
 
     suspend fun findBySupplierIdAndSupplierRef(
