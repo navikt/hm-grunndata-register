@@ -49,12 +49,13 @@ interface ProductAgreementRegistrationRepository : CoroutineCrudRepository<Produ
         agreementId: UUID,
         status: ProductAgreementStatus
     ): List<ProductAgreementRegistration>
-    suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
+    suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRankAndStatus(
         supplierId: UUID,
         supplierRef: String,
         agreementId: UUID,
         postId: UUID,
-        rank: Int
+        rank: Int,
+        status: ProductAgreementStatus
     ): ProductAgreementRegistration?
 
 }

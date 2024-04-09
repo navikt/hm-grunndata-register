@@ -410,6 +410,7 @@ open class ProductRegistrationService(
             expired = expired,
             reference = reference,
             postTitle = delKontrakt?.delkontraktData?.title ?: "",
+            status = status,
         )
     }
 }

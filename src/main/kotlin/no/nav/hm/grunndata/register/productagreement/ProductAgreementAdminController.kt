@@ -51,12 +51,13 @@ class ProductAgreementAdminController(
             productAgreements.map {
                 val information = mutableListOf<Information>()
                 val existingProductAgreement =
-                    productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
+                    productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRankStatus(
                         it.supplierId,
                         it.supplierRef,
                         it.agreementId,
                         it.postId!!,
                         it.rank,
+                        it.status
                     )
 
                 if (existingProductAgreement != null) {
@@ -141,12 +142,13 @@ class ProductAgreementAdminController(
         LOG.info(
             "Creating product agreement: ${regDTO.agreementId} ${regDTO.supplierId} ${regDTO.supplierRef} by ${authentication.userId()}",
         )
-        productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
+        productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRankStatus(
             regDTO.supplierId,
             regDTO.supplierRef,
             regDTO.agreementId,
             regDTO.postId!!,
             regDTO.rank,
+            regDTO.status,
         )?.let {
             throw BadRequestException("Product agreement already exists")
         }
