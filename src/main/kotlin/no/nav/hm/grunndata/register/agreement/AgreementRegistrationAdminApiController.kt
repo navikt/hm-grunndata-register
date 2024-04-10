@@ -22,7 +22,6 @@ import java.util.*
 @Secured(Roles.ROLE_ADMIN)
 @Controller(AgreementRegistrationAdminApiController.API_V1_ADMIN_AGREEMENT_REGISTRATIONS)
 class AgreementRegistrationAdminApiController(private val agreementRegistrationService: AgreementRegistrationService) {
-
     companion object {
         const val API_V1_ADMIN_AGREEMENT_REGISTRATIONS = "/admin/api/v1/agreement/registrations"
         private val LOG = LoggerFactory.getLogger(AgreementRegistrationAdminApiController::class.java)
@@ -32,8 +31,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
     suspend fun findAgreements(
         @QueryValue params: HashMap<String, String>?,
         pageable: Pageable,
-    ): Page<AgreementBasicInformationDto> =
-        agreementRegistrationService.findAll(buildCriteriaSpec(params), pageable)
+    ): Page<AgreementBasicInformationDto> = agreementRegistrationService.findAll(buildCriteriaSpec(params), pageable)
 
     private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<AgreementRegistration>? =
         params?.let {
@@ -41,11 +39,18 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                 if (params.contains("reference")) root[AgreementRegistration::reference] eq params["reference"]
                 if (params.contains("title")) criteriaBuilder.like(root[AgreementRegistration::title], params["title"])
                 if (params.contains("draftStatus")) {
-                    root[AgreementRegistration::draftStatus] eq DraftStatus.valueOf(
-                        params["draftStatus"]!!,
-                    )
+                    root[AgreementRegistration::draftStatus] eq
+                        DraftStatus.valueOf(
+                            params["draftStatus"]!!,
+                        )
                 }
-                if (params.contains("excludedAgreementStatus")) root[AgreementRegistration::agreementStatus] ne params["excludedAgreementStatus"]
+                if (params.contains("agreementStatus")) root[AgreementRegistration::agreementStatus] eq params["agreementStatus"]
+                if (params.contains(
+                        "excludedAgreementStatus",
+                    )
+                ) {
+                    root[AgreementRegistration::agreementStatus] ne params["excludedAgreementStatus"]
+                }
                 if (params.contains("createdByUser")) root[AgreementRegistration::createdByUser] eq params["createdByUser"]
                 if (params.contains("updatedByUser")) root[AgreementRegistration::updatedByUser] eq params["updatedByUser"]
             }
@@ -59,9 +64,11 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
             }
             ?: HttpResponse.notFound()
 
-
     @Get("/{id}/delkontrakt/{delkontraktId}")
-    suspend fun getDelkontraktById(id: UUID, delkontraktId: String): HttpResponse<AgreementPost> =
+    suspend fun getDelkontraktById(
+        id: UUID,
+        delkontraktId: String,
+    ): HttpResponse<AgreementPost> =
         agreementRegistrationService.findById(id)
             ?.let {
                 it.agreementData.posts.find { post -> post.identifier == delkontraktId }
@@ -71,18 +78,22 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
             ?: HttpResponse.notFound()
 
     @Delete("/{id}/delkontrakt/{delkontraktId}")
-    suspend fun deleteDelkontraktById(id: UUID, delkontraktId: String) =
-        agreementRegistrationService.findById(id)
-            ?.let { inDb ->
-                val updated = inDb.copy(
-                    agreementData = inDb.agreementData.copy(
-                        posts = inDb.agreementData.posts.filter { post -> post.identifier != delkontraktId },
-                    ),
+    suspend fun deleteDelkontraktById(
+        id: UUID,
+        delkontraktId: String,
+    ) = agreementRegistrationService.findById(id)
+        ?.let { inDb ->
+            val updated =
+                inDb.copy(
+                    agreementData =
+                        inDb.agreementData.copy(
+                            posts = inDb.agreementData.posts.filter { post -> post.identifier != delkontraktId },
+                        ),
                 )
-                val dto = agreementRegistrationService.saveAndCreateEventIfNotDraft(updated, isUpdate = true)
-                HttpResponse.ok(dto)
-            }
-            ?: HttpResponse.notFound()
+            val dto = agreementRegistrationService.saveAndCreateEventIfNotDraft(updated, isUpdate = true)
+            HttpResponse.ok(dto)
+        }
+        ?: HttpResponse.notFound()
 
     @Post("/")
     suspend fun createAgreement(
@@ -92,11 +103,12 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
         agreementRegistrationService.findById(registrationDTO.id)?.let {
             throw BadRequestException("agreement ${registrationDTO.id} already exists")
         } ?: run {
-            val dto = agreementRegistrationService.saveAndCreateEventIfNotDraft(
-                registrationDTO
-                    .copy(createdByUser = authentication.name, updatedByUser = authentication.name),
-                isUpdate = false,
-            )
+            val dto =
+                agreementRegistrationService.saveAndCreateEventIfNotDraft(
+                    registrationDTO
+                        .copy(createdByUser = authentication.name, updatedByUser = authentication.name),
+                    isUpdate = false,
+                )
             HttpResponse.created(dto)
         }
 
@@ -108,23 +120,25 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
         agreementRegistrationService.findByReference(reference)?.let {
             throw BadRequestException("agreement reference $reference already exists")
         } ?: run {
-            val draft = AgreementRegistrationDTO(
-                id = UUID.randomUUID(),
-                draftStatus = DraftStatus.DRAFT,
-                agreementStatus = AgreementStatus.INACTIVE,
-                title = "Fyll ut title",
-                reference = reference,
-                expired = LocalDateTime.now().plusYears(3),
-                createdByUser = authentication.name,
-                updatedByUser = authentication.name,
-                agreementData = AgreementData(
-                    resume = "kort beskrivelse",
-                    text = "rammeavtale tekst her",
-                    identifier = UUID.randomUUID().toString(),
-                    attachments = emptyList(),
-                    posts = emptyList(),
-                ),
-            )
+            val draft =
+                AgreementRegistrationDTO(
+                    id = UUID.randomUUID(),
+                    draftStatus = DraftStatus.DRAFT,
+                    agreementStatus = AgreementStatus.INACTIVE,
+                    title = "Fyll ut title",
+                    reference = reference,
+                    expired = LocalDateTime.now().plusYears(3),
+                    createdByUser = authentication.name,
+                    updatedByUser = authentication.name,
+                    agreementData =
+                        AgreementData(
+                            resume = "kort beskrivelse",
+                            text = "rammeavtale tekst her",
+                            identifier = UUID.randomUUID().toString(),
+                            attachments = emptyList(),
+                            posts = emptyList(),
+                        ),
+                )
             val dto = agreementRegistrationService.saveAndCreateEventIfNotDraft(draft, isUpdate = false)
             HttpResponse.created(dto)
         }
@@ -137,28 +151,29 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
         agreementRegistrationService.findByReference(draftWith.reference)?.let {
             throw BadRequestException("agreement reference ${draftWith.reference} already exists")
         } ?: run {
-            val draft = AgreementRegistrationDTO(
-                id = UUID.randomUUID(),
-                draftStatus = DraftStatus.DRAFT,
-                agreementStatus = AgreementStatus.INACTIVE,
-                title = draftWith.title,
-                reference = draftWith.reference,
-                expired = draftWith.expired,
-                published = draftWith.published,
-                createdByUser = authentication.name,
-                updatedByUser = authentication.name,
-                agreementData = AgreementData(
-                    resume = "kort beskrivelse",
-                    text = "rammeavtaletekst her",
-                    identifier = UUID.randomUUID().toString(),
-                    attachments = emptyList(),
-                    posts = emptyList(),
-                ),
-            )
+            val draft =
+                AgreementRegistrationDTO(
+                    id = UUID.randomUUID(),
+                    draftStatus = DraftStatus.DRAFT,
+                    agreementStatus = AgreementStatus.INACTIVE,
+                    title = draftWith.title,
+                    reference = draftWith.reference,
+                    expired = draftWith.expired,
+                    published = draftWith.published,
+                    createdByUser = authentication.name,
+                    updatedByUser = authentication.name,
+                    agreementData =
+                        AgreementData(
+                            resume = "kort beskrivelse",
+                            text = "rammeavtaletekst her",
+                            identifier = UUID.randomUUID().toString(),
+                            attachments = emptyList(),
+                            posts = emptyList(),
+                        ),
+                )
             val dto = agreementRegistrationService.saveAndCreateEventIfNotDraft(draft, isUpdate = false)
             HttpResponse.created(dto)
         }
-
 
     @Post("/draft/from/{id}/reference/{reference}")
     suspend fun createAgreementFromAnother(
@@ -191,19 +206,19 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
         @Body registrationDTO: AgreementRegistrationDTO,
         @PathVariable id: UUID,
         authentication: Authentication,
-    ):
-            HttpResponse<AgreementRegistrationDTO> =
+    ): HttpResponse<AgreementRegistrationDTO> =
         agreementRegistrationService.findById(id)
             ?.let { inDb ->
-                val updated = registrationDTO.copy(
-                    id = inDb.id,
-                    draftStatus = if (inDb.draftStatus == DraftStatus.DONE) DraftStatus.DONE else registrationDTO.draftStatus,
-                    created = inDb.created,
-                    createdByUser = inDb.createdByUser,
-                    updatedByUser = authentication.name,
-                    updatedBy = REGISTER,
-                    createdBy = inDb.createdBy,
-                )
+                val updated =
+                    registrationDTO.copy(
+                        id = inDb.id,
+                        draftStatus = if (inDb.draftStatus == DraftStatus.DONE) DraftStatus.DONE else registrationDTO.draftStatus,
+                        created = inDb.created,
+                        createdByUser = inDb.createdByUser,
+                        updatedByUser = authentication.name,
+                        updatedBy = REGISTER,
+                        createdBy = inDb.createdBy,
+                    )
                 val dto = agreementRegistrationService.saveAndCreateEventIfNotDraft(updated, isUpdate = true)
                 HttpResponse.ok(dto)
             }
@@ -211,29 +226,30 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                 throw BadRequestException("${registrationDTO.id} does not exists")
             }
 
-
     @Delete("/{id}")
     suspend fun deleteAgreement(
         @PathVariable id: UUID,
-        authentication: Authentication
+        authentication: Authentication,
     ): HttpResponse<AgreementRegistrationDTO> =
         agreementRegistrationService.findById(id)
             ?.let {
-                val dto = agreementRegistrationService.saveAndCreateEventIfNotDraft(
-                    it.copy(
-                        agreementStatus = AgreementStatus.DELETED,
-                        updatedByUser = authentication.name, updatedBy = REGISTER
-                    ), isUpdate = true
-                )
+                val dto =
+                    agreementRegistrationService.saveAndCreateEventIfNotDraft(
+                        it.copy(
+                            agreementStatus = AgreementStatus.DELETED,
+                            updatedByUser = authentication.name,
+                            updatedBy = REGISTER,
+                        ),
+                        isUpdate = true,
+                    )
                 HttpResponse.ok(dto)
             }
             ?: HttpResponse.notFound()
 }
 
-
 data class AgreementDraftWithDTO(
     val title: String,
     val reference: String,
     val published: LocalDateTime,
-    val expired: LocalDateTime
+    val expired: LocalDateTime,
 )
