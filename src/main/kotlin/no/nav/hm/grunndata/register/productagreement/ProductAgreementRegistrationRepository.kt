@@ -54,7 +54,7 @@ interface ProductAgreementRegistrationRepository : CoroutineCrudRepository<Produ
         supplierRef: String,
         agreementId: UUID,
         postId: UUID,
-        rank: Int
+        rank: Int,
     ): ProductAgreementRegistration?
 
 }

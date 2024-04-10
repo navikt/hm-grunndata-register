@@ -11,7 +11,6 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
@@ -218,12 +217,7 @@ class ProductAgreementAdminController(
         authentication: Authentication,
     ): HttpResponse<ProductAgreementDeletedResponse> {
         LOG.info("deleting product agreement: $id by ${authentication.userId()}")
-        productAgreementRegistrationService.findById(id)?.let {
-            productAgreementRegistrationService.saveAndCreateEvent(
-                it.copy(status = ProductAgreementStatus.DELETED),
-                isUpdate = true,
-            )
-        } ?: throw BadRequestException("Product agreement $id not found")
+        productAgreementRegistrationService.deleteById(id)
         return HttpResponse.ok(ProductAgreementDeletedResponse(id))
     }
 
@@ -237,14 +231,7 @@ class ProductAgreementAdminController(
         authentication: Authentication,
     ): HttpResponse<ProductAgreementsDeletedResponse> {
         LOG.info("deleting product agreements: $ids by ${authentication.userId()}")
-        ids.forEach { uuid ->
-            productAgreementRegistrationService.findById(uuid)?.let {
-                productAgreementRegistrationService.saveAndCreateEvent(
-                    it.copy(status = ProductAgreementStatus.DELETED),
-                    isUpdate = true,
-                )
-            } ?: throw BadRequestException("Product agreement $uuid not found")
-        }
+        productAgreementRegistrationService.deleteByIds(ids)
         return HttpResponse.ok(ProductAgreementsDeletedResponse(ids))
     }
 }

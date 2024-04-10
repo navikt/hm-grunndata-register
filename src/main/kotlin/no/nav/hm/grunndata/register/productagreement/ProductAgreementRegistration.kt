@@ -123,10 +123,10 @@ fun List<ProductAgreementRegistration>.toDTO(): List<ProductAgreementRegistratio
 
 fun ProductAgreementRegistration.toInfo() = AgreementInfo(
     id = agreementId, reference = reference,
-    postNr = post, rank = rank, expired = expired, postId = postId
+    postNr = post, rank = rank, expired = expired, postId = postId, status = status
 )
 
 fun ProductAgreementRegistrationDTO.toInfo() = AgreementInfo(
-    id = agreementId, reference = reference, postNr = post, rank = rank, expired = expired
+    id = agreementId, reference = reference, postNr = post, rank = rank, expired = expired, status = status
 )
 
