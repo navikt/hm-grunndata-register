@@ -5,6 +5,7 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import java.util.*
@@ -23,15 +24,19 @@ open class SeriesRegistrationService(private val seriesRegistrationRepository: S
         seriesRegistrationRepository.save(dto.toEntity()).toDTO()
 
     @Transactional
-    open suspend fun saveAndPushToRapidIfNotDraft(dto: SeriesRegistrationDTO, isUpdate: Boolean): SeriesRegistrationDTO {
+    open suspend fun saveAndCreateEventIfNotDraftAndApproved(dto: SeriesRegistrationDTO, isUpdate: Boolean): SeriesRegistrationDTO {
         val saved = if (isUpdate) update(dto) else save(dto)
-        if (saved.draftStatus == DraftStatus.DONE)
+        if (saved.draftStatus == DraftStatus.DONE && saved.adminStatus == AdminStatus.APPROVED)
             seriesRegistrationEventHandler.queueDTORapidEvent(saved, eventName = EventName.registeredSeriesV1)
         return saved
     }
 
     suspend fun findAll(spec: PredicateSpecification<SeriesRegistration>?, pageable: Pageable): Page<SeriesRegistrationDTO> =
         seriesRegistrationRepository.findAll(spec, pageable).map { it.toDTO() }
+    
+    suspend fun findByIdAndSupplierId(id: UUID, supplierId: UUID): SeriesRegistrationDTO? =
+        seriesRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.toDTO()
+
 
 
 }

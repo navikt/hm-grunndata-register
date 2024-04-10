@@ -13,6 +13,7 @@ import no.nav.hm.grunndata.rapid.dto.SeriesImportRapidDTO
 import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
+import no.nav.hm.grunndata.register.series.SeriesData
 import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationEventHandler
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
@@ -52,7 +53,7 @@ class SeriesImportSyncRiver(river: RiverHead,
                 seriesRegistrationService.update(
                     inDb.copy(
                         identifier = dto.id.toString(), title = dto.title, status = dto.status,
-                        updatedBy = "IMPORT", updatedByUser = "IMPORT",
+                        updatedBy = "IMPORT", updatedByUser = "IMPORT", seriesData = inDb.seriesData,
                         updated = LocalDateTime.now(), expired = dto.expired
                     )
                 )
@@ -70,6 +71,7 @@ class SeriesImportSyncRiver(river: RiverHead,
                     updatedBy = "IMPORT",
                     createdByUser = "IMPORT",
                     updatedByUser = "IMPORT",
+                    seriesData = SeriesData(media = emptySet()), //import does support media yet.
                     createdByAdmin = false
                 )
             )
