@@ -40,7 +40,7 @@ class SeriesController(private val seriesRegistrationService: SeriesRegistration
     }
 
     @Post("/")
-    suspend fun createSeries(seriesRegistrationDTO: SeriesRegistrationDTO, authentication: Authentication)
+    suspend fun createSeries(@Body seriesRegistrationDTO: SeriesRegistrationDTO, authentication: Authentication)
     : HttpResponse<SeriesRegistrationDTO> =
         if (seriesRegistrationDTO.supplierId != authentication.supplierId()) {
             LOG.warn("SupplierId in request does not match authenticated supplierId")
@@ -54,6 +54,16 @@ class SeriesController(private val seriesRegistrationService: SeriesRegistration
                 HttpResponse.created(seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(seriesRegistrationDTO, false))
             }
         }
+
+    @Get("/{id}")
+    suspend fun readSeries(@PathVariable id: UUID, authentication: Authentication): HttpResponse<SeriesRegistrationDTO> =
+        seriesRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())?.let {
+            HttpResponse.ok(it)
+        } ?: run {
+            LOG.warn("Series with id $id does not exist")
+            HttpResponse.notFound()
+        }
+
 
     @Put("/{id}")
     suspend fun updateSeries(@PathVariable id: UUID,
