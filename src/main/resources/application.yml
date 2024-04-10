@@ -167,3 +167,6 @@ import:
 
 bestillingsordning:
   url: ${BESTILLINGSORDNING_URL:`https://navikt.github.io/digihot-sortiment/bestillingsordning_sortiment.json`}
+
+elector:
+  path: ${ELECTOR_PATH:localhost}

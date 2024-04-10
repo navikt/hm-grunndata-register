@@ -15,7 +15,9 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.register.CONTEXT_PATH
+import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierData
@@ -84,7 +86,10 @@ class SeriesControllerTest(
                     identifier = "testerino",
                     title = "superserie",
                     text = "text",
-                    isoCategory = "12345678"
+                    isoCategory = "12345678",
+                    seriesData = SeriesData(media = setOf(
+                        MediaInfoDTO(uri = "http://example.com", type = no.nav.hm.grunndata.rapid.dto.MediaType.IMAGE, text = "image description", sourceUri = "http://example.com",  source = MediaSourceType.REGISTER)
+                    ))
                 )
             )
 
@@ -95,7 +100,10 @@ class SeriesControllerTest(
                     identifier = "testtest",
                     title = "enda en serie",
                     text = "tekst",
-                    isoCategory = "12345678"
+                    isoCategory = "12345678",
+                    seriesData = SeriesData(media = setOf(
+                        MediaInfoDTO(uri = "http://example.com", type = no.nav.hm.grunndata.rapid.dto.MediaType.IMAGE, text = "image description", sourceUri = "http://example.com",  source = MediaSourceType.REGISTER)
+                    ))
                 )
             )
 

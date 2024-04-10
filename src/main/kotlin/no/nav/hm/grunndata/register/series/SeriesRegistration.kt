@@ -2,13 +2,17 @@ package no.nav.hm.grunndata.register.series
 
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
+import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.annotation.Version
+import io.micronaut.data.model.DataType
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import no.nav.hm.grunndata.rapid.dto.SeriesRegistrationRapidDTO
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
+import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import java.time.LocalDateTime
 import java.util.*
 
@@ -21,8 +25,11 @@ data class SeriesRegistration (
     val title: String,
     val text: String,
     val isoCategory: String,
+    @field:TypeDef(type = DataType.JSON)
+    val seriesData: SeriesData,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val status: SeriesStatus = SeriesStatus.INACTIVE,
+    val adminStatus: AdminStatus = AdminStatus.PENDING,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val expired: LocalDateTime = LocalDateTime.now().plusYears(15),
@@ -35,6 +42,10 @@ data class SeriesRegistration (
     val version: Long? = 0L
 )
 
+data class SeriesData(
+    val media: Set<MediaInfoDTO> = emptySet()
+)
+
 data class SeriesRegistrationDTO (
     override val id: UUID,
     val supplierId:UUID,
@@ -43,7 +54,9 @@ data class SeriesRegistrationDTO (
     val text: String,
     val isoCategory: String,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
+    val adminStatus: AdminStatus = AdminStatus.PENDING,
     val status: SeriesStatus = SeriesStatus.ACTIVE,
+    val seriesData: SeriesData,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val expired: LocalDateTime = LocalDateTime.now().plusYears(15),
@@ -79,12 +92,13 @@ data class SeriesRegistrationDTO (
 fun SeriesRegistration.toDTO() = SeriesRegistrationDTO(id = id, supplierId = supplierId, identifier = identifier,
     title = title, text = text, isoCategory = isoCategory, draftStatus = draftStatus, status = status, created = created,
     updated = updated, createdBy = createdBy, updatedBy=updatedBy, updatedByUser = updatedByUser, createdByUser = createdByUser,
-    createdByAdmin = createdByAdmin, version = version
+    createdByAdmin = createdByAdmin, seriesData = seriesData, version = version
 )
 
 fun SeriesRegistrationDTO.toEntity() = SeriesRegistration(
     id = id, supplierId = supplierId, identifier = identifier, title = title, text=text, isoCategory=isoCategory,
     draftStatus = draftStatus,
-    status = status, created = created, updated = updated, createdBy = createdBy,
+    status = status, created = created, updated = updated, createdBy = createdBy, seriesData = seriesData,
     updatedBy = updatedBy, updatedByUser = updatedByUser, version = version
 )
+

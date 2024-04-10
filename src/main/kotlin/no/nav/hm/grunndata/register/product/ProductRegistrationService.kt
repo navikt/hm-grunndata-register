@@ -25,13 +25,14 @@ import no.nav.hm.grunndata.register.product.batch.toRegistrationDTO
 import no.nav.hm.grunndata.register.product.batch.toRegistrationDryRunDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
+import no.nav.hm.grunndata.register.series.SeriesData
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Singleton
 open class ProductRegistrationService(
@@ -54,7 +55,7 @@ open class ProductRegistrationService(
     open suspend fun findByHmsArtNr(hmsArtNr: String) = productRegistrationRepository.findByHmsArtNr(hmsArtNr)?.toDTO()
 
     open suspend fun save(dto: ProductRegistrationDTO): ProductRegistrationDTO {
-        if (dto.seriesUUID != null && seriesRegistrationRepository.findById(dto.seriesUUID) == null) {
+        if (seriesRegistrationRepository.findById(dto.seriesUUID) == null) {
             seriesRegistrationRepository.save(
                 SeriesRegistration(
                     id = dto.seriesUUID,
@@ -63,6 +64,7 @@ open class ProductRegistrationService(
                     supplierId = dto.supplierId,
                     identifier = dto.productData.seriesIdentifier ?: UUID.randomUUID().toString(),
                     isoCategory = dto.isoCategory,
+                    seriesData = SeriesData(dto.productData.media),
                     text = dto.productData.attributes.text ?: "",
                 ),
             )

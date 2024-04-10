@@ -8,12 +8,21 @@ import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.KafkaRapid
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
-import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.AgreementStatus
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
+import no.nav.hm.grunndata.rapid.dto.ProductRapidDTO
+import no.nav.hm.grunndata.rapid.dto.ProductStatus
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
+import no.nav.hm.grunndata.register.series.SeriesData
 import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
@@ -102,10 +111,12 @@ class ProductHMDBSyncRiver(
                         updatedBy = dto.updatedBy,
                         created = dto.created,
                         updated = dto.updated,
-                        expired = dto.expired
+                        expired = dto.expired,
+                        seriesData = SeriesData(media = dto.media.map { it.toMediaInfo() }.toSet())
                     )
                 )
             }
+
             dto.agreements.forEach { agreementInfo ->
                 LOG.info("updating product agreement for product ${dto.id} with agreement_id ${agreementInfo.id} and postId ${agreementInfo.postId}")
                 agreementRegistrationService.findById(agreementInfo.id)?.let { agreement ->
