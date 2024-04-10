@@ -53,6 +53,16 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                 }
                 if (params.contains("createdByUser")) root[AgreementRegistration::createdByUser] eq params["createdByUser"]
                 if (params.contains("updatedByUser")) root[AgreementRegistration::updatedByUser] eq params["updatedByUser"]
+                if (params.contains("filter")) {
+                    if (params["filter"] == "ACTIVE") {
+                        root[AgreementRegistration::agreementStatus] eq AgreementStatus.ACTIVE
+                    } else if (params["filter"] == "EXPIRED") {
+                        root[AgreementRegistration::expired] lessThan LocalDateTime.now()
+                    } else if (params["filter"] == "FUTURE") {
+                        root[AgreementRegistration::published] greaterThan LocalDateTime.now()
+                    }
+                    root[AgreementRegistration::created] eq LocalDateTime.parse(params["created"])
+                }
             }
         }
 
