@@ -61,7 +61,6 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                     } else if (params["filter"] == "FUTURE") {
                         root[AgreementRegistration::published] greaterThan LocalDateTime.now()
                     }
-                    root[AgreementRegistration::created] eq LocalDateTime.parse(params["created"])
                 }
             }
         }
