@@ -115,7 +115,7 @@ class SeriesController(private val seriesRegistrationService: SeriesRegistration
 
         params?.let {
             where {
-                root[SeriesRegistration::supplierId] eq params["supplierId"]
+                root[SeriesRegistration::supplierId] eq supplierId
             }.and { root, criteriaBuilder ->
                 if (params.contains("title")) {
                     criteriaBuilder.like(
