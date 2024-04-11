@@ -41,7 +41,10 @@ interface ProductRegistrationRepository :
     suspend fun findBySeriesId(seriesId: String): List<ProductRegistration>
 
     @Query("SELECT a.* from product_reg_v1 a LEFT JOIN series_reg_v1 b on a.series_uuid = b.id where b.id is null")
-    suspend fun findBySeriesIdNotExists(): List<ProductRegistration>
+    suspend fun findProductsWithNoSeries(): List<ProductRegistration>
 
     suspend fun findByRegistrationStatus(registrationStatus: RegistrationStatus): List<ProductRegistration>
+
+    suspend fun findBySeriesUUID(seriesUUID: UUID): ProductRegistration?
+
 }

@@ -18,7 +18,7 @@ class SeriesScheduler(private val seriesStateHandler: SeriesStateHandler,
         if (leaderElection.isLeader()) {
             LOG.info("Running syncronizeProductWithSeries scheduler")
             runBlocking {
-                seriesStateHandler.syncronizeProductWithSeries()
+                seriesStateHandler.findProductsThatHasNoSeries()
             }
         }
     }
@@ -33,5 +33,14 @@ class SeriesScheduler(private val seriesStateHandler: SeriesStateHandler,
         }
     }
 
+    @Scheduled(cron = "0 35 2 * * ?")
+    fun copyMediaFromProductsToSeries() {
+        if (leaderElection.isLeader()) {
+            LOG.info("Running copy media from products to series scheduler")
+            runBlocking {
+                seriesStateHandler.copyMediaFromProductsToSeries()
+            }
+        }
+    }
 
 }

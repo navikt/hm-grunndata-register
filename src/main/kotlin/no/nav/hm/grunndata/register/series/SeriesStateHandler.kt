@@ -16,8 +16,8 @@ class SeriesStateHandler(private val seriesRegistrationRepository: SeriesRegistr
         private val LOG = LoggerFactory.getLogger(SeriesStateHandler::class.java)
     }
 
-    suspend fun syncronizeProductWithSeries() {
-        val productsWithNoSeries = productRegistrationRepository.findBySeriesIdNotExists()
+    suspend fun findProductsThatHasNoSeries() {
+        val productsWithNoSeries = productRegistrationRepository.findProductsWithNoSeries()
         LOG.info("Found ${productsWithNoSeries.size} products with no series")
         productsWithNoSeries.forEach {
             seriesRegistrationRepository.save(
@@ -34,7 +34,24 @@ class SeriesStateHandler(private val seriesRegistrationRepository: SeriesRegistr
                 )
             )
         }
-        LOG.info("finished syncronizing products with series")
+        LOG.info("finished creating series for ${productsWithNoSeries.size} products")
+    }
+
+    suspend fun copyMediaFromProductsToSeries() {
+        var count = 0
+        seriesRegistrationRepository.findAll().collect {
+            count++
+            val product = productRegistrationRepository.findBySeriesUUID(it.id)
+            if (product != null) {
+                val media = product.productData.media
+                if (media.isNotEmpty()) {
+                    LOG.info("Updating series ${it.id} with media from product ${product.id}")
+                    val seriesData = it.seriesData.copy(media = media)
+                    seriesRegistrationRepository.update(it.copy(seriesData = seriesData))
+                }
+            }
+        }
+        LOG.info("Finished copying media from products to series for $count series")
     }
 
     suspend fun findEmptyAndDeleteSeries() {
