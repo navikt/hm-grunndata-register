@@ -36,8 +36,9 @@ class ProductHMDBSyncRiver(
     private val productRegistrationRepository: ProductRegistrationRepository,
     private val seriesRegistrationService: SeriesRegistrationService,
     private val agreementRegistrationService: AgreementRegistrationService,
-    private val productAgreementRegistrationService: ProductAgreementRegistrationService,
+    private val productAgreementRegistrationService: ProductAgreementRegistrationService
 ) : River.PacketListener {
+
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductHMDBSyncRiver::class.java)
     }
@@ -53,10 +54,7 @@ class ProductHMDBSyncRiver(
             .register(this)
     }
 
-    override fun onPacket(
-        packet: JsonMessage,
-        context: MessageContext,
-    ) {
+    override fun onPacket(packet: JsonMessage, context: MessageContext) {
         val eventId = packet["eventId"].asText()
         val dtoVersion = packet["dtoVersion"].asLong()
         if (dtoVersion > rapidDTOVersion) LOG.warn("dto version $dtoVersion is newer than $rapidDTOVersion")
@@ -67,22 +65,14 @@ class ProductHMDBSyncRiver(
             productRegistrationRepository.findById(dto.id)?.let { inDb ->
                 productRegistrationRepository.update(
                     inDb.copy(
-                        seriesId = dto.seriesId!!,
-                        seriesUUID = dto.seriesUUID ?: dto.id,
-                        productData = dto.toProductData(),
-                        updatedBy = dto.updatedBy,
-                        registrationStatus = mapStatus(dto.status),
-                        adminStatus = mapAdminStatus(dto.status),
-                        created = dto.created,
-                        updated = dto.updated,
-                        hmsArtNr = dto.hmsArtNr,
-                        title = dto.title,
-                        supplierRef = dto.supplierRef,
-                        supplierId = dto.supplier.id,
-                        published = dto.published,
-                        expired = dto.expired,
-                    ),
+                        seriesId = dto.seriesId!!, seriesUUID = dto.seriesUUID?:dto.id, productData = dto.toProductData(),
+                        updatedBy = dto.updatedBy, registrationStatus = mapStatus(dto.status),
+                        adminStatus = mapAdminStatus(dto.status), created = dto.created, updated = dto.updated,
+                        hmsArtNr = dto.hmsArtNr, title = dto.title, supplierRef = dto.supplierRef,
+                        supplierId = dto.supplier.id, published = dto.published, expired = dto.expired
+                    )
                 )
+
             } ?: productRegistrationRepository.save(
                 ProductRegistration(
                     id = dto.id,
@@ -90,7 +80,7 @@ class ProductHMDBSyncRiver(
                     supplierId = dto.supplier.id,
                     supplierRef = dto.supplierRef,
                     seriesId = dto.seriesId!!,
-                    seriesUUID = dto.seriesUUID ?: dto.id,
+                    seriesUUID = dto.seriesUUID?:dto.id,
                     registrationStatus = mapStatus(dto.status),
                     adminStatus = mapAdminStatus(dto.status),
                     createdBy = dto.createdBy,
@@ -103,42 +93,35 @@ class ProductHMDBSyncRiver(
                     published = dto.published,
                     title = dto.title,
                     articleName = dto.articleName,
-                    productData = dto.toProductData(),
-                ),
+                    productData = dto.toProductData()
+                )
             )
-            val series =
-                dto.seriesUUID?.let { uuid ->
-                    seriesRegistrationService.findById(uuid) ?: seriesRegistrationService.save(
-                        SeriesRegistrationDTO(
-                            id = uuid,
-                            supplierId = dto.supplier.id,
-                            identifier = dto.seriesIdentifier ?: uuid.toString(),
-                            title = dto.title,
-                            text = dto.attributes.text ?: "",
-                            isoCategory = dto.isoCategory,
-                            draftStatus = DraftStatus.DONE,
-                            status = SeriesStatus.ACTIVE,
-                            createdBy = dto.createdBy,
-                            updatedBy = dto.updatedBy,
-                            created = dto.created,
-                            updated = dto.updated,
-                            expired = dto.expired,
-                            seriesData = SeriesData(media = dto.media.map { it.toMediaInfo() }.toSet()),
-                        ),
+            val series = dto.seriesUUID?.let { uuid ->
+                seriesRegistrationService.findById(uuid) ?: seriesRegistrationService.save(
+                    SeriesRegistrationDTO(
+                        id = uuid,
+                        supplierId = dto.supplier.id,
+                        identifier = dto.seriesIdentifier ?: uuid.toString(),
+                        title = dto.title,
+                        text = dto.attributes.text ?: "",
+                        isoCategory = dto.isoCategory,
+                        draftStatus = DraftStatus.DONE,
+                        status = SeriesStatus.ACTIVE,
+                        createdBy = dto.createdBy,
+                        updatedBy = dto.updatedBy,
+                        created = dto.created,
+                        updated = dto.updated,
+                        expired = dto.expired,
+                        seriesData = SeriesData(media = dto.media.map { it.toMediaInfo() }.toSet())
                     )
-                }
+                )
+            }
 
             dto.agreements.forEach { agreementInfo ->
-                LOG.info(
-                    "updating product agreement for product ${dto.id} with agreement_id ${agreementInfo.id} and postId ${agreementInfo.postId}",
-                )
+                LOG.info("updating product agreement for product ${dto.id} with agreement_id ${agreementInfo.id} and postId ${agreementInfo.postId}")
                 agreementRegistrationService.findById(agreementInfo.id)?.let { agreement ->
                     productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
-                        dto.supplier.id,
-                        dto.supplierRef,
-                        agreementInfo.id,
-                        agreementInfo.postId!!,
-                        agreementInfo.rank,
+                        dto.supplier.id, dto.supplierRef, agreementInfo.id, agreementInfo.postId!!, agreementInfo.rank
                     )?.let { inDb ->
                         productAgreementRegistrationService.update(
                             inDb.copy(
@@ -159,13 +142,9 @@ class ProductHMDBSyncRiver(
                                 updated = dto.updated,
                                 createdBy = dto.createdBy,
                                 published = agreement.published,
-                                status =
-                                    if (agreement.agreementStatus == AgreementStatus.ACTIVE) {
-                                        ProductAgreementStatus.ACTIVE
-                                    } else {
-                                        ProductAgreementStatus.INACTIVE
-                                    },
-                            ),
+                                status = if (agreement.agreementStatus == AgreementStatus.ACTIVE)
+                                    ProductAgreementStatus.ACTIVE else ProductAgreementStatus.INACTIVE
+                            )
                         )
                     } ?: productAgreementRegistrationService.save(
                         ProductAgreementRegistrationDTO(
@@ -186,13 +165,9 @@ class ProductHMDBSyncRiver(
                             updated = dto.updated,
                             createdBy = dto.createdBy,
                             published = agreement.published,
-                            status =
-                                if (agreement.agreementStatus == AgreementStatus.ACTIVE) {
-                                    ProductAgreementStatus.ACTIVE
-                                } else {
-                                    ProductAgreementStatus.INACTIVE
-                                },
-                        ),
+                            status = if (agreement.agreementStatus == AgreementStatus.ACTIVE)
+                                ProductAgreementStatus.ACTIVE else ProductAgreementStatus.INACTIVE
+                        )
                     )
                 }
             }
