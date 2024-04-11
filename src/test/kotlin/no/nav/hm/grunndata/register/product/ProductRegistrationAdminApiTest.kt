@@ -33,7 +33,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest
-class ProductRegistrationAdminApiTest(private val apiClient: ProductionRegistrationAdminApiClient,
+class ProductRegistrationAdminApiTest(private val apiClient: ProductRegistrationAdminApiClient,
                                       private val loginClient: LoginClient,
                                       private val userRepository: UserRepository,
                                       private val supplierRegistrationService: SupplierRegistrationService,

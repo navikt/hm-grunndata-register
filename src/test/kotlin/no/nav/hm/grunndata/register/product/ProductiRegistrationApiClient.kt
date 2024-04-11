@@ -2,17 +2,22 @@ package no.nav.hm.grunndata.register.product
 
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Slice
+import io.micronaut.http.MediaType.APPLICATION_JSON
+import io.micronaut.http.annotation.Body
+import io.micronaut.http.annotation.CookieValue
+import io.micronaut.http.annotation.Delete
+import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Put
+import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.client.annotation.Client
-import io.micronaut.http.MediaType.*
-import io.micronaut.http.annotation.*
 import no.nav.hm.grunndata.register.CONTEXT_PATH
 import no.nav.hm.grunndata.register.series.SeriesGroupDTO
-
 import java.util.*
 
 
 @Client("$CONTEXT_PATH/${ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS}")
-interface ProductionRegistrationApiClient {
+interface ProductRegistrationApiClient {
 
     @Get(uri = "/", consumes = [APPLICATION_JSON])
     fun findProducts(@CookieValue("JWT") jwt: String,

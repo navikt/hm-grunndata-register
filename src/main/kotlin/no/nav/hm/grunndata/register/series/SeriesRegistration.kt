@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.series
 
+import io.micronaut.data.annotation.GeneratedValue
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
@@ -14,13 +15,13 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @MappedEntity("series_reg_v1")
-data class SeriesRegistration(
+data class SeriesRegistration (
     @field:Id
     val id: UUID,
-    val supplierId: UUID,
+    val supplierId:UUID,
     val identifier: String,
     val title: String,
     val text: String,
@@ -38,17 +39,19 @@ data class SeriesRegistration(
     val updatedByUser: String = "system",
     val createdByUser: String = "system",
     val createdByAdmin: Boolean = false,
+    @field:GeneratedValue
+    val count: Int = 0,
     @field:Version
-    val version: Long? = 0L,
+    val version: Long? = 0L
 )
 
 data class SeriesData(
-    val media: Set<MediaInfoDTO> = emptySet(),
+    val media: Set<MediaInfoDTO> = emptySet()
 )
 
-data class SeriesRegistrationDTO(
+data class SeriesRegistrationDTO (
     override val id: UUID,
-    val supplierId: UUID,
+    val supplierId:UUID,
     val identifier: String,
     val title: String,
     val text: String,
@@ -65,74 +68,40 @@ data class SeriesRegistrationDTO(
     override val updatedByUser: String = "system",
     val createdByUser: String = "system",
     val createdByAdmin: Boolean = false,
-    val version: Long? = 0L,
-) : EventPayload {
-    override fun toRapidDTO(): RapidDTO =
-        SeriesRegistrationRapidDTO(
-            id = id,
-            supplierId = supplierId,
-            identifier = identifier,
-            title = title,
-            text = text,
-            isoCategory = isoCategory,
-            draftStatus = draftStatus,
-            status = status,
-            created = created,
-            updated = updated,
-            expired = expired,
-            createdBy = createdBy,
-            updatedBy = updatedBy,
-            updatedByUser = updatedByUser,
-            createdByUser = createdByUser,
-            createdByAdmin = createdByAdmin,
-            version = version,
-        )
+    val count: Int = 0,
+    val version: Long? = 0L
+): EventPayload {
+    override fun toRapidDTO(): RapidDTO= SeriesRegistrationRapidDTO(
+    id = id,
+    supplierId = supplierId,
+    identifier = identifier,
+    title = title,
+    text = text,
+    isoCategory = isoCategory,
+    draftStatus = draftStatus,
+    status = status,
+    created = created,
+    updated = updated,
+    expired = expired,
+    createdBy = createdBy,
+    updatedBy = updatedBy,
+    updatedByUser = updatedByUser,
+    createdByUser = createdByUser,
+    createdByAdmin = createdByAdmin,
+    version = version
+    )
 }
-
-data class SeriesRegistrationWithArticleCountDTO(
-    val id: UUID,
-    val supplierId: UUID,
-    val identifier: String,
-    val title: String,
-    val text: String,
-    val isoCategory: String,
-    val draftStatus: DraftStatus = DraftStatus.DRAFT,
-    val adminStatus: AdminStatus = AdminStatus.PENDING,
-    val status: SeriesStatus = SeriesStatus.ACTIVE,
-    val seriesData: SeriesData,
-    val created: LocalDateTime = LocalDateTime.now(),
-    val updated: LocalDateTime = LocalDateTime.now(),
-    val expired: LocalDateTime = LocalDateTime.now().plusYears(15),
-    val createdBy: String = REGISTER,
-    val updatedBy: String = REGISTER,
-    val updatedByUser: String = "system",
-    val createdByUser: String = "system",
-    val createdByAdmin: Boolean = false,
-    val version: Long? = 0L,
-    val articleCount: Long,
-)
 
 fun SeriesRegistration.toDTO() = SeriesRegistrationDTO(id = id, supplierId = supplierId, identifier = identifier,
     title = title, text = text, isoCategory = isoCategory, draftStatus = draftStatus, status = status, created = created,
     updated = updated, createdBy = createdBy, updatedBy=updatedBy, updatedByUser = updatedByUser, createdByUser = createdByUser,
-    createdByAdmin = createdByAdmin, seriesData = seriesData, version = version
+    createdByAdmin = createdByAdmin, seriesData = seriesData, version = version, count = count
 )
 
-fun SeriesRegistrationDTO.toEntity() =
-    SeriesRegistration(
-        id = id,
-        supplierId = supplierId,
-        identifier = identifier,
-        title = title,
-        text = text,
-        isoCategory = isoCategory,
-        draftStatus = draftStatus,
-        status = status,
-        created = created,
-        updated = updated,
-        createdBy = createdBy,
-        seriesData = seriesData,
-        updatedBy = updatedBy,
-        updatedByUser = updatedByUser,
-        version = version,
-    )
+fun SeriesRegistrationDTO.toEntity() = SeriesRegistration(
+    id = id, supplierId = supplierId, identifier = identifier, title = title, text=text, isoCategory=isoCategory,
+    draftStatus = draftStatus,
+    status = status, created = created, updated = updated, createdBy = createdBy, seriesData = seriesData,
+    updatedBy = updatedBy, updatedByUser = updatedByUser, version = version, count = count
+)
+
