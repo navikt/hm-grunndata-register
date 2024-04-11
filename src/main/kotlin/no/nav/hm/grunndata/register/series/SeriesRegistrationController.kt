@@ -34,7 +34,7 @@ class SeriesController(private val seriesRegistrationService: SeriesRegistration
         @QueryValue params: HashMap<String, String>?,
         pageable: Pageable,
         authentication: Authentication,
-    ): Page<SeriesRegistrationDTO> {
+    ): Page<SeriesRegistrationWithArticleCountDTO> {
         return seriesRegistrationService.findAllBySupplier(
             buildCriteriaSpec(
                 params,
