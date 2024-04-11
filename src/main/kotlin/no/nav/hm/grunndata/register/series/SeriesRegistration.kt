@@ -1,6 +1,5 @@
 package no.nav.hm.grunndata.register.series
 
-import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.annotation.GeneratedValue
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
@@ -92,12 +91,6 @@ data class SeriesRegistrationDTO (
     version = version
     )
 }
-
-@Introspected
-data class SeriesWithVariantCountDTO(
-    val series: SeriesRegistration,
-    val count: Long,
-)
 
 fun SeriesRegistration.toDTO() = SeriesRegistrationDTO(id = id, supplierId = supplierId, identifier = identifier,
     title = title, text = text, isoCategory = isoCategory, draftStatus = draftStatus, status = status, created = created,
