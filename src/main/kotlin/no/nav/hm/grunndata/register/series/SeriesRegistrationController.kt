@@ -19,12 +19,11 @@ import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SeriesController.API_V1_SERIES)
 class SeriesController(private val seriesRegistrationService: SeriesRegistrationService) {
-
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesController::class.java)
         const val API_V1_SERIES = "/vendor/api/v1/series"
@@ -34,29 +33,44 @@ class SeriesController(private val seriesRegistrationService: SeriesRegistration
     suspend fun getSeries(
         @QueryValue params: HashMap<String, String>?,
         pageable: Pageable,
-        authentication: Authentication
+        authentication: Authentication,
     ): Page<SeriesRegistrationDTO> {
-        return seriesRegistrationService.findAll(buildCriteriaSpec(params), pageable)
+        return seriesRegistrationService.findAllBySupplier(
+            buildCriteriaSpec(
+                params,
+                supplierId = authentication.supplierId(),
+            ),
+            pageable,
+        )
     }
 
     @Post("/")
-    suspend fun createSeries(@Body seriesRegistrationDTO: SeriesRegistrationDTO, authentication: Authentication)
-    : HttpResponse<SeriesRegistrationDTO> =
+    suspend fun createSeries(
+        @Body seriesRegistrationDTO: SeriesRegistrationDTO,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> =
         if (seriesRegistrationDTO.supplierId != authentication.supplierId()) {
             LOG.warn("SupplierId in request does not match authenticated supplierId")
             HttpResponse.unauthorized()
-        }
-        else {
+        } else {
             seriesRegistrationService.findById(seriesRegistrationDTO.id)?.let {
                 LOG.warn("Series with id ${seriesRegistrationDTO.id} already exists")
                 HttpResponse.badRequest()
             } ?: run {
-                HttpResponse.created(seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(seriesRegistrationDTO, false))
+                HttpResponse.created(
+                    seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                        seriesRegistrationDTO,
+                        false,
+                    ),
+                )
             }
         }
 
     @Get("/{id}")
-    suspend fun readSeries(@PathVariable id: UUID, authentication: Authentication): HttpResponse<SeriesRegistrationDTO> =
+    suspend fun readSeries(
+        @PathVariable id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> =
         seriesRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())?.let {
             HttpResponse.ok(it)
         } ?: run {
@@ -64,40 +78,55 @@ class SeriesController(private val seriesRegistrationService: SeriesRegistration
             HttpResponse.notFound()
         }
 
-
     @Put("/{id}")
-    suspend fun updateSeries(@PathVariable id: UUID,
-                             @Body seriesRegistrationDTO: SeriesRegistrationDTO,
-                             authentication: Authentication): HttpResponse<SeriesRegistrationDTO> =
+    suspend fun updateSeries(
+        @PathVariable id: UUID,
+        @Body seriesRegistrationDTO: SeriesRegistrationDTO,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> =
         if (seriesRegistrationDTO.supplierId != authentication.supplierId()) {
             LOG.warn("SupplierId in request does not match authenticated supplierId")
             HttpResponse.unauthorized()
         } else {
             seriesRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())?.let { inDb ->
-                HttpResponse.ok(seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(seriesRegistrationDTO
-                    .copy(
-                        adminStatus = inDb.adminStatus,
-                        created = inDb.created,
-                        createdByUser = inDb.createdByUser,
-                        updated = LocalDateTime.now(),
-                        updatedByUser = authentication.name
-                    ), true))
+                HttpResponse.ok(
+                    seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                        seriesRegistrationDTO
+                            .copy(
+                                adminStatus = inDb.adminStatus,
+                                created = inDb.created,
+                                createdByUser = inDb.createdByUser,
+                                updated = LocalDateTime.now(),
+                                updatedByUser = authentication.name,
+                            ),
+                        true,
+                    ),
+                )
             } ?: run {
                 LOG.warn("Series with id $id does not exist")
                 HttpResponse.notFound()
             }
         }
 
+    private fun buildCriteriaSpec(
+        params: HashMap<String, String>?,
+        supplierId: UUID,
+    ): PredicateSpecification<SeriesRegistration> =
 
-    private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<SeriesRegistration>? =
         params?.let {
             where {
-                if (params.contains("supplierId")) root[SeriesRegistration::supplierId] eq params["supplierId"]
+                root[SeriesRegistration::supplierId] eq params["supplierId"]
             }.and { root, criteriaBuilder ->
-                if (params.contains("title")) criteriaBuilder.like(
-                    root[SeriesRegistration::title],
-                    params["title"]
-                ) else null
+                if (params.contains("title")) {
+                    criteriaBuilder.like(
+                        root[SeriesRegistration::title],
+                        params["title"],
+                    )
+                } else {
+                    null
+                }
             }
+        } ?: where {
+            root[SeriesRegistration::supplierId] eq supplierId
         }
 }

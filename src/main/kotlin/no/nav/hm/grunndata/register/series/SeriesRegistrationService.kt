@@ -33,6 +33,9 @@ open class SeriesRegistrationService(private val seriesRegistrationRepository: S
 
     suspend fun findAll(spec: PredicateSpecification<SeriesRegistration>?, pageable: Pageable): Page<SeriesRegistrationDTO> =
         seriesRegistrationRepository.findAll(spec, pageable).map { it.toDTO() }
+
+    suspend fun findAllBySupplier(spec: PredicateSpecification<SeriesRegistration>?, pageable: Pageable): Page<SeriesRegistrationDTO> =
+        seriesRegistrationRepository.findAll(spec, pageable).map { it.toDTO() }
     
     suspend fun findByIdAndSupplierId(id: UUID, supplierId: UUID): SeriesRegistrationDTO? =
         seriesRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.toDTO()
