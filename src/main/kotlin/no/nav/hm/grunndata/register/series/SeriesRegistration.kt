@@ -1,5 +1,7 @@
 package no.nav.hm.grunndata.register.series
 
+import io.micronaut.core.annotation.Introspected
+import io.micronaut.data.annotation.GeneratedValue
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
@@ -38,6 +40,8 @@ data class SeriesRegistration (
     val updatedByUser: String = "system",
     val createdByUser: String = "system",
     val createdByAdmin: Boolean = false,
+    @field:GeneratedValue
+    val count: Int = 0,
     @field:Version
     val version: Long? = 0L
 )
@@ -65,6 +69,7 @@ data class SeriesRegistrationDTO (
     override val updatedByUser: String = "system",
     val createdByUser: String = "system",
     val createdByAdmin: Boolean = false,
+    val count: Int = 0,
     val version: Long? = 0L
 ): EventPayload {
     override fun toRapidDTO(): RapidDTO= SeriesRegistrationRapidDTO(
@@ -88,17 +93,22 @@ data class SeriesRegistrationDTO (
     )
 }
 
+@Introspected
+data class SeriesWithVariantCountDTO(
+    val series: SeriesRegistration,
+    val count: Long,
+)
 
 fun SeriesRegistration.toDTO() = SeriesRegistrationDTO(id = id, supplierId = supplierId, identifier = identifier,
     title = title, text = text, isoCategory = isoCategory, draftStatus = draftStatus, status = status, created = created,
     updated = updated, createdBy = createdBy, updatedBy=updatedBy, updatedByUser = updatedByUser, createdByUser = createdByUser,
-    createdByAdmin = createdByAdmin, seriesData = seriesData, version = version
+    createdByAdmin = createdByAdmin, seriesData = seriesData, version = version, count = count
 )
 
 fun SeriesRegistrationDTO.toEntity() = SeriesRegistration(
     id = id, supplierId = supplierId, identifier = identifier, title = title, text=text, isoCategory=isoCategory,
     draftStatus = draftStatus,
     status = status, created = created, updated = updated, createdBy = createdBy, seriesData = seriesData,
-    updatedBy = updatedBy, updatedByUser = updatedByUser, version = version
+    updatedBy = updatedBy, updatedByUser = updatedByUser, version = version, count = count
 )
 

@@ -9,7 +9,13 @@ import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.AgreementInfo
+import no.nav.hm.grunndata.rapid.dto.Attributes
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.MediaSourceType
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
@@ -26,7 +32,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest
-class ProductRegistrationApiTest(private val apiClient: ProductionRegistrationApiClient,
+class ProductRegistrationApiTest(private val apiClient: ProductRegistrationApiClient,
                                  private val loginClient: LoginClient,
                                  private val userRepository: UserRepository,
                                  private val objectMapper: ObjectMapper,

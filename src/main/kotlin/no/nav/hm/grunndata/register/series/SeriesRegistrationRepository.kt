@@ -3,6 +3,7 @@ package no.nav.hm.grunndata.register.series
 import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.annotation.Query
 import io.micronaut.data.jdbc.annotation.JdbcRepository
+import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.model.Slice
 import io.micronaut.data.model.query.builder.sql.Dialect
@@ -23,6 +24,8 @@ interface SeriesRegistrationRepository: CoroutineCrudRepository<SeriesRegistrati
     suspend fun findSeriesThatDoesNotHaveProducts(): List<SeriesRegistration>
     suspend fun findByIdAndSupplierId(id:UUID, supplierId: UUID): SeriesRegistration?
 
+    @Query("UPDATE series_reg_v1 SET count = b.b_count FROM (SELECT series_uuid, count(*) as b_count FROM product_reg_v1 GROUP BY series_uuid) AS b WHERE id = b.series_uuid AND b.series_uuid = :id")
+    suspend fun updateCountForSeries(id:UUID)
 }
 
 

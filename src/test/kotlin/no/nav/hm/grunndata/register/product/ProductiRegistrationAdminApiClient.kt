@@ -1,9 +1,15 @@
 package no.nav.hm.grunndata.register.product
 
 import io.micronaut.data.model.Page
+import io.micronaut.http.MediaType.APPLICATION_JSON
+import io.micronaut.http.annotation.Body
+import io.micronaut.http.annotation.CookieValue
+import io.micronaut.http.annotation.Delete
+import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Put
+import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.client.annotation.Client
-import io.micronaut.http.MediaType.*
-import io.micronaut.http.annotation.*
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.register.CONTEXT_PATH
@@ -11,7 +17,7 @@ import java.util.*
 
 
 @Client("$CONTEXT_PATH/${ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS}")
-interface ProductionRegistrationAdminApiClient {
+interface ProductRegistrationAdminApiClient {
 
     @Get(uri = "/", consumes = [APPLICATION_JSON])
     fun findProducts(@CookieValue("JWT") jwt: String,
