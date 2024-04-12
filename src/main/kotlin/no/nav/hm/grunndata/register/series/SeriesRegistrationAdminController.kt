@@ -47,6 +47,10 @@ class SeriesAdminController(private val seriesRegistrationService: SeriesRegistr
                 if (params.contains("createdByUser")) root[SeriesRegistration::createdByUser] eq params["createdByUser"]
                 if (params.contains("updatedByUser")) root[SeriesRegistration::updatedByUser] eq params["updatedByUser"]
                 if (params.contains("title")) criteriaBuilder.like(root[SeriesRegistration::title], params["title"])
+
+                if (params.contains("excludedStatus")) {
+                    root[SeriesRegistration::status] ne params["excludedStatus"]
+                }
             }
         }
 }
