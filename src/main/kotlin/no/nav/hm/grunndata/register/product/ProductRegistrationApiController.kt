@@ -51,9 +51,9 @@ class ProductRegistrationApiController(
 
     @Get("/series/{seriesId}")
     suspend fun findBySeriesIdAndSupplierId(
-        seriesId: String,
+        seriesId: UUID,
         authentication: Authentication,
-    ) = productRegistrationService.findBySeriesIdAndSupplierId(seriesId, authentication.supplierId())
+    ) = productRegistrationService.findBySeriesUUIDAndSupplierId(seriesId, authentication.supplierId())
         .sortedBy { it.created }
 
     @Get("/series/grouped/{seriesId}")
