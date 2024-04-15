@@ -28,7 +28,7 @@ class SeriesRegistrationRepositoryTest(private val seriesRegistrationRepository:
             isoCategory = "12343212",
             status = SeriesStatus.ACTIVE,
             adminStatus = AdminStatus.PENDING,
-            seriesData = SeriesData(media = setOf(
+            seriesData = SeriesDataDTO(media = setOf(
                 MediaInfoDTO(uri = "http://example.com", type = MediaType.IMAGE, text = "image description", sourceUri = "http://example.com",  source = MediaSourceType.REGISTER)
             ))
         )

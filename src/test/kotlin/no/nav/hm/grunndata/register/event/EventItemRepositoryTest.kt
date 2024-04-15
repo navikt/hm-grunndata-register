@@ -10,7 +10,7 @@ import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
-import no.nav.hm.grunndata.register.series.SeriesData
+import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -30,7 +30,7 @@ class EventItemRepositoryTest(private val eventItemRepository: EventItemReposito
             isoCategory = "12345678",
             draftStatus = DraftStatus.DONE,
             status = SeriesStatus.ACTIVE,
-            seriesData = SeriesData(media = setOf(
+            seriesData = SeriesDataDTO(media = setOf(
                 MediaInfoDTO(uri = "http://example.com", type = MediaType.IMAGE, text = "image description", sourceUri = "http://example.com",  source = MediaSourceType.REGISTER)
             ))
         )

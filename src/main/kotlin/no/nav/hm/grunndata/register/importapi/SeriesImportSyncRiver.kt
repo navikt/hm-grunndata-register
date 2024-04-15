@@ -13,7 +13,7 @@ import no.nav.hm.grunndata.rapid.dto.SeriesImportRapidDTO
 import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
-import no.nav.hm.grunndata.register.series.SeriesData
+import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationEventHandler
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
@@ -71,7 +71,7 @@ class SeriesImportSyncRiver(river: RiverHead,
                     updatedBy = "IMPORT",
                     createdByUser = "IMPORT",
                     updatedByUser = "IMPORT",
-                    seriesData = SeriesData(media = emptySet()), //import does support media yet.
+                    seriesData = SeriesDataDTO(media = emptySet()), //import does support media yet.
                     createdByAdmin = false
                 )
             )

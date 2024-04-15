@@ -30,7 +30,7 @@ class SeriesStateHandler(private val seriesRegistrationRepository: SeriesRegistr
                     isoCategory = it.isoCategory,
                     identifier = it.productData.seriesIdentifier?: UUID.randomUUID().toString(),
                     status = SeriesStatus.ACTIVE,
-                    seriesData = SeriesData(media = it.productData.media)
+                    seriesData = SeriesDataDTO(media = it.productData.media)
                 )
             )
         }

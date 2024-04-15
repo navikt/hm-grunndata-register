@@ -98,7 +98,7 @@ class SeriesControllerApiTest(
                 isoCategory = "12345678",
                 draftStatus = DraftStatus.DONE,
                 status = SeriesStatus.ACTIVE,
-                seriesData = SeriesData(
+                seriesData = SeriesDataDTO(
                     media = setOf(
                         MediaInfoDTO(
                             uri = "http://example.com", type = MediaType.IMAGE, text = "image description",

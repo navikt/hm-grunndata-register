@@ -25,7 +25,7 @@ import no.nav.hm.grunndata.register.product.batch.toRegistrationDTO
 import no.nav.hm.grunndata.register.product.batch.toRegistrationDryRunDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
-import no.nav.hm.grunndata.register.series.SeriesData
+import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
@@ -64,7 +64,7 @@ open class ProductRegistrationService(
                     supplierId = dto.supplierId,
                     identifier = dto.productData.seriesIdentifier ?: UUID.randomUUID().toString(),
                     isoCategory = dto.isoCategory,
-                    seriesData = SeriesData(dto.productData.media),
+                    seriesData = SeriesDataDTO(dto.productData.media),
                     text = dto.productData.attributes.text ?: "",
                 ),
             )

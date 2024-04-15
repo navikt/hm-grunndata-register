@@ -87,7 +87,7 @@ class SeriesControllerTest(
                     title = "superserie",
                     text = "text",
                     isoCategory = "12345678",
-                    seriesData = SeriesData(media = setOf(
+                    seriesData = SeriesDataDTO(media = setOf(
                         MediaInfoDTO(uri = "http://example.com", type = no.nav.hm.grunndata.rapid.dto.MediaType.IMAGE, text = "image description", sourceUri = "http://example.com",  source = MediaSourceType.REGISTER)
                     ))
                 )
@@ -101,7 +101,7 @@ class SeriesControllerTest(
                     title = "enda en serie",
                     text = "tekst",
                     isoCategory = "12345678",
-                    seriesData = SeriesData(media = setOf(
+                    seriesData = SeriesDataDTO(media = setOf(
                         MediaInfoDTO(uri = "http://example.com", type = no.nav.hm.grunndata.rapid.dto.MediaType.IMAGE, text = "image description", sourceUri = "http://example.com",  source = MediaSourceType.REGISTER)
                     ))
                 )

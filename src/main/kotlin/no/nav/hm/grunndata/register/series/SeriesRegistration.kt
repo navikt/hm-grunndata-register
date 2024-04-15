@@ -27,7 +27,7 @@ data class SeriesRegistration (
     val text: String,
     val isoCategory: String,
     @field:TypeDef(type = DataType.JSON)
-    val seriesData: SeriesData,
+    val seriesData: SeriesDataDTO,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val status: SeriesStatus = SeriesStatus.INACTIVE,
     val adminStatus: AdminStatus = AdminStatus.PENDING,
@@ -45,7 +45,7 @@ data class SeriesRegistration (
     val version: Long? = 0L
 )
 
-data class SeriesData(
+data class SeriesDataDTO(
     val media: Set<MediaInfoDTO> = emptySet()
 )
 
@@ -59,7 +59,7 @@ data class SeriesRegistrationDTO (
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val adminStatus: AdminStatus = AdminStatus.PENDING,
     val status: SeriesStatus = SeriesStatus.ACTIVE,
-    val seriesData: SeriesData,
+    val seriesData: SeriesDataDTO,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val expired: LocalDateTime = LocalDateTime.now().plusYears(15),

@@ -22,7 +22,7 @@ import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
-import no.nav.hm.grunndata.register.series.SeriesData
+import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
@@ -112,7 +112,7 @@ class ProductHMDBSyncRiver(
                         created = dto.created,
                         updated = dto.updated,
                         expired = dto.expired,
-                        seriesData = SeriesData(media = dto.media.map { it.toMediaInfo() }.toSet())
+                        seriesData = SeriesDataDTO(media = dto.media.map { it.toMediaInfo() }.toSet())
                     )
                 )
             }
