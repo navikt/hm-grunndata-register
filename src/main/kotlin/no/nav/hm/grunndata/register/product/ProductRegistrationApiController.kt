@@ -222,6 +222,7 @@ class ProductRegistrationApiController(
             productsToUpdate.map {
                 it.copy(
                     draftStatus = DraftStatus.DONE,
+                    adminStatus = AdminStatus.PENDING,
                     updated = LocalDateTime.now(),
                     updatedBy = REGISTER,
                 )
