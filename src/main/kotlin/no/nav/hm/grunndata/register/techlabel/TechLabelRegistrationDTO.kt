@@ -2,6 +2,8 @@ package no.nav.hm.grunndata.register.techlabel
 
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
+import io.micronaut.data.annotation.TypeDef
+import io.micronaut.data.model.DataType
 import no.nav.hm.grunndata.register.REGISTER
 import java.time.LocalDateTime
 import java.util.*
@@ -19,6 +21,8 @@ data class TechLabelRegistration(
     val type: String,
     val unit: String?,
     val sort: Int,
+    @field:TypeDef(type = DataType.JSON)
+    val options: List<String> = emptyList(),
     val isActive: Boolean = true,
     val createdBy: String = REGISTER,
     val updatedBy: String = REGISTER,
@@ -38,6 +42,7 @@ data class TechLabelRegistrationDTO(
     val type: String,
     val unit: String? = null,
     val sort: Int,
+    val options: List<String> = emptyList(),
     val isActive: Boolean = true,
     val createdBy: String = REGISTER,
     val updatedBy: String = REGISTER,
@@ -57,6 +62,7 @@ fun TechLabelRegistration.toDTO(): TechLabelRegistrationDTO = TechLabelRegistrat
     type = type,
     unit = unit,
     sort = sort,
+    options = options,
     isActive = isActive,
     createdBy = createdBy,
     updatedBy = updatedBy,
@@ -76,6 +82,7 @@ fun TechLabelRegistrationDTO.toEntity(): TechLabelRegistration = TechLabelRegist
     type = type,
     unit = unit,
     sort = sort,
+    options = options,
     isActive = isActive,
     createdBy = createdBy,
     updatedBy = updatedBy,
@@ -96,6 +103,7 @@ data class TechLabelDTO(
     val type: String,
     val unit: String?,
     val sort: Int,
+    val options: List<String> = emptyList(),
     val createdBy: String,
     val updatedBy: String,
     val created: LocalDateTime,
@@ -112,6 +120,7 @@ fun TechLabelRegistration.toTechLabelDTO(): TechLabelDTO = TechLabelDTO(
     type = type,
     unit = unit,
     sort = sort,
+    options = options,
     createdBy = createdBy,
     updatedBy = updatedBy,
     created = created,
