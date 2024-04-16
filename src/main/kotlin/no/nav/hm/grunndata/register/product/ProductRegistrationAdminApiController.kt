@@ -284,6 +284,34 @@ class ProductRegistrationAdminApiController(
         return HttpResponse.ok(updated)
     }
 
+    @Put("/reject")
+    suspend fun rejectProducts(
+        @Body ids: List<UUID>,
+        authentication: Authentication,
+    ): HttpResponse<List<ProductRegistrationDTO>> {
+        val productsToUpdate =
+            productRegistrationService.findByIdIn(ids).onEach {
+                if (it.adminStatus != AdminStatus.PENDING) throw BadRequestException("product is not pending approval")
+                if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("product is not done")
+                if (it.registrationStatus != RegistrationStatus.ACTIVE) throw BadRequestException("RegistrationStatus should be Active")
+            }
+
+        val productsToBeRejected =
+            productsToUpdate.map {
+                it.copy(
+                    draftStatus = DraftStatus.DRAFT,
+                    adminStatus = AdminStatus.REJECTED,
+                    updated = LocalDateTime.now(),
+                    updatedBy = REGISTER,
+                )
+            }
+
+        val updated =
+            productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(productsToBeRejected, isUpdate = true)
+
+        return HttpResponse.ok(updated)
+    }
+
     @Post(
         "/excel/export",
         consumes = ["application/json"],
