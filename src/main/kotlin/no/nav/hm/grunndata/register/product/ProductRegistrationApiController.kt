@@ -49,31 +49,31 @@ class ProductRegistrationApiController(
         authentication: Authentication,
     ): Slice<SeriesGroupDTO> = productRegistrationService.findSeriesGroup(authentication.supplierId(), pageable)
 
-    @Get("/series/{seriesId}")
-    suspend fun findBySeriesIdAndSupplierId(
-        seriesId: UUID,
+    @Get("/series/{seriesUUID}")
+    suspend fun findBySeriesUUIDAndSupplierId(
+        seriesUUID: UUID,
         authentication: Authentication,
-    ) = productRegistrationService.findBySeriesUUIDAndSupplierId(seriesId, authentication.supplierId())
+    ) = productRegistrationService.findBySeriesUUIDAndSupplierId(seriesUUID, authentication.supplierId())
         .sortedBy { it.created }
 
-    @Get("/series/grouped/{seriesId}")
+    @Get("/series/grouped/{seriesUUID}")
     suspend fun getProductSeriesWithVariants(
-        seriesId: String,
+        seriesUUID: UUID,
         authentication: Authentication,
-    ) = productRegistrationService.findProductSeriesWithVariants(seriesId, authentication.supplierId())
+    ) = productRegistrationService.findProductSeriesWithVariants(seriesUUID, authentication.supplierId())
 
-    @Put("/series/grouped/{seriesId}")
+    @Put("/series/grouped/{seriesUUID}")
     suspend fun updateProductSeriesWithVariants(
         @Body productWithVariants: ProductSeriesWithVariantsDTO,
-        @PathVariable seriesId: String,
+        @PathVariable seriesUUID: UUID,
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> =
         if (productWithVariants.supplierId != authentication.supplierId()) {
             HttpResponse.unauthorized()
-        } else if (productWithVariants.seriesId != seriesId) {
-            throw BadRequestException("Product id $seriesId does not match ${productWithVariants.id}")
+        } else if (productWithVariants.seriesUUID != seriesUUID) {
+            throw BadRequestException("Product id $seriesUUID does not match ${productWithVariants.id}")
         } else {
-            productRegistrationService.findBySeriesIdAndSupplierId(seriesId, productWithVariants.supplierId)
+            productRegistrationService.findBySeriesUUIDAndSupplierId(seriesUUID, productWithVariants.supplierId)
                 .minByOrNull { it.created }
                 ?.let { inDb ->
                     productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
@@ -92,7 +92,7 @@ class ProductRegistrationApiController(
                     HttpResponse.ok(inDb)
                 }
                 ?: run {
-                    throw BadRequestException("Product does not exists $seriesId")
+                    throw BadRequestException("Product does not exists $seriesUUID")
                 }
         }
 
@@ -182,7 +182,12 @@ class ProductRegistrationApiController(
                         productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                             registrationDTO
                                 .copy(
-                                    draftStatus = if (inDb.draftStatus == DraftStatus.DONE && inDb.adminStatus == AdminStatus.APPROVED) DraftStatus.DONE else registrationDTO.draftStatus,
+                                    draftStatus =
+                                        if (inDb.draftStatus == DraftStatus.DONE && inDb.adminStatus == AdminStatus.APPROVED) {
+                                            DraftStatus.DONE
+                                        } else {
+                                            registrationDTO.draftStatus
+                                        },
                                     id = inDb.id,
                                     created = inDb.created,
                                     updatedBy = REGISTER,

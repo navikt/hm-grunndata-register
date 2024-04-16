@@ -32,12 +32,13 @@ import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest
-class ProductRegistrationApiTest(private val apiClient: ProductRegistrationApiClient,
-                                 private val loginClient: LoginClient,
-                                 private val userRepository: UserRepository,
-                                 private val objectMapper: ObjectMapper,
-                                 private val supplierRegistrationService: SupplierRegistrationService) {
-
+class ProductRegistrationApiTest(
+    private val apiClient: ProductRegistrationApiClient,
+    private val loginClient: LoginClient,
+    private val userRepository: UserRepository,
+    private val objectMapper: ObjectMapper,
+    private val supplierRegistrationService: SupplierRegistrationService,
+) {
     private val email = "api@test.test"
     private val password = "api-123"
     private var testSupplier: SupplierRegistrationDTO? = null
@@ -57,34 +58,39 @@ class ProductRegistrationApiTest(private val apiClient: ProductRegistrationApiCl
                 supplierRegistrationService.save(
                     SupplierRegistrationDTO(
                         id = supplierId,
-                        supplierData = SupplierData(
-                            address = "address 3",
-                            homepage = "https://www.hompage.no",
-                            phone = "+47 12345678",
-                            email = "supplier3@test.test",
-                        ),
+                        supplierData =
+                            SupplierData(
+                                address = "address 3",
+                                homepage = "https://www.hompage.no",
+                                phone = "+47 12345678",
+                                email = "supplier3@test.test",
+                            ),
                         identifier = name1,
                         name = name1,
-                    )
+                    ),
                 )
                 supplierRegistrationService.save(
                     SupplierRegistrationDTO(
                         id = supplierId2,
-                        supplierData = SupplierData(
-                            address = "address 4",
-                            homepage = "https://www.hompage.no",
-                            phone = "+47 12345678",
-                            email = "supplier4@test.test",
-                        ),
+                        supplierData =
+                            SupplierData(
+                                address = "address 4",
+                                homepage = "https://www.hompage.no",
+                                phone = "+47 12345678",
+                                email = "supplier4@test.test",
+                            ),
                         identifier = name2,
-                        name = name2
-                    )
+                        name = name2,
+                    ),
                 )
                 userRepository.createUser(
                     User(
-                        email = email, token = password, name = "User tester", roles = listOf(Roles.ROLE_SUPPLIER),
-                        attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, supplierId.toString()))
-                    )
+                        email = email,
+                        token = password,
+                        name = "User tester",
+                        roles = listOf(Roles.ROLE_SUPPLIER),
+                        attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, supplierId.toString())),
+                    ),
                 )
             }
             testSupplier = supplierRegistrationService.findByName(name1)
@@ -96,24 +102,26 @@ class ProductRegistrationApiTest(private val apiClient: ProductRegistrationApiCl
     fun `fetch product series with variants`() {
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
-        val seriesId = UUID.randomUUID()
+        val seriesUUID = UUID.randomUUID()
 
         apiClient.createProduct(
-            jwt, dummyProductRegistrationDTO(
+            jwt,
+            dummyProductRegistrationDTO(
                 supplierRef = UUID.randomUUID().toString(),
                 supplierId = testSupplier!!.id,
-                seriesId = seriesId.toString()
-            )
+                seriesUUID = seriesUUID,
+            ),
         )
         apiClient.createProduct(
-            jwt, dummyProductRegistrationDTO(
+            jwt,
+            dummyProductRegistrationDTO(
                 supplierRef = UUID.randomUUID().toString(),
                 supplierId = testSupplier!!.id,
-                seriesId = seriesId.toString()
-            )
+                seriesUUID = seriesUUID,
+            ),
         )
 
-        val read = apiClient.readProductSeriesWithVariants(jwt, seriesId.toString())
+        val read = apiClient.readProductSeriesWithVariants(jwt, seriesUUID)
         read.shouldNotBeNull()
         read.createdByUser shouldBe email
         read.variants.size shouldBe 2
@@ -123,17 +131,18 @@ class ProductRegistrationApiTest(private val apiClient: ProductRegistrationApiCl
     fun `fetch product series without variants`() {
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
-        val seriesId = UUID.randomUUID()
+        val seriesUUID = UUID.randomUUID()
 
         apiClient.createProduct(
-            jwt, dummyProductRegistrationDTO(
+            jwt,
+            dummyProductRegistrationDTO(
                 supplierRef = "not uuid",
                 supplierId = testSupplier!!.id,
-                seriesId = seriesId.toString()
-            )
+                seriesUUID = seriesUUID,
+            ),
         )
 
-        val read = apiClient.readProductSeriesWithVariants(jwt, seriesId.toString())
+        val read = apiClient.readProductSeriesWithVariants(jwt, seriesUUID)
         read.shouldNotBeNull()
         read.variants.size shouldBe 0
     }
@@ -142,22 +151,23 @@ class ProductRegistrationApiTest(private val apiClient: ProductRegistrationApiCl
     fun `update common data for product series`() {
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
-        val seriesId = UUID.randomUUID()
+        val seriesUUID = UUID.randomUUID()
 
         apiClient.createProduct(
-            jwt, dummyProductRegistrationDTO(
+            jwt,
+            dummyProductRegistrationDTO(
                 supplierRef = UUID.randomUUID().toString(),
                 supplierId = testSupplier!!.id,
-                seriesId = seriesId.toString(),
-                title = "title"
-            )
+                seriesUUID = seriesUUID,
+                title = "title",
+            ),
         )
-        val read = apiClient.readProductSeriesWithVariants(jwt, seriesId.toString())
+        val read = apiClient.readProductSeriesWithVariants(jwt,seriesUUID)
         read.title shouldBe "title"
 
-        apiClient.updateProductSeriesWithVariants(jwt, seriesId, read.copy(title = "changed title"))
+        apiClient.updateProductSeriesWithVariants(jwt, seriesUUID, read.copy(title = "changed title"))
 
-        val changed = apiClient.readProductSeriesWithVariants(jwt, seriesId.toString())
+        val changed = apiClient.readProductSeriesWithVariants(jwt,seriesUUID)
         changed.title shouldBe "changed title"
     }
 
@@ -165,124 +175,136 @@ class ProductRegistrationApiTest(private val apiClient: ProductRegistrationApiCl
     fun apiTest() {
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
-        val seriesId = UUID.randomUUID()
-        val productData = ProductData(
-            attributes = Attributes(
-                shortdescription = "En kort beskrivelse av produktet",
-                text = "En lang beskrivelse av produktet"
-            ),
-            accessory = false,
-            sparePart = false,
-            techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
-            media = setOf(
-                MediaInfoDTO(
-                    uri = "123.jpg",
-                    text = "bilde av produktet",
-                    source = MediaSourceType.EXTERNALURL,
-                    sourceUri = "https://ekstern.url/123.jpg"
-                )
-            ),
-        )
+        val seriesUUID = UUID.randomUUID()
+        val productData =
+            ProductData(
+                attributes =
+                    Attributes(
+                        shortdescription = "En kort beskrivelse av produktet",
+                        text = "En lang beskrivelse av produktet",
+                    ),
+                accessory = false,
+                sparePart = false,
+                techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
+                media =
+                    setOf(
+                        MediaInfoDTO(
+                            uri = "123.jpg",
+                            text = "bilde av produktet",
+                            source = MediaSourceType.EXTERNALURL,
+                            sourceUri = "https://ekstern.url/123.jpg",
+                        ),
+                    ),
+            )
 
-        val registration = ProductRegistrationDTO(
-            seriesId = "apitest-series-123",
-            seriesUUID = seriesId,
-            title = "apitest-produkt 1",
-            articleName = "Dette er produkt 1 med og med",
-            id = UUID.randomUUID(),
-            isoCategory = "12001314",
-            supplierId = testSupplier!!.id,
-            hmsArtNr = "apitest-111",
-            supplierRef = "apitest-eksternref-111",
-            draftStatus = DraftStatus.DRAFT,
-            adminStatus = AdminStatus.PENDING,
-            registrationStatus = RegistrationStatus.ACTIVE,
-            message = "Melding til leverandør",
-            adminInfo = null,
-            createdByAdmin = false,
-            expired = null,
-            published = null,
-            updatedByUser = email,
-            createdByUser = email,
-            productData = productData,
-            version = 1,
-            createdBy = REGISTER,
-            updatedBy = REGISTER
-        )
+        val registration =
+            ProductRegistrationDTO(
+                seriesId = "apitest-series-123",
+                seriesUUID = seriesUUID,
+                title = "apitest-produkt 1",
+                articleName = "Dette er produkt 1 med og med",
+                id = UUID.randomUUID(),
+                isoCategory = "12001314",
+                supplierId = testSupplier!!.id,
+                hmsArtNr = "apitest-111",
+                supplierRef = "apitest-eksternref-111",
+                draftStatus = DraftStatus.DRAFT,
+                adminStatus = AdminStatus.PENDING,
+                registrationStatus = RegistrationStatus.ACTIVE,
+                message = "Melding til leverandør",
+                adminInfo = null,
+                createdByAdmin = false,
+                expired = null,
+                published = null,
+                updatedByUser = email,
+                createdByUser = email,
+                productData = productData,
+                version = 1,
+                createdBy = REGISTER,
+                updatedBy = REGISTER,
+            )
         val created = apiClient.createProduct(jwt, registration)
         created.shouldNotBeNull()
 
         // create another one
 
-        val productData2 = ProductData(
-            attributes = Attributes(
-                shortdescription = "En kort beskrivelse av produktet",
-                text = "En lang beskrivelse av produktet"
-            ),
-            accessory = false,
-            sparePart = false,
-            techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
-            media = setOf(
-                MediaInfoDTO(
-                    uri = "123.jpg",
-                    text = "bilde av produktet",
-                    source = MediaSourceType.EXTERNALURL,
-                    sourceUri = "https://ekstern.url/123.jpg"
-                )
+        val productData2 =
+            ProductData(
+                attributes =
+                    Attributes(
+                        shortdescription = "En kort beskrivelse av produktet",
+                        text = "En lang beskrivelse av produktet",
+                    ),
+                accessory = false,
+                sparePart = false,
+                techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
+                media =
+                    setOf(
+                        MediaInfoDTO(
+                            uri = "123.jpg",
+                            text = "bilde av produktet",
+                            source = MediaSourceType.EXTERNALURL,
+                            sourceUri = "https://ekstern.url/123.jpg",
+                        ),
+                    ),
             )
-        )
 
-        val registration2 = ProductRegistrationDTO(
-            title = "apitest-produkt 2",
-            articleName = "en veldig fin tittel med og med",
-            id = UUID.randomUUID(),
-            seriesId = "apitest-series-123",
-            seriesUUID = seriesId,
-            isoCategory = "12001314",
-            supplierId = testSupplier!!.id,
-            hmsArtNr = "apitest-222",
-            supplierRef = "eksternref-222",
-            draftStatus = DraftStatus.DRAFT,
-            adminStatus = AdminStatus.PENDING,
-            registrationStatus = RegistrationStatus.ACTIVE,
-            message = "Melding til leverandør",
-            adminInfo = null,
-            createdByAdmin = false,
-            expired = null,
-            published = null,
-            updatedByUser = email,
-            createdByUser = email,
-            productData = productData2,
-            version = 1,
-            createdBy = REGISTER,
-            updatedBy = REGISTER
-        )
+        val registration2 =
+            ProductRegistrationDTO(
+                title = "apitest-produkt 2",
+                articleName = "en veldig fin tittel med og med",
+                id = UUID.randomUUID(),
+                seriesId = "apitest-series-123",
+                seriesUUID = seriesUUID,
+                isoCategory = "12001314",
+                supplierId = testSupplier!!.id,
+                hmsArtNr = "apitest-222",
+                supplierRef = "eksternref-222",
+                draftStatus = DraftStatus.DRAFT,
+                adminStatus = AdminStatus.PENDING,
+                registrationStatus = RegistrationStatus.ACTIVE,
+                message = "Melding til leverandør",
+                adminInfo = null,
+                createdByAdmin = false,
+                expired = null,
+                published = null,
+                updatedByUser = email,
+                createdByUser = email,
+                productData = productData2,
+                version = 1,
+                createdBy = REGISTER,
+                updatedBy = REGISTER,
+            )
 
         val created2 = apiClient.createProduct(jwt, registration2)
         created2.shouldNotBeNull()
 
-        println(objectMapper.writeValueAsString(apiClient.findSeriesGroup(jwt, 20,0, null)))
+        println(objectMapper.writeValueAsString(apiClient.findSeriesGroup(jwt, 20, 0, null)))
 
         val read = apiClient.readProduct(jwt, created.id)
         read.shouldNotBeNull()
         read.createdByUser shouldBe email
 
-        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title="Changed title", articleName = "Changed articlename", draftStatus = DraftStatus.DONE))
+        val updated =
+            apiClient.updateProduct(
+                jwt,
+                read.id,
+                read.copy(title = "Changed title", articleName = "Changed articlename", draftStatus = DraftStatus.DONE),
+            )
         updated.shouldNotBeNull()
 
         val draftStatusChange = apiClient.updateProduct(jwt, updated.id, updated.copy(draftStatus = DraftStatus.DRAFT))
         draftStatusChange.shouldNotBeNull()
         draftStatusChange.draftStatus shouldBe DraftStatus.DRAFT // not APPROVED yet allowed to change status
 
-
         val deleted = apiClient.deleteProduct(jwt, updated.id)
         deleted.shouldNotBeNull()
         deleted.registrationStatus shouldBe RegistrationStatus.DELETED
 
-        val page = apiClient.findProducts(jwt,null, "%apitest-produkt%", 30,1,"created,asc")
+        val page = apiClient.findProducts(jwt, null, "%apitest-produkt%", 30, 1, "created,asc")
         page.totalSize shouldBe 1
 
-        val page2 = apiClient.findProducts(jwt,"apitest-222", null, 30,1,"created,asc")
+        val page2 = apiClient.findProducts(jwt, "apitest-222", null, 30, 1, "created,asc")
         page2.totalSize shouldBe 1
 
         val updatedVersion = apiClient.readProduct(jwt, updated.id)
@@ -290,48 +312,52 @@ class ProductRegistrationApiTest(private val apiClient: ProductRegistrationApiCl
         updatedVersion.updatedByUser shouldBe email
 
         // should not be allowed to create a product of another supplier
-        val productData3 = ProductData (
-            attributes = Attributes (
-                shortdescription = "En kort beskrivelse av produktet",
-                text = "En lang beskrivelse av produktet"
-            ),
-            accessory = false,
-            sparePart = false,
-            techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
-            media = setOf(
-                MediaInfoDTO(
-                    uri = "123.jpg",
-                    text = "bilde av produktet",
-                    source = MediaSourceType.EXTERNALURL,
-                    sourceUri = "https://ekstern.url/123.jpg"
-                )
+        val productData3 =
+            ProductData(
+                attributes =
+                    Attributes(
+                        shortdescription = "En kort beskrivelse av produktet",
+                        text = "En lang beskrivelse av produktet",
+                    ),
+                accessory = false,
+                sparePart = false,
+                techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
+                media =
+                    setOf(
+                        MediaInfoDTO(
+                            uri = "123.jpg",
+                            text = "bilde av produktet",
+                            source = MediaSourceType.EXTERNALURL,
+                            sourceUri = "https://ekstern.url/123.jpg",
+                        ),
+                    ),
             )
-        )
-        val registration3 = ProductRegistrationDTO(
-            id = UUID.randomUUID(),
-            seriesId = "apitest-series-123",
-            seriesUUID = UUID.randomUUID(),
-            isoCategory = "12001314",
-            supplierId = testSupplier2!!.id,
-            title = "apitest-produkt 3",
-            articleName = "Dette er produkt 1 med og med",
-            hmsArtNr = "apitest-333",
-            supplierRef = "apitest-eksternref-333",
-            draftStatus = DraftStatus.DRAFT,
-            adminStatus = AdminStatus.PENDING,
-            registrationStatus = RegistrationStatus.ACTIVE,
-            message = "Melding til leverandør",
-            adminInfo = null,
-            createdByAdmin = false,
-            expired = null,
-            published = null,
-            updatedByUser = email,
-            createdByUser = email,
-            productData = productData3,
-            version = 1,
-            createdBy = REGISTER,
-            updatedBy = REGISTER
-        )
+        val registration3 =
+            ProductRegistrationDTO(
+                id = UUID.randomUUID(),
+                seriesId = "apitest-series-123",
+                seriesUUID = UUID.randomUUID(),
+                isoCategory = "12001314",
+                supplierId = testSupplier2!!.id,
+                title = "apitest-produkt 3",
+                articleName = "Dette er produkt 1 med og med",
+                hmsArtNr = "apitest-333",
+                supplierRef = "apitest-eksternref-333",
+                draftStatus = DraftStatus.DRAFT,
+                adminStatus = AdminStatus.PENDING,
+                registrationStatus = RegistrationStatus.ACTIVE,
+                message = "Melding til leverandør",
+                adminInfo = null,
+                createdByAdmin = false,
+                expired = null,
+                published = null,
+                updatedByUser = email,
+                createdByUser = email,
+                productData = productData3,
+                version = 1,
+                createdBy = REGISTER,
+                updatedBy = REGISTER,
+            )
         runCatching {
             apiClient.createProduct(jwt, registration3)
         }.isFailure shouldBe true
@@ -359,14 +385,16 @@ class ProductRegistrationApiTest(private val apiClient: ProductRegistrationApiCl
         createdBy: String = REGISTER,
         updatedBy: String = REGISTER,
         createdByAdmin: Boolean = false,
-        productData: ProductData = ProductData(
-            attributes = Attributes(
-                shortdescription = "En kort beskrivelse av produktet",
-                text = "En lang beskrivelse av produktet"
+        productData: ProductData =
+            ProductData(
+                attributes =
+                    Attributes(
+                        shortdescription = "En kort beskrivelse av produktet",
+                        text = "En lang beskrivelse av produktet",
+                    ),
+                accessory = false,
+                sparePart = false,
             ),
-            accessory = false,
-            sparePart = false
-        ),
         agreements: List<AgreementInfo> = emptyList(),
         version: Long? = 1,
     ): ProductRegistrationDTO {
@@ -394,7 +422,7 @@ class ProductRegistrationApiTest(private val apiClient: ProductRegistrationApiCl
             version = version,
             createdBy = createdBy,
             updatedBy = updatedBy,
-            agreements = agreements
+            agreements = agreements,
         )
     }
 }

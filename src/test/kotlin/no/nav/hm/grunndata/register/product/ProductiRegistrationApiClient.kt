@@ -41,7 +41,7 @@ interface ProductRegistrationApiClient {
     ): ProductRegistrationDTO
 
     @Get(uri = "/series/grouped/{id}", consumes = [APPLICATION_JSON])
-    fun readProductSeriesWithVariants(@CookieValue("JWT") jwt: String, id: String): ProductSeriesWithVariantsDTO
+    fun readProductSeriesWithVariants(@CookieValue("JWT") jwt: String, id: UUID): ProductSeriesWithVariantsDTO
 
     @Put(uri= "/series/grouped/{id}", processes = [APPLICATION_JSON])
     fun updateProductSeriesWithVariants(@CookieValue("JWT") jwt: String, id:UUID,
