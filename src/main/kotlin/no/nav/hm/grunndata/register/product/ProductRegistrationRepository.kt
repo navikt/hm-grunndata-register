@@ -33,17 +33,11 @@ interface ProductRegistrationRepository :
 
     suspend fun findBySupplierId(supplierId: UUID): List<ProductRegistration>
 
-    suspend fun findBySeriesIdAndSupplierId(
-        seriesId: String,
-        supplierId: UUID,
-    ): List<ProductRegistration>
-
     suspend fun findBySeriesUUIDAndSupplierId(
         seriesUUID: UUID,
         supplierId: UUID,
     ): List<ProductRegistration>
 
-    suspend fun findBySeriesId(seriesId: String): List<ProductRegistration>
 
     @Query("SELECT a.* from product_reg_v1 a LEFT JOIN series_reg_v1 b on a.series_uuid = b.id where b.id is null")
     suspend fun findProductsWithNoSeries(): List<ProductRegistration>
