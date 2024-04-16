@@ -133,7 +133,7 @@ open class ProductRegistrationService(
         return updated
     }
 
-    suspend fun findBySeriesId(seriesId: String) = productRegistrationRepository.findBySeriesId(seriesId).map { it.toDTO() }
+    suspend fun findAllBySeriesUuid(seriesUUID: UUID) = productRegistrationRepository.findAllBySeriesUUID(seriesUUID).map { it.toDTO() }
 
     suspend fun findBySeriesIdAndSupplierId(
         seriesId: String,
