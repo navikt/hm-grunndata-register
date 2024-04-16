@@ -12,7 +12,6 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import jakarta.inject.Inject
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.CONTEXT_PATH
@@ -55,7 +54,6 @@ class SupplierRegistrationAdminApiControllerTest(private val supplierRegistratio
                         phone = "+47 12345678"
                     ),
                     status = SupplierStatus.ACTIVE,
-                    draftStatus = DraftStatus.DONE,
                     createdByUser = "admin",
                     updatedByUser = "admin",
                     createdBy = RapidApp.grunndata_register,

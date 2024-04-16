@@ -4,7 +4,10 @@ import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.model.DataType
-import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.dto.RapidDTO
+import no.nav.hm.grunndata.rapid.dto.SupplierDTO
+import no.nav.hm.grunndata.rapid.dto.SupplierInfo
+import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
@@ -18,7 +21,6 @@ data class SupplierRegistration(
     @field:Id
     val id: UUID,
     val status: SupplierStatus = SupplierStatus.ACTIVE,
-    val draftStatus: DraftStatus = DraftStatus.DONE,
     val name: String,
     @field:TypeDef(type = DataType.JSON)
     val supplierData: SupplierData,
@@ -44,7 +46,6 @@ data class SupplierData(
 data class SupplierRegistrationDTO(
     override val id: UUID = UUID.randomUUID(),
     val status: SupplierStatus = SupplierStatus.ACTIVE,
-    val draftStatus: DraftStatus = DraftStatus.DONE,
     val name: String,
     val supplierData: SupplierData,
     val identifier: String = UUID.randomUUID().toString(),
@@ -84,7 +85,6 @@ fun SupplierRegistration.toDTO(): SupplierRegistrationDTO =
     SupplierRegistrationDTO(
         id = id,
         status = status,
-        draftStatus = draftStatus,
         name = name,
         supplierData = supplierData,
         identifier = identifier,
@@ -108,6 +108,5 @@ fun SupplierRegistrationDTO.toEntity(): SupplierRegistration =
         createdBy = createdBy,
         updatedBy = updatedBy,
         createdByUser = createdByUser,
-        draftStatus = draftStatus,
         updatedByUser = updatedByUser,
     )

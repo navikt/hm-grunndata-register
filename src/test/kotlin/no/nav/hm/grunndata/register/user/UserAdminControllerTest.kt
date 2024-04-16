@@ -8,7 +8,6 @@ import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.security.LoginClient
@@ -53,7 +52,6 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
                         email = "supplier5@test.test",
                     ),
                     status = SupplierStatus.ACTIVE,
-                    draftStatus = DraftStatus.DONE,
                     createdByUser = "admin",
                     updatedByUser = "admin",
                     createdBy = RapidApp.grunndata_register,

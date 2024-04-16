@@ -9,7 +9,6 @@ import io.micronaut.data.runtime.criteria.where
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import kotlinx.coroutines.flow.map
-import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import java.util.*
 
@@ -39,9 +38,7 @@ open class SupplierRegistrationService(private val supplierRepository: SupplierR
     @Transactional
     open suspend fun saveAndCreateEventIfNotDraft(supplier: SupplierRegistrationDTO, isUpdate: Boolean): SupplierRegistrationDTO {
         val saved = if (isUpdate) update(supplier) else save(supplier)
-        if (saved.draftStatus == DraftStatus.DONE) {
-            supplierRegistrationHandler.queueDTORapidEvent(saved, eventName = EventName.registeredSupplierV1)
-        }
+        supplierRegistrationHandler.queueDTORapidEvent(saved, eventName = EventName.registeredSupplierV1)
         return saved
     }
 
