@@ -218,6 +218,26 @@ class ProductRegistrationAdminApiController(
             }
             ?: HttpResponse.notFound()
 
+    @Delete("/delete")
+    suspend fun deleteProducts(
+        @Body ids: List<UUID>,
+        authentication: Authentication,
+    ): HttpResponse<List<ProductRegistrationDTO>> {
+        val productsToDelete =
+            productRegistrationService.findByIdIn(ids).map {
+                it.copy(
+                    registrationStatus = RegistrationStatus.DELETED,
+                    updatedByUser = authentication.name,
+                    updatedBy = REGISTER,
+                )
+            }
+
+        val updated =
+            productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(productsToDelete, isUpdate = true)
+
+        return HttpResponse.ok(updated)
+    }
+
     @Post("/draft/variant/{id}")
     suspend fun createProductVariant(
         @PathVariable id: UUID,
