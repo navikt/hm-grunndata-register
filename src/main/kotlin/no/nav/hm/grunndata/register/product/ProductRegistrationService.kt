@@ -136,9 +136,9 @@ open class ProductRegistrationService(
     suspend fun findAllBySeriesUuid(seriesUUID: UUID) = productRegistrationRepository.findAllBySeriesUUID(seriesUUID).map { it.toDTO() }
 
     suspend fun findBySeriesIdAndSupplierId(
-        seriesId: String,
+        seriesUUID: UUID,
         supplierId: UUID,
-    ) = productRegistrationRepository.findBySeriesIdAndSupplierId(seriesId, supplierId).map { it.toDTO() }
+    ) = productRegistrationRepository.findBySeriesUUIDAndSupplierId(seriesUUID, supplierId).map { it.toDTO() }
 
     suspend fun findBySeriesUUIDAndSupplierId(
         seriesId: UUID,
@@ -146,10 +146,10 @@ open class ProductRegistrationService(
     ) = productRegistrationRepository.findBySeriesUUIDAndSupplierId(seriesId, supplierId).map { it.toDTO() }
 
     suspend fun findProductSeriesWithVariants(
-        seriesId: String,
+        seriesUUID: UUID,
         supplierId: UUID,
     ): ProductSeriesWithVariantsDTO? {
-        return findBySeriesIdAndSupplierId(seriesId, supplierId).toProductSeriesWithVariants()
+        return findBySeriesUUIDAndSupplierId(seriesUUID, supplierId).toProductSeriesWithVariants()
     }
 
     suspend fun findSeriesGroup(
