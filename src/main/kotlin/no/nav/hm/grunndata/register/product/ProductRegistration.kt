@@ -156,7 +156,9 @@ data class ProductRegistrationDTO(
         )
 
     private fun setCorrectStatusFor(registration: ProductRegistrationDTO): ProductStatus =
-        if (registration.registrationStatus == RegistrationStatus.DELETED ||
+        if (registration.registrationStatus == RegistrationStatus.DELETED)
+            ProductStatus.DELETED
+        else if (
             registration.adminStatus != AdminStatus.APPROVED ||
             registration.draftStatus == DraftStatus.DRAFT ||
             LocalDateTime.now().isAfter(registration.expired)

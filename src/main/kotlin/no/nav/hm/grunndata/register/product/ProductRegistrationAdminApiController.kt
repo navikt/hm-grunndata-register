@@ -8,7 +8,14 @@ import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
-import io.micronaut.http.annotation.*
+import io.micronaut.http.annotation.Body
+import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
+import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.PathVariable
+import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Put
+import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.http.server.types.files.StreamedFile
 import io.micronaut.security.annotation.Secured
@@ -205,12 +212,13 @@ class ProductRegistrationAdminApiController(
     ): HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findById(id)
             ?.let {
+                LOG.info("Deleting product ${it.id}")
                 val dto =
                     productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                         it.copy(
                             registrationStatus = RegistrationStatus.DELETED,
                             updatedByUser = authentication.name,
-                            updatedBy = REGISTER,
+                            updatedBy = REGISTER
                         ),
                         isUpdate = true,
                     )
