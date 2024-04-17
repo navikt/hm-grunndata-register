@@ -4,10 +4,12 @@ import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.register.HMDB
+import no.nav.hm.grunndata.register.gdb.GdbApiClient
 import org.slf4j.LoggerFactory
 
 @Singleton
-class TechLabelService(private val techLabelRegistrationRepository: TechLabelRegistrationRepository): LabelService {
+class TechLabelService(private val gdbApiClient: GdbApiClient, private val techLabelRegistrationRepository: TechLabelRegistrationRepository): LabelService {
 
     private var techLabelsByIso: Map<String, List<TechLabelDTO>>
 
@@ -20,9 +22,28 @@ class TechLabelService(private val techLabelRegistrationRepository: TechLabelReg
 
     init {
         runBlocking {
-            val techLabels = techLabelRegistrationRepository.findAll().map { it.toTechLabelDTO() }.toList()
-            if (techLabels.size<1000) {
-                LOG.error("Tech labels are not loaded properly, only ${techLabels.size} loaded")
+            var techLabels = techLabelRegistrationRepository.findAll().map { it.toTechLabelDTO() }.toList()
+            if (techLabels.isEmpty()) {
+                techLabels = gdbApiClient.fetchAllTechLabels()
+                techLabels.forEach {
+                techLabelRegistrationRepository.save(
+                    TechLabelRegistration(
+                        isoCode = it.isocode,
+                        label = it.label,
+                        definition = it.definition,
+                        createdByUser = HMDB,
+                        updatedByUser = HMDB,
+                        createdBy = HMDB,
+                        updatedBy = HMDB,
+                        guide = it.guide,
+                        sort = it.sort,
+                        options = it.options,
+                        identifier = it.identifier,
+                        type = it.type,
+                        unit = it.unit
+                    )
+                )
+            }
             }
             techLabelsByIso = techLabels.groupBy { it.isocode }
             techLabelsByName = techLabels.groupBy { it.label }
