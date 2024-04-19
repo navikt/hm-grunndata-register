@@ -31,7 +31,7 @@ data class SeriesRegistration(
     @field:TypeDef(type = DataType.JSON)
     val seriesData: SeriesDataDTO,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
-    val status: SeriesStatus = SeriesStatus.INACTIVE,
+    val status: SeriesStatus = SeriesStatus.ACTIVE,
     val adminStatus: AdminStatus = AdminStatus.PENDING,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
@@ -44,11 +44,11 @@ data class SeriesRegistration(
     @field:GeneratedValue
     val count: Int = 0,
     @field:Version
-    val version: Long? = 0L
+    val version: Long? = 0L,
 )
 
 data class SeriesDataDTO(
-    val media: Set<MediaInfoDTO> = emptySet()
+    val media: Set<MediaInfoDTO> = emptySet(),
 )
 
 data class SeriesRegistrationDTO(
@@ -71,9 +71,33 @@ data class SeriesRegistrationDTO(
     val createdByUser: String = "system",
     val createdByAdmin: Boolean = false,
     val count: Int = 0,
-    val version: Long? = 0L
+    val version: Long? = 0L,
 ) : EventPayload {
-    override fun toRapidDTO(): RapidDTO = SeriesRegistrationRapidDTO(
+    override fun toRapidDTO(): RapidDTO =
+        SeriesRegistrationRapidDTO(
+            id = id,
+            supplierId = supplierId,
+            identifier = identifier,
+            title = title,
+            text = text,
+            isoCategory = isoCategory,
+            draftStatus = draftStatus,
+            status = status,
+            created = created,
+            updated = updated,
+            expired = expired,
+            createdBy = createdBy,
+            updatedBy = updatedBy,
+            updatedByUser = updatedByUser,
+            createdByUser = createdByUser,
+            createdByAdmin = createdByAdmin,
+            seriesData = seriesData.toRapidDTO(),
+            version = version,
+        )
+}
+
+fun SeriesRegistration.toDTO() =
+    SeriesRegistrationDTO(
         id = id,
         supplierId = supplierId,
         identifier = identifier,
@@ -84,43 +108,34 @@ data class SeriesRegistrationDTO(
         status = status,
         created = created,
         updated = updated,
-        expired = expired,
         createdBy = createdBy,
         updatedBy = updatedBy,
         updatedByUser = updatedByUser,
         createdByUser = createdByUser,
         createdByAdmin = createdByAdmin,
-        seriesData = seriesData.toRapidDTO(),
-        version = version
+        seriesData = seriesData,
+        version = version,
+        count = count,
     )
-}
 
-fun SeriesRegistration.toDTO() = SeriesRegistrationDTO(
-    id = id,
-    supplierId = supplierId,
-    identifier = identifier,
-    title = title,
-    text = text,
-    isoCategory = isoCategory,
-    draftStatus = draftStatus,
-    status = status,
-    created = created,
-    updated = updated,
-    createdBy = createdBy,
-    updatedBy = updatedBy,
-    updatedByUser = updatedByUser,
-    createdByUser = createdByUser,
-    createdByAdmin = createdByAdmin,
-    seriesData = seriesData,
-    version = version,
-    count = count
-)
-
-fun SeriesRegistrationDTO.toEntity() = SeriesRegistration(
-    id = id, supplierId = supplierId, identifier = identifier, title = title, text = text, isoCategory = isoCategory,
-    draftStatus = draftStatus,
-    status = status, created = created, updated = updated, createdBy = createdBy, seriesData = seriesData,
-    updatedBy = updatedBy, updatedByUser = updatedByUser, version = version, count = count
-)
+fun SeriesRegistrationDTO.toEntity() =
+    SeriesRegistration(
+        id = id,
+        supplierId = supplierId,
+        identifier = identifier,
+        title = title,
+        text = text,
+        isoCategory = isoCategory,
+        draftStatus = draftStatus,
+        status = status,
+        created = created,
+        updated = updated,
+        createdBy = createdBy,
+        seriesData = seriesData,
+        updatedBy = updatedBy,
+        updatedByUser = updatedByUser,
+        version = version,
+        count = count,
+    )
 
 fun SeriesDataDTO.toRapidDTO() = SeriesData(media = media.map { it.toRapidMediaInfo() }.toSet())
