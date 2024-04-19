@@ -88,6 +88,21 @@ open class ProductAgreementRegistrationService(
     suspend fun save(dto: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO =
         productAgreementRegistrationRepository.save(dto.toEntity()).toDTO()
 
+    suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
+        supplierId: UUID,
+        supplierRef: String,
+        agreementId: UUID,
+        post: Int,
+        rank: Int,
+    ): ProductAgreementRegistrationDTO? =
+        productAgreementRegistrationRepository.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
+            supplierId,
+            supplierRef,
+            agreementId,
+            post,
+            rank,
+        )?.toDTO()
+
     suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
         supplierId: UUID,
         supplierRef: String,

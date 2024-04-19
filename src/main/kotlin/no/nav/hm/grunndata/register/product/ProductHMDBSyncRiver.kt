@@ -120,8 +120,8 @@ class ProductHMDBSyncRiver(
             dto.agreements.forEach { agreementInfo ->
                 LOG.info("updating product agreement for product ${dto.id} with agreement_id ${agreementInfo.id} and postId ${agreementInfo.postId}")
                 agreementRegistrationService.findById(agreementInfo.id)?.let { agreement ->
-                    productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
-                        dto.supplier.id, dto.supplierRef, agreementInfo.id, agreementInfo.postId!!, agreementInfo.rank
+                    productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
+                        dto.supplier.id, dto.supplierRef, agreementInfo.id, agreementInfo.postNr, agreementInfo.rank
                     )?.let { inDb ->
                         productAgreementRegistrationService.update(
                             inDb.copy(
