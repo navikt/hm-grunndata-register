@@ -32,7 +32,7 @@ class SeriesController(private val seriesRegistrationService: SeriesRegistration
 
     @Get("/{?params*}")
     suspend fun getSeries(
-        @QueryValue params: HashMap<String, List<String>>?,
+        @QueryValue params: HashMap<String, String>?,
         pageable: Pageable,
         authentication: Authentication,
     ): Page<SeriesRegistrationDTO> {
@@ -104,24 +104,21 @@ class SeriesController(private val seriesRegistrationService: SeriesRegistration
         }
 
     private fun buildCriteriaSpec(
-        params: HashMap<String, List<String>>?,
+        params: HashMap<String, String>?,
         supplierId: UUID,
     ): PredicateSpecification<SeriesRegistration> =
         params?.let {
             where {
                 root[SeriesRegistration::supplierId] eq supplierId
                 if (params.contains("status")) {
-                    val statusList: List<SeriesStatus> =
-                        params["status"]!!.map { status ->
-                            SeriesStatus.valueOf(status)
-                        }
+                    val statusList: List<SeriesStatus> = params["status"]!!.split(",").map { SeriesStatus.valueOf(it) }
                     root[SeriesRegistration::status] inList statusList
                 }
             }.and { root, criteriaBuilder ->
                 if (params.contains("title")) {
                     criteriaBuilder.like(
                         root[SeriesRegistration::title],
-                        params["title"]?.first(),
+                        params["title"],
                     )
                 } else {
                     null

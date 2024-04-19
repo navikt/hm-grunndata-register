@@ -12,7 +12,7 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.security.Roles
 import java.util.UUID
 
@@ -37,10 +37,9 @@ class SeriesAdminController(private val seriesRegistrationService: SeriesRegistr
             where {
                 if (params.contains("adminStatus")) root[SeriesRegistration::adminStatus] eq AdminStatus.valueOf(params["adminStatus"]!!)
                 if (params.contains("status")) {
-                    root[SeriesRegistration::status] eq
-                        RegistrationStatus.valueOf(
-                            params["status"]!!,
-                        )
+                    val statusList: List<SeriesStatus> =
+                        params["status"]!!.split(",").map { SeriesStatus.valueOf(it) }
+                    root[SeriesRegistration::status] inList statusList
                 }
                 if (params.contains("supplierId")) root[SeriesRegistration::supplierId] eq UUID.fromString(params["supplierId"]!!)
                 if (params.contains("draft")) root[SeriesRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
