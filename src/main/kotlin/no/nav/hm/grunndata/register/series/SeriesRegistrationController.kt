@@ -114,6 +114,9 @@ class SeriesController(private val seriesRegistrationService: SeriesRegistration
                     val statusList: List<SeriesStatus> = params["status"]!!.split(",").map { SeriesStatus.valueOf(it) }
                     root[SeriesRegistration::status] inList statusList
                 }
+                if (params.contains("excludedStatus")) {
+                    root[SeriesRegistration::status] ne params["excludedStatus"]
+                }
             }.and { root, criteriaBuilder ->
                 if (params.contains("title")) {
                     criteriaBuilder.like(
