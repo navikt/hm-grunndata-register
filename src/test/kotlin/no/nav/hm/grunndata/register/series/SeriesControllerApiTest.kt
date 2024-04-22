@@ -178,6 +178,9 @@ class SeriesControllerApiTest(
             readWithCount.shouldNotBeNull()
             readWithCount.count shouldBeGreaterThanOrEqual 1
 
+            val seriesWithTitle = apiClient.findSeriesWithTitle(jwt)
+            seriesWithTitle.content.size shouldBe 0
+
         }
 
     }

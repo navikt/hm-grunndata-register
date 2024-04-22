@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.agreement
 
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
+import io.micronaut.data.model.jpa.criteria.impl.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
@@ -37,7 +38,6 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
         params?.let {
             where {
                 if (params.contains("reference")) root[AgreementRegistration::reference] eq params["reference"]
-                if (params.contains("title")) criteriaBuilder.like(root[AgreementRegistration::title], params["title"])
                 if (params.contains("draftStatus")) {
                     root[AgreementRegistration::draftStatus] eq
                         DraftStatus.valueOf(
@@ -61,6 +61,12 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                     } else if (params["filter"] == "FUTURE") {
                         root[AgreementRegistration::published] greaterThan LocalDateTime.now()
                     }
+                }
+            }.and { root, criteriaBuilder ->
+                if (params.contains("title")) {
+                    criteriaBuilder.like(root[AgreementRegistration::title], LiteralExpression("%${params["title"]}%"))
+                } else {
+                    null
                 }
             }
         }

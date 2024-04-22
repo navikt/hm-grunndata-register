@@ -3,6 +3,7 @@ package no.nav.hm.grunndata.register.product
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.model.Slice
+import io.micronaut.data.model.jpa.criteria.impl.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
@@ -29,6 +30,7 @@ import no.nav.hm.grunndata.register.product.batch.ProductExcelExport
 import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.series.SeriesGroupDTO
+import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.slf4j.LoggerFactory
@@ -86,7 +88,12 @@ class ProductRegistrationAdminApiController(
                 if (params.contains("draft")) root[ProductRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
                 if (params.contains("createdByUser")) root[ProductRegistration::createdByUser] eq params["createdByUser"]
                 if (params.contains("updatedByUser")) root[ProductRegistration::updatedByUser] eq params["updatedByUser"]
-                if (params.contains("title")) criteriaBuilder.like(root[ProductRegistration::title], params["title"])
+            }.and { root, criteriaBuilder ->
+                if (params.contains("title")) {
+                    criteriaBuilder.like(root[ProductRegistration::title], LiteralExpression("%${params["title"]}%"))
+                } else {
+                    null
+                }
             }
         }
 

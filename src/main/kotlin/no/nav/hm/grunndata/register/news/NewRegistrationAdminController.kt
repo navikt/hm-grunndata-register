@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.news
 
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
+import io.micronaut.data.model.jpa.criteria.impl.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
@@ -11,6 +12,7 @@ import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.NewsStatus
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.agreement.AgreementRegistration
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
@@ -34,7 +36,12 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
             if (params.contains("status")) root[NewsRegistration::status] eq params["status"]
             if (params.contains("draftStatus")) root[NewsRegistration::draftStatus] eq params["draftStatus"]
             if (params.contains("createdByUser")) root[NewsRegistration::createdByUser] eq params["createdByUser"]
-            if (params.contains("title")) criteriaBuilder.like(root[NewsRegistration::title], params["title"])
+        }.and { root, criteriaBuilder ->
+            if (params.contains("title")) {
+                criteriaBuilder.like(root[NewsRegistration::title], LiteralExpression("%${params["title"]}%"))
+            } else {
+                null
+            }
         }
     }
 

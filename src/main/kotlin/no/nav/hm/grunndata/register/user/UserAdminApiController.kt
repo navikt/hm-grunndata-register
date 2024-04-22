@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.user
 
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
+import io.micronaut.data.model.jpa.criteria.impl.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
@@ -17,28 +18,33 @@ import no.nav.hm.grunndata.register.user.UserAttribute.SUPPLIER_ID
 import org.slf4j.LoggerFactory
 import java.util.*
 
-
 @Secured(Roles.ROLE_ADMIN)
 @Controller(API_V1_ADMIN_USER_REGISTRATIONS)
-class UserAdminApiController(private val userRepository: UserRepository,
-                             private val supplierRegistrationService: SupplierRegistrationService
+class UserAdminApiController(
+    private val userRepository: UserRepository,
+    private val supplierRegistrationService: SupplierRegistrationService,
 ) {
-
     companion object {
         const val API_V1_ADMIN_USER_REGISTRATIONS = "/admin/api/v1/users"
         private val LOG = LoggerFactory.getLogger(UserAdminApiController::class.java)
     }
 
     @Get("/{?params*}")
-    suspend fun getUsers(@QueryValue params: HashMap<String, String>?, pageable: Pageable): Page<UserDTO> =
-        userRepository.findAll(buildCriteriaSpec(params), pageable).map { it.toDTO() }
-
+    suspend fun getUsers(
+        @QueryValue params: HashMap<String, String>?,
+        pageable: Pageable,
+    ): Page<UserDTO> = userRepository.findAll(buildCriteriaSpec(params), pageable).map { it.toDTO() }
 
     private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<User>? =
         params?.let {
             where {
                 if (params.contains("email")) root[User::email] eq params["email"]
-                if (params.contains("name")) criteriaBuilder.like(root[User::name], params["name"])
+            }.and { root, criteriaBuilder ->
+                if (params.contains("name")) {
+                    criteriaBuilder.like(root[User::name], LiteralExpression("%${params["name"]}%"))
+                } else {
+                    null
+                }
             }
         }
 
@@ -47,7 +53,9 @@ class UserAdminApiController(private val userRepository: UserRepository,
         userRepository.getUsersBySupplierId(supplierId.toString()).map { it.toDTO() }
 
     @Post("/")
-    suspend fun createUser(@Body dto: UserRegistrationDTO): HttpResponse<UserDTO> {
+    suspend fun createUser(
+        @Body dto: UserRegistrationDTO,
+    ): HttpResponse<UserDTO> {
         LOG.info("Creating user ${dto.id} ")
         if (dto.roles.isEmpty()) throw BadRequestException("User does not have any role")
         if (dto.roles.contains(Roles.ROLE_SUPPLIER)) {
@@ -56,14 +64,18 @@ class UserAdminApiController(private val userRepository: UserRepository,
             supplierRegistrationService.findById(supplierId)
                 ?: throw BadRequestException("Unknown supplier id $supplierId")
         }
-        val entity = User(
-            id = dto.id, name = dto.name, email = dto.email, token = dto.password, roles = dto.roles,
-            attributes = dto.attributes
-        )
+        val entity =
+            User(
+                id = dto.id,
+                name = dto.name,
+                email = dto.email,
+                token = dto.password,
+                roles = dto.roles,
+                attributes = dto.attributes,
+            )
         userRepository.createUser(entity)
         return HttpResponse.created(entity.toDTO())
     }
-
 
     @Get("/{id}")
     suspend fun getUser(id: UUID): HttpResponse<UserDTO> =
@@ -72,22 +84,25 @@ class UserAdminApiController(private val userRepository: UserRepository,
                 HttpResponse.ok(it.toDTO())
             } ?: HttpResponse.notFound()
 
-
     @Get("/email/{email}")
     suspend fun getUserByEmail(email: String): HttpResponse<UserDTO> =
         userRepository.findByEmail(email)?.let { HttpResponse.ok(it.toDTO()) } ?: HttpResponse.notFound()
 
-
     @Put("/{id}")
-    suspend fun updateUser(id: UUID, @Body userDTO: UserDTO): HttpResponse<UserDTO> =
+    suspend fun updateUser(
+        id: UUID,
+        @Body userDTO: UserDTO,
+    ): HttpResponse<UserDTO> =
         userRepository.findById(id)?.let {
             HttpResponse.ok(
                 userRepository.update(
                     it.copy(
-                        name = userDTO.name, email = userDTO.email,
-                        roles = userDTO.roles, attributes = userDTO.attributes
-                    )
-                ).toDTO()
+                        name = userDTO.name,
+                        email = userDTO.email,
+                        roles = userDTO.roles,
+                        attributes = userDTO.attributes,
+                    ),
+                ).toDTO(),
             )
         } ?: HttpResponse.notFound()
 
@@ -101,11 +116,10 @@ class UserAdminApiController(private val userRepository: UserRepository,
     @Put("/password")
     suspend fun changePassword(
         authentication: Authentication,
-        @Body changePassword: ChangePasswordDTO
+        @Body changePassword: ChangePasswordDTO,
     ): HttpResponse<Any> =
         userRepository.loginUser(authentication.name, changePassword.oldPassword)?.let {
             userRepository.changePassword(it.id, changePassword.oldPassword, changePassword.newPassword)
             HttpResponse.ok()
         } ?: throw BadRequestException("Wrong user info, please check password and email is correct")
-
 }

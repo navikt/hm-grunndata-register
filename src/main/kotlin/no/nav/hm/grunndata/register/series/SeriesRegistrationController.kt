@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.series
 
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
+import io.micronaut.data.model.jpa.criteria.impl.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
@@ -119,10 +120,7 @@ class SeriesController(private val seriesRegistrationService: SeriesRegistration
                 }
             }.and { root, criteriaBuilder ->
                 if (params.contains("title")) {
-                    criteriaBuilder.like(
-                        root[SeriesRegistration::title],
-                        params["title"],
-                    )
+                    criteriaBuilder.like(root[SeriesRegistration::title], LiteralExpression("%${params["title"]}%"))
                 } else {
                     null
                 }

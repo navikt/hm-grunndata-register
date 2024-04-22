@@ -10,21 +10,36 @@ import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.client.annotation.Client
 import no.nav.hm.grunndata.register.CONTEXT_PATH
-import java.util.*
+import java.util.UUID
 
 @Client("$CONTEXT_PATH/${SeriesController.API_V1_SERIES}")
 interface SeriesControllerApiClient {
-
     @Get(uri = "/", consumes = [APPLICATION_JSON])
-    fun findSeries(@CookieValue("JWT") jwt: String): Page<SeriesRegistrationDTO>
+    fun findSeries(
+        @CookieValue("JWT") jwt: String,
+    ): Page<SeriesRegistrationDTO>
+
+    @Get(uri = "?title=finnesikke", consumes = [APPLICATION_JSON])
+    fun findSeriesWithTitle(
+        @CookieValue("JWT") jwt: String,
+    ): Page<SeriesRegistrationDTO>
 
     @Post(uri = "/", processes = [APPLICATION_JSON])
-    fun createSeries(@CookieValue("JWT") jwt: String, @Body seriesRegistrationDTO: SeriesRegistrationDTO): SeriesRegistrationDTO
+    fun createSeries(
+        @CookieValue("JWT") jwt: String,
+        @Body seriesRegistrationDTO: SeriesRegistrationDTO,
+    ): SeriesRegistrationDTO
 
     @Put(uri = "/{id}", processes = [APPLICATION_JSON])
-    fun updateSeries(@CookieValue("JWT") jwt: String, @PathVariable id: UUID, @Body seriesRegistrationDTO: SeriesRegistrationDTO): SeriesRegistrationDTO
+    fun updateSeries(
+        @CookieValue("JWT") jwt: String,
+        @PathVariable id: UUID,
+        @Body seriesRegistrationDTO: SeriesRegistrationDTO,
+    ): SeriesRegistrationDTO
 
     @Get(uri = "/{id}", consumes = [APPLICATION_JSON])
-    fun readSeries(@CookieValue("JWT") jwt: String, @PathVariable id: UUID): SeriesRegistrationDTO?
-
+    fun readSeries(
+        @CookieValue("JWT") jwt: String,
+        @PathVariable id: UUID,
+    ): SeriesRegistrationDTO?
 }
