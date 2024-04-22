@@ -28,9 +28,9 @@ data class DelkontraktData(
 )
 
 data class DelkontraktRegistrationDTO(
-    val id: UUID = UUID.randomUUID(),
+    val id: UUID,
     val agreementId: UUID,
-    val identifier: String = UUID.randomUUID().toString(),
+    val identifier: String,
     val delkontraktData: DelkontraktData,
     val createdBy: String,
     val updatedBy: String,

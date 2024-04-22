@@ -10,7 +10,7 @@ import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService.Companion.EXCEL
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 
 @MicronautTest
 class ProductAgreementRegistrationRepositoryTest(
@@ -30,6 +30,7 @@ class ProductAgreementRegistrationRepositoryTest(
                     delkontraktData = DelkontraktData(title = "delkontrakt 1", description = "beskrivelse", sortNr = 1),
                     createdBy = "tester",
                     updatedBy = "tester",
+                    identifier = postId.toString()
                 )
             delkontraktRegistrationService.save(delkontraktToSave)
             val saved =

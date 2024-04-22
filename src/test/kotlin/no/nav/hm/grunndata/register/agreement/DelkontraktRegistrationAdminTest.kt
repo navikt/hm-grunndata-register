@@ -57,7 +57,8 @@ class DelkontraktRegistrationAdminTest(
                 refNr = "1A"
             ),
             createdBy = HMDB,
-            updatedBy = HMDB
+            updatedBy = HMDB,
+            identifier = delkontraktId.toString()
         )
         runBlocking {
             var resp = delkontraktRegistrationClient.createDelkontrakt(jwt, delkontrakt)

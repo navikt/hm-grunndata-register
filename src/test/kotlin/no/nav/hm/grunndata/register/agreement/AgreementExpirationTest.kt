@@ -87,6 +87,8 @@ class AgreementExpirationTest(
                 delkontraktData = DelkontraktData(title = "delkontrakt 1", description = "beskrivelse", sortNr = 1),
                 createdBy = "tester",
                 updatedBy = "tester",
+                id = UUID.randomUUID(),
+                identifier = UUID.randomUUID().toString(),
             )
 
             val delkontrakt = delkontraktRegistrationService.save(delkontraktToSave)

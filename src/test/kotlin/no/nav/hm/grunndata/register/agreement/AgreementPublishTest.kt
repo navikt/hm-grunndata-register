@@ -76,6 +76,7 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                     delkontraktData = DelkontraktData(title = "delkontrakt 1", description = "beskrivelse", sortNr = 1),
                     createdBy = "tester",
                     updatedBy = "tester",
+                    identifier = postId.toString()
                 )
 
             val productAgreement = ProductAgreementRegistrationDTO(

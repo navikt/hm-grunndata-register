@@ -99,6 +99,7 @@ class ProductAgreementConnectTest(
                 delkontraktData = DelkontraktData(title = "delkontrakt 1", description = "beskrivelse", sortNr = 1),
                 createdBy = "tester",
                 updatedBy = "tester",
+                identifier = postId.toString()
             )
 
         val agreement =
