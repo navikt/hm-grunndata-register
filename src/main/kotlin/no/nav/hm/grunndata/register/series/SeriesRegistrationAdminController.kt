@@ -14,7 +14,6 @@ import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
-import no.nav.hm.grunndata.register.news.NewsRegistration
 import no.nav.hm.grunndata.register.security.Roles
 import java.util.UUID
 
@@ -52,6 +51,11 @@ class SeriesAdminController(private val seriesRegistrationService: SeriesRegistr
                 }
             }.and { root, criteriaBuilder ->
                 if (params.contains("title")) {
+
+                    criteriaBuilder.like(
+                        root[SeriesRegistration::title],
+                        LiteralExpression("%${params["title"]?.replaceFirstChar(Char::titlecase)}%"),
+                    )
                     criteriaBuilder.like(root[SeriesRegistration::title], LiteralExpression("%${params["title"]}%"))
                 } else {
                     null
