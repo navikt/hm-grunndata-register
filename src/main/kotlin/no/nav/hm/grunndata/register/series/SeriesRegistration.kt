@@ -106,6 +106,7 @@ fun SeriesRegistration.toDTO() =
         text = text,
         isoCategory = isoCategory,
         draftStatus = draftStatus,
+        adminStatus = adminStatus,
         status = status,
         created = created,
         updated = updated,
