@@ -24,6 +24,16 @@ interface SeriesControllerApiClient {
         @CookieValue("JWT") jwt: String,
     ): Page<SeriesRegistrationDTO>
 
+    @Get(uri = "?title=New", consumes = [APPLICATION_JSON])
+    fun findSeriesWithCapitalizedTitle(
+        @CookieValue("JWT") jwt: String,
+    ): Page<SeriesRegistrationDTO>
+
+    @Get(uri = "?title=new", consumes = [APPLICATION_JSON])
+    fun findSeriesWithLowercaseTitle(
+        @CookieValue("JWT") jwt: String,
+    ): Page<SeriesRegistrationDTO>
+
     @Post(uri = "/", processes = [APPLICATION_JSON])
     fun createSeries(
         @CookieValue("JWT") jwt: String,

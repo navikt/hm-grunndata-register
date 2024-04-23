@@ -50,16 +50,28 @@ class SeriesAdminController(private val seriesRegistrationService: SeriesRegistr
                     root[SeriesRegistration::status] ne params["excludedStatus"]
                 }
             }.and { root, criteriaBuilder ->
-                if (params.contains("title")) {
-
-                    criteriaBuilder.like(
-                        root[SeriesRegistration::title],
-                        LiteralExpression("%${params["title"]?.replaceFirstChar(Char::titlecase)}%"),
+                if (params.contains("title") && params["title"]?.isNotEmpty() == true) {
+                    criteriaBuilder.or(
+                        criteriaBuilder.like(
+                            root[SeriesRegistration::title],
+                            LiteralExpression("%${params["title"]}%"),
+                        ),
+                        criteriaBuilder.like(
+                            root[SeriesRegistration::title],
+                            LiteralExpression(
+                                "%${
+                                    params["title"]?.replaceFirstChar(
+                                        Char::swapUpperAndLower,
+                                    )
+                                }%",
+                            ),
+                        ),
                     )
-                    criteriaBuilder.like(root[SeriesRegistration::title], LiteralExpression("%${params["title"]}%"))
                 } else {
                     null
                 }
             }
         }
 }
+
+fun Char.swapUpperAndLower() = if (this.isLowerCase()) this.titlecase() else this.lowercase()

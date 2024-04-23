@@ -36,16 +36,14 @@ import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import java.util.*
 
-
 @MicronautTest
 class SeriesControllerApiTest(
     private val apiClient: SeriesControllerApiClient,
     private val productApiClient: ProductRegistrationApiClient,
     private val loginClient: LoginClient,
     private val userRepository: UserRepository,
-    private val supplierRegistrationRepository: SupplierRepository
+    private val supplierRegistrationRepository: SupplierRepository,
 ) {
-
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesControllerTest::class.java)
     }
@@ -61,25 +59,30 @@ class SeriesControllerApiTest(
     fun createUserSupplier() {
         runBlocking {
             LOG.info("Creating user and supplier")
-            testSupplier = supplierRegistrationRepository.save(
-                SupplierRegistration(
-                    id = UUID.randomUUID(),
-                    supplierData = SupplierData(
-                        address = "address 3",
-                        homepage = "https://www.hompage.no",
-                        phone = "+47 12345678",
-                        email = "supplier3@test.test",
+            testSupplier =
+                supplierRegistrationRepository.save(
+                    SupplierRegistration(
+                        id = UUID.randomUUID(),
+                        supplierData =
+                            SupplierData(
+                                address = "address 3",
+                                homepage = "https://www.hompage.no",
+                                phone = "+47 12345678",
+                                email = "supplier3@test.test",
+                            ),
+                        identifier = UUID.randomUUID().toString(),
+                        name = UUID.randomUUID().toString(),
                     ),
-                    identifier = UUID.randomUUID().toString(),
-                    name = UUID.randomUUID().toString(),
                 )
-            )
 
             userRepository.createUser(
                 User(
-                    email = email, token = password, name = "User tester", roles = listOf(Roles.ROLE_SUPPLIER),
-                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier!!.id.toString()))
-                )
+                    email = email,
+                    token = password,
+                    name = "User tester",
+                    roles = listOf(Roles.ROLE_SUPPLIER),
+                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier!!.id.toString())),
+                ),
             )
         }
     }
@@ -89,24 +92,30 @@ class SeriesControllerApiTest(
         runBlocking {
             val resp = loginClient.login(UsernamePasswordCredentials(email, password))
             val jwt = resp.getCookie("JWT").get().value
-            val seriesRegistrationDTO = SeriesRegistrationDTO(
-                id = UUID.randomUUID(),
-                supplierId = testSupplier!!.id,
-                identifier = UUID.randomUUID().toString(),
-                title = "series title",
-                text = "series text",
-                isoCategory = "12345678",
-                draftStatus = DraftStatus.DONE,
-                status = SeriesStatus.ACTIVE,
-                seriesData = SeriesDataDTO(
-                    media = setOf(
-                        MediaInfoDTO(
-                            uri = "http://example.com", type = MediaType.IMAGE, text = "image description",
-                            sourceUri = "http://example.com", source = MediaSourceType.REGISTER
-                        )
-                    )
+            val seriesRegistrationDTO =
+                SeriesRegistrationDTO(
+                    id = UUID.randomUUID(),
+                    supplierId = testSupplier!!.id,
+                    identifier = UUID.randomUUID().toString(),
+                    title = "series title",
+                    text = "series text",
+                    isoCategory = "12345678",
+                    draftStatus = DraftStatus.DONE,
+                    status = SeriesStatus.ACTIVE,
+                    seriesData =
+                        SeriesDataDTO(
+                            media =
+                                setOf(
+                                    MediaInfoDTO(
+                                        uri = "http://example.com",
+                                        type = MediaType.IMAGE,
+                                        text = "image description",
+                                        sourceUri = "http://example.com",
+                                        source = MediaSourceType.REGISTER,
+                                    ),
+                                ),
+                        ),
                 )
-            )
             val series = apiClient.createSeries(jwt, seriesRegistrationDTO)
             series.shouldNotBeNull()
             series.status shouldBe SeriesStatus.ACTIVE
@@ -114,13 +123,14 @@ class SeriesControllerApiTest(
             read.shouldNotBeNull()
             read.id shouldBe seriesRegistrationDTO.id
             read.seriesData.media.size shouldBe 1
-            val updated = apiClient.updateSeries(
-                jwt,
-                read.id,
-                read.copy(title = "new title", isoCategory = "111111", text = "new text")
-            )
+            val updated =
+                apiClient.updateSeries(
+                    jwt,
+                    read.id,
+                    read.copy(title = "New title", isoCategory = "111111", text = "new text"),
+                )
             updated.shouldNotBeNull()
-            updated.title shouldBe "new title"
+            updated.title shouldBe "New title"
             updated.isoCategory shouldBe "111111"
             updated.text shouldBe "new text"
             updated.count shouldBe 0
@@ -128,51 +138,55 @@ class SeriesControllerApiTest(
             val seriesList = apiClient.findSeries(jwt)
             seriesList.size shouldBeGreaterThan 1
 
-
             // test with products
-            val productData3 = ProductData(
-                attributes = Attributes(
-                    shortdescription = "En kort beskrivelse av produktet",
-                    text = "En lang beskrivelse av produktet"
-                ),
-                accessory = false,
-                sparePart = false,
-                techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
-                media = setOf(
-                    MediaInfoDTO(
-                        uri = "123.jpg",
-                        text = "bilde av produktet",
-                        source = MediaSourceType.EXTERNALURL,
-                        sourceUri = "https://ekstern.url/123.jpg"
-                    )
+            val productData3 =
+                ProductData(
+                    attributes =
+                        Attributes(
+                            shortdescription = "En kort beskrivelse av produktet",
+                            text = "En lang beskrivelse av produktet",
+                        ),
+                    accessory = false,
+                    sparePart = false,
+                    techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
+                    media =
+                        setOf(
+                            MediaInfoDTO(
+                                uri = "123.jpg",
+                                text = "bilde av produktet",
+                                source = MediaSourceType.EXTERNALURL,
+                                sourceUri = "https://ekstern.url/123.jpg",
+                            ),
+                        ),
                 )
-            )
-            val registration1 = productApiClient.createProduct(
-                jwt, ProductRegistrationDTO(
-                    id = UUID.randomUUID(),
-                    seriesId = updated.identifier,
-                    seriesUUID = updated.id,
-                    isoCategory = updated.isoCategory,
-                    supplierId = updated.supplierId,
-                    title = updated.title,
-                    articleName = "Dette er produkt 1 med og med",
-                    hmsArtNr = "333333",
-                    supplierRef = "eksternref-333",
-                    draftStatus = DraftStatus.DONE,
-                    adminStatus = AdminStatus.PENDING,
-                    registrationStatus = RegistrationStatus.ACTIVE,
-                    message = "Melding til leverandør",
-                    adminInfo = null,
-                    createdByAdmin = false,
-                    expired = null,
-                    published = null,
-                    updatedByUser = email,
-                    createdByUser = email,
-                    productData = productData3,
-                    createdBy = REGISTER,
-                    updatedBy = REGISTER
+            val registration1 =
+                productApiClient.createProduct(
+                    jwt,
+                    ProductRegistrationDTO(
+                        id = UUID.randomUUID(),
+                        seriesId = updated.identifier,
+                        seriesUUID = updated.id,
+                        isoCategory = updated.isoCategory,
+                        supplierId = updated.supplierId,
+                        title = updated.title,
+                        articleName = "Dette er produkt 1 med og med",
+                        hmsArtNr = "333333",
+                        supplierRef = "eksternref-333",
+                        draftStatus = DraftStatus.DONE,
+                        adminStatus = AdminStatus.PENDING,
+                        registrationStatus = RegistrationStatus.ACTIVE,
+                        message = "Melding til leverandør",
+                        adminInfo = null,
+                        createdByAdmin = false,
+                        expired = null,
+                        published = null,
+                        updatedByUser = email,
+                        createdByUser = email,
+                        productData = productData3,
+                        createdBy = REGISTER,
+                        updatedBy = REGISTER,
+                    ),
                 )
-            )
             registration1.shouldNotBeNull()
             val readWithCount = apiClient.readSeries(jwt, updated.id)
             readWithCount.shouldNotBeNull()
@@ -181,7 +195,11 @@ class SeriesControllerApiTest(
             val seriesWithTitle = apiClient.findSeriesWithTitle(jwt)
             seriesWithTitle.content.size shouldBe 0
 
-        }
+            val seriesWithCapitalizedearchTerm = apiClient.findSeriesWithCapitalizedTitle(jwt)
+            seriesWithCapitalizedearchTerm.content.size shouldBe 1
 
+            val seriesWithLowercaseSearchTerm = apiClient.findSeriesWithLowercaseTitle(jwt)
+            //seriesWithLowercaseSearchTerm.content.size shouldBe 1
+        }
     }
 }
