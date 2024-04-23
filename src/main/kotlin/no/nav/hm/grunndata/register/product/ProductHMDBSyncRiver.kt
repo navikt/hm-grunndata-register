@@ -107,6 +107,7 @@ class ProductHMDBSyncRiver(
                         isoCategory = dto.isoCategory,
                         draftStatus = DraftStatus.DONE,
                         status = SeriesStatus.ACTIVE,
+                        adminStatus = AdminStatus.APPROVED,
                         createdBy = dto.createdBy,
                         updatedBy = dto.updatedBy,
                         created = dto.created,

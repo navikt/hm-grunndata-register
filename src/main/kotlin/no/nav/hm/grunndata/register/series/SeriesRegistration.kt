@@ -130,6 +130,7 @@ fun SeriesRegistrationDTO.toEntity() =
         isoCategory = isoCategory,
         draftStatus = draftStatus,
         status = status,
+        adminStatus = adminStatus,
         created = created,
         updated = updated,
         createdBy = createdBy,
