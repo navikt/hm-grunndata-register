@@ -14,6 +14,7 @@ data class ProductData (
     val accessory: Boolean = false,
     val sparePart: Boolean = false,
     val techData: List<TechData> = emptyList(),
+    @Deprecated("Use series media instead")
     val media: Set<MediaInfoDTO> = emptySet(),
     val identifier: String? = null,
     val seriesIdentifier: String? = null,

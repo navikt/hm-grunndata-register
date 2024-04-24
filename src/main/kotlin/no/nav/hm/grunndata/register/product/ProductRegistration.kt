@@ -34,8 +34,10 @@ data class ProductRegistration(
     val seriesId: String,
     @field:Column(name = "hms_artnr")
     val hmsArtNr: String?,
-    val isoCategory: String,
-    val title: String,
+    @Deprecated("Use series isoCategory instead")
+    val isoCategory: String = "0",
+    @Deprecated("Use series title instead")
+    val title: String = "Use series title",
     val articleName: String,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val adminStatus: AdminStatus = AdminStatus.PENDING,
@@ -81,8 +83,10 @@ data class ProductRegistrationDTO(
     val seriesUUID: UUID,
     @Deprecated("Use seriesUUID instead")
     val seriesId: String,
-    val isoCategory: String,
-    val title: String,
+    @Deprecated("Use series isoCategory instead")
+    val isoCategory: String="0",
+    @Deprecated("Use series title instead")
+    val title: String="Use series title",
     val articleName: String,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val adminStatus: AdminStatus = AdminStatus.PENDING,
