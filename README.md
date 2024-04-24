@@ -24,7 +24,6 @@ Flagget AdminStatus settes til APPROVED når produktet blir godkjent.
 
 # Development
 
-## Running in localhost, for frontend developing.
 Login in to gcloud and run naisdevice in the background, authenticate to google docker repository:
 
 ```
@@ -32,31 +31,18 @@ gcloud auth login (if you have not done it yet)
 gcloud auth configure-docker europe-north1-docker.pkg.dev
 ```
 
-This will run register, database, kafka, media and proxy in the background. 
+### Using test database for local development:
+
+First Get the latest database dump from google cloud bucket storage, after that drop previous "register" database,
+default localhost postgres user is "postgres" and password is "postgres":
 
 ```
 cd hm-grunndata-register
-docker-compose up -d
+docker-compose -f docker-compose-for-backend.yml up
 
 ```
-Register should be running on: http://localhost:8080/admreg/swagger-ui
 
-Running hm-grunndata-register for backend developing:
-```
-cd hm-grunndata-db
-docker-compose up -d
-
-export DB_DRIVER=org.postgresql.Driver
-export DB_JDBC_URL=jdbc:postgresql://localhost:5432/register
-export KAFKA_BROKERS=localhost:29092
-export RAPIDSANDRIVERS_ENABLED=true
-
-./gradlew build run
-```
-
-### Using test database for local development:
-First Get the database dump from google cloud bucket storage, after that drop previous "register" database,
-default localhost postgres user is "postgres" and password is "postgres":
+Then create a new database and user:
 
 ```
 psql -h localhost -U postgres
@@ -70,6 +56,38 @@ Then dump the database from the downloaded file:
 gunzip register-db-dump.gz
 psql -h localhost -U register < register-db-dump
 ```
+
+## Running in localhost, for frontend developing.
+
+
+This will run register, database, kafka, media and proxy in the background. 
+
+```
+cd hm-grunndata-register
+docker-compose up -d
+
+```
+
+Register should be running on: http://localhost:8080/admreg/swagger-ui
+
+
+## Running hm-grunndata-register for backend developing:
+
+If you want to do backend development, hm-grunndata-register has to run separately.
+```
+cd hm-grunndata-register
+docker-compose -f docker-compose-for-backend.yml up -d
+
+export DB_DRIVER=org.postgresql.Driver
+export DB_JDBC_URL=jdbc:postgresql://localhost:5432/register
+export KAFKA_BROKERS=localhost:29092
+export RAPIDSANDRIVERS_ENABLED=true
+export SERVER_PORT=8080
+
+./gradlew build run
+```
+hm-grunndata-register is now running here: http://localhost:8080/admreg/swagger-ui
+
 ## Openapi is available here:
 http://localhost:8080/admreg/swagger-ui
 
