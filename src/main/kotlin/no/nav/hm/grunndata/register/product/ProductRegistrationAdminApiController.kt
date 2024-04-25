@@ -30,7 +30,6 @@ import no.nav.hm.grunndata.register.product.batch.ProductExcelExport
 import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.series.SeriesGroupDTO
-import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.slf4j.LoggerFactory
@@ -225,7 +224,7 @@ class ProductRegistrationAdminApiController(
                         it.copy(
                             registrationStatus = RegistrationStatus.DELETED,
                             updatedByUser = authentication.name,
-                            updatedBy = REGISTER
+                            updatedBy = REGISTER,
                         ),
                         isUpdate = true,
                     )
@@ -264,8 +263,11 @@ class ProductRegistrationAdminApiController(
                 HttpResponse.ok(it)
             } ?: HttpResponse.notFound()
         } catch (e: Exception) {
-            LOG.error("Got exception while creating variant ${draftVariant.supplierRef}", e)
-            throw BadRequestException("Could not create variant for ${draftVariant.supplierRef}, already exists")
+            LOG.error(
+                "Got exception while creating variant ${draftVariant.supplierRef}",
+                e,
+            )
+            throw e
         }
     }
 

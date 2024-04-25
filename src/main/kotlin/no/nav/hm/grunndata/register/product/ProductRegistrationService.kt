@@ -19,6 +19,8 @@ import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
+import no.nav.hm.grunndata.register.exceptions.ArticleNameAlreadyExistsOnSeriesException
+import no.nav.hm.grunndata.register.exceptions.SupplierRefAlreadyExistsException
 import no.nav.hm.grunndata.register.product.batch.ProductRegistrationExcelDTO
 import no.nav.hm.grunndata.register.product.batch.toProductRegistrationDryRunDTO
 import no.nav.hm.grunndata.register.product.batch.toRegistrationDTO
@@ -32,7 +34,7 @@ import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @Singleton
 open class ProductRegistrationService(
@@ -96,6 +98,16 @@ open class ProductRegistrationService(
         supplierRef: String,
         supplierId: UUID,
     ) = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)?.toDTO()
+
+    open suspend fun exitsBySupplierRefAndSupplierId(
+        supplierRef: String,
+        supplierId: UUID,
+    ) = productRegistrationRepository.existsBySupplierRefAndSupplierId(supplierRef, supplierId)
+
+    open suspend fun exitsBySeriesIdAndArticlename(
+        seriesUUID: UUID,
+        articleName: String,
+    ) = productRegistrationRepository.existsBySeriesUUIDAndArticleName(seriesUUID, articleName)
 
     open suspend fun findBySupplierId(supplierId: UUID) = productRegistrationRepository.findBySupplierId(supplierId).map { it.toDTO() }
 
@@ -164,6 +176,12 @@ open class ProductRegistrationService(
         dto: DraftVariantDTO,
         authentication: Authentication,
     ) = findById(id)?.let {
+        if (exitsBySupplierRefAndSupplierId(dto.supplierRef, it.supplierId)) {
+            throw SupplierRefAlreadyExistsException()
+        }
+        if (exitsBySeriesIdAndArticlename(it.seriesUUID, dto.articleName)) {
+            throw ArticleNameAlreadyExistsOnSeriesException()
+        }
         val productId = UUID.randomUUID()
         save(
             it.copy(

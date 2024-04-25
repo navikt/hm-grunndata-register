@@ -6,7 +6,7 @@ import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
-import java.util.*
+import java.util.UUID
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
 interface ProductRegistrationRepository :
@@ -31,13 +31,22 @@ interface ProductRegistrationRepository :
         supplierId: UUID,
     ): ProductRegistration?
 
+    suspend fun existsBySupplierRefAndSupplierId(
+        supplierRef: String,
+        supplierId: UUID,
+    ): Boolean
+
+    suspend fun existsBySeriesUUIDAndArticleName(
+        seriesUUID: UUID,
+        articleName: String,
+    ): Boolean
+
     suspend fun findBySupplierId(supplierId: UUID): List<ProductRegistration>
 
     suspend fun findBySeriesUUIDAndSupplierId(
         seriesUUID: UUID,
         supplierId: UUID,
     ): List<ProductRegistration>
-
 
     @Query("SELECT a.* from product_reg_v1 a LEFT JOIN series_reg_v1 b on a.series_uuid = b.id where b.id is null")
     suspend fun findProductsWithNoSeries(): List<ProductRegistration>
