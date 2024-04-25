@@ -19,6 +19,8 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.exceptions.ArticleNameAlreadyExistsOnSeriesException
+import no.nav.hm.grunndata.register.exceptions.SupplierRefAlreadyExistsException
 import no.nav.hm.grunndata.register.product.batch.ProductExcelExport
 import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
 import no.nav.hm.grunndata.register.product.batch.ProductRegistrationExcelDTO
@@ -290,6 +292,12 @@ class ProductRegistrationApiController(
             productRegistrationService.createProductVariant(id, draftVariant, authentication)?.let {
                 HttpResponse.ok(it)
             } ?: HttpResponse.notFound()
+        } catch (e: SupplierRefAlreadyExistsException) {
+            LOG.error("SupplierRef already exists: ${draftVariant.supplierRef}", e)
+            throw BadRequestException(e.message ?: "")
+        } catch (e: ArticleNameAlreadyExistsOnSeriesException) {
+            LOG.error("ArticleName already exists on series: ${draftVariant.articleName}", e)
+            throw BadRequestException(e.message ?: "")
         } catch (e: Exception) {
             LOG.error("Got exception while creating variant ${draftVariant.supplierRef}", e)
             throw e

@@ -1,3 +1,3 @@
 package no.nav.hm.grunndata.register.exceptions
 
-class ArticleNameAlreadyExistsOnSeriesException() : IllegalArgumentException("Article name already exists on series")
+class ArticleNameAlreadyExistsOnSeriesException() : Exception("Article name already exists on series")
