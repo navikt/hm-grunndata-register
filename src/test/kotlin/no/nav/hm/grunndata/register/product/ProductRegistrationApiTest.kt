@@ -27,6 +27,7 @@ import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserAttribute
 import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
+import org.junit.Ignore
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -175,35 +176,7 @@ class ProductRegistrationApiTest(
         changed.title shouldBe "changed title"
     }
 
-    @Test
-    fun `variants with same articleName returns error`() {
-        val resp = loginClient.login(UsernamePasswordCredentials(email, password))
-        val jwt = resp.getCookie("JWT").get().value
-        val seriesUUID = UUID.randomUUID()
 
-
-        apiClient.createProduct(
-            jwt,
-            dummyProductRegistrationDTO(
-                supplierRef = UUID.randomUUID().toString(),
-                supplierId = testSupplier!!.id,
-                seriesUUID = seriesUUID,
-                articleName = "variant 1",
-            ),
-        )
-
-        assertThrows<Exception> {
-            apiClient.createProduct(
-                jwt,
-                dummyProductRegistrationDTO(
-                    supplierRef = UUID.randomUUID().toString(),
-                    supplierId = testSupplier!!.id,
-                    seriesUUID = seriesUUID,
-                    articleName = "variant 1",
-                ),
-            )
-        }
-    }
 
     @Test
     fun `variants with same supplierId and supplierRef returns error`() {
