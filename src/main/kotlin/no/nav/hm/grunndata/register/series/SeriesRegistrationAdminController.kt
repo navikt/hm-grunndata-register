@@ -66,6 +66,12 @@ class SeriesAdminController(private val seriesRegistrationService: SeriesRegistr
                                 }%",
                             ),
                         ),
+                        criteriaBuilder.like(
+                            root[SeriesRegistration::title],
+                            LiteralExpression(
+                                "%${params["title"]?.uppercase()}%",
+                            ),
+                        ),
                     )
                 } else {
                     null
