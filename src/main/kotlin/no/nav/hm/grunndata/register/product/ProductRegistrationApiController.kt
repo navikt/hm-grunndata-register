@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.product
 
+import io.micronaut.data.exceptions.DataAccessException
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.model.Slice
@@ -8,7 +9,14 @@ import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
-import io.micronaut.http.annotation.*
+import io.micronaut.http.annotation.Body
+import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
+import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.PathVariable
+import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Put
+import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.http.server.types.files.StreamedFile
 import io.micronaut.security.annotation.Secured
@@ -19,8 +27,6 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
-import no.nav.hm.grunndata.register.exceptions.ArticleNameAlreadyExistsOnSeriesException
-import no.nav.hm.grunndata.register.exceptions.SupplierRefAlreadyExistsException
 import no.nav.hm.grunndata.register.product.batch.ProductExcelExport
 import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
 import no.nav.hm.grunndata.register.product.batch.ProductRegistrationExcelDTO
@@ -30,7 +36,7 @@ import no.nav.hm.grunndata.register.series.SeriesGroupDTO
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS)
@@ -152,18 +158,28 @@ class ProductRegistrationApiController(
             productRegistrationService.findById(registrationDTO.id)?.let {
                 throw BadRequestException("Product registration already exists ${registrationDTO.id}")
             } ?: run {
-                val dto =
-                    productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
-                        registrationDTO
-                            .copy(
-                                updatedByUser = authentication.name,
-                                createdByUser = authentication.name,
-                                created = LocalDateTime.now(),
-                                updated = LocalDateTime.now(),
-                            ),
-                        isUpdate = false,
+                try {
+                    val dto =
+                        productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                            registrationDTO
+                                .copy(
+                                    updatedByUser = authentication.name,
+                                    createdByUser = authentication.name,
+                                    created = LocalDateTime.now(),
+                                    updated = LocalDateTime.now(),
+                                ),
+                            isUpdate = false,
+                        )
+                    HttpResponse.created(dto)
+                } catch (dataAccessException: DataAccessException) {
+                    LOG.error("Got exception while creating product", dataAccessException)
+                    throw BadRequestException(
+                        dataAccessException.message ?: "Got exception while creating product ${registrationDTO.id}",
                     )
-                HttpResponse.created(dto)
+                } catch (e: Exception) {
+                    LOG.error("Got exception while creating product", e)
+                    throw BadRequestException("Got exception while creating product ${registrationDTO.id}")
+                }
             }
         }
 
@@ -180,30 +196,41 @@ class ProductRegistrationApiController(
         } else {
             productRegistrationService.findByIdAndSupplierId(id, registrationDTO.supplierId)
                 ?.let { inDb ->
-                    val dto =
-                        productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
-                            registrationDTO
-                                .copy(
-                                    draftStatus =
-                                        if (inDb.draftStatus == DraftStatus.DONE && inDb.adminStatus == AdminStatus.APPROVED) {
-                                            DraftStatus.DONE
-                                        } else {
-                                            registrationDTO.draftStatus
-                                        },
-                                    id = inDb.id,
-                                    created = inDb.created,
-                                    updatedBy = REGISTER,
-                                    updatedByUser = authentication.name,
-                                    createdByUser = inDb.createdByUser,
-                                    createdBy = inDb.createdBy,
-                                    createdByAdmin = inDb.createdByAdmin,
-                                    adminStatus = inDb.adminStatus,
-                                    adminInfo = inDb.adminInfo,
-                                    updated = LocalDateTime.now(),
-                                ),
-                            isUpdate = true,
+
+                    try {
+                        val dto =
+                            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                                registrationDTO
+                                    .copy(
+                                        draftStatus =
+                                            if (inDb.draftStatus == DraftStatus.DONE && inDb.adminStatus == AdminStatus.APPROVED) {
+                                                DraftStatus.DONE
+                                            } else {
+                                                registrationDTO.draftStatus
+                                            },
+                                        id = inDb.id,
+                                        created = inDb.created,
+                                        updatedBy = REGISTER,
+                                        updatedByUser = authentication.name,
+                                        createdByUser = inDb.createdByUser,
+                                        createdBy = inDb.createdBy,
+                                        createdByAdmin = inDb.createdByAdmin,
+                                        adminStatus = inDb.adminStatus,
+                                        adminInfo = inDb.adminInfo,
+                                        updated = LocalDateTime.now(),
+                                    ),
+                                isUpdate = true,
+                            )
+                        HttpResponse.ok(dto)
+                    } catch (dataAccessException: DataAccessException) {
+                        LOG.error("Got exception while updating product", dataAccessException)
+                        throw BadRequestException(
+                            dataAccessException.message ?: "Got exception while updating product $id",
                         )
-                    HttpResponse.ok(dto)
+                    } catch (e: Exception) {
+                        LOG.error("Got exception while updating product", e)
+                        throw BadRequestException("Got exception while updating product $id")
+                    }
                 }
                 ?: run {
                     throw BadRequestException("Product does not exists $id")
@@ -292,15 +319,12 @@ class ProductRegistrationApiController(
             productRegistrationService.createProductVariant(id, draftVariant, authentication)?.let {
                 HttpResponse.ok(it)
             } ?: HttpResponse.notFound()
-        } catch (e: SupplierRefAlreadyExistsException) {
-            LOG.error("SupplierRef already exists: ${draftVariant.supplierRef}", e)
-            throw BadRequestException(e.message ?: "")
-        } catch (e: ArticleNameAlreadyExistsOnSeriesException) {
-            LOG.error("ArticleName already exists on series: ${draftVariant.articleName}", e)
-            throw BadRequestException(e.message ?: "")
+        } catch (e: DataAccessException) {
+            LOG.error("Got exception while creating variant ${draftVariant.supplierRef}", e)
+            throw BadRequestException(e.message ?: "Got exception while creating variant ${draftVariant.supplierRef}")
         } catch (e: Exception) {
             LOG.error("Got exception while creating variant ${draftVariant.supplierRef}", e)
-            throw e
+            throw BadRequestException("Got exception while creating variant ${draftVariant.supplierRef}")
         }
     }
 

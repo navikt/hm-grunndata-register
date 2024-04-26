@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.product
 
+import io.micronaut.data.exceptions.DataAccessException
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.model.Slice
@@ -120,14 +121,20 @@ class ProductRegistrationAdminApiController(
         @QueryValue(defaultValue = "false") isSparePart: Boolean,
     ): HttpResponse<ProductRegistrationDTO> =
         supplierRegistrationService.findById(supplierId)?.let {
-            HttpResponse.ok(
-                productRegistrationService.createDraft(
-                    supplierId,
-                    authentication,
-                    isAccessory,
-                    isSparePart,
-                ),
-            )
+            try {
+                HttpResponse.ok(
+                    productRegistrationService.createDraft(
+                        supplierId,
+                        authentication,
+                        isAccessory,
+                        isSparePart,
+                    ),
+                )
+            } catch (e: DataAccessException) {
+                throw BadRequestException(e.message ?: "Error creating draft")
+            } catch (e: Exception) {
+                throw BadRequestException("Error creating draft")
+            }
         } ?: throw BadRequestException("$supplierId does not exist")
 
     @Post("/draftWith/supplier/{supplierId}{?isAccessory}{?isSparePart}")
@@ -139,15 +146,21 @@ class ProductRegistrationAdminApiController(
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> =
         supplierRegistrationService.findById(supplierId)?.let {
-            HttpResponse.ok(
-                productRegistrationService.createDraftWith(
-                    supplierId,
-                    authentication,
-                    isAccessory,
-                    isSparePart,
-                    draftWith,
-                ),
-            )
+            try {
+                HttpResponse.ok(
+                    productRegistrationService.createDraftWith(
+                        supplierId,
+                        authentication,
+                        isAccessory,
+                        isSparePart,
+                        draftWith,
+                    ),
+                )
+            } catch (e: DataAccessException) {
+                throw BadRequestException(e.message ?: "Error creating draft")
+            } catch (e: Exception) {
+                throw BadRequestException("Error creating draft")
+            }
         } ?: throw BadRequestException("$supplierId does not exist")
 
     @Post("/")
@@ -158,19 +171,25 @@ class ProductRegistrationAdminApiController(
         productRegistrationService.findById(registrationDTO.id)?.let {
             throw BadRequestException("Product registration already exists ${registrationDTO.id}")
         } ?: run {
-            val dto =
-                productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
-                    registrationDTO
-                        .copy(
-                            createdByUser = authentication.name,
-                            updatedByUser = authentication.name,
-                            createdByAdmin = true,
-                            created = LocalDateTime.now(),
-                            updated = LocalDateTime.now(),
-                        ),
-                    isUpdate = false,
-                )
-            HttpResponse.created(dto)
+            try {
+                val dto =
+                    productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                        registrationDTO
+                            .copy(
+                                createdByUser = authentication.name,
+                                updatedByUser = authentication.name,
+                                createdByAdmin = true,
+                                created = LocalDateTime.now(),
+                                updated = LocalDateTime.now(),
+                            ),
+                        isUpdate = false,
+                    )
+                HttpResponse.created(dto)
+            } catch (e: DataAccessException) {
+                throw BadRequestException(e.message ?: "Error creating product")
+            } catch (e: Exception) {
+                throw BadRequestException("Error creating product")
+            }
         }
 
     @Put("/{id}")
@@ -202,9 +221,16 @@ class ProductRegistrationAdminApiController(
                             createdByAdmin = inDb.createdByAdmin,
                             updated = LocalDateTime.now(),
                         )
-                    val dto =
-                        productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updated, isUpdate = true)
-                    HttpResponse.ok(dto)
+
+                    try {
+                        val dto =
+                            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updated, isUpdate = true)
+                        HttpResponse.ok(dto)
+                    } catch (e: DataAccessException) {
+                        throw BadRequestException(e.message ?: "Error updating product")
+                    } catch (e: Exception) {
+                        throw BadRequestException("Error updating product")
+                    }
                 }
                 ?: run {
                     throw BadRequestException("Product registration does not exists $id")
@@ -262,6 +288,12 @@ class ProductRegistrationAdminApiController(
             productRegistrationService.createProductVariant(id, draftVariant, authentication)?.let {
                 HttpResponse.ok(it)
             } ?: HttpResponse.notFound()
+        } catch (e: DataAccessException) {
+            LOG.error(
+                "Got exception while creating variant ${draftVariant.supplierRef}",
+                e,
+            )
+            throw BadRequestException(e.message ?: "Error creating variant")
         } catch (e: Exception) {
             LOG.error(
                 "Got exception while creating variant ${draftVariant.supplierRef}",

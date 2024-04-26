@@ -17,6 +17,7 @@ import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierData
@@ -28,6 +29,7 @@ import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
 import java.util.*
 
@@ -110,6 +112,7 @@ class ProductRegistrationApiTest(
                 supplierRef = UUID.randomUUID().toString(),
                 supplierId = testSupplier!!.id,
                 seriesUUID = seriesUUID,
+                articleName = "variant 1",
             ),
         )
         apiClient.createProduct(
@@ -118,6 +121,7 @@ class ProductRegistrationApiTest(
                 supplierRef = UUID.randomUUID().toString(),
                 supplierId = testSupplier!!.id,
                 seriesUUID = seriesUUID,
+                articleName = "variant 2",
             ),
         )
 
@@ -162,13 +166,74 @@ class ProductRegistrationApiTest(
                 title = "title",
             ),
         )
-        val read = apiClient.readProductSeriesWithVariants(jwt,seriesUUID)
+        val read = apiClient.readProductSeriesWithVariants(jwt, seriesUUID)
         read.title shouldBe "title"
 
         apiClient.updateProductSeriesWithVariants(jwt, seriesUUID, read.copy(title = "changed title"))
 
-        val changed = apiClient.readProductSeriesWithVariants(jwt,seriesUUID)
+        val changed = apiClient.readProductSeriesWithVariants(jwt, seriesUUID)
         changed.title shouldBe "changed title"
+    }
+
+    @Test
+    fun `variants with same articleName returns error`() {
+        val resp = loginClient.login(UsernamePasswordCredentials(email, password))
+        val jwt = resp.getCookie("JWT").get().value
+        val seriesUUID = UUID.randomUUID()
+
+
+        apiClient.createProduct(
+            jwt,
+            dummyProductRegistrationDTO(
+                supplierRef = UUID.randomUUID().toString(),
+                supplierId = testSupplier!!.id,
+                seriesUUID = seriesUUID,
+                articleName = "variant 1",
+            ),
+        )
+
+        assertThrows<Exception> {
+            apiClient.createProduct(
+                jwt,
+                dummyProductRegistrationDTO(
+                    supplierRef = UUID.randomUUID().toString(),
+                    supplierId = testSupplier!!.id,
+                    seriesUUID = seriesUUID,
+                    articleName = "variant 1",
+                ),
+            )
+        }
+    }
+
+    @Test
+    fun `variants with same supplierId and supplierRef returns error`() {
+        val resp = loginClient.login(UsernamePasswordCredentials(email, password))
+        val jwt = resp.getCookie("JWT").get().value
+        val seriesUUID = UUID.randomUUID()
+
+        val supplierRef = UUID.randomUUID().toString()
+
+        apiClient.createProduct(
+            jwt,
+            dummyProductRegistrationDTO(
+                supplierRef = supplierRef,
+                supplierId = testSupplier!!.id,
+                seriesUUID = seriesUUID,
+                articleName = "variant 1",
+            ),
+        )
+
+        assertThrows<Exception> {
+            apiClient.createProduct(
+                jwt,
+                dummyProductRegistrationDTO(
+                    supplierRef = supplierRef,
+                    supplierId = testSupplier!!.id,
+                    seriesUUID = seriesUUID,
+                    articleName = "variant 2",
+                ),
+            )
+        }
     }
 
     @Test

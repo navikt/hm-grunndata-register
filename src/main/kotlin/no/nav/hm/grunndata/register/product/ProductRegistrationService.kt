@@ -19,8 +19,6 @@ import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
-import no.nav.hm.grunndata.register.exceptions.ArticleNameAlreadyExistsOnSeriesException
-import no.nav.hm.grunndata.register.exceptions.SupplierRefAlreadyExistsException
 import no.nav.hm.grunndata.register.product.batch.ProductRegistrationExcelDTO
 import no.nav.hm.grunndata.register.product.batch.toProductRegistrationDryRunDTO
 import no.nav.hm.grunndata.register.product.batch.toRegistrationDTO
@@ -176,12 +174,6 @@ open class ProductRegistrationService(
         dto: DraftVariantDTO,
         authentication: Authentication,
     ) = findById(id)?.let {
-        if (exitsBySupplierRefAndSupplierId(dto.supplierRef, it.supplierId)) {
-            throw SupplierRefAlreadyExistsException()
-        }
-        if (exitsBySeriesIdAndArticlename(it.seriesUUID, dto.articleName)) {
-            throw ArticleNameAlreadyExistsOnSeriesException()
-        }
         val productId = UUID.randomUUID()
         save(
             it.copy(
