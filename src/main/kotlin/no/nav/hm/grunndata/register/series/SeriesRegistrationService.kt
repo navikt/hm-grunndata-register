@@ -2,18 +2,26 @@ package no.nav.hm.grunndata.register.series
 
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
-import io.micronaut.data.model.Sort
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
+import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.rapid.event.EventName
+import no.nav.hm.grunndata.register.REGISTER
+import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.*
 
 @Singleton
 open class SeriesRegistrationService(private val seriesRegistrationRepository: SeriesRegistrationRepository,
                                 private val seriesRegistrationEventHandler: SeriesRegistrationEventHandler) {
+
+    companion object {
+        private val LOG = LoggerFactory.getLogger(SeriesRegistrationService::class.java)
+    }
 
     suspend fun findById(id: UUID): SeriesRegistrationDTO? = seriesRegistrationRepository.findById(id)?.toDTO()
 
@@ -38,6 +46,29 @@ open class SeriesRegistrationService(private val seriesRegistrationRepository: S
     suspend fun findByIdAndSupplierId(id: UUID, supplierId: UUID): SeriesRegistrationDTO? =
         seriesRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.toDTO()
 
+    suspend fun createDraft(supplierId: UUID, authentication: Authentication): SeriesRegistrationDTO? {
+        val id = UUID.randomUUID()
+        val series = SeriesRegistrationDTO(
+            id = id,
+            supplierId = supplierId,
+            isoCategory = "0",
+            title = "",
+            text = "",
+            identifier = id.toString(),
+            draftStatus = DraftStatus.DRAFT,
+            adminStatus = AdminStatus.PENDING,
+            status = SeriesStatus.ACTIVE,
+            createdBy = REGISTER,
+            updatedBy = REGISTER,
+            created = LocalDateTime.now(),
+            updated = LocalDateTime.now(),
+            seriesData = SeriesDataDTO(media = emptySet()),
+            version = 0
+        )
+        val draft = save(series)
+        LOG.info("Created draft series with id $id for supplier $supplierId")
+        return draft
+    }
 
 
 }

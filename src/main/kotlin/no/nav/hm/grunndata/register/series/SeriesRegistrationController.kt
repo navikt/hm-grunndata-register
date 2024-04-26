@@ -21,7 +21,7 @@ import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SeriesController.API_V1_SERIES)
@@ -61,6 +61,14 @@ class SeriesController(private val seriesRegistrationService: SeriesRegistration
                 )
             }
         }
+
+    @Post("/draft")
+    suspend fun createDraftSeries(
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO>  {
+        return HttpResponse.ok(seriesRegistrationService.createDraft(authentication.supplierId(), authentication))
+    }
+
 
     @Get("/{id}")
     suspend fun readSeries(
