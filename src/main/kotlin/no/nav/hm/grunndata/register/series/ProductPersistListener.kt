@@ -20,6 +20,7 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
             runBlocking {
                 LOG.debug("ProductRegistration inserted for series: ${product.seriesUUID}")
                 seriesRegistrationRepository.updateCountForSeries(product.seriesUUID)
+                seriesRegistrationRepository.resetCountStatusesForSeries(product.seriesUUID)
                 seriesRegistrationRepository.updateCountDraftsForSeries(product.seriesUUID)
                 seriesRegistrationRepository.updateCountPublishedForSeries(product.seriesUUID)
                 seriesRegistrationRepository.updateCountPendingForSeries(product.seriesUUID)
@@ -34,6 +35,7 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
             runBlocking {
                 LOG.debug("ProductRegistration updated for series: ${product.seriesUUID}")
                 seriesRegistrationRepository.updateCountForSeries(product.seriesUUID)
+                seriesRegistrationRepository.resetCountStatusesForSeries(product.seriesUUID)
                 seriesRegistrationRepository.updateCountDraftsForSeries(product.seriesUUID)
                 seriesRegistrationRepository.updateCountPublishedForSeries(product.seriesUUID)
                 seriesRegistrationRepository.updateCountPendingForSeries(product.seriesUUID)
