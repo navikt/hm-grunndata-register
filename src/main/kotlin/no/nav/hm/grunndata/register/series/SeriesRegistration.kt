@@ -17,7 +17,7 @@ import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.toRapidMediaInfo
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @MappedEntity("series_reg_v1")
 data class SeriesRegistration(
@@ -43,6 +43,14 @@ data class SeriesRegistration(
     val createdByAdmin: Boolean = false,
     @field:GeneratedValue
     val count: Int = 0,
+    @field:GeneratedValue
+    val countDrafts: Int = 0,
+    @field:GeneratedValue
+    val countPublished: Int = 0,
+    @field:GeneratedValue
+    val countPending: Int = 0,
+    @field:GeneratedValue
+    val countDeclined: Int = 0,
     @field:Version
     val version: Long? = 0L,
 )
@@ -71,6 +79,10 @@ data class SeriesRegistrationDTO(
     val createdByUser: String = "system",
     val createdByAdmin: Boolean = false,
     val count: Int = 0,
+    val countDrafts: Int = 0,
+    val countPublished: Int = 0,
+    val countPending: Int = 0,
+    val countDeclined: Int = 0,
     val version: Long? = 0L,
 ) : EventPayload {
     override fun toRapidDTO(): RapidDTO =
@@ -118,6 +130,10 @@ fun SeriesRegistration.toDTO() =
         seriesData = seriesData,
         version = version,
         count = count,
+        countDrafts = countDrafts,
+        countPublished = countPublished,
+        countPending = countPending,
+        countDeclined = countDeclined,
     )
 
 fun SeriesRegistrationDTO.toEntity() =
@@ -139,6 +155,10 @@ fun SeriesRegistrationDTO.toEntity() =
         updatedByUser = updatedByUser,
         version = version,
         count = count,
+        countDrafts = countDrafts,
+        countPublished = countPublished,
+        countPending = countPending,
+        countDeclined = countDeclined,
     )
 
 fun SeriesDataDTO.toRapidDTO() = SeriesData(media = media.map { it.toRapidMediaInfo() }.toSet())
