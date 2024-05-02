@@ -17,6 +17,7 @@ import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.toRapidMediaInfo
 import java.time.LocalDateTime
+import java.util.Locale
 import java.util.UUID
 
 @MappedEntity("series_reg_v1")
@@ -26,6 +27,7 @@ data class SeriesRegistration(
     val supplierId: UUID,
     val identifier: String,
     val title: String,
+    val titleLowercase: String = title.lowercase(Locale.getDefault()),
     val text: String,
     val isoCategory: String,
     @field:TypeDef(type = DataType.JSON)
@@ -84,6 +86,7 @@ data class SeriesRegistrationDTO(
     val countPending: Int = 0,
     val countDeclined: Int = 0,
     val version: Long? = 0L,
+    val titleLowercase: String = title.lowercase(Locale.getDefault()),
 ) : EventPayload {
     override fun toRapidDTO(): RapidDTO =
         SeriesRegistrationRapidDTO(
@@ -115,6 +118,7 @@ fun SeriesRegistration.toDTO() =
         supplierId = supplierId,
         identifier = identifier,
         title = title,
+        titleLowercase = titleLowercase,
         text = text,
         isoCategory = isoCategory,
         draftStatus = draftStatus,
