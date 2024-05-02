@@ -16,6 +16,7 @@ import no.nav.hm.grunndata.register.media.MediaController.Companion.API_V1_UPLOA
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -23,6 +24,7 @@ import java.util.*
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(API_V1_UPLOAD_PRODUCT_MEDIA)
 class MediaController(private val mediaUploadService: MediaUploadService,
+                      private val seriesRegistrationService: SeriesRegistrationService,
                       private val productRegistrationService: ProductRegistrationService) {
 
     companion object {
@@ -30,36 +32,44 @@ class MediaController(private val mediaUploadService: MediaUploadService,
         private val LOG = LoggerFactory.getLogger(MediaAdminController::class.java)
     }
 
-    @Get("/{oid}")
-    suspend fun getMediaList(oid:UUID, authentication: Authentication): HttpResponse<List<MediaDTO>> {
-        if (productRegistrationService.findByIdAndSupplierId(oid, authentication.supplierId())!=null) {
+    @Get("/{type}/{oid}")
+    suspend fun getMediaList(type: String="product", oid:UUID, authentication: Authentication): HttpResponse<List<MediaDTO>> {
+        if ("product" == type && productRegistrationService.findByIdAndSupplierId(oid, authentication.supplierId())!=null) {
+            return HttpResponse.ok(mediaUploadService.getMediaList(oid))
+        } else if ("series" == type && seriesRegistrationService.findByIdAndSupplierId(oid, authentication.supplierId())!=null) {
             return HttpResponse.ok(mediaUploadService.getMediaList(oid))
         }
-        throw BadRequestException("Wrong id?")
+        throw BadRequestException("Wrong type $type or id: $oid")
     }
 
     @Post(
-        value = "/product/files/{oid}",
+        value = "/{type}/files/{oid}",
         consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
         produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
     )
-    suspend fun uploadFiles(oid: UUID,
+    suspend fun uploadFiles(type: String="product", oid: UUID,
                             files: Publisher<CompletedFileUpload>,
                             authentication: Authentication): HttpResponse<List<MediaDTO>>  {
-        LOG.info("supplier: ${authentication.supplierId()} uploading files for object $oid")
-        if (oidExists(oid, authentication.supplierId())) {
-            return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid) }.toList())
+        LOG.info("supplier: ${authentication.supplierId()} uploading files for object $oid type: $type")
+        if ("product" == type && oidExists(oid, authentication.supplierId())) {
+            return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid, ObjectType.PRODUCT) }.toList())
+        } else if ("series" == type && seriesExists(oid, authentication.supplierId())) {
+            return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid, ObjectType.SERIES) }.toList())
         }
-        throw BadRequestException("Wrong id?")
+        throw BadRequestException("Not found for $type and  id: $oid")
     }
 
-    @Delete("/{oid}/{uri}")
-    suspend fun deleteFile(oid: UUID, uri: String, authentication: Authentication): HttpResponse<MediaDTO> {
+    @Delete("/{type}/{oid}/{uri}")
+    suspend fun deleteFileSForSeries(type: String = "product", oid: UUID, uri: String, authentication: Authentication): HttpResponse<MediaDTO> {
         LOG.info("Deleting media file oid: $oid and $uri")
-        if (productRegistrationService.findByIdAndSupplierId(oid, authentication.supplierId())!=null)
+        if ("series" == type && seriesRegistrationService.findByIdAndSupplierId(oid, authentication.supplierId())!=null)
             return HttpResponse.ok(mediaUploadService.deleteByOidAndUri(oid, uri))
-        throw BadRequestException("Not found $oid $uri")
+        else if ("product" == type && productRegistrationService.findByIdAndSupplierId(oid, authentication.supplierId())!=null)
+            return HttpResponse.ok(mediaUploadService.deleteByOidAndUri(oid, uri))
+        throw BadRequestException("Not found for $type and id: $oid uri: $uri")
     }
+
+    suspend fun seriesExists(oid: UUID, supplierId: UUID) = seriesRegistrationService.findByIdAndSupplierId(oid, supplierId) != null
 
     private suspend fun oidExists(oid: UUID, supplierId: UUID) =
         productRegistrationService.findByIdAndSupplierId(oid, supplierId) != null
