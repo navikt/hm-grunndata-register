@@ -32,6 +32,16 @@ class MediaController(private val mediaUploadService: MediaUploadService,
         private val LOG = LoggerFactory.getLogger(MediaAdminController::class.java)
     }
 
+
+    @Get("/{oid}")
+    @Deprecated("Use getMediaList(type: String, oid: UUID) instead")
+    suspend fun getMediaList(oid:UUID, authentication: Authentication): HttpResponse<List<MediaDTO>> {
+        if (productRegistrationService.findByIdAndSupplierId(oid, authentication.supplierId()) != null) {
+            return HttpResponse.ok(mediaUploadService.getMediaList(oid))
+        }
+        throw BadRequestException("Wrong id?")
+    }
+
     @Get("/{type}/{oid}")
     suspend fun getMediaList(type: String="product", oid:UUID, authentication: Authentication): HttpResponse<List<MediaDTO>> {
         if ("product" == type && productRegistrationService.findByIdAndSupplierId(oid, authentication.supplierId())!=null) {
@@ -59,8 +69,18 @@ class MediaController(private val mediaUploadService: MediaUploadService,
         throw BadRequestException("Not found for $type and  id: $oid")
     }
 
+
+    @Delete("/{oid}/{uri}")
+    @Deprecated("Use deleteFiles(type: String, oid: UUID, uri: String) instead")
+    suspend fun deleteFile(oid: UUID, uri: String, authentication: Authentication): HttpResponse<MediaDTO> {
+        if (productRegistrationService.findByIdAndSupplierId(oid, authentication.supplierId())!=null) {
+            return HttpResponse.ok(mediaUploadService.deleteByOidAndUri(oid, uri))
+        }
+        throw BadRequestException("Not found for id: $oid uri: $uri")
+    }
+
     @Delete("/{type}/{oid}/{uri}")
-    suspend fun deleteFileSForSeries(type: String = "product", oid: UUID, uri: String, authentication: Authentication): HttpResponse<MediaDTO> {
+    suspend fun deleteFiles(type: String = "product", oid: UUID, uri: String, authentication: Authentication): HttpResponse<MediaDTO> {
         LOG.info("Deleting media file oid: $oid and $uri")
         if ("series" == type && seriesRegistrationService.findByIdAndSupplierId(oid, authentication.supplierId())!=null)
             return HttpResponse.ok(mediaUploadService.deleteByOidAndUri(oid, uri))
