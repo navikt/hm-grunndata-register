@@ -15,6 +15,7 @@ import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.security.Roles
+import java.util.Locale
 import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
@@ -50,28 +51,11 @@ class SeriesAdminController(private val seriesRegistrationService: SeriesRegistr
                     root[SeriesRegistration::status] ne params["excludedStatus"]
                 }
             }.and { root, criteriaBuilder ->
-                if (params.contains("title") && params["title"]?.isNotEmpty() == true) {
-                    criteriaBuilder.or(
-                        criteriaBuilder.like(
-                            root[SeriesRegistration::title],
-                            LiteralExpression("%${params["title"]}%"),
-                        ),
-                        criteriaBuilder.like(
-                            root[SeriesRegistration::title],
-                            LiteralExpression(
-                                "%${
-                                    params["title"]?.replaceFirstChar(
-                                        Char::swapUpperAndLower,
-                                    )
-                                }%",
-                            ),
-                        ),
-                        criteriaBuilder.like(
-                            root[SeriesRegistration::title],
-                            LiteralExpression(
-                                "%${params["title"]?.uppercase()}%",
-                            ),
-                        ),
+                if (params.contains("title")) {
+                    val term = params["title"]!!.lowercase(Locale.getDefault())
+                    criteriaBuilder.like(
+                        root[SeriesRegistration::titleLowercase],
+                        LiteralExpression("%$term%"),
                     )
                 } else {
                     null
@@ -79,5 +63,3 @@ class SeriesAdminController(private val seriesRegistrationService: SeriesRegistr
             }
         }
 }
-
-fun Char.swapUpperAndLower() = if (this.isLowerCase()) this.titlecase() else this.lowercase()
