@@ -19,12 +19,6 @@ interface MediaUploadClient {
     )
     suspend fun uploadFile(@PathVariable oid: UUID, @QueryValue objectType: ObjectType,  @Body file: MultipartBody): MediaDTO
 
-    @Post(
-        value = "/files/{oid}",
-        produces = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA]
-    )
-    suspend fun uploadFiles(@PathVariable oid: UUID, @QueryValue objectType: ObjectType, @Body files: List<MultipartBody>): List<MediaDTO>
-
     @Get(value = "/oid/{oid}")
     suspend fun getMediaList(oid:UUID): List<MediaDTO>
 

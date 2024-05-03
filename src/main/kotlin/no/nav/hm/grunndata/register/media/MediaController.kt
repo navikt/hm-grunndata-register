@@ -89,7 +89,7 @@ class MediaController(private val mediaUploadService: MediaUploadService,
         throw BadRequestException("Not found for $type and id: $oid uri: $uri")
     }
 
-    suspend fun seriesExists(oid: UUID, supplierId: UUID) = seriesRegistrationService.findByIdAndSupplierId(oid, supplierId) != null
+    private suspend fun seriesExists(oid: UUID, supplierId: UUID) = seriesRegistrationService.findByIdAndSupplierId(oid, supplierId) != null
 
     private suspend fun oidExists(oid: UUID, supplierId: UUID) =
         productRegistrationService.findByIdAndSupplierId(oid, supplierId) != null
