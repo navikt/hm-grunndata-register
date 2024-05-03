@@ -7,6 +7,7 @@ import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.Flow
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
@@ -16,6 +17,7 @@ import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(TechLabelRegistrationAdminController.API_V1_ADMIN_TECHLABEL_REGISTRATIONS)
+@Tag(name="Admin TechLabel")
 class TechLabelRegistrationAdminController(private val techLabelRegistrationService: TechLabelRegistrationService) {
 
     companion object {

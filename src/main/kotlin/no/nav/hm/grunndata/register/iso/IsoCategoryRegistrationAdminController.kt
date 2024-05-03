@@ -7,6 +7,7 @@ import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.Flow
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
@@ -15,6 +16,7 @@ import java.time.LocalDateTime
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(IsoCategoryRegistrationAdminController.API_V1_ADMIN_ISOCATEGORY_REGISTRATIONS)
+@Tag(name="Admin IsoCategory")
 class IsoCategoryRegistrationAdminController(private val isoCategoryRegistrationService: IsoCategoryRegistrationService) {
 
     companion object {

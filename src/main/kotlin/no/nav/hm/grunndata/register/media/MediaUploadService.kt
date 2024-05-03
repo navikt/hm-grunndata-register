@@ -14,7 +14,7 @@ class MediaUploadService(private val mediaUploadClient: MediaUploadClient) {
         private val LOG = LoggerFactory.getLogger(MediaUploadService::class.java)
     }
 
-    suspend fun uploadMedia(file: CompletedFileUpload, oid: UUID): MediaDTO {
+    suspend fun uploadMedia(file: CompletedFileUpload, oid: UUID, objectType: ObjectType): MediaDTO {
         val type = getMediaType(file)
         if (type == MediaType.OTHER) throw UknownMediaSource("only png, jpg, pdf is supported")
         val body = MultipartBody.builder().addPart(
@@ -22,7 +22,7 @@ class MediaUploadService(private val mediaUploadClient: MediaUploadClient) {
             io.micronaut.http.MediaType.MULTIPART_FORM_DATA_TYPE, file.bytes
         ).build()
         LOG.info("upload media ${file.filename} for $oid")
-        return mediaUploadClient.uploadFile(oid, body)
+        return mediaUploadClient.uploadFile(oid, objectType, body)
     }
 
     suspend fun getMediaList(oid: UUID): List<MediaDTO> = mediaUploadClient.getMediaList(oid)
@@ -38,4 +38,10 @@ class MediaUploadService(private val mediaUploadClient: MediaUploadClient) {
         }
     }
 
+}
+
+enum class ObjectType {
+    SERIES,
+    PRODUCT,
+    AGREEMENT,
 }

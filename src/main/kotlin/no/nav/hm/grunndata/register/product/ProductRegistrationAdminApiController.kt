@@ -22,6 +22,7 @@ import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.http.server.types.files.StreamedFile
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
@@ -39,6 +40,7 @@ import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
+@Tag(name = "Admin Product")
 class ProductRegistrationAdminApiController(
     private val productRegistrationService: ProductRegistrationService,
     private val supplierRegistrationService: SupplierRegistrationService,

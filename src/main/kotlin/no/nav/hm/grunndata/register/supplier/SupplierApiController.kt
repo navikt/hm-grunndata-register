@@ -7,6 +7,7 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
@@ -14,6 +15,7 @@ import java.time.LocalDateTime
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SupplierApiController.API_V1_SUPPLIER_REGISTRATIONS)
+@Tag(name="Vendor Supplier")
 class SupplierApiController(private val supplierRegistrationService: SupplierRegistrationService) {
 
     companion object {

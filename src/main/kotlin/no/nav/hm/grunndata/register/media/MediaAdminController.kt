@@ -8,6 +8,8 @@ import io.micronaut.http.annotation.Post
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -16,14 +18,17 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.media.MediaAdminController.Companion.API_V1_ADMIN_UPLOAD_MEDIA
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(API_V1_ADMIN_UPLOAD_MEDIA)
+@Tag(name="Admin Media")
 class MediaAdminController(private val mediaUploadService: MediaUploadService,
                            private val productRegistrationService: ProductRegistrationService,
+                           private val seriesRegistrationService: SeriesRegistrationService,
                            private val agreementRegistrationService: AgreementRegistrationService) {
 
     companion object {
@@ -32,31 +37,21 @@ class MediaAdminController(private val mediaUploadService: MediaUploadService,
     }
 
     @Post(
-        value = "/product/files/{oid}",
+        value = "/{type}/files/{oid}",
         consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
         produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
     )
-    suspend fun uploadProductFiles(oid: UUID,
-                            files: Publisher<CompletedFileUpload>,
-                            authentication: Authentication): HttpResponse<List<MediaDTO>>  {
-        if (productRegistrationService.findById(oid) != null) {
-            return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid) }.toList())
+    suspend fun uploadProductFiles(@Parameter(example = "series, product or agreement") type: String="product", oid: UUID,
+                                   files: Publisher<CompletedFileUpload>,
+                                   authentication: Authentication): HttpResponse<List<MediaDTO>>  {
+        if ("product" == type && productRegistrationService.findById(oid) != null) {
+            return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid, ObjectType.PRODUCT) }.toList())
+        } else if ("series" == type && seriesRegistrationService.findById(oid) != null) {
+            return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid, ObjectType.SERIES) }.toList())
+        } else if ("agreement" == type && agreementRegistrationService.findById(oid) != null) {
+            return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid, ObjectType.AGREEMENT) }.toList())
         }
-        throw BadRequestException("Unknown oid, must be of product")
-    }
-
-    @Post(
-        value = "/agreement/files/{oid}",
-        consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
-        produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
-    )
-    suspend fun uploadAgreementFiles(oid: UUID,
-                            files: Publisher<CompletedFileUpload>,
-                            authentication: Authentication): HttpResponse<List<MediaDTO>>  {
-        if (agreementRegistrationService.findById(oid) != null) {
-            return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid) }.toList())
-        }
-        throw BadRequestException("Unknown oid, must be of agreement")
+        throw BadRequestException("Unknown type $type or oid: $oid")
     }
 
     @Get("/{oid}")

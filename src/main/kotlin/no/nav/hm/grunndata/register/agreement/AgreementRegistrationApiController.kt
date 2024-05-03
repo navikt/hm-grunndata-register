@@ -10,12 +10,13 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
+import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
-import java.util.HashMap
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(AgreementRegistrationApiController.API_V1_AGREEMENT_REGISTRATIONS)
+@Tag(name="Vendor Agreement")
 class AgreementRegistrationApiController(private val agreementRegistrationService: AgreementRegistrationService) {
     companion object {
         const val API_V1_AGREEMENT_REGISTRATIONS = "/vendor/api/v1/agreement/registrations"
