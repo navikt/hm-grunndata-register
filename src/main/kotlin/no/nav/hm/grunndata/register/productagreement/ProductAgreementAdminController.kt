@@ -11,16 +11,18 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
-import java.util.UUID
+import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
+@Tag(name = "Admin Product Agreement")
 class ProductAgreementAdminController(
     private val productAgreementImportExcelService: ProductAgreementImportExcelService,
     private val productRegistrationService: ProductRegistrationService,

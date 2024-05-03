@@ -1,18 +1,22 @@
 package no.nav.hm.grunndata.register.user
 
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.annotation.*
+import io.micronaut.http.annotation.Body
+import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.user.UserAttribute.SUPPLIER_ID
 import org.slf4j.LoggerFactory
 import java.util.*
-import no.nav.hm.grunndata.register.user.UserAttribute.SUPPLIER_ID
-import kotlin.collections.List
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(UserController.API_V1_USER_REGISTRATIONS)
+@Tag(name="Vendor User")
 class UserController(private val userRepository: UserRepository) {
 
     companion object {

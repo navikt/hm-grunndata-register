@@ -9,15 +9,17 @@ import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
-import java.util.UUID
+import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(DelkontraktRegistrationAdminController.API_V1_ADMIN_DELKONTRAKT_REGISTRATIONS)
+@Tag(name="Admin Post/Delkontrakt")
 class DelkontraktRegistrationAdminController(
     private val delkontraktRegistrationService: DelkontraktRegistrationService,
     private val agreementService: AgreementRegistrationService,

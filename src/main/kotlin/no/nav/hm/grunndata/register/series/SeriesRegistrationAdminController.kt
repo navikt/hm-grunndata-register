@@ -11,14 +11,16 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.security.Roles
-import java.util.UUID
+import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(SeriesAdminController.API_V1_SERIES)
+@Tag(name = "Admin Series")
 class SeriesAdminController(private val seriesRegistrationService: SeriesRegistrationService) {
     companion object {
         const val API_V1_SERIES = "/admin/api/v1/series"

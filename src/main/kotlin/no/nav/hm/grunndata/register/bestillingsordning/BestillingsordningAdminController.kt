@@ -7,6 +7,7 @@ import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory
 
 @Controller(BestillingsordningAdminController.API_V1_ADMIN_BESTILLINGSORDNING_REGISTRATIONS)
 @Secured(Roles.ROLE_ADMIN)
+@Tag(name="Admin Bestillingsordning")
 class BestillingsordningAdminController(private val bestillingsordningService: BestillingsordningService ) {
 
     companion object {

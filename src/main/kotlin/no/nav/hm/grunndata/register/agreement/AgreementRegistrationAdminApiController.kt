@@ -7,9 +7,17 @@ import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.annotation.*
+import io.micronaut.http.annotation.Body
+import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
+import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.PathVariable
+import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Put
+import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
@@ -22,6 +30,7 @@ import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(AgreementRegistrationAdminApiController.API_V1_ADMIN_AGREEMENT_REGISTRATIONS)
+@Tag(name = "Admin Agreement")
 class AgreementRegistrationAdminApiController(private val agreementRegistrationService: AgreementRegistrationService) {
     companion object {
         const val API_V1_ADMIN_AGREEMENT_REGISTRATIONS = "/admin/api/v1/agreement/registrations"

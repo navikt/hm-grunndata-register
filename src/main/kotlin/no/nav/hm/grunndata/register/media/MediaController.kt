@@ -8,6 +8,8 @@ import io.micronaut.http.annotation.Post
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
@@ -23,6 +25,7 @@ import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(API_V1_UPLOAD_PRODUCT_MEDIA)
+@Tag(name="Vendor Media")
 class MediaController(private val mediaUploadService: MediaUploadService,
                       private val seriesRegistrationService: SeriesRegistrationService,
                       private val productRegistrationService: ProductRegistrationService) {
@@ -57,7 +60,7 @@ class MediaController(private val mediaUploadService: MediaUploadService,
         consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
         produces = [io.micronaut.http.MediaType.APPLICATION_JSON]
     )
-    suspend fun uploadFiles(type: String="product", oid: UUID,
+    suspend fun uploadFiles(@Parameter(example = "series or product") type: String="product", oid: UUID,
                             files: Publisher<CompletedFileUpload>,
                             authentication: Authentication): HttpResponse<List<MediaDTO>>  {
         LOG.info("supplier: ${authentication.supplierId()} uploading files for object $oid type: $type")
