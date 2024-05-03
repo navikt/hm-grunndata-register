@@ -111,7 +111,8 @@ class ProductRegistrationApiController(
         @QueryValue params: HashMap<String, String>?,
         pageable: Pageable,
         authentication: Authentication,
-    ): Page<ProductRegistrationDTO> = productRegistrationService.findAll(buildCriteriaSpec(params, authentication.supplierId()), pageable)
+    ): Page<ProductRegistrationDTO> =
+        productRegistrationService.findAll(buildCriteriaSpec(params, authentication.supplierId()), pageable)
 
     private fun buildCriteriaSpec(
         params: HashMap<String, String>?,
@@ -205,11 +206,11 @@ class ProductRegistrationApiController(
                                 registrationDTO
                                     .copy(
                                         draftStatus =
-                                            if (inDb.draftStatus == DraftStatus.DONE && inDb.adminStatus == AdminStatus.APPROVED) {
-                                                DraftStatus.DONE
-                                            } else {
-                                                registrationDTO.draftStatus
-                                            },
+                                        if (inDb.draftStatus == DraftStatus.DONE && inDb.adminStatus == AdminStatus.APPROVED) {
+                                            DraftStatus.DONE
+                                        } else {
+                                            registrationDTO.draftStatus
+                                        },
                                         id = inDb.id,
                                         created = inDb.created,
                                         updatedBy = REGISTER,
@@ -280,6 +281,30 @@ class ProductRegistrationApiController(
                     )
                 HttpResponse.ok(deleteDTO)
             } ?: HttpResponse.notFound()
+
+    @Delete("/delete")
+    suspend fun deleteProducts(
+        @Body ids: List<UUID>,
+        authentication: Authentication,
+    ): HttpResponse<List<ProductRegistrationDTO>> {
+        val products =
+            productRegistrationService.findByIdIn(ids).onEach {
+                if (it.supplierId != authentication.supplierId()) return HttpResponse.unauthorized()
+            }
+
+        val productsToDelete = products.map {
+            it.copy(
+                registrationStatus = RegistrationStatus.DELETED,
+                updatedByUser = authentication.name,
+                updatedBy = REGISTER,
+            )
+        }
+
+        val updated =
+            productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(productsToDelete, isUpdate = true)
+
+        return HttpResponse.ok(updated)
+    }
 
     @Post("/draft{?isAccessory}{?isSparePart}")
     suspend fun draftProduct(

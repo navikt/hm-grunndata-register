@@ -65,12 +65,9 @@ class SeriesController(private val seriesRegistrationService: SeriesRegistration
         }
 
     @Post("/draft")
-    suspend fun createDraftSeries(
-        authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO>  {
+    suspend fun createDraftSeries(authentication: Authentication): HttpResponse<SeriesRegistrationDTO> {
         return HttpResponse.ok(seriesRegistrationService.createDraft(authentication.supplierId(), authentication))
     }
-
 
     @Get("/{id}")
     suspend fun readSeries(
@@ -130,7 +127,11 @@ class SeriesController(private val seriesRegistrationService: SeriesRegistration
                 }
             }.and { root, criteriaBuilder ->
                 if (params.contains("title")) {
-                    criteriaBuilder.like(root[SeriesRegistration::title], LiteralExpression("%${params["title"]}%"))
+                    val term = params["title"]!!.lowercase(Locale.getDefault())
+                    criteriaBuilder.like(
+                        root[SeriesRegistration::titleLowercase],
+                        LiteralExpression("%$term%"),
+                    )
                 } else {
                     null
                 }
