@@ -380,7 +380,7 @@ open class ProductRegistrationService(
                 seriesId = seriesUUID.toString(),
                 isoCategory = series.isoCategory,
                 supplierId = authentication.supplierId(),
-                supplierRef = productId.toString(),
+                supplierRef = draftWithDTO.supplierRef,
                 hmsArtNr = null,
                 articleName = draftWithDTO.articleName,
                 createdBy = REGISTER,
