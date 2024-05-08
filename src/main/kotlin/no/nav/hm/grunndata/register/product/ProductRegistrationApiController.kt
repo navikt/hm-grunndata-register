@@ -339,7 +339,7 @@ class ProductRegistrationApiController(
     @Post("/draftWithV2/{seriesUUID}/")
     suspend fun draftProductWithV2(
         @PathVariable seriesUUID: UUID,
-        @Body draftWith: DraftVariantDTOV2,
+        @Body draftWith: DraftVariantDTO,
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> {
         return HttpResponse.ok(
@@ -466,7 +466,5 @@ private fun validateProductsToBeImported(
 }
 
 data class ProductDraftWithDTO(val title: String, val text: String, val isoCategory: String)
-
-data class DraftVariantDTOV2(val title: String, val isoCategory: String)
 
 data class DraftVariantDTO(val articleName: String, val supplierRef: String)

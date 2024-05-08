@@ -355,15 +355,18 @@ open class ProductRegistrationService(
 
     open suspend fun createDraftWithV2(
         seriesUUID: UUID,
-        draftWithDTO: DraftVariantDTOV2,
+        draftWithDTO: DraftVariantDTO,
         authentication: Authentication,
     ): ProductRegistrationDTO {
+        val series =
+            seriesRegistrationRepository.findById(seriesUUID)
+                ?: throw RuntimeException("Series not found") // consider caching series
         val productId = UUID.randomUUID()
         val product =
             ProductData(
                 accessory = false,
                 sparePart = false,
-                techData = createTechDataDraft(draftWithDTO),
+                techData = createTechDataDraft(series.isoCategory),
                 attributes =
                     Attributes(
                         shortdescription = "",
@@ -375,11 +378,11 @@ open class ProductRegistrationService(
                 id = productId,
                 seriesUUID = seriesUUID,
                 seriesId = seriesUUID.toString(),
-                isoCategory = draftWithDTO.isoCategory,
+                isoCategory = series.isoCategory,
                 supplierId = authentication.supplierId(),
                 supplierRef = productId.toString(),
                 hmsArtNr = null,
-                articleName = draftWithDTO.title,
+                articleName = draftWithDTO.articleName,
                 createdBy = REGISTER,
                 updatedBy = REGISTER,
                 message = null,
@@ -402,8 +405,8 @@ open class ProductRegistrationService(
             TechData(key = it.label, value = "", unit = it.unit ?: "")
         }
 
-    private fun createTechDataDraft(draftWithDTO: DraftVariantDTOV2): List<TechData> =
-        techLabelService.fetchLabelsByIsoCode(draftWithDTO.isoCategory).map {
+    private fun createTechDataDraft(isoCode: String): List<TechData> =
+        techLabelService.fetchLabelsByIsoCode(isoCode).map {
             TechData(key = it.label, value = "", unit = it.unit ?: "")
         }
 
