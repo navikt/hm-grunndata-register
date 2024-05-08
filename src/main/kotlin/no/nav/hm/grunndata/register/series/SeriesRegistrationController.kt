@@ -26,7 +26,7 @@ import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SeriesRegistrationController.API_V1_SERIES)
-@Tag(name="Vendor Series")
+@Tag(name = "Vendor Series")
 class SeriesRegistrationController(private val seriesRegistrationService: SeriesRegistrationService) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationController::class.java)
@@ -67,6 +67,20 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
     @Post("/draft")
     suspend fun createDraftSeries(authentication: Authentication): HttpResponse<SeriesRegistrationDTO> {
         return HttpResponse.ok(seriesRegistrationService.createDraft(authentication.supplierId(), authentication))
+    }
+
+    @Post("/draftWith")
+    suspend fun draftSeriesWith(
+        @Body draftWith: SeriesDraftWithDTO,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> {
+        return HttpResponse.ok(
+            seriesRegistrationService.createDraftWith(
+                authentication.supplierId(),
+                authentication,
+                draftWith,
+            ),
+        )
     }
 
     @Get("/{id}")
@@ -140,3 +154,5 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
             root[SeriesRegistration::supplierId] eq supplierId
         }
 }
+
+data class SeriesDraftWithDTO(val title: String, val isoCategory: String)
