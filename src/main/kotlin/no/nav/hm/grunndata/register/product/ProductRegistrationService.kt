@@ -32,7 +32,7 @@ import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Singleton
 open class ProductRegistrationService(
@@ -430,6 +430,19 @@ open class ProductRegistrationService(
             status = status,
         )
     }
+
+    suspend fun findExpired(): List<ProductRegistrationDTO> =
+        productRegistrationRepository.findByRegistrationStatusAndExpiredBefore(RegistrationStatus.ACTIVE,
+            expired = LocalDateTime.now()).map { it.toDTO() }
+
+    suspend fun findProductsToPublish(): List<ProductRegistrationDTO> =
+        productRegistrationRepository.findByRegistrationStatusAndAdminStatusAndPublishedBeforeAndExpiredAfter(
+        RegistrationStatus.INACTIVE,
+        AdminStatus.APPROVED,
+        published = LocalDateTime.now(),
+        expired = LocalDateTime.now(),
+    ).map { it.toDTO() }
+
 }
 
 suspend fun <T : Any, R : Any> Page<T>.mapSuspend(transform: suspend (T) -> R): Page<R> {

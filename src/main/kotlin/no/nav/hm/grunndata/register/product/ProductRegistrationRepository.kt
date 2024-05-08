@@ -5,7 +5,9 @@ import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import java.time.LocalDateTime
 import java.util.UUID
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
@@ -56,4 +58,16 @@ interface ProductRegistrationRepository :
     suspend fun findAllBySeriesUUID(seriesUUID: UUID): List<ProductRegistration>
 
     suspend fun findBySeriesUUID(seriesUUID: UUID): ProductRegistration?
+
+    suspend fun findByRegistrationStatusAndExpiredBefore(
+        registrationStatus: RegistrationStatus,
+        expired: LocalDateTime,
+    ): List<ProductRegistration>
+
+    suspend fun findByRegistrationStatusAndAdminStatusAndPublishedBeforeAndExpiredAfter(
+        registrationStatus: RegistrationStatus,
+        adminStatus: AdminStatus,
+        published: LocalDateTime,
+        expired: LocalDateTime
+    ): List<ProductRegistration>
 }
