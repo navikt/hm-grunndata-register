@@ -198,7 +198,6 @@ open class ProductRegistrationService(
         )
     }
 
-
     open suspend fun importExcelRegistrations(
         dtos: List<ProductRegistrationExcelDTO>,
         authentication: Authentication,
@@ -356,7 +355,7 @@ open class ProductRegistrationService(
 
     open suspend fun createDraftWithV2(
         seriesUUID: UUID,
-        draftWithDTO: ProductDraftWithDTO,
+        draftWithDTO: DraftVariantDTOV2,
         authentication: Authentication,
     ): ProductRegistrationDTO {
         val productId = UUID.randomUUID()
@@ -366,10 +365,10 @@ open class ProductRegistrationService(
                 sparePart = false,
                 techData = createTechDataDraft(draftWithDTO),
                 attributes =
-                Attributes(
-                    shortdescription = "",
-                    text = draftWithDTO.text,
-                ),
+                    Attributes(
+                        shortdescription = "",
+                        text = "",
+                    ),
             )
         val registration =
             ProductRegistrationDTO(
@@ -399,6 +398,11 @@ open class ProductRegistrationService(
     }
 
     private fun createTechDataDraft(draftWithDTO: ProductDraftWithDTO): List<TechData> =
+        techLabelService.fetchLabelsByIsoCode(draftWithDTO.isoCategory).map {
+            TechData(key = it.label, value = "", unit = it.unit ?: "")
+        }
+
+    private fun createTechDataDraft(draftWithDTO: DraftVariantDTOV2): List<TechData> =
         techLabelService.fetchLabelsByIsoCode(draftWithDTO.isoCategory).map {
             TechData(key = it.label, value = "", unit = it.unit ?: "")
         }
@@ -478,17 +482,18 @@ open class ProductRegistrationService(
     }
 
     suspend fun findExpired(): List<ProductRegistrationDTO> =
-        productRegistrationRepository.findByRegistrationStatusAndExpiredBefore(RegistrationStatus.ACTIVE,
-            expired = LocalDateTime.now()).map { it.toDTO() }
+        productRegistrationRepository.findByRegistrationStatusAndExpiredBefore(
+            RegistrationStatus.ACTIVE,
+            expired = LocalDateTime.now(),
+        ).map { it.toDTO() }
 
     suspend fun findProductsToPublish(): List<ProductRegistrationDTO> =
         productRegistrationRepository.findByRegistrationStatusAndAdminStatusAndPublishedBeforeAndExpiredAfter(
-        RegistrationStatus.INACTIVE,
-        AdminStatus.APPROVED,
-        published = LocalDateTime.now(),
-        expired = LocalDateTime.now(),
-    ).map { it.toDTO() }
-
+            RegistrationStatus.INACTIVE,
+            AdminStatus.APPROVED,
+            published = LocalDateTime.now(),
+            expired = LocalDateTime.now(),
+        ).map { it.toDTO() }
 }
 
 suspend fun <T : Any, R : Any> Page<T>.mapSuspend(transform: suspend (T) -> R): Page<R> {
