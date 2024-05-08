@@ -6,7 +6,7 @@ import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.NewsStatus
-import no.nav.hm.grunndata.register.LeaderElection
+import no.nav.hm.grunndata.register.leaderelection.LeaderElection
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 

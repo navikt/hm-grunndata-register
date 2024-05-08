@@ -13,13 +13,18 @@ class ProductExpirePublishHandler(private val productRegistrationService: Produc
         private val LOG = LoggerFactory.getLogger(ProductExpirePublishHandler::class.java)
 
     }
+
+
     suspend fun expiredProducts(): List<ProductRegistrationDTO> {
         val expiredProducts = productRegistrationService.findExpired()
         LOG.info("Found ${expiredProducts.size} products to be expired")
         expiredProducts.forEach {
             productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
-                it.copy(registrationStatus = RegistrationStatus.INACTIVE, updatedByUser = "system-expired",
-                    updatedBy = REGISTER, updated = LocalDateTime.now()), isUpdate = true)
+                it.copy(
+                    registrationStatus = RegistrationStatus.INACTIVE, updatedByUser = "system-expired",
+                    updatedBy = REGISTER, updated = LocalDateTime.now()
+                ), isUpdate = true
+            )
         }
         return expiredProducts
     }
@@ -29,10 +34,12 @@ class ProductExpirePublishHandler(private val productRegistrationService: Produc
         LOG.info("Found ${publishing.size} products to be published")
         publishing.forEach {
             productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
-                it.copy(registrationStatus = RegistrationStatus.ACTIVE, updatedByUser = "system-published",
-                    updatedBy = REGISTER, updated = LocalDateTime.now()), isUpdate = true)
+                it.copy(
+                    registrationStatus = RegistrationStatus.ACTIVE, updatedByUser = "system-published",
+                    updatedBy = REGISTER, updated = LocalDateTime.now()
+                ), isUpdate = true
+            )
         }
         return publishing
     }
-
 }

@@ -3,12 +3,13 @@ package no.nav.hm.grunndata.register.series
 import io.micronaut.scheduling.annotation.Scheduled
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.register.LeaderElection
+import no.nav.hm.grunndata.register.leaderelection.LeaderElection
 import org.slf4j.LoggerFactory
 
 @Singleton
 class SeriesScheduler(private val seriesStateHandler: SeriesStateHandler,
-                      private val leaderElection: LeaderElection) {
+                      private val leaderElection: LeaderElection
+) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesScheduler::class.java)
     }

@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register
+package no.nav.hm.grunndata.register.leaderelection
 import io.micronaut.context.annotation.Value
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.client.annotation.Client
