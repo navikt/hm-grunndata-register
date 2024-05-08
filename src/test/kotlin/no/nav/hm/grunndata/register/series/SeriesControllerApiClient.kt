@@ -12,7 +12,7 @@ import io.micronaut.http.client.annotation.Client
 import no.nav.hm.grunndata.register.CONTEXT_PATH
 import java.util.UUID
 
-@Client("$CONTEXT_PATH/${SeriesController.API_V1_SERIES}")
+@Client("$CONTEXT_PATH/${SeriesRegistrationController.API_V1_SERIES}")
 interface SeriesControllerApiClient {
     @Get(uri = "/", consumes = [APPLICATION_JSON])
     fun findSeries(

@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 @MicronautTest
-class SeriesControllerTest(
+class SeriesRegistrationControllerTest(
     private val seriesRegistrationService: SeriesRegistrationService,
     private val loginClient: LoginClient,
     private val userRepository: UserRepository,
@@ -120,7 +120,7 @@ class SeriesControllerTest(
         val jwt = loginClient.login(UsernamePasswordCredentials(email, token)).getCookie("JWT").get()
 
         val allSeries = client.toBlocking().exchange(
-            HttpRequest.GET<Page<SeriesRegistrationDTO>>(SeriesController.API_V1_SERIES)
+            HttpRequest.GET<Page<SeriesRegistrationDTO>>(SeriesRegistrationController.API_V1_SERIES)
                 .accept(MediaType.APPLICATION_JSON)
                 .cookie(jwt),
             Page::class.java
@@ -129,7 +129,7 @@ class SeriesControllerTest(
             .body().shouldNotBeNull()
         allSeries.totalSize shouldBeGreaterThanOrEqual 2
         
-        val uri = "${SeriesController.API_V1_SERIES}/?title=superserie"
+        val uri = "${SeriesRegistrationController.API_V1_SERIES}/?title=superserie"
         val filteredSeries = client.toBlocking().exchange(
             HttpRequest.GET<Page<SeriesRegistrationDTO>>(uri)
                 .accept(MediaType.APPLICATION_JSON)

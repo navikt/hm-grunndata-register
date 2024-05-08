@@ -6,8 +6,12 @@ import io.micronaut.data.model.jpa.criteria.impl.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
+import io.micronaut.http.HttpResponse
+import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.PathVariable
+import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
@@ -16,14 +20,18 @@ import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.security.supplierId
+import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.Locale
 import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
-@Controller(SeriesAdminController.API_V1_SERIES)
+@Controller(SeriesRegistrationAdminController.API_V1_SERIES)
 @Tag(name = "Admin Series")
-class SeriesAdminController(private val seriesRegistrationService: SeriesRegistrationService) {
+class SeriesRegistrationAdminController(private val seriesRegistrationService: SeriesRegistrationService) {
     companion object {
+        private val LOG = LoggerFactory.getLogger(SeriesRegistrationAdminController::class.java)
         const val API_V1_SERIES = "/admin/api/v1/series"
     }
 
@@ -63,5 +71,43 @@ class SeriesAdminController(private val seriesRegistrationService: SeriesRegistr
                     null
                 }
             }
+        }
+
+    @Get("/{id}")
+    suspend fun readSeries(
+        @PathVariable id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> =
+        seriesRegistrationService.findById(id)?.let {
+            HttpResponse.ok(it)
+        } ?: run {
+            LOG.warn("Series with id $id does not exist")
+            HttpResponse.notFound()
+        }
+
+    @Put("/{id}")
+    suspend fun updateSeries(
+        @PathVariable id: UUID,
+        @Body seriesRegistrationDTO: SeriesRegistrationDTO,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> =
+
+        seriesRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())?.let { inDb ->
+            HttpResponse.ok(
+                seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                    seriesRegistrationDTO
+                        .copy(
+                            adminStatus = inDb.adminStatus,
+                            created = inDb.created,
+                            createdByUser = inDb.createdByUser,
+                            updated = LocalDateTime.now(),
+                            updatedByUser = authentication.name,
+                        ),
+                    true,
+                ),
+            )
+        } ?: run {
+            LOG.warn("Series with id $id does not exist")
+            HttpResponse.notFound()
         }
 }

@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 @MicronautTest
-class SeriesControllerApiTest(
+class SeriesRegistrationControllerApiTest(
     private val apiClient: SeriesControllerApiClient,
     private val productApiClient: ProductRegistrationApiClient,
     private val loginClient: LoginClient,
@@ -45,7 +45,7 @@ class SeriesControllerApiTest(
     private val supplierRegistrationRepository: SupplierRepository,
 ) {
     companion object {
-        private val LOG = LoggerFactory.getLogger(SeriesControllerTest::class.java)
+        private val LOG = LoggerFactory.getLogger(SeriesRegistrationControllerTest::class.java)
     }
 
     private val email = "series-tester@test.test"

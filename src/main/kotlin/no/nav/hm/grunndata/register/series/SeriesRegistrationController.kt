@@ -25,11 +25,11 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
-@Controller(SeriesController.API_V1_SERIES)
+@Controller(SeriesRegistrationController.API_V1_SERIES)
 @Tag(name="Vendor Series")
-class SeriesController(private val seriesRegistrationService: SeriesRegistrationService) {
+class SeriesRegistrationController(private val seriesRegistrationService: SeriesRegistrationService) {
     companion object {
-        private val LOG = LoggerFactory.getLogger(SeriesController::class.java)
+        private val LOG = LoggerFactory.getLogger(SeriesRegistrationController::class.java)
         const val API_V1_SERIES = "/vendor/api/v1/series"
     }
 
