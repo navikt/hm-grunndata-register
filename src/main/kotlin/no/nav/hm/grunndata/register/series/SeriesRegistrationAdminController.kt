@@ -20,7 +20,6 @@ import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
@@ -92,7 +91,7 @@ class SeriesRegistrationAdminController(private val seriesRegistrationService: S
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> =
 
-        seriesRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())?.let { inDb ->
+        seriesRegistrationService.findById(id)?.let { inDb ->
             HttpResponse.ok(
                 seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                     seriesRegistrationDTO
