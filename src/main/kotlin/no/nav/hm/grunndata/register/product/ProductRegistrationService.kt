@@ -25,6 +25,7 @@ import no.nav.hm.grunndata.register.product.batch.toRegistrationDTO
 import no.nav.hm.grunndata.register.product.batch.toRegistrationDryRunDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
+import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
@@ -197,6 +198,7 @@ open class ProductRegistrationService(
         )
     }
 
+
     open suspend fun importExcelRegistrations(
         dtos: List<ProductRegistrationExcelDTO>,
         authentication: Authentication,
@@ -349,6 +351,50 @@ open class ProductRegistrationService(
             )
         val draft = save(registration)
         LOG.info("Draft was created ${draft.id} by $supplierId")
+        return draft
+    }
+
+    open suspend fun createDraftWithV2(
+        seriesUUID: UUID,
+        draftWithDTO: ProductDraftWithDTO,
+        authentication: Authentication,
+    ): ProductRegistrationDTO {
+        val productId = UUID.randomUUID()
+        val product =
+            ProductData(
+                accessory = false,
+                sparePart = false,
+                techData = createTechDataDraft(draftWithDTO),
+                attributes =
+                Attributes(
+                    shortdescription = "",
+                    text = draftWithDTO.text,
+                ),
+            )
+        val registration =
+            ProductRegistrationDTO(
+                id = productId,
+                seriesUUID = seriesUUID,
+                seriesId = seriesUUID.toString(),
+                isoCategory = draftWithDTO.isoCategory,
+                supplierId = authentication.supplierId(),
+                supplierRef = productId.toString(),
+                hmsArtNr = null,
+                articleName = draftWithDTO.title,
+                createdBy = REGISTER,
+                updatedBy = REGISTER,
+                message = null,
+                published = LocalDateTime.now(),
+                expired = LocalDateTime.now().plusYears(10),
+                productData = product,
+                createdByUser = authentication.name,
+                updatedByUser = authentication.name,
+                agreements = emptyList(),
+                createdByAdmin = authentication.isAdmin(),
+                version = 0,
+            )
+        val draft = save(registration)
+        LOG.info("Draft was created ${draft.id} by ${authentication.supplierId()}")
         return draft
     }
 

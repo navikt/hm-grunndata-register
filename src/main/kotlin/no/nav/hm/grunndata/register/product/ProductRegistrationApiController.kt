@@ -111,8 +111,7 @@ class ProductRegistrationApiController(
         @QueryValue params: HashMap<String, String>?,
         pageable: Pageable,
         authentication: Authentication,
-    ): Page<ProductRegistrationDTO> =
-        productRegistrationService.findAll(buildCriteriaSpec(params, authentication.supplierId()), pageable)
+    ): Page<ProductRegistrationDTO> = productRegistrationService.findAll(buildCriteriaSpec(params, authentication.supplierId()), pageable)
 
     private fun buildCriteriaSpec(
         params: HashMap<String, String>?,
@@ -206,11 +205,11 @@ class ProductRegistrationApiController(
                                 registrationDTO
                                     .copy(
                                         draftStatus =
-                                        if (inDb.draftStatus == DraftStatus.DONE && inDb.adminStatus == AdminStatus.APPROVED) {
-                                            DraftStatus.DONE
-                                        } else {
-                                            registrationDTO.draftStatus
-                                        },
+                                            if (inDb.draftStatus == DraftStatus.DONE && inDb.adminStatus == AdminStatus.APPROVED) {
+                                                DraftStatus.DONE
+                                            } else {
+                                                registrationDTO.draftStatus
+                                            },
                                         id = inDb.id,
                                         created = inDb.created,
                                         updatedBy = REGISTER,
@@ -292,13 +291,14 @@ class ProductRegistrationApiController(
                 if (it.supplierId != authentication.supplierId()) return HttpResponse.unauthorized()
             }
 
-        val productsToDelete = products.map {
-            it.copy(
-                registrationStatus = RegistrationStatus.DELETED,
-                updatedByUser = authentication.name,
-                updatedBy = REGISTER,
-            )
-        }
+        val productsToDelete =
+            products.map {
+                it.copy(
+                    registrationStatus = RegistrationStatus.DELETED,
+                    updatedByUser = authentication.name,
+                    updatedBy = REGISTER,
+                )
+            }
 
         val updated =
             productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(productsToDelete, isUpdate = true)
@@ -333,6 +333,17 @@ class ProductRegistrationApiController(
         val supplierId = authentication.supplierId()
         return HttpResponse.ok(
             productRegistrationService.createDraftWith(supplierId, authentication, isAccessory, isSparePart, draftWith),
+        )
+    }
+
+    @Post("/draftWithV2/{seriesUUID}/")
+    suspend fun draftProductWithV2(
+        @PathVariable seriesUUID: UUID,
+        @Body draftWith: ProductDraftWithDTO,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> {
+        return HttpResponse.ok(
+            productRegistrationService.createDraftWithV2(seriesUUID, draftWith, authentication),
         )
     }
 
