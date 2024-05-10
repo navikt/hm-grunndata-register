@@ -3,6 +3,8 @@ package no.nav.hm.grunndata.register.series
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
+import io.micronaut.data.runtime.criteria.get
+import io.micronaut.data.runtime.criteria.where
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
@@ -11,6 +13,7 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.product.mapSuspend
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
@@ -116,4 +119,15 @@ open class SeriesRegistrationService(
         LOG.info("Created draft series with id $id for supplier $supplierId")
         return draft
     }
+
+    open suspend fun findSeriesToApprove(pageable: Pageable): Page<SeriesRegistrationDTO> =
+        seriesRegistrationRepository.findAll(buildCriteriaSpecPendingProducts(), pageable)
+            .mapSuspend { it.toDTO() }
+
+    private fun buildCriteriaSpecPendingProducts(): PredicateSpecification<SeriesRegistration> =
+        where {
+            root[SeriesRegistration::adminStatus] eq AdminStatus.PENDING
+            root[SeriesRegistration::status] eq SeriesStatus.ACTIVE
+            root[SeriesRegistration::draftStatus] eq DraftStatus.DONE
+        }
 }

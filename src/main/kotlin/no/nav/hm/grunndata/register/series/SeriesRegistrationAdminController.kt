@@ -109,4 +109,10 @@ class SeriesRegistrationAdminController(private val seriesRegistrationService: S
             LOG.warn("Series with id $id does not exist")
             HttpResponse.notFound()
         }
+
+    @Get("/to-approve")
+    suspend fun findSeriesPendingApprove(
+        @QueryValue params: java.util.HashMap<String, String>?,
+        pageable: Pageable,
+    ): Page<SeriesRegistrationDTO> = seriesRegistrationService.findSeriesToApprove(pageable)
 }
