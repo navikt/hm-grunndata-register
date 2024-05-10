@@ -19,6 +19,8 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -115,4 +117,25 @@ class SeriesRegistrationAdminController(private val seriesRegistrationService: S
         @QueryValue params: java.util.HashMap<String, String>?,
         pageable: Pageable,
     ): Page<SeriesRegistrationDTO> = seriesRegistrationService.findSeriesToApprove(pageable)
+
+    @Put("/approve/{id}")
+    suspend fun approveSeries(
+        id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> =
+        seriesRegistrationService.findById(id)?.let {
+            if (it.adminStatus == AdminStatus.APPROVED) throw BadRequestException("$id is already approved")
+            if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("Series is not done")
+            if (it.status != SeriesStatus.ACTIVE) throw BadRequestException("SeriesStatus should be Active")
+            val dto =
+                seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                    it.copy(
+                        adminStatus = AdminStatus.APPROVED,
+                        updated = LocalDateTime.now(),
+                        updatedBy = REGISTER,
+                    ),
+                    isUpdate = true,
+                )
+            HttpResponse.ok(dto)
+        } ?: HttpResponse.notFound()
 }
