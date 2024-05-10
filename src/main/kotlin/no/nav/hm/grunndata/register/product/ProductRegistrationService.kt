@@ -56,7 +56,7 @@ open class ProductRegistrationService(
     open suspend fun findByHmsArtNr(hmsArtNr: String) = productRegistrationRepository.findByHmsArtNr(hmsArtNr)?.toDTO()
 
     open suspend fun save(dto: ProductRegistrationDTO): ProductRegistrationDTO {
-        //todo: remove series creation as part of variant creation
+        // todo: remove series creation as part of variant creation
         if (seriesRegistrationRepository.findById(dto.seriesUUID) == null) {
             seriesRegistrationRepository.save(
                 SeriesRegistration(
@@ -419,12 +419,12 @@ open class ProductRegistrationService(
         val status = if (isDraft()) "NEW" else "EXISTING"
 
         return ProductToApproveDto(
-            title = title,
+            title = articleName,
             articleName = articleName,
             supplierName = supplier?.name ?: "",
             agreementId = agreeements.firstOrNull()?.agreementId,
             delkontrakttittel = agreementInfo.firstOrNull()?.title,
-            seriesId = seriesUUID!!,
+            seriesId = seriesUUID,
             status = status,
             thumbnail = productData.media.firstOrNull { it.type == MediaType.IMAGE },
         )

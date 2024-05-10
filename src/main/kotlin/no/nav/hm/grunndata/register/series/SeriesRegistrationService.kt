@@ -10,10 +10,12 @@ import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.product.mapSuspend
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
@@ -22,6 +24,7 @@ import java.util.UUID
 open class SeriesRegistrationService(
     private val seriesRegistrationRepository: SeriesRegistrationRepository,
     private val seriesRegistrationEventHandler: SeriesRegistrationEventHandler,
+    private val supplierService: SupplierRegistrationService,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationService::class.java)
@@ -120,9 +123,9 @@ open class SeriesRegistrationService(
         return draft
     }
 
-    open suspend fun findSeriesToApprove(pageable: Pageable): Page<SeriesRegistrationDTO> =
+    open suspend fun findSeriesToApprove(pageable: Pageable): Page<SeriesToApproveDTO> =
         seriesRegistrationRepository.findAll(buildCriteriaSpecPendingProducts(), pageable)
-            .mapSuspend { it.toDTO() }
+            .mapSuspend { it.toSeriesToApproveDTO() }
 
     private fun buildCriteriaSpecPendingProducts(): PredicateSpecification<SeriesRegistration> =
         where {
@@ -130,4 +133,18 @@ open class SeriesRegistrationService(
             root[SeriesRegistration::status] eq SeriesStatus.ACTIVE
             root[SeriesRegistration::draftStatus] eq DraftStatus.DONE
         }
+
+    private suspend fun SeriesRegistration.toSeriesToApproveDTO(): SeriesToApproveDTO {
+        // todo: Handle other status like "UPDATE" when that is implemented
+        val status = "NEW"
+        val supplier = supplierService.findById(supplierId)
+
+        return SeriesToApproveDTO(
+            title = title,
+            supplierName = supplier?.name ?: "",
+            seriesUUID = id,
+            status = status,
+            thumbnail = seriesData.media.firstOrNull { it.type == MediaType.IMAGE },
+        )
+    }
 }
