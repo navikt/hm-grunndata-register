@@ -56,6 +56,7 @@ open class ProductRegistrationService(
     open suspend fun findByHmsArtNr(hmsArtNr: String) = productRegistrationRepository.findByHmsArtNr(hmsArtNr)?.toDTO()
 
     open suspend fun save(dto: ProductRegistrationDTO): ProductRegistrationDTO {
+        //todo: remove series creation as part of variant creation
         if (seriesRegistrationRepository.findById(dto.seriesUUID) == null) {
             seriesRegistrationRepository.save(
                 SeriesRegistration(

@@ -17,12 +17,17 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.*
+import java.util.Locale
+import java.util.UUID
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SeriesRegistrationController.API_V1_SERIES)
@@ -124,6 +129,29 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
                 HttpResponse.notFound()
             }
         }
+
+    @Put("/serie-til-godkjenning/{seriesUUID}")
+    suspend fun setSeriesToBeApproved(
+        @PathVariable seriesUUID: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> {
+        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID)
+
+        if (seriesToUpdate?.draftStatus != DraftStatus.DRAFT) throw BadRequestException("series is marked as done")
+
+        val updatedSeries =
+            seriesToUpdate.copy(
+                draftStatus = DraftStatus.DONE,
+                adminStatus = AdminStatus.PENDING,
+                updated = LocalDateTime.now(),
+                updatedBy = REGISTER,
+            )
+
+        val updated =
+            seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedSeries, isUpdate = true)
+
+        return HttpResponse.ok(updated)
+    }
 
     private fun buildCriteriaSpec(
         params: HashMap<String, String>?,
