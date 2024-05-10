@@ -9,6 +9,7 @@ import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Put
@@ -138,4 +139,25 @@ class SeriesRegistrationAdminController(private val seriesRegistrationService: S
                 )
             HttpResponse.ok(dto)
         } ?: HttpResponse.notFound()
+
+    @Delete("/{id}")
+    suspend fun deleteSeries(
+        @PathVariable id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> =
+        seriesRegistrationService.findById(id)
+            ?.let {
+                LOG.info("Deleting product ${it.id}")
+                val dto =
+                    seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                        it.copy(
+                            status = SeriesStatus.DELETED,
+                            updatedByUser = authentication.name,
+                            updatedBy = REGISTER,
+                        ),
+                        isUpdate = true,
+                    )
+                HttpResponse.ok(dto)
+            }
+            ?: HttpResponse.notFound()
 }
