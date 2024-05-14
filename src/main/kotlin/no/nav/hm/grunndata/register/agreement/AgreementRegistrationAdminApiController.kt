@@ -242,6 +242,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                         updatedByUser = authentication.name,
                         updatedBy = REGISTER,
                         createdBy = inDb.createdBy,
+                        updated = LocalDateTime.now()
                     )
                 val dto = agreementRegistrationService.saveAndCreateEventIfNotDraft(updated, isUpdate = true)
                 HttpResponse.ok(dto)
