@@ -9,6 +9,7 @@ import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
@@ -145,6 +146,29 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
                 adminStatus = AdminStatus.PENDING,
                 updated = LocalDateTime.now(),
                 updatedBy = REGISTER,
+            )
+
+        val updated =
+            seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedSeries, isUpdate = true)
+
+        return HttpResponse.ok(updated)
+    }
+
+    @Delete("/{seriesUUID}")
+    suspend fun deleteSeries(
+        @PathVariable seriesUUID: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> {
+        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
+
+        if (seriesToUpdate.draftStatus != DraftStatus.DRAFT) throw BadRequestException("series is not a draft")
+
+        val updatedSeries =
+            seriesToUpdate.copy(
+                status = SeriesStatus.DELETED,
+                updatedByUser = authentication.name,
+                updatedBy = REGISTER,
+                updated = LocalDateTime.now()
             )
 
         val updated =
