@@ -19,6 +19,7 @@ import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
@@ -132,6 +133,28 @@ class SeriesRegistrationAdminController(private val seriesRegistrationService: S
                 seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                     it.copy(
                         adminStatus = AdminStatus.APPROVED,
+                        updated = LocalDateTime.now(),
+                        updatedBy = REGISTER,
+                    ),
+                    isUpdate = true,
+                )
+            HttpResponse.ok(dto)
+        } ?: HttpResponse.notFound()
+
+    @Put("/reject/{id}")
+    suspend fun rejectSeries(
+        id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> =
+        seriesRegistrationService.findById(id)?.let {
+            if (it.adminStatus != AdminStatus.PENDING) throw BadRequestException("series is not pending approval")
+            if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("series is not done")
+            if (it.status != SeriesStatus.ACTIVE) throw BadRequestException("SeriesStatus should be Active")
+            val dto =
+                seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                    it.copy(
+                        draftStatus = DraftStatus.DRAFT,
+                        adminStatus = AdminStatus.REJECTED,
                         updated = LocalDateTime.now(),
                         updatedBy = REGISTER,
                     ),
