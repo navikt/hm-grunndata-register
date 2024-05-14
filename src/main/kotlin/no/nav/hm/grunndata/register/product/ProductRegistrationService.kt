@@ -398,7 +398,7 @@ open class ProductRegistrationService(
                 version = 0,
             )
         val draft = save(registration)
-        LOG.info("Draft was created ${draft.id} by ${authentication.supplierId()}")
+        LOG.info("Draft was created ${draft.id}")
         return draft
     }
 
