@@ -357,7 +357,8 @@ open class ProductRegistrationService(
     open suspend fun createDraftWithV2(
         seriesUUID: UUID,
         draftWithDTO: DraftVariantDTO,
-        authentication: Authentication,
+        supplierId: UUID,
+        authentication: Authentication
     ): ProductRegistrationDTO {
         val series =
             seriesRegistrationRepository.findById(seriesUUID)
@@ -380,7 +381,7 @@ open class ProductRegistrationService(
                 seriesUUID = seriesUUID,
                 seriesId = seriesUUID.toString(),
                 isoCategory = series.isoCategory,
-                supplierId = authentication.supplierId(),
+                supplierId = supplierId,
                 supplierRef = draftWithDTO.supplierRef,
                 hmsArtNr = null,
                 articleName = draftWithDTO.articleName,

@@ -115,6 +115,18 @@ class ProductRegistrationAdminApiController(
             }
             ?: HttpResponse.notFound()
 
+    @Post("/draftWithV2/{seriesUUID}/supplierId/{supplierId}")
+    suspend fun draftProductWithV2(
+        @PathVariable seriesUUID: UUID,
+        @PathVariable supplierId: UUID,
+        @Body draftWith: DraftVariantDTO,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> {
+        return HttpResponse.ok(
+            productRegistrationService.createDraftWithV2(seriesUUID, draftWith, supplierId, authentication),
+        )
+    }
+
     @Post("/draft/supplier/{supplierId}{?isAccessory}{?isSparePart}")
     suspend fun draftProduct(
         supplierId: UUID,

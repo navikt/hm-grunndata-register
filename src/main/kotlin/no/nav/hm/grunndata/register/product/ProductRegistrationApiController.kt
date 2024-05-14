@@ -336,14 +336,23 @@ class ProductRegistrationApiController(
         )
     }
 
-    @Post("/draftWithV2/{seriesUUID}/")
+    @Post("/draftWithV2/{seriesUUID}/supplierId/{supplierId}")
     suspend fun draftProductWithV2(
         @PathVariable seriesUUID: UUID,
+        @PathVariable supplierId: UUID,
         @Body draftWith: DraftVariantDTO,
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> {
+        if (supplierId != authentication.supplierId()) {
+            throw BadRequestException("Unauthorized access to series $seriesUUID")
+        }
         return HttpResponse.ok(
-            productRegistrationService.createDraftWithV2(seriesUUID, draftWith, authentication),
+            productRegistrationService.createDraftWithV2(
+                seriesUUID,
+                draftWith,
+                authentication.supplierId(),
+                authentication,
+            ),
         )
     }
 
