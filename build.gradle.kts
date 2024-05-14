@@ -90,6 +90,9 @@ dependencies {
 
     // flyway-postgresql
     implementation("org.flywaydb:flyway-database-postgresql:10.6.0")
+
+    // micronaut-leaderelection
+    implementation("com.github.navikt:hm-micronaut-leaderelection:202405140823")
 }
 
 micronaut {

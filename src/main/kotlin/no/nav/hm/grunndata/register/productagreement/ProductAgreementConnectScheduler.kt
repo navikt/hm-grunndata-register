@@ -4,25 +4,24 @@ import io.micronaut.context.annotation.Requires
 import io.micronaut.scheduling.annotation.Scheduled
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.register.leaderelection.LeaderElection
+import no.nav.hm.grunndata.register.leaderelection.LeaderOnly
 import org.slf4j.LoggerFactory
 
 @Singleton
 @Requires(property = "schedulers.enabled", value = "true")
-class ProductAgreementConnectScheduler(private val leaderElection: LeaderElection,
-                                       private val productAgreementRegistrationService: ProductAgreementRegistrationService) {
+open class ProductAgreementConnectScheduler(private val productAgreementRegistrationService: ProductAgreementRegistrationService) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementConnectScheduler::class.java)
     }
 
+    @LeaderOnly
     @Scheduled(cron = "0 1 2 * * *")
-    fun connectProductAgreement() {
-        if (leaderElection.isLeader()) {
-            LOG.info("Running product agreement connect scheduler")
-            runBlocking {
-                productAgreementRegistrationService.connectProductAgreementToProduct()
-            }
+    open fun connectProductAgreement() {
+
+        LOG.info("Running product agreement connect scheduler")
+        runBlocking {
+            productAgreementRegistrationService.connectProductAgreementToProduct()
         }
     }
 
