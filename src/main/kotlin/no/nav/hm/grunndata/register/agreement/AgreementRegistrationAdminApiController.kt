@@ -264,6 +264,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                             agreementStatus = AgreementStatus.DELETED,
                             updatedByUser = authentication.name,
                             updatedBy = REGISTER,
+                            updated = LocalDateTime.now(),
                         ),
                         isUpdate = true,
                     )
