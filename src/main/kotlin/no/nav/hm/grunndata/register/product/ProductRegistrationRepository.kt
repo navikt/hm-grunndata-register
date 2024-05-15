@@ -68,6 +68,9 @@ interface ProductRegistrationRepository :
         registrationStatus: RegistrationStatus,
         adminStatus: AdminStatus,
         published: LocalDateTime,
-        expired: LocalDateTime
+        expired: LocalDateTime,
     ): List<ProductRegistration>
+
+    @Query("SELECT a.* from product_reg_v1 a where a.series_uuid = :seriesUUID order by a.created desc limit 1")
+    suspend fun findLastProductInSeries(seriesUUID: UUID): ProductRegistration?
 }

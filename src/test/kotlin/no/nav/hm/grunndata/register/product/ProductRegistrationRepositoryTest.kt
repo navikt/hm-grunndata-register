@@ -178,6 +178,9 @@ class ProductRegistrationRepositoryTest(
             val seriesGroup = seriesGroupRepository.findSeriesGroup(Pageable.from(0, 10))
             val seriesGroupSupplier = seriesGroupRepository.findSeriesGroup(supplierId, Pageable.UNPAGED)
             println(objectMapper.writeValueAsString(seriesGroupSupplier))
+
+            val lastProductInSeries = productRegistrationRepository.findLastProductInSeries(seriesUUID)
+            lastProductInSeries.shouldNotBeNull()
         }
     }
 }

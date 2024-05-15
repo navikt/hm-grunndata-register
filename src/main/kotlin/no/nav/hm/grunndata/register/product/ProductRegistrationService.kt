@@ -358,8 +358,10 @@ open class ProductRegistrationService(
         seriesUUID: UUID,
         draftWithDTO: DraftVariantDTO,
         supplierId: UUID,
-        authentication: Authentication
+        authentication: Authentication,
     ): ProductRegistrationDTO {
+        val previousProduct = productRegistrationRepository.findLastProductInSeries(seriesUUID)
+
         val series =
             seriesRegistrationRepository.findById(seriesUUID)
                 ?: throw RuntimeException("Series not found") // consider caching series
@@ -368,7 +370,8 @@ open class ProductRegistrationService(
             ProductData(
                 accessory = false,
                 sparePart = false,
-                techData = createTechDataDraft(series.isoCategory),
+                techData =
+                    previousProduct?.productData?.techData ?: createTechDataDraft(series.isoCategory),
                 attributes =
                     Attributes(
                         shortdescription = "",
