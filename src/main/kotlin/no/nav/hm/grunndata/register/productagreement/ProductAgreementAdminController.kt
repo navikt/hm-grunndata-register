@@ -12,13 +12,14 @@ import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
@@ -219,7 +220,12 @@ class ProductAgreementAdminController(
         authentication: Authentication,
     ): HttpResponse<ProductAgreementDeletedResponse> {
         LOG.info("deleting product agreement: $id by ${authentication.userId()}")
-        productAgreementRegistrationService.deleteById(id)
+        productAgreementRegistrationService.findById(id)?.let {
+            productAgreementRegistrationService.saveAndCreateEvent(
+                it.copy(status = ProductAgreementStatus.DELETED),
+                isUpdate = true,
+            )
+        } ?: throw BadRequestException("Product agreement $id not found")
         return HttpResponse.ok(ProductAgreementDeletedResponse(id))
     }
 
@@ -233,7 +239,14 @@ class ProductAgreementAdminController(
         authentication: Authentication,
     ): HttpResponse<ProductAgreementsDeletedResponse> {
         LOG.info("deleting product agreements: $ids by ${authentication.userId()}")
-        productAgreementRegistrationService.deleteByIds(ids)
+        ids.forEach { uuid ->
+            productAgreementRegistrationService.findById(uuid)?.let {
+                productAgreementRegistrationService.saveAndCreateEvent(
+                    it.copy(status = ProductAgreementStatus.DELETED),
+                    isUpdate = true,
+                )
+            } ?: throw BadRequestException("Product agreement $uuid not found")
+        }
         return HttpResponse.ok(ProductAgreementsDeletedResponse(ids))
     }
 }
