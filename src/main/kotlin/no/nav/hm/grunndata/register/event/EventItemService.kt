@@ -19,7 +19,7 @@ open class EventItemService(
     private var eventHandlers = mutableMapOf<EventItemType, EventHandler>()
 
 
-    suspend fun getAllPendingStatus() = eventItemRepository.findByStatus(EventItemStatus.PENDING)
+    suspend fun getAllPendingStatus() = eventItemRepository.findByStatusAndPublicationDateBeforeOrPublicationDateIsNull(EventItemStatus.PENDING, LocalDateTime.now())
 
     private suspend fun setEventItemStatusToSent(eventItem: EventItem) {
         eventItemRepository.update(eventItem.copy(status = EventItemStatus.SENT))
@@ -45,7 +45,8 @@ open class EventItemService(
             byUser = byUser,
             eventName = eventName,
             extraKeyValues = extraKeyValues,
-            updated = LocalDateTime.now()
+            updated = LocalDateTime.now(),
+            publicationDate = payload.publicationDate
         )
         return eventItemRepository.save(event)
     }

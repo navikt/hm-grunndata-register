@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.event
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.common.runBlocking
+import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
@@ -13,6 +14,7 @@ import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest
@@ -41,7 +43,8 @@ class EventItemRepositoryTest(private val eventItemRepository: EventItemReposito
             eventName = "test",
             byUser = "test",
             extraKeyValues = extraKeyValues,
-            payload = objectMapper.writeValueAsString(seriesRegistrationDTO)
+            payload = objectMapper.writeValueAsString(seriesRegistrationDTO),
+            publicationDate = LocalDateTime.now().plusDays(5)
         )
 
         runBlocking {
@@ -53,10 +56,10 @@ class EventItemRepositoryTest(private val eventItemRepository: EventItemReposito
             found.status shouldBe EventItemStatus.PENDING
             found.extraKeyValues shouldBe extraKeyValues
             found.extraKeyValues["key"] shouldBe "value"
+            found.publicationDate.shouldNotBeNull() shouldBeAfter LocalDateTime.now()
             val updated = eventItemRepository.update(found.copy(status = EventItemStatus.SENT))
             updated.status shouldBe EventItemStatus.SENT
             updated.payload.shouldNotBeNull()
-
             objectMapper.readValue(updated.payload, SeriesRegistrationDTO::class.java) shouldBe seriesRegistrationDTO
         }
     }

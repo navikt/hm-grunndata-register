@@ -42,7 +42,8 @@ data class NewsRegistrationDTO(
     val createdBy: String,
     val updatedBy: String,
     val createdByUser: String,
-    override val updatedByUser: String
+    override val updatedByUser: String,
+    override val publicationDate: LocalDateTime? = null
 ): EventPayload {
     override fun toRapidDTO(): NewsRegistrationRapidDTO = NewsRegistrationRapidDTO(
         id = id,
