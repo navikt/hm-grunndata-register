@@ -1,0 +1,2 @@
+ALTER TABLE agreement_reg_v1 ADD COLUMN publication_date TIMESTAMP DEFAULT NULL;
+ALTER TABLE event_item_v1 ADD COLUMN publication_date TIMESTAMP DEFAULT NULL;

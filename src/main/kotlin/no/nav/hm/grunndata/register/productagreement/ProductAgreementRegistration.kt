@@ -57,6 +57,7 @@ data class ProductAgreementRegistrationDTO(
     val published: LocalDateTime,
     val expired: LocalDateTime,
     override val updatedByUser: String = "system",
+    override val publicationDate: LocalDateTime? = null
 ) : EventPayload {
     override fun toRapidDTO(): RapidDTO = ProductAgreementRegistrationRapidDTO(
         id = id, productId = productId,

@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.agreement
 
 import io.kotest.common.runBlocking
+import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
@@ -35,8 +36,8 @@ class AgreementRepositoryTest(private val agreementRegistrationRepository: Agree
                     description = "post description 2", nr = 2)
             ))
         val agreementRegistration = AgreementRegistration(
-            id = agreementId, published = agreement.published, expired = agreement.expired, title = agreement.title,
-            reference = agreement.reference, updatedByUser = "username", createdByUser = "username", agreementData = data
+            id = agreementId, published = agreement.published, expired = agreement.expired, publicationDate = LocalDateTime.now().plusDays(5),
+            title = agreement.title, reference = agreement.reference, updatedByUser = "username", createdByUser = "username", agreementData = data
         )
         runBlocking {
             val saved = agreementRegistrationRepository.save(agreementRegistration)
@@ -45,6 +46,7 @@ class AgreementRepositoryTest(private val agreementRegistrationRepository: Agree
             read.shouldNotBeNull()
             agreementRegistrationRepository.update(read.copy(title = "ny title"))
             read.title shouldBe "Title of agreement"
+            read.publicationDate.shouldNotBeNull() shouldBeAfter LocalDateTime.now()
             val updated = agreementRegistrationRepository.findById(read.id)
             updated.shouldNotBeNull()
             updated.title shouldBe "ny title"
