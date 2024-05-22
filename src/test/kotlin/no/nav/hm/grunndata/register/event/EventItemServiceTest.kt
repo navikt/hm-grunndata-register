@@ -109,8 +109,8 @@ fun shouldBeNullOrBefore(date: LocalDateTime): Matcher<LocalDateTime?> = object 
         val passed = value == null || value.isBefore(date)
         return MatcherResult(
             passed,
-            { "Date $value should be null or after $date" },
-            { "Date $value should not be null or after $date" }
+            { "Date $value should be null or before $date" },
+            { "Date $value should not be null or before $date" }
         )
     }
 }
