@@ -104,8 +104,7 @@ data class ProductRegistrationDTO(
     val createdByAdmin: Boolean = false,
     val productData: ProductData,
     val agreements: List<AgreementInfo> = emptyList(),
-    val version: Long? = 0L,
-    override val publicationDate: LocalDateTime? = null
+    val version: Long? = 0L
 ) : EventPayload {
     override fun toRapidDTO(): RapidDTO =
         ProductRegistrationRapidDTO(

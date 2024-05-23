@@ -85,8 +85,7 @@ data class SeriesRegistrationDTO(
     val countPending: Int = 0,
     val countDeclined: Int = 0,
     val version: Long? = 0L,
-    val titleLowercase: String = title.lowercase(Locale.getDefault()),
-    override val publicationDate: LocalDateTime?=null,
+    val titleLowercase: String = title.lowercase(Locale.getDefault())
 ) : EventPayload {
     override fun toRapidDTO(): RapidDTO =
         SeriesRegistrationRapidDTO(

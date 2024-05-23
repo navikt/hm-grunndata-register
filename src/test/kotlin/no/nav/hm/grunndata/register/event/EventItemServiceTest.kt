@@ -4,7 +4,6 @@ import io.kotest.common.runBlocking
 import io.kotest.matchers.Matcher
 import io.kotest.matchers.MatcherResult
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
@@ -47,8 +46,7 @@ class EventItemServiceTest(private val eventItemService: EventItemService) {
                 reference = "unik-ref4",
                 updatedByUser = "test",
                 createdByUser = "test",
-                agreementData = data,
-                publicationDate = LocalDateTime.now().plusDays(5)
+                agreementData = data
             )
 
             val data2 = AgreementData(
@@ -98,7 +96,6 @@ class EventItemServiceTest(private val eventItemService: EventItemService) {
             items.size shouldBeGreaterThanOrEqual 1
             items.forEach {
                 it.status shouldBe EventItemStatus.PENDING
-                it.publicationDate should shouldBeNullOrBefore(LocalDateTime.now())
             }
         }
     }

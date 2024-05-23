@@ -35,7 +35,6 @@ data class AgreementRegistration(
     val updatedBy: String = REGISTER,
     @field:TypeDef(type = DataType.JSON)
     val agreementData: AgreementData,
-    val publicationDate: LocalDateTime? = null,
     @field:Version
     val version: Long? = 0L
 )
@@ -68,7 +67,6 @@ data class AgreementRegistrationDTO(
     val agreementData: AgreementData,
     val delkontraktList: List<DelkontraktRegistrationDTO> = emptyList(),
     val version: Long? = 0L,
-    override val publicationDate: LocalDateTime? = null
 ) : EventPayload {
     override fun toRapidDTO(): RapidDTO = AgreementRegistrationRapidDTO(
         id = id,
@@ -140,5 +138,5 @@ fun AgreementRegistrationDTO.toEntity(): AgreementRegistration = AgreementRegist
     title = title, reference = reference, created = created,
     updated = updated, published = published, expired = expired, createdByUser = createdByUser,
     updatedByUser = updatedByUser, createdBy = createdBy, updatedBy = updatedBy,
-    agreementData = agreementData, version = version, publicationDate = publicationDate
+    agreementData = agreementData, version = version
 )

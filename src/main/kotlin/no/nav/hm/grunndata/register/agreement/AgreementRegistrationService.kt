@@ -77,7 +77,7 @@ open class AgreementRegistrationService(
         title = title, reference = reference, created = created,
         updated = updated, published = published, expired = expired, createdByUser = createdByUser,
         updatedByUser = updatedByUser, createdBy = createdBy, updatedBy = updatedBy,
-        agreementData = agreementData, version = version, publicationDate = publicationDate,
+        agreementData = agreementData, version = version,
         delkontraktList = delkontraktRegistrationRepository.findByAgreementId(id).map { it.toDTO() }
     )
 }

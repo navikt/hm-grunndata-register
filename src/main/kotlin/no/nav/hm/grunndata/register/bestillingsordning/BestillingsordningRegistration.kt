@@ -33,8 +33,7 @@ data class BestillingsordningRegistrationDTO(
     val createdByUser: String = "system",
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
-    val deactivated: LocalDateTime? = null,
-    override val publicationDate: LocalDateTime? = null
+    val deactivated: LocalDateTime? = null
 ): EventPayload {
     override fun toRapidDTO(): RapidDTO = BestillingsordningRegistrationRapidDTO(
             id = id, hmsArtNr = hmsArtNr, navn = navn, status = status,
