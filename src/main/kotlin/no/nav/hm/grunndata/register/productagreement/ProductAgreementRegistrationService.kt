@@ -133,6 +133,32 @@ open class ProductAgreementRegistrationService(
     suspend fun findByAgreementId(agreementId: UUID): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findByAgreementId(agreementId).map { it.toDTO() }
 
+
+    suspend fun findByAgreementIdAndStatusAndPublishedBeforeAndExpiredAfter(
+        agreementId: UUID,
+        status: ProductAgreementStatus,
+        published: LocalDateTime,
+        expired: LocalDateTime,
+    ): List<ProductAgreementRegistrationDTO> =
+        productAgreementRegistrationRepository.findByAgreementIdAndStatusAndPublishedBeforeAndExpiredAfter(
+            agreementId,
+            status,
+            published,
+            expired,
+        ).map { it.toDTO() }
+
+
+    suspend fun findByAgreementIdAndStatusAndExpiredBefore(
+        agreementId: UUID,
+        status: ProductAgreementStatus,
+        expired: LocalDateTime,
+    ): List<ProductAgreementRegistrationDTO> =
+        productAgreementRegistrationRepository.findByAgreementIdAndStatusAndExpiredBefore(
+            agreementId,
+            status,
+            expired,
+        ).map { it.toDTO() }
+
     suspend fun findByDelkontraktId(delkontraktId: UUID): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findByPostId(delkontraktId).map { it.toDTO() }
 

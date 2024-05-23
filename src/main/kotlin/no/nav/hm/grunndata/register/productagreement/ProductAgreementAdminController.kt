@@ -19,7 +19,8 @@ import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
-import java.util.UUID
+import java.time.LocalDateTime
+import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
@@ -222,7 +223,11 @@ class ProductAgreementAdminController(
         LOG.info("deleting product agreement: $id by ${authentication.userId()}")
         productAgreementRegistrationService.findById(id)?.let {
             productAgreementRegistrationService.saveAndCreateEvent(
-                it.copy(status = ProductAgreementStatus.DELETED),
+                it.copy(
+                    status = ProductAgreementStatus.DELETED,
+                    updated = LocalDateTime.now(),
+                    expired = LocalDateTime.now()
+                ),
                 isUpdate = true,
             )
         } ?: throw BadRequestException("Product agreement $id not found")
@@ -242,7 +247,10 @@ class ProductAgreementAdminController(
         ids.forEach { uuid ->
             productAgreementRegistrationService.findById(uuid)?.let {
                 productAgreementRegistrationService.saveAndCreateEvent(
-                    it.copy(status = ProductAgreementStatus.DELETED),
+                    it.copy(status = ProductAgreementStatus.DELETED,
+                        updated = LocalDateTime.now(),
+                        expired = LocalDateTime.now()
+                    ),
                     isUpdate = true,
                 )
             } ?: throw BadRequestException("Product agreement $uuid not found")
