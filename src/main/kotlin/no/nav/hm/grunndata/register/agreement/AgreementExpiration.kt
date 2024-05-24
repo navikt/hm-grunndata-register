@@ -18,7 +18,7 @@ open class AgreementExpiration(private val agreementService: AgreementRegistrati
 
     }
     suspend fun expiredAgreements(): List<AgreementRegistrationDTO> {
-        val expiredList = agreementService.findByAgreementStatusAndExpiredBefore(AgreementStatus.ACTIVE)
+        val expiredList = agreementService.findExpiringAgreements()
         LOG.info("Found ${expiredList.size} expired agreements")
         expiredList.forEach {
             deactiveProductsInExpiredAgreement(it)
@@ -37,6 +37,8 @@ open class AgreementExpiration(private val agreementService: AgreementRegistrati
         productsInAgreement.forEach { product ->
             LOG.info("Found product: ${product.id} in expired agreement")
             productAgreementService.saveAndCreateEvent(product.copy(status = ProductAgreementStatus.INACTIVE,
+                expired = expiredAgreement.expired,
+                updatedByUser = "system",
                 updated = LocalDateTime.now()), isUpdate = true)
         }
     }

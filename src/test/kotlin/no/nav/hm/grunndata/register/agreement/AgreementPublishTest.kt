@@ -1,5 +1,7 @@
 package no.nav.hm.grunndata.register.agreement
 
+import io.kotest.matchers.date.shouldBeAfter
+import io.kotest.matchers.date.shouldBeBefore
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
@@ -7,6 +9,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
@@ -125,6 +128,13 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
             val publishList = agreementPublish.publishAgreements()
 
             publishList.size shouldBe 1
+
+            productAgreementService.findByAgreementId(publishing.id).forEach {
+                it.status shouldBe ProductAgreementStatus.ACTIVE
+                it.published shouldBeBefore LocalDateTime.now()
+                it.expired shouldBeAfter LocalDateTime.now()
+            }
+
 
         }
     }

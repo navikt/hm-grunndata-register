@@ -1,12 +1,15 @@
 package no.nav.hm.grunndata.register.agreement
 
 import io.kotest.common.runBlocking
+import io.kotest.matchers.date.shouldBeAfter
+import io.kotest.matchers.date.shouldBeBefore
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
@@ -138,6 +141,17 @@ class AgreementExpirationTest(
             agreementService.save(expired)
             val expiredList = agreementExpiration.expiredAgreements()
             expiredList.size shouldBe 1
+
+            productAgreementService.findByAgreementId(agreement.id).forEach {
+                it.expired shouldBeAfter LocalDateTime.now()
+                it.status shouldBe ProductAgreementStatus.ACTIVE
+            }
+
+            productAgreementService.findByAgreementId(expired.id).forEach {
+                it.expired shouldBeBefore LocalDateTime.now()
+                it.status shouldBe ProductAgreementStatus.INACTIVE
+            }
+
         }
     }
 }

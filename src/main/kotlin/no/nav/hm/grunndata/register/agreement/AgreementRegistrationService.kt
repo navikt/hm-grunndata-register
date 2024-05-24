@@ -49,28 +49,21 @@ open class AgreementRegistrationService(
     open suspend fun findByReference(reference: String): AgreementRegistrationDTO? =
         agreementRegistrationRepository.findByReference(reference)?.toDTO()
 
-    open suspend fun findReference(reference: String): AgreementRegistrationDTO? =
-        agreementRegistrationRepository.findByReference(reference)?.toDTO()
 
-    open suspend fun findByAgreementStatusAndExpiredBefore(
-        status: AgreementStatus,
-        expired: LocalDateTime? = LocalDateTime.now()
-    ) = agreementRegistrationRepository.findByDraftStatusAndAgreementStatusAndExpiredBefore(
-        status = status,
-        expired = expired
-    ).map { it.toDTO() }
+    open suspend fun findAgreementsToBePublish(): List<AgreementRegistrationDTO> = agreementRegistrationRepository
+        .findByDraftStatusAndAgreementStatusAndPublishedBeforeAndExpiredAfter(
+            draftStatus = DraftStatus.DONE,
+            status = AgreementStatus.INACTIVE,
+            published = LocalDateTime.now(),
+            expired = LocalDateTime.now())
+        .map { it.toDTO() }
 
-    open suspend fun findByAgreementStatusAndPublishedBeforeAndExpiredAfter(
-        status: AgreementStatus,
-        published: LocalDateTime? = LocalDateTime.now(),
-        expired: LocalDateTime? = LocalDateTime.now()
-    ) = agreementRegistrationRepository.findByDraftStatusAndAgreementStatusAndPublishedBeforeAndExpiredAfter(
-        status = status,
-        published = published,
-        expired = expired
-    ).map { it.toDTO() }
+    open suspend fun findExpiringAgreements() = agreementRegistrationRepository.findByDraftStatusAndAgreementStatusAndExpiredBefore(
+            draftStatus = DraftStatus.DONE,
+            status = AgreementStatus.ACTIVE,
+            expired = LocalDateTime.now()
+        ).map { it.toDTO() }
 
-    open suspend fun deleteById(id: UUID) = agreementRegistrationRepository.deleteById(id)
 
     suspend fun AgreementRegistration.toDTO(): AgreementRegistrationDTO = AgreementRegistrationDTO(
         id = id, draftStatus = draftStatus, agreementStatus = agreementStatus,
