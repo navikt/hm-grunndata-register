@@ -17,7 +17,8 @@ import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.toRapidMediaInfo
 import java.time.LocalDateTime
-import java.util.*
+import java.util.Locale
+import java.util.UUID
 
 @MappedEntity("series_reg_v1")
 data class SeriesRegistration(
@@ -28,6 +29,7 @@ data class SeriesRegistration(
     val title: String,
     val titleLowercase: String = title.lowercase(Locale.getDefault()),
     val text: String,
+    val formattedText: String? = null,
     val isoCategory: String,
     @field:TypeDef(type = DataType.JSON)
     val seriesData: SeriesDataDTO,
@@ -66,6 +68,7 @@ data class SeriesRegistrationDTO(
     val identifier: String,
     val title: String,
     val text: String,
+    val formattedText: String? = null,
     val isoCategory: String,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val adminStatus: AdminStatus = AdminStatus.PENDING,
@@ -86,7 +89,7 @@ data class SeriesRegistrationDTO(
     val countDeclined: Int = 0,
     val version: Long? = 0L,
     val titleLowercase: String = title.lowercase(Locale.getDefault()),
-    override val publicationDate: LocalDateTime?=null,
+    override val publicationDate: LocalDateTime? = null,
 ) : EventPayload {
     override fun toRapidDTO(): RapidDTO =
         SeriesRegistrationRapidDTO(
@@ -95,6 +98,7 @@ data class SeriesRegistrationDTO(
             identifier = identifier,
             title = title,
             text = text,
+            formattedText = formattedText,
             isoCategory = isoCategory,
             draftStatus = draftStatus,
             adminStatus = adminStatus,
@@ -120,6 +124,7 @@ fun SeriesRegistration.toDTO() =
         title = title,
         titleLowercase = titleLowercase,
         text = text,
+        formattedText = formattedText,
         isoCategory = isoCategory,
         draftStatus = draftStatus,
         adminStatus = adminStatus,
@@ -147,6 +152,7 @@ fun SeriesRegistrationDTO.toEntity() =
         identifier = identifier,
         title = title,
         text = text,
+        formattedText = formattedText,
         isoCategory = isoCategory,
         draftStatus = draftStatus,
         status = status,
