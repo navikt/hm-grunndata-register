@@ -30,7 +30,9 @@ class AgreementPublish(private val agreementRegigstrationService: AgreementRegis
         LOG.info("Publishing agreement ${agreementRegistrationDTO.id} ${agreementRegistrationDTO.reference}")
         agreementRegigstrationService.saveAndCreateEventIfNotDraft(dto = agreementRegistrationDTO.copy(agreementStatus = AgreementStatus.ACTIVE,
             updated = LocalDateTime.now(), updatedBy = publish), isUpdate = true)
-        val productsInAgreement = productAgreementRegistrationService.findByAgreementId(agreementRegistrationDTO.id)
+        val productsInAgreement = productAgreementRegistrationService
+            .findByAgreementIdAndStatusAndPublishedBeforeAndExpiredAfter(agreementRegistrationDTO.id,
+                ProductAgreementStatus.INACTIVE, LocalDateTime.now(), LocalDateTime.now())
         productsInAgreement.forEach { product ->
             LOG.info("Found product: ${product.id} in agreement")
             productAgreementRegistrationService.saveAndCreateEvent(product.copy(status = ProductAgreementStatus.ACTIVE,

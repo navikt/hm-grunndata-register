@@ -54,8 +54,7 @@ data class SupplierRegistrationDTO(
     val createdBy: String = REGISTER,
     val updatedBy: String = REGISTER,
     override val updatedByUser: String = "system",
-    val createdByUser: String = "system",
-    override val publicationDate: LocalDateTime? = null,
+    val createdByUser: String = "system"
 ) : EventPayload {
     override fun toRapidDTO(): RapidDTO =
         SupplierDTO(

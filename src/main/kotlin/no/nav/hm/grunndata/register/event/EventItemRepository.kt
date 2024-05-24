@@ -14,6 +14,5 @@ interface EventItemRepository:CoroutineCrudRepository<EventItem, UUID>  {
 
     suspend fun deleteByStatusAndUpdatedBefore(status: EventItemStatus, updated: LocalDateTime): Int
 
-    suspend fun findByStatusAndPublicationDateBeforeOrPublicationDateIsNull(status: EventItemStatus, publicationDate: LocalDateTime): List<EventItem>
 
 }

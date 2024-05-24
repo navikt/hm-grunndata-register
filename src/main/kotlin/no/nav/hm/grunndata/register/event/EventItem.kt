@@ -20,8 +20,7 @@ data class EventItem(
     val extraKeyValues: Map<String, Any> = emptyMap(),
     val payload: String,
     val created: LocalDateTime = LocalDateTime.now(),
-    val updated: LocalDateTime = LocalDateTime.now(),
-    val publicationDate: LocalDateTime? = null,
+    val updated: LocalDateTime = LocalDateTime.now()
 )
 
 enum class EventItemStatus {
