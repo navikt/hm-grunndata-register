@@ -9,6 +9,7 @@ import io.micronaut.data.model.DataType
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
+import no.nav.hm.grunndata.rapid.dto.SeriesAttributes
 import no.nav.hm.grunndata.rapid.dto.SeriesData
 import no.nav.hm.grunndata.rapid.dto.SeriesRegistrationRapidDTO
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
@@ -17,8 +18,7 @@ import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.toRapidMediaInfo
 import java.time.LocalDateTime
-import java.util.Locale
-import java.util.UUID
+import java.util.*
 
 @MappedEntity("series_reg_v1")
 data class SeriesRegistration(
@@ -60,7 +60,10 @@ data class SeriesRegistration(
 
 data class SeriesDataDTO(
     val media: Set<MediaInfoDTO> = emptySet(),
+    val attributes: SeriesAttributesDTO = SeriesAttributesDTO()
 )
+
+data class SeriesAttributesDTO(val keywords: List<String>? = null)
 
 data class SeriesRegistrationDTO(
     override val id: UUID,
@@ -170,4 +173,5 @@ fun SeriesRegistrationDTO.toEntity() =
         countDeclined = countDeclined,
     )
 
-fun SeriesDataDTO.toRapidDTO() = SeriesData(media = media.map { it.toRapidMediaInfo() }.toSet())
+fun SeriesDataDTO.toRapidDTO() = SeriesData(media = media.map { it.toRapidMediaInfo() }.toSet(),
+    attributes = SeriesAttributes(keywords = attributes.keywords))
