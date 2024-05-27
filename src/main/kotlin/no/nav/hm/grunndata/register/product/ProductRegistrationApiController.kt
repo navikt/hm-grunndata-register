@@ -275,7 +275,7 @@ class ProductRegistrationApiController(
                 val deleteDTO =
                     productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                         it
-                            .copy(registrationStatus = RegistrationStatus.DELETED, updatedByUser = authentication.name),
+                            .copy(registrationStatus = RegistrationStatus.DELETED, expired = LocalDateTime.now(), updatedByUser = authentication.name),
                         isUpdate = true,
                     )
                 HttpResponse.ok(deleteDTO)
@@ -295,6 +295,7 @@ class ProductRegistrationApiController(
             products.map {
                 it.copy(
                     registrationStatus = RegistrationStatus.DELETED,
+                    expired = LocalDateTime.now(),
                     updatedByUser = authentication.name,
                     updatedBy = REGISTER,
                 )

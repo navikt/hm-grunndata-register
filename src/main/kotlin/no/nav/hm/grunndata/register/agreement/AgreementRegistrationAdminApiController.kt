@@ -265,6 +265,7 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                             updatedByUser = authentication.name,
                             updatedBy = REGISTER,
                             updated = LocalDateTime.now(),
+                            expired = LocalDateTime.now(),
                         ),
                         isUpdate = true,
                     )

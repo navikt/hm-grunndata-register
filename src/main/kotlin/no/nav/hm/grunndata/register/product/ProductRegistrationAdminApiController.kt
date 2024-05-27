@@ -263,6 +263,7 @@ class ProductRegistrationAdminApiController(
                     productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                         it.copy(
                             registrationStatus = RegistrationStatus.DELETED,
+                            expired = LocalDateTime.now(),
                             updatedByUser = authentication.name,
                             updatedBy = REGISTER,
                         ),
@@ -281,6 +282,7 @@ class ProductRegistrationAdminApiController(
             productRegistrationService.findByIdIn(ids).map {
                 it.copy(
                     registrationStatus = RegistrationStatus.DELETED,
+                    expired = LocalDateTime.now(),
                     updatedByUser = authentication.name,
                     updatedBy = REGISTER,
                 )

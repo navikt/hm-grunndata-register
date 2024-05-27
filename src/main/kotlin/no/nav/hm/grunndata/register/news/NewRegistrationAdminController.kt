@@ -23,6 +23,7 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
@@ -105,7 +106,7 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
         LOG.info("Deleting news: $id")
         newsRegistrationService.findById(id)?.let { inDb ->
             newsRegistrationService.saveAndCreateEventIfNotDraft(
-                inDb.copy(status = NewsStatus.DELETED), isUpdate = true)
+                inDb.copy(status = NewsStatus.DELETED, expired = LocalDateTime.now()), isUpdate = true)
         } ?: throw BadRequestException("News with id $id does not exist")
     }
 

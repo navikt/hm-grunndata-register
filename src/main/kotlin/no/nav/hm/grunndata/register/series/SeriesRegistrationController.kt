@@ -27,8 +27,7 @@ import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.Locale
-import java.util.UUID
+import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SeriesRegistrationController.API_V1_SERIES)
@@ -166,6 +165,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         val updatedSeries =
             seriesToUpdate.copy(
                 status = SeriesStatus.DELETED,
+                expired = LocalDateTime.now(),
                 updatedByUser = authentication.name,
                 updatedBy = REGISTER,
                 updated = LocalDateTime.now()
