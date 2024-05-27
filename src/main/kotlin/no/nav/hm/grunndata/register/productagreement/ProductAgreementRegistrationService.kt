@@ -42,7 +42,7 @@ open class ProductAgreementRegistrationService(
                 productAgreement.postId!!,
                 productAgreement.rank,
             )?.let { inDb ->
-                update(
+                saveAndCreateEvent(
                     inDb.copy(
                         productId = productAgreement.productId,
                         seriesUuid = productAgreement.seriesUuid,
@@ -56,6 +56,7 @@ open class ProductAgreementRegistrationService(
                         expired = productAgreement.expired,
                         rank = productAgreement.rank,
                     ),
+                    true,
                 )
             } ?: saveAndCreateEvent(productAgreement, false)
         }
@@ -66,7 +67,7 @@ open class ProductAgreementRegistrationService(
             findById(
                 productAgreement.id,
             )?.let { inDb ->
-                update(
+                saveAndCreateEvent(
                     inDb.copy(
                         agreementId = productAgreement.agreementId,
                         productId = productAgreement.productId,
@@ -81,27 +82,13 @@ open class ProductAgreementRegistrationService(
                         expired = productAgreement.expired,
                         rank = productAgreement.rank,
                     ),
+                    true,
                 )
             } ?: throw RuntimeException("Product agreement not found")
         }
 
     suspend fun save(dto: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO =
         productAgreementRegistrationRepository.save(dto.toEntity()).toDTO()
-
-    suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
-        supplierId: UUID,
-        supplierRef: String,
-        agreementId: UUID,
-        post: Int,
-        rank: Int,
-    ): ProductAgreementRegistrationDTO? =
-        productAgreementRegistrationRepository.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
-            supplierId,
-            supplierRef,
-            agreementId,
-            post,
-            rank,
-        )?.toDTO()
 
     suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
         supplierId: UUID,
@@ -133,7 +120,6 @@ open class ProductAgreementRegistrationService(
     suspend fun findByAgreementId(agreementId: UUID): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findByAgreementId(agreementId).map { it.toDTO() }
 
-
     suspend fun findByAgreementIdAndStatusAndPublishedBeforeAndExpiredAfter(
         agreementId: UUID,
         status: ProductAgreementStatus,
@@ -147,7 +133,6 @@ open class ProductAgreementRegistrationService(
             expired,
         ).map { it.toDTO() }
 
-
     suspend fun findByAgreementIdAndStatusAndExpiredBefore(
         agreementId: UUID,
         status: ProductAgreementStatus,
@@ -158,9 +143,6 @@ open class ProductAgreementRegistrationService(
             status,
             expired,
         ).map { it.toDTO() }
-
-    suspend fun findByDelkontraktId(delkontraktId: UUID): List<ProductAgreementRegistrationDTO> =
-        productAgreementRegistrationRepository.findByPostId(delkontraktId).map { it.toDTO() }
 
     suspend fun findGroupedProductVariantsByDelkontraktId(delkontraktId: UUID): List<ProductVariantsForDelkontraktDto> {
         val allVariants =
@@ -229,14 +211,6 @@ open class ProductAgreementRegistrationService(
 
         liste.sortBy { it.delkontraktNr }
         return liste
-    }
-
-    suspend fun deleteById(id: UUID): Int = productAgreementRegistrationRepository.deleteById(id)
-
-    @Transactional
-    open suspend fun deleteByIds(ids: List<UUID>): Int {
-        ids.forEach { productAgreementRegistrationRepository.deleteById(it) }
-        return ids.size
     }
 
     @Transactional
