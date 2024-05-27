@@ -2,7 +2,11 @@ package no.nav.hm.grunndata.register.product.batch
 
 import jakarta.inject.Singleton
 import no.nav.helse.rapids_rivers.toUUID
-import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.Attributes
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductData
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
@@ -65,8 +69,8 @@ class ProductExcelImport(private val labelService: LabelService) {
     ): ProductRegistrationExcelDTO {
         return ProductRegistrationExcelDTO(
             isoCategory = isoCategory,
-            produktserieid = row.getCell(headerMap[HeaderTitleNew.produKtserieid.label]!!)?.toString()?.trim(),
-            produktseriesnavn = row.getCell(headerMap[HeaderTitleNew.produktseriesnavn.label]!!)?.toString()?.trim(),
+            produktserieid = row.getCell(headerMap[HeaderTitleNew.produKtserieid.label]!!).toString().trim(),
+            produktseriesnavn = row.getCell(headerMap[HeaderTitleNew.produktseriesnavn.label]!!).toString().trim(),
             produktseriebeskrivelse =
                 row.getCell(headerMap[HeaderTitleNew.produktseriebeskrivelse.label]!!)?.toString()
                     ?.trim(),
@@ -122,8 +126,8 @@ class ProductExcelImport(private val labelService: LabelService) {
 
 data class ProductRegistrationExcelDTO(
     val isoCategory: String,
-    val produktserieid: String?,
-    val produktseriesnavn: String?,
+    val produktserieid: String,
+    val produktseriesnavn: String,
     val produktseriebeskrivelse: String?,
     val produktid: String?,
     val hmsnr: String?,

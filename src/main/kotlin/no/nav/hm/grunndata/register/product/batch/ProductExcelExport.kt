@@ -78,12 +78,12 @@ class ProductExcelExport(private val labelService: LabelService) {
 }
 
 enum class HeaderTitleNew(val label: String, val comment: String) {
-    produKtserieid("Produktserie id", "Tom hvis ny serie"),
-    produktseriesnavn("Produktserie navn", ""),
-    produktseriebeskrivelse("Produktserie beskrivelse", ""),
+    produKtserieid("Produktserie id", "Påkrevd, Kan ikke endres"),
+    produktseriesnavn("Produktserie navn", "Kan ikke endres"),
+    produktseriebeskrivelse("Produktserie beskrivelse", "Kan ikke endres"),
     produktid("Produkt-id", "Tom hvis nytt produkt"),
     hmsnr("HMS-nr.", "Kan ikke endres"),
-    produktnavn("Produktnavn", ""),
+    produktnavn("Produktnavn", "Påkrevd"),
     andrespesifikasjoner("Andre spesifikasjoner", ""),
     levartnr("Lev-artnr.", "Påkrevd, kan ikke endres"),
     leverandorid("Leverandør-id", "Påkreved, Kan ikke endres"),

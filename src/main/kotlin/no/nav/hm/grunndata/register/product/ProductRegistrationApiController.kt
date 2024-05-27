@@ -455,25 +455,32 @@ class ProductRegistrationApiController(
             HttpResponse.ok(products)
         }
     }
-}
 
-private fun validateProductsToBeImported(
-    dtos: List<ProductRegistrationExcelDTO>,
-    authentication: Authentication,
-) {
-    val levArtNrUniqueList = dtos.map { it.levartnr }.distinct()
-    if (levArtNrUniqueList.size < dtos.size) {
-        throw BadRequestException("Det finnes produkter med samme lev-artnr. i filen. Disse må være unike.")
-    }
+    private suspend fun validateProductsToBeImported(
+        dtos: List<ProductRegistrationExcelDTO>,
+        authentication: Authentication,
+    ) {
+        val levArtNrUniqueList = dtos.map { it.levartnr }.distinct()
+        if (levArtNrUniqueList.size < dtos.size) {
+            throw BadRequestException("Det finnes produkter med samme lev-artnr. i filen. Disse må være unike.")
+        }
 
-    dtos.forEach {
-        if (it.leverandorid.toUUID() != authentication.supplierId()) {
-            throw BadRequestException(
-                "Innlogget bruker har ikke rettigheter til leverandørId ${it.leverandorid}",
-            )
+        val seriesUniqueList = dtos.map { it.produktserieid.toUUID() }.distinct()
+        seriesUniqueList.forEach {
+            if (!productRegistrationService.exitsBySeriesUUIDAndSupplierId(it, authentication.supplierId())) {
+                throw BadRequestException("ProduktserieId $it finnes ikke for leverandør ${authentication.supplierId()}")
+            }
+        }
+        dtos.forEach {
+            if (it.leverandorid.toUUID() != authentication.supplierId()) {
+                throw BadRequestException(
+                    "Innlogget bruker har ikke rettigheter til leverandørId ${it.leverandorid}",
+                )
+            }
         }
     }
 }
+
 
 data class ProductDraftWithDTO(val title: String, val text: String, val isoCategory: String)
 

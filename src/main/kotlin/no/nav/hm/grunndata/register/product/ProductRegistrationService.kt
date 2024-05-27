@@ -25,7 +25,6 @@ import no.nav.hm.grunndata.register.product.batch.toRegistrationDTO
 import no.nav.hm.grunndata.register.product.batch.toRegistrationDryRunDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
-import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
@@ -207,10 +206,12 @@ open class ProductRegistrationService(
             findBySupplierRefAndSupplierId(it.levartnr, it.leverandorid.toUUID())?.let { inDb ->
                 val product =
                     inDb.copy(
+                        draftStatus = DraftStatus.DRAFT,
+                        adminStatus = AdminStatus.PENDING,
                         title = it.produktseriesnavn ?: it.produktnavn,
                         articleName = it.produktnavn,
                         isoCategory = it.isoCategory,
-                        seriesUUID = it.produktserieid?.toUUID() ?: inDb.id,
+                        seriesUUID = it.produktserieid.toUUID() ?: inDb.id,
                         seriesId = it.produktserieid ?: inDb.id.toString(),
                         productData =
                             inDb.productData.copy(
@@ -240,6 +241,8 @@ open class ProductRegistrationService(
             findBySupplierRefAndSupplierId(it.levartnr, it.leverandorid.toUUID())?.let { inDb ->
                 val product =
                     inDb.copy(
+                        draftStatus = DraftStatus.DRAFT,
+                        adminStatus = AdminStatus.PENDING,
                         title = it.produktseriesnavn ?: it.produktnavn,
                         articleName = it.produktnavn,
                         isoCategory = it.isoCategory,
@@ -502,6 +505,11 @@ open class ProductRegistrationService(
             published = LocalDateTime.now(),
             expired = LocalDateTime.now(),
         ).map { it.toDTO() }
+
+    suspend fun exitsBySeriesUUIDAndSupplierId(seriesUUID: UUID, supplierId: UUID) = productRegistrationRepository.existsBySeriesUUIDAndSupplierId(
+        seriesUUID,
+        supplierId,
+    )
 }
 
 suspend fun <T : Any, R : Any> Page<T>.mapSuspend(transform: suspend (T) -> R): Page<R> {
