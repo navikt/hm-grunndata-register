@@ -391,7 +391,7 @@ open class ProductRegistrationService(
                 createdBy = REGISTER,
                 updatedBy = REGISTER,
                 message = null,
-                published = LocalDateTime.now(),
+                published = null,
                 expired = LocalDateTime.now().plusYears(10),
                 productData = product,
                 createdByUser = authentication.name,
