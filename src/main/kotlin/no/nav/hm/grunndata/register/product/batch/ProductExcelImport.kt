@@ -142,7 +142,7 @@ data class ProductRegistrationExcelDTO(
 
 fun ProductRegistrationExcelDTO.toRegistrationDTO(): ProductRegistrationDTO {
     val productId = produktid?.toUUID() ?: UUID.randomUUID()
-    val seriesUUID = produktserieid?.toUUID() ?: productId
+    val seriesUUID = produktserieid.toUUID() ?: productId
     val supplierId = leverandorid.toUUID()
     return ProductRegistrationDTO(
         id = productId,
@@ -154,7 +154,7 @@ fun ProductRegistrationExcelDTO.toRegistrationDTO(): ProductRegistrationDTO {
         draftStatus = DraftStatus.DRAFT,
         registrationStatus = RegistrationStatus.ACTIVE,
         adminStatus = AdminStatus.PENDING,
-        title = produktseriesnavn ?: produktnavn ?: "",
+        title = produktseriesnavn,
         articleName = produktnavn ?: produktseriesnavn ?: "",
         isoCategory = isoCategory,
         productData =
