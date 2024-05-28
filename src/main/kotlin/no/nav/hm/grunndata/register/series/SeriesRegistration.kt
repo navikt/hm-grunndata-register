@@ -18,7 +18,8 @@ import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.toRapidMediaInfo
 import java.time.LocalDateTime
-import java.util.*
+import java.util.Locale
+import java.util.UUID
 
 @MappedEntity("series_reg_v1")
 data class SeriesRegistration(
@@ -60,10 +61,13 @@ data class SeriesRegistration(
 
 data class SeriesDataDTO(
     val media: Set<MediaInfoDTO> = emptySet(),
-    val attributes: SeriesAttributesDTO = SeriesAttributesDTO()
+    val attributes: SeriesAttributesDTO = SeriesAttributesDTO(),
 )
 
-data class SeriesAttributesDTO(val keywords: List<String>? = null)
+data class SeriesAttributesDTO(
+    val keywords: List<String>? = null,
+    val url: String? = null,
+)
 
 data class SeriesRegistrationDTO(
     override val id: UUID,
@@ -173,5 +177,8 @@ fun SeriesRegistrationDTO.toEntity() =
         countDeclined = countDeclined,
     )
 
-fun SeriesDataDTO.toRapidDTO() = SeriesData(media = media.map { it.toRapidMediaInfo() }.toSet(),
-    attributes = SeriesAttributes(keywords = attributes.keywords))
+fun SeriesDataDTO.toRapidDTO() =
+    SeriesData(
+        media = media.map { it.toRapidMediaInfo() }.toSet(),
+        attributes = SeriesAttributes(keywords = attributes.keywords),
+    )
