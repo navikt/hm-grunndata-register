@@ -43,6 +43,11 @@ interface ProductRegistrationRepository :
         articleName: String,
     ): Boolean
 
+    suspend fun existsBySeriesUUIDAndSupplierId(
+        seriesUUID: UUID,
+        supplierId: UUID,
+    ): Boolean
+
     suspend fun findBySupplierId(supplierId: UUID): List<ProductRegistration>
 
     suspend fun findBySeriesUUIDAndSupplierId(

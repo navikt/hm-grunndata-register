@@ -25,7 +25,6 @@ import no.nav.hm.grunndata.register.product.batch.toRegistrationDTO
 import no.nav.hm.grunndata.register.product.batch.toRegistrationDryRunDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
-import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
@@ -76,7 +75,8 @@ open class ProductRegistrationService(
 
     open suspend fun update(dto: ProductRegistrationDTO) = productRegistrationRepository.update(dto.toEntity()).toDTO()
 
-    open suspend fun updateAll(dtos: List<ProductRegistrationDTO>) = productRegistrationRepository.updateAll(dtos.map { it.toEntity() })
+    open suspend fun updateAll(dtos: List<ProductRegistrationDTO>) =
+        productRegistrationRepository.updateAll(dtos.map { it.toEntity() })
 
     open suspend fun findAll(
         spec: PredicateSpecification<ProductRegistration>?,
@@ -109,7 +109,8 @@ open class ProductRegistrationService(
         articleName: String,
     ) = productRegistrationRepository.existsBySeriesUUIDAndArticleName(seriesUUID, articleName)
 
-    open suspend fun findBySupplierId(supplierId: UUID) = productRegistrationRepository.findBySupplierId(supplierId).map { it.toDTO() }
+    open suspend fun findBySupplierId(supplierId: UUID) =
+        productRegistrationRepository.findBySupplierId(supplierId).map { it.toDTO() }
 
     open suspend fun findByIdAndSupplierId(
         id: UUID,
@@ -145,7 +146,8 @@ open class ProductRegistrationService(
         return updated
     }
 
-    suspend fun findAllBySeriesUuid(seriesUUID: UUID) = productRegistrationRepository.findAllBySeriesUUID(seriesUUID).map { it.toDTO() }
+    suspend fun findAllBySeriesUuid(seriesUUID: UUID) =
+        productRegistrationRepository.findAllBySeriesUUID(seriesUUID).map { it.toDTO() }
 
     suspend fun findBySeriesIdAndSupplierId(
         seriesUUID: UUID,
@@ -205,31 +207,40 @@ open class ProductRegistrationService(
     ): List<ProductRegistrationDTO> {
         return dtos.map {
             findBySupplierRefAndSupplierId(it.levartnr, it.leverandorid.toUUID())?.let { inDb ->
-                val product =
-                    inDb.copy(
-                        title = it.produktseriesnavn ?: it.produktnavn,
-                        articleName = it.produktnavn,
-                        isoCategory = it.isoCategory,
-                        seriesUUID = it.produktserieid?.toUUID() ?: inDb.id,
-                        seriesId = it.produktserieid ?: inDb.id.toString(),
-                        productData =
+                if (changed(inDb, it)) {
+                    val product =
+                        inDb.copy(
+                            draftStatus = DraftStatus.DRAFT,
+                            adminStatus = AdminStatus.PENDING,
+                            title = it.produktseriesnavn ?: it.produktnavn,
+                            articleName = it.produktnavn,
+                            isoCategory = it.isoCategory,
+                            productData =
                             inDb.productData.copy(
                                 techData = it.techData,
                                 attributes =
-                                    inDb.productData.attributes.copy(
-                                        shortdescription = it.produktseriebeskrivelse,
-                                        text = it.andrespesifikasjoner,
-                                    ),
+                                inDb.productData.attributes.copy(
+                                    shortdescription = it.andrespesifikasjoner,
+                                ),
                             ),
-                        updated = LocalDateTime.now(),
-                        updatedByUser = authentication.name,
-                    )
-                saveAndCreateEventIfNotDraftAndApproved(product, isUpdate = true)
+                            updated = LocalDateTime.now(),
+                            updatedByUser = authentication.name,
+                        )
+                    saveAndCreateEventIfNotDraftAndApproved(product, isUpdate = true)
+                } else inDb
             } ?: saveAndCreateEventIfNotDraftAndApproved(
                 it.toRegistrationDTO(),
                 isUpdate = false,
             )
         }
+    }
+
+    private fun changed(inDb: ProductRegistrationDTO, excel: ProductRegistrationExcelDTO): Boolean {
+        if (excel.produktnavn != inDb.articleName) return true
+        if (excel.techData != inDb.productData.techData) return true
+        if (excel.andrespesifikasjoner != inDb.productData.attributes.shortdescription) return true
+        LOG.info("No changes in product ${inDb.id}")
+        return false
     }
 
     open suspend fun importDryRunExcelRegistrations(
@@ -238,25 +249,24 @@ open class ProductRegistrationService(
     ): List<ProductRegistrationDryRunDTO> {
         return dtos.map {
             findBySupplierRefAndSupplierId(it.levartnr, it.leverandorid.toUUID())?.let { inDb ->
-                val product =
+                val product = if (changed(inDb, it))
                     inDb.copy(
+                        draftStatus = DraftStatus.DRAFT,
+                        adminStatus = AdminStatus.PENDING,
                         title = it.produktseriesnavn ?: it.produktnavn,
                         articleName = it.produktnavn,
                         isoCategory = it.isoCategory,
-                        seriesUUID = it.produktserieid?.toUUID() ?: inDb.id,
-                        seriesId = it.produktserieid ?: inDb.id.toString(),
                         productData =
-                            inDb.productData.copy(
-                                techData = it.techData,
-                                attributes =
-                                    inDb.productData.attributes.copy(
-                                        shortdescription = it.produktseriebeskrivelse,
-                                        text = it.andrespesifikasjoner,
-                                    ),
+                        inDb.productData.copy(
+                            techData = it.techData,
+                            attributes =
+                            inDb.productData.attributes.copy(
+                                shortdescription = it.andrespesifikasjoner,
                             ),
+                        ),
                         updated = LocalDateTime.now(),
                         updatedByUser = authentication.name,
-                    )
+                    ) else inDb
                 product.toProductRegistrationDryRunDTO()
             } ?: it.toRegistrationDryRunDTO()
         }
@@ -274,10 +284,10 @@ open class ProductRegistrationService(
                 accessory = isAccessory,
                 sparePart = isSparePart,
                 attributes =
-                    Attributes(
-                        shortdescription = "",
-                        text = "en lang beskrivelse",
-                    ),
+                Attributes(
+                    shortdescription = "",
+                    text = "en lang beskrivelse",
+                ),
             )
         val registration =
             ProductRegistrationDTO(
@@ -321,10 +331,10 @@ open class ProductRegistrationService(
                 sparePart = isSparePart,
                 techData = createTechDataDraft(draftWithDTO),
                 attributes =
-                    Attributes(
-                        shortdescription = "",
-                        text = draftWithDTO.text,
-                    ),
+                Attributes(
+                    shortdescription = "",
+                    text = draftWithDTO.text,
+                ),
             )
         val registration =
             ProductRegistrationDTO(
@@ -371,12 +381,12 @@ open class ProductRegistrationService(
                 accessory = false,
                 sparePart = false,
                 techData =
-                    previousProduct?.productData?.techData ?: createTechDataDraft(series.isoCategory),
+                previousProduct?.productData?.techData ?: createTechDataDraft(series.isoCategory),
                 attributes =
-                    Attributes(
-                        shortdescription = "",
-                        text = "",
-                    ),
+                Attributes(
+                    shortdescription = "",
+                    text = "",
+                ),
             )
         val registration =
             ProductRegistrationDTO(
@@ -502,6 +512,12 @@ open class ProductRegistrationService(
             published = LocalDateTime.now(),
             expired = LocalDateTime.now(),
         ).map { it.toDTO() }
+
+    suspend fun exitsBySeriesUUIDAndSupplierId(seriesUUID: UUID, supplierId: UUID) =
+        productRegistrationRepository.existsBySeriesUUIDAndSupplierId(
+            seriesUUID,
+            supplierId,
+        )
 }
 
 suspend fun <T : Any, R : Any> Page<T>.mapSuspend(transform: suspend (T) -> R): Page<R> {
