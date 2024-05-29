@@ -25,7 +25,8 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.*
+import java.util.Locale
+import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(SeriesRegistrationAdminController.API_V1_SERIES)
@@ -132,6 +133,7 @@ class SeriesRegistrationAdminController(private val seriesRegistrationService: S
                     it.copy(
                         adminStatus = AdminStatus.APPROVED,
                         updated = LocalDateTime.now(),
+                        published = it.published ?: LocalDateTime.now(),
                         updatedBy = REGISTER,
                     ),
                     isUpdate = true,

@@ -112,6 +112,7 @@ data class SeriesRegistrationDTO(
             status = status,
             created = created,
             updated = updated,
+            published = published!!,
             expired = expired,
             createdBy = createdBy,
             updatedBy = updatedBy,
