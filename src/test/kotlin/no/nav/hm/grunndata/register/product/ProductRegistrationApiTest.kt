@@ -15,11 +15,15 @@ import no.nav.hm.grunndata.rapid.dto.Attributes
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.REGISTER
-import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.series.SeriesAttributesDTO
+import no.nav.hm.grunndata.register.series.SeriesDataDTO
+import no.nav.hm.grunndata.register.series.SeriesRegistration
+import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
@@ -27,18 +31,18 @@ import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserAttribute
 import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
-import org.junit.Ignore
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @MicronautTest
 class ProductRegistrationApiTest(
     private val apiClient: ProductRegistrationApiClient,
     private val loginClient: LoginClient,
     private val userRepository: UserRepository,
+    private val seriesRepository: SeriesRegistrationRepository,
     private val objectMapper: ObjectMapper,
     private val supplierRegistrationService: SupplierRegistrationService,
 ) {
@@ -46,12 +50,14 @@ class ProductRegistrationApiTest(
     private val password = "api-123"
     private var testSupplier: SupplierRegistrationDTO? = null
     private var testSupplier2: SupplierRegistrationDTO? = null
+    private var seriesRegistrationSupplier1: SeriesRegistration? = null
+    private var seriesRegistrationSupplier2: SeriesRegistration? = null
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
 
     @BeforeEach
-    fun createUserSupplier() {
+    fun createUserSupplierAndSeries() {
         val name1 = "25cfec1d-fc9b-474e-ab3a-7c997fbc8e73"
         val name2 = "ba38e5a7-fce3-46ad-9548-a874d967b2a2"
         val supplierId = UUID.randomUUID()
@@ -98,112 +104,86 @@ class ProductRegistrationApiTest(
             }
             testSupplier = supplierRegistrationService.findByName(name1)
             testSupplier2 = supplierRegistrationService.findByName(name2)
+
+            seriesRegistrationSupplier1 =
+                seriesRepository.save(
+                    SeriesRegistration(
+                        id = UUID.randomUUID(),
+                        draftStatus = DraftStatus.DONE,
+                        supplierId = supplierId,
+                        identifier = "apitest-series-123",
+                        title = "apitest-series",
+                        text = "apitest-series",
+                        isoCategory = "12001314",
+                        status = SeriesStatus.ACTIVE,
+                        adminStatus = AdminStatus.APPROVED,
+                        seriesData =
+                            SeriesDataDTO(
+                                media = emptySet(),
+                                attributes = SeriesAttributesDTO(keywords = listOf("keyword1", "keyword2")),
+                            ),
+                        createdBy = REGISTER,
+                        updatedBy = REGISTER,
+                        updatedByUser = email,
+                        createdByUser = email,
+                        createdByAdmin = false,
+                        version = 1,
+                    ),
+                )
+
+            seriesRegistrationSupplier2 =
+                seriesRepository.save(
+                    SeriesRegistration(
+                        id = UUID.randomUUID(),
+                        draftStatus = DraftStatus.DONE,
+                        supplierId = supplierId2,
+                        identifier = "apitest-series-123",
+                        title = "apitest-series",
+                        text = "apitest-series",
+                        isoCategory = "12001314",
+                        status = SeriesStatus.ACTIVE,
+                        adminStatus = AdminStatus.APPROVED,
+                        seriesData =
+                            SeriesDataDTO(
+                                media = emptySet(),
+                                attributes = SeriesAttributesDTO(keywords = listOf("keyword1", "keyword2")),
+                            ),
+                        createdBy = REGISTER,
+                        updatedBy = REGISTER,
+                        updatedByUser = email,
+                        createdByUser = email,
+                        createdByAdmin = false,
+                        version = 1,
+                    ),
+                )
         }
     }
-
-    @Test
-    fun `fetch product series with variants`() {
-        val resp = loginClient.login(UsernamePasswordCredentials(email, password))
-        val jwt = resp.getCookie("JWT").get().value
-        val seriesUUID = UUID.randomUUID()
-
-        apiClient.createProduct(
-            jwt,
-            dummyProductRegistrationDTO(
-                supplierRef = UUID.randomUUID().toString(),
-                supplierId = testSupplier!!.id,
-                seriesUUID = seriesUUID,
-                articleName = "variant 1",
-            ),
-        )
-        apiClient.createProduct(
-            jwt,
-            dummyProductRegistrationDTO(
-                supplierRef = UUID.randomUUID().toString(),
-                supplierId = testSupplier!!.id,
-                seriesUUID = seriesUUID,
-                articleName = "variant 2",
-            ),
-        )
-
-        val read = apiClient.readProductSeriesWithVariants(jwt, seriesUUID)
-        read.shouldNotBeNull()
-        read.createdByUser shouldBe email
-        read.variants.size shouldBe 2
-    }
-
-    @Test
-    fun `fetch product series without variants`() {
-        val resp = loginClient.login(UsernamePasswordCredentials(email, password))
-        val jwt = resp.getCookie("JWT").get().value
-        val seriesUUID = UUID.randomUUID()
-
-        apiClient.createProduct(
-            jwt,
-            dummyProductRegistrationDTO(
-                supplierRef = "not uuid",
-                supplierId = testSupplier!!.id,
-                seriesUUID = seriesUUID,
-            ),
-        )
-
-        val read = apiClient.readProductSeriesWithVariants(jwt, seriesUUID)
-        read.shouldNotBeNull()
-        read.variants.size shouldBe 0
-    }
-
-    @Test
-    fun `update common data for product series`() {
-        val resp = loginClient.login(UsernamePasswordCredentials(email, password))
-        val jwt = resp.getCookie("JWT").get().value
-        val seriesUUID = UUID.randomUUID()
-
-        apiClient.createProduct(
-            jwt,
-            dummyProductRegistrationDTO(
-                supplierRef = UUID.randomUUID().toString(),
-                supplierId = testSupplier!!.id,
-                seriesUUID = seriesUUID,
-                title = "title",
-            ),
-        )
-        val read = apiClient.readProductSeriesWithVariants(jwt, seriesUUID)
-        read.title shouldBe "title"
-
-        apiClient.updateProductSeriesWithVariants(jwt, seriesUUID, read.copy(title = "changed title"))
-
-        val changed = apiClient.readProductSeriesWithVariants(jwt, seriesUUID)
-        changed.title shouldBe "changed title"
-    }
-
-
 
     @Test
     fun `variants with same supplierId and supplierRef returns error`() {
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
-        val seriesUUID = UUID.randomUUID()
 
         val supplierRef = UUID.randomUUID().toString()
 
-        apiClient.createProduct(
+        apiClient.createDraftWith(
             jwt,
-            dummyProductRegistrationDTO(
+            seriesRegistrationSupplier1!!.id,
+            testSupplier!!.id,
+            dummyDraftWith(
                 supplierRef = supplierRef,
-                supplierId = testSupplier!!.id,
-                seriesUUID = seriesUUID,
                 articleName = "variant 1",
             ),
         )
 
         assertThrows<Exception> {
-            apiClient.createProduct(
+            apiClient.createDraftWith(
                 jwt,
-                dummyProductRegistrationDTO(
-                    supplierRef = supplierRef,
-                    supplierId = testSupplier!!.id,
-                    seriesUUID = seriesUUID,
+                seriesRegistrationSupplier1!!.id,
+                testSupplier!!.id,
+                dummyDraftWith(
                     articleName = "variant 2",
+                    supplierRef = supplierRef,
                 ),
             )
         }
@@ -213,7 +193,7 @@ class ProductRegistrationApiTest(
     fun apiTest() {
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
-        val seriesUUID = UUID.randomUUID()
+        val seriesUUID = seriesRegistrationSupplier1!!.id
         val productData =
             ProductData(
                 attributes =
@@ -235,33 +215,23 @@ class ProductRegistrationApiTest(
                     ),
             )
 
-        val registration =
-            ProductRegistrationDTO(
-                seriesId = "apitest-series-123",
-                seriesUUID = seriesUUID,
-                title = "apitest-produkt 1",
-                articleName = "Dette er produkt 1 med og med",
-                id = UUID.randomUUID(),
-                isoCategory = "12001314",
-                supplierId = testSupplier!!.id,
-                hmsArtNr = "apitest-111",
-                supplierRef = "apitest-eksternref-111",
-                draftStatus = DraftStatus.DRAFT,
-                adminStatus = AdminStatus.PENDING,
-                registrationStatus = RegistrationStatus.ACTIVE,
-                message = "Melding til leverandør",
-                adminInfo = null,
-                createdByAdmin = false,
-                expired = null,
-                published = null,
-                updatedByUser = email,
-                createdByUser = email,
-                productData = productData,
-                version = 1,
-                createdBy = REGISTER,
-                updatedBy = REGISTER,
+        val draft1 =
+            apiClient.createDraftWith(
+                jwt,
+                seriesUUID,
+                testSupplier!!.id,
+                dummyDraftWith(
+                    supplierRef = "apitest-eksternref-111",
+                    articleName = "Dette er produkt 1 med og med",
+                ),
             )
-        val created = apiClient.createProduct(jwt, registration)
+
+        val created =
+            apiClient.updateProduct(
+                jwt,
+                draft1.id,
+                draft1.copy(productData = productData, hmsArtNr = "apitest-222"),
+            )
         created.shouldNotBeNull()
 
         // create another one
@@ -287,37 +257,18 @@ class ProductRegistrationApiTest(
                     ),
             )
 
-        val registration2 =
-            ProductRegistrationDTO(
-                title = "apitest-produkt 2",
-                articleName = "en veldig fin tittel med og med",
-                id = UUID.randomUUID(),
-                seriesId = "apitest-series-123",
-                seriesUUID = seriesUUID,
-                isoCategory = "12001314",
-                supplierId = testSupplier!!.id,
-                hmsArtNr = "apitest-222",
-                supplierRef = "eksternref-222",
-                draftStatus = DraftStatus.DRAFT,
-                adminStatus = AdminStatus.PENDING,
-                registrationStatus = RegistrationStatus.ACTIVE,
-                message = "Melding til leverandør",
-                adminInfo = null,
-                createdByAdmin = false,
-                expired = null,
-                published = null,
-                updatedByUser = email,
-                createdByUser = email,
-                productData = productData2,
-                version = 1,
-                createdBy = REGISTER,
-                updatedBy = REGISTER,
+        val draft2 =
+            apiClient.createDraftWith(
+                jwt,
+                seriesUUID,
+                testSupplier!!.id,
+                dummyDraftWith(
+                    supplierRef = "eksternref-222",
+                    articleName = "en veldig fin tittel med og med",
+                ),
             )
-
-        val created2 = apiClient.createProduct(jwt, registration2)
+        val created2 = apiClient.updateProduct(jwt, draft2.id, draft2.copy(productData = productData2))
         created2.shouldNotBeNull()
-
-        println(objectMapper.writeValueAsString(apiClient.findSeriesGroup(jwt, 20, 0, null)))
 
         val read = apiClient.readProduct(jwt, created.id)
         read.shouldNotBeNull()
@@ -334,13 +285,6 @@ class ProductRegistrationApiTest(
         val draftStatusChange = apiClient.updateProduct(jwt, updated.id, updated.copy(draftStatus = DraftStatus.DRAFT))
         draftStatusChange.shouldNotBeNull()
         draftStatusChange.draftStatus shouldBe DraftStatus.DRAFT // not APPROVED yet allowed to change status
-
-        val deleted = apiClient.deleteProduct(jwt, updated.id)
-        deleted.shouldNotBeNull()
-        deleted.registrationStatus shouldBe RegistrationStatus.DELETED
-
-        val page = apiClient.findProducts(jwt, null, "%apitest-produkt%", 30, 1, "created,asc")
-        page.totalSize shouldBe 1
 
         val page2 = apiClient.findProducts(jwt, "apitest-222", null, 30, 1, "created,asc")
         page2.totalSize shouldBe 1
@@ -370,35 +314,28 @@ class ProductRegistrationApiTest(
                         ),
                     ),
             )
-        val registration3 =
-            ProductRegistrationDTO(
-                id = UUID.randomUUID(),
-                seriesId = "apitest-series-123",
-                seriesUUID = UUID.randomUUID(),
-                isoCategory = "12001314",
-                supplierId = testSupplier2!!.id,
-                title = "apitest-produkt 3",
-                articleName = "Dette er produkt 1 med og med",
-                hmsArtNr = "apitest-333",
-                supplierRef = "apitest-eksternref-333",
-                draftStatus = DraftStatus.DRAFT,
-                adminStatus = AdminStatus.PENDING,
-                registrationStatus = RegistrationStatus.ACTIVE,
-                message = "Melding til leverandør",
-                adminInfo = null,
-                createdByAdmin = false,
-                expired = null,
-                published = null,
-                updatedByUser = email,
-                createdByUser = email,
-                productData = productData3,
-                version = 1,
-                createdBy = REGISTER,
-                updatedBy = REGISTER,
-            )
+
         runCatching {
-            apiClient.createProduct(jwt, registration3)
+            apiClient.createDraftWith(
+                jwt,
+                seriesRegistrationSupplier2!!.id,
+                testSupplier2!!.id,
+                dummyDraftWith(
+                    supplierRef = "apitest-eksternref-333",
+                    articleName = "Dette er produkt 1 med og med",
+                ),
+            )
         }.isFailure shouldBe true
+    }
+
+    private fun dummyDraftWith(
+        articleName: String = "dummyArticleName",
+        supplierRef: String = UUID.randomUUID().toString(),
+    ): DraftVariantDTO {
+        return DraftVariantDTO(
+            supplierRef = supplierRef,
+            articleName = articleName,
+        )
     }
 
     private fun dummyProductRegistrationDTO(
