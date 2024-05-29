@@ -84,6 +84,7 @@ data class SeriesRegistrationDTO(
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val expired: LocalDateTime = LocalDateTime.now().plusYears(15),
+    val published: LocalDateTime? = null,
     val createdBy: String = REGISTER,
     val updatedBy: String = REGISTER,
     override val updatedByUser: String = "system",

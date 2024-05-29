@@ -334,6 +334,7 @@ class ProductRegistrationAdminApiController(
                         adminStatus = AdminStatus.APPROVED,
                         adminInfo = AdminInfo(approvedBy = authentication.name, approved = LocalDateTime.now()),
                         updated = LocalDateTime.now(),
+                        published = it.published ?: LocalDateTime.now(),
                         updatedBy = REGISTER,
                     ),
                     isUpdate = true,
@@ -359,6 +360,7 @@ class ProductRegistrationAdminApiController(
                     adminStatus = AdminStatus.APPROVED,
                     adminInfo = AdminInfo(approvedBy = authentication.name, approved = LocalDateTime.now()),
                     updated = LocalDateTime.now(),
+                    published = it.published ?: LocalDateTime.now(),
                     updatedBy = REGISTER,
                 )
             }
