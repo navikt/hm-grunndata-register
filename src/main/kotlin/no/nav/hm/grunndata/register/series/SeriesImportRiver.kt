@@ -1,8 +1,5 @@
 package no.nav.hm.grunndata.register.series
 
-import no.nav.hm.grunndata.register.IMPORT
-import no.nav.hm.grunndata.register.product.toMediaInfo
-
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.context.annotation.Context
 import io.micronaut.context.annotation.Requires
@@ -11,10 +8,14 @@ import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.KafkaRapid
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
-import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.SeriesImportRapidDTO
+import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
-
+import no.nav.hm.grunndata.register.IMPORT
+import no.nav.hm.grunndata.register.product.toMediaInfo
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -51,6 +52,8 @@ class SeriesImportRiver(
             val series = seriesRegistrationService.findById(dto.id)?.let { inDb ->
                 seriesRegistrationService.update(
                     inDb.copy(
+                        adminStatus = AdminStatus.PENDING,
+                        draftStatus = DraftStatus.DONE,
                         title = dto.title, text= dto.text, isoCategory = dto.isoCategory,
                         seriesData = SeriesDataDTO(media = dto.seriesData.media.map { it.toMediaInfo() }.toSet(),
                             attributes = SeriesAttributesDTO(
@@ -64,13 +67,14 @@ class SeriesImportRiver(
                 )
             } ?: seriesRegistrationService.save(
                 SeriesRegistrationDTO(
+                    adminStatus = AdminStatus.PENDING,
+                    draftStatus = DraftStatus.DONE,
                     id = dto.id,
                     supplierId = dto.supplierId,
                     identifier = dto.id.toString(),
                     title = dto.title,
                     text = dto.text,
                     isoCategory = dto.isoCategory,
-                    draftStatus = DraftStatus.DONE,
                     status = dto.status,
                     seriesData = SeriesDataDTO(
                         media = dto.seriesData.media.map { it.toMediaInfo() }.toSet(),
@@ -78,6 +82,7 @@ class SeriesImportRiver(
                             keywords = dto.seriesData.attributes.keywords
                         )
                     ),
+                    expired = dto.expired,
                     createdBy = IMPORT,
                     updatedBy = IMPORT,
                     createdByUser = IMPORT,
