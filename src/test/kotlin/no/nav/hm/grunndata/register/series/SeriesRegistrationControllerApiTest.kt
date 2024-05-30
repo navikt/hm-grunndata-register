@@ -40,6 +40,7 @@ import java.util.*
 @MicronautTest
 class SeriesRegistrationControllerApiTest(
     private val apiClient: SeriesControllerApiClient,
+    private val apiAdminClient: SeriesAdminControllerApiClient,
     private val productApiClient: ProductRegistrationApiClient,
     private val loginClient: LoginClient,
     private val userRepository: UserRepository,
@@ -50,6 +51,7 @@ class SeriesRegistrationControllerApiTest(
     }
 
     private val email = "series-tester@test.test"
+    private val emailAdmin = "series-admin@test.test"
     private val password = "api-123"
     private var testSupplier: SupplierRegistration? = null
 
@@ -84,6 +86,12 @@ class SeriesRegistrationControllerApiTest(
                     roles = listOf(Roles.ROLE_SUPPLIER),
                     attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier!!.id.toString())),
                 ),
+            )
+
+            userRepository.createUser(
+                User(
+                    email = emailAdmin, token = password, name = "User tester", roles = listOf(Roles.ROLE_ADMIN)
+                )
             )
         }
     }
@@ -210,6 +218,13 @@ class SeriesRegistrationControllerApiTest(
 
             val seriesWithCapitalizedearchTerm = apiClient.findSeriesWithCapitalizedTitle(jwt)
             seriesWithCapitalizedearchTerm.content.size shouldBe 1
+
+            val respLoginAdmin = loginClient.login(UsernamePasswordCredentials(emailAdmin, password))
+            val jwtAdmin = respLoginAdmin.getCookie("JWT").get().value
+
+            apiAdminClient.approveSeries(jwtAdmin, updated.id)
+
+            apiClient.setPublishedSeriesToDraft(jwt, updated.id)
 
         }
     }

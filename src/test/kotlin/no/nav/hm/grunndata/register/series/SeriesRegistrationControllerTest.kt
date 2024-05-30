@@ -39,9 +39,8 @@ class SeriesRegistrationControllerTest(
     private val loginClient: LoginClient,
     private val userRepository: UserRepository,
     private val supplierRegistrationService: SupplierRegistrationService,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) {
-
     companion object {
         private val LOG = LoggerFactory.getLogger(UserControllerTest::class.java)
     }
@@ -59,53 +58,80 @@ class SeriesRegistrationControllerTest(
     @BeforeEach
     fun createUserSupplier() {
         runBlocking {
-            val testSupplierRegistration = supplierRegistrationService.save(
-                SupplierRegistrationDTO(
-                    id = UUID.randomUUID(),
-                    supplierData = SupplierData(
-                        email = "supplier@test.test",
-                        address = "address 1",
-                        homepage = "https://www.hompage.no",
-                        phone = "+47 12345678"
+            val testSupplierRegistration =
+                supplierRegistrationService.save(
+                    SupplierRegistrationDTO(
+                        id = UUID.randomUUID(),
+                        supplierData =
+                            SupplierData(
+                                email = "supplier@test.test",
+                                address = "address 1",
+                                homepage = "https://www.hompage.no",
+                                phone = "+47 12345678",
+                            ),
+                        identifier = "supplier-name",
+                        name = "Supplier AB",
                     ),
-                    identifier = "supplier-name",
-                    name = "Supplier AB"
                 )
-            )
-            val user = User(
-                email = email, token = token,
-                name = "User tester", roles = listOf(Roles.ROLE_SUPPLIER),
-                attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplierRegistration.id.toString()))
-            )
+            val user =
+                User(
+                    email = email,
+                    token = token,
+                    name = "User tester",
+                    roles = listOf(Roles.ROLE_SUPPLIER),
+                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplierRegistration.id.toString())),
+                )
             userRepository.createUser(user)
 
-            val serie = seriesRegistrationService.save(
-                SeriesRegistrationDTO(
-                    id = UUID.randomUUID(),
-                    supplierId = testSupplierRegistration.id,
-                    identifier = "testerino",
-                    title = "superserie",
-                    text = "text",
-                    isoCategory = "12345678",
-                    seriesData = SeriesDataDTO(media = setOf(
-                        MediaInfoDTO(uri = "http://example.com", type = no.nav.hm.grunndata.rapid.dto.MediaType.IMAGE, text = "image description", sourceUri = "http://example.com",  source = MediaSourceType.REGISTER)
-                    ))
+            val serie =
+                seriesRegistrationService.save(
+                    SeriesRegistrationDTO(
+                        id = UUID.randomUUID(),
+                        supplierId = testSupplierRegistration.id,
+                        identifier = "testerino",
+                        title = "superserie",
+                        text = "text",
+                        isoCategory = "12345678",
+                        seriesData =
+                            SeriesDataDTO(
+                                media =
+                                    setOf(
+                                        MediaInfoDTO(
+                                            uri = "http://example.com",
+                                            type = no.nav.hm.grunndata.rapid.dto.MediaType.IMAGE,
+                                            text = "image description",
+                                            sourceUri = "http://example.com",
+                                            source = MediaSourceType.REGISTER,
+                                        ),
+                                    ),
+                            ),
+                    ),
                 )
-            )
 
-            val serie2 = seriesRegistrationService.save(
-                SeriesRegistrationDTO(
-                    id = UUID.randomUUID(),
-                    supplierId = testSupplierRegistration.id,
-                    identifier = "testtest",
-                    title = "enda en serie",
-                    text = "tekst",
-                    isoCategory = "12345678",
-                    seriesData = SeriesDataDTO(media = setOf(
-                        MediaInfoDTO(uri = "http://example.com", type = no.nav.hm.grunndata.rapid.dto.MediaType.IMAGE, text = "image description", sourceUri = "http://example.com",  source = MediaSourceType.REGISTER)
-                    ))
+            val serie2 =
+                seriesRegistrationService.save(
+                    SeriesRegistrationDTO(
+                        id = UUID.randomUUID(),
+                        supplierId = testSupplierRegistration.id,
+                        identifier = "testtest",
+                        title = "enda en serie",
+                        text = "tekst",
+                        isoCategory = "12345678",
+                        seriesData =
+                            SeriesDataDTO(
+                                media =
+                                    setOf(
+                                        MediaInfoDTO(
+                                            uri = "http://example.com",
+                                            type = no.nav.hm.grunndata.rapid.dto.MediaType.IMAGE,
+                                            text = "image description",
+                                            sourceUri = "http://example.com",
+                                            source = MediaSourceType.REGISTER,
+                                        ),
+                                    ),
+                            ),
+                    ),
                 )
-            )
 
             LOG.info("created supplier: ${objectMapper.writeValueAsString(testSupplierRegistration)}")
             LOG.info("created user: ${objectMapper.writeValueAsString(user)}")
@@ -114,31 +140,31 @@ class SeriesRegistrationControllerTest(
         }
     }
 
-
     @Test
     fun seriesApiTest() {
         val jwt = loginClient.login(UsernamePasswordCredentials(email, token)).getCookie("JWT").get()
 
-        val allSeries = client.toBlocking().exchange(
-            HttpRequest.GET<Page<SeriesRegistrationDTO>>(SeriesRegistrationController.API_V1_SERIES)
-                .accept(MediaType.APPLICATION_JSON)
-                .cookie(jwt),
-            Page::class.java
-        )
-            .shouldNotBeNull()
-            .body().shouldNotBeNull()
+        val allSeries =
+            client.toBlocking().exchange(
+                HttpRequest.GET<Page<SeriesRegistrationDTO>>(SeriesRegistrationController.API_V1_SERIES)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .cookie(jwt),
+                Page::class.java,
+            )
+                .shouldNotBeNull()
+                .body().shouldNotBeNull()
         allSeries.totalSize shouldBeGreaterThanOrEqual 2
-        
+
         val uri = "${SeriesRegistrationController.API_V1_SERIES}/?title=superserie"
-        val filteredSeries = client.toBlocking().exchange(
-            HttpRequest.GET<Page<SeriesRegistrationDTO>>(uri)
-                .accept(MediaType.APPLICATION_JSON)
-                .cookie(jwt),
-            Page::class.java
-        )
-            .shouldNotBeNull()
-            .body().shouldNotBeNull()
+        val filteredSeries =
+            client.toBlocking().exchange(
+                HttpRequest.GET<Page<SeriesRegistrationDTO>>(uri)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .cookie(jwt),
+                Page::class.java,
+            )
+                .shouldNotBeNull()
+                .body().shouldNotBeNull()
         filteredSeries.totalSize shouldBe 1
     }
-
 }

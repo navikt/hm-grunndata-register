@@ -123,6 +123,13 @@ data class SeriesRegistrationDTO(
             seriesData = seriesData.toRapidDTO(),
             version = version,
         )
+
+    fun isPublishedProduct(): Boolean {
+        return draftStatus == DraftStatus.DONE &&
+            adminStatus == AdminStatus.APPROVED &&
+            status == SeriesStatus.ACTIVE &&
+            published != null
+    }
 }
 
 fun SeriesRegistration.toDTO() =

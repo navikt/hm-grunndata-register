@@ -153,6 +153,16 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         return HttpResponse.ok(updated)
     }
 
+    @Put("/series_to-draft/{seriesUUID}")
+    suspend fun setPublishedSeriesToDraft(
+        @PathVariable seriesUUID: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> {
+        val updated = seriesRegistrationService.setPublishedSeriesToDraftStatus(seriesUUID, authentication)
+
+        return HttpResponse.ok(updated)
+    }
+
     @Delete("/{seriesUUID}")
     suspend fun deleteSeries(
         @PathVariable seriesUUID: UUID,
@@ -168,7 +178,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
                 expired = LocalDateTime.now(),
                 updatedByUser = authentication.name,
                 updatedBy = REGISTER,
-                updated = LocalDateTime.now()
+                updated = LocalDateTime.now(),
             )
 
         val updated =

@@ -52,4 +52,10 @@ interface SeriesControllerApiClient {
         @CookieValue("JWT") jwt: String,
         @PathVariable id: UUID,
     ): SeriesRegistrationDTO?
+
+    @Put(uri = "/series_to-draft/{seriesUUID}", consumes = [APPLICATION_JSON])
+    fun setPublishedSeriesToDraft(
+        @CookieValue("JWT") jwt: String,
+        @PathVariable seriesUUID: UUID,
+    ): SeriesRegistrationDTO?
 }
