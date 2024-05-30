@@ -18,6 +18,7 @@ import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.product.DraftVariantDTO
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.ProductData
 import no.nav.hm.grunndata.register.product.ProductRegistrationApiClient
@@ -159,11 +160,23 @@ class SeriesRegistrationControllerApiTest(
                             ),
                         ),
                 )
-            val registration1 =
-                productApiClient.createProduct(
+
+            val draft1 =
+                productApiClient.createDraftWith(
                     jwt,
+                    seriesRegistrationDTO.id,
+                    testSupplier!!.id,
+                    DraftVariantDTO(
+                        supplierRef = UUID.randomUUID().toString(),
+                        articleName = "variant 1",
+                    ),
+                )
+            val registration1 =
+                productApiClient.updateProduct(
+                    jwt,
+                    draft1.id,
                     ProductRegistrationDTO(
-                        id = UUID.randomUUID(),
+                        id = draft1.id,
                         seriesId = updated.identifier,
                         seriesUUID = updated.id,
                         isoCategory = updated.isoCategory,
@@ -198,8 +211,6 @@ class SeriesRegistrationControllerApiTest(
             val seriesWithCapitalizedearchTerm = apiClient.findSeriesWithCapitalizedTitle(jwt)
             seriesWithCapitalizedearchTerm.content.size shouldBe 1
 
-            val seriesWithLowercaseSearchTerm = apiClient.findSeriesWithLowercaseTitle(jwt)
-            //seriesWithLowercaseSearchTerm.content.size shouldBe 1
         }
     }
 }
