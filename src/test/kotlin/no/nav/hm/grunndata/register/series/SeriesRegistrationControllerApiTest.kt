@@ -35,7 +35,7 @@ import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 @MicronautTest
 class SeriesRegistrationControllerApiTest(
@@ -90,14 +90,17 @@ class SeriesRegistrationControllerApiTest(
 
             userRepository.createUser(
                 User(
-                    email = emailAdmin, token = password, name = "User tester", roles = listOf(Roles.ROLE_ADMIN)
-                )
+                    email = emailAdmin,
+                    token = password,
+                    name = "User tester",
+                    roles = listOf(Roles.ROLE_ADMIN),
+                ),
             )
         }
     }
 
     @Test
-    fun crudSeries() {
+    fun apiTest() {
         runBlocking {
             val resp = loginClient.login(UsernamePasswordCredentials(email, password))
             val jwt = resp.getCookie("JWT").get().value
@@ -222,10 +225,16 @@ class SeriesRegistrationControllerApiTest(
             val respLoginAdmin = loginClient.login(UsernamePasswordCredentials(emailAdmin, password))
             val jwtAdmin = respLoginAdmin.getCookie("JWT").get().value
 
-            apiAdminClient.approveSeries(jwtAdmin, updated.id)
+            val publishedSeries = apiAdminClient.approveSeries(jwtAdmin, updated.id)
+            publishedSeries.shouldNotBeNull()
+            publishedSeries.draftStatus shouldBe DraftStatus.DONE
+            publishedSeries.status shouldBe SeriesStatus.ACTIVE
+            publishedSeries.adminStatus shouldBe AdminStatus.APPROVED
 
-            apiClient.setPublishedSeriesToDraft(jwt, updated.id)
-
+            val seriesInDraft = apiClient.setPublishedSeriesToDraft(jwt, updated.id)
+            seriesInDraft.shouldNotBeNull()
+            seriesInDraft.draftStatus shouldBe DraftStatus.DRAFT
+            seriesInDraft.adminStatus shouldBe AdminStatus.PENDING
         }
     }
 }

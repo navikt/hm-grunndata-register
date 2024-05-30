@@ -176,6 +176,7 @@ fun SeriesRegistrationDTO.toEntity() =
         adminStatus = adminStatus,
         created = created,
         updated = updated,
+        published = published,
         createdBy = createdBy,
         seriesData = seriesData,
         updatedBy = updatedBy,

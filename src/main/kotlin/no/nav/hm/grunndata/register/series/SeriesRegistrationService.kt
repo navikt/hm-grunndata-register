@@ -180,8 +180,8 @@ open class SeriesRegistrationService(
                 RegistrationStatus.ACTIVE,
             ).map { it.copy(draftStatus = DraftStatus.DRAFT, adminStatus = AdminStatus.PENDING) }
 
-        save(updatedSeries)
-        productRegistrationRepository.saveAll(variantsToUpdate)
+        update(updatedSeries)
+        productRegistrationRepository.updateAll(variantsToUpdate)
 
         return updatedSeries
     }
