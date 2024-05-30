@@ -21,6 +21,7 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.product.DraftVariantDTO
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.ProductData
+import no.nav.hm.grunndata.register.product.ProductRegistrationAdminApiClient
 import no.nav.hm.grunndata.register.product.ProductRegistrationApiClient
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
 import no.nav.hm.grunndata.register.security.LoginClient
@@ -42,6 +43,7 @@ class SeriesRegistrationControllerApiTest(
     private val apiClient: SeriesControllerApiClient,
     private val apiAdminClient: SeriesAdminControllerApiClient,
     private val productApiClient: ProductRegistrationApiClient,
+    private val productRegistrationAdminApiClient: ProductRegistrationAdminApiClient,
     private val loginClient: LoginClient,
     private val userRepository: UserRepository,
     private val supplierRegistrationRepository: SupplierRepository,
@@ -231,10 +233,16 @@ class SeriesRegistrationControllerApiTest(
             publishedSeries.status shouldBe SeriesStatus.ACTIVE
             publishedSeries.adminStatus shouldBe AdminStatus.APPROVED
 
+            productRegistrationAdminApiClient.approveProduct(jwtAdmin, registration1.id)
+
             val seriesInDraft = apiClient.setPublishedSeriesToDraft(jwt, updated.id)
             seriesInDraft.shouldNotBeNull()
             seriesInDraft.draftStatus shouldBe DraftStatus.DRAFT
             seriesInDraft.adminStatus shouldBe AdminStatus.PENDING
+
+            val variantInDraft = productApiClient.readProduct(jwt, registration1.id)
+            variantInDraft.draftStatus shouldBe DraftStatus.DRAFT
+
         }
     }
 }

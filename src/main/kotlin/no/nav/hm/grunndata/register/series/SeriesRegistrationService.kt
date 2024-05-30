@@ -8,6 +8,7 @@ import io.micronaut.data.runtime.criteria.where
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import kotlinx.coroutines.flow.map
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaType
@@ -181,7 +182,10 @@ open class SeriesRegistrationService(
             ).map { it.copy(draftStatus = DraftStatus.DRAFT, adminStatus = AdminStatus.PENDING) }
 
         update(updatedSeries)
-        productRegistrationRepository.updateAll(variantsToUpdate)
+
+        variantsToUpdate.map {
+            productRegistrationRepository.update(it)
+        }
 
         return updatedSeries
     }
