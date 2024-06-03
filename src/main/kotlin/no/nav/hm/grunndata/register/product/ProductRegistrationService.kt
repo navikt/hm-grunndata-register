@@ -19,6 +19,7 @@ import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
+import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.batch.ProductRegistrationExcelDTO
 import no.nav.hm.grunndata.register.product.batch.toProductRegistrationDryRunDTO
 import no.nav.hm.grunndata.register.product.batch.toRegistrationDTO
@@ -83,6 +84,52 @@ open class ProductRegistrationService(
         id: UUID,
         supplierId: UUID,
     ) = productRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.toDTO()
+
+    @Transactional
+    open suspend fun updateProduct(
+        registrationDTO: ProductRegistrationDTO,
+        id: UUID,
+        authentication: Authentication,
+    ): ProductRegistrationDTO {
+        findByIdAndSupplierId(id, registrationDTO.supplierId)?.let { inDb ->
+            val dto =
+                saveAndCreateEventIfNotDraftAndApproved(
+                    registrationDTO
+                        .copy(
+                            draftStatus =
+                                if (inDb.draftStatus == DraftStatus.DONE && inDb.adminStatus == AdminStatus.APPROVED) {
+                                    DraftStatus.DONE
+                                } else {
+                                    registrationDTO.draftStatus
+                                },
+                            id = inDb.id,
+                            created = inDb.created,
+                            updatedBy = REGISTER,
+                            updatedByUser = authentication.name,
+                            createdByUser = inDb.createdByUser,
+                            createdBy = inDb.createdBy,
+                            createdByAdmin = inDb.createdByAdmin,
+                            adminStatus = inDb.adminStatus,
+                            adminInfo = inDb.adminInfo,
+                            updated = LocalDateTime.now(),
+                        ),
+                    isUpdate = true,
+                )
+
+            val series = seriesRegistrationRepository.findById(dto.seriesUUID)
+            if (series != null) {
+                val updatedSeries =
+                    series.copy(
+                        updated = LocalDateTime.now(),
+                        updatedBy = authentication.name,
+                    )
+                seriesRegistrationRepository.update(updatedSeries)
+            }
+            return dto
+        } ?: run {
+            throw BadRequestException("Product does not exists $id")
+        }
+    }
 
     @Transactional
     open suspend fun saveAndCreateEventIfNotDraftAndApproved(
