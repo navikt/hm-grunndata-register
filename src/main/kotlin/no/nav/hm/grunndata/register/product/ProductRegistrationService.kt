@@ -132,6 +132,50 @@ open class ProductRegistrationService(
     }
 
     @Transactional
+    open suspend fun updateProductByAdmin(
+        registrationDTO: ProductRegistrationDTO,
+        id: UUID,
+        authentication: Authentication,
+    ): ProductRegistrationDTO {
+        findById(id)?.let { inDb ->
+            val updated =
+                saveAndCreateEventIfNotDraftAndApproved(
+                    registrationDTO.copy(
+                        draftStatus =
+                            if (inDb.draftStatus == DraftStatus.DONE && inDb.adminStatus == AdminStatus.APPROVED) {
+                                DraftStatus.DONE
+                            } else {
+                                registrationDTO.draftStatus
+                            },
+                        adminStatus = inDb.adminStatus,
+                        adminInfo = inDb.adminInfo,
+                        id = inDb.id,
+                        created = inDb.created,
+                        updatedByUser = authentication.name,
+                        updatedBy = REGISTER,
+                        createdBy = inDb.createdBy,
+                        createdByAdmin = inDb.createdByAdmin,
+                        updated = LocalDateTime.now(),
+                    ),
+                    isUpdate = true,
+                )
+
+            val series = seriesRegistrationRepository.findById(updated.seriesUUID)
+            if (series != null) {
+                val updatedSeries =
+                    series.copy(
+                        updated = LocalDateTime.now(),
+                        updatedBy = authentication.name,
+                    )
+                seriesRegistrationRepository.update(updatedSeries)
+            }
+            return updated
+        } ?: run {
+            throw BadRequestException("Product does not exists $id")
+        }
+    }
+
+    @Transactional
     open suspend fun saveAndCreateEventIfNotDraftAndApproved(
         dto: ProductRegistrationDTO,
         isUpdate: Boolean,
