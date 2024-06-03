@@ -72,6 +72,7 @@ class ProductRegistrationApiController(
             where {
                 root[ProductRegistration::supplierId] eq supplierId
                 if (params.contains("supplierRef")) root[ProductRegistration::supplierRef] eq params["supplierRef"]
+                if (params.contains("seriesUUID")) root[ProductRegistration::seriesUUID] eq params["seriesUUID"]
                 if (params.contains("hmsArtNr")) root[ProductRegistration::hmsArtNr] eq params["hmsArtNr"]
                 if (params.contains("draft")) root[ProductRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
                 if (params.contains("registrationStatus")) {
