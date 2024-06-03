@@ -121,7 +121,7 @@ open class ProductRegistrationService(
                 val updatedSeries =
                     series.copy(
                         updated = LocalDateTime.now(),
-                        updatedBy = authentication.name,
+                        updatedByUser = authentication.name,
                     )
                 seriesRegistrationRepository.update(updatedSeries)
             }
@@ -165,7 +165,7 @@ open class ProductRegistrationService(
                 val updatedSeries =
                     series.copy(
                         updated = LocalDateTime.now(),
-                        updatedBy = authentication.name,
+                        updatedByUser = authentication.name,
                     )
                 seriesRegistrationRepository.update(updatedSeries)
             }
