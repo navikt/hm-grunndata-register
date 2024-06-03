@@ -190,6 +190,34 @@ class ProductRegistrationApiTest(
     }
 
     @Test
+    fun `delete variant`() {
+        val resp = loginClient.login(UsernamePasswordCredentials(email, password))
+        val jwt = resp.getCookie("JWT").get().value
+
+        val variant = apiClient.createDraftWith(
+            jwt,
+            seriesRegistrationSupplier1!!.id,
+            testSupplier!!.id,
+            dummyDraftWith(
+                supplierRef = UUID.randomUUID().toString(),
+            ),
+        )
+
+        apiClient.deleteProducts(jwt, listOf(variant.id))
+
+        val variants = apiClient.findProducts(
+            jwt = jwt,
+            supplierRef = variant.supplierRef,
+            registrationStatus = "ACTIVE",
+            size = 30,
+            page = 1,
+            sort = "created,asc"
+        )
+
+        variants.totalSize shouldBe 0
+    }
+
+    @Test
     fun apiTest() {
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
@@ -286,7 +314,8 @@ class ProductRegistrationApiTest(
         draftStatusChange.shouldNotBeNull()
         draftStatusChange.draftStatus shouldBe DraftStatus.DRAFT // not APPROVED yet allowed to change status
 
-        val page2 = apiClient.findProducts(jwt, "apitest-222", null, 30, 1, "created,asc")
+        val page2 =
+            apiClient.findProducts(jwt = jwt, hmsArtNr = "apitest-222", size = 30, page = 1, sort = "created,asc")
         page2.totalSize shouldBe 1
 
         val updatedVersion = apiClient.readProduct(jwt, updated.id)

@@ -4,6 +4,7 @@ import io.micronaut.data.model.Page
 import io.micronaut.http.MediaType.APPLICATION_JSON
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.CookieValue
+import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
@@ -19,6 +20,8 @@ interface ProductRegistrationApiClient {
     fun findProducts(
         @CookieValue("JWT") jwt: String,
         @QueryValue("hmsArtNr") hmsArtNr: String? = null,
+        @QueryValue("supplierRef") supplierRef: String? = null,
+        @QueryValue("registrationStatus") registrationStatus: String? = null,
         @QueryValue("title") title: String? = null,
         @QueryValue("size") size: Int? = null,
         @QueryValue("page") page: Int? = null,
@@ -44,5 +47,11 @@ interface ProductRegistrationApiClient {
         @CookieValue("JWT") jwt: String,
         id: UUID,
         @Body productRegistrationDTO: ProductRegistrationDTO,
+    ): ProductRegistrationDTO
+
+    @Delete(uri = "/delete", consumes = [APPLICATION_JSON])
+    fun deleteProducts(
+        @CookieValue("JWT") jwt: String,
+        @Body ids: List<UUID>,
     ): ProductRegistrationDTO
 }

@@ -74,6 +74,11 @@ class ProductRegistrationApiController(
                 if (params.contains("supplierRef")) root[ProductRegistration::supplierRef] eq params["supplierRef"]
                 if (params.contains("hmsArtNr")) root[ProductRegistration::hmsArtNr] eq params["hmsArtNr"]
                 if (params.contains("draft")) root[ProductRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
+                if (params.contains("registrationStatus")) {
+                    val statusList: List<RegistrationStatus> =
+                        params["registrationStatus"]!!.split(",").map { RegistrationStatus.valueOf(it) }
+                    root[ProductRegistration::registrationStatus] inList statusList
+                }
             }.and { root, criteriaBuilder ->
                 if (params.contains("title")) {
                     criteriaBuilder.like(
