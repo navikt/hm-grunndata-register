@@ -22,6 +22,7 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -31,7 +32,10 @@ import java.util.UUID
 @Secured(Roles.ROLE_ADMIN)
 @Controller(SeriesRegistrationAdminController.API_V1_SERIES)
 @Tag(name = "Admin Series")
-class SeriesRegistrationAdminController(private val seriesRegistrationService: SeriesRegistrationService) {
+class SeriesRegistrationAdminController(
+    private val seriesRegistrationService: SeriesRegistrationService,
+    private val productRegistrationService: ProductRegistrationService,
+) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationAdminController::class.java)
         const val API_V1_SERIES = "/admin/api/v1/series"
@@ -45,6 +49,24 @@ class SeriesRegistrationAdminController(private val seriesRegistrationService: S
     ): Page<SeriesRegistrationDTO> {
         return seriesRegistrationService.findAll(buildCriteriaSpec(params), pageable)
     }
+
+    @Get("/hmsNr/{hmsNr}")
+    suspend fun findSeriesForHmsNr(
+        @PathVariable hmsNr: String,
+        authentication: Authentication,
+    ): SeriesRegistrationDTO? =
+        productRegistrationService.findByHmsArtNr(hmsNr)?.let {
+            seriesRegistrationService.findById(it.seriesUUID)
+        }
+
+    @Get("/supplierRefl/{supplierRef}")
+    suspend fun findSeriesForSupplierRef(
+        @PathVariable supplierRef: String,
+        authentication: Authentication,
+    ): SeriesRegistrationDTO? =
+        productRegistrationService.findBySupplierRef(supplierRef)?.let {
+            seriesRegistrationService.findById(it.seriesUUID)
+        }
 
     private fun buildCriteriaSpec(params: java.util.HashMap<String, String>?): PredicateSpecification<SeriesRegistration>? =
         params?.let {
@@ -65,6 +87,12 @@ class SeriesRegistrationAdminController(private val seriesRegistrationService: S
             }.and { root, criteriaBuilder ->
                 if (params.contains("title")) {
                     val term = params["title"]!!.lowercase(Locale.getDefault())
+                    criteriaBuilder.like(
+                        root[SeriesRegistration::titleLowercase],
+                        LiteralExpression("%$term%"),
+                    )
+                } else if (params.contains("term")) {
+                    val term = params["term"]!!.lowercase(Locale.getDefault())
                     criteriaBuilder.like(
                         root[SeriesRegistration::titleLowercase],
                         LiteralExpression("%$term%"),

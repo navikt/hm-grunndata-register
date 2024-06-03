@@ -22,12 +22,19 @@ interface ProductRegistrationRepository :
 
     suspend fun findByIdIn(ids: List<UUID>): List<ProductRegistration>
 
+    suspend fun findByHmsArtNrOrSupplierRef(
+        hmsArtNr: String,
+        supplierRef: String,
+    ): List<ProductRegistration>
+
     suspend fun findByHmsArtNrAndSupplierId(
         hmsArtNr: String,
         supplierId: UUID,
     ): ProductRegistration?
 
     suspend fun findByHmsArtNr(hmsArtNr: String): ProductRegistration?
+
+    suspend fun findBySupplierRef(supplierRef: String): ProductRegistration?
 
     suspend fun findBySupplierRefAndSupplierId(
         supplierRef: String,
