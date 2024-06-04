@@ -3,10 +3,10 @@ package no.nav.hm.grunndata.register.event
 import io.micronaut.context.annotation.Requires
 import io.micronaut.scheduling.annotation.Scheduled
 import jakarta.inject.Singleton
+import java.time.LocalDateTime
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.leaderelection.LeaderOnly
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 
 @Singleton
 @Requires(property = "schedulers.enabled", value = "true")
@@ -22,7 +22,7 @@ open class EventItemScheduler(
     @Scheduled(fixedDelay = "15s")
     open fun sendEventItemScheduler() {
         runBlocking {
-            val items = eventItemService.getAllPendingStatus()
+            val items = eventItemService.getAllPendingStatus().sortedBy { it.updated }
             LOG.info("Running sendEventItemScheduler with ${items.size} items")
             items.forEach {
                 LOG.info("sending event ${it.oid} with type ${it.type}")
