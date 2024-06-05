@@ -4,7 +4,6 @@ interface EventHandler  {
 
     fun getEventType(): EventItemType
 
-    fun isRapidEventType(eventItemType: EventItemType): Boolean
     fun sendRapidEvent(eventItem: EventItem)
 
     fun getEventPayloadClass(): Class<out EventPayload>

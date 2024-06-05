@@ -72,8 +72,14 @@ class ProductRegistrationApiController(
             where {
                 root[ProductRegistration::supplierId] eq supplierId
                 if (params.contains("supplierRef")) root[ProductRegistration::supplierRef] eq params["supplierRef"]
+                if (params.contains("seriesUUID")) root[ProductRegistration::seriesUUID] eq params["seriesUUID"]
                 if (params.contains("hmsArtNr")) root[ProductRegistration::hmsArtNr] eq params["hmsArtNr"]
                 if (params.contains("draft")) root[ProductRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
+                if (params.contains("registrationStatus")) {
+                    val statusList: List<RegistrationStatus> =
+                        params["registrationStatus"]!!.split(",").map { RegistrationStatus.valueOf(it) }
+                    root[ProductRegistration::registrationStatus] inList statusList
+                }
             }.and { root, criteriaBuilder ->
                 if (params.contains("title")) {
                     criteriaBuilder.like(
@@ -108,47 +114,18 @@ class ProductRegistrationApiController(
         } else if (registrationDTO.id != id) {
             throw BadRequestException("Product id $id does not match ${registrationDTO.id}")
         } else {
-            productRegistrationService.findByIdAndSupplierId(id, registrationDTO.supplierId)
-                ?.let { inDb ->
-
-                    try {
-                        val dto =
-                            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
-                                registrationDTO
-                                    .copy(
-                                        draftStatus =
-                                            if (inDb.draftStatus == DraftStatus.DONE && inDb.adminStatus == AdminStatus.APPROVED) {
-                                                DraftStatus.DONE
-                                            } else {
-                                                registrationDTO.draftStatus
-                                            },
-                                        id = inDb.id,
-                                        created = inDb.created,
-                                        updatedBy = REGISTER,
-                                        updatedByUser = authentication.name,
-                                        createdByUser = inDb.createdByUser,
-                                        createdBy = inDb.createdBy,
-                                        createdByAdmin = inDb.createdByAdmin,
-                                        adminStatus = inDb.adminStatus,
-                                        adminInfo = inDb.adminInfo,
-                                        updated = LocalDateTime.now(),
-                                    ),
-                                isUpdate = true,
-                            )
-                        HttpResponse.ok(dto)
-                    } catch (dataAccessException: DataAccessException) {
-                        LOG.error("Got exception while updating product", dataAccessException)
-                        throw BadRequestException(
-                            dataAccessException.message ?: "Got exception while updating product $id",
-                        )
-                    } catch (e: Exception) {
-                        LOG.error("Got exception while updating product", e)
-                        throw BadRequestException("Got exception while updating product $id")
-                    }
-                }
-                ?: run {
-                    throw BadRequestException("Product does not exists $id")
-                }
+            try {
+                val dto = productRegistrationService.updateProduct(registrationDTO, id, authentication)
+                HttpResponse.ok(dto)
+            } catch (dataAccessException: DataAccessException) {
+                LOG.error("Got exception while updating product", dataAccessException)
+                throw BadRequestException(
+                    dataAccessException.message ?: "Got exception while updating product $id",
+                )
+            } catch (e: Exception) {
+                LOG.error("Got exception while updating product", e)
+                throw BadRequestException("Got exception while updating product $id")
+            }
         }
 
     @Post("/draftWithV2/{seriesUUID}/supplierId/{supplierId}")

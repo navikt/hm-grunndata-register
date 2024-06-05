@@ -2,7 +2,11 @@ package no.nav.hm.grunndata.register.productagreement
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.inject.Singleton
-import no.nav.hm.grunndata.register.event.*
+import no.nav.hm.grunndata.register.event.DefaultEventHandler
+import no.nav.hm.grunndata.register.event.EventItemService
+import no.nav.hm.grunndata.register.event.EventItemType
+import no.nav.hm.grunndata.register.event.EventPayload
+import no.nav.hm.grunndata.register.event.RegisterRapidPushService
 
 @Singleton
 class ProductAgreementRegistrationEventHandler(private val registerRapidPushService: RegisterRapidPushService,
@@ -12,8 +16,6 @@ class ProductAgreementRegistrationEventHandler(private val registerRapidPushServ
 
 
     override fun getEventType(): EventItemType = EventItemType.PRODUCTAGREEMENT
-
-    override fun isRapidEventType(eventItemType: EventItemType): Boolean = eventItemType == EventItemType.PRODUCTAGREEMENT
 
     override fun getEventPayloadClass(): Class<out EventPayload> = ProductAgreementRegistrationDTO::class.java
 

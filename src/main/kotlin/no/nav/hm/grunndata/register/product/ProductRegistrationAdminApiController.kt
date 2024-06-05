@@ -215,40 +215,18 @@ class ProductRegistrationAdminApiController(
         if (registrationDTO.id != id) {
             throw BadRequestException("Product id $id does not match ${registrationDTO.id}")
         } else {
-            productRegistrationService.findById(id)
-                ?.let { inDb ->
-                    val updated =
-                        registrationDTO.copy(
-                            draftStatus =
-                                if (inDb.draftStatus == DraftStatus.DONE && inDb.adminStatus == AdminStatus.APPROVED) {
-                                    DraftStatus.DONE
-                                } else {
-                                    registrationDTO.draftStatus
-                                },
-                            adminStatus = inDb.adminStatus,
-                            adminInfo = inDb.adminInfo,
-                            id = inDb.id,
-                            created = inDb.created,
-                            updatedByUser = authentication.name,
-                            updatedBy = REGISTER,
-                            createdBy = inDb.createdBy,
-                            createdByAdmin = inDb.createdByAdmin,
-                            updated = LocalDateTime.now(),
-                        )
-
-                    try {
-                        val dto =
-                            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updated, isUpdate = true)
-                        HttpResponse.ok(dto)
-                    } catch (e: DataAccessException) {
-                        throw BadRequestException(e.message ?: "Error updating product")
-                    } catch (e: Exception) {
-                        throw BadRequestException("Error updating product")
-                    }
-                }
-                ?: run {
-                    throw BadRequestException("Product registration does not exists $id")
-                }
+            try {
+                val dto = productRegistrationService.updateProductByAdmin(registrationDTO, id, authentication)
+                HttpResponse.ok(dto)
+            } catch (dataAccessException: DataAccessException) {
+                LOG.error("Got exception while updating product", dataAccessException)
+                throw BadRequestException(
+                    dataAccessException.message ?: "Got exception while updating product $id",
+                )
+            } catch (e: Exception) {
+                LOG.error("Got exception while updating product", e)
+                throw BadRequestException("Got exception while updating product $id")
+            }
         }
 
     @Delete("/{id}")

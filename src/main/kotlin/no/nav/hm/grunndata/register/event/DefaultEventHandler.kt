@@ -1,14 +1,13 @@
 package no.nav.hm.grunndata.register.event
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import no.nav.hm.grunndata.register.bestillingsordning.BestillingsordningEventHandler
 
 abstract class DefaultEventHandler(private val eventItemService: EventItemService,
                                    private val objectMapper: ObjectMapper,
                                    private val registerRapidPushService: RegisterRapidPushService): EventHandler {
 
     companion object {
-        private val LOG = org.slf4j.LoggerFactory.getLogger(BestillingsordningEventHandler::class.java)
+        private val LOG = org.slf4j.LoggerFactory.getLogger(DefaultEventHandler::class.java)
     }
 
     override suspend fun queueDTORapidEvent(payload: EventPayload, eventName: String, extraKeyValues: Map<String, Any>) {
