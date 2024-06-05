@@ -25,9 +25,8 @@ import java.time.LocalDateTime
 class SeriesImportRiver(
     river: RiverHead,
     private val objectMapper: ObjectMapper,
-    private val seriesRegistrationService: SeriesRegistrationService
+    private val seriesRegistrationService: SeriesRegistrationService,
 ) : River.PacketListener {
-
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesImportRiver::class.java)
     }
@@ -43,55 +42,66 @@ class SeriesImportRiver(
             .register(this)
     }
 
-    override fun onPacket(packet: JsonMessage, context: MessageContext) {
+    override fun onPacket(
+        packet: JsonMessage,
+        context: MessageContext,
+    ) {
         val eventId = packet["eventId"].asText()
         val dtoVersion = packet["dtoVersion"].asLong()
         if (dtoVersion > rapidDTOVersion) LOG.warn("dto version $dtoVersion is newer than $rapidDTOVersion")
         val dto = objectMapper.treeToValue(packet["payload"], SeriesImportRapidDTO::class.java)
         runBlocking {
-            val series = seriesRegistrationService.findById(dto.id)?.let { inDb ->
-                seriesRegistrationService.update(
-                    inDb.copy(
+            val series =
+                seriesRegistrationService.findById(dto.id)?.let { inDb ->
+                    seriesRegistrationService.update(
+                        inDb.copy(
+                            adminStatus = AdminStatus.PENDING,
+                            draftStatus = DraftStatus.DONE,
+                            title = dto.title,
+                            text = dto.text,
+                            isoCategory = dto.isoCategory,
+                            seriesData =
+                                SeriesDataDTO(
+                                    media = dto.seriesData.media.map { it.toMediaInfo() }.toSet(),
+                                    attributes =
+                                        SeriesAttributesDTO(
+                                            keywords = dto.seriesData.attributes.keywords?.toList(),
+                                        ),
+                                ),
+                            status = dto.status,
+                            updatedBy = IMPORT,
+                            updatedByUser = IMPORT,
+                            updated = LocalDateTime.now(),
+                        ),
+                    )
+                } ?: seriesRegistrationService.save(
+                    SeriesRegistrationDTO(
                         adminStatus = AdminStatus.PENDING,
                         draftStatus = DraftStatus.DONE,
-                        title = dto.title, text= dto.text, isoCategory = dto.isoCategory,
-                        seriesData = SeriesDataDTO(media = dto.seriesData.media.map { it.toMediaInfo() }.toSet(),
-                            attributes = SeriesAttributesDTO(
-                            keywords = dto.seriesData.attributes.keywords)
-                        ),
+                        id = dto.id,
+                        supplierId = dto.supplierId,
+                        identifier = dto.id.toString(),
+                        title = dto.title,
+                        text = dto.text,
+                        isoCategory = dto.isoCategory,
                         status = dto.status,
+                        seriesData =
+                            SeriesDataDTO(
+                                media = dto.seriesData.media.map { it.toMediaInfo() }.toSet(),
+                                attributes =
+                                    SeriesAttributesDTO(
+                                        keywords = dto.seriesData.attributes.keywords?.toList(),
+                                    ),
+                            ),
+                        expired = dto.expired,
+                        createdBy = IMPORT,
                         updatedBy = IMPORT,
+                        createdByUser = IMPORT,
                         updatedByUser = IMPORT,
-                        updated = LocalDateTime.now()
-                    )
-                )
-            } ?: seriesRegistrationService.save(
-                SeriesRegistrationDTO(
-                    adminStatus = AdminStatus.PENDING,
-                    draftStatus = DraftStatus.DONE,
-                    id = dto.id,
-                    supplierId = dto.supplierId,
-                    identifier = dto.id.toString(),
-                    title = dto.title,
-                    text = dto.text,
-                    isoCategory = dto.isoCategory,
-                    status = dto.status,
-                    seriesData = SeriesDataDTO(
-                        media = dto.seriesData.media.map { it.toMediaInfo() }.toSet(),
-                        attributes = SeriesAttributesDTO(
-                            keywords = dto.seriesData.attributes.keywords
-                        )
+                        createdByAdmin = false,
                     ),
-                    expired = dto.expired,
-                    createdBy = IMPORT,
-                    updatedBy = IMPORT,
-                    createdByUser = IMPORT,
-                    updatedByUser = IMPORT,
-                    createdByAdmin = false
                 )
-            )
             LOG.info("series import id: ${series.id} with eventId $eventId synced")
         }
     }
 }
-
