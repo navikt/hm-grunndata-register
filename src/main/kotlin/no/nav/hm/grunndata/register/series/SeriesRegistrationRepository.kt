@@ -82,6 +82,8 @@ interface SeriesRegistrationRepository :
         "UPDATE series_reg_v1 SET count_drafts = 0, count_published = 0, count_pending=0, count_declined=0 WHERE id = :id"
     )
     suspend fun resetCountStatusesForSeries(id: UUID)
+
+    suspend fun findByIsoCategory(isoCategory: String): List<SeriesRegistration>
 }
 
 @Introspected

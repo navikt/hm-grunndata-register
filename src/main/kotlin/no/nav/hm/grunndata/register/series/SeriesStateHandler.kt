@@ -1,17 +1,19 @@
 package no.nav.hm.grunndata.register.series
 
 import jakarta.inject.Singleton
+import java.time.LocalDateTime
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import org.slf4j.LoggerFactory
-import java.util.*
+
 
 @Singleton
 class SeriesStateHandler(private val seriesRegistrationRepository: SeriesRegistrationRepository,
                          private val productRegistrationRepository: ProductRegistrationRepository
 ) {
-
+    // REMEMBER TO remove this when HMD is shut down
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesStateHandler::class.java)
     }
@@ -60,6 +62,18 @@ class SeriesStateHandler(private val seriesRegistrationRepository: SeriesRegistr
         emptySeries.filter { it.status != SeriesStatus.DELETED }.forEach {
              LOG.info("set series ${it.id} to DELETED")
             seriesRegistrationRepository.update(it.copy(status = SeriesStatus.DELETED))
+        }
+    }
+
+    suspend fun findEmptyCategorySeriesAndPopulateWithProductsData() {
+        val emptyCategorySeries = seriesRegistrationRepository.findByIsoCategory("")
+        LOG.info("Found empty iso cateories ${emptyCategorySeries.size} series")
+        emptyCategorySeries.forEach { series ->
+            productRegistrationRepository.findBySeriesUUID(series.id)?.let { product ->
+                seriesRegistrationRepository.update(series.copy(isoCategory = product.isoCategory, title = product.title,
+                    updated = LocalDateTime.now(), seriesData = SeriesDataDTO(media = product.productData.media), text = product.productData.attributes.text?:""
+                ))
+            }
         }
     }
 

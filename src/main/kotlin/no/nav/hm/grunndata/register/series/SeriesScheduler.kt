@@ -17,7 +17,7 @@ open class SeriesScheduler(
     }
 
     @LeaderOnly
-    @Scheduled(fixedDelay = "30m")
+    @Scheduled(fixedDelay = "6h")
     open fun syncronizeProductWithSeries() {
         LOG.info("Running syncronizeProductWithSeries scheduler")
         runBlocking {
@@ -40,6 +40,15 @@ open class SeriesScheduler(
         LOG.info("Running copy media from products to series scheduler")
         runBlocking {
             seriesStateHandler.copyMediaFromProductsToSeries()
+        }
+    }
+
+    @LeaderOnly
+    @Scheduled(fixedDelay = "3h")
+    open fun fixEmptyCategorySeries() {
+        LOG.info("Running fix empty category series scheduler")
+        runBlocking {
+            seriesStateHandler.findEmptyCategorySeriesAndPopulateWithProductsData()
         }
     }
 
