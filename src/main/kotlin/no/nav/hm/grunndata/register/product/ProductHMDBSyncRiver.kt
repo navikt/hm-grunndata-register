@@ -97,7 +97,25 @@ class ProductHMDBSyncRiver(
                 )
             )
             val series = dto.seriesUUID?.let { uuid ->
-                seriesRegistrationService.findById(uuid) ?: seriesRegistrationService.save(
+                seriesRegistrationService.findById(uuid)?.let { inDb ->
+                    if (inDb.isoCategory != dto.isoCategory || inDb.title != dto.title ||
+                        inDb.text != dto.attributes.text
+                        || inDb.expired != dto.expired) {
+                        seriesRegistrationService.update(
+                            inDb.copy(
+                                title = dto.title,
+                                text = dto.attributes.text ?: "",
+                                isoCategory = dto.isoCategory,
+                                updated = dto.updated,
+                                expired = dto.expired,
+                                updatedBy = dto.updatedBy,
+                                seriesData = SeriesDataDTO(media = dto.media.map { it.toMediaInfo() }.toSet()
+                            )
+                        ))
+                    }
+                    else inDb
+
+                } ?: seriesRegistrationService.save(
                     SeriesRegistrationDTO(
                         id = uuid,
                         supplierId = dto.supplier.id,
