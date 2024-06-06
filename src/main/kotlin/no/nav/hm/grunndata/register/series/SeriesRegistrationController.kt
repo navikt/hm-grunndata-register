@@ -18,6 +18,9 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import java.time.LocalDateTime
+import java.util.Locale
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
@@ -26,8 +29,6 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
-import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SeriesRegistrationController.API_V1_SERIES)
@@ -120,6 +121,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
                                 createdByUser = inDb.createdByUser,
                                 updated = LocalDateTime.now(),
                                 updatedByUser = authentication.name,
+                                updatedBy = REGISTER,
                             ),
                         true,
                     ),
