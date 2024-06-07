@@ -16,6 +16,12 @@ import java.util.UUID
 
 @Client("$CONTEXT_PATH/${ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS}")
 interface ProductRegistrationApiClient {
+    @Get(uri = "/series/{seriesUUID}", consumes = [APPLICATION_JSON])
+    fun findBySeriesUUIDAndSupplierId(
+        @CookieValue("JWT") jwt: String,
+        @PathVariable seriesUUID: UUID,
+    ): List<ProductRegistrationDTO>
+
     @Get(uri = "/", consumes = [APPLICATION_JSON])
     fun findProducts(
         @CookieValue("JWT") jwt: String,
@@ -49,8 +55,8 @@ interface ProductRegistrationApiClient {
         @Body productRegistrationDTO: ProductRegistrationDTO,
     ): ProductRegistrationDTO
 
-    @Delete(uri = "/delete", consumes = [APPLICATION_JSON])
-    fun deleteProducts(
+    @Delete(uri = "/draft/delete", consumes = [APPLICATION_JSON])
+    fun deleteDraftVariants(
         @CookieValue("JWT") jwt: String,
         @Body ids: List<UUID>,
     ): ProductRegistrationDTO

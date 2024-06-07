@@ -2,11 +2,13 @@ package no.nav.hm.grunndata.register.series
 
 import io.micronaut.context.annotation.Factory
 import io.micronaut.data.event.listeners.PostPersistEventListener
+import io.micronaut.data.event.listeners.PostRemoveEventListener
 import io.micronaut.data.event.listeners.PostUpdateEventListener
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import org.slf4j.LoggerFactory
+import java.util.UUID
 
 @Factory
 class ProductPersistListener(private val seriesRegistrationRepository: SeriesRegistrationRepository) {
@@ -19,12 +21,7 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
         return PostPersistEventListener { product: ProductRegistration ->
             runBlocking {
                 LOG.debug("ProductRegistration inserted for series: ${product.seriesUUID}")
-                seriesRegistrationRepository.updateCountForSeries(product.seriesUUID)
-                seriesRegistrationRepository.resetCountStatusesForSeries(product.seriesUUID)
-                seriesRegistrationRepository.updateCountDraftsForSeries(product.seriesUUID)
-                seriesRegistrationRepository.updateCountPublishedForSeries(product.seriesUUID)
-                seriesRegistrationRepository.updateCountPendingForSeries(product.seriesUUID)
-                seriesRegistrationRepository.updateCountDeclinedForSeries(product.seriesUUID)
+                updateSeriesCounts(product.seriesUUID)
             }
         }
     }
@@ -34,13 +31,27 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
         return PostUpdateEventListener { product: ProductRegistration ->
             runBlocking {
                 LOG.debug("ProductRegistration updated for series: ${product.seriesUUID}")
-                seriesRegistrationRepository.updateCountForSeries(product.seriesUUID)
-                seriesRegistrationRepository.resetCountStatusesForSeries(product.seriesUUID)
-                seriesRegistrationRepository.updateCountDraftsForSeries(product.seriesUUID)
-                seriesRegistrationRepository.updateCountPublishedForSeries(product.seriesUUID)
-                seriesRegistrationRepository.updateCountPendingForSeries(product.seriesUUID)
-                seriesRegistrationRepository.updateCountDeclinedForSeries(product.seriesUUID)
+                updateSeriesCounts(product.seriesUUID)
             }
         }
+    }
+
+    @Singleton
+    fun afterProductDelete(): PostRemoveEventListener<ProductRegistration> {
+        return PostRemoveEventListener { product: ProductRegistration ->
+            runBlocking {
+                LOG.debug("ProductRegistration deleted for series: ${product.seriesUUID}")
+                updateSeriesCounts(product.seriesUUID)
+            }
+        }
+    }
+
+    private suspend fun updateSeriesCounts(seriesUUID: UUID) {
+        seriesRegistrationRepository.updateCountForSeries(seriesUUID)
+        seriesRegistrationRepository.resetCountStatusesForSeries(seriesUUID)
+        seriesRegistrationRepository.updateCountDraftsForSeries(seriesUUID)
+        seriesRegistrationRepository.updateCountPublishedForSeries(seriesUUID)
+        seriesRegistrationRepository.updateCountPendingForSeries(seriesUUID)
+        seriesRegistrationRepository.updateCountDeclinedForSeries(seriesUUID)
     }
 }

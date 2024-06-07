@@ -203,18 +203,14 @@ class ProductRegistrationApiTest(
             ),
         )
 
-        apiClient.deleteProducts(jwt, listOf(variant.id))
+        apiClient.deleteDraftVariants(jwt, listOf(variant.id))
 
-        val variants = apiClient.findProducts(
+        val variants = apiClient.findBySeriesUUIDAndSupplierId(
             jwt = jwt,
-            supplierRef = variant.supplierRef,
-            registrationStatus = "ACTIVE",
-            size = 30,
-            page = 1,
-            sort = "created,asc"
+            seriesUUID = variant.seriesUUID
         )
 
-        variants.totalSize shouldBe 0
+        variants.size shouldBe 0
     }
 
     @Test
