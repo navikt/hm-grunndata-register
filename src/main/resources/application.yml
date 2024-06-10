@@ -172,7 +172,7 @@ elector:
   path: ${ELECTOR_PATH:localhost}
 
 bq:
-  dataset: ${BQ_DATASET:hm-grunndata-register}
+  dataset: ${BQ_DATASET:hm_grunndata_register}
 
 gcp:
   team:
