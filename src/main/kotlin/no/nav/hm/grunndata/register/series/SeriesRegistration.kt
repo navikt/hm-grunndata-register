@@ -192,5 +192,5 @@ fun SeriesRegistrationDTO.toEntity() =
 fun SeriesDataDTO.toRapidDTO() =
     SeriesData(
         media = media.map { it.toRapidMediaInfo() }.toSet(),
-        attributes = SeriesAttributes(keywords = attributes.keywords),
+        attributes = SeriesAttributes(keywords = attributes.keywords?.toSet(), url = attributes.url),
     )
