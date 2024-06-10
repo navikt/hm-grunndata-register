@@ -171,5 +171,10 @@ bestillingsordning:
 elector:
   path: ${ELECTOR_PATH:localhost}
 
-  bq:
-    dataset: ${BQ_DATASET:hm-grunndata-register}
+bq:
+  dataset: ${BQ_DATASET:hm-grunndata-register}
+
+gcp:
+  team:
+    project:
+      id: ${GCP_TEAM_PROJECT_ID:teamdigihot-dev-9705}

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 @Singleton
 class BigQueryService(
     private val bigQueryClient: BigQueryClient,
-    @Value("bq.dataset") private val dataSet: String,
+    @Value("\${bq.dataset}") private val dataSet: String,
     private val objectMapper: ObjectMapper
 ) {
 

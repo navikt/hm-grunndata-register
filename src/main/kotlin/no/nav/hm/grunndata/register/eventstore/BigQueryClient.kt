@@ -41,7 +41,7 @@ interface BigQueryClient {
 }
 
 @Singleton
-class DefaultBigQueryClient(@Value("GCP_TEAM_PROJECT_ID") private val projectId: String) : BigQueryClient {
+class DefaultBigQueryClient(@Value("\${gcp.team.project.id}") private val projectId: String) : BigQueryClient {
     private val bigQuery = BigQueryOptions.newBuilder()
         .setProjectId(projectId)
         .build()
