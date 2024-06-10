@@ -221,6 +221,10 @@ class ProductRegistrationApiController(
             if (!(it.draftStatus == DraftStatus.DRAFT && it.published == null)) throw BadRequestException("product is not draft")
         }
 
+        products.forEach {
+            LOG.info("Delete called for id ${it.id} and supplierRed ${it.supplierRef}")
+        }
+
         productRegistrationService.deleteAll(products)
 
         return HttpResponse.ok(products)
