@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -13,6 +14,8 @@ val poiVersion = "5.1.0"
 val rapidsRiversVersion = "202401101532"
 val grunndataDtoVersion = "202406051156"
 val microsoftGrapVersion = "5.77.0"
+val bigQueryVersion = "2.38.2"
+
 group = "no.nav.hm"
 version = properties["version"] ?: "local-build"
 
@@ -20,7 +23,7 @@ plugins {
     kotlin("jvm") version "1.9.20"
     kotlin("kapt") version "1.9.20"
     id("java")
-    id("com.github.johnrengelman.shadow") version "7.1.0"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     id("io.micronaut.application") version "4.3.5"
 }
 
@@ -93,6 +96,8 @@ dependencies {
 
     // micronaut-leaderelection
     implementation("com.github.navikt:hm-micronaut-leaderelection:202405140823")
+
+    implementation("com.google.cloud:google-cloud-bigquery:$bigQueryVersion")
 }
 
 micronaut {
@@ -114,6 +119,7 @@ java {
     withSourcesJar()
 }
 
+
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = jvmTarget
     kapt.includeCompileClasspath = false
@@ -123,6 +129,11 @@ tasks.named<KotlinCompile>("compileTestKotlin") {
     kotlinOptions.jvmTarget = jvmTarget
     kapt.includeCompileClasspath = false
 }
+
+tasks.named<ShadowJar>("shadowJar") {
+    isZip64 = true
+}
+
 
 tasks.withType<Test> {
     useJUnitPlatform()

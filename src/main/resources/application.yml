@@ -170,3 +170,6 @@ bestillingsordning:
 
 elector:
   path: ${ELECTOR_PATH:localhost}
+
+  bq:
+    dataset: ${BQ_DATASET:hm-grunndata-register}
