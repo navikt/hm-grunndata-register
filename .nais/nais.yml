@@ -73,7 +73,7 @@ spec:
             envVarPrefix: DB
         cascadingDelete: false
     bigQueryDatasets:
-      - name: hm-grunndata-register
+      - name: hm_grunndata_register
         permission: READWRITE
   kafka:
     pool: {{ kafka_cluster }}
