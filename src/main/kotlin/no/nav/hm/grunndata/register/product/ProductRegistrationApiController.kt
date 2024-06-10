@@ -211,6 +211,25 @@ class ProductRegistrationApiController(
         return HttpResponse.ok(updated)
     }
 
+    @Delete("/draft/delete")
+    suspend fun deleteDraftVariants(
+        @Body ids: List<UUID>,
+        authentication: Authentication,
+    ): HttpResponse<List<ProductRegistrationDTO>> {
+        val products = productRegistrationService.findByIdIn(ids).onEach {
+            if (it.supplierId != authentication.supplierId()) return HttpResponse.unauthorized()
+            if (!(it.draftStatus == DraftStatus.DRAFT && it.published == null)) throw BadRequestException("product is not draft")
+        }
+
+        products.forEach {
+            LOG.info("Delete called for id ${it.id} and supplierRed ${it.supplierRef}")
+        }
+
+        productRegistrationService.deleteAll(products)
+
+        return HttpResponse.ok(products)
+    }
+
     @Post(
         "/excel/export",
         consumes = ["application/json"],
