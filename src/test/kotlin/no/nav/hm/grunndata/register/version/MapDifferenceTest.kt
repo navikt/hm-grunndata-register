@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.version
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
+import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import java.time.LocalDateTime
 import java.util.UUID
@@ -21,6 +22,9 @@ class MapDifferenceTest(private val objectMapper: ObjectMapper) {
         val id = UUID.randomUUID()
         val supplierId = UUID.randomUUID()
         val identifier = "identifier"
+        val created = LocalDateTime.now()
+        val expired = LocalDateTime.now()
+        val updated = LocalDateTime.now()
 
         val seriesRegistrationDTO1 = SeriesRegistrationDTO(
             id = id,
@@ -29,6 +33,9 @@ class MapDifferenceTest(private val objectMapper: ObjectMapper) {
             title = "title",
             text = "text",
             isoCategory = "12345678",
+            created = created,
+            expired = expired,
+            updated = updated,
             seriesData = SeriesDataDTO(
                 media = setOf(
                     MediaInfoDTO(
@@ -39,18 +46,8 @@ class MapDifferenceTest(private val objectMapper: ObjectMapper) {
                         type = MediaType.IMAGE,
                         text = "text",
                         source = MediaSourceType.REGISTER,
-                        updated = LocalDateTime.now(),
+                        updated = updated
                     ),
-                    MediaInfoDTO(
-                        sourceUri = "sourceUri2",
-                        filename = "filename2",
-                        uri = "uri2",
-                        priority = 2,
-                        type = MediaType.IMAGE,
-                        text = "text2",
-                        source = MediaSourceType.REGISTER,
-                        updated = LocalDateTime.now(),
-                    )
                 ),
                 attributes = SeriesAttributesDTO(
                     keywords = listOf("keyword1", "keyword2"),
@@ -66,6 +63,9 @@ class MapDifferenceTest(private val objectMapper: ObjectMapper) {
             title = "title2",
             text = "text2",
             isoCategory = "12345679",
+            created = created,
+            expired = expired,
+            updated = updated,
             seriesData = SeriesDataDTO(
                 media = setOf(
                     MediaInfoDTO(
@@ -76,7 +76,7 @@ class MapDifferenceTest(private val objectMapper: ObjectMapper) {
                         type = MediaType.IMAGE,
                         text = "text",
                         source = MediaSourceType.REGISTER,
-                        updated = LocalDateTime.now(),
+                        updated = updated,
                     )
                 ),
                 attributes = SeriesAttributesDTO(
@@ -89,10 +89,9 @@ class MapDifferenceTest(private val objectMapper: ObjectMapper) {
         val map1: Map<String, Any> = objectMapper.convertValue(seriesRegistrationDTO1)
         val map2: Map<String, Any> = objectMapper.convertValue(seriesRegistrationDTO2)
         val difference = map1.difference(map2)
-        println("Entries in common: ${difference.entriesInCommon}")
-        println("Entries differing: ${difference.entriesDiffering}")
-        println("Entries only on left: ${difference.entriesOnlyOnLeft}")
-        println("Entries only on right: ${difference.entriesOnlyOnRight}")
+        difference.status shouldBe DiffStatus.DIFF
+
+
     }
 
 }

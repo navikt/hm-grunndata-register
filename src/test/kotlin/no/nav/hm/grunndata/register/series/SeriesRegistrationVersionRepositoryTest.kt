@@ -74,7 +74,7 @@ class SeriesRegistrationVersionRepositoryTest(private val seriesRegistrationVers
             saved.shouldNotBeNull()
             val found = seriesRegistrationVersionRepository.findById(seriesRegistrationVersion.versionId)
             found.shouldNotBeNull()
-            val approved = seriesRegistrationVersionRepository.findOneByDraftStatusAndAdminStatusOrderByVersionDesc(DraftStatus.DONE, AdminStatus.APPROVED)
+            val approved = seriesRegistrationVersionRepository.findOneByDraftStatusAndAdminStatusOrderByUpdatedDesc(DraftStatus.DONE, AdminStatus.APPROVED)
             approved.shouldNotBeNull()
 
         }

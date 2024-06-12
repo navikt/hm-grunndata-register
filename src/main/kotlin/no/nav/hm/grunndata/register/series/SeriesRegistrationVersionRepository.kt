@@ -12,7 +12,7 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 interface SeriesRegistrationVersionRepository : CoroutineCrudRepository<SeriesRegistrationVersion, UUID>,
     CoroutineJpaSpecificationExecutor<SeriesRegistrationVersion> {
 
-        suspend fun findOneByDraftStatusAndAdminStatusOrderByVersionDesc
+        suspend fun findOneByDraftStatusAndAdminStatusOrderByUpdatedDesc
                     (draftStatus: DraftStatus, adminStatus: AdminStatus): SeriesRegistrationVersion?
 
 
