@@ -165,6 +165,26 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         return HttpResponse.ok(updated)
     }
 
+    @Put("/series-to-inactive/{seriesUUID}")
+    suspend fun setPublishedSeriesToInactive(
+        @PathVariable seriesUUID: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> {
+        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(seriesUUID, authentication, SeriesStatus.INACTIVE)
+
+        return HttpResponse.ok(updated)
+    }
+
+    @Put("/series-to-active/{seriesUUID}")
+    suspend fun setPublishedSeriesToActive(
+        @PathVariable seriesUUID: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> {
+        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(seriesUUID, authentication, SeriesStatus.ACTIVE)
+
+        return HttpResponse.ok(updated)
+    }
+
     @Delete("/{seriesUUID}")
     suspend fun deleteSeries(
         @PathVariable seriesUUID: UUID,

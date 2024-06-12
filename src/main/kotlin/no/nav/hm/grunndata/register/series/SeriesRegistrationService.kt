@@ -187,4 +187,48 @@ open class SeriesRegistrationService(
 
         return updatedSeries
     }
+
+    @Transactional
+    open suspend fun setPublishedSeriesRegistrationStatus(
+        seriesUUID: UUID,
+        authentication: Authentication,
+        status: SeriesStatus,
+    ): SeriesRegistrationDTO {
+        val seriesToUpdate =
+            findById(seriesUUID) ?: throw IllegalArgumentException("Series with id $seriesUUID does not exist")
+
+        if (!seriesToUpdate.isPublishedProduct()) {
+            throw IllegalArgumentException("series is not published")
+        }
+
+        val newExpirationDate = if (status == SeriesStatus.INACTIVE) LocalDateTime.now() else LocalDateTime.now().plusYears(10)
+
+        val updatedSeries =
+            seriesToUpdate.copy(
+                status = status,
+                expired = newExpirationDate,
+                updated = LocalDateTime.now(),
+                updatedBy = REGISTER,
+                updatedByUser = authentication.name,
+            )
+
+        val oldRegistrationStatus = if (status == SeriesStatus.ACTIVE) RegistrationStatus.INACTIVE else RegistrationStatus.ACTIVE
+        val newRegistrationStatus = if (status == SeriesStatus.ACTIVE) RegistrationStatus.ACTIVE else RegistrationStatus.INACTIVE
+        println("newRegistrationStatus: $newRegistrationStatus")
+        val variantsToUpdate =
+            productRegistrationRepository.findAllBySeriesUUIDAndAdminStatusAndDraftStatusAndRegistrationStatus(
+                seriesUUID,
+                AdminStatus.APPROVED,
+                DraftStatus.DONE,
+                oldRegistrationStatus,
+            ).map { it.copy(registrationStatus = newRegistrationStatus) }
+
+        update(updatedSeries)
+
+        variantsToUpdate.map {
+            productRegistrationRepository.update(it)
+        }
+
+        return updatedSeries
+    }
 }

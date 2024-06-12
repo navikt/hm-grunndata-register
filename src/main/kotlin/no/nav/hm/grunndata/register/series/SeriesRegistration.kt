@@ -127,7 +127,6 @@ data class SeriesRegistrationDTO(
     fun isPublishedProduct(): Boolean {
         return draftStatus == DraftStatus.DONE &&
             adminStatus == AdminStatus.APPROVED &&
-            status == SeriesStatus.ACTIVE &&
             published != null
     }
 }
