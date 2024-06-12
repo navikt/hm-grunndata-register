@@ -11,5 +11,5 @@ CREATE TABLE IF NOT EXISTS series_reg_version_v1
 );
 
 CREATE INDEX IF NOT EXISTS series_reg_version_v1_series_admin_status_draft_status_id_idx ON series_reg_version_v1 (series_id, admin_status, draft_status);
-CREATE INDEX IF NOT EXISTS series_reg_version_v1_version_idx ON series_reg_version_v1 (updated);
+CREATE INDEX IF NOT EXISTS series_reg_version_v1_updated_idx ON series_reg_version_v1 (updated);
 
