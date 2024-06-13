@@ -11,7 +11,8 @@ import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import org.slf4j.LoggerFactory
 
 @Factory
-class ProductPersistListener(private val seriesRegistrationRepository: SeriesRegistrationRepository) {
+class ProductPersistListener(private val seriesRegistrationRepository: SeriesRegistrationRepository,
+                             private val productRegistrationVersionService: ProductRegistrationVersionService) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductPersistListener::class.java)
     }
@@ -21,6 +22,7 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
         return PostPersistEventListener { product: ProductRegistration ->
             runBlocking {
                 LOG.debug("ProductRegistration inserted for series: ${product.seriesUUID}")
+                insertProductVersion(product)
                 updateSeriesCounts(product.seriesUUID)
             }
         }
@@ -31,6 +33,7 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
         return PostUpdateEventListener { product: ProductRegistration ->
             runBlocking {
                 LOG.debug("ProductRegistration updated for series: ${product.seriesUUID}")
+                insertProductVersion(product)
                 updateSeriesCounts(product.seriesUUID)
             }
         }
@@ -54,4 +57,18 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
         seriesRegistrationRepository.updateCountPendingForSeries(seriesUUID)
         seriesRegistrationRepository.updateCountDeclinedForSeries(seriesUUID)
     }
+
+    private suspend fun insertProductVersion(product: ProductRegistration) {
+        productRegistrationVersionService.save(product.toVersion())
+    }
+
+    private fun ProductRegistration.toVersion(): ProductRegistrationVersion = ProductRegistrationVersion(
+            productId = this.id,
+            version = this.version,
+            draftStatus = this.draftStatus,
+            adminStatus = this.adminStatus,
+            status = this.registrationStatus,
+            updated = this.updated,
+            productRegistration = this
+        )
 }
