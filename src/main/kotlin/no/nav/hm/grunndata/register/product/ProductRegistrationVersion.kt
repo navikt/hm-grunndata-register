@@ -8,14 +8,14 @@ import java.time.LocalDateTime
 import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.ProductStatus
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 
 @MappedEntity("product_reg_version_v1")
 data class ProductRegistrationVersion(
     @field:Id
     val versionId: UUID = UUID.randomUUID(),
     val productId: UUID,
-    val status: ProductStatus,
+    val status: RegistrationStatus,
     val adminStatus: AdminStatus,
     val draftStatus: DraftStatus,
     val updated: LocalDateTime = LocalDateTime.now(),
