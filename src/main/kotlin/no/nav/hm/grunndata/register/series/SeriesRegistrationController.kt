@@ -161,11 +161,11 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> {
         val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
-        if (seriesToUpdate.id != authentication.supplierId()) {
+        if (seriesToUpdate.supplierId != authentication.supplierId()) {
             LOG.warn("SupplierId in request does not match authenticated supplierId")
             return HttpResponse.unauthorized()
         }
-        
+
         val updated = seriesRegistrationService.setPublishedSeriesToDraftStatus(seriesToUpdate, authentication)
 
         return HttpResponse.ok(updated)
@@ -177,7 +177,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> {
         val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
-        if (seriesToUpdate.id != authentication.supplierId()) {
+        if (seriesToUpdate.supplierId != authentication.supplierId()) {
             LOG.warn("SupplierId in request does not match authenticated supplierId")
             return HttpResponse.unauthorized()
         }
@@ -196,7 +196,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> {
         val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
-        if (seriesToUpdate.id != authentication.supplierId()) {
+        if (seriesToUpdate.supplierId != authentication.supplierId()) {
             LOG.warn("SupplierId in request does not match authenticated supplierId")
             return HttpResponse.unauthorized()
         }
