@@ -214,7 +214,7 @@ open class SeriesRegistrationService(
 
         val oldRegistrationStatus = if (status == SeriesStatus.ACTIVE) RegistrationStatus.INACTIVE else RegistrationStatus.ACTIVE
         val newRegistrationStatus = if (status == SeriesStatus.ACTIVE) RegistrationStatus.ACTIVE else RegistrationStatus.INACTIVE
-        println("newRegistrationStatus: $newRegistrationStatus")
+
         val variantsToUpdate =
             productRegistrationRepository.findAllBySeriesUUIDAndAdminStatusAndDraftStatusAndRegistrationStatus(
                 seriesUUID,
