@@ -19,7 +19,7 @@ class SeriesRegistrationVersionRepositoryTest(private val seriesRegistrationVers
     @Test
     fun crudTest() {
         val seriesId = UUID.randomUUID()
-        val seriesDTO = SeriesRegistrationDTO(
+        val series = SeriesRegistration(
             id = seriesId,
             supplierId = UUID.randomUUID(),
             identifier = "identifier",
@@ -61,20 +61,20 @@ class SeriesRegistrationVersionRepositoryTest(private val seriesRegistrationVers
         )
         val seriesRegistrationVersion = SeriesRegistrationVersion(
             versionId = UUID.randomUUID(),
-            seriesId = seriesDTO.id,
-            status = seriesDTO.status,
-            adminStatus = seriesDTO.adminStatus,
-            draftStatus = seriesDTO.draftStatus,
-            seriesRegistration = seriesDTO,
-            version = seriesDTO.version,
-            updated = seriesDTO.updated
+            seriesId = series.id,
+            status = series.status,
+            adminStatus = series.adminStatus,
+            draftStatus = series.draftStatus,
+            seriesRegistration = series,
+            version = series.version,
+            updated = series.updated
         )
         runBlocking {
             val saved = seriesRegistrationVersionRepository.save(seriesRegistrationVersion)
             saved.shouldNotBeNull()
             val found = seriesRegistrationVersionRepository.findById(seriesRegistrationVersion.versionId)
             found.shouldNotBeNull()
-            val approved = seriesRegistrationVersionRepository.findOneByDraftStatusAndAdminStatusOrderByUpdatedDesc(DraftStatus.DONE, AdminStatus.APPROVED)
+            val approved = seriesRegistrationVersionRepository.findOneBySeriesIdAndDraftStatusAndAdminStatusOrderByUpdatedDesc(found.seriesId, DraftStatus.DONE, AdminStatus.APPROVED)
             approved.shouldNotBeNull()
 
         }

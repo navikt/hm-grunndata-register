@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.series
+package no.nav.hm.grunndata.register.product
 
 import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect
@@ -9,20 +9,19 @@ import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 
-@JdbcRepository(dialect = Dialect.POSTGRES)
-interface SeriesRegistrationVersionRepository : CoroutineCrudRepository<SeriesRegistrationVersion, UUID>,
-    CoroutineJpaSpecificationExecutor<SeriesRegistrationVersion> {
 
-    suspend fun findOneBySeriesIdAndDraftStatusAndAdminStatusOrderByUpdatedDesc(
-        seriesId: UUID,
+@JdbcRepository(dialect = Dialect.POSTGRES)
+interface ProductRegistrationVersionRepository:  CoroutineCrudRepository<ProductRegistrationVersion, UUID>,
+    CoroutineJpaSpecificationExecutor<ProductRegistrationVersion> {
+
+    suspend fun findOneByProductIdAndDraftStatusAndAdminStatusOrderByUpdatedDesc(
+        productId: UUID,
         draftStatus: DraftStatus,
         adminStatus: AdminStatus
-    ): SeriesRegistrationVersion?
+    ): ProductRegistrationVersion?
 
     suspend fun findByDraftStatusAndUpdatedBefore(
         draftStatus: DraftStatus,
         minusMonths: LocalDateTime?
-    ): List<SeriesRegistrationVersion>
-
-
+    ): List<ProductRegistrationVersion>
 }

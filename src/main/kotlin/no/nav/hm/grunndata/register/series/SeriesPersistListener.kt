@@ -45,6 +45,6 @@ class SeriesPersistListener(private val seriesRegistrationVersionService: Series
             adminStatus = this.adminStatus,
             status = this.status,
             updated = this.updated,
-            seriesRegistration = this.toDTO()
+            seriesRegistration = this
         )
 }
