@@ -157,7 +157,7 @@ class SeriesRegistrationAdminController(
         seriesRegistrationService.findById(id)?.let {
             if (it.adminStatus == AdminStatus.APPROVED) throw BadRequestException("$id is already approved")
             if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("Series is not done")
-            if (it.status != SeriesStatus.ACTIVE) throw BadRequestException("SeriesStatus should be Active")
+            if (it.status == SeriesStatus.DELETED) throw BadRequestException("SeriesStatus should not be Deleted")
             val dto =
                 seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                     it.copy(
