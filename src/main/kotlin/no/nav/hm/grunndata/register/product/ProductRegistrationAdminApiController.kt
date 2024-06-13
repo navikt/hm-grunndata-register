@@ -323,7 +323,7 @@ class ProductRegistrationAdminApiController(
         productRegistrationService.findById(id)?.let {
             if (it.adminStatus == AdminStatus.APPROVED) throw BadRequestException("$id is already approved")
             if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("product is not done")
-            if (it.registrationStatus != RegistrationStatus.ACTIVE) throw BadRequestException("RegistrationStatus should be Active")
+            if (it.registrationStatus == RegistrationStatus.DELETED) throw BadRequestException("RegistrationStatus should not be Deleted")
             val dto =
                 productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                     it.copy(
