@@ -11,6 +11,7 @@ on:
       - ".nais/azure-emailer.yml"
     branches:
       - main
+      - series-expired
 
 jobs:
   call-workflow:
@@ -27,5 +28,6 @@ jobs:
       TEAM: "teamdigihot"
       CODEQL_ENABLED: true
       DRAFTS_MAX: 50
+      SKIP_DRAFT_RELEASE: true
     secrets:
       NAIS_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
