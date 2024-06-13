@@ -222,7 +222,7 @@ class ProductRegistrationApiController(
         }
 
         products.forEach {
-            LOG.info("Delete called for id ${it.id} and supplierRed ${it.supplierRef}")
+            LOG.info("Delete called for id ${it.id} and supplierRef ${it.supplierRef}")
         }
 
         productRegistrationService.deleteAll(products)

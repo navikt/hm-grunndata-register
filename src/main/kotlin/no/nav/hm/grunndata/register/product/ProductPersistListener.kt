@@ -1,14 +1,14 @@
-package no.nav.hm.grunndata.register.series
+package no.nav.hm.grunndata.register.product
 
 import io.micronaut.context.annotation.Factory
 import io.micronaut.data.event.listeners.PostPersistEventListener
 import io.micronaut.data.event.listeners.PostRemoveEventListener
 import io.micronaut.data.event.listeners.PostUpdateEventListener
 import jakarta.inject.Singleton
-import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.register.product.ProductRegistration
-import org.slf4j.LoggerFactory
 import java.util.UUID
+import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
+import org.slf4j.LoggerFactory
 
 @Factory
 class ProductPersistListener(private val seriesRegistrationRepository: SeriesRegistrationRepository) {

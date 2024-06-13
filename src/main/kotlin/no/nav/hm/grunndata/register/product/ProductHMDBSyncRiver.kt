@@ -130,6 +130,7 @@ class ProductHMDBSyncRiver(
                         updatedBy = dto.updatedBy,
                         created = dto.created,
                         updated = dto.updated,
+                        published = dto.published,
                         expired = dto.expired,
                         seriesData = SeriesDataDTO(media = dto.media.map { it.toMediaInfo() }.toSet())
                     )
