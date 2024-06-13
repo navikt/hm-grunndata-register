@@ -160,7 +160,13 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         @PathVariable seriesUUID: UUID,
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> {
-        val updated = seriesRegistrationService.setPublishedSeriesToDraftStatus(seriesUUID, authentication)
+        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
+        if (seriesToUpdate.id != authentication.supplierId()) {
+            LOG.warn("SupplierId in request does not match authenticated supplierId")
+            return HttpResponse.unauthorized()
+        }
+        
+        val updated = seriesRegistrationService.setPublishedSeriesToDraftStatus(seriesToUpdate, authentication)
 
         return HttpResponse.ok(updated)
     }
@@ -170,7 +176,16 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         @PathVariable seriesUUID: UUID,
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> {
-        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(seriesUUID, authentication, SeriesStatus.INACTIVE)
+        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
+        if (seriesToUpdate.id != authentication.supplierId()) {
+            LOG.warn("SupplierId in request does not match authenticated supplierId")
+            return HttpResponse.unauthorized()
+        }
+        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(
+            seriesToUpdate,
+            authentication,
+            SeriesStatus.INACTIVE
+        )
 
         return HttpResponse.ok(updated)
     }
@@ -180,7 +195,16 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         @PathVariable seriesUUID: UUID,
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> {
-        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(seriesUUID, authentication, SeriesStatus.ACTIVE)
+        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
+        if (seriesToUpdate.id != authentication.supplierId()) {
+            LOG.warn("SupplierId in request does not match authenticated supplierId")
+            return HttpResponse.unauthorized()
+        }
+        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(
+            seriesToUpdate,
+            authentication,
+            SeriesStatus.ACTIVE
+        )
 
         return HttpResponse.ok(updated)
     }

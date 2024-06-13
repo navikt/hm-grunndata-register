@@ -152,12 +152,9 @@ open class SeriesRegistrationService(
 
     @Transactional
     open suspend fun setPublishedSeriesToDraftStatus(
-        seriesUUID: UUID,
+        seriesToUpdate: SeriesRegistrationDTO,
         authentication: Authentication,
     ): SeriesRegistrationDTO {
-        val seriesToUpdate =
-            findById(seriesUUID) ?: throw IllegalArgumentException("Series with id $seriesUUID does not exist")
-
         if (!seriesToUpdate.isPublishedProduct()) {
             throw IllegalArgumentException("series is not published")
         }
@@ -173,7 +170,7 @@ open class SeriesRegistrationService(
 
         val variantsToUpdate =
             productRegistrationRepository.findAllBySeriesUUIDAndAdminStatusAndDraftStatusAndRegistrationStatus(
-                seriesUUID,
+                seriesToUpdate.id,
                 AdminStatus.APPROVED,
                 DraftStatus.DONE,
                 RegistrationStatus.ACTIVE,
@@ -190,18 +187,16 @@ open class SeriesRegistrationService(
 
     @Transactional
     open suspend fun setPublishedSeriesRegistrationStatus(
-        seriesUUID: UUID,
+        seriesToUpdate: SeriesRegistrationDTO,
         authentication: Authentication,
         status: SeriesStatus,
     ): SeriesRegistrationDTO {
-        val seriesToUpdate =
-            findById(seriesUUID) ?: throw IllegalArgumentException("Series with id $seriesUUID does not exist")
-
         if (!seriesToUpdate.isPublishedProduct()) {
             throw IllegalArgumentException("series is not published")
         }
 
-        val newExpirationDate = if (status == SeriesStatus.INACTIVE) LocalDateTime.now() else LocalDateTime.now().plusYears(10)
+        val newExpirationDate =
+            if (status == SeriesStatus.INACTIVE) LocalDateTime.now() else LocalDateTime.now().plusYears(10)
 
         val updatedSeries =
             seriesToUpdate.copy(
@@ -212,12 +207,14 @@ open class SeriesRegistrationService(
                 updatedByUser = authentication.name,
             )
 
-        val oldRegistrationStatus = if (status == SeriesStatus.ACTIVE) RegistrationStatus.INACTIVE else RegistrationStatus.ACTIVE
-        val newRegistrationStatus = if (status == SeriesStatus.ACTIVE) RegistrationStatus.ACTIVE else RegistrationStatus.INACTIVE
+        val oldRegistrationStatus =
+            if (status == SeriesStatus.ACTIVE) RegistrationStatus.INACTIVE else RegistrationStatus.ACTIVE
+        val newRegistrationStatus =
+            if (status == SeriesStatus.ACTIVE) RegistrationStatus.ACTIVE else RegistrationStatus.INACTIVE
 
         val variantsToUpdate =
             productRegistrationRepository.findAllBySeriesUUIDAndAdminStatusAndDraftStatusAndRegistrationStatus(
-                seriesUUID,
+                seriesToUpdate.id,
                 AdminStatus.APPROVED,
                 DraftStatus.DONE,
                 oldRegistrationStatus,

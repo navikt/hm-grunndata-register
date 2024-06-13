@@ -24,6 +24,8 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.series.SeriesRegistrationController.Companion
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
@@ -219,7 +221,12 @@ class SeriesRegistrationAdminController(
         @PathVariable seriesUUID: UUID,
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> {
-        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(seriesUUID, authentication, SeriesStatus.INACTIVE)
+        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
+        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(
+            seriesToUpdate,
+            authentication,
+            SeriesStatus.INACTIVE
+        )
 
         return HttpResponse.ok(updated)
     }
@@ -229,7 +236,12 @@ class SeriesRegistrationAdminController(
         @PathVariable seriesUUID: UUID,
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> {
-        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(seriesUUID, authentication, SeriesStatus.ACTIVE)
+        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
+        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(
+            seriesToUpdate,
+            authentication,
+            SeriesStatus.ACTIVE
+        )
 
         return HttpResponse.ok(updated)
     }
