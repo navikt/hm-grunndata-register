@@ -67,7 +67,8 @@ class ProductRegistrationVersionRepositoryTest(private val productRegistrationVe
             draftStatus = product1.draftStatus,
             productRegistration = product1,
             updated = product1.updated,
-            version = product1.version
+            version = product1.version,
+            updatedBy = product1.updatedBy
         )
         runBlocking {
             val saved = productRegistrationVersionRepository.save(version1)

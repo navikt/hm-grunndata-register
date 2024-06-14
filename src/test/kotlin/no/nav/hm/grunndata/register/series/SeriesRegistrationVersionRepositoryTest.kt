@@ -67,7 +67,8 @@ class SeriesRegistrationVersionRepositoryTest(private val seriesRegistrationVers
             draftStatus = series.draftStatus,
             seriesRegistration = series,
             version = series.version,
-            updated = series.updated
+            updated = series.updated,
+            updatedBy = series.updatedBy
         )
         runBlocking {
             val saved = seriesRegistrationVersionRepository.save(seriesRegistrationVersion)

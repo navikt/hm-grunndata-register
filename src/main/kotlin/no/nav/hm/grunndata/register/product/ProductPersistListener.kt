@@ -69,6 +69,7 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
             adminStatus = this.adminStatus,
             status = this.registrationStatus,
             updated = this.updated,
-            productRegistration = this
+            productRegistration = this,
+            updatedBy = this.updatedBy
         )
 }

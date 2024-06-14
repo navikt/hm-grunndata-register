@@ -21,5 +21,6 @@ data class ProductRegistrationVersion(
     val updated: LocalDateTime = LocalDateTime.now(),
     @field:TypeDef(type = DataType.JSON)
     val productRegistration: ProductRegistration,
-    val version: Long? = 0L
+    val version: Long? = 0L,
+    val updatedBy: String
 )

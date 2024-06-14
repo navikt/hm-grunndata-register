@@ -21,6 +21,7 @@ data class SeriesRegistrationVersion(
     val updated: LocalDateTime = LocalDateTime.now(),
     @field:TypeDef(type = DataType.JSON)
     val seriesRegistration: SeriesRegistration,
+    val updatedBy: String,
     val version: Long? = 0L
 )
 
