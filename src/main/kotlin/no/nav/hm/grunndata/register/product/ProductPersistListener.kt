@@ -22,7 +22,7 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
         return PostPersistEventListener { product: ProductRegistration ->
             runBlocking {
                 LOG.debug("ProductRegistration ${product.id} inserted for series: ${product.seriesUUID}")
-                insertProductVersion(product)
+                //insertProductVersion(product) // disabled for now
                 updateSeriesCounts(product.seriesUUID)
             }
         }
@@ -33,7 +33,7 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
         return PostUpdateEventListener { product: ProductRegistration ->
             runBlocking {
                 LOG.debug("ProductRegistration ${product.id} updated for series: ${product.seriesUUID}")
-                insertProductVersion(product)
+                //insertProductVersion(product)
                 updateSeriesCounts(product.seriesUUID)
             }
         }
