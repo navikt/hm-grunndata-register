@@ -21,7 +21,7 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
     fun afterProductPersist(): PostPersistEventListener<ProductRegistration> {
         return PostPersistEventListener { product: ProductRegistration ->
             runBlocking {
-                LOG.debug("ProductRegistration inserted for series: ${product.seriesUUID}")
+                LOG.debug("ProductRegistration ${product.id} inserted for series: ${product.seriesUUID}")
                 insertProductVersion(product)
                 updateSeriesCounts(product.seriesUUID)
             }
@@ -32,7 +32,7 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
     fun afterProductUpdate(): PostUpdateEventListener<ProductRegistration> {
         return PostUpdateEventListener { product: ProductRegistration ->
             runBlocking {
-                LOG.debug("ProductRegistration updated for series: ${product.seriesUUID}")
+                LOG.debug("ProductRegistration ${product.id} updated for series: ${product.seriesUUID}")
                 insertProductVersion(product)
                 updateSeriesCounts(product.seriesUUID)
             }
@@ -43,7 +43,7 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
     fun afterProductDelete(): PostRemoveEventListener<ProductRegistration> {
         return PostRemoveEventListener { product: ProductRegistration ->
             runBlocking {
-                LOG.debug("ProductRegistration deleted for series: ${product.seriesUUID}")
+                LOG.debug("ProductRegistration ${product.id} deleted for series: ${product.seriesUUID}")
                 updateSeriesCounts(product.seriesUUID)
             }
         }
