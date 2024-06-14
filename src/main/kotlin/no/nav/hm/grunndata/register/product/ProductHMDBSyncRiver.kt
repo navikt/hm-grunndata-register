@@ -99,8 +99,7 @@ class ProductHMDBSyncRiver(
             val series = dto.seriesUUID?.let { uuid ->
                 seriesRegistrationService.findById(uuid)?.let { inDb ->
                     if (inDb.isoCategory != dto.isoCategory || inDb.title != dto.title ||
-                        inDb.text != dto.attributes.text
-                        || inDb.expired != dto.expired) {
+                        inDb.text != dto.attributes.text ) {
                         seriesRegistrationService.update(
                             inDb.copy(
                                 title = dto.title,
