@@ -2,6 +2,9 @@ package no.nav.hm.grunndata.register.series
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
+import io.micronaut.data.model.Page
+import io.micronaut.data.model.Pageable
+import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import jakarta.inject.Singleton
 import java.time.LocalDateTime
 import java.util.UUID
@@ -73,6 +76,9 @@ class SeriesRegistrationVersionService(private val seriesRegistrationVersionRepo
             Difference(DiffStatus.NEW, MapDifference())
         }
     }
+
+    suspend fun findAll(spec: PredicateSpecification<SeriesRegistrationVersion>?, pageable: Pageable): Page<SeriesRegistrationVersionDTO> =
+        seriesRegistrationVersionRepository.findAll(spec, pageable).map { it.toDTO() }
 
 
 }
