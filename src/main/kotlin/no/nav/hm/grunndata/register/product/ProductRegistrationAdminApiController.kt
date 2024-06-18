@@ -277,9 +277,10 @@ class ProductRegistrationAdminApiController(
         @Body ids: List<UUID>,
         authentication: Authentication,
     ): HttpResponse<List<ProductRegistrationDTO>> {
-        val products = productRegistrationService.findByIdIn(ids).onEach {
-            if (!(it.draftStatus == DraftStatus.DRAFT && it.published == null)) throw BadRequestException("product is not draft")
-        }
+        val products =
+            productRegistrationService.findByIdIn(ids).onEach {
+                if (!(it.draftStatus == DraftStatus.DRAFT && it.published == null)) throw BadRequestException("product is not draft")
+            }
 
         products.forEach {
             LOG.info("Delete called for id ${it.id} and supplierRef ${it.supplierRef} by admin")
@@ -345,9 +346,12 @@ class ProductRegistrationAdminApiController(
     ): HttpResponse<List<ProductRegistrationDTO>> {
         val productsToUpdate =
             productRegistrationService.findByIdIn(ids).onEach {
-                if (it.adminStatus == AdminStatus.APPROVED) throw BadRequestException("${it.id} is already approved")
                 if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("product is not done")
-                if (it.registrationStatus == RegistrationStatus.DELETED) throw BadRequestException("RegistrationStatus should not be Deleted")
+                if (it.registrationStatus == RegistrationStatus.DELETED) {
+                    throw BadRequestException(
+                        "RegistrationStatus should not be Deleted",
+                    )
+                }
             }
 
         val approvedProducts =
@@ -376,7 +380,11 @@ class ProductRegistrationAdminApiController(
             productRegistrationService.findByIdIn(ids).onEach {
                 if (it.adminStatus != AdminStatus.PENDING) throw BadRequestException("product is not pending approval")
                 if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("product is not done")
-                if (it.registrationStatus == RegistrationStatus.DELETED) throw BadRequestException("RegistrationStatus should not be be Deleted")
+                if (it.registrationStatus == RegistrationStatus.DELETED) {
+                    throw BadRequestException(
+                        "RegistrationStatus should not be be Deleted",
+                    )
+                }
             }
 
         val productsToBeRejected =

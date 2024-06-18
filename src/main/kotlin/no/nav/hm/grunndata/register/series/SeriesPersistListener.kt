@@ -5,6 +5,7 @@ import io.micronaut.data.event.listeners.PostPersistEventListener
 import io.micronaut.data.event.listeners.PostUpdateEventListener
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.register.HMDB
 import org.slf4j.LoggerFactory
 
 @Factory
@@ -35,6 +36,9 @@ class SeriesPersistListener(private val seriesRegistrationVersionService: Series
     }
 
     private suspend fun insertSeriesVersion(series: SeriesRegistration) {
+        if (series.updatedBy == HMDB)  {
+            return
+        }
         seriesRegistrationVersionService.save(series.toVersion())
     }
 
@@ -45,6 +49,7 @@ class SeriesPersistListener(private val seriesRegistrationVersionService: Series
             adminStatus = this.adminStatus,
             status = this.status,
             updated = this.updated,
-            seriesRegistration = this.toDTO()
+            seriesRegistration = this,
+            updatedBy = this.updatedBy
         )
 }

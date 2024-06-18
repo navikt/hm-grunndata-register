@@ -1,5 +1,7 @@
 package no.nav.hm.grunndata.register.version
 
+val excludedKeys: Set<String> = setOf("updated", "version", "draftStatus", "adminStatus")
+
 data class MapDifference<K, V>(
     val entriesInCommon: Map<K, V> = emptyMap(),
     val entriesDiffering: Map<K, Pair<V?, V?>> = emptyMap(),
@@ -14,6 +16,9 @@ fun <K, V> Map<K, V>.mapDifference(other: Map<K, V>): MapDifference<K, V> {
     val entriesOnlyOnRight = mutableMapOf<K, V>()
 
     for (key in this.keys) {
+        if (excludedKeys.contains(key.toString())) {
+            continue
+        }
         if (other.containsKey(key)) {
             val valueThis = this[key]
             val valueOther = other[key]

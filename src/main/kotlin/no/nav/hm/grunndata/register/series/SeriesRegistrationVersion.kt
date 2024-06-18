@@ -20,8 +20,34 @@ data class SeriesRegistrationVersion(
     val draftStatus: DraftStatus,
     val updated: LocalDateTime = LocalDateTime.now(),
     @field:TypeDef(type = DataType.JSON)
-    val seriesRegistration: SeriesRegistrationDTO,
+    val seriesRegistration: SeriesRegistration,
+    val updatedBy: String,
     val version: Long? = 0L
 )
+
+data class SeriesRegistrationVersionDTO(
+    val versionId: UUID,
+    val seriesId: UUID,
+    val status: SeriesStatus,
+    val adminStatus: AdminStatus,
+    val draftStatus: DraftStatus,
+    val updated: LocalDateTime,
+    val seriesRegistration: SeriesRegistration,
+    val updatedBy: String,
+    val version: Long
+)
+
+fun SeriesRegistrationVersion.toDTO(): SeriesRegistrationVersionDTO = SeriesRegistrationVersionDTO(
+    versionId = this.versionId,
+    seriesId = this.seriesId,
+    status = this.status,
+    adminStatus = this.adminStatus,
+    draftStatus = this.draftStatus,
+    updated = this.updated,
+    seriesRegistration = this.seriesRegistration,
+    updatedBy = this.updatedBy,
+    version = this.version!!
+)
+
 
 

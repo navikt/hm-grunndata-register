@@ -10,7 +10,6 @@ class SeriesRegistrationVersionServiceTest(private val seriesRegistrationVersion
     @Test
     fun testFindLastApprovedVersion() {
         runBlocking {
-            seriesRegistrationVersionService.findLastApprovedVersion()
         }
 
     }

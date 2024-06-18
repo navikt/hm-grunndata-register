@@ -1,6 +1,7 @@
-package no.nav.hm.grunndata.register.series
+package no.nav.hm.grunndata.register.product
 
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import java.time.LocalDateTime
 import java.util.UUID
@@ -9,24 +10,28 @@ import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.MediaType
-import no.nav.hm.grunndata.rapid.dto.SeriesStatus
-import no.nav.hm.grunndata.register.product.MediaInfoDTO
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import org.junit.jupiter.api.Test
 
 @MicronautTest
-class SeriesRegistrationVersionRepositoryTest(private val seriesRegistrationVersionRepository: SeriesRegistrationVersionRepository) {
+class ProductRegistrationVersionRepositoryTest(private val productRegistrationVersionRepository: ProductRegistrationVersionRepository) {
 
     @Test
     fun crudTest() {
+        val productId = UUID.randomUUID()
         val seriesId = UUID.randomUUID()
-        val series = SeriesRegistration(
-            id = seriesId,
-            supplierId = UUID.randomUUID(),
-            identifier = "identifier",
+        val supplierId = UUID.randomUUID()
+        val product1 = ProductRegistration(
+            id = productId,
+            supplierId = supplierId,
+            seriesId = seriesId.toString(),
+            seriesUUID = seriesId,
+            articleName = "articleName",
+            hmsArtNr = "hmsArtNr",
+            supplierRef = "supplierRef",
             title = "title",
-            text = "text",
             isoCategory = "12345678",
-            seriesData = SeriesDataDTO(
+            productData = ProductData(
                 media = setOf(
                     MediaInfoDTO(
                         sourceUri = "sourceUri",
@@ -41,7 +46,7 @@ class SeriesRegistrationVersionRepositoryTest(private val seriesRegistrationVers
                 ),
             ),
             draftStatus = DraftStatus.DONE,
-            status = SeriesStatus.ACTIVE,
+            registrationStatus = RegistrationStatus.ACTIVE,
             adminStatus = AdminStatus.APPROVED,
             created = LocalDateTime.now(),
             updated = LocalDateTime.now(),
@@ -52,33 +57,25 @@ class SeriesRegistrationVersionRepositoryTest(private val seriesRegistrationVers
             updatedByUser = "updatedByUser",
             createdByUser = "createdByUser",
             createdByAdmin = false,
-            count = 0,
-            countDrafts = 0,
-            countPublished = 0,
-            countPending = 0,
-            countDeclined = 0,
             version = 1
         )
-        val seriesRegistrationVersion = SeriesRegistrationVersion(
-            versionId = UUID.randomUUID(),
-            seriesId = series.id,
-            status = series.status,
-            adminStatus = series.adminStatus,
-            draftStatus = series.draftStatus,
-            seriesRegistration = series,
-            version = series.version,
-            updated = series.updated,
-            updatedBy = series.updatedBy
+
+        val version1 = ProductRegistrationVersion(
+            productId = product1.id,
+            status = product1.registrationStatus,
+            adminStatus = product1.adminStatus,
+            draftStatus = product1.draftStatus,
+            productRegistration = product1,
+            updated = product1.updated,
+            version = product1.version,
+            updatedBy = product1.updatedBy
         )
         runBlocking {
-            val saved = seriesRegistrationVersionRepository.save(seriesRegistrationVersion)
+            val saved = productRegistrationVersionRepository.save(version1)
             saved.shouldNotBeNull()
-            val found = seriesRegistrationVersionRepository.findById(seriesRegistrationVersion.versionId)
+            val found = productRegistrationVersionRepository.findOneByProductIdAndDraftStatusAndAdminStatusOrderByUpdatedDesc(productId, DraftStatus.DONE, AdminStatus.APPROVED)
             found.shouldNotBeNull()
-            val approved = seriesRegistrationVersionRepository.findOneBySeriesIdAndDraftStatusAndAdminStatusOrderByUpdatedDesc(found.seriesId, DraftStatus.DONE, AdminStatus.APPROVED)
-            approved.shouldNotBeNull()
-
+            found.version shouldBe product1.version
         }
-
     }
 }
