@@ -159,6 +159,7 @@ class SeriesRegistrationAdminController(
             val dto =
                 seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                     it.copy(
+                        message = null,
                         adminStatus = AdminStatus.APPROVED,
                         updated = LocalDateTime.now(),
                         published = it.published ?: LocalDateTime.now(),
@@ -172,6 +173,7 @@ class SeriesRegistrationAdminController(
     @Put("/reject/{id}")
     suspend fun rejectSeries(
         id: UUID,
+        @Body rejectSeriesDTO: RejectSeriesDTO,
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> =
         seriesRegistrationService.findById(id)?.let {
@@ -181,6 +183,7 @@ class SeriesRegistrationAdminController(
             val dto =
                 seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                     it.copy(
+                        message = rejectSeriesDTO.message,
                         draftStatus = DraftStatus.DRAFT,
                         adminStatus = AdminStatus.REJECTED,
                         updated = LocalDateTime.now(),
@@ -213,3 +216,5 @@ class SeriesRegistrationAdminController(
             }
             ?: HttpResponse.notFound()
 }
+
+data class RejectSeriesDTO(val message: String?)
