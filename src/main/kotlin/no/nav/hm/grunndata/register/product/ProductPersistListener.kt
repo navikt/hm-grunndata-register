@@ -7,6 +7,7 @@ import io.micronaut.data.event.listeners.PostUpdateEventListener
 import jakarta.inject.Singleton
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.register.HMDB
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import org.slf4j.LoggerFactory
 
@@ -22,7 +23,7 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
         return PostPersistEventListener { product: ProductRegistration ->
             runBlocking {
                 LOG.debug("ProductRegistration ${product.id} inserted for series: ${product.seriesUUID}")
-                //insertProductVersion(product) // disabled for now
+                insertProductVersion(product) // disabled for now
                 updateSeriesCounts(product.seriesUUID)
             }
         }
@@ -33,7 +34,7 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
         return PostUpdateEventListener { product: ProductRegistration ->
             runBlocking {
                 LOG.debug("ProductRegistration ${product.id} updated for series: ${product.seriesUUID}")
-                //insertProductVersion(product)
+                insertProductVersion(product)
                 updateSeriesCounts(product.seriesUUID)
             }
         }
@@ -59,6 +60,9 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
     }
 
     private suspend fun insertProductVersion(product: ProductRegistration) {
+        if (product.updatedBy == HMDB)  {
+            return
+        }
         productRegistrationVersionService.save(product.toVersion())
     }
 
