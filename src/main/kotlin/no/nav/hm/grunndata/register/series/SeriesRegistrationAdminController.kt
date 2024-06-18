@@ -59,7 +59,7 @@ class SeriesRegistrationAdminController(
             seriesRegistrationService.findById(it.seriesUUID)
         }
 
-    @Get("/supplierRefl/{supplierRef}")
+    @Get("/supplierRef/{supplierRef}")
     suspend fun findSeriesForSupplierRef(
         @PathVariable supplierRef: String,
         authentication: Authentication,
