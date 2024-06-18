@@ -24,5 +24,7 @@ interface SeriesRegistrationVersionRepository : CoroutineCrudRepository<SeriesRe
         minusMonths: LocalDateTime?
     ): List<SeriesRegistrationVersion>
 
+    suspend fun findBySeriesIdAndVersion(seriesId: UUID, version: Long): SeriesRegistrationVersion?
+
 
 }
