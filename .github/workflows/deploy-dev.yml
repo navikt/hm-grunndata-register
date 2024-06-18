@@ -27,6 +27,5 @@ jobs:
       TEAM: "teamdigihot"
       CODEQL_ENABLED: true
       DRAFTS_MAX: 50
-      SKIP_DRAFT_RELEASE: false
     secrets:
       NAIS_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
