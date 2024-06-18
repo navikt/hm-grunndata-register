@@ -24,6 +24,8 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.series.SeriesRegistrationController.Companion
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
@@ -215,6 +217,37 @@ class SeriesRegistrationAdminController(
                 HttpResponse.ok(dto)
             }
             ?: HttpResponse.notFound()
+
+
+    @Put("/series-to-inactive/{seriesUUID}")
+    suspend fun setPublishedSeriesToInactive(
+        @PathVariable seriesUUID: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> {
+        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
+        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(
+            seriesToUpdate,
+            authentication,
+            SeriesStatus.INACTIVE
+        )
+
+        return HttpResponse.ok(updated)
+    }
+
+    @Put("/series-to-active/{seriesUUID}")
+    suspend fun setPublishedSeriesToActive(
+        @PathVariable seriesUUID: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> {
+        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
+        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(
+            seriesToUpdate,
+            authentication,
+            SeriesStatus.ACTIVE
+        )
+
+        return HttpResponse.ok(updated)
+    }
 }
 
 data class RejectSeriesDTO(val message: String?)
