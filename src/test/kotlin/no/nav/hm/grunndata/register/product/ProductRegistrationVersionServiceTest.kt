@@ -55,6 +55,7 @@ class ProductRegistrationVersionServiceTest(private val productRegistrationVersi
                 articleName = "articleName2",
                 productData = ProductData(
                     attributes = Attributes(
+                        shortdescription = "en gammel beskrivelse"
                     ),
                     techData = listOf(TechData(
                         key = "vekt",
@@ -75,6 +76,25 @@ class ProductRegistrationVersionServiceTest(private val productRegistrationVersi
                     draftStatus = DraftStatus.DONE,
                     adminStatus = AdminStatus.PENDING,
                     articleName = "Venter på godkjenning",
+                    productData = ProductData(
+                        attributes = Attributes(
+                            shortdescription = "en ny beskrivelse",
+                            bestillingsordning = true
+                        ),
+                        techData = listOf(TechData(
+                            key = "vekt",
+                            value = "2",
+                            unit = "kg",
+                        ), TechData(
+                            key = "lengde",
+                            value = "4",
+                            unit = "m",
+                        ), TechData(
+                            key = "bredde",
+                            value = "4",
+                            unit = "m",
+                        )),
+                    )
                 )
             )
             val pendingVersion = productRegistrationVersionService.save(ProductRegistrationVersion(
@@ -88,6 +108,10 @@ class ProductRegistrationVersionServiceTest(private val productRegistrationVersi
             ))
             val diffSinceLastApproved: Difference<String, Any> = productRegistrationVersionService.diffWithLastApprovedVersion(pendingVersion)
             diffSinceLastApproved.status shouldBe DiffStatus.DIFF
+            diffSinceLastApproved.diff.entriesDiffering.size shouldBe 3
+            diffSinceLastApproved.diff.entriesOnlyOnLeft.size shouldBe 1
+            diffSinceLastApproved.diff.entriesOnlyOnRight.size shouldBe 0
+            diffSinceLastApproved.diff.entriesDiffering["attributes.shortdescription"] shouldBe Pair("en ny beskrivelse", "en gammel beskrivelse")
             println(diffSinceLastApproved)
         }
     }

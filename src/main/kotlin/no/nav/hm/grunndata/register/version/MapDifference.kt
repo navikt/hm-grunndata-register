@@ -3,14 +3,13 @@ package no.nav.hm.grunndata.register.version
 val excludedKeys: Set<String> = setOf("updated", "version", "draftStatus", "adminStatus")
 
 data class MapDifference<K, V>(
-    val entriesInCommon: Map<K, V> = emptyMap(),
     val entriesDiffering: Map<K, Pair<V?, V?>> = emptyMap(),
     val entriesOnlyOnLeft: Map<K, V> = emptyMap(),
     val entriesOnlyOnRight: Map<K, V> = emptyMap()
 )
 
-fun <K, V> Map<K, V>.mapDifference(other: Map<K, V>): MapDifference<K, V> {
-    val entriesInCommon = mutableMapOf<K, V>()
+fun <K, V> Map<K, V>.mapDifference(other: Map<K, V>, parentKey: K? = null): MapDifference<K, V> {
+
     val entriesDiffering = mutableMapOf<K, Pair<V?, V?>>()
     val entriesOnlyOnLeft = mutableMapOf<K, V>()
     val entriesOnlyOnRight = mutableMapOf<K, V>()
@@ -22,24 +21,26 @@ fun <K, V> Map<K, V>.mapDifference(other: Map<K, V>): MapDifference<K, V> {
         if (other.containsKey(key)) {
             val valueThis = this[key]
             val valueOther = other[key]
-            if (valueThis == valueOther) {
-                entriesInCommon[key] = valueThis!!
-            } else {
-                entriesDiffering[key] = Pair(valueThis, valueOther)
+            if (valueThis is Map<*, *> && valueOther is Map<*, *>) {
+                val nestedDiff = (valueThis as Map<K, V>).mapDifference(valueOther as Map<K, V>, key)
+                entriesDiffering.putAll(nestedDiff.entriesDiffering)
+                entriesOnlyOnLeft.putAll(nestedDiff.entriesOnlyOnLeft)
+                entriesOnlyOnRight.putAll(nestedDiff.entriesOnlyOnRight)
+            } else if (valueThis != valueOther) {
+                entriesDiffering[if (parentKey != null) "$parentKey.$key" as K else key] = Pair(valueThis as V, valueOther as V)
             }
         } else {
-            entriesOnlyOnLeft[key] = this[key]!!
+            entriesOnlyOnLeft[if (parentKey != null) "$parentKey.$key" as K else key] = this[key]!!
         }
     }
 
     for (key in other.keys) {
         if (!this.containsKey(key)) {
-            entriesOnlyOnRight[key] = other[key]!!
+            entriesOnlyOnRight[if (parentKey != null) "$parentKey.$key" as K else key] = other[key]!!
         }
     }
 
     return MapDifference(
-        entriesInCommon = entriesInCommon,
         entriesDiffering = entriesDiffering,
         entriesOnlyOnLeft = entriesOnlyOnLeft,
         entriesOnlyOnRight = entriesOnlyOnRight
