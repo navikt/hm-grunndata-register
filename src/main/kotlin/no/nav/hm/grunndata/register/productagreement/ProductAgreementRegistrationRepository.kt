@@ -9,16 +9,15 @@ import java.time.LocalDateTime
 import java.util.*
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
-interface ProductAgreementRegistrationRepository : CoroutineCrudRepository<ProductAgreementRegistration, UUID>,
+interface ProductAgreementRegistrationRepository :
+    CoroutineCrudRepository<ProductAgreementRegistration, UUID>,
     CoroutineJpaSpecificationExecutor<ProductAgreementRegistration> {
-
-
     suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
         supplierId: UUID,
         supplierRef: String,
         agreementId: UUID,
         post: Int,
-        rank: Int
+        rank: Int,
     ): ProductAgreementRegistration?
 
     suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRankAndStatus(
@@ -27,14 +26,13 @@ interface ProductAgreementRegistrationRepository : CoroutineCrudRepository<Produ
         agreementId: UUID,
         post: Int,
         rank: Int,
-        status: ProductAgreementStatus
+        status: ProductAgreementStatus,
     ): ProductAgreementRegistration?
 
     suspend fun findBySupplierIdAndSupplierRef(
         supplierId: UUID,
-        supplierRef: String
+        supplierRef: String,
     ): List<ProductAgreementRegistration>
-
 
     suspend fun findByAgreementId(agreementId: UUID): List<ProductAgreementRegistration>
 
@@ -42,27 +40,33 @@ interface ProductAgreementRegistrationRepository : CoroutineCrudRepository<Produ
         agreementId: UUID,
         status: ProductAgreementStatus,
         published: LocalDateTime,
-        expired: LocalDateTime
+        expired: LocalDateTime,
     ): List<ProductAgreementRegistration>
 
     suspend fun findByAgreementIdAndStatusAndExpiredBefore(
         agreementId: UUID,
         status: ProductAgreementStatus,
-        expired: LocalDateTime
+        expired: LocalDateTime,
     ): List<ProductAgreementRegistration>
 
     suspend fun findByPostId(postId: UUID): List<ProductAgreementRegistration>
 
-    suspend fun findByPostIdAndStatus(postId: UUID, status: ProductAgreementStatus): List<ProductAgreementRegistration>
+    suspend fun findByPostIdAndStatus(
+        postId: UUID,
+        status: ProductAgreementStatus,
+    ): List<ProductAgreementRegistration>
 
     suspend fun findAllByIdIn(ids: List<UUID>): List<ProductAgreementRegistration>
 
     suspend fun findByProductIdIsNull(): List<ProductAgreementRegistration>
 
+    suspend fun findAllByProductIdIn(ids: List<UUID>): List<ProductAgreementRegistration>
+
     suspend fun findByAgreementIdAndStatus(
         agreementId: UUID,
-        status: ProductAgreementStatus
+        status: ProductAgreementStatus,
     ): List<ProductAgreementRegistration>
+
     suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
         supplierId: UUID,
         supplierRef: String,
@@ -70,5 +74,4 @@ interface ProductAgreementRegistrationRepository : CoroutineCrudRepository<Produ
         postId: UUID,
         rank: Int,
     ): ProductAgreementRegistration?
-
 }

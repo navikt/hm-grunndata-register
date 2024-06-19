@@ -117,6 +117,9 @@ open class ProductAgreementRegistrationService(
     suspend fun findAllByIds(ids: List<UUID>): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findAllByIdIn(ids).toDTO()
 
+    suspend fun findAllByProductIds(ids: List<UUID>): List<ProductAgreementRegistrationDTO> =
+        productAgreementRegistrationRepository.findAllByProductIdIn(ids).toDTO()
+
     suspend fun findByAgreementId(agreementId: UUID): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findByAgreementId(agreementId).map { it.toDTO() }
 

@@ -32,14 +32,14 @@ class ProductAgreementController(
         seriesId: UUID,
         authentication: Authentication,
     ): Boolean {
-        LOG.info("Getting variants for series {$seriesId}")
+        LOG.info("Checking if series {$seriesId} is part of an agreement")
         val ids: List<UUID> =
             productRegistrationService.findAllBySeriesUuid(seriesId)
                 .filter {
                     it.registrationStatus == RegistrationStatus.ACTIVE
                 }.map { it.id }
 
-        val productAgreements = productAgreementRegistrationService.findAllByIds(ids)
+        val productAgreements = productAgreementRegistrationService.findAllByProductIds(ids)
 
         return productAgreements.isNotEmpty()
     }
