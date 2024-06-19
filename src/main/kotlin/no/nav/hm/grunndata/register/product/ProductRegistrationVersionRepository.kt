@@ -24,4 +24,6 @@ interface ProductRegistrationVersionRepository:  CoroutineCrudRepository<Product
         draftStatus: DraftStatus,
         minusMonths: LocalDateTime?
     ): List<ProductRegistrationVersion>
+
+    suspend  fun findByProductIdAndVersion(productId: UUID, version: Long): ProductRegistrationVersion?
 }

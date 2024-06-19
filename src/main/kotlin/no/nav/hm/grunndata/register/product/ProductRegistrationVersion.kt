@@ -24,3 +24,28 @@ data class ProductRegistrationVersion(
     val version: Long? = 0L,
     val updatedBy: String
 )
+
+data class ProductRegistrationVersionDTO(
+
+    val versionId: UUID = UUID.randomUUID(),
+    val productId: UUID,
+    val status: RegistrationStatus,
+    val adminStatus: AdminStatus,
+    val draftStatus: DraftStatus,
+    val updated: LocalDateTime = LocalDateTime.now(),
+    val productRegistration: ProductRegistration,
+    val version: Long? = 0L,
+    val updatedBy: String
+)
+
+fun ProductRegistrationVersion.toDTO(): ProductRegistrationVersionDTO = ProductRegistrationVersionDTO(
+    versionId = this.versionId,
+    productId = this.productId,
+    status = this.status,
+    adminStatus = this.adminStatus,
+    draftStatus = this.draftStatus,
+    updated = this.updated,
+    productRegistration = this.productRegistration,
+    version = this.version!!,
+    updatedBy = this.updatedBy
+)

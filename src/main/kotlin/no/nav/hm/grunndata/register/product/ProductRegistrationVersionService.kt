@@ -2,6 +2,9 @@ package no.nav.hm.grunndata.register.product
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
+import io.micronaut.data.model.Page
+import io.micronaut.data.model.Pageable
+import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import jakarta.inject.Singleton
 import java.time.LocalDateTime
 import java.util.UUID
@@ -75,5 +78,11 @@ class ProductRegistrationVersionService(private val productRegistrationVersionRe
             Difference(DiffStatus.NEW, MapDifference())
         }
     }
+
+    suspend fun findAll(spec: PredicateSpecification<ProductRegistrationVersion>?, pageable: Pageable): Page<ProductRegistrationVersion>  =
+        productRegistrationVersionRepository.findAll(spec, pageable)
+
+    suspend fun findByProductIdAndVersion(productId: UUID, version: Long): ProductRegistrationVersion? =
+        productRegistrationVersionRepository.findByProductIdAndVersion(productId, version)
 
 }
