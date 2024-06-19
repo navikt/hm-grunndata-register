@@ -12,12 +12,13 @@ import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.version.DiffStatus
 import no.nav.hm.grunndata.register.version.Difference
+import org.junit.jupiter.api.Test
 
 @MicronautTest
 class ProductRegistrationVersionServiceTest(private val productRegistrationVersionService: ProductRegistrationVersionService,
                                             private val productRegistrationRepository: ProductRegistrationRepository) {
 
-    //@Test disabled for now
+    @Test
     fun testVersionDifference() {
         val seriesId = UUID.randomUUID()
         val supplierId = UUID.randomUUID()
@@ -76,7 +77,16 @@ class ProductRegistrationVersionServiceTest(private val productRegistrationVersi
                     articleName = "Venter på godkjenning",
                 )
             )
-            val diffSinceLastApproved: Difference<String, Any> = productRegistrationVersionService.diffWithLastApprovedVersion(pending)
+            val pendingVersion = productRegistrationVersionService.save(ProductRegistrationVersion(
+                productId = pending.id,
+                status = pending.registrationStatus,
+                adminStatus = pending.adminStatus,
+                draftStatus = pending.draftStatus,
+                productRegistration = pending,
+                updatedBy = pending.updatedBy,
+                updated = pending.updated
+            ))
+            val diffSinceLastApproved: Difference<String, Any> = productRegistrationVersionService.diffWithLastApprovedVersion(pendingVersion)
             diffSinceLastApproved.status shouldBe DiffStatus.DIFF
             println(diffSinceLastApproved)
         }

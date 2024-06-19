@@ -25,16 +25,16 @@ class SeriesRegistrationVersionService(private val seriesRegistrationVersionRepo
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationVersionService::class.java)
     }
 
-    suspend fun findLastApprovedVersion(seriesId: UUID): SeriesRegistrationVersionDTO?  {
-        return seriesRegistrationVersionRepository.findOneBySeriesIdAndDraftStatusAndAdminStatusOrderByUpdatedDesc(seriesId, DraftStatus.DONE, AdminStatus.APPROVED)?.toDTO()
+    suspend fun findLastApprovedVersion(seriesId: UUID): SeriesRegistrationVersion?  {
+        return seriesRegistrationVersionRepository.findOneBySeriesIdAndDraftStatusAndAdminStatusOrderByUpdatedDesc(seriesId, DraftStatus.DONE, AdminStatus.APPROVED)
     }
 
-    suspend fun save(seriesRegistrationVersion: SeriesRegistrationVersion): SeriesRegistrationVersionDTO {
-        return seriesRegistrationVersionRepository.save(seriesRegistrationVersion).toDTO()
+    suspend fun save(seriesRegistrationVersion: SeriesRegistrationVersion): SeriesRegistrationVersion {
+        return seriesRegistrationVersionRepository.save(seriesRegistrationVersion)
     }
 
-    suspend fun update(seriesRegistrationVersion: SeriesRegistrationVersion): SeriesRegistrationVersionDTO {
-        return seriesRegistrationVersionRepository.update(seriesRegistrationVersion).toDTO()
+    suspend fun update(seriesRegistrationVersion: SeriesRegistrationVersion): SeriesRegistrationVersion {
+        return seriesRegistrationVersionRepository.update(seriesRegistrationVersion)
     }
 
 
@@ -51,38 +51,38 @@ class SeriesRegistrationVersionService(private val seriesRegistrationVersionRepo
         }
     }
 
-    fun <K, V> diffVersions(version1: SeriesRegistrationVersionDTO, version2: SeriesRegistrationVersionDTO): Difference<K,V> {
+    fun <K, V> diffVersions(version1: SeriesRegistrationVersion, version2: SeriesRegistrationVersion): Difference<K,V> {
         val version1Map: Map<K,V> = objectMapper.convertValue(version1.seriesRegistration)
         val version2Map: Map<K,V> = objectMapper.convertValue(version2.seriesRegistration)
         return version1Map.difference(version2Map)
     }
 
-    fun <K, V> diffVersions(seriesRegistration: SeriesRegistrationDTO, version2: SeriesRegistrationVersionDTO): Difference<K,V> {
+    fun <K, V> diffVersions(seriesRegistration: SeriesRegistration, version2: SeriesRegistrationVersion): Difference<K,V> {
         val version1Map: Map<K,V> = objectMapper.convertValue(seriesRegistration)
         val version2Map: Map<K,V> = objectMapper.convertValue(version2.seriesRegistration)
         return version1Map.difference(version2Map)
     }
 
-    fun <K, V> diffVersions(seriesRegistration: SeriesRegistrationDTO, seriesRegistration2: SeriesRegistrationDTO): Difference<K, V> {
+    fun <K, V> diffVersions(seriesRegistration: SeriesRegistration, seriesRegistration2: SeriesRegistration): Difference<K, V> {
         val version1Map: Map<K, V> = objectMapper.convertValue(seriesRegistration)
         val version2Map: Map<K, V> = objectMapper.convertValue(seriesRegistration2)
         return version1Map.difference(version2Map)
     }
 
-    suspend fun <K, V> diffWithLastApprovedVersion(seriesRegistration: SeriesRegistrationDTO): Difference<K, V> {
-        val lastApprovedVersion = findLastApprovedVersion(seriesRegistration.id)
+    suspend fun <K, V> diffWithLastApprovedVersion(seriesRegistrationVersion: SeriesRegistrationVersion): Difference<K, V> {
+        val lastApprovedVersion = findLastApprovedVersion(seriesRegistrationVersion.seriesId)
         return if (lastApprovedVersion != null) {
-            diffVersions(seriesRegistration, lastApprovedVersion)
+            diffVersions(seriesRegistrationVersion, lastApprovedVersion)
         } else {
             Difference(DiffStatus.NEW, MapDifference())
         }
     }
 
-    suspend fun findAll(spec: PredicateSpecification<SeriesRegistrationVersion>?, pageable: Pageable): Page<SeriesRegistrationVersionDTO> =
-        seriesRegistrationVersionRepository.findAll(spec, pageable).map { it.toDTO() }
+    suspend fun findAll(spec: PredicateSpecification<SeriesRegistrationVersion>?, pageable: Pageable): Page<SeriesRegistrationVersion> =
+        seriesRegistrationVersionRepository.findAll(spec, pageable)
 
-    suspend fun findBySeriesIdAndVersion(seriesId: UUID, version: Long): SeriesRegistrationVersionDTO? =
-        seriesRegistrationVersionRepository.findBySeriesIdAndVersion(seriesId, version)?.toDTO()
+    suspend fun findBySeriesIdAndVersion(seriesId: UUID, version: Long): SeriesRegistrationVersion? =
+        seriesRegistrationVersionRepository.findBySeriesIdAndVersion(seriesId, version)
 
 
 

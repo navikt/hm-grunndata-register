@@ -37,7 +37,7 @@ class SeriesRegistrationVersionAdminController(private val seriesRegistrationVer
         pageable: Pageable,
         authentication: Authentication,
     ): Page<SeriesRegistrationVersionDTO> {
-        return seriesRegistrationVersionService.findAll(buildCriteriaSpec(params), pageable)
+        return seriesRegistrationVersionService.findAll(buildCriteriaSpec(params), pageable).map { it.toDTO() }
     }
 
     private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<SeriesRegistrationVersion>? =
@@ -57,14 +57,8 @@ class SeriesRegistrationVersionAdminController(private val seriesRegistrationVer
         version: Long,
         authentication: Authentication,
     ): HttpResponse<Difference<String, Any>> {
-        val seriesVersion = seriesRegistrationVersionService.findBySeriesIdAndVersion(seriesId, version)
-        val approvedVersion = seriesRegistrationVersionService.findLastApprovedVersion(seriesId)
-        if (seriesVersion!=null && approvedVersion!=null) {
-            return HttpResponse.ok(seriesRegistrationVersionService.diffVersions(seriesVersion, approvedVersion))
-        }
-        else (
-            return HttpResponse.notFound()
-        )
+        val seriesVersion = seriesRegistrationVersionService.findBySeriesIdAndVersion(seriesId, version) ?: return HttpResponse.notFound()
+        return HttpResponse.ok(seriesRegistrationVersionService.diffWithLastApprovedVersion(seriesVersion))
     }
 
 

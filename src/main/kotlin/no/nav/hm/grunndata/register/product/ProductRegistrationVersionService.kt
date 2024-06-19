@@ -70,7 +70,8 @@ class ProductRegistrationVersionService(private val productRegistrationVersionRe
         return version1Map.difference(version2Map)
     }
 
-    suspend fun <K,V> diffWithLastApprovedVersion(productRegistration: ProductRegistration): Difference<K, V> {
+    suspend fun <K,V> diffWithLastApprovedVersion(productRegistrationVersion: ProductRegistrationVersion): Difference<K, V> {
+        val productRegistration = productRegistrationVersion.productRegistration
         val lastApprovedVersion = findLastApprovedVersion(productRegistration.id)
         return if (lastApprovedVersion != null) {
             diffVersions(productRegistration, lastApprovedVersion)

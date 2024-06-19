@@ -58,13 +58,8 @@ class ProductRegistrationVersionAdminController(private val productRegistrationV
         authentication: Authentication,
     ): HttpResponse<Difference<String, Any>> {
         val productVersion = productRegistrationVersionService.findByProductIdAndVersion(productId, version)
-        val approvedVersion = productRegistrationVersionService.findLastApprovedVersion(productId)
-        if (productVersion!=null && approvedVersion!=null) {
-            return HttpResponse.ok(productRegistrationVersionService.diffVersions(productVersion, approvedVersion))
-        }
-        else (
-            return HttpResponse.notFound()
-        )
+            ?: return HttpResponse.notFound()
+        return HttpResponse.ok(productRegistrationVersionService.diffWithLastApprovedVersion(productVersion))
     }
 
 
