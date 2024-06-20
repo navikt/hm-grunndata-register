@@ -163,6 +163,7 @@ fun SeriesRegistration.toDTO() =
         countPublished = countPublished,
         countPending = countPending,
         countDeclined = countDeclined,
+        expired = expired
     )
 
 fun SeriesRegistrationDTO.toEntity() =
@@ -191,6 +192,7 @@ fun SeriesRegistrationDTO.toEntity() =
         countPublished = countPublished,
         countPending = countPending,
         countDeclined = countDeclined,
+        expired = expired,
     )
 
 fun SeriesDataDTO.toRapidDTO() =
