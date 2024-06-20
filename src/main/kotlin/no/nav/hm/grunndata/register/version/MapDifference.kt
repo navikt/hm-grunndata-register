@@ -1,6 +1,6 @@
 package no.nav.hm.grunndata.register.version
 
-val excludedKeys: Set<String> = setOf("updated", "version", "draftStatus", "adminStatus")
+val excludedKeys: Set<String> = setOf("updated", "version", "draftStatus", "adminStatus", "countDrafts", "countPending")
 
 data class MapDifference<K, V>(
     val entriesDiffering: Map<K, Pair<V?, V?>> = emptyMap(),
