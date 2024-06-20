@@ -14,7 +14,6 @@ val poiVersion = "5.2.5"
 val rapidsRiversVersion = "202401101532"
 val grunndataDtoVersion = "202406051156"
 val microsoftGrapVersion = "5.77.0"
-val bigQueryVersion = "2.38.2"
 
 group = "no.nav.hm"
 version = properties["version"] ?: "local-build"
@@ -97,7 +96,6 @@ dependencies {
     // micronaut-leaderelection
     implementation("com.github.navikt:hm-micronaut-leaderelection:202405140823")
 
-    implementation("com.google.cloud:google-cloud-bigquery:$bigQueryVersion")
 }
 
 micronaut {
