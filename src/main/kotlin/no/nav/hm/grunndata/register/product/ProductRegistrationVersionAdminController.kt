@@ -62,6 +62,4 @@ class ProductRegistrationVersionAdminController(private val productRegistrationV
         return HttpResponse.ok(productRegistrationVersionService.diffWithLastApprovedVersion(productVersion))
     }
 
-
-
 }
