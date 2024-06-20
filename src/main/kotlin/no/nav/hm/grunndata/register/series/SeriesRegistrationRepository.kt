@@ -46,12 +46,11 @@ interface SeriesRegistrationRepository :
 
     @Query(
         "UPDATE series_reg_v1 " +
-            "SET count_drafts = b.b_count " +
-            "FROM (SELECT series_uuid, count(*) as b_count FROM product_reg_v1 WHERE draft_status = 'DRAFT' AND registration_status = 'ACTIVE' AND admin_status != 'REJECTED' GROUP BY series_uuid) AS b " +
-            "WHERE id = b.series_uuid AND b.series_uuid = :id",
+                "SET count_drafts = b.b_count " +
+                "FROM (SELECT series_uuid, count(*) as b_count FROM product_reg_v1 WHERE draft_status = 'DRAFT' AND registration_status = 'ACTIVE' AND admin_status != 'REJECTED' GROUP BY series_uuid) AS b " +
+                "WHERE id = b.series_uuid AND b.series_uuid = :id",
     )
     suspend fun updateCountDraftsForSeries(id: UUID)
-
 
 
     @Query(
@@ -84,7 +83,14 @@ interface SeriesRegistrationRepository :
     suspend fun resetCountStatusesForSeries(id: UUID)
 
     suspend fun findByIsoCategory(isoCategory: String): List<SeriesRegistration>
+
+    @Query(
+        "UPDATE series_reg_v1 SET status = 'INACTIVE' WHERE id = :id AND NOT EXISTS( SELECT 1 FROM product_reg_v1 WHERE series_uuid = :id AND registration_status = 'ACTIVE')"
+    )
+    suspend fun updateStatusForSeries(id: UUID)
+
 }
+
 
 @Introspected
 data class SeriesGroupDTO(

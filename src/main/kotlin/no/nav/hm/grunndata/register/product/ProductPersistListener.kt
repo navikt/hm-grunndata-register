@@ -7,6 +7,7 @@ import io.micronaut.data.event.listeners.PostUpdateEventListener
 import jakarta.inject.Singleton
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.HMDB
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import org.slf4j.LoggerFactory
@@ -35,6 +36,10 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
             runBlocking {
                 LOG.debug("ProductRegistration ${product.id} updated for series: ${product.seriesUUID}")
                 insertProductVersion(product)
+                if (product.registrationStatus != RegistrationStatus.ACTIVE) {
+                    LOG.info("Product status is ${product.registrationStatus}, update series status")
+                    updateStatusForSeries(product.seriesUUID)
+                }
                 updateSeriesCounts(product.seriesUUID)
             }
         }
@@ -48,6 +53,10 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
                 updateSeriesCounts(product.seriesUUID)
             }
         }
+    }
+
+    private suspend fun updateStatusForSeries(seriesUUID: UUID) {
+        seriesRegistrationRepository.updateStatusForSeries(seriesUUID)
     }
 
     private suspend fun updateSeriesCounts(seriesUUID: UUID) {
