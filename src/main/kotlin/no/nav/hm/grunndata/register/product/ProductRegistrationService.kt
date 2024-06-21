@@ -181,10 +181,11 @@ open class ProductRegistrationService(
     open suspend fun saveAndCreateEventIfNotDraftAndApproved(
         dto: ProductRegistrationDTO,
         isUpdate: Boolean,
+        eventName: String = EventName.registeredProductV1,
     ): ProductRegistrationDTO {
         val saved = if (isUpdate) update(dto) else save(dto)
         if (saved.draftStatus == DraftStatus.DONE && saved.adminStatus == AdminStatus.APPROVED) {
-            productRegistrationEventHandler.queueDTORapidEvent(saved, eventName = EventName.registeredProductV1)
+            productRegistrationEventHandler.queueDTORapidEvent(saved, eventName = eventName)
         }
         return saved
     }
@@ -193,12 +194,13 @@ open class ProductRegistrationService(
     open suspend fun saveAllAndCreateEventIfNotDraftAndApproved(
         dtos: List<ProductRegistrationDTO>,
         isUpdate: Boolean,
+        eventName: String = EventName.registeredProductV1,
     ): List<ProductRegistrationDTO> {
         val updated =
             dtos.map {
                 val saved = if (isUpdate) update(it) else save(it)
                 if (saved.draftStatus == DraftStatus.DONE && saved.adminStatus == AdminStatus.APPROVED) {
-                    productRegistrationEventHandler.queueDTORapidEvent(saved, eventName = EventName.registeredProductV1)
+                    productRegistrationEventHandler.queueDTORapidEvent(saved, eventName = eventName)
                 }
                 saved
             }

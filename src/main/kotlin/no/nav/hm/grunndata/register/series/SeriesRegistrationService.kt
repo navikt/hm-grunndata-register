@@ -49,10 +49,11 @@ open class SeriesRegistrationService(
     open suspend fun saveAndCreateEventIfNotDraftAndApproved(
         dto: SeriesRegistrationDTO,
         isUpdate: Boolean,
+        eventName: String = EventName.registeredSeriesV1
     ): SeriesRegistrationDTO {
         val saved = if (isUpdate) update(dto) else save(dto)
         if (saved.draftStatus == DraftStatus.DONE && saved.adminStatus == AdminStatus.APPROVED) {
-            seriesRegistrationEventHandler.queueDTORapidEvent(saved, eventName = EventName.registeredSeriesV1)
+            seriesRegistrationEventHandler.queueDTORapidEvent(saved, eventName = eventName)
         }
         return saved
     }
@@ -217,8 +218,13 @@ open class SeriesRegistrationService(
                 oldRegistrationStatus,
             ).map { it.copy(registrationStatus = newRegistrationStatus) }
 
+
         saveAndCreateEventIfNotDraftAndApproved(updatedSeries, true)
-        productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(variantsToUpdate, true)
+        productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(
+            variantsToUpdate,
+            true,
+            EventName.expiredProductV1,
+        )
 
         return updatedSeries
     }
