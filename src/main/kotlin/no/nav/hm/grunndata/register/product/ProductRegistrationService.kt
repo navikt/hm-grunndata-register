@@ -573,6 +573,19 @@ open class ProductRegistrationService(
     )
 
     suspend fun deleteAll(dtos: List<ProductRegistrationDTO>) = productRegistrationRepository.deleteAll(dtos.map { it.toEntity() })
+
+    suspend fun findAllBySeriesUUIDAndAdminStatusAndDraftStatusAndRegistrationStatus(
+        seriesUUID: UUID,
+        adminStatus: AdminStatus,
+        draftStatus: DraftStatus,
+        registrationStatus: RegistrationStatus,
+    ): List<ProductRegistrationDTO> =
+        productRegistrationRepository.findAllBySeriesUUIDAndAdminStatusAndDraftStatusAndRegistrationStatus(
+            seriesUUID,
+            adminStatus,
+            draftStatus,
+            registrationStatus,
+        ).map { it.toDTO() }
 }
 
 suspend fun <T : Any, R : Any> Page<T>.mapSuspend(transform: suspend (T) -> R): Page<R> {

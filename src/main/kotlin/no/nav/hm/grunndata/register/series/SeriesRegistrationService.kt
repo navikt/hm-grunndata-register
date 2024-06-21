@@ -15,7 +15,7 @@ import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
-import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
+import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.slf4j.LoggerFactory
@@ -25,7 +25,7 @@ import java.util.UUID
 @Singleton
 open class SeriesRegistrationService(
     private val seriesRegistrationRepository: SeriesRegistrationRepository,
-    private val productRegistrationRepository: ProductRegistrationRepository,
+    private val productRegistrationService: ProductRegistrationService,
     private val seriesRegistrationEventHandler: SeriesRegistrationEventHandler,
     private val supplierService: SupplierRegistrationService,
 ) {
@@ -169,7 +169,7 @@ open class SeriesRegistrationService(
             )
 
         val variantsToUpdate =
-            productRegistrationRepository.findAllBySeriesUUIDAndAdminStatusAndDraftStatusAndRegistrationStatus(
+            productRegistrationService.findAllBySeriesUUIDAndAdminStatusAndDraftStatusAndRegistrationStatus(
                 seriesToUpdate.id,
                 AdminStatus.APPROVED,
                 DraftStatus.DONE,
@@ -177,10 +177,7 @@ open class SeriesRegistrationService(
             ).map { it.copy(draftStatus = DraftStatus.DRAFT, adminStatus = AdminStatus.PENDING) }
 
         saveAndCreateEventIfNotDraftAndApproved(updatedSeries, true)
-
-        variantsToUpdate.map {
-            productRegistrationRepository.update(it)
-        }
+        productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(variantsToUpdate, true)
 
         return updatedSeries
     }
@@ -213,7 +210,7 @@ open class SeriesRegistrationService(
             if (status == SeriesStatus.ACTIVE) RegistrationStatus.ACTIVE else RegistrationStatus.INACTIVE
 
         val variantsToUpdate =
-            productRegistrationRepository.findAllBySeriesUUIDAndAdminStatusAndDraftStatusAndRegistrationStatus(
+            productRegistrationService.findAllBySeriesUUIDAndAdminStatusAndDraftStatusAndRegistrationStatus(
                 seriesToUpdate.id,
                 AdminStatus.APPROVED,
                 DraftStatus.DONE,
@@ -221,10 +218,7 @@ open class SeriesRegistrationService(
             ).map { it.copy(registrationStatus = newRegistrationStatus) }
 
         saveAndCreateEventIfNotDraftAndApproved(updatedSeries, true)
-
-        variantsToUpdate.map {
-            productRegistrationRepository.update(it)
-        }
+        productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(variantsToUpdate, true)
 
         return updatedSeries
     }
