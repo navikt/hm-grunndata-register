@@ -49,7 +49,7 @@ open class SeriesRegistrationService(
     open suspend fun saveAndCreateEventIfNotDraftAndApproved(
         dto: SeriesRegistrationDTO,
         isUpdate: Boolean,
-        eventName: String = EventName.registeredSeriesV1
+        eventName: String = EventName.registeredSeriesV1,
     ): SeriesRegistrationDTO {
         val saved = if (isUpdate) update(dto) else save(dto)
         if (saved.draftStatus == DraftStatus.DONE && saved.adminStatus == AdminStatus.APPROVED) {
@@ -175,7 +175,15 @@ open class SeriesRegistrationService(
                 AdminStatus.APPROVED,
                 DraftStatus.DONE,
                 RegistrationStatus.ACTIVE,
-            ).map { it.copy(draftStatus = DraftStatus.DRAFT, adminStatus = AdminStatus.PENDING) }
+            ).map {
+                it.copy(
+                    draftStatus = DraftStatus.DRAFT,
+                    adminStatus = AdminStatus.PENDING,
+                    updated = LocalDateTime.now(),
+                    updatedBy = REGISTER,
+                    updatedByUser = authentication.name,
+                )
+            }
 
         saveAndCreateEventIfNotDraftAndApproved(updatedSeries, true)
         productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(variantsToUpdate, true)
@@ -216,8 +224,15 @@ open class SeriesRegistrationService(
                 AdminStatus.APPROVED,
                 DraftStatus.DONE,
                 oldRegistrationStatus,
-            ).map { it.copy(registrationStatus = newRegistrationStatus) }
-
+            ).map {
+                it.copy(
+                    registrationStatus = newRegistrationStatus,
+                    expired = newExpirationDate,
+                    updated = LocalDateTime.now(),
+                    updatedBy = REGISTER,
+                    updatedByUser = authentication.name,
+                )
+            }
 
         saveAndCreateEventIfNotDraftAndApproved(updatedSeries, true)
         productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(
