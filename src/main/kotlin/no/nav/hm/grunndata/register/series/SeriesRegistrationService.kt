@@ -223,7 +223,6 @@ open class SeriesRegistrationService(
         productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(
             variantsToUpdate,
             true,
-            EventName.expiredProductV1,
         )
 
         return updatedSeries
