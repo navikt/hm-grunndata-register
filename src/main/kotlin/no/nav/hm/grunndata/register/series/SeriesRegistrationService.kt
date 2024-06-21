@@ -176,7 +176,7 @@ open class SeriesRegistrationService(
                 RegistrationStatus.ACTIVE,
             ).map { it.copy(draftStatus = DraftStatus.DRAFT, adminStatus = AdminStatus.PENDING) }
 
-        update(updatedSeries)
+        saveAndCreateEventIfNotDraftAndApproved(updatedSeries, true)
 
         variantsToUpdate.map {
             productRegistrationRepository.update(it)
@@ -220,7 +220,7 @@ open class SeriesRegistrationService(
                 oldRegistrationStatus,
             ).map { it.copy(registrationStatus = newRegistrationStatus) }
 
-        update(updatedSeries)
+        saveAndCreateEventIfNotDraftAndApproved(updatedSeries, true)
 
         variantsToUpdate.map {
             productRegistrationRepository.update(it)

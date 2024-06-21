@@ -217,6 +217,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
 
         if (seriesToUpdate.draftStatus != DraftStatus.DRAFT) throw BadRequestException("series is not a draft")
+        if (seriesToUpdate.published != null) throw BadRequestException("can not delete a published series")
 
         val updatedSeries =
             seriesToUpdate.copy(

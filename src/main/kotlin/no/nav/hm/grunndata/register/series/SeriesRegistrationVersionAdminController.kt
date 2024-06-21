@@ -16,6 +16,7 @@ import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.register.product.ProductRegistrationVersionService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.version.Difference
 import org.slf4j.LoggerFactory
@@ -24,7 +25,10 @@ import org.slf4j.LoggerFactory
 @Secured(Roles.ROLE_ADMIN)
 @Controller(SeriesRegistrationVersionAdminController.API_V1_SERIES_VERSIONS)
 @Tag(name = "Admin Series")
-class SeriesRegistrationVersionAdminController(private val seriesRegistrationVersionService: SeriesRegistrationVersionService) {
+class SeriesRegistrationVersionAdminController(
+    private val seriesRegistrationVersionService: SeriesRegistrationVersionService,
+    private val productRegistrationVersionService: ProductRegistrationVersionService
+) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationVersionAdminController::class.java)
