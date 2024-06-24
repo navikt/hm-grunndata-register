@@ -1,15 +1,29 @@
 package no.nav.hm.grunndata.register.version
 
-val excludedKeys: Set<String> = setOf("updated", "version", "draftStatus", "adminStatus", "countDrafts", "countPending")
+val excludedKeys: Set<String> =
+    setOf(
+        "updated",
+        "version",
+        "draftStatus",
+        "adminStatus",
+        "count",
+        "countDrafts",
+        "countPending",
+        "countPublished",
+        "countDeclined",
+        "published",
+    )
 
 data class MapDifference<K, V>(
     val entriesDiffering: Map<K, Pair<V?, V?>> = emptyMap(),
     val entriesOnlyOnLeft: Map<K, V> = emptyMap(),
-    val entriesOnlyOnRight: Map<K, V> = emptyMap()
+    val entriesOnlyOnRight: Map<K, V> = emptyMap(),
 )
 
-fun <K, V> Map<K, V>.mapDifference(other: Map<K, V>, parentKey: K? = null): MapDifference<K, V> {
-
+fun <K, V> Map<K, V>.mapDifference(
+    other: Map<K, V>,
+    parentKey: K? = null,
+): MapDifference<K, V> {
     val entriesDiffering = mutableMapOf<K, Pair<V?, V?>>()
     val entriesOnlyOnLeft = mutableMapOf<K, V>()
     val entriesOnlyOnRight = mutableMapOf<K, V>()
@@ -27,7 +41,8 @@ fun <K, V> Map<K, V>.mapDifference(other: Map<K, V>, parentKey: K? = null): MapD
                 entriesOnlyOnLeft.putAll(nestedDiff.entriesOnlyOnLeft)
                 entriesOnlyOnRight.putAll(nestedDiff.entriesOnlyOnRight)
             } else if (valueThis != valueOther) {
-                entriesDiffering[if (parentKey != null) "$parentKey.$key" as K else key] = Pair(valueThis as V, valueOther as V)
+                entriesDiffering[if (parentKey != null) "$parentKey.$key" as K else key] =
+                    Pair(valueThis as V, valueOther as V)
             }
         } else {
             entriesOnlyOnLeft[if (parentKey != null) "$parentKey.$key" as K else key] = this[key]!!
@@ -43,31 +58,29 @@ fun <K, V> Map<K, V>.mapDifference(other: Map<K, V>, parentKey: K? = null): MapD
     return MapDifference(
         entriesDiffering = entriesDiffering,
         entriesOnlyOnLeft = entriesOnlyOnLeft,
-        entriesOnlyOnRight = entriesOnlyOnRight
+        entriesOnlyOnRight = entriesOnlyOnRight,
     )
 }
 
-
-data class Difference<K,V>(val status: DiffStatus, val diff: MapDifference<K,V>)
+data class Difference<K, V>(val status: DiffStatus, val diff: MapDifference<K, V>)
 
 enum class DiffStatus {
     NO_DIFF,
     DIFF,
-    NEW
+    NEW,
 }
 
-fun <K, V> Map<K,V>.difference(
-    other: Map<K, V>
-): Difference<K,V> {
+fun <K, V> Map<K, V>.difference(other: Map<K, V>): Difference<K, V> {
     val difference = this.mapDifference(other)
     return Difference(
-        status = when {
-            difference.entriesDiffering.isNotEmpty()
-                    || difference.entriesOnlyOnLeft.isNotEmpty()
-                    || difference.entriesOnlyOnRight.isNotEmpty() -> DiffStatus.DIFF
+        status =
+            when {
+                difference.entriesDiffering.isNotEmpty() ||
+                    difference.entriesOnlyOnLeft.isNotEmpty() ||
+                    difference.entriesOnlyOnRight.isNotEmpty() -> DiffStatus.DIFF
 
-            else -> DiffStatus.NO_DIFF
-        },
-        diff = difference
+                else -> DiffStatus.NO_DIFF
+            },
+        diff = difference,
     )
 }

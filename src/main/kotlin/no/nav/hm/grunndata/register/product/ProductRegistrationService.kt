@@ -124,6 +124,7 @@ open class ProductRegistrationService(
                     series.copy(
                         updated = LocalDateTime.now(),
                         updatedByUser = authentication.name,
+                        updatedBy = REGISTER,
                     )
                 seriesRegistrationRepository.update(updatedSeries)
             }
@@ -168,6 +169,7 @@ open class ProductRegistrationService(
                     series.copy(
                         updated = LocalDateTime.now(),
                         updatedByUser = authentication.name,
+                        updatedBy = REGISTER
                     )
                 seriesRegistrationRepository.update(updatedSeries)
             }
