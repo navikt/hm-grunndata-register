@@ -6,7 +6,11 @@ import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
+import java.time.LocalDateTime
+import java.util.Locale
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.CompatibleWith
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import no.nav.hm.grunndata.rapid.dto.SeriesAttributes
@@ -17,9 +21,6 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.toRapidMediaInfo
-import java.time.LocalDateTime
-import java.util.Locale
-import java.util.UUID
 
 @MappedEntity("series_reg_v1")
 data class SeriesRegistration(
@@ -69,6 +70,7 @@ data class SeriesDataDTO(
 data class SeriesAttributesDTO(
     val keywords: List<String>? = null,
     val url: String? = null,
+    val compatibleWith: CompatibleWith? = null,
 )
 
 data class SeriesRegistrationDTO(
@@ -198,5 +200,7 @@ fun SeriesRegistrationDTO.toEntity() =
 fun SeriesDataDTO.toRapidDTO() =
     SeriesData(
         media = media.map { it.toRapidMediaInfo() }.toSet(),
-        attributes = SeriesAttributes(keywords = attributes.keywords?.toSet(), url = attributes.url),
+        attributes = SeriesAttributes(keywords = attributes.keywords?.toSet(),
+            url = attributes.url, compatibleWith = attributes.compatibleWith
+        )
     )
