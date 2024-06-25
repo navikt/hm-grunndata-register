@@ -3,13 +3,14 @@ package no.nav.hm.grunndata.register.productagreement
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import jakarta.persistence.Column
+import java.time.LocalDateTime
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AgreementInfo
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementRegistrationRapidDTO
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
+import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
-import java.time.LocalDateTime
-import java.util.*
 
 
 @MappedEntity("product_agreement_reg_v1")
@@ -31,6 +32,7 @@ data class ProductAgreementRegistration(
     val postId: UUID?,
     val status: ProductAgreementStatus = ProductAgreementStatus.ACTIVE,
     val createdBy: String,
+    val updatedBy: String = REGISTER,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime = LocalDateTime.now(),
@@ -52,6 +54,7 @@ data class ProductAgreementRegistrationDTO(
     val postId: UUID?,
     val status: ProductAgreementStatus = ProductAgreementStatus.ACTIVE,
     val createdBy: String = ProductAgreementImportExcelService.EXCEL,
+    val updatedBy: String = REGISTER,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime,
@@ -89,7 +92,8 @@ fun ProductAgreementRegistrationDTO.toEntity(): ProductAgreementRegistration {
         created = created,
         updated = updated,
         published = published,
-        expired = expired
+        expired = expired,
+        updatedBy = updatedBy
     )
 }
 
@@ -115,7 +119,8 @@ fun ProductAgreementRegistration.toDTO(): ProductAgreementRegistrationDTO {
         created = created,
         updated = updated,
         published = published,
-        expired = expired
+        expired = expired,
+        updatedBy = updatedBy
     )
 }
 

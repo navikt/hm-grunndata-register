@@ -3,14 +3,15 @@ package no.nav.hm.grunndata.register.productagreement
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
+import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.DelkontraktData
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService.Companion.EXCEL
 import org.junit.jupiter.api.Test
-import java.util.*
 
 @MicronautTest
 class ProductAgreementRegistrationRepositoryTest(
@@ -56,6 +57,7 @@ class ProductAgreementRegistrationRepositoryTest(
             found.shouldNotBeNull()
             found.agreementId shouldBe saved.agreementId
             found.createdBy shouldBe EXCEL
+            found.updatedBy shouldBe REGISTER
             found.title shouldBe "Test product agreement"
             found.status shouldBe ProductAgreementStatus.ACTIVE
             found.postId shouldBe postId

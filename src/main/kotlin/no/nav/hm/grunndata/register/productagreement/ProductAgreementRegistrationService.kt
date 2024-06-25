@@ -2,12 +2,13 @@ package no.nav.hm.grunndata.register.productagreement
 
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import java.time.LocalDateTime
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.event.EventName
+import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
-import java.time.LocalDateTime
-import java.util.*
 
 @Singleton
 open class ProductAgreementRegistrationService(
@@ -81,6 +82,7 @@ open class ProductAgreementRegistrationService(
                         published = productAgreement.published,
                         expired = productAgreement.expired,
                         rank = productAgreement.rank,
+                        updatedBy = REGISTER
                     ),
                     true,
                 )
@@ -227,6 +229,8 @@ open class ProductAgreementRegistrationService(
                 saved,
                 eventName = EventName.registeredProductAgreementV1,
             )
+        } else {
+            LOG.info("This product does not have a product id, will not create event")
         }
         return saved
     }

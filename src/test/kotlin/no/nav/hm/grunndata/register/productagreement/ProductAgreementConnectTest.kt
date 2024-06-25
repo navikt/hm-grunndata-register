@@ -5,6 +5,8 @@ import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
+import java.time.LocalDateTime
+import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.Attributes
@@ -13,6 +15,7 @@ import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
+import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.DelkontraktData
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationService
@@ -22,8 +25,6 @@ import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
-import java.util.*
 
 @MicronautTest
 class ProductAgreementConnectTest(
@@ -120,6 +121,7 @@ class ProductAgreementConnectTest(
                 productId = null,
                 published = LocalDateTime.now(),
                 status = ProductAgreementStatus.ACTIVE,
+                updatedBy = REGISTER
             )
         runBlocking {
             val savedDelkontrakt = delkontraktRegistrationService.save(delkontraktToSave)

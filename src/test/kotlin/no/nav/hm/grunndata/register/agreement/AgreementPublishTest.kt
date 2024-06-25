@@ -6,19 +6,20 @@ import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
+import java.time.LocalDateTime
+import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
+import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
-import java.util.*
 
 @MicronautTest
 class AgreementPublishTest(private val agreementPublish: AgreementPublish,
@@ -98,6 +99,7 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                 hmsArtNr = "12345",
                 supplierId = supplier.id,
                 supplierRef = "12345",
+                updatedBy = REGISTER
             )
 
             val productAgreement2 = ProductAgreementRegistrationDTO(
@@ -115,7 +117,8 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                 createdBy = "tester",
                 hmsArtNr = "123456",
                 supplierId = supplier.id,
-                supplierRef = "123456"
+                supplierRef = "123456",
+                updatedBy = REGISTER
             )
 
 

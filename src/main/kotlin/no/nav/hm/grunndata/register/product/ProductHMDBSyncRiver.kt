@@ -183,6 +183,7 @@ class ProductHMDBSyncRiver(
                             created = dto.created,
                             updated = dto.updated,
                             createdBy = dto.createdBy,
+                            updatedBy = dto.updatedBy,
                             published = agreement.published,
                             status = if (agreement.agreementStatus == AgreementStatus.ACTIVE)
                                 ProductAgreementStatus.ACTIVE else ProductAgreementStatus.INACTIVE

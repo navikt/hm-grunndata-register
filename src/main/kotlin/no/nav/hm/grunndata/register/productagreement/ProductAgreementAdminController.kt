@@ -12,15 +12,16 @@ import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import java.time.LocalDateTime
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
+import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
-import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
@@ -176,6 +177,7 @@ class ProductAgreementAdminController(
                 articleName = product.articleName,
                 title = regDTO.title,
                 reference = agreement.reference,
+                updatedBy = REGISTER
             ),
             isUpdate = false,
         )
@@ -226,7 +228,8 @@ class ProductAgreementAdminController(
                 it.copy(
                     status = ProductAgreementStatus.DELETED,
                     updated = LocalDateTime.now(),
-                    expired = LocalDateTime.now()
+                    expired = LocalDateTime.now(),
+                    updatedBy = REGISTER
                 ),
                 isUpdate = true,
             )
@@ -249,7 +252,8 @@ class ProductAgreementAdminController(
                 productAgreementRegistrationService.saveAndCreateEvent(
                     it.copy(status = ProductAgreementStatus.DELETED,
                         updated = LocalDateTime.now(),
-                        expired = LocalDateTime.now()
+                        expired = LocalDateTime.now(),
+                        updatedBy = REGISTER
                     ),
                     isUpdate = true,
                 )

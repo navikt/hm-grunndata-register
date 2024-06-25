@@ -1,6 +1,8 @@
 package no.nav.hm.grunndata.register.productagreement
 
 import jakarta.inject.Singleton
+import java.io.InputStream
+import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
@@ -26,8 +28,6 @@ import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.slf4j.LoggerFactory
-import java.io.InputStream
-import java.util.UUID
 
 @Singleton
 class ProductAgreementImportExcelService(
@@ -93,6 +93,7 @@ class ProductAgreementImportExcelService(
                 supplierId = supplierId,
                 published = agreement.published,
                 expired = agreement.expired,
+                updatedBy = EXCEL,
             )
         }
     }

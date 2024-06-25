@@ -1,0 +1,1 @@
+ALTER TABLE product_agreement_reg_v1 ADD COLUMN updated_by VARCHAR(64) not null default 'HMDB';

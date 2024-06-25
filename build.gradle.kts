@@ -12,7 +12,7 @@ val mockkVersion = "1.13.4"
 val kotestVersion = "5.5.5"
 val poiVersion = "5.2.5"
 val rapidsRiversVersion = "202401101532"
-val grunndataDtoVersion = "202406210854"
+val grunndataDtoVersion = "202406251104"
 val microsoftGrapVersion = "5.77.0"
 
 group = "no.nav.hm"
