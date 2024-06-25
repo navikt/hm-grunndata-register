@@ -170,9 +170,8 @@ open class SeriesRegistrationService(
             )
 
         val variantsToUpdate =
-            productRegistrationService.findAllBySeriesUUIDAndAdminStatusAndDraftStatusAndRegistrationStatus(
+            productRegistrationService.findAllBySeriesUUIDAndDraftStatusAndRegistrationStatus(
                 seriesToUpdate.id,
-                AdminStatus.APPROVED,
                 DraftStatus.DONE,
                 RegistrationStatus.ACTIVE,
             ).map {

@@ -65,6 +65,12 @@ interface ProductRegistrationRepository :
         registrationStatus: RegistrationStatus,
     ): List<ProductRegistration>
 
+    suspend fun findAllBySeriesUUIDAndDraftStatusAndRegistrationStatus(
+        seriesUUID: UUID,
+        draftStatus: DraftStatus,
+        registrationStatus: RegistrationStatus,
+    ): List<ProductRegistration>
+
     suspend fun findBySeriesUUID(seriesUUID: UUID): ProductRegistration?
 
     suspend fun findByRegistrationStatusAndExpiredBefore(

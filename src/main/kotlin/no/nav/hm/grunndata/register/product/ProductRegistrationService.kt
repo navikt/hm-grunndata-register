@@ -169,7 +169,7 @@ open class ProductRegistrationService(
                     series.copy(
                         updated = LocalDateTime.now(),
                         updatedByUser = authentication.name,
-                        updatedBy = REGISTER
+                        updatedBy = REGISTER,
                     )
                 seriesRegistrationRepository.update(updatedSeries)
             }
@@ -585,6 +585,17 @@ open class ProductRegistrationService(
         productRegistrationRepository.findAllBySeriesUUIDAndAdminStatusAndDraftStatusAndRegistrationStatus(
             seriesUUID,
             adminStatus,
+            draftStatus,
+            registrationStatus,
+        ).map { it.toDTO() }
+
+    suspend fun findAllBySeriesUUIDAndDraftStatusAndRegistrationStatus(
+        seriesUUID: UUID,
+        draftStatus: DraftStatus,
+        registrationStatus: RegistrationStatus,
+    ): List<ProductRegistrationDTO> =
+        productRegistrationRepository.findAllBySeriesUUIDAndDraftStatusAndRegistrationStatus(
+            seriesUUID,
             draftStatus,
             registrationStatus,
         ).map { it.toDTO() }
