@@ -68,6 +68,9 @@ open class SeriesRegistrationService(
         supplierId: UUID,
     ): SeriesRegistrationDTO? = seriesRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.toDTO()
 
+    suspend fun findBySupplierId(supplierId: UUID): List<SeriesRegistrationDTO> =
+        seriesRegistrationRepository.findBySupplierId(supplierId).map { it.toDTO() }
+
     suspend fun createDraftWith(
         supplierId: UUID,
         authentication: Authentication,

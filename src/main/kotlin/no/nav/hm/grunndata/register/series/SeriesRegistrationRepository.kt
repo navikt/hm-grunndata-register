@@ -34,6 +34,8 @@ interface SeriesRegistrationRepository :
     @Query("SELECT a.* from series_reg_v1 a LEFT JOIN product_reg_v1 b on a.id = b.series_uuid where b.series_uuid is null")
     suspend fun findSeriesThatDoesNotHaveProducts(): List<SeriesRegistration>
 
+    suspend fun findBySupplierId(supplierId: UUID): List<SeriesRegistration>
+
     suspend fun findByIdAndSupplierId(
         id: UUID,
         supplierId: UUID,

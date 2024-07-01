@@ -58,6 +58,8 @@ spec:
       value: "8080"
     - name: JAVA_OPTS
       value: "{{ java_opts }}"
+    - name: BASEVERSION_SCHEDULER_ENABLED
+      value: "{{ baseversion_scheduler_enabled }}"
   gcp:
     sqlInstances:
       - name: hm-grunndata-register
