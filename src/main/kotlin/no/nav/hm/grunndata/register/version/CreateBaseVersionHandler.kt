@@ -18,7 +18,7 @@ import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.slf4j.LoggerFactory
 
 @Singleton
-class CreateBaseVersionHandler(
+open class CreateBaseVersionHandler(
     private val supplierRegistrationService: SupplierRegistrationService,
     private val productRegistrationService: ProductRegistrationService,
     private val seriesRegistrationService: SeriesRegistrationService,
@@ -33,7 +33,7 @@ class CreateBaseVersionHandler(
     }
 
     @Transactional
-    suspend fun createVersionsWhereMissingForMigratedSuppliers() {
+    suspend open fun createVersionsWhereMissingForMigratedSuppliers() {
         LOG.info("Creating base versions for migrated suppliers")
         suppliersInRegister.forEach {
             val supplier = supplierRegistrationService.findByIdentifier(it)
