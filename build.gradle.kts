@@ -19,8 +19,8 @@ group = "no.nav.hm"
 version = properties["version"] ?: "local-build"
 
 plugins {
-    kotlin("jvm") version "1.9.20"
-    kotlin("kapt") version "1.9.20"
+    kotlin("jvm") version "1.9.21"
+    kotlin("kapt") version "1.9.21"
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("io.micronaut.application") version "4.4.0"
