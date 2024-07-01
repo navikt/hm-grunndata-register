@@ -44,6 +44,7 @@ data class ProductAgreementRegistrationDTO(
     val seriesUuid: UUID?,
     val title: String,
     val articleName: String?,
+    val articleType: String,
     val supplierId: UUID,
     val supplierRef: String,
     val hmsArtNr: String?,

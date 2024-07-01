@@ -15,6 +15,7 @@ import no.nav.hm.grunndata.register.productagreement.ColumnNames.beskrivelse
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.datofom
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.datotom
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.delkontraktnummer
+import no.nav.hm.grunndata.register.productagreement.ColumnNames.funksjonsendring
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.hms_ArtNr
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.kategori
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.leverandorfirmanavn
@@ -41,7 +42,7 @@ class ProductAgreementImportExcelService(
     }
 
     suspend fun importExcelFile(inputStream: InputStream): List<ProductAgreementRegistrationDTO> {
-        LOG.info("Reading xls file using Apache POI")
+        LOG.info("Reading xls file")
         val workbook = WorkbookFactory.create(inputStream)
         val productAgreementList = readProductData(workbook)
         workbook.close()
@@ -155,6 +156,7 @@ class ProductAgreementImportExcelService(
                 dateFrom = row.getCell(columnMap[datofom.column]!!).toString().trim(),
                 dateTo = row.getCell(columnMap[datotom.column]!!).toString().trim(),
                 articleType = type,
+                funksjonsendring = row.getCell(columnMap[funksjonsendring.column]!!).toString().trim(),
                 forChildren = row.getCell(columnMap[malgruppebarn.column]!!).toString().trim(),
                 supplierName = row.getCell(columnMap[leverandorfirmanavn.column]!!).toString().trim(),
                 supplierCity = row.getCell(columnMap[leverandorsted.column]!!).toString().trim(),
@@ -189,6 +191,7 @@ enum class ColumnNames(val column: String) {
     datofom("Datofom"),
     datotom("Datotom"),
     malTypeartikkel("MalTypeartikkel"),
+    funksjonsendring("Funksjonsendring"),
     malgruppebarn("Målgruppebarn"),
     leverandorfirmanavn("LeverandørFirmanavn"),
     leverandorsted("Leverandørsted"),
@@ -204,6 +207,7 @@ data class ProductAgreementExcelDTO(
     val dateFrom: String,
     val dateTo: String,
     val articleType: String,
+    val funksjonsendring: String,
     val forChildren: String,
     val supplierName: String,
     val supplierCity: String,
