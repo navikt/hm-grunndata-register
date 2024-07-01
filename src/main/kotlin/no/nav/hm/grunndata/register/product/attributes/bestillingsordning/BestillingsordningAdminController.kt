@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.bestillingsordning
+package no.nav.hm.grunndata.register.product.attributes.bestillingsordning
 
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory
 @Controller(BestillingsordningAdminController.API_V1_ADMIN_BESTILLINGSORDNING_REGISTRATIONS)
 @Secured(Roles.ROLE_ADMIN)
 @Tag(name="Admin Bestillingsordning")
-class BestillingsordningAdminController(private val bestillingsordningService: BestillingsordningService ) {
+class BestillingsordningAdminController(private val bestillingsordningService: BestillingsordningService) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(BestillingsordningAdminController::class.java)

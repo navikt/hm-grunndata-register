@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.bestillingsordning
+package no.nav.hm.grunndata.register.product.attributes.bestillingsordning
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory
 import java.net.URL
 import java.time.LocalDateTime
 
-
 data class BestillingsordningDTO(
     val hmsnr: String,
     val navn: String
@@ -23,7 +22,8 @@ open class BestillingsordningService(
     private val url : String,
     private val objectMapper: ObjectMapper,
     private val bestillingsordningRegistrationRepository: BestillingsordningRegistrationRepository,
-    private val bestillingsordningEventHandler: BestillingsordningEventHandler) {
+    private val bestillingsordningEventHandler: BestillingsordningEventHandler
+) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(BestillingsordningService::class.java)
@@ -32,9 +32,7 @@ open class BestillingsordningService(
     private var boMap: Map<String, BestillingsordningDTO> =
         objectMapper.readValue(URL(url), object : TypeReference<List<BestillingsordningDTO>>(){}).associateBy { it.hmsnr }
 
-
     suspend fun findByHmsArtNr(hmsArtNr: String): BestillingsordningRegistrationDTO? = bestillingsordningRegistrationRepository.findByHmsArtNr(hmsArtNr)?.toDTO()
-
 
     suspend fun importAndUpdateDb() {
         boMap = objectMapper.readValue(URL(url), object : TypeReference<List<BestillingsordningDTO>>(){}).associateBy { it.hmsnr }

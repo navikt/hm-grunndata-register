@@ -35,6 +35,7 @@ enum class EventItemType {
     SUPPLIER,
     PRODUCTAGREEMENT,
     BESTILLINGSORDNING,
+    DIGITALSOKNAD,
     NEWS
 }
 
