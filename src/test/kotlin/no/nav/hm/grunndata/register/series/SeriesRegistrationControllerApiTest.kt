@@ -9,6 +9,7 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.Attributes
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
@@ -36,7 +37,6 @@ import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
-import java.util.UUID
 
 @MicronautTest
 class SeriesRegistrationControllerApiTest(
@@ -160,8 +160,6 @@ class SeriesRegistrationControllerApiTest(
                             shortdescription = "En kort beskrivelse av produktet",
                             text = "En lang beskrivelse av produktet",
                         ),
-                    accessory = false,
-                    sparePart = false,
                     techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
                     media =
                         setOf(

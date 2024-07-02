@@ -6,6 +6,8 @@ import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
 import jakarta.persistence.Column
+import java.time.LocalDateTime
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.AgreementInfo
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
@@ -20,8 +22,6 @@ import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
-import java.time.LocalDateTime
-import java.util.*
 
 @MappedEntity("product_reg_v1")
 data class ProductRegistration(
@@ -39,6 +39,8 @@ data class ProductRegistration(
     @Deprecated("Use series title instead")
     val title: String = "Use series title",
     val articleName: String,
+    val accessory: Boolean = false,
+    val sparePart: Boolean = false,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val adminStatus: AdminStatus = AdminStatus.PENDING,
     val registrationStatus: RegistrationStatus = RegistrationStatus.ACTIVE,
@@ -88,6 +90,8 @@ data class ProductRegistrationDTO(
     @Deprecated("Use series title instead")
     val title: String="Use series title",
     val articleName: String,
+    val accessory: Boolean = false,
+    val sparePart: Boolean = false,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val adminStatus: AdminStatus = AdminStatus.PENDING,
     val registrationStatus: RegistrationStatus = RegistrationStatus.ACTIVE,
@@ -141,8 +145,8 @@ data class ProductRegistrationDTO(
             hmsArtNr = registration.hmsArtNr,
             identifier = registration.id.toString(),
             isoCategory = registration.isoCategory,
-            accessory = accessory,
-            sparePart = sparePart,
+            accessory = registration.accessory,
+            sparePart = registration.sparePart,
             seriesUUID = registration.seriesUUID,
             seriesId = registration.seriesId,
             techData = techData,
@@ -200,6 +204,8 @@ fun ProductRegistrationDTO.toEntity(): ProductRegistration =
         productData = productData,
         isoCategory = isoCategory,
         version = version,
+        sparePart = sparePart,
+        accessory = accessory
     )
 
 

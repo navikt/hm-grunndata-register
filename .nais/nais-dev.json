@@ -11,5 +11,5 @@
   "schedulers_enabled": true,
   "import_autoapprove": true,
   "java_opts": "-Xms128m -Xmx1024m -XX:+UseG1GC",
-  "baseversion_scheduler_enabled": true
+  "baseversion_scheduler_enabled": false
 }

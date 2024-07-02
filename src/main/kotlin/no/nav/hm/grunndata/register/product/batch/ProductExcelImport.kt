@@ -1,6 +1,8 @@
 package no.nav.hm.grunndata.register.product.batch
 
 import jakarta.inject.Singleton
+import java.io.InputStream
+import java.util.UUID
 import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.Attributes
@@ -17,8 +19,6 @@ import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.ss.usermodel.WorkbookFactory
-import java.io.InputStream
-import java.util.*
 
 @Singleton
 class ProductExcelImport(private val labelService: LabelService) {
@@ -157,6 +157,8 @@ fun ProductRegistrationExcelDTO.toRegistrationDTO(): ProductRegistrationDTO {
         title = produktseriesnavn,
         articleName = produktnavn ?: produktseriesnavn ?: "",
         isoCategory = isoCategory,
+        sparePart = false,
+        accessory = false,
         productData =
             ProductData(
                 attributes =

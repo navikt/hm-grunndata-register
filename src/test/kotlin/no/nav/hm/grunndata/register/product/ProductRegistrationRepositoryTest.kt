@@ -6,6 +6,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.data.model.Pageable
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.Attributes
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
@@ -20,7 +21,6 @@ import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistratio
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import org.junit.jupiter.api.Test
-import java.util.*
 
 @MicronautTest
 class ProductRegistrationRepositoryTest(
@@ -39,8 +39,6 @@ class ProductRegistrationRepositoryTest(
                         shortdescription = "En kort beskrivelse av produktet",
                         text = "En lang beskrivelse av produktet",
                     ),
-                accessory = false,
-                sparePart = false,
                 techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
                 media =
                     setOf(
@@ -80,6 +78,8 @@ class ProductRegistrationRepositoryTest(
                 updatedByUser = "user",
                 createdByUser = "user",
                 version = 1,
+                accessory = true,
+                sparePart = false
             )
         val agreementId = UUID.randomUUID()
         val postId = UUID.randomUUID()
@@ -163,6 +163,8 @@ class ProductRegistrationRepositoryTest(
             saved.shouldNotBeNull()
             val inDb = productRegistrationRepository.findById(saved.id)
             inDb.shouldNotBeNull()
+            inDb.accessory shouldBe true
+            inDb.sparePart shouldBe false
             saved.hmsArtNr shouldBe inDb.hmsArtNr
             val approve = inDb.approve("NAVN1")
             val updated = productRegistrationRepository.update(approve)

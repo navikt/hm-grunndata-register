@@ -93,6 +93,8 @@ class ProductHMDBSyncRiver(
                     published = dto.published,
                     title = dto.title,
                     articleName = dto.articleName,
+                    sparePart = dto.sparePart,
+                    accessory = dto.accessory,
                     productData = dto.toProductData()
                 )
             )
