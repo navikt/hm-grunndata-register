@@ -2,19 +2,20 @@ package no.nav.hm.grunndata.register.product.attributes.digitalsoknad
 
 import io.micronaut.data.annotation.MappedEntity
 import jakarta.persistence.Id
-import no.nav.hm.grunndata.rapid.dto.DigitalSoknadRegistrationRapidDTO
-import no.nav.hm.grunndata.rapid.dto.DigitalSoknadStatus
+import no.nav.hm.grunndata.rapid.dto.DigitalSoknadSortimentRegistrationRapidDTO
+import no.nav.hm.grunndata.rapid.dto.DigitalSoknadSortimentStatus
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import no.nav.hm.grunndata.register.event.EventPayload
 import java.time.LocalDateTime
 import java.util.*
 
-@MappedEntity("digitalsoknad_reg_v1")
-data class DigitalSoknadRegistration(
+@MappedEntity("digitalsoknadsortiment_reg_v1")
+data class DigitalSoknadSortimentRegistration(
     @field:Id
     val id: UUID = UUID.randomUUID(),
-    val hmsArtNr: String,
-    val status: DigitalSoknadStatus = DigitalSoknadStatus.ACTIVE,
+    val sortimentKategori: String,
+    val postId: UUID,
+    val status: DigitalSoknadSortimentStatus = DigitalSoknadSortimentStatus.ACTIVE,
     val updatedByUser: String = "system",
     val createdByUser: String = "system",
     val created: LocalDateTime = LocalDateTime.now(),
@@ -22,26 +23,28 @@ data class DigitalSoknadRegistration(
     val deactivated: LocalDateTime? = null
 )
 
-data class DigitalSoknadRegistrationDTO(
+data class DigitalSoknadSortimentRegistrationDTO(
     override val id: UUID = UUID.randomUUID(),
-    val hmsArtNr: String,
-    val status: DigitalSoknadStatus = DigitalSoknadStatus.ACTIVE,
+    val sortimentKategori: String,
+    val postId: UUID,
+    val status: DigitalSoknadSortimentStatus = DigitalSoknadSortimentStatus.ACTIVE,
     override val updatedByUser: String = "system",
     val createdByUser: String = "system",
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val deactivated: LocalDateTime? = null
 ): EventPayload {
-    override fun toRapidDTO(): RapidDTO = DigitalSoknadRegistrationRapidDTO(
-        id = id, hmsArtNr = hmsArtNr, status = status,
+    override fun toRapidDTO(): RapidDTO = DigitalSoknadSortimentRegistrationRapidDTO(
+        id = id, sortimentKategori = sortimentKategori, postId = postId, status = status,
         updatedByUser = updatedByUser, createdByUser = createdByUser, created = created, updated = updated,
         deactivated = deactivated
     )
 }
 
-fun DigitalSoknadRegistration.toDTO(): DigitalSoknadRegistrationDTO = DigitalSoknadRegistrationDTO(
+fun DigitalSoknadSortimentRegistration.toDTO(): DigitalSoknadSortimentRegistrationDTO = DigitalSoknadSortimentRegistrationDTO(
     id = id,
-    hmsArtNr = hmsArtNr,
+    sortimentKategori = sortimentKategori,
+    postId = postId,
     status = status,
     updatedByUser = updatedByUser,
     createdByUser = createdByUser,
@@ -50,9 +53,10 @@ fun DigitalSoknadRegistration.toDTO(): DigitalSoknadRegistrationDTO = DigitalSok
     deactivated = deactivated,
 )
 
-fun DigitalSoknadRegistrationDTO.toEntity(): DigitalSoknadRegistration = DigitalSoknadRegistration(
+fun DigitalSoknadSortimentRegistrationDTO.toEntity(): DigitalSoknadSortimentRegistration = DigitalSoknadSortimentRegistration(
     id = id,
-    hmsArtNr = hmsArtNr,
+    sortimentKategori = sortimentKategori,
+    postId = postId,
     status = status,
     updatedByUser = updatedByUser,
     createdByUser = createdByUser,

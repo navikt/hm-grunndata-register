@@ -8,14 +8,14 @@ import no.nav.hm.grunndata.register.leaderelection.LeaderOnly
 
 @Singleton
 @Requires(property = "schedulers.enabled", value = "true")
-open class DigitalSoknadScheduler(private val digitalSoknadService: DigitalSoknadService) {
+open class DigitalSoknadSortimentScheduler(private val digitalSoknadService: DigitalSoknadSortimentService) {
     companion object {
-        private val LOG = org.slf4j.LoggerFactory.getLogger(DigitalSoknadScheduler::class.java)
+        private val LOG = org.slf4j.LoggerFactory.getLogger(DigitalSoknadSortimentScheduler::class.java)
     }
 
     @LeaderOnly
     @Scheduled(cron = "0 1 1 * * *")
-    open fun importAndUpdateDigitalSoknad() {
+    open fun importAndUpdateDigitalSoknadSortiment() {
         LOG.info("Running digital soknad scheduler")
         runBlocking {
             digitalSoknadService.importAndUpdateDb()

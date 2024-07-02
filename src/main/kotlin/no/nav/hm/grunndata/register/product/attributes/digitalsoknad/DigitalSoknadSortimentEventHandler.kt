@@ -9,11 +9,11 @@ import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.event.RegisterRapidPushService
 
 @Singleton
-class DigitalSoknadEventHandler(
+class DigitalSoknadSortimentEventHandler(
     private val registerRapidPushService: RegisterRapidPushService,
     private val objectMapper: ObjectMapper,
     private val eventItemService: EventItemService
 ) : DefaultEventHandler(eventItemService, objectMapper, registerRapidPushService) {
     override fun getEventType(): EventItemType = EventItemType.DIGITALSOKNAD
-    override fun getEventPayloadClass(): Class<out EventPayload> = DigitalSoknadRegistrationDTO::class.java
+    override fun getEventPayloadClass(): Class<out EventPayload> = DigitalSoknadSortimentRegistrationDTO::class.java
 }
