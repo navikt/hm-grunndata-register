@@ -32,8 +32,6 @@ class ProductExpirePublishHandlerTest(
                     shortdescription = "En kort beskrivelse av produktet",
                     text = "En lang beskrivelse av produktet",
                 ),
-                accessory = false,
-                sparePart = false,
                 techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
                 media =
                 setOf(

@@ -8,6 +8,8 @@ import io.micronaut.data.runtime.criteria.where
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import java.time.LocalDateTime
+import java.util.UUID
 import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.AgreementInfo
@@ -30,8 +32,6 @@ import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
-import java.util.*
 
 @Singleton
 open class ProductRegistrationService(
@@ -334,8 +334,6 @@ open class ProductRegistrationService(
         val productId = UUID.randomUUID()
         val product =
             ProductData(
-                accessory = isAccessory,
-                sparePart = isSparePart,
                 attributes =
                     Attributes(
                         shortdescription = "",
@@ -364,6 +362,8 @@ open class ProductRegistrationService(
                 createdByAdmin = authentication.isAdmin(),
                 agreements = emptyList(),
                 version = 0,
+                sparePart = false,
+                accessory = false,
             )
         val draft = save(registration)
         LOG.info("Draft was created ${draft.id} by $supplierId")
@@ -380,8 +380,6 @@ open class ProductRegistrationService(
         val productId = UUID.randomUUID()
         val product =
             ProductData(
-                accessory = isAccessory,
-                sparePart = isSparePart,
                 techData = createTechDataDraft(draftWithDTO),
                 attributes =
                     Attributes(
@@ -411,6 +409,8 @@ open class ProductRegistrationService(
                 agreements = emptyList(),
                 createdByAdmin = authentication.isAdmin(),
                 version = 0,
+                accessory = false,
+                sparePart = false
             )
         val draft = save(registration)
         LOG.info("Draft was created ${draft.id} by $supplierId")
@@ -431,8 +431,6 @@ open class ProductRegistrationService(
         val productId = UUID.randomUUID()
         val product =
             ProductData(
-                accessory = false,
-                sparePart = false,
                 techData =
                     previousProduct?.productData?.techData ?: createTechDataDraft(series.isoCategory),
                 attributes =
@@ -462,6 +460,8 @@ open class ProductRegistrationService(
                 agreements = emptyList(),
                 createdByAdmin = authentication.isAdmin(),
                 version = 0,
+                accessory = false,
+                sparePart = false
             )
         val draft = save(registration)
         LOG.info("Draft was created ${draft.id}")
@@ -524,6 +524,8 @@ open class ProductRegistrationService(
             updatedBy = updatedBy,
             createdByAdmin = createdByAdmin,
             productData = productData,
+            sparePart = sparePart,
+            accessory = accessory,
             isoCategory = isoCategory,
             agreements = agreeements.map { it.toAgreementInfo() },
             version = version,

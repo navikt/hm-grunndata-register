@@ -7,6 +7,8 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
+import java.time.LocalDateTime
+import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.AgreementDTO
@@ -37,8 +39,6 @@ import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
-import java.util.*
 
 @MicronautTest
 class ProductRegistrationAdminApiTest(private val apiClient: ProductRegistrationAdminApiClient,
@@ -162,8 +162,6 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductRegistration
                 shortdescription = "En kort beskrivelse av produktet",
                 text = "En lang beskrivelse av produktet"
             ),
-            accessory = false,
-            sparePart = false,
             techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
             media = setOf(
                 MediaInfoDTO(

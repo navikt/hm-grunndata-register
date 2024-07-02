@@ -33,9 +33,12 @@ open class CreateBaseVersionHandler(
     }
 
     @Transactional
-    suspend open fun createVersionsWhereMissingForMigratedSuppliers() {
+    open suspend fun createVersionsWhereMissingForMigratedSuppliers() {
         LOG.info("Creating base versions for migrated suppliers")
         suppliersInRegister.forEach {
+            var countSeriesBaseVersionsCreated = 0
+            var countProductVersionsCreated = 0
+
             val supplier = supplierRegistrationService.findByIdentifier(it)
             val seriesList =
                 supplier?.let { s ->
@@ -50,10 +53,11 @@ open class CreateBaseVersionHandler(
                     seriesRegistrationVersionService.findBySeriesIdAndVersion(series.id, series.version ?: 0)
                 if (seriesVersion == null) {
                     seriesRegistrationVersionService.save(series.toVersion())
+                    countSeriesBaseVersionsCreated++
                 }
             }
 
-            LOG.info("Created base version for ${seriesList.size} series for supplier $it")
+            LOG.info("Created base version for $countSeriesBaseVersionsCreated series for supplier $it")
 
             val products =
                 supplier?.let { s -> productRegistrationService.findBySupplierId(s.id) }?.filter { product ->
@@ -66,10 +70,11 @@ open class CreateBaseVersionHandler(
                     productRegistrationVersionService.findByProductIdAndVersion(product.id, product.version ?: 0)
                 if (productVersion == null) {
                     productRegistrationVersionService.save(product.toVersion())
+                    countProductVersionsCreated++
                 }
             }
 
-            LOG.info("Created base version for ${products.size} products for supplier $it")
+            LOG.info("Created base version for $countProductVersionsCreated products for supplier $it")
         }
     }
 

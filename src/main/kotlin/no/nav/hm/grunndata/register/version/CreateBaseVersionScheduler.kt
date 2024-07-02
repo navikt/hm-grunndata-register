@@ -15,7 +15,7 @@ open class CreateBaseVersionScheduler(private val createBaseVersionHandler: Crea
     }
 
     @LeaderOnly
-    @Scheduled(fixedDelay = "10m")
+    @Scheduled(fixedDelay = "4m")
     open fun scheduleProductExpirePublish() =
         runBlocking {
             LOG.info("Running ProductExpirePublishScheduler")

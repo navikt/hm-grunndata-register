@@ -8,6 +8,8 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
+import java.time.LocalDateTime
+import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.AgreementInfo
@@ -34,8 +36,6 @@ import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.time.LocalDateTime
-import java.util.UUID
 
 @MicronautTest
 class ProductRegistrationApiTest(
@@ -225,8 +225,6 @@ class ProductRegistrationApiTest(
                         shortdescription = "En kort beskrivelse av produktet",
                         text = "En lang beskrivelse av produktet",
                     ),
-                accessory = false,
-                sparePart = false,
                 techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
                 media =
                     setOf(
@@ -267,8 +265,6 @@ class ProductRegistrationApiTest(
                         shortdescription = "En kort beskrivelse av produktet",
                         text = "En lang beskrivelse av produktet",
                     ),
-                accessory = false,
-                sparePart = false,
                 techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
                 media =
                     setOf(
@@ -326,8 +322,6 @@ class ProductRegistrationApiTest(
                         shortdescription = "En kort beskrivelse av produktet",
                         text = "En lang beskrivelse av produktet",
                     ),
-                accessory = false,
-                sparePart = false,
                 techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
                 media =
                     setOf(
@@ -392,8 +386,6 @@ class ProductRegistrationApiTest(
                         shortdescription = "En kort beskrivelse av produktet",
                         text = "En lang beskrivelse av produktet",
                     ),
-                accessory = false,
-                sparePart = false,
             ),
         agreements: List<AgreementInfo> = emptyList(),
         version: Long? = 1,
