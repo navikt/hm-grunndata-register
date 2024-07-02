@@ -1,18 +1,16 @@
 package no.nav.hm.grunndata.register.product
 
+import java.time.LocalDateTime
 import no.nav.hm.grunndata.rapid.dto.Attributes
 import no.nav.hm.grunndata.rapid.dto.MediaInfo
 import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.ProductRapidDTO
 import no.nav.hm.grunndata.rapid.dto.TechData
-import java.time.LocalDateTime
 
 
 data class ProductData (
     val attributes: Attributes = Attributes(),
-    val accessory: Boolean = false,
-    val sparePart: Boolean = false,
     val techData: List<TechData> = emptyList(),
     @Deprecated("Use series media instead")
     val media: Set<MediaInfoDTO> = emptySet(),
@@ -23,8 +21,6 @@ data class ProductData (
 
 
 fun ProductRapidDTO.toProductData(): ProductData = ProductData (
-    accessory = accessory,
-    sparePart = sparePart,
     techData = techData,
     media = media.map { it.toMediaInfo() }.toSet(),
     attributes = attributes,

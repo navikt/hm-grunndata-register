@@ -4,18 +4,27 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.context.annotation.Context
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.annotation.Value
+import java.time.LocalDateTime
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.JsonMessage
 import no.nav.helse.rapids_rivers.KafkaRapid
 import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
-import no.nav.hm.grunndata.rapid.dto.*
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.ProductImportRapidDTO
+import no.nav.hm.grunndata.rapid.dto.ProductStatus
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
-import no.nav.hm.grunndata.register.product.*
+import no.nav.hm.grunndata.register.product.AdminInfo
+import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
+import no.nav.hm.grunndata.register.product.ProductRegistrationEventHandler
+import no.nav.hm.grunndata.register.product.ProductRegistrationService
+import no.nav.hm.grunndata.register.product.toProductData
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 
 @Context
 @Requires(bean = KafkaRapid::class)
@@ -86,6 +95,8 @@ class ProductImportSyncRiver(
                         expired = importDTO.productDTO.expired,
                         hmsArtNr = null,
                         published = importDTO.productDTO.published,
+                        sparePart = importDTO.productDTO.sparePart,
+                        accessory = importDTO.productDTO.accessory,
                         productData = importDTO.productDTO.toProductData()
                     )
                 )

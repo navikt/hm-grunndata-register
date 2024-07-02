@@ -5,7 +5,14 @@ import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
-import no.nav.hm.grunndata.rapid.dto.*
+import java.time.LocalDateTime
+import java.util.UUID
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.Attributes
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.MediaSourceType
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventItemService
@@ -15,8 +22,6 @@ import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
-import java.util.*
 
 @MicronautTest
 class ProductRegistrationEventHandlerTest(private val productRegistrationEventHandler: ProductRegistrationEventHandler,
@@ -47,8 +52,6 @@ class ProductRegistrationEventHandlerTest(private val productRegistrationEventHa
                     shortdescription = "En kort beskrivelse av produktet",
                     text = "En lang beskrivelse av produktet"
                 ),
-                accessory = false,
-                sparePart = false,
                 techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
                 media = setOf(
                     MediaInfoDTO(uri="123.jpg", text = "bilde av produktet", source = MediaSourceType.EXTERNALURL,

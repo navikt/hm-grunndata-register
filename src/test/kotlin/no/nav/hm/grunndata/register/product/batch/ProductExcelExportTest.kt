@@ -6,6 +6,8 @@ import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.every
 import io.mockk.mockk
+import java.io.FileOutputStream
+import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.Attributes
@@ -28,8 +30,6 @@ import no.nav.hm.grunndata.register.user.UserAttribute
 import no.nav.hm.grunndata.register.user.UserRepository
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.junit.jupiter.api.Test
-import java.io.FileOutputStream
-import java.util.*
 
 @MicronautTest
 class ProductExcelExportTest(
@@ -179,8 +179,6 @@ class ProductExcelExportTest(
                 shortdescription = "En kort beskrivelse av produktet",
                 text = "En lang beskrivelse av produktet"
             ),
-            accessory = false,
-            sparePart = false,
             techData = listOf(TechData(key = "Lengde", unit = "cm", value = "120")),
             media = setOf(
                 MediaInfoDTO(
