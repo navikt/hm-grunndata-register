@@ -18,7 +18,7 @@ data class BestillingsordningDTO(
 
 @Singleton
 open class BestillingsordningService(
-    @Value("\${bestillingsordning.url}")
+    @Value("\${digihotSortiment.bestillingsordning}")
     private val url : String,
     private val objectMapper: ObjectMapper,
     private val bestillingsordningRegistrationRepository: BestillingsordningRegistrationRepository,

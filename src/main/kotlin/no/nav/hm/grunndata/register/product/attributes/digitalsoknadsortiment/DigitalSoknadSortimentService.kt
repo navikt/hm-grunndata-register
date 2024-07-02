@@ -18,7 +18,7 @@ data class DigitalSoknadSortimentDTO(
 
 @Singleton
 open class DigitalSoknadSortimentService(
-    @Value("\${digitalSoknadSortiment.url}")
+    @Value("\${digihotSortiment.digitalSoknadSortiment}")
     private val url : String,
     private val objectMapper: ObjectMapper,
     private val digitalSoknadSortimentRegistrationRepository: DigitalSoknadSortimentRegistrationRepository,
