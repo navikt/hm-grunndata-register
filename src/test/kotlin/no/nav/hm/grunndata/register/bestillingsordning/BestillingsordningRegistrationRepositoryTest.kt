@@ -5,14 +5,14 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.register.product.attributes.bestillingsordning.BestillingsordningRegistration
+import no.nav.hm.grunndata.register.product.attributes.bestillingsordning.BestillingsordningRegistrationRepository
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest
 class BestillingsordningRegistrationRepositoryTest(private val bestillingsordningRegistrationRepository: BestillingsordningRegistrationRepository) {
-
-
     @Test
     fun crudTest() {
         val bestilling = BestillingsordningRegistration(
@@ -32,5 +32,4 @@ class BestillingsordningRegistrationRepositoryTest(private val bestillingsordnin
             updated.updatedByUser shouldBe "system"
         }
     }
-
 }

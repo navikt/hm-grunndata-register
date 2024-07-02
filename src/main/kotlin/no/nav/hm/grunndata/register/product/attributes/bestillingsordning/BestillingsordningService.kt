@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.bestillingsordning
+package no.nav.hm.grunndata.register.product.attributes.bestillingsordning
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory
 import java.net.URL
 import java.time.LocalDateTime
 
-
 data class BestillingsordningDTO(
     val hmsnr: String,
     val navn: String
@@ -19,12 +18,12 @@ data class BestillingsordningDTO(
 
 @Singleton
 open class BestillingsordningService(
-    @Value("\${bestillingsordning.url}")
+    @Value("\${digihotSortiment.bestillingsordning}")
     private val url : String,
     private val objectMapper: ObjectMapper,
     private val bestillingsordningRegistrationRepository: BestillingsordningRegistrationRepository,
-    private val bestillingsordningEventHandler: BestillingsordningEventHandler) {
-
+    private val bestillingsordningEventHandler: BestillingsordningEventHandler,
+) {
     companion object {
         private val LOG = LoggerFactory.getLogger(BestillingsordningService::class.java)
     }
@@ -32,26 +31,38 @@ open class BestillingsordningService(
     private var boMap: Map<String, BestillingsordningDTO> =
         objectMapper.readValue(URL(url), object : TypeReference<List<BestillingsordningDTO>>(){}).associateBy { it.hmsnr }
 
-
     suspend fun findByHmsArtNr(hmsArtNr: String): BestillingsordningRegistrationDTO? = bestillingsordningRegistrationRepository.findByHmsArtNr(hmsArtNr)?.toDTO()
-
 
     suspend fun importAndUpdateDb() {
         boMap = objectMapper.readValue(URL(url), object : TypeReference<List<BestillingsordningDTO>>(){}).associateBy { it.hmsnr }
         val deactiveList = bestillingsordningRegistrationRepository.findByStatus(BestillingsordningStatus.ACTIVE).filter {
             !boMap.containsKey(it.hmsArtNr)
         }
+
         boMap.forEach { (hmsnr, bestillingsordningDTO) ->
-            bestillingsordningRegistrationRepository.findByHmsArtNr(hmsnr) ?: run {
+            bestillingsordningRegistrationRepository.findByHmsArtNr(hmsnr)?.let { existing ->
+                if (existing.status != BestillingsordningStatus.ACTIVE) {
+                    // update bestillingsordning which was previously deactivated
+                    LOG.info("Updating bestillingsordning for hmsnr: $hmsnr")
+                    saveAndCreateEvent(existing.copy (
+                        status = BestillingsordningStatus.ACTIVE,
+                        updated = LocalDateTime.now(),
+                        deactivated = null,
+                        updatedByUser = "system",
+                    ).toDTO(), update = true)
+                }
+                existing
+            } ?: run {
                 // new bestillingsordning
-                LOG.info("New bestillingsordning for $hmsnr")
+                LOG.info("New bestillingsordning for hmsnr: $hmsnr")
                 val bestillingsordningRegistration = BestillingsordningRegistration(hmsArtNr = hmsnr, navn = bestillingsordningDTO.navn)
                 saveAndCreateEvent(bestillingsordningRegistration.toDTO(), update = false)
             }
 
         }
+
         deactiveList.forEach {
-            LOG.info("Deactivate bestillingsordning for ${it.hmsArtNr}")
+            LOG.info("Deactivate bestillingsordning for hmsnr: ${it.hmsArtNr}")
             saveAndCreateEvent(it.copy(status = BestillingsordningStatus.INACTIVE,
                 updated = LocalDateTime.now(), deactivated = LocalDateTime.now()).toDTO(), update = true)
         }
@@ -68,5 +79,4 @@ open class BestillingsordningService(
         bestillingsordningEventHandler.queueDTORapidEvent(dto, eventName = EventName.registeredBestillingsordningV1)
         return dto
     }
-
 }
