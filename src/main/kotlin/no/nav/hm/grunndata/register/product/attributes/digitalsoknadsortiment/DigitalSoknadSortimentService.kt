@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.product.attributes.digitalsoknad
+package no.nav.hm.grunndata.register.product.attributes.digitalsoknadsortiment
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.context.annotation.Value
@@ -21,8 +21,8 @@ open class DigitalSoknadSortimentService(
     @Value("\${digitalSoknadSortiment.url}")
     private val url : String,
     private val objectMapper: ObjectMapper,
-    private val digitalSoknadRegistrationRepository: DigitalSoknadSortimentRegistrationRepository,
-    private val digitalSoknadEventHandler: DigitalSoknadSortimentEventHandler,
+    private val digitalSoknadSortimentRegistrationRepository: DigitalSoknadSortimentRegistrationRepository,
+    private val digitalSoknadSortimentEventHandler: DigitalSoknadSortimentEventHandler,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(DigitalSoknadSortimentService::class.java)
@@ -44,13 +44,13 @@ open class DigitalSoknadSortimentService(
             res
         }
 
-        val deactiveList = digitalSoknadRegistrationRepository.findByStatus(DigitalSoknadSortimentStatus.ACTIVE).filter { currentlyActive ->
+        val deactiveList = digitalSoknadSortimentRegistrationRepository.findByStatus(DigitalSoknadSortimentStatus.ACTIVE).filter { currentlyActive ->
             return@filter boMap.find { it.sortimentKategori == currentlyActive.sortimentKategori && it.postIds.contains(currentlyActive.postId) } == null
         }
 
         boMap.forEach { (sortimentKategori, postIder) ->
             postIder.forEach { postId ->
-                digitalSoknadRegistrationRepository.findBySortimentKategoriAndPostId(sortimentKategori, postId)?.let { existing ->
+                digitalSoknadSortimentRegistrationRepository.findBySortimentKategoriAndPostId(sortimentKategori, postId)?.let { existing ->
                     if (existing.status != DigitalSoknadSortimentStatus.ACTIVE) {
                         // update digital soknad sortiment which was previously deactivated
                         LOG.info("Updating digital soknad sortiment for ${sortimentKategori}: $postId")
@@ -81,12 +81,12 @@ open class DigitalSoknadSortimentService(
     @Transactional
     open suspend fun saveAndCreateEvent(digitalSoknadRegistration: DigitalSoknadSortimentRegistrationDTO, update:Boolean): DigitalSoknadSortimentRegistrationDTO {
         val saved = if (update) {
-            digitalSoknadRegistrationRepository.update(digitalSoknadRegistration.toEntity())
+            digitalSoknadSortimentRegistrationRepository.update(digitalSoknadRegistration.toEntity())
         } else {
-            digitalSoknadRegistrationRepository.save(digitalSoknadRegistration.toEntity())
+            digitalSoknadSortimentRegistrationRepository.save(digitalSoknadRegistration.toEntity())
         }
         val dto = saved.toDTO()
-        digitalSoknadEventHandler.queueDTORapidEvent(dto, eventName = EventName.registeredDigitalSoknadSortimentV1)
+        digitalSoknadSortimentEventHandler.queueDTORapidEvent(dto, eventName = EventName.registeredDigitalSoknadSortimentV1)
         return dto
     }
 }

@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.product.attributes.digitalsoknad
+package no.nav.hm.grunndata.register.product.attributes.digitalsoknadsortiment
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.inject.Singleton
