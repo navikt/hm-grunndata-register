@@ -173,7 +173,7 @@ digihotSortiment:
   bestillingsordning: ${BESTILLINGSORDNING_URL:`https://navikt.github.io/digihot-sortiment/bestillingsordning_sortiment.json`}
   digitalSoknadSortiment: ${DIGITAL_SOKNAD_SORTIMENT_URL:`https://github.com/navikt/digihot-sortiment/blob/main/sortiment_av_apostid_per_kategori_local2.json`}
   paakrevdGodkjenningskurs: ${PAAKREVD_GODKJENNINGSKURS_URL:`https://github.com/navikt/digihot-sortiment/blob/main/paakrevde_godkjenningskurs.json`}
-  produktType: ${PAAKREVD_GODKJENNINGSKURS_URL:`https://github.com/navikt/digihot-sortiment/blob/main/produkttype.json`}
+  produkttype: ${PRODUKTTYPE_URL:`https://github.com/navikt/digihot-sortiment/blob/main/produkttype.json`}
 
 elector:
   path: ${ELECTOR_PATH:localhost}

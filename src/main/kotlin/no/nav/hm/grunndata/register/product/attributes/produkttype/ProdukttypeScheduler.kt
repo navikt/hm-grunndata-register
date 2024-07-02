@@ -8,18 +8,17 @@ import no.nav.hm.grunndata.register.leaderelection.LeaderOnly
 
 @Singleton
 @Requires(property = "schedulers.enabled", value = "true")
-open class ProduktTypeScheduler(private val produktTypeService: ProduktTypeService) {
+open class ProdukttypeScheduler(private val produkttypeService: ProdukttypeService) {
     companion object {
-        private val LOG = org.slf4j.LoggerFactory.getLogger(ProduktTypeScheduler::class.java)
+        private val LOG = org.slf4j.LoggerFactory.getLogger(ProdukttypeScheduler::class.java)
     }
 
     @LeaderOnly
     @Scheduled(cron = "0 1 1 * * *")
-    open fun importAndUpdateProduktType() {
-        LOG.info("Running produkt type scheduler")
+    open fun importAndUpdateProdukttype() {
+        LOG.info("Running produkttype scheduler")
         runBlocking {
-            produktTypeService.importAndUpdateDb()
+            produkttypeService.importAndUpdateDb()
         }
-
     }
 }

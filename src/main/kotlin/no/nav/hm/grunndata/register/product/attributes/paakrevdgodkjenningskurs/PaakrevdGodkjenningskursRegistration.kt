@@ -13,8 +13,9 @@ import java.util.*
 data class PaakrevdGodkjenningskursRegistration(
     @field:Id
     val id: UUID = UUID.randomUUID(),
-    val sortimentKategori: String,
-    val postId: UUID,
+    val isokode: String,
+    val tittel: String,
+    val kursId: Int,
     val status: PaakrevdGodkjenningskursStatus = PaakrevdGodkjenningskursStatus.ACTIVE,
     val updatedByUser: String = "system",
     val createdByUser: String = "system",
@@ -25,8 +26,9 @@ data class PaakrevdGodkjenningskursRegistration(
 
 data class PaakrevdGodkjenningskursRegistrationDTO(
     override val id: UUID = UUID.randomUUID(),
-    val sortimentKategori: String,
-    val postId: UUID,
+    val isokode: String,
+    val tittel: String,
+    val kursId: Int,
     val status: PaakrevdGodkjenningskursStatus = PaakrevdGodkjenningskursStatus.ACTIVE,
     override val updatedByUser: String = "system",
     val createdByUser: String = "system",
@@ -35,7 +37,7 @@ data class PaakrevdGodkjenningskursRegistrationDTO(
     val deactivated: LocalDateTime? = null
 ): EventPayload {
     override fun toRapidDTO(): RapidDTO = PaakrevdGodkjenningskursRegistrationRapidDTO(
-        id = id, sortimentKategori = sortimentKategori, postId = postId, status = status,
+        id = id, isokode = isokode, tittel = tittel, kursId = kursId, status = status,
         updatedByUser = updatedByUser, createdByUser = createdByUser, created = created, updated = updated,
         deactivated = deactivated
     )
@@ -43,8 +45,9 @@ data class PaakrevdGodkjenningskursRegistrationDTO(
 
 fun PaakrevdGodkjenningskursRegistration.toDTO(): PaakrevdGodkjenningskursRegistrationDTO = PaakrevdGodkjenningskursRegistrationDTO(
     id = id,
-    sortimentKategori = sortimentKategori,
-    postId = postId,
+    isokode = isokode,
+    tittel = tittel,
+    kursId = kursId,
     status = status,
     updatedByUser = updatedByUser,
     createdByUser = createdByUser,
@@ -55,8 +58,9 @@ fun PaakrevdGodkjenningskursRegistration.toDTO(): PaakrevdGodkjenningskursRegist
 
 fun PaakrevdGodkjenningskursRegistrationDTO.toEntity(): PaakrevdGodkjenningskursRegistration = PaakrevdGodkjenningskursRegistration(
     id = id,
-    sortimentKategori = sortimentKategori,
-    postId = postId,
+    isokode = isokode,
+    tittel = tittel,
+    kursId = kursId,
     status = status,
     updatedByUser = updatedByUser,
     createdByUser = createdByUser,

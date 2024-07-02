@@ -20,6 +20,5 @@ open class PaakrevdGodkjenningskursScheduler(private val paakrevdGodkjenningskur
         runBlocking {
             paakrevdGodkjenningskursService.importAndUpdateDb()
         }
-
     }
 }

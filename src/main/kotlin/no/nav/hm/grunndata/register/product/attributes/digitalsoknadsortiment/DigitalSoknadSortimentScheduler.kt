@@ -20,6 +20,5 @@ open class DigitalSoknadSortimentScheduler(private val digitalSoknadSortimentSer
         runBlocking {
             digitalSoknadSortimentService.importAndUpdateDb()
         }
-
     }
 }

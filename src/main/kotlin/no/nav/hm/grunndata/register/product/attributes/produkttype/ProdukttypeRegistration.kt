@@ -2,20 +2,20 @@ package no.nav.hm.grunndata.register.product.attributes.produkttype
 
 import io.micronaut.data.annotation.MappedEntity
 import jakarta.persistence.Id
-import no.nav.hm.grunndata.rapid.dto.ProduktTypeRegistrationRapidDTO
-import no.nav.hm.grunndata.rapid.dto.ProduktTypeStatus
+import no.nav.hm.grunndata.rapid.dto.ProdukttypeRegistrationRapidDTO
+import no.nav.hm.grunndata.rapid.dto.ProdukttypeStatus
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import no.nav.hm.grunndata.register.event.EventPayload
 import java.time.LocalDateTime
 import java.util.*
 
 @MappedEntity("produkttype_reg_v1")
-data class ProduktTypeRegistration(
+data class ProdukttypeRegistration(
     @field:Id
     val id: UUID = UUID.randomUUID(),
-    val sortimentKategori: String,
-    val postId: UUID,
-    val status: ProduktTypeStatus = ProduktTypeStatus.ACTIVE,
+    val isokode: String,
+    val produkttype: String,
+    val status: ProdukttypeStatus = ProdukttypeStatus.ACTIVE,
     val updatedByUser: String = "system",
     val createdByUser: String = "system",
     val created: LocalDateTime = LocalDateTime.now(),
@@ -23,28 +23,28 @@ data class ProduktTypeRegistration(
     val deactivated: LocalDateTime? = null
 )
 
-data class ProduktTypeRegistrationDTO(
+data class ProdukttypeRegistrationDTO(
     override val id: UUID = UUID.randomUUID(),
-    val sortimentKategori: String,
-    val postId: UUID,
-    val status: ProduktTypeStatus = ProduktTypeStatus.ACTIVE,
+    val isokode: String,
+    val produkttype: String,
+    val status: ProdukttypeStatus = ProdukttypeStatus.ACTIVE,
     override val updatedByUser: String = "system",
     val createdByUser: String = "system",
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val deactivated: LocalDateTime? = null
 ): EventPayload {
-    override fun toRapidDTO(): RapidDTO = ProduktTypeRegistrationRapidDTO(
-        id = id, sortimentKategori = sortimentKategori, postId = postId, status = status,
+    override fun toRapidDTO(): RapidDTO = ProdukttypeRegistrationRapidDTO(
+        id = id, isokode = isokode, produkttype = produkttype, status = status,
         updatedByUser = updatedByUser, createdByUser = createdByUser, created = created, updated = updated,
         deactivated = deactivated
     )
 }
 
-fun ProduktTypeRegistration.toDTO(): ProduktTypeRegistrationDTO = ProduktTypeRegistrationDTO(
+fun ProdukttypeRegistration.toDTO(): ProdukttypeRegistrationDTO = ProdukttypeRegistrationDTO(
     id = id,
-    sortimentKategori = sortimentKategori,
-    postId = postId,
+    isokode = isokode,
+    produkttype = produkttype,
     status = status,
     updatedByUser = updatedByUser,
     createdByUser = createdByUser,
@@ -53,10 +53,10 @@ fun ProduktTypeRegistration.toDTO(): ProduktTypeRegistrationDTO = ProduktTypeReg
     deactivated = deactivated,
 )
 
-fun ProduktTypeRegistrationDTO.toEntity(): ProduktTypeRegistration = ProduktTypeRegistration(
+fun ProdukttypeRegistrationDTO.toEntity(): ProdukttypeRegistration = ProdukttypeRegistration(
     id = id,
-    sortimentKategori = sortimentKategori,
-    postId = postId,
+    isokode = isokode,
+    produkttype = produkttype,
     status = status,
     updatedByUser = updatedByUser,
     createdByUser = createdByUser,

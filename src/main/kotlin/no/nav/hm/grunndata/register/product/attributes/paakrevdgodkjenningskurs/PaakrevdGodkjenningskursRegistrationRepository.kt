@@ -8,6 +8,6 @@ import java.util.*
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
 interface PaakrevdGodkjenningskursRegistrationRepository: CoroutineCrudRepository<PaakrevdGodkjenningskursRegistration, UUID> {
-    suspend fun findByKategoriAndPostId(sortimentKategori: String, postId: UUID): PaakrevdGodkjenningskursRegistration?
+    suspend fun findByIsokode(isokode: String): PaakrevdGodkjenningskursRegistration?
     suspend fun findByStatus(status: PaakrevdGodkjenningskursStatus): List<PaakrevdGodkjenningskursRegistration>
 }

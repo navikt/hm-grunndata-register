@@ -33,34 +33,42 @@ open class PaakrevdGodkjenningskursService(
         val boMap = objectMapper.readValue(URL(url), object : TypeReference<List<PaakrevdGodkjenningskursDTO>>(){}).associateBy { it.isokode }
 
         val deactiveList = paakrevdGodkjenningskursRegistrationRepository.findByStatus(PaakrevdGodkjenningskursStatus.ACTIVE).filter { currentlyActive ->
-            return@filter boMap.find { it.sortimentKategori == currentlyActive.sortimentKategori && it.postIds.contains(currentlyActive.postId) } == null
+            return@filter !boMap.containsKey(currentlyActive.isokode)
         }
 
-        boMap.forEach { (sortimentKategori, postIder) ->
-            postIder.forEach { postId ->
-                paakrevdGodkjenningskursRegistrationRepository.findByKategoriAndPostId(sortimentKategori, postId)?.let { existing ->
-                    if (existing.status != PaakrevdGodkjenningskursStatus.ACTIVE) {
-                        // update paakrevd godkjenningskurs which was previously deactivated
-                        LOG.info("Updating paakrevd godkjenningskurs for ${sortimentKategori}: $postId")
-                        saveAndCreateEvent(existing.copy (
-                            status = PaakrevdGodkjenningskursStatus.ACTIVE,
-                            updated = LocalDateTime.now(),
-                            deactivated = null,
-                            updatedByUser = "system",
-                        ).toDTO(), update = true)
-                    }
-                    existing
-                } ?: run {
-                    // new paakrevd godkjenningskurs
-                    LOG.info("New paakrevd godkjenningskurs for ${sortimentKategori}: $postId")
-                    val paakrevdGodkjenningskursRegistration = PaakrevdGodkjenningskursRegistration(sortimentKategori = sortimentKategori, postId = postId)
-                    saveAndCreateEvent(paakrevdGodkjenningskursRegistration.toDTO(), update = false)
+        boMap.forEach { (isokode, paakrevdGodkjenningskursDTO) ->
+            paakrevdGodkjenningskursRegistrationRepository.findByIsokode(isokode)?.let { existing ->
+                if (
+                    existing.status != PaakrevdGodkjenningskursStatus.ACTIVE ||
+                    existing.tittel != paakrevdGodkjenningskursDTO.tittel ||
+                    existing.kursId != paakrevdGodkjenningskursDTO.kursId
+                ) {
+                    // update paakrevd godkjenningskurs which was previously deactivated
+                    LOG.info("Updating paakrevd godkjenningskurs for: $paakrevdGodkjenningskursDTO")
+                    saveAndCreateEvent(existing.copy (
+                        tittel = paakrevdGodkjenningskursDTO.tittel,
+                        kursId = paakrevdGodkjenningskursDTO.kursId,
+                        status = PaakrevdGodkjenningskursStatus.ACTIVE,
+                        updated = LocalDateTime.now(),
+                        deactivated = null,
+                        updatedByUser = "system",
+                    ).toDTO(), update = true)
                 }
+                existing
+            } ?: run {
+                // new paakrevd godkjenningskurs
+                LOG.info("New paakrevd godkjenningskurs for: $paakrevdGodkjenningskursDTO")
+                val paakrevdGodkjenningskursRegistration = PaakrevdGodkjenningskursRegistration(
+                    isokode = paakrevdGodkjenningskursDTO.isokode,
+                    tittel = paakrevdGodkjenningskursDTO.tittel,
+                    kursId = paakrevdGodkjenningskursDTO.kursId,
+                )
+                saveAndCreateEvent(paakrevdGodkjenningskursRegistration.toDTO(), update = false)
             }
         }
 
         deactiveList.forEach {
-            LOG.info("Deactivate paakrevd godkjenningskurs for ${it.sortimentKategori}: ${it.postId}")
+            LOG.info("Deactivate paakrevd godkjenningskurs for isokode: ${it.isokode}")
             saveAndCreateEvent(it.copy(status = PaakrevdGodkjenningskursStatus.INACTIVE,
                 updated = LocalDateTime.now(), deactivated = LocalDateTime.now()).toDTO(), update = true)
         }
