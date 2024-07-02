@@ -172,8 +172,8 @@ import:
 bestillingsordning:
   url: ${BESTILLINGSORDNING_URL:`https://navikt.github.io/digihot-sortiment/bestillingsordning_sortiment.json`}
 
-digitalSoknad:
-  url: ${DIGITAL_SOKNAD_URL:`https://github.com/navikt/digihot-sortiment/blob/main/sortiment_av_apostid_per_kategori2.json`}
+digitalSoknadSortiment:
+  url: ${DIGITAL_SOKNAD_SORTIMENT_URL:`https://github.com/navikt/digihot-sortiment/blob/main/sortiment_av_apostid_per_kategori_local2.json`}
 
 elector:
   path: ${ELECTOR_PATH:localhost}
