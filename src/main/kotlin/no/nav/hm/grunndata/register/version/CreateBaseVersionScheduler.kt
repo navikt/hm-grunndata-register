@@ -1,7 +1,8 @@
 package no.nav.hm.grunndata.register.version
 
 import io.micronaut.context.annotation.Requires
-import io.micronaut.scheduling.annotation.Scheduled
+import io.micronaut.context.event.StartupEvent
+import io.micronaut.runtime.event.annotation.EventListener
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.leaderelection.LeaderOnly
@@ -14,11 +15,12 @@ open class CreateBaseVersionScheduler(private val createBaseVersionHandler: Crea
         private val LOG = LoggerFactory.getLogger(CreateBaseVersionScheduler::class.java)
     }
 
+    @EventListener
     @LeaderOnly
-    @Scheduled(fixedDelay = "10m")
-    open fun scheduleProductExpirePublish() =
+    open fun init(event: StartupEvent?) {
         runBlocking {
             LOG.info("Running ProductExpirePublishScheduler")
             createBaseVersionHandler.createVersionsWhereMissingForMigratedSuppliers()
         }
+    }
 }
