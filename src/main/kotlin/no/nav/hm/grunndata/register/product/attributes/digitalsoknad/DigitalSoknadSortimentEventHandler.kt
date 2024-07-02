@@ -14,6 +14,6 @@ class DigitalSoknadSortimentEventHandler(
     private val objectMapper: ObjectMapper,
     private val eventItemService: EventItemService
 ) : DefaultEventHandler(eventItemService, objectMapper, registerRapidPushService) {
-    override fun getEventType(): EventItemType = EventItemType.DIGITALSOKNAD
+    override fun getEventType(): EventItemType = EventItemType.DIGITALSOKNADSORTIMENT
     override fun getEventPayloadClass(): Class<out EventPayload> = DigitalSoknadSortimentRegistrationDTO::class.java
 }
