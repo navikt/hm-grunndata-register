@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.bestillingsordning
+package no.nav.hm.grunndata.register.product.attributes.bestillingsordning
 
 import io.micronaut.data.annotation.MappedEntity
 import jakarta.persistence.Id

@@ -1,0 +1,1 @@
+CREATE INDEX bestillingsordning_hms_art_nr_index ON bestillingsordning_reg_v1(hms_art_nr);
