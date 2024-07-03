@@ -13,6 +13,6 @@
   "java_opts": "-Xms256m -Xmx1280m -XX:+UseG1GC",
   "baseversion_scheduler_enabled": false,
   "env": {
-    "DIGITAL_SOKNAD_SORTIMENT_URL": "https://github.com/navikt/digihot-sortiment/blob/main/sortiment_av_apostid_per_kategori2.json"
+    "DIGITAL_SOKNAD_SORTIMENT_URL": "https://navikt.github.io/digihot-sortiment/sortiment_av_apostid_per_kategori2.json"
   }
 }
