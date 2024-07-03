@@ -4,19 +4,24 @@ import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
+import java.time.LocalDateTime
+import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AgreementDTO
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
 import no.nav.hm.grunndata.register.REGISTER
-import no.nav.hm.grunndata.register.agreement.*
+import no.nav.hm.grunndata.register.agreement.AgreementData
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
+import no.nav.hm.grunndata.register.agreement.DelkontraktData
+import no.nav.hm.grunndata.register.agreement.DelkontraktRegistration
+import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationRepository
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
-import java.util.*
 
 @MicronautTest
 class ProductAgreementExcelImportTest(private val supplierRegistrationService: SupplierRegistrationService,
@@ -129,8 +134,11 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
 
             ProductAgreementExcelImportTest::class.java.classLoader.getResourceAsStream("productagreement/katalog-test.xls").use {
                 val productAgreements = productAgreementImportExcelService.importExcelFile(it!!)
-                productAgreements.size shouldBe 4
-
+                productAgreements.size shouldBe 6
+                productAgreements[4].accessory shouldBe true
+                productAgreements[4].sparePart shouldBe false
+                productAgreements[5].accessory shouldBe false
+                productAgreements[5].sparePart shouldBe true
             }
         }
     }

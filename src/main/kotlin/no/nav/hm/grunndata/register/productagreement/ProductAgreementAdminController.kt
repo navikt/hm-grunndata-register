@@ -177,7 +177,9 @@ class ProductAgreementAdminController(
                 articleName = product.articleName,
                 title = regDTO.title,
                 reference = agreement.reference,
-                updatedBy = REGISTER
+                updatedBy = REGISTER,
+                accessory = product.accessory,
+                sparePart = product.sparePart
             ),
             isUpdate = false,
         )

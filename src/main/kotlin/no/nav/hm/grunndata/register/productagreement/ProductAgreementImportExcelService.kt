@@ -62,6 +62,13 @@ class ProductAgreementImportExcelService(
         return productExcel.map { it.toProductAgreementDTO() }.flatten()
     }
 
+    private fun mapArticleType(articleType: String, funksjonsendring: String): ArticleType {
+        val mainProduct = articleType.lowercase().indexOf("hms hj.middel") > -1
+        val accessory = articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("ja") > -1
+        val sparePart = articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("nei") > -1
+        return ArticleType(mainProduct, sparePart, accessory)
+    }
+
     private suspend fun ProductAgreementExcelDTO.toProductAgreementDTO(): List<ProductAgreementRegistrationDTO> {
         val cleanRef = reference.lowercase().replace("/", "-")
         val agreement = findAgreementByReference(cleanRef)
@@ -73,6 +80,7 @@ class ProductAgreementImportExcelService(
         }
         val supplierId = parseSupplierName(supplierName)
         val product = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)
+        val type = mapArticleType(articleType, funksjonsendring)
         val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(delkontraktNr)
         return postRanks.map { postRank ->
             LOG.info("Creating product agreement for agreement $cleanRef, post ${postRank.first}, rank ${postRank.second}")
@@ -95,6 +103,8 @@ class ProductAgreementImportExcelService(
                 published = agreement.published,
                 expired = agreement.expired,
                 updatedBy = EXCEL,
+                sparePart = type.sparePart,
+                accessory = type.accessory
             )
         }
     }
@@ -179,6 +189,8 @@ class ProductAgreementImportExcelService(
         } else {
             null
         }
+
+    data class ArticleType(val mainProduct: Boolean, val sparePart: Boolean, val accessory: Boolean)
 }
 
 enum class ColumnNames(val column: String) {
