@@ -12,6 +12,7 @@ import no.nav.hm.grunndata.register.product.attributes.produkttype.ProdukttypeSe
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
 
+// TODO: REMOVE AGAIN AFTER TEST
 @Controller(TempDebugController.API_V1_TEMP_TEST_BASEURL)
 @Secured(Roles.ROLE_ADMIN)
 @Tag(name="temp test")
