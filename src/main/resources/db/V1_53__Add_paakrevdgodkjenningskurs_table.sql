@@ -9,5 +9,5 @@ CREATE TABLE IF NOT EXISTS paakrevdgodkjenningskurs_reg_v1 (
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deactivated TIMESTAMP,
-    UNIQUE (sortiment_kategori, post_id)
+    UNIQUE (isokode)
 );
