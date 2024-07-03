@@ -42,7 +42,11 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
 
     private fun buildSpec(params: Map<String, String>?): PredicateSpecification<NewsRegistration>? =  params?.let {
         where {
-            if (params.contains("status")) root[NewsRegistration::status] eq params["status"]
+            if (params.contains("status")) {
+                val statusList: List<NewsStatus> =
+                    params["status"]!!.split(",").map { NewsStatus.valueOf(it) }
+                root[NewsRegistration::status] inList statusList
+            }
             if (params.contains("draftStatus")) root[NewsRegistration::draftStatus] eq params["draftStatus"]
             if (params.contains("createdByUser")) root[NewsRegistration::createdByUser] eq params["createdByUser"]
         }.and { root, criteriaBuilder ->
