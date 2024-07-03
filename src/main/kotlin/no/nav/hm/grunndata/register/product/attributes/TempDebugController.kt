@@ -3,6 +3,9 @@ package no.nav.hm.grunndata.register.product.attributes
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
+import io.micronaut.security.annotation.Secured
+import io.micronaut.security.rules.SecurityRule
+import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.register.product.attributes.bestillingsordning.BestillingsordningService
 import no.nav.hm.grunndata.register.product.attributes.digitalsoknadsortiment.DigitalSoknadSortimentService
@@ -11,7 +14,9 @@ import no.nav.hm.grunndata.register.product.attributes.produkttype.ProdukttypeSe
 import org.slf4j.LoggerFactory
 
 // TODO: REMOVE AGAIN AFTER TEST
+@Secured(SecurityRule.IS_ANONYMOUS)
 @Controller(TempDebugController.API_V1_TEMP_TEST_BASEURL)
+@Hidden
 @Tag(name="temp test")
 class TempDebugController(
     private val bestillingsordningService: BestillingsordningService,
