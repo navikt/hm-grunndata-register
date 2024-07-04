@@ -136,7 +136,7 @@ class ProductRegistrationRepositoryTest(
                 rank = 3,
                 postId = postId,
                 reference = "20-1423",
-                productId = UUID.randomUUID(),
+                productId = null,
                 seriesUuid = UUID.randomUUID(),
                 supplierId = supplierId,
                 supplierRef = "eksternref-1234",
@@ -146,6 +146,8 @@ class ProductRegistrationRepositoryTest(
                 status = ProductAgreementStatus.ACTIVE,
             )
         runBlocking {
+            val saved = productRegistrationRepository.save(registration)
+            saved.shouldNotBeNull()
             val savedDelkontrakt = delkontraktRegistrationService.save(delkontraktToSave)
             val savedAgreement = productAgreementRegistrationRepository.save(agreement)
             val savedAgreement2 = productAgreementRegistrationRepository.save(agreement2)
@@ -159,8 +161,6 @@ class ProductRegistrationRepositoryTest(
                     agreement.rank,
                 )
             foundAgreement.shouldNotBeNull()
-            val saved = productRegistrationRepository.save(registration)
-            saved.shouldNotBeNull()
             val inDb = productRegistrationRepository.findById(saved.id)
             inDb.shouldNotBeNull()
             inDb.accessory shouldBe true

@@ -79,7 +79,7 @@ class ProductAgreementImportExcelService(
             throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er publisert")
         }
         val supplierId = parseSupplierName(supplierName)
-        val product = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)
+        var product = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)
         val type = mapArticleType(articleType, funksjonsendring)
         val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(delkontraktNr)
         return postRanks.map { postRank ->

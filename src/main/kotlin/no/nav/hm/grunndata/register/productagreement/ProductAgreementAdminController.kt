@@ -70,7 +70,7 @@ class ProductAgreementAdminController(
             }
 
         if (!dryRun) {
-            LOG.info("Saving product agreements")
+            LOG.info("Saving excel imported file: ${file.name} with ${productAgreements.size} product agreements")
             productAgreementRegistrationService.saveAll(productAgreements)
         }
         return ProductAgreementImportDTO(
