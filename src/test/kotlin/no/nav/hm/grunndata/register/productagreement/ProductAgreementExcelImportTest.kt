@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.productagreement
 
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
@@ -27,7 +28,8 @@ import org.slf4j.LoggerFactory
 class ProductAgreementExcelImportTest(private val supplierRegistrationService: SupplierRegistrationService,
                                       private val agreementRegistrationService: AgreementRegistrationService,
                                       private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository,
-                                      private val productAgreementImportExcelService: ProductAgreementImportExcelService) {
+                                      private val productAgreementImportExcelService: ProductAgreementImportExcelService,
+                                      private val accessoryPartHandler: ProductAgreementAccessoryPartHandler) {
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -135,10 +137,16 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
             ProductAgreementExcelImportTest::class.java.classLoader.getResourceAsStream("productagreement/katalog-test.xls").use {
                 val productAgreements = productAgreementImportExcelService.importExcelFile(it!!)
                 productAgreements.size shouldBe 6
+                productAgreements[0].accessory shouldBe false
+                productAgreements[0].sparePart shouldBe false
                 productAgreements[4].accessory shouldBe true
                 productAgreements[4].sparePart shouldBe false
                 productAgreements[5].accessory shouldBe false
                 productAgreements[5].sparePart shouldBe true
+                val productAgreementGroupInSeries = accessoryPartHandler.handleAccessoryAndSparePartProductAgreement(productAgreements)
+                productAgreementGroupInSeries.forEach {
+                    if (it.accessory || it.sparePart) it.seriesUuid.shouldNotBeNull()
+                }
             }
         }
     }

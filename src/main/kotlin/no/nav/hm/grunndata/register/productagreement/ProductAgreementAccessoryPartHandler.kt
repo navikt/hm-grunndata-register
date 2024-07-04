@@ -12,11 +12,20 @@ import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 class ProductAgreementAccessoryPartHandler(private val productRegistrationRepository: ProductRegistrationRepository,
                                            private val seriesRegistrationRepository: SeriesRegistrationRepository) {
 
-    suspend fun handleAccessoryAndSparePartProductAgreement(productAgreements: List<ProductAgreementRegistrationDTO>) {
+    suspend fun handleAccessoryAndSparePartProductAgreement(productAgreements: List<ProductAgreementRegistrationDTO>): List<ProductAgreementRegistrationDTO> {
+        val mainProductAgreements = productAgreements.filter { !it.accessory && !it.sparePart }
         val accessoryOrSpareParts = productAgreements.filter { it.accessory || it.sparePart }
         val supplierId = accessoryOrSpareParts.first().supplierId
         val groupedAccessoryOrSpareParts = groupInSeriesBasedOnTitle(accessoryOrSpareParts)
-        val accessoryOrSparePartsWithSeries = groupedAccessoryOrSpareParts.flatMap { (_, value) ->
+        val groupedMainProducts = groupInSeriesBasedOnTitle(mainProductAgreements)
+        val createdSeriesAccessorSpareParts = createSeriesAndProducts(groupedAccessoryOrSpareParts, supplierId)
+        val createdSeriesMainProducts = createSeriesAndProducts(groupedMainProducts, supplierId)
+
+        return createdSeriesAccessorSpareParts + createdSeriesMainProducts
+    }
+
+    private suspend fun createSeriesAndProducts(groupedProductAgreements: Map<String, List<ProductAgreementRegistrationDTO>>, supplierId: UUID): List<ProductAgreementRegistrationDTO> {
+        val createdSeries = groupedProductAgreements.flatMap { (_, value) ->
             // check if in value list that all seriesUuid is null
             val noSeries = value.all { it.seriesUuid == null }
             val seriesGroup = if (noSeries) {
@@ -45,27 +54,36 @@ class ProductAgreementAccessoryPartHandler(private val productRegistrationReposi
             }
             seriesGroup
         }
+        return createdSeries
     }
 
-    private fun groupInSeriesBasedOnTitle(accessoryOrSpareParts: List<ProductAgreementRegistrationDTO>): MutableMap<UUID, MutableList<ProductAgreementRegistrationDTO>> {
+    private fun groupInSeriesBasedOnTitle(productsagreements: List<ProductAgreementRegistrationDTO>): MutableMap<String, MutableList<ProductAgreementRegistrationDTO>> {
         // group accessory and spare parts together in series based on the title that has intersection size >= 2
-        val groupedSeries = mutableMapOf<UUID, MutableList<ProductAgreementRegistrationDTO>>()
+        val groupedSeries = mutableMapOf<String, MutableList<ProductAgreementRegistrationDTO>>()
         val visited = mutableSetOf<UUID>()
-        accessoryOrSpareParts.forEach { accessoryOrSparePart ->
-            if (visited.contains(accessoryOrSparePart.id)) {
+        productsagreements.forEach { productAgreement ->
+            if (visited.contains(productAgreement.id)) {
                 return@forEach
             }
-            val currentSeries = mutableListOf(accessoryOrSparePart)
-            val titleWords = accessoryOrSparePart.title.split("\\s+".toRegex()).toSet()
-            accessoryOrSpareParts.filter { it.id != accessoryOrSparePart.id && it.id !in visited}.forEach {
-                val otherTitleWords = it.title.split("\\s+".toRegex()).toSet()
-                if (titleWords.intersect(otherTitleWords).size >= 2) {
-                    currentSeries.add(it)
-                    visited.add(it.id)
+            visited.add(productAgreement.id)
+            var isGrouped = false
+            productsagreements.filter { it.id != productAgreement.id && it.id !in visited}.forEach { otherProductAgreement ->
+                val titleWords = productAgreement.title.split("\\s+".toRegex()).toSet()
+                val otherTitleWords = otherProductAgreement.title.split("\\s+".toRegex()).toSet()
+                val intersection = titleWords.intersect(otherTitleWords)
+                if (intersection.size >= 2) {
+                    val intersectedTitle = intersection.joinToString ( " " )
+                    if (!groupedSeries.containsKey(intersectedTitle)) {
+                        groupedSeries[intersectedTitle] = mutableListOf(productAgreement)
+                    }
+                    groupedSeries[intersectedTitle]?.add(otherProductAgreement)
+                    visited.add(otherProductAgreement.id)
+                    isGrouped= true
                 }
             }
-            groupedSeries[accessoryOrSparePart.id] = currentSeries
-            visited.add(accessoryOrSparePart.id)
+            if (!isGrouped) {
+                groupedSeries[productAgreement.title] = mutableListOf(productAgreement)
+            }
         }
         return groupedSeries
     }
