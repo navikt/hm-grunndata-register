@@ -32,6 +32,7 @@ import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
 import no.nav.hm.grunndata.register.product.batch.ProductRegistrationExcelDTO
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -42,6 +43,7 @@ import java.util.UUID
 @Tag(name = "Vendor Product")
 class ProductRegistrationApiController(
     private val productRegistrationService: ProductRegistrationService,
+    private val seriesRegistrationService: SeriesRegistrationService,
     private val xlExport: ProductExcelExport,
     private val xlImport: ProductExcelImport,
 ) {
@@ -309,6 +311,13 @@ class ProductRegistrationApiController(
             validateProductsToBeImported(excelDTOList, seriesId, authentication)
             LOG.info("found ${excelDTOList.size} products in Excel file")
             val products = productRegistrationService.importExcelRegistrations(excelDTOList, authentication)
+            val seriesToUpdate = seriesRegistrationService.findById(seriesId)
+            requireNotNull(seriesToUpdate)
+            // todo: could it ever be needed to change unpublished to draft also?
+            if (seriesToUpdate.published != null) {
+                seriesRegistrationService.setPublishedSeriesToDraftStatus(seriesToUpdate, authentication)
+            }
+
             HttpResponse.ok(products)
         }
     }
@@ -348,7 +357,7 @@ class ProductRegistrationApiController(
         if (seriesUniqueList.size > 1) {
             throw BadRequestException(
                 "Det finnes produkter tilknyttet ulike produktserier i filen. " +
-                        "Det er kun støtte for å importere produkter til en produktserie om gangen",
+                    "Det er kun støtte for å importere produkter til en produktserie om gangen",
             )
         }
 

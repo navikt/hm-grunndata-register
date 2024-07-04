@@ -18,9 +18,6 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
-import java.time.LocalDateTime
-import java.util.Locale
-import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
@@ -29,6 +26,9 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
+import java.util.Locale
+import java.util.UUID
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SeriesRegistrationController.API_V1_SERIES)
@@ -155,6 +155,22 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         return HttpResponse.ok(updated)
     }
 
+    @Put("/series_ready-for-approval/{seriesUUID}")
+    suspend fun setSeriesReadyForApproval(
+        @PathVariable seriesUUID: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> {
+        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
+        if (seriesToUpdate.supplierId != authentication.supplierId()) {
+            LOG.warn("SupplierId in request does not match authenticated supplierId")
+            return HttpResponse.unauthorized()
+        }
+
+        val updated = seriesRegistrationService.setPublishedSeriesToDraftStatus(seriesToUpdate, authentication)
+
+        return HttpResponse.ok(updated)
+    }
+
     @Put("/series_to-draft/{seriesUUID}")
     suspend fun setPublishedSeriesToDraft(
         @PathVariable seriesUUID: UUID,
@@ -181,11 +197,12 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
             LOG.warn("SupplierId in request does not match authenticated supplierId")
             return HttpResponse.unauthorized()
         }
-        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(
-            seriesToUpdate,
-            authentication,
-            SeriesStatus.INACTIVE
-        )
+        val updated =
+            seriesRegistrationService.setPublishedSeriesRegistrationStatus(
+                seriesToUpdate,
+                authentication,
+                SeriesStatus.INACTIVE,
+            )
 
         return HttpResponse.ok(updated)
     }
@@ -200,11 +217,12 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
             LOG.warn("SupplierId in request does not match authenticated supplierId")
             return HttpResponse.unauthorized()
         }
-        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(
-            seriesToUpdate,
-            authentication,
-            SeriesStatus.ACTIVE
-        )
+        val updated =
+            seriesRegistrationService.setPublishedSeriesRegistrationStatus(
+                seriesToUpdate,
+                authentication,
+                SeriesStatus.ACTIVE,
+            )
 
         return HttpResponse.ok(updated)
     }
