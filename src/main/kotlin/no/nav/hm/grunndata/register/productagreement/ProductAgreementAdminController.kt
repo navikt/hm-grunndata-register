@@ -179,7 +179,8 @@ class ProductAgreementAdminController(
                 reference = agreement.reference,
                 updatedBy = REGISTER,
                 accessory = product.accessory,
-                sparePart = product.sparePart
+                sparePart = product.sparePart,
+                isoCategory = product.isoCategory
             ),
             isUpdate = false,
         )

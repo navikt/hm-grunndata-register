@@ -48,6 +48,7 @@ data class ProductAgreementRegistrationDTO(
     val articleName: String?,
     val accessory: Boolean = false,
     val sparePart: Boolean = false,
+    val isoCategory: String? = null,
     val supplierId: UUID,
     val supplierRef: String,
     val hmsArtNr: String?,
@@ -128,7 +129,8 @@ fun ProductAgreementRegistration.toDTO(): ProductAgreementRegistrationDTO {
         expired = expired,
         updatedBy = updatedBy,
         accessory = accessory,
-        sparePart = sparePart
+        sparePart = sparePart,
+        isoCategory = null
     )
 }
 

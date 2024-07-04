@@ -190,7 +190,8 @@ class ProductHMDBSyncRiver(
                             status = if (agreement.agreementStatus == AgreementStatus.ACTIVE)
                                 ProductAgreementStatus.ACTIVE else ProductAgreementStatus.INACTIVE,
                             sparePart = dto.sparePart,
-                            accessory = dto.accessory
+                            accessory = dto.accessory,
+                            isoCategory = dto.isoCategory
                         )
                     )
                 }

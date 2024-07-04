@@ -104,7 +104,8 @@ class ProductAgreementImportExcelService(
                 expired = agreement.expired,
                 updatedBy = EXCEL,
                 sparePart = type.sparePart,
-                accessory = type.accessory
+                accessory = type.accessory,
+                isoCategory = iso
             )
         }
     }
