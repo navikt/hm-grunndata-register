@@ -256,7 +256,7 @@ open class ProductRegistrationService(
                         inDb.copy(
                             draftStatus = DraftStatus.DRAFT,
                             adminStatus = AdminStatus.PENDING,
-                            title = it.produktseriesnavn ?: it.produktnavn,
+                            title = it.produktseriesnavn,
                             articleName = it.produktnavn,
                             isoCategory = it.isoCategory,
                             productData =

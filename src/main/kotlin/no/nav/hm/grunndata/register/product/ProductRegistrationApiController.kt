@@ -216,10 +216,11 @@ class ProductRegistrationApiController(
         @Body ids: List<UUID>,
         authentication: Authentication,
     ): HttpResponse<List<ProductRegistrationDTO>> {
-        val products = productRegistrationService.findByIdIn(ids).onEach {
-            if (it.supplierId != authentication.supplierId()) return HttpResponse.unauthorized()
-            if (!(it.draftStatus == DraftStatus.DRAFT && it.published == null)) throw BadRequestException("product is not draft")
-        }
+        val products =
+            productRegistrationService.findByIdIn(ids).onEach {
+                if (it.supplierId != authentication.supplierId()) return HttpResponse.unauthorized()
+                if (!(it.draftStatus == DraftStatus.DRAFT && it.published == null)) throw BadRequestException("product is not draft")
+            }
 
         products.forEach {
             LOG.info("Delete called for id ${it.id} and supplierRef ${it.supplierRef}")
@@ -262,6 +263,26 @@ class ProductRegistrationApiController(
     )
     suspend fun createExportForAllSupplierProducts(authentication: Authentication): HttpResponse<StreamedFile> {
         val products = productRegistrationService.findBySupplierId(authentication.supplierId())
+        if (products.isEmpty()) throw BadRequestException("No products found")
+        val id = UUID.randomUUID()
+        LOG.info("Generating Excel file: $id.xlsx")
+        return ByteArrayOutputStream().use {
+            xlExport.createWorkbookToOutputStream(products, it)
+            HttpResponse.ok(StreamedFile(it.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
+                .header("Content-Disposition", "attachment; filename=$id.xlsx")
+        }
+    }
+
+    @Post(
+        "/excel/export/supplier/{seriesId}",
+        consumes = ["application/json"],
+        produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+    )
+    suspend fun createExportForSeries(
+        @PathVariable seriesId: UUID,
+        authentication: Authentication,
+    ): HttpResponse<StreamedFile> {
+        val products = productRegistrationService.findBySeriesUUIDAndSupplierId(seriesId, authentication.supplierId())
         if (products.isEmpty()) throw BadRequestException("No products found")
         val id = UUID.randomUUID()
         LOG.info("Generating Excel file: $id.xlsx")
