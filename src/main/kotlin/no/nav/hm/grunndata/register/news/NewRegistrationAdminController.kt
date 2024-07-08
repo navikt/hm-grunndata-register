@@ -58,15 +58,27 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
         }
     }
 
-
     @Post("/")
-    suspend fun createNews(@Body news: NewsRegistrationDTO): NewsRegistrationDTO {
+    suspend fun createNews(@Body news: CreateUpdateNewsDTO, authentication: Authentication): NewsRegistrationDTO {
         LOG.info("Creating news: ${news.title}")
-        newsRegistrationService.findById(news.id)?.let {
-            throw BadRequestException("News with id ${news.id} already exists")
-        }
-        return newsRegistrationService.saveAndCreateEventIfNotDraft(news, isUpdate = false)
+
+        return newsRegistrationService.saveAndCreateEventIfNotDraft(
+            NewsRegistrationDTO(
+                title = news.title,
+                text = news.text,
+                published = news.published,
+                expired = news.expired,
+                draftStatus = DraftStatus.DONE,
+                createdBy = REGISTER,
+                updatedBy = REGISTER,
+                author = "Admin",
+                createdByUser = authentication.name,
+                updatedByUser = authentication.name
+            ),
+            isUpdate = false
+        )
     }
+
 
     @Post("/draft")
     suspend fun createNewsDraft(authentication: Authentication): NewsRegistrationDTO {
@@ -87,22 +99,21 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
     }
 
     @Put("/{id}")
-    suspend fun updateNews(@Body news: NewsRegistrationDTO, @PathVariable id: UUID, authentication: Authentication): NewsRegistrationDTO {
+    suspend fun updateNews(@Body news: CreateUpdateNewsDTO, @PathVariable id: UUID, authentication: Authentication): NewsRegistrationDTO {
         LOG.info("Updating news: $id")
         return newsRegistrationService.findById(id)?.let { inDb ->
             newsRegistrationService.saveAndCreateEventIfNotDraft(
                 inDb.copy(
                     title = news.title,
                     text = news.text,
-                    updatedByUser = authentication.name,
-                    status = news.status,
                     expired = news.expired,
                     published = news.published,
-                    updated = news.updated
+                    updated = LocalDateTime.now(),
+                    updatedByUser = authentication.name,
                 ),
                 isUpdate = true
             )
-        } ?: throw BadRequestException("News with id ${news.id} does not exist")
+        } ?: throw BadRequestException("News with id $id does not exist")
     }
 
     @Delete("/{id}")
@@ -113,6 +124,11 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
                 inDb.copy(status = NewsStatus.DELETED, expired = LocalDateTime.now()), isUpdate = true)
         } ?: throw BadRequestException("News with id $id does not exist")
     }
-
-
 }
+
+data class CreateUpdateNewsDTO(
+    val title: String,
+    val text: String,
+    val published: LocalDateTime,
+    val expired: LocalDateTime
+)
