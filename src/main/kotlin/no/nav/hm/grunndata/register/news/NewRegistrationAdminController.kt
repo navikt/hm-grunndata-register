@@ -28,7 +28,7 @@ import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(NewRegistrationAdminController.ADMIN_API_V1_NEWS)
-@Tag(name="Admin News")
+@Tag(name = "Admin News")
 class NewRegistrationAdminController(private val newsRegistrationService: NewsRegistrationService) {
     companion object {
         private val LOG = LoggerFactory.getLogger(NewRegistrationAdminController::class.java)
@@ -40,7 +40,7 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
         return newsRegistrationService.findAll(buildSpec(params), pageable)
     }
 
-    private fun buildSpec(params: Map<String, String>?): PredicateSpecification<NewsRegistration>? =  params?.let {
+    private fun buildSpec(params: Map<String, String>?): PredicateSpecification<NewsRegistration>? = params?.let {
         where {
             if (params.contains("status")) {
                 val statusList: List<NewsStatus> =
@@ -98,8 +98,42 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
         )
     }
 
+    @Put("publish/{id}")
+    suspend fun publishNews(@PathVariable id: UUID, authentication: Authentication): NewsRegistrationDTO {
+        LOG.info("Publishing news: $id")
+        return newsRegistrationService.findById(id)?.let { inDb ->
+            newsRegistrationService.saveAndCreateEventIfNotDraft(
+                inDb.copy(
+                    published = LocalDateTime.now(),
+                    updated = LocalDateTime.now(),
+                    updatedByUser = authentication.name,
+                ),
+                isUpdate = true
+            )
+        } ?: throw BadRequestException("News with id $id does not exist")
+    }
+
+    @Put("unpublish/{id}")
+    suspend fun unpublishNews(@PathVariable id: UUID, authentication: Authentication): NewsRegistrationDTO {
+        LOG.info("unpublishing news: $id")
+        return newsRegistrationService.findById(id)?.let { inDb ->
+            newsRegistrationService.saveAndCreateEventIfNotDraft(
+                inDb.copy(
+                    expired = LocalDateTime.now().minusDays(1),
+                    updated = LocalDateTime.now(),
+                    updatedByUser = authentication.name,
+                ),
+                isUpdate = true
+            )
+        } ?: throw BadRequestException("News with id $id does not exist")
+    }
+
     @Put("/{id}")
-    suspend fun updateNews(@Body news: CreateUpdateNewsDTO, @PathVariable id: UUID, authentication: Authentication): NewsRegistrationDTO {
+    suspend fun updateNews(
+        @Body news: CreateUpdateNewsDTO,
+        @PathVariable id: UUID,
+        authentication: Authentication
+    ): NewsRegistrationDTO {
         LOG.info("Updating news: $id")
         return newsRegistrationService.findById(id)?.let { inDb ->
             newsRegistrationService.saveAndCreateEventIfNotDraft(
@@ -121,7 +155,8 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
         LOG.info("Deleting news: $id")
         newsRegistrationService.findById(id)?.let { inDb ->
             newsRegistrationService.saveAndCreateEventIfNotDraft(
-                inDb.copy(status = NewsStatus.DELETED, expired = LocalDateTime.now()), isUpdate = true)
+                inDb.copy(status = NewsStatus.DELETED, expired = LocalDateTime.now()), isUpdate = true
+            )
         } ?: throw BadRequestException("News with id $id does not exist")
     }
 }
