@@ -19,7 +19,7 @@ open class NewsRegistrationService(
 
     @Transactional
     open suspend fun saveAndCreateEventIfNotDraft(dto: NewsRegistrationDTO, isUpdate: Boolean): NewsRegistrationDTO {
-        val correctStatus = ensureCorrectStatus(dto)
+        val correctStatus = if (dto.status == NewsStatus.DELETED) dto else ensureCorrectStatus(dto)
         val saved = if (isUpdate) update(correctStatus) else save(correctStatus)
         if (saved.draftStatus == DraftStatus.DONE) {
             newsRegistrationEventHandler.queueDTORapidEvent(saved, eventName = EventName.registeredNewsV1)
@@ -62,8 +62,10 @@ open class NewsRegistrationService(
             .map { it.toDTO() }
     }
 
-    open suspend fun findAll(spec: PredicateSpecification<NewsRegistration>?,
-                        pageable: Pageable): Page<NewsRegistrationDTO> =
+    open suspend fun findAll(
+        spec: PredicateSpecification<NewsRegistration>?,
+        pageable: Pageable
+    ): Page<NewsRegistrationDTO> =
         newsRegistrationRepository.findAll(spec, pageable).map { it.toDTO() }
 
 }
