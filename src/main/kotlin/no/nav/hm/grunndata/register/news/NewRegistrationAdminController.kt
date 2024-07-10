@@ -98,7 +98,7 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
         )
     }
 
-    @Put("publish/{id}")
+    @Put("/publish/{id}")
     suspend fun publishNews(@PathVariable id: UUID, authentication: Authentication): NewsRegistrationDTO {
         LOG.info("Publishing news: $id")
         return newsRegistrationService.findById(id)?.let { inDb ->
@@ -113,7 +113,7 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
         } ?: throw BadRequestException("News with id $id does not exist")
     }
 
-    @Put("unpublish/{id}")
+    @Put("/unpublish/{id}")
     suspend fun unpublishNews(@PathVariable id: UUID, authentication: Authentication): NewsRegistrationDTO {
         LOG.info("unpublishing news: $id")
         return newsRegistrationService.findById(id)?.let { inDb ->
