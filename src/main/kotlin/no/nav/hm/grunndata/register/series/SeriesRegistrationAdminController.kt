@@ -24,8 +24,6 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.security.supplierId
-import no.nav.hm.grunndata.register.series.SeriesRegistrationController.Companion
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
@@ -248,6 +246,23 @@ class SeriesRegistrationAdminController(
 
         return HttpResponse.ok(updated)
     }
+
+    @Get("/supplier-inventory/{id}")
+    suspend fun getSupplierProductInfo(
+        id: UUID,
+        authentication: Authentication
+    ): HttpResponse<SupplierInventoryDTO> {
+        val numberOfSeries = seriesRegistrationService.countBySupplier(id).toInt()
+        val numberOfVariants = productRegistrationService.countBySupplier(id).toInt()
+
+        return HttpResponse.ok(
+            SupplierInventoryDTO(
+                numberOfSeries = numberOfSeries,
+                numberOfVariants = numberOfVariants
+            )
+        )
+    }
 }
 
 data class RejectSeriesDTO(val message: String?)
+data class SupplierInventoryDTO(val numberOfSeries: Int, val numberOfVariants: Int)

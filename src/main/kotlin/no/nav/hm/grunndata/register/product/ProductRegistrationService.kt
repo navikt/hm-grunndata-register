@@ -601,6 +601,12 @@ open class ProductRegistrationService(
             draftStatus,
             registrationStatus,
         ).map { it.toDTO() }
+
+    suspend fun countBySupplier(supplierId: UUID): Long = productRegistrationRepository.count(
+        where {
+            root[ProductRegistration::supplierId] eq supplierId
+            root[ProductRegistration::registrationStatus] eq RegistrationStatus.ACTIVE
+        })
 }
 
 suspend fun <T : Any, R : Any> Page<T>.mapSuspend(transform: suspend (T) -> R): Page<R> {

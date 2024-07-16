@@ -279,4 +279,10 @@ open class SeriesRegistrationService(
 
         return updatedSeries
     }
+
+    suspend fun countBySupplier(supplierId: UUID): Long = seriesRegistrationRepository.count(
+        where {
+            root[SeriesRegistration::supplierId] eq supplierId
+            root[SeriesRegistration::status] eq SeriesStatus.ACTIVE
+        })
 }
