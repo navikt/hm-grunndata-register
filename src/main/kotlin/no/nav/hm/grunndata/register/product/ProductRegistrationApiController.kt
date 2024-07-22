@@ -32,6 +32,7 @@ import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
 import no.nav.hm.grunndata.register.product.batch.ProductRegistrationExcelDTO
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -42,6 +43,7 @@ import java.util.UUID
 @Tag(name = "Vendor Product")
 class ProductRegistrationApiController(
     private val productRegistrationService: ProductRegistrationService,
+    private val seriesRegistrationService: SeriesRegistrationService,
     private val xlExport: ProductExcelExport,
     private val xlImport: ProductExcelImport,
 ) {
@@ -216,10 +218,11 @@ class ProductRegistrationApiController(
         @Body ids: List<UUID>,
         authentication: Authentication,
     ): HttpResponse<List<ProductRegistrationDTO>> {
-        val products = productRegistrationService.findByIdIn(ids).onEach {
-            if (it.supplierId != authentication.supplierId()) return HttpResponse.unauthorized()
-            if (!(it.draftStatus == DraftStatus.DRAFT && it.published == null)) throw BadRequestException("product is not draft")
-        }
+        val products =
+            productRegistrationService.findByIdIn(ids).onEach {
+                if (it.supplierId != authentication.supplierId()) return HttpResponse.unauthorized()
+                if (!(it.draftStatus == DraftStatus.DRAFT && it.published == null)) throw BadRequestException("product is not draft")
+            }
 
         products.forEach {
             LOG.info("Delete called for id ${it.id} and supplierRef ${it.supplierRef}")
@@ -273,37 +276,66 @@ class ProductRegistrationApiController(
     }
 
     @Post(
-        "/excel/import",
+        "/excel/export/supplier/{seriesId}",
+        consumes = ["application/json"],
+        produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+    )
+    suspend fun createExportForSeries(
+        @PathVariable seriesId: UUID,
+        authentication: Authentication,
+    ): HttpResponse<StreamedFile> {
+        val products = productRegistrationService.findBySeriesUUIDAndSupplierId(seriesId, authentication.supplierId())
+        if (products.isEmpty()) throw BadRequestException("No products found")
+        val id = UUID.randomUUID()
+        LOG.info("Generating Excel file: $id.xlsx")
+        return ByteArrayOutputStream().use {
+            xlExport.createWorkbookToOutputStream(products, it)
+            HttpResponse.ok(StreamedFile(it.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
+                .header("Content-Disposition", "attachment; filename=$id.xlsx")
+        }
+    }
+
+    @Post(
+        "/excel/import/{seriesId}",
         consumes = [MediaType.MULTIPART_FORM_DATA],
         produces = [MediaType.APPLICATION_JSON],
     )
-    suspend fun importExcel(
+    suspend fun importExcelForSeries(
+        @PathVariable seriesId: UUID,
         file: CompletedFileUpload,
         authentication: Authentication,
     ): HttpResponse<List<ProductRegistrationDTO>> {
         LOG.info("Importing Excel file ${file.filename} for supplierId ${authentication.supplierId()}")
         return file.inputStream.use { inputStream ->
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
-            validateProductsToBeImported(excelDTOList, authentication)
+            validateProductsToBeImported(excelDTOList, seriesId, authentication)
             LOG.info("found ${excelDTOList.size} products in Excel file")
             val products = productRegistrationService.importExcelRegistrations(excelDTOList, authentication)
+            val seriesToUpdate = seriesRegistrationService.findById(seriesId)
+            requireNotNull(seriesToUpdate)
+            // todo: could it ever be needed to change unpublished to draft also?
+            if (seriesToUpdate.published != null) {
+                seriesRegistrationService.setPublishedSeriesToDraftStatus(seriesToUpdate, authentication)
+            }
+
             HttpResponse.ok(products)
         }
     }
 
     @Post(
-        "/excel/import-dryrun",
+        "/excel/import-dryrun/{seriesId}",
         consumes = [MediaType.MULTIPART_FORM_DATA],
         produces = [MediaType.APPLICATION_JSON],
     )
-    suspend fun importExcelDryrun(
+    suspend fun importExcelForSeriesDryrun(
+        @PathVariable seriesId: UUID,
         file: CompletedFileUpload,
         authentication: Authentication,
     ): HttpResponse<List<ProductRegistrationDryRunDTO>> {
         LOG.info("Dryrun for import of Excel file ${file.filename} for supplierId ${authentication.supplierId()}")
         return file.inputStream.use { inputStream ->
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
-            validateProductsToBeImported(excelDTOList, authentication)
+            validateProductsToBeImported(excelDTOList, seriesId, authentication)
             LOG.info("found ${excelDTOList.size} products in Excel file")
             val products = productRegistrationService.importDryRunExcelRegistrations(excelDTOList, authentication)
             HttpResponse.ok(products)
@@ -312,6 +344,7 @@ class ProductRegistrationApiController(
 
     private suspend fun validateProductsToBeImported(
         dtos: List<ProductRegistrationExcelDTO>,
+        seriesId: UUID,
         authentication: Authentication,
     ) {
         val levArtNrUniqueList = dtos.map { it.levartnr }.distinct()
@@ -320,6 +353,18 @@ class ProductRegistrationApiController(
         }
 
         val seriesUniqueList = dtos.map { it.produktserieid.toUUID() }.distinct()
+
+        if (seriesUniqueList.size > 1) {
+            throw BadRequestException(
+                "Det finnes produkter tilknyttet ulike produktserier i filen. " +
+                    "Det er kun støtte for å importere produkter til en produktserie om gangen",
+            )
+        }
+
+        if (seriesUniqueList.size == 1 && seriesUniqueList[0] != seriesId) {
+            throw BadRequestException("Produktserien i filen er ulik produktserien du importerte for.")
+        }
+
         seriesUniqueList.forEach {
             if (!productRegistrationService.exitsBySeriesUUIDAndSupplierId(it, authentication.supplierId())) {
                 throw BadRequestException("ProduktserieId $it finnes ikke for leverandør ${authentication.supplierId()}")

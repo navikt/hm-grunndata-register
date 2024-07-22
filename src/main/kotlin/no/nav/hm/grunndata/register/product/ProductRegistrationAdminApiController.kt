@@ -121,10 +121,14 @@ class ProductRegistrationAdminApiController(
         @PathVariable supplierId: UUID,
         @Body draftWith: DraftVariantDTO,
         authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> {
-        return HttpResponse.ok(
+    ): HttpResponse<ProductRegistrationDTO> = try {
+        HttpResponse.ok(
             productRegistrationService.createDraftWithV2(seriesUUID, draftWith, supplierId, authentication),
         )
+    } catch (e: DataAccessException) {
+        throw BadRequestException(e.message ?: "Error creating draft")
+    } catch (e: Exception) {
+        throw BadRequestException("Error creating draft")
     }
 
     @Post("/draft/supplier/{supplierId}{?isAccessory}{?isSparePart}")

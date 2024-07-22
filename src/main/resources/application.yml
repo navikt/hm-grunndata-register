@@ -169,8 +169,11 @@ baseversion:
 import:
   autoapprove: ${IMPORT_AUTOAPPROVE:false}
 
-bestillingsordning:
-  url: ${BESTILLINGSORDNING_URL:`https://navikt.github.io/digihot-sortiment/bestillingsordning_sortiment.json`}
+digihotSortiment:
+  bestillingsordning: ${BESTILLINGSORDNING_URL:`https://navikt.github.io/digihot-sortiment/bestillingsordning_sortiment.json`}
+  digitalSoknadSortiment: ${DIGITAL_SOKNAD_SORTIMENT_URL:`https://navikt.github.io/digihot-sortiment/sortiment_av_apostid_per_kategori_local2.json`}
+  paakrevdGodkjenningskurs: ${PAAKREVD_GODKJENNINGSKURS_URL:`https://navikt.github.io/digihot-sortiment/paakrevde_godkjenningskurs.json`}
+  produkttype: ${PRODUKTTYPE_URL:`https://navikt.github.io/digihot-sortiment/produkttype.json`}
 
 elector:
   path: ${ELECTOR_PATH:localhost}

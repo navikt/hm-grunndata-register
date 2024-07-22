@@ -194,6 +194,41 @@ open class SeriesRegistrationService(
     }
 
     @Transactional
+    open suspend fun setPublishedSeriesReadyForApproval(
+        seriesToUpdate: SeriesRegistrationDTO,
+        authentication: Authentication,
+    ): SeriesRegistrationDTO {
+        val updatedSeries =
+            seriesToUpdate.copy(
+                draftStatus = DraftStatus.DONE,
+                adminStatus = AdminStatus.PENDING,
+                updated = LocalDateTime.now(),
+                updatedBy = REGISTER,
+                updatedByUser = authentication.name,
+            )
+
+        val variantsToUpdate =
+            productRegistrationService.findAllBySeriesUUIDAndDraftStatusAndRegistrationStatus(
+                seriesToUpdate.id,
+                DraftStatus.DRAFT,
+                RegistrationStatus.ACTIVE,
+            ).map {
+                it.copy(
+                    draftStatus = DraftStatus.DONE,
+                    adminStatus = AdminStatus.PENDING,
+                    updated = LocalDateTime.now(),
+                    updatedBy = REGISTER,
+                    updatedByUser = authentication.name,
+                )
+            }
+
+        saveAndCreateEventIfNotDraftAndApproved(updatedSeries, true)
+        productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(variantsToUpdate, true)
+
+        return updatedSeries
+    }
+
+    @Transactional
     open suspend fun setPublishedSeriesRegistrationStatus(
         seriesToUpdate: SeriesRegistrationDTO,
         authentication: Authentication,
@@ -244,4 +279,10 @@ open class SeriesRegistrationService(
 
         return updatedSeries
     }
+
+    suspend fun countBySupplier(supplierId: UUID): Long = seriesRegistrationRepository.count(
+        where {
+            root[SeriesRegistration::supplierId] eq supplierId
+            root[SeriesRegistration::status] eq SeriesStatus.ACTIVE
+        })
 }
