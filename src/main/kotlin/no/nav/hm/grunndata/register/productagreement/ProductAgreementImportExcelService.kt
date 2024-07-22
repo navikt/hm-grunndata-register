@@ -80,7 +80,6 @@ class ProductAgreementImportExcelService(
         }
         val supplierId = parseSupplierName(supplierName)
         var product = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)
-        val type = mapArticleType(articleType, funksjonsendring)
         val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(delkontraktNr)
         return postRanks.map { postRank ->
             LOG.info("Creating product agreement for agreement $cleanRef, post ${postRank.first}, rank ${postRank.second}")
@@ -103,8 +102,8 @@ class ProductAgreementImportExcelService(
                 published = agreement.published,
                 expired = agreement.expired,
                 updatedBy = EXCEL,
-                sparePart = type.sparePart,
-                accessory = type.accessory,
+                sparePart = sparePart,
+                accessory = accessory,
                 isoCategory = iso
             )
         }
@@ -155,8 +154,10 @@ class ProductAgreementImportExcelService(
         columnMap: Map<String, Int>,
     ): ProductAgreementExcelDTO? {
         val leveartNr = row.getCell(columnMap[leverandørensartnr.column]!!)?.toString()?.trim()
-        val type = row.getCell(columnMap[malTypeartikkel.column]!!)?.toString()?.trim()
-        if (leveartNr != null && "" != leveartNr && type != null && "HMS Servicetjeneste" != type) {
+        val typeArtikkel = row.getCell(columnMap[malTypeartikkel.column]!!)?.toString()?.trim()
+        if (leveartNr != null && "" != leveartNr && typeArtikkel != null && "HMS Servicetjeneste" != typeArtikkel) {
+            val funksjonsendring = row.getCell(columnMap[funksjonsendring.column]!!).toString().trim()
+            val type = mapArticleType(typeArtikkel, funksjonsendring)
             return ProductAgreementExcelDTO(
                 hmsArtNr = row.getCell(columnMap[hms_ArtNr.column]!!).toString().trim(),
                 iso = row.getCell(columnMap[kategori.column]!!).toString().trim(),
@@ -166,11 +167,14 @@ class ProductAgreementImportExcelService(
                 delkontraktNr = row.getCell(columnMap[delkontraktnummer.column]!!).toString().trim(),
                 dateFrom = row.getCell(columnMap[datofom.column]!!).toString().trim(),
                 dateTo = row.getCell(columnMap[datotom.column]!!).toString().trim(),
-                articleType = type,
-                funksjonsendring = row.getCell(columnMap[funksjonsendring.column]!!).toString().trim(),
+                articleType = typeArtikkel,
+                funksjonsendring = funksjonsendring,
                 forChildren = row.getCell(columnMap[malgruppebarn.column]!!).toString().trim(),
                 supplierName = row.getCell(columnMap[leverandorfirmanavn.column]!!).toString().trim(),
                 supplierCity = row.getCell(columnMap[leverandorsted.column]!!).toString().trim(),
+                accessory = type.accessory,
+                sparePart = type.sparePart,
+                mainProduct = type.mainProduct
             )
         }
         return null
@@ -224,6 +228,9 @@ data class ProductAgreementExcelDTO(
     val forChildren: String,
     val supplierName: String,
     val supplierCity: String,
+    val mainProduct: Boolean,
+    val sparePart: Boolean,
+    val accessory: Boolean
 )
 
 fun String.extractDelkontraktNrFromTitle(): String? {

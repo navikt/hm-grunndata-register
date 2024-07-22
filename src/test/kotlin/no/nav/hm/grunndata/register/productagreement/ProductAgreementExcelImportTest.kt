@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.productagreement
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
@@ -29,7 +30,8 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
                                       private val agreementRegistrationService: AgreementRegistrationService,
                                       private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository,
                                       private val productAgreementImportExcelService: ProductAgreementImportExcelService,
-                                      private val accessoryPartHandler: ProductAgreementAccessoryPartHandler) {
+                                      private val accessoryPartHandler: ProductAccessorySparePartSeriesHandler,
+                                      private val objectMapper: ObjectMapper) {
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -139,11 +141,12 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
                 productAgreements.size shouldBe 6
                 productAgreements[0].accessory shouldBe false
                 productAgreements[0].sparePart shouldBe false
-                productAgreements[4].accessory shouldBe true
-                productAgreements[4].sparePart shouldBe false
+                productAgreements[4].sparePart shouldBe true
+                productAgreements[4].accessory shouldBe false
                 productAgreements[5].accessory shouldBe false
                 productAgreements[5].sparePart shouldBe true
-                val productAgreementGroupInSeries = accessoryPartHandler.handleAccessoryAndSparePartProductAgreement(productAgreements)
+                val productAgreementGroupInSeries = accessoryPartHandler.handleAccessoryAndSparePartProductAgreement(productAgreements, false)
+                println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(productAgreementGroupInSeries))
                 productAgreementGroupInSeries.forEach {
                     if (it.accessory || it.sparePart) it.seriesUuid.shouldNotBeNull()
                 }
