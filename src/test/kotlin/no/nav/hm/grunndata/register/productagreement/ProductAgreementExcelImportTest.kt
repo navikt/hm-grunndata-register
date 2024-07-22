@@ -1,7 +1,6 @@
 package no.nav.hm.grunndata.register.productagreement
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
@@ -30,7 +29,7 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
                                       private val agreementRegistrationService: AgreementRegistrationService,
                                       private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository,
                                       private val productAgreementImportExcelService: ProductAgreementImportExcelService,
-                                      private val accessoryPartHandler: ProductAccessorySparePartSeriesHandler,
+                                      private val accessoryPartHandler: ProductAccessorySparePartAgreementHandler,
                                       private val objectMapper: ObjectMapper) {
 
     @MockBean(RapidPushService::class)
@@ -145,11 +144,10 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
                 productAgreements[4].accessory shouldBe false
                 productAgreements[5].accessory shouldBe false
                 productAgreements[5].sparePart shouldBe true
-                val productAgreementGroupInSeries = accessoryPartHandler.handleAccessoryAndSparePartProductAgreement(productAgreements, false)
+                val productAgreementGroupInSeries = accessoryPartHandler.handleProductsInProductAgreement(productAgreements, false)
                 println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(productAgreementGroupInSeries))
-                productAgreementGroupInSeries.forEach {
-                    if (it.accessory || it.sparePart) it.seriesUuid.shouldNotBeNull()
-                }
+                val groupedSeries = productAgreementGroupInSeries.groupBy { it.seriesUuid }
+                groupedSeries.size shouldBe 3
             }
         }
     }
@@ -173,16 +171,6 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
         regex.find(del4)?.groupValues?.get(1) shouldBe "1"
         regex.find(del4)?.groupValues?.get(2) shouldBe ""
         regex.find(del4)?.groupValues?.get(3) shouldBe ""
-    }
-
-    @Test
-    fun testFindSimilarTitleNames() {
-        val title1 = "Skrittsele John sittevogn Kangoo str6"
-        val title2 = "Skrittsele John sittevogn Kangoo str5"
-        // count identical words between two strings
-        val words1 = title1.split("\\s+".toRegex()).toSet()
-        val words2 = title2.split("\\s+".toRegex()).toSet()
-        println(words1.intersect(words2).size)
     }
 
 }

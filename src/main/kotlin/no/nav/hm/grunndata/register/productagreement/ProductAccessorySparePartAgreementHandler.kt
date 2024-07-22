@@ -15,15 +15,22 @@ import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import org.slf4j.LoggerFactory
 
 @Singleton
-class ProductAccessorySparePartSeriesHandler(
+class ProductAccessorySparePartAgreementHandler(
     private val productRegistrationRepository: ProductRegistrationRepository,
     private val seriesRegistrationRepository: SeriesRegistrationRepository
 ) {
     companion object {
-        private val LOG = LoggerFactory.getLogger(ProductAccessorySparePartSeriesHandler::class.java)
+        private val LOG = LoggerFactory.getLogger(ProductAccessorySparePartAgreementHandler::class.java)
     }
 
-    suspend fun handleAccessoryAndSparePartProductAgreement(
+    /**
+     * This function will handle the products, accessory and spareparts in the productAgreement.
+     * It will group the products agreements in series based on the title
+     * create the series and the products if not exists and dryRun is false
+     * returns a list of productAgreements with seriesUuid and productId
+     * The products will have admin status PENDING and draft status DONE
+     */
+    suspend fun handleProductsInProductAgreement(
         productAgreements: List<ProductAgreementRegistrationDTO>,
         dryRun: Boolean = true
     ): List<ProductAgreementRegistrationDTO> {
@@ -110,7 +117,7 @@ class ProductAccessorySparePartSeriesHandler(
     }
 
     private fun groupInSeriesBasedOnTitle(productsagreements: List<ProductAgreementRegistrationDTO>): MutableMap<String, MutableList<ProductAgreementRegistrationDTO>> {
-        // group accessory and spare parts together in series based on the title that has intersection size >= 2
+        // group accessory and spare parts together in series based on the common prefix of the title
         val orderedProductAgreements = productsagreements.sortedBy { it.title }
         val groupedSeries = mutableMapOf<String, MutableList<ProductAgreementRegistrationDTO>>()
         val visited = mutableSetOf<UUID>()
