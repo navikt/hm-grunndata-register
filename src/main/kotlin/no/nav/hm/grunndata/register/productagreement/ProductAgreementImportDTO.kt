@@ -1,10 +1,11 @@
 package no.nav.hm.grunndata.register.productagreement
 
+import no.nav.hm.grunndata.register.product.ProductRegistration
+
 data class ProductAgreementImportDTO(
     val dryRun: Boolean,
     val count: Int,
     val file: String,
-    val productAgreements: List<ProductAgreementRegistrationDTO>,
     val productAgreementsWithInformation: List<Pair<ProductAgreementRegistrationDTO, List<Information>>>,
 )
 
@@ -17,3 +18,7 @@ enum class Type {
     INFO,
     WARNING,
 }
+
+data class CreatedProductRegistrationDTO(
+    val productRegistration: ProductRegistration
+)

@@ -78,7 +78,6 @@ class ProductAgreementAdminController(
             dryRun = dryRun,
             count = productAgreements.size,
             file = file.filename,
-            productAgreements = productAgreements,
             productAgreementsWithInformation = productAgreementsWithInformation,
         )
     }

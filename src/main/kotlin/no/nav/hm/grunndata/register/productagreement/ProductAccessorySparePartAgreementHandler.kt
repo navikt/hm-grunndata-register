@@ -3,6 +3,7 @@ package no.nav.hm.grunndata.register.productagreement
 import jakarta.inject.Singleton
 import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.CompatibleWith
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
@@ -39,12 +40,49 @@ class ProductAccessorySparePartAgreementHandler(
         val supplierId = accessoryOrSpareParts.first().supplierId
         val groupedAccessoryOrSpareParts = groupInSeriesBasedOnTitle(accessoryOrSpareParts)
         val groupedMainProducts = groupInSeriesBasedOnTitle(mainProductAgreements)
-        val createdSeriesAccessorSpareParts = createSeriesAndProducts(groupedAccessoryOrSpareParts, supplierId, dryRun)
-        val createdSeriesMainProducts = createSeriesAndProducts(groupedMainProducts, supplierId, dryRun)
-        return createdSeriesAccessorSpareParts + createdSeriesMainProducts
+        val createdSeriesAccessorSpareParts = createSeriesAndProductsIfNotExists(groupedAccessoryOrSpareParts, supplierId, dryRun)
+        val createdSeriesMainProducts = createSeriesAndProductsIfNotExists(groupedMainProducts, supplierId, dryRun)
+        val combineMainAndAccessory = createCompatibleLinkBetweenMainAndAccessory(createdSeriesAccessorSpareParts, createdSeriesMainProducts, dryRun)
+        return combineMainAndAccessory
     }
 
-    private suspend fun createSeriesAndProducts(
+    private suspend fun createCompatibleLinkBetweenMainAndAccessory(
+        accessorSpareParts: List<ProductAgreementRegistrationDTO>,
+        mainProducts: List<ProductAgreementRegistrationDTO>, dryRun: Boolean
+    ): List<ProductAgreementRegistrationDTO> {
+        if (accessorSpareParts.isEmpty() || mainProducts.isEmpty()) {
+            return accessorSpareParts + mainProducts
+        }
+        // Try to find the main product for each accessory and spare part based on the title similarity
+        val compatibleParts = accessorSpareParts.map { accessoryOrSparePart ->
+            var mostCompatibleMainProduct: ProductAgreementRegistrationDTO? = null
+            var maxWord=0
+            mainProducts.forEach { mainProduct ->
+                // find intersect size of the two titles
+                val size = findTitleIntersectSize(accessoryOrSparePart.title, mainProduct.title)
+                if (size>=2 && size>maxWord) {
+                    maxWord = size
+                    mostCompatibleMainProduct = mainProduct
+                }
+            }
+
+            if (mostCompatibleMainProduct != null) {
+                productRegistrationRepository.findById(accessoryOrSparePart.productId!!)?.let {
+                    val product = it.copy(
+                        productData = it.productData.copy(attributes = it.productData.attributes.copy(
+                            compatibleWidth = CompatibleWith(seriesIds = setOf(mostCompatibleMainProduct!!.seriesUuid!!),
+                                productIds = setOf(mostCompatibleMainProduct!!.productId!!))
+                        ))
+                    )
+                    if (!dryRun) productRegistrationRepository.update(product)
+                }
+            }
+            else accessoryOrSparePart
+        }
+        return accessorSpareParts + mainProducts
+    }
+
+    private suspend fun createSeriesAndProductsIfNotExists(
         groupedProductAgreements: Map<String, List<ProductAgreementRegistrationDTO>>,
         supplierId: UUID,
         dryRun: Boolean
@@ -159,5 +197,12 @@ class ProductAccessorySparePartAgreementHandler(
         }
 
         return commonPrefix.toString()
+    }
+
+    fun findTitleIntersectSize(accessoryTitle: String, mainProductTitle: String): Int {
+        val accessoryWords = accessoryTitle.split("\\s+".toRegex()).toSet()
+        val mainProductWords = mainProductTitle.split("\\s+".toRegex()).toSet()
+        val intersection = accessoryWords.intersect(mainProductWords)
+        return intersection.size
     }
 }
