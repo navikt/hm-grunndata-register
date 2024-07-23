@@ -134,7 +134,7 @@ class ProductAgreementImportExcelService(
                 while (matchResult != null) {
                     val groupValues = delKontraktRegex.find(subContractNr)?.groupValues
                     val post = groupValues?.get(1) + groupValues?.get(2)?.uppercase()
-                    val rank1 = groupValues?.get(3)?.toInt() ?: 99
+                    val rank1 = groupValues?.get(3)?.toIntOrNull() ?: 99
                     mutableList.add(Pair(post, rank1))
                     matchResult = matchResult.next()
                 }
