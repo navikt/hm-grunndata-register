@@ -122,14 +122,14 @@ class ProductAccessorySparePartAgreementHandler(
         val groupedSeries = mutableMapOf<String, MutableList<ProductAgreementRegistrationDTO>>()
         val visited = mutableSetOf<UUID>()
         orderedProductAgreements.forEach { productAgreement ->
+            var isGrouped = false
             if (visited.contains(productAgreement.id)) {
                 return@forEach
             }
             visited.add(productAgreement.id)
-            var isGrouped = false
             orderedProductAgreements.filter { it.id != productAgreement.id && it.id !in visited }
                 .forEach { otherProductAgreement ->
-                    val commonPrefixTitle = findCommonPrefix(productAgreement.title, otherProductAgreement.title)
+                    val commonPrefixTitle = findCommonPrefix(productAgreement.title, otherProductAgreement.title).trim()
                     if (commonPrefixTitle.split("\\s+".toRegex()).size >= 2) {
                         if (!groupedSeries.containsKey(commonPrefixTitle)) {
                             groupedSeries[commonPrefixTitle] = mutableListOf(productAgreement)

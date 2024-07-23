@@ -31,6 +31,7 @@ class ProductAgreementAdminController(
     private val productRegistrationService: ProductRegistrationService,
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productAgreementRegistrationService: ProductAgreementRegistrationService,
+    private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementAdminController::class.java)
@@ -48,9 +49,9 @@ class ProductAgreementAdminController(
         authentication: Authentication,
     ): ProductAgreementImportDTO {
         LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()}")
-        val productAgreements =
+        val productAgreementsImported =
             file.inputStream.use { input -> productAgreementImportExcelService.importExcelFile(input) }
-
+        val productAgreements = productAccessorySparePartAgreementHandler.handleProductsInProductAgreement(productAgreementsImported, dryRun)
         val productAgreementsWithInformation =
             productAgreements.map {
                 val information = mutableListOf<Information>()
@@ -76,6 +77,7 @@ class ProductAgreementAdminController(
         return ProductAgreementImportDTO(
             dryRun = dryRun,
             count = productAgreements.size,
+            file = file.filename,
             productAgreements = productAgreements,
             productAgreementsWithInformation = productAgreementsWithInformation,
         )

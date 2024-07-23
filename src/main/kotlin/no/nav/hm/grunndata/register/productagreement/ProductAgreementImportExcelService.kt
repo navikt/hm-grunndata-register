@@ -69,15 +69,15 @@ class ProductAgreementImportExcelService(
         return ArticleType(mainProduct, sparePart, accessory)
     }
 
-    private suspend fun ProductAgreementExcelDTO.toProductAgreementDTO(): List<ProductAgreementRegistrationDTO> {
+    private suspend fun ProductAgreementExcelDTO.toProductAgreementDTO(updatedByUser: String? ="system"): List<ProductAgreementRegistrationDTO> {
         val cleanRef = reference.lowercase().replace("/", "-")
         val agreement = findAgreementByReference(cleanRef)
         if (agreement.agreementStatus === AgreementStatus.DELETED) {
             throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er slettet, må den opprettes?")
         }
-        if (agreement.agreementStatus === AgreementStatus.ACTIVE) {
-            throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er publisert")
-        }
+//        if (agreement.agreementStatus === AgreementStatus.ACTIVE) {
+//            throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er publisert")
+//        }
         val supplierId = parseSupplierName(supplierName)
         var product = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)
         val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(delkontraktNr)
@@ -104,7 +104,8 @@ class ProductAgreementImportExcelService(
                 updatedBy = EXCEL,
                 sparePart = sparePart,
                 accessory = accessory,
-                isoCategory = iso
+                isoCategory = iso,
+                updatedByUser = updatedByUser!!
             )
         }
     }
@@ -126,12 +127,12 @@ class ProductAgreementImportExcelService(
 
     private fun parsedelkontraktNr(subContractNr: String): List<Pair<String, Int>> {
         try {
-            val rankRegex = Regex("(?i)d(\\d+)([A-Z]*)r(\\d+)")
-            var matchResult = rankRegex.find(subContractNr)
+
+            var matchResult = delKontraktRegex.find(subContractNr)
             val mutableList: MutableList<Pair<String, Int>> = mutableListOf()
             if (matchResult != null) {
                 while (matchResult != null) {
-                    val groupValues = rankRegex.find(subContractNr)?.groupValues
+                    val groupValues = delKontraktRegex.find(subContractNr)?.groupValues
                     val post = groupValues?.get(1) + groupValues?.get(2)?.uppercase()
                     val rank1 = groupValues?.get(3)?.toInt() ?: 99
                     mutableList.add(Pair(post, rank1))
@@ -233,7 +234,5 @@ data class ProductAgreementExcelDTO(
     val accessory: Boolean
 )
 
-fun String.extractDelkontraktNrFromTitle(): String? {
-    val regex = """(\d+)([A-Z]*)([.|:])""".toRegex()
-    return regex.find(this)?.groupValues?.get(0)?.dropLast(1)
-}
+val delKontraktRegex = Regex("d(\\d+)([A-Q-STU-Z]*)r*(\\d*)", RegexOption.IGNORE_CASE)
+

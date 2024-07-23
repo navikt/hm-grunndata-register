@@ -154,11 +154,12 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
 
     @Test
     fun testDelkontraktNrExtract() {
-        val regex = "d(\\d+)([A-Z]*)r(\\d*)".toRegex()
+        val regex = delKontraktRegex
         val del1 = "d1r1"
         val del2 = "d1Ar1"
         val del3 = "d1Br99" // mean no rank
         val del4 = "d1r"   // mean no rank
+        val del5 = "d14"   // mean no rank
         regex.find(del1)?.groupValues?.get(1) shouldBe "1"
         regex.find(del1)?.groupValues?.get(2) shouldBe ""
         regex.find(del1)?.groupValues?.get(3) shouldBe "1"
@@ -171,6 +172,9 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
         regex.find(del4)?.groupValues?.get(1) shouldBe "1"
         regex.find(del4)?.groupValues?.get(2) shouldBe ""
         regex.find(del4)?.groupValues?.get(3) shouldBe ""
+        regex.find(del5)?.groupValues?.get(1) shouldBe "14"
+        regex.find(del5)?.groupValues?.get(2) shouldBe ""
+        regex.find(del5)?.groupValues?.get(3) shouldBe ""
     }
 
 }
