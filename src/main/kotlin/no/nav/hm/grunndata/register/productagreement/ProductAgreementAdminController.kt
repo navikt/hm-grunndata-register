@@ -70,7 +70,6 @@ class ProductAgreementAdminController(
                 }
                 Pair(it, information)
             }
-
         if (!dryRun) {
             LOG.info("Saving excel imported file: ${file.name} with ${productAgreements.size} product agreements")
             productAgreementRegistrationService.saveAll(productAgreements)

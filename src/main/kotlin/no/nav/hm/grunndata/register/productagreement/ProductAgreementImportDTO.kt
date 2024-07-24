@@ -7,8 +7,9 @@ data class ProductAgreementImportDTO(
     val dryRun: Boolean,
     val count: Int,
     val file: String,
-    val createdSeries: List<SeriesRegistration> = emptyList(), // new series created for approvement
-    val createdAccessoryParts: List<ProductRegistration> = emptyList(), // new products created for approvement
+    val createdSeries: List<SeriesRegistration> = emptyList(),
+    val createdAccessoryParts: List<ProductRegistration> = emptyList(),
+    val createdProducts: List<ProductRegistration> = emptyList(),
     val productAgreementsWithInformation: List<Pair<ProductAgreementRegistrationDTO, List<Information>>>,
 )
 

@@ -97,10 +97,9 @@ class ProductAccessorySparePartAgreementHandler(
                 }
             }
         }
-        // replace compatiblefoundlist items in the newProduct list
-        val newProductsWithCompatibleWith = compatibleFoundList.flatMap { p ->
-            accessorSparePartsResult.newProducts.map { if (it.id == p.id) p else it }
-        }
+        val newProductsWithCompatibleWith = mutableListOf<ProductRegistration>()
+        newProductsWithCompatibleWith.addAll(compatibleFoundList)
+        newProductsWithCompatibleWith.addAll(accessorSparePartsResult.newProducts.filter { !compatibleFoundList.any { c -> c.id == it.id } })
         return ProductAgreementImportResultData(
             productAgreement = accessorSpareParts,
             newSeries = accessorSparePartsResult.newSeries,
