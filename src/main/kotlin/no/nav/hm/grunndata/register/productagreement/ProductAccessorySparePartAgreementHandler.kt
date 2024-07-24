@@ -35,8 +35,9 @@ class ProductAccessorySparePartAgreementHandler(
         productAgreements: List<ProductAgreementRegistrationDTO>,
         dryRun: Boolean = true
     ): ProductAgreementImportResult {
-        val mainProductAgreements = productAgreements.filter { !it.accessory && !it.sparePart }
-        val accessoryOrSpareParts = productAgreements.filter { it.accessory || it.sparePart }
+        val distinctProductAgreements = productAgreements.distinctBy { it.supplierRef}
+        val mainProductAgreements = distinctProductAgreements.filter { !it.accessory && !it.sparePart }
+        val accessoryOrSpareParts = distinctProductAgreements.filter { it.accessory || it.sparePart }
         val supplierId = accessoryOrSpareParts.first().supplierId
         val groupedAccessoryOrSpareParts = groupInSeriesBasedOnTitle(accessoryOrSpareParts)
         val groupedMainProducts = groupInSeriesBasedOnTitle(mainProductAgreements)
@@ -145,8 +146,10 @@ class ProductAccessorySparePartAgreementHandler(
             }
             seriesGroup
         }
+        // only save one product if more than one productAgreement. Because one product can be in many productAgreements
+        val distinct = withSeriesId.distinctBy { it.supplierRef }
         val newProducts = mutableListOf<ProductRegistration>()
-        val withProductsId = withSeriesId.map {
+        val withProductsId = distinct.map {
             if (it.productId == null) {
                 val product = createNewProduct(it, dryRun)
                 newProducts.add(product)
@@ -155,6 +158,7 @@ class ProductAccessorySparePartAgreementHandler(
                 it
             }
         }
+
         return ProductAgreementImportResultData(
             productAgreement = withProductsId,
             newSeries = newSeries,
@@ -200,17 +204,21 @@ class ProductAccessorySparePartAgreementHandler(
             orderedProductAgreements.filter { it.id != productAgreement.id && it.id !in visited }
                 .forEach { otherProductAgreement ->
                     val commonPrefixTitle = findCommonPrefix(productAgreement.title, otherProductAgreement.title).trim()
-                    if (commonPrefixTitle.split("\\s+".toRegex()).size >= 2) {
-                        if (!groupedSeries.containsKey(commonPrefixTitle)) {
-                            groupedSeries[commonPrefixTitle] = mutableListOf(productAgreement)
+                    if (commonPrefixTitle.split("\\s+".toRegex()).size >= 3) {
+                        if (!groupedSeries.containsKey(productAgreement.title)) {
+                            groupedSeries[productAgreement.title] = mutableListOf()
+                            if (!isGrouped) {
+                                groupedSeries[productAgreement.title]?.add(productAgreement)
+                            }
                         }
-                        groupedSeries[commonPrefixTitle]?.add(otherProductAgreement)
+                        groupedSeries[productAgreement.title]?.add(otherProductAgreement)
                         visited.add(otherProductAgreement.id)
                         isGrouped = true
                     }
                 }
             if (!isGrouped) {
                 groupedSeries[productAgreement.title] = mutableListOf(productAgreement)
+
             }
         }
         return groupedSeries

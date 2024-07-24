@@ -51,8 +51,10 @@ class ProductAgreementAdminController(
         LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()}")
         val productAgreementsImported =
             file.inputStream.use { input -> productAgreementImportExcelService.importExcelFile(input) }
+        LOG.info("Imported ${productAgreementsImported.size} product agreements")
         val productAgreementsImportResult = productAccessorySparePartAgreementHandler.handleProductsInProductAgreement(productAgreementsImported, dryRun)
         val productAgreements = productAgreementsImportResult.productAgreements
+        LOG.info("Product agreements after handling: ${productAgreements.size}")
         val productAgreementsWithInformation =
             productAgreements.map {
                 val information = mutableListOf<Information>()
@@ -80,6 +82,7 @@ class ProductAgreementAdminController(
             file = file.filename,
             createdSeries = productAgreementsImportResult.newSeries,
             createdAccessoryParts = productAgreementsImportResult.newAccessoryParts,
+            createdMainProducts = productAgreementsImportResult.newProducts,
             productAgreementsWithInformation = productAgreementsWithInformation,
         )
     }

@@ -9,7 +9,7 @@ data class ProductAgreementImportDTO(
     val file: String,
     val createdSeries: List<SeriesRegistration> = emptyList(),
     val createdAccessoryParts: List<ProductRegistration> = emptyList(),
-    val createdProducts: List<ProductRegistration> = emptyList(),
+    val createdMainProducts: List<ProductRegistration> = emptyList(),
     val productAgreementsWithInformation: List<Pair<ProductAgreementRegistrationDTO, List<Information>>>,
 )
 

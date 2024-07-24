@@ -146,9 +146,10 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
                 productAgreements[5].sparePart shouldBe true
                 val productAgreementImportResult = accessoryPartHandler.handleProductsInProductAgreement(productAgreements, false)
                 val productAgreementGroupInSeries = productAgreementImportResult.productAgreements
+                productAgreementImportResult.newSeries.size shouldBe 4
+                productAgreementImportResult.newAccessoryParts.size shouldBe 4
+                productAgreementImportResult.newProducts.size shouldBe 2
                 println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(productAgreementGroupInSeries))
-                val groupedSeries = productAgreementGroupInSeries.groupBy { it.seriesUuid }
-                groupedSeries.size shouldBe 3
             }
         }
     }
