@@ -25,7 +25,7 @@ class ProductAccessorySparePartAgreementHandler(
     }
 
     /**
-     * This function will handle the products, accessory and spareparts in the productAgreement.
+     * This function will handle the products, accessory and spareparts in the productAgreement catalog.
      * It will group the products agreements in series based on the title
      * create the series and the products if not exists and dryRun is false
      * returns a list of productAgreements with seriesUuid and productId
@@ -34,7 +34,7 @@ class ProductAccessorySparePartAgreementHandler(
     suspend fun handleProductsInProductAgreement(
         productAgreements: List<ProductAgreementRegistrationDTO>,
         dryRun: Boolean = true
-    ): List<ProductAgreementRegistrationDTO> {
+    ): ProductAgreementImportResult {
         val mainProductAgreements = productAgreements.filter { !it.accessory && !it.sparePart }
         val accessoryOrSpareParts = productAgreements.filter { it.accessory || it.sparePart }
         val supplierId = accessoryOrSpareParts.first().supplierId
@@ -42,19 +42,27 @@ class ProductAccessorySparePartAgreementHandler(
         val groupedMainProducts = groupInSeriesBasedOnTitle(mainProductAgreements)
         val createdSeriesAccessorSpareParts = createSeriesAndProductsIfNotExists(groupedAccessoryOrSpareParts, supplierId, dryRun)
         val createdSeriesMainProducts = createSeriesAndProductsIfNotExists(groupedMainProducts, supplierId, dryRun)
-        val combineMainAndAccessory = createCompatibleLinkBetweenMainAndAccessory(createdSeriesAccessorSpareParts, createdSeriesMainProducts, dryRun)
-        return combineMainAndAccessory
+        val compatibleAccessory = createCompatibleWithLinkForAccessoryParts(createdSeriesAccessorSpareParts, createdSeriesMainProducts, dryRun)
+        return ProductAgreementImportResult(
+            productAgreements = createdSeriesAccessorSpareParts.productAgreement + createdSeriesMainProducts.productAgreement,
+            newSeries = createdSeriesMainProducts.newSeries + createdSeriesAccessorSpareParts.newSeries,
+            newAccessoryParts = compatibleAccessory.newProducts,
+            newProducts =  createdSeriesMainProducts.newProducts
+        )
     }
 
-    private suspend fun createCompatibleLinkBetweenMainAndAccessory(
-        accessorSpareParts: List<ProductAgreementRegistrationDTO>,
-        mainProducts: List<ProductAgreementRegistrationDTO>, dryRun: Boolean
-    ): List<ProductAgreementRegistrationDTO> {
+    private suspend fun createCompatibleWithLinkForAccessoryParts(
+        accessorSparePartsResult: ProductAgreementImportResultData,
+        mainProductsResult: ProductAgreementImportResultData, dryRun: Boolean
+    ): ProductAgreementImportResultData {
+        val accessorSpareParts = accessorSparePartsResult.productAgreement
+        val mainProducts = mainProductsResult.productAgreement
         if (accessorSpareParts.isEmpty() || mainProducts.isEmpty()) {
-            return accessorSpareParts + mainProducts
+            return accessorSparePartsResult
         }
+        val compatibleFoundList = mutableListOf<ProductRegistration>()
         // Try to find the main product for each accessory and spare part based on the title similarity
-        val compatibleParts = accessorSpareParts.map { accessoryOrSparePart ->
+        accessorSpareParts.forEach { accessoryOrSparePart ->
             var mostCompatibleMainProduct: ProductAgreementRegistrationDTO? = null
             var maxWord=0
             mainProducts.forEach { mainProduct ->
@@ -65,33 +73,52 @@ class ProductAccessorySparePartAgreementHandler(
                     mostCompatibleMainProduct = mainProduct
                 }
             }
-
             if (mostCompatibleMainProduct != null) {
-                productRegistrationRepository.findById(accessoryOrSparePart.productId!!)?.let {
-                    val product = it.copy(
+                val product = productRegistrationRepository.findById(accessoryOrSparePart.productId!!)?.let {
+                    it.copy(
                         productData = it.productData.copy(attributes = it.productData.attributes.copy(
                             compatibleWidth = CompatibleWith(seriesIds = setOf(mostCompatibleMainProduct!!.seriesUuid!!),
                                 productIds = setOf(mostCompatibleMainProduct!!.productId!!))
                         ))
                     )
+                } ?: run {
+                    accessorSparePartsResult.newProducts.find { it.id == accessoryOrSparePart.productId}?.let {
+                        it.copy(
+                            productData = it.productData.copy(attributes = it.productData.attributes.copy(
+                                compatibleWidth = CompatibleWith(seriesIds = setOf(mostCompatibleMainProduct!!.seriesUuid!!),
+                                    productIds = setOf(mostCompatibleMainProduct!!.productId!!))
+                            ))
+                        )
+                    }
+                }
+                if (product!=null) {
+                    compatibleFoundList.add(product)
                     if (!dryRun) productRegistrationRepository.update(product)
                 }
             }
-            else accessoryOrSparePart
         }
-        return accessorSpareParts + mainProducts
+        // replace compatiblefoundlist items in the newProduct list
+        val newProductsWithCompatibleWith = compatibleFoundList.flatMap { p ->
+            accessorSparePartsResult.newProducts.map { if (it.id == p.id) p else it }
+        }
+        return ProductAgreementImportResultData(
+            productAgreement = accessorSpareParts,
+            newSeries = accessorSparePartsResult.newSeries,
+            newProducts = newProductsWithCompatibleWith
+        )
     }
 
     private suspend fun createSeriesAndProductsIfNotExists(
         groupedProductAgreements: Map<String, List<ProductAgreementRegistrationDTO>>,
         supplierId: UUID,
         dryRun: Boolean
-    ): List<ProductAgreementRegistrationDTO> {
-        val createdSeries = groupedProductAgreements.flatMap { (_, value) ->
+    ): ProductAgreementImportResultData {
+        val newSeries = mutableListOf<SeriesRegistration>()
+        val withSeriesId = groupedProductAgreements.flatMap { (_, value) ->
             // check if in value list that all seriesUuid is null
             val noSeries = value.all { it.seriesUuid == null }
             val seriesGroup = if (noSeries) {
-                // create a new series for this group of accessory and spareParts
+                // create a new series for this group
                 val seriesId = UUID.randomUUID()
                 val first = value.first()
                 val series = SeriesRegistration(
@@ -106,6 +133,7 @@ class ProductAccessorySparePartAgreementHandler(
                     seriesData = SeriesDataDTO(),
                     text = first.title
                 )
+                newSeries.add(series)
                 if (!dryRun) seriesRegistrationRepository.save(series)
                 value.map {
                     it.copy(seriesUuid = series.id)
@@ -118,16 +146,21 @@ class ProductAccessorySparePartAgreementHandler(
             }
             seriesGroup
         }
-        val createdSeriesAndProducts = createdSeries.map {
+        val newProducts = mutableListOf<ProductRegistration>()
+        val withProductsId = withSeriesId.map {
             if (it.productId == null) {
                 val product = createNewProduct(it, dryRun)
+                newProducts.add(product)
                 it.copy(productId = product.id)
             } else {
                 it
             }
         }
-
-        return createdSeries
+        return ProductAgreementImportResultData(
+            productAgreement = withProductsId,
+            newSeries = newSeries,
+            newProducts = newProducts
+        )
     }
 
     private suspend fun createNewProduct(
@@ -205,4 +238,17 @@ class ProductAccessorySparePartAgreementHandler(
         val intersection = accessoryWords.intersect(mainProductWords)
         return intersection.size
     }
+
+    data class ProductAgreementImportResultData(
+        val productAgreement: List<ProductAgreementRegistrationDTO>,
+        val newSeries: List<SeriesRegistration>,
+        val newProducts: List<ProductRegistration>
+    )
 }
+
+data class ProductAgreementImportResult(
+    val productAgreements: List<ProductAgreementRegistrationDTO>,
+    val newSeries: List<SeriesRegistration>,
+    val newAccessoryParts: List<ProductRegistration>,
+    val newProducts: List<ProductRegistration>
+)
