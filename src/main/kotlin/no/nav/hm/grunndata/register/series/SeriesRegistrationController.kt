@@ -266,6 +266,10 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
                 if (params.contains("excludedStatus")) {
                     root[SeriesRegistration::status] ne params["excludedStatus"]
                 }
+                if (params.contains("adminStatus")) {
+                    val statusList: List<AdminStatus> = params["adminStatus"]!!.split(",").map { AdminStatus.valueOf(it) }
+                    root[SeriesRegistration::adminStatus] inList statusList
+                }
             }.and { root, criteriaBuilder ->
                 if (params.contains("title")) {
                     val term = params["title"]!!.lowercase(Locale.getDefault())
