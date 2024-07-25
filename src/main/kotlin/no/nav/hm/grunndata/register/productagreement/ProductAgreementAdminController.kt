@@ -55,6 +55,7 @@ class ProductAgreementAdminController(
         val productAgreementsImportResult = productAccessorySparePartAgreementHandler.handleProductsInProductAgreement(productAgreementsImported, authentication, dryRun)
         val productAgreements = productAgreementsImportResult.productAgreements
         LOG.info("Product agreements after handling: ${productAgreements.size}")
+        var newCount = 0
         val productAgreementsWithInformation =
             productAgreements.map {
                 val information = mutableListOf<Information>()
@@ -70,6 +71,9 @@ class ProductAgreementAdminController(
                 if (existingProductAgreement != null) {
                     information.add(Information("Product agreement already exists", Type.WARNING))
                 }
+                else {
+                    newCount++
+                }
                 Pair(it, information)
             }
         if (!dryRun) {
@@ -79,6 +83,7 @@ class ProductAgreementAdminController(
         return ProductAgreementImportDTO(
             dryRun = dryRun,
             count = productAgreements.size,
+            newCount = newCount,
             file = file.filename,
             createdSeries = productAgreementsImportResult.newSeries,
             createdAccessoryParts = productAgreementsImportResult.newAccessoryParts,

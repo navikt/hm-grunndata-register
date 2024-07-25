@@ -6,6 +6,7 @@ import no.nav.hm.grunndata.register.series.SeriesRegistration
 data class ProductAgreementImportDTO(
     val dryRun: Boolean,
     val count: Int,
+    val newCount: Int,
     val file: String,
     val createdSeries: List<SeriesRegistration> = emptyList(),
     val createdAccessoryParts: List<ProductRegistration> = emptyList(),
