@@ -50,8 +50,8 @@ class ProductAccessorySparePartAgreementHandler(
         return ProductAgreementImportResult(
             productAgreements = createdSeriesAccessorSpareParts.productAgreement + createdSeriesMainProducts.productAgreement,
             newSeries = createdSeriesMainProducts.newSeries + createdSeriesAccessorSpareParts.newSeries,
-            newAccessoryParts = compatibleAccessory.newProducts,
-            newProducts =  createdSeriesMainProducts.newProducts
+            newAccessoryParts = createdSeriesAccessorSpareParts.newProducts,
+            newProducts =  compatibleAccessory.newProducts
         )
     }
 
@@ -59,6 +59,9 @@ class ProductAccessorySparePartAgreementHandler(
         accessorSparePartsResult: ProductAgreementImportResultData,
         mainProductsResult: ProductAgreementImportResultData, dryRun: Boolean
     ): ProductAgreementImportResultData {
+        if (accessorSparePartsResult.newProducts.isEmpty() || mainProductsResult.newProducts.isEmpty()) {
+            return accessorSparePartsResult
+        }
         val accessorSpareParts = accessorSparePartsResult.productAgreement
         val mainProducts = mainProductsResult.productAgreement
         if (accessorSpareParts.isEmpty() || mainProducts.isEmpty()) {

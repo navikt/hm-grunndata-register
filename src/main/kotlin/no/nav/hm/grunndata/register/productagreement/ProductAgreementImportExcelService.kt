@@ -80,10 +80,10 @@ class ProductAgreementImportExcelService(
 //            throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er publisert")
 //        }
         val supplierId = parseSupplierName(supplierName)
-        var product = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)
+        val product = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)
         val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(delkontraktNr)
         return postRanks.map { postRank ->
-            LOG.info("Creating product agreement for agreement $cleanRef, post ${postRank.first}, rank ${postRank.second}")
+            LOG.info("Mapping to product agreement for agreement $cleanRef, post ${postRank.first}, rank ${postRank.second}")
             val delkontrakt: DelkontraktRegistrationDTO =
                 agreement.delkontraktList.find { it.delkontraktData.refNr == postRank.first }
                     ?: throw BadRequestException("Delkontrakt ${postRank.first} finnes ikke i avtale $cleanRef, må den opprettes?")
@@ -162,7 +162,7 @@ class ProductAgreementImportExcelService(
             val type = mapArticleType(typeArtikkel, funksjonsendring)
             return ProductAgreementExcelDTO(
                 hmsArtNr = row.getCell(columnMap[hms_ArtNr.column]!!).toString().trim(),
-                iso = row.getCell(columnMap[kategori.column]!!).toString().trim(),
+                iso = row.getCell(columnMap[kategori.column]!!).toString().trim().substringBefore(".0"),
                 title = row.getCell(columnMap[beskrivelse.column]!!).toString().trim(),
                 supplierRef = leveartNr,
                 reference = row.getCell(columnMap[anbudsnr.column]!!).toString().trim(),
