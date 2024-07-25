@@ -206,7 +206,6 @@ class ProductExcelExportTest(
             message = "Melding til leverandør",
             adminInfo = null,
             createdByAdmin = false,
-            expired = null,
             published = null,
             updatedByUser = email,
             createdByUser = email,

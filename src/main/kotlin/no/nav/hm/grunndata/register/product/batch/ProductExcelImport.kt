@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.product.batch
 
 import jakarta.inject.Singleton
 import java.io.InputStream
+import java.time.LocalDateTime
 import java.util.UUID
 import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
@@ -159,6 +160,7 @@ fun ProductRegistrationExcelDTO.toRegistrationDTO(): ProductRegistrationDTO {
         isoCategory = isoCategory,
         sparePart = false,
         accessory = false,
+        expired = LocalDateTime.now().plusYears(3),
         productData =
             ProductData(
                 attributes =
