@@ -41,15 +41,15 @@ class ProductAgreementImportExcelService(
         const val EXCEL = "EXCEL"
     }
 
-    suspend fun importExcelFile(inputStream: InputStream): List<ProductAgreementRegistrationDTO> {
+    suspend fun importExcelFile(inputStream: InputStream, userName: String = "system"): List<ProductAgreementRegistrationDTO> {
         LOG.info("Reading xls file")
         val workbook = WorkbookFactory.create(inputStream)
-        val productAgreementList = readProductData(workbook)
+        val productAgreementList = readProductData(workbook, userName)
         workbook.close()
         return productAgreementList
     }
 
-    suspend fun readProductData(workbook: Workbook): List<ProductAgreementRegistrationDTO> {
+    suspend fun readProductData(workbook: Workbook, userName: String): List<ProductAgreementRegistrationDTO> {
         val main = workbook.getSheet("Gjeldende") ?: workbook.getSheet("gjeldende")
         LOG.info("First row num ${main.firstRowNum}")
         val columnMap = readColumnMapIndex(main.first())
@@ -59,7 +59,7 @@ class ProductAgreementImportExcelService(
             }.filterNotNull()
         if (productExcel.isEmpty()) throw BadRequestException("Fant ingen produkter i Excel-fil")
         LOG.info("Total product agreements in Excel file: ${productExcel.size}")
-        return productExcel.map { it.toProductAgreementDTO() }.flatten()
+        return productExcel.map { it.toProductAgreementDTO(userName) }.flatten()
     }
 
     private fun mapArticleType(articleType: String, funksjonsendring: String): ArticleType {
@@ -69,7 +69,7 @@ class ProductAgreementImportExcelService(
         return ArticleType(mainProduct, sparePart, accessory)
     }
 
-    private suspend fun ProductAgreementExcelDTO.toProductAgreementDTO(updatedByUser: String? ="system"): List<ProductAgreementRegistrationDTO> {
+    private suspend fun ProductAgreementExcelDTO.toProductAgreementDTO(userName: String): List<ProductAgreementRegistrationDTO> {
         val cleanRef = reference.lowercase().replace("/", "-")
         val agreement = findAgreementByReference(cleanRef)
         if (agreement.agreementStatus === AgreementStatus.DELETED) {
@@ -105,7 +105,7 @@ class ProductAgreementImportExcelService(
                 sparePart = sparePart,
                 accessory = accessory,
                 isoCategory = iso,
-                updatedByUser = updatedByUser!!
+                updatedByUser = userName
             )
         }
     }

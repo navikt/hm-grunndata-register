@@ -50,9 +50,9 @@ class ProductAgreementAdminController(
     ): ProductAgreementImportDTO {
         LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()}")
         val productAgreementsImported =
-            file.inputStream.use { input -> productAgreementImportExcelService.importExcelFile(input) }
+            file.inputStream.use { input -> productAgreementImportExcelService.importExcelFile(input, authentication.name) }
         LOG.info("Imported ${productAgreementsImported.size} product agreements")
-        val productAgreementsImportResult = productAccessorySparePartAgreementHandler.handleProductsInProductAgreement(productAgreementsImported, dryRun)
+        val productAgreementsImportResult = productAccessorySparePartAgreementHandler.handleProductsInProductAgreement(productAgreementsImported, authentication.name, dryRun)
         val productAgreements = productAgreementsImportResult.productAgreements
         LOG.info("Product agreements after handling: ${productAgreements.size}")
         val productAgreementsWithInformation =
