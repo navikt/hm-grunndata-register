@@ -11,4 +11,6 @@ data class ProductToApproveDto(
     val agreementId: UUID? = null,
     val delkontrakttittel: String? = null,
     val thumbnail: MediaInfoDTO? = null,
+    val sparePart: Boolean = false,
+    val accessory: Boolean = false,
 )

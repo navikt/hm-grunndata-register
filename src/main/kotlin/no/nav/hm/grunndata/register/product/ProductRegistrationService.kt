@@ -493,6 +493,8 @@ open class ProductRegistrationService(
             delkontrakttittel = agreementInfo.firstOrNull()?.title,
             seriesId = seriesUUID,
             status = status,
+            sparePart = sparePart,
+            accessory = accessory,
             thumbnail = productData.media.firstOrNull { it.type == MediaType.IMAGE },
         )
     }
