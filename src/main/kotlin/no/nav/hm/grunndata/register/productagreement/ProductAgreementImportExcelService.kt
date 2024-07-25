@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.productagreement
 
+import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import java.io.InputStream
 import java.util.UUID
@@ -41,15 +42,15 @@ class ProductAgreementImportExcelService(
         const val EXCEL = "EXCEL"
     }
 
-    suspend fun importExcelFile(inputStream: InputStream, userName: String = "system"): List<ProductAgreementRegistrationDTO> {
+    suspend fun importExcelFile(inputStream: InputStream, authentication: Authentication?): List<ProductAgreementRegistrationDTO> {
         LOG.info("Reading xls file")
         val workbook = WorkbookFactory.create(inputStream)
-        val productAgreementList = readProductData(workbook, userName)
+        val productAgreementList = readProductData(workbook, authentication)
         workbook.close()
         return productAgreementList
     }
 
-    suspend fun readProductData(workbook: Workbook, userName: String): List<ProductAgreementRegistrationDTO> {
+    suspend fun readProductData(workbook: Workbook, authentication: Authentication?): List<ProductAgreementRegistrationDTO> {
         val main = workbook.getSheet("Gjeldende") ?: workbook.getSheet("gjeldende")
         LOG.info("First row num ${main.firstRowNum}")
         val columnMap = readColumnMapIndex(main.first())
@@ -59,7 +60,7 @@ class ProductAgreementImportExcelService(
             }.filterNotNull()
         if (productExcel.isEmpty()) throw BadRequestException("Fant ingen produkter i Excel-fil")
         LOG.info("Total product agreements in Excel file: ${productExcel.size}")
-        return productExcel.map { it.toProductAgreementDTO(userName) }.flatten()
+        return productExcel.map { it.toProductAgreementDTO(authentication) }.flatten()
     }
 
     private fun mapArticleType(articleType: String, funksjonsendring: String): ArticleType {
@@ -69,7 +70,7 @@ class ProductAgreementImportExcelService(
         return ArticleType(mainProduct, sparePart, accessory)
     }
 
-    private suspend fun ProductAgreementExcelDTO.toProductAgreementDTO(userName: String): List<ProductAgreementRegistrationDTO> {
+    private suspend fun ProductAgreementExcelDTO.toProductAgreementDTO(authentication: Authentication?): List<ProductAgreementRegistrationDTO> {
         val cleanRef = reference.lowercase().replace("/", "-")
         val agreement = findAgreementByReference(cleanRef)
         if (agreement.agreementStatus === AgreementStatus.DELETED) {
@@ -105,7 +106,7 @@ class ProductAgreementImportExcelService(
                 sparePart = sparePart,
                 accessory = accessory,
                 isoCategory = iso,
-                updatedByUser = userName
+                updatedByUser = authentication?.name ?: "system"
             )
         }
     }

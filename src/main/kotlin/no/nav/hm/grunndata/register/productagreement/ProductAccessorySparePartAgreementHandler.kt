@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.productagreement
 
+import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
@@ -10,6 +11,7 @@ import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.product.ProductData
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
+import no.nav.hm.grunndata.register.product.isAdmin
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
@@ -33,7 +35,7 @@ class ProductAccessorySparePartAgreementHandler(
      */
     suspend fun handleProductsInProductAgreement(
         productAgreements: List<ProductAgreementRegistrationDTO>,
-        userName: String,
+        authentication: Authentication?,
         dryRun: Boolean = true
     ): ProductAgreementImportResult {
         val distinctProductAgreements = productAgreements.distinctBy { it.supplierRef}
@@ -42,8 +44,8 @@ class ProductAccessorySparePartAgreementHandler(
         val supplierId = accessoryOrSpareParts.first().supplierId
         val groupedAccessoryOrSpareParts = groupInSeriesBasedOnTitle(accessoryOrSpareParts)
         val groupedMainProducts = groupInSeriesBasedOnTitle(mainProductAgreements)
-        val createdSeriesAccessorSpareParts = createSeriesAndProductsIfNotExists(groupedAccessoryOrSpareParts, supplierId, userName, dryRun)
-        val createdSeriesMainProducts = createSeriesAndProductsIfNotExists(groupedMainProducts, supplierId, userName, dryRun)
+        val createdSeriesAccessorSpareParts = createSeriesAndProductsIfNotExists(groupedAccessoryOrSpareParts, supplierId, authentication, dryRun)
+        val createdSeriesMainProducts = createSeriesAndProductsIfNotExists(groupedMainProducts, supplierId, authentication, dryRun)
         val compatibleAccessory = createCompatibleWithLinkForAccessoryParts(createdSeriesAccessorSpareParts, createdSeriesMainProducts, dryRun)
         return ProductAgreementImportResult(
             productAgreements = createdSeriesAccessorSpareParts.productAgreement + createdSeriesMainProducts.productAgreement,
@@ -112,7 +114,7 @@ class ProductAccessorySparePartAgreementHandler(
     private suspend fun createSeriesAndProductsIfNotExists(
         groupedProductAgreements: Map<String, List<ProductAgreementRegistrationDTO>>,
         supplierId: UUID,
-        userName: String,
+        authentication: Authentication?,
         dryRun: Boolean
     ): ProductAgreementImportResultData {
         val newSeries = mutableListOf<SeriesRegistration>()
@@ -134,8 +136,9 @@ class ProductAccessorySparePartAgreementHandler(
                     status = SeriesStatus.ACTIVE,
                     seriesData = SeriesDataDTO(),
                     text = first.title,
-                    createdByUser = userName,
-                    updatedByUser = userName
+                    createdByUser = authentication?.name ?: "system",
+                    updatedByUser = authentication?.name ?: "system",
+                    createdByAdmin = authentication?.isAdmin() ?: true
                 )
                 newSeries.add(series)
                 if (!dryRun) seriesRegistrationRepository.save(series)
@@ -155,7 +158,7 @@ class ProductAccessorySparePartAgreementHandler(
         val newProducts = mutableListOf<ProductRegistration>()
         val withProductsId = distinct.map {
             if (it.productId == null) {
-                val product = createNewProduct(it, userName, dryRun)
+                val product = createNewProduct(it, authentication, dryRun)
                 newProducts.add(product)
                 it.copy(productId = product.id)
             } else {
@@ -172,7 +175,7 @@ class ProductAccessorySparePartAgreementHandler(
 
     private suspend fun createNewProduct(
         productAgreement: ProductAgreementRegistrationDTO,
-        userName: String,
+        authentication: Authentication?,
         dryRun: Boolean
     ): ProductRegistration {
         LOG.info("Creating new product for productAgreement: ${productAgreement.supplierRef}")
@@ -190,8 +193,9 @@ class ProductAccessorySparePartAgreementHandler(
             supplierRef = productAgreement.supplierRef,
             accessory = productAgreement.accessory,
             sparePart = productAgreement.sparePart,
-            createdByUser = userName,
-            updatedByUser = userName
+            createdByUser = authentication?.name ?: "system",
+            updatedByUser = authentication?.name ?: "system",
+            createdByAdmin = authentication?.isAdmin() ?: true
         )
         if (!dryRun) productRegistrationRepository.save(product)
         return product

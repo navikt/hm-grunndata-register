@@ -136,7 +136,7 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
             delkontraktRegistrationRepository.save(delkontrakt1B)
 
             ProductAgreementExcelImportTest::class.java.classLoader.getResourceAsStream("productagreement/katalog-test.xls").use {
-                val productAgreements = productAgreementImportExcelService.importExcelFile(it!!)
+                val productAgreements = productAgreementImportExcelService.importExcelFile(it!!, null)
                 productAgreements.size shouldBe 6
                 productAgreements[0].accessory shouldBe false
                 productAgreements[0].sparePart shouldBe false
@@ -144,7 +144,7 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
                 productAgreements[4].accessory shouldBe false
                 productAgreements[5].accessory shouldBe false
                 productAgreements[5].sparePart shouldBe true
-                val productAgreementImportResult = accessoryPartHandler.handleProductsInProductAgreement(productAgreements, userName = "system", false)
+                val productAgreementImportResult = accessoryPartHandler.handleProductsInProductAgreement(productAgreements, null, false)
                 val productAgreementGroupInSeries = productAgreementImportResult.productAgreements
                 productAgreementImportResult.newSeries.size shouldBe 4
                 productAgreementImportResult.newAccessoryParts.size shouldBe 4
