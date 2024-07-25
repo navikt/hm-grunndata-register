@@ -44,14 +44,14 @@ class ProductAccessorySparePartAgreementHandler(
         val supplierId = accessoryOrSpareParts.first().supplierId
         val groupedAccessoryOrSpareParts = groupInSeriesBasedOnTitle(accessoryOrSpareParts)
         val groupedMainProducts = groupInSeriesBasedOnTitle(mainProductAgreements)
-        val createdSeriesAccessorSpareParts = createSeriesAndProductsIfNotExists(groupedAccessoryOrSpareParts, supplierId, authentication, dryRun)
-        val createdSeriesMainProducts = createSeriesAndProductsIfNotExists(groupedMainProducts, supplierId, authentication, dryRun)
-        val compatibleAccessory = createCompatibleWithLinkForAccessoryParts(createdSeriesAccessorSpareParts, createdSeriesMainProducts, dryRun)
+        val createdAccessorSpareParts = createSeriesAndProductsIfNotExists(groupedAccessoryOrSpareParts, supplierId, authentication, dryRun)
+        val createdMainProducts = createSeriesAndProductsIfNotExists(groupedMainProducts, supplierId, authentication, dryRun)
+        val compatibleAccessory = createCompatibleWithLinkForAccessoryParts(createdAccessorSpareParts, createdMainProducts, dryRun)
         return ProductAgreementImportResult(
-            productAgreements = createdSeriesAccessorSpareParts.productAgreement + createdSeriesMainProducts.productAgreement,
-            newSeries = createdSeriesMainProducts.newSeries + createdSeriesAccessorSpareParts.newSeries,
-            newAccessoryParts = createdSeriesAccessorSpareParts.newProducts,
-            newProducts =  compatibleAccessory.newProducts
+            productAgreements = createdAccessorSpareParts.productAgreement + createdMainProducts.productAgreement,
+            newSeries = createdMainProducts.newSeries + createdAccessorSpareParts.newSeries,
+            newAccessoryParts = compatibleAccessory.newProducts,
+            newProducts =  createdMainProducts.newProducts
         )
     }
 
