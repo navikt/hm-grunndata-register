@@ -5,6 +5,7 @@ import java.util.UUID
 data class ProductToApproveDto(
     val title: String,
     val articleName: String,
+    val productId: UUID,
     val seriesId: UUID,
     val status: String,
     val supplierName: String,

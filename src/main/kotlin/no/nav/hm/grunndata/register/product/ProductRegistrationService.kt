@@ -491,6 +491,7 @@ open class ProductRegistrationService(
             supplierName = supplier?.name ?: "",
             agreementId = agreeements.firstOrNull()?.agreementId,
             delkontrakttittel = agreementInfo.firstOrNull()?.title,
+            productId = id,
             seriesId = seriesUUID,
             status = status,
             sparePart = sparePart,
