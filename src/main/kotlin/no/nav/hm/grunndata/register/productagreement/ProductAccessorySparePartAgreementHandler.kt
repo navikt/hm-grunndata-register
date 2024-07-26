@@ -121,24 +121,23 @@ class ProductAccessorySparePartAgreementHandler(
         dryRun: Boolean
     ): ProductAgreementImportResultData {
         val newSeries = mutableListOf<SeriesRegistration>()
-        val withSeriesId = groupedProductAgreements.flatMap { (_, value) ->
+        val withSeriesId = groupedProductAgreements.flatMap { (key, value) ->
             // check if in value list that all seriesUuid is null
             val noSeries = value.all { it.seriesUuid == null }
             val seriesGroup = if (noSeries) {
                 // create a new series for this group
                 val seriesId = UUID.randomUUID()
-                val first = value.first()
                 val series = SeriesRegistration(
                     id = seriesId,
                     draftStatus = DraftStatus.DONE,
                     adminStatus = AdminStatus.PENDING,
                     supplierId = supplierId,
-                    title = first.title,
+                    title = key.trim(),
                     identifier = seriesId.toString(),
                     isoCategory = value.first().isoCategory ?: "0",
                     status = SeriesStatus.ACTIVE,
                     seriesData = SeriesDataDTO(),
-                    text = first.title,
+                    text = key.trim(),
                     createdByUser = authentication?.name ?: "system",
                     updatedByUser = authentication?.name ?: "system",
                     createdByAdmin = authentication?.isAdmin() ?: true
@@ -204,7 +203,7 @@ class ProductAccessorySparePartAgreementHandler(
         return product
     }
 
-    private fun groupInSeriesBasedOnTitle(productsagreements: List<ProductAgreementRegistrationDTO>): MutableMap<String, MutableList<ProductAgreementRegistrationDTO>> {
+    private fun groupInSeriesBasedOnTitle(productsagreements: List<ProductAgreementRegistrationDTO>): Map<String, MutableList<ProductAgreementRegistrationDTO>> {
         // group accessory and spare parts together in series based on the common prefix of the title
         val orderedProductAgreements = productsagreements.sortedBy { it.title }
         val groupedSeries = mutableMapOf<String, MutableList<ProductAgreementRegistrationDTO>>()
@@ -232,10 +231,9 @@ class ProductAccessorySparePartAgreementHandler(
                 }
             if (!isGrouped) {
                 groupedSeries[productAgreement.title] = mutableListOf(productAgreement)
-
             }
         }
-        return groupedSeries
+        return groupedSeries.mapKeys { if (it.value.size>1) findCommonPrefix(it.value[0].title, it.value[1].title) else it.value[0].title }
     }
 
     private fun findCommonPrefix(str1: String, str2: String): String {
