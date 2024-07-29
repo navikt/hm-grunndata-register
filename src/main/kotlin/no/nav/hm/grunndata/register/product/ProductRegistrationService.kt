@@ -491,8 +491,11 @@ open class ProductRegistrationService(
             supplierName = supplier?.name ?: "",
             agreementId = agreeements.firstOrNull()?.agreementId,
             delkontrakttittel = agreementInfo.firstOrNull()?.title,
+            productId = id,
             seriesId = seriesUUID,
             status = status,
+            sparePart = sparePart,
+            accessory = accessory,
             thumbnail = productData.media.firstOrNull { it.type == MediaType.IMAGE },
         )
     }

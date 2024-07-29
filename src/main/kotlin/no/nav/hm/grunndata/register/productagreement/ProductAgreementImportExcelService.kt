@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.productagreement
 
+import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import java.io.InputStream
 import java.util.UUID
@@ -15,6 +16,7 @@ import no.nav.hm.grunndata.register.productagreement.ColumnNames.beskrivelse
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.datofom
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.datotom
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.delkontraktnummer
+import no.nav.hm.grunndata.register.productagreement.ColumnNames.funksjonsendring
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.hms_ArtNr
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.kategori
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.leverandorfirmanavn
@@ -40,15 +42,15 @@ class ProductAgreementImportExcelService(
         const val EXCEL = "EXCEL"
     }
 
-    suspend fun importExcelFile(inputStream: InputStream): List<ProductAgreementRegistrationDTO> {
-        LOG.info("Reading xls file using Apache POI")
+    suspend fun importExcelFile(inputStream: InputStream, authentication: Authentication?): List<ProductAgreementRegistrationDTO> {
+        LOG.info("Reading xls file")
         val workbook = WorkbookFactory.create(inputStream)
-        val productAgreementList = readProductData(workbook)
+        val productAgreementList = readProductData(workbook, authentication)
         workbook.close()
         return productAgreementList
     }
 
-    suspend fun readProductData(workbook: Workbook): List<ProductAgreementRegistrationDTO> {
+    suspend fun readProductData(workbook: Workbook, authentication: Authentication?): List<ProductAgreementRegistrationDTO> {
         val main = workbook.getSheet("Gjeldende") ?: workbook.getSheet("gjeldende")
         LOG.info("First row num ${main.firstRowNum}")
         val columnMap = readColumnMapIndex(main.first())
@@ -58,23 +60,30 @@ class ProductAgreementImportExcelService(
             }.filterNotNull()
         if (productExcel.isEmpty()) throw BadRequestException("Fant ingen produkter i Excel-fil")
         LOG.info("Total product agreements in Excel file: ${productExcel.size}")
-        return productExcel.map { it.toProductAgreementDTO() }.flatten()
+        return productExcel.map { it.toProductAgreementDTO(authentication) }.flatten()
     }
 
-    private suspend fun ProductAgreementExcelDTO.toProductAgreementDTO(): List<ProductAgreementRegistrationDTO> {
+    private fun mapArticleType(articleType: String, funksjonsendring: String): ArticleType {
+        val mainProduct = articleType.lowercase().indexOf("hms hj.middel") > -1
+        val accessory = articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("ja") > -1
+        val sparePart = articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("nei") > -1
+        return ArticleType(mainProduct, sparePart, accessory)
+    }
+
+    private suspend fun ProductAgreementExcelDTO.toProductAgreementDTO(authentication: Authentication?): List<ProductAgreementRegistrationDTO> {
         val cleanRef = reference.lowercase().replace("/", "-")
         val agreement = findAgreementByReference(cleanRef)
         if (agreement.agreementStatus === AgreementStatus.DELETED) {
             throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er slettet, må den opprettes?")
         }
-        if (agreement.agreementStatus === AgreementStatus.ACTIVE) {
-            throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er publisert")
-        }
+//        if (agreement.agreementStatus === AgreementStatus.ACTIVE) {
+//            throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er publisert")
+//        }
         val supplierId = parseSupplierName(supplierName)
         val product = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)
         val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(delkontraktNr)
         return postRanks.map { postRank ->
-            LOG.info("Creating product agreement for agreement $cleanRef, post ${postRank.first}, rank ${postRank.second}")
+            LOG.info("Mapping to product agreement for agreement $cleanRef, post ${postRank.first}, rank ${postRank.second}")
             val delkontrakt: DelkontraktRegistrationDTO =
                 agreement.delkontraktList.find { it.delkontraktData.refNr == postRank.first }
                     ?: throw BadRequestException("Delkontrakt ${postRank.first} finnes ikke i avtale $cleanRef, må den opprettes?")
@@ -94,6 +103,10 @@ class ProductAgreementImportExcelService(
                 published = agreement.published,
                 expired = agreement.expired,
                 updatedBy = EXCEL,
+                sparePart = sparePart,
+                accessory = accessory,
+                isoCategory = iso,
+                updatedByUser = authentication?.name ?: "system"
             )
         }
     }
@@ -115,14 +128,14 @@ class ProductAgreementImportExcelService(
 
     private fun parsedelkontraktNr(subContractNr: String): List<Pair<String, Int>> {
         try {
-            val rankRegex = Regex("(?i)d(\\d+)([A-Z]*)r(\\d+)")
-            var matchResult = rankRegex.find(subContractNr)
+
+            var matchResult = delKontraktRegex.find(subContractNr)
             val mutableList: MutableList<Pair<String, Int>> = mutableListOf()
             if (matchResult != null) {
                 while (matchResult != null) {
-                    val groupValues = rankRegex.find(subContractNr)?.groupValues
+                    val groupValues = delKontraktRegex.find(subContractNr)?.groupValues
                     val post = groupValues?.get(1) + groupValues?.get(2)?.uppercase()
-                    val rank1 = groupValues?.get(3)?.toInt() ?: 99
+                    val rank1 = groupValues?.get(3)?.toIntOrNull() ?: 99
                     mutableList.add(Pair(post, rank1))
                     matchResult = matchResult.next()
                 }
@@ -143,21 +156,27 @@ class ProductAgreementImportExcelService(
         columnMap: Map<String, Int>,
     ): ProductAgreementExcelDTO? {
         val leveartNr = row.getCell(columnMap[leverandørensartnr.column]!!)?.toString()?.trim()
-        val type = row.getCell(columnMap[malTypeartikkel.column]!!)?.toString()?.trim()
-        if (leveartNr != null && "" != leveartNr && type != null && "HMS Servicetjeneste" != type) {
+        val typeArtikkel = row.getCell(columnMap[malTypeartikkel.column]!!)?.toString()?.trim()
+        if (leveartNr != null && "" != leveartNr && typeArtikkel != null && "HMS Servicetjeneste" != typeArtikkel) {
+            val funksjonsendring = row.getCell(columnMap[funksjonsendring.column]!!).toString().trim()
+            val type = mapArticleType(typeArtikkel, funksjonsendring)
             return ProductAgreementExcelDTO(
                 hmsArtNr = row.getCell(columnMap[hms_ArtNr.column]!!).toString().trim(),
-                iso = row.getCell(columnMap[kategori.column]!!).toString().trim(),
+                iso = row.getCell(columnMap[kategori.column]!!).toString().trim().substringBefore(".0"),
                 title = row.getCell(columnMap[beskrivelse.column]!!).toString().trim(),
                 supplierRef = leveartNr,
                 reference = row.getCell(columnMap[anbudsnr.column]!!).toString().trim(),
                 delkontraktNr = row.getCell(columnMap[delkontraktnummer.column]!!).toString().trim(),
                 dateFrom = row.getCell(columnMap[datofom.column]!!).toString().trim(),
                 dateTo = row.getCell(columnMap[datotom.column]!!).toString().trim(),
-                articleType = type,
+                articleType = typeArtikkel,
+                funksjonsendring = funksjonsendring,
                 forChildren = row.getCell(columnMap[malgruppebarn.column]!!).toString().trim(),
                 supplierName = row.getCell(columnMap[leverandorfirmanavn.column]!!).toString().trim(),
                 supplierCity = row.getCell(columnMap[leverandorsted.column]!!).toString().trim(),
+                accessory = type.accessory,
+                sparePart = type.sparePart,
+                mainProduct = type.mainProduct
             )
         }
         return null
@@ -177,6 +196,8 @@ class ProductAgreementImportExcelService(
         } else {
             null
         }
+
+    data class ArticleType(val mainProduct: Boolean, val sparePart: Boolean, val accessory: Boolean)
 }
 
 enum class ColumnNames(val column: String) {
@@ -189,6 +210,7 @@ enum class ColumnNames(val column: String) {
     datofom("Datofom"),
     datotom("Datotom"),
     malTypeartikkel("MalTypeartikkel"),
+    funksjonsendring("Funksjonsendring"),
     malgruppebarn("Målgruppebarn"),
     leverandorfirmanavn("LeverandørFirmanavn"),
     leverandorsted("Leverandørsted"),
@@ -204,12 +226,14 @@ data class ProductAgreementExcelDTO(
     val dateFrom: String,
     val dateTo: String,
     val articleType: String,
+    val funksjonsendring: String,
     val forChildren: String,
     val supplierName: String,
     val supplierCity: String,
+    val mainProduct: Boolean,
+    val sparePart: Boolean,
+    val accessory: Boolean
 )
 
-fun String.extractDelkontraktNrFromTitle(): String? {
-    val regex = """(\d+)([A-Z]*)([.|:])""".toRegex()
-    return regex.find(this)?.groupValues?.get(0)?.dropLast(1)
-}
+val delKontraktRegex = Regex("d(\\d+)([A-Q-STU-Z]*)r*(\\d*)", RegexOption.IGNORE_CASE)
+

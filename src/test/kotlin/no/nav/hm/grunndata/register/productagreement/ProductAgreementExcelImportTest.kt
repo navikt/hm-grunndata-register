@@ -1,28 +1,36 @@
 package no.nav.hm.grunndata.register.productagreement
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
+import java.time.LocalDateTime
+import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AgreementDTO
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
 import no.nav.hm.grunndata.register.REGISTER
-import no.nav.hm.grunndata.register.agreement.*
+import no.nav.hm.grunndata.register.agreement.AgreementData
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
+import no.nav.hm.grunndata.register.agreement.DelkontraktData
+import no.nav.hm.grunndata.register.agreement.DelkontraktRegistration
+import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationRepository
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
-import java.util.*
 
 @MicronautTest
 class ProductAgreementExcelImportTest(private val supplierRegistrationService: SupplierRegistrationService,
                                       private val agreementRegistrationService: AgreementRegistrationService,
                                       private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository,
-                                      private val productAgreementImportExcelService: ProductAgreementImportExcelService) {
+                                      private val productAgreementImportExcelService: ProductAgreementImportExcelService,
+                                      private val accessoryPartHandler: ProductAccessorySparePartAgreementHandler,
+                                      private val objectMapper: ObjectMapper) {
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -128,19 +136,32 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
             delkontraktRegistrationRepository.save(delkontrakt1B)
 
             ProductAgreementExcelImportTest::class.java.classLoader.getResourceAsStream("productagreement/katalog-test.xls").use {
-                val productAgreements = productAgreementImportExcelService.importExcelFile(it!!)
-                productAgreements.size shouldBe 4
-
+                val productAgreements = productAgreementImportExcelService.importExcelFile(it!!, null)
+                productAgreements.size shouldBe 6
+                productAgreements[0].accessory shouldBe false
+                productAgreements[0].sparePart shouldBe false
+                productAgreements[4].sparePart shouldBe true
+                productAgreements[4].accessory shouldBe false
+                productAgreements[5].accessory shouldBe false
+                productAgreements[5].sparePart shouldBe true
+                val productAgreementImportResult = accessoryPartHandler.handleProductsInProductAgreement(productAgreements, null, false)
+                val productAgreementGroupInSeries = productAgreementImportResult.productAgreements
+                productAgreementImportResult.newSeries.size shouldBe 4
+                productAgreementImportResult.newAccessoryParts.size shouldBe 4
+                productAgreementImportResult.newProducts.size shouldBe 2
+                println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(productAgreementGroupInSeries))
             }
         }
     }
 
     @Test
     fun testDelkontraktNrExtract() {
-        val regex = "d(\\d+)([A-Z]*)r(\\d+)".toRegex()
+        val regex = delKontraktRegex
         val del1 = "d1r1"
         val del2 = "d1Ar1"
         val del3 = "d1Br99" // mean no rank
+        val del4 = "d1r"   // mean no rank
+        val del5 = "d14"   // mean no rank
         regex.find(del1)?.groupValues?.get(1) shouldBe "1"
         regex.find(del1)?.groupValues?.get(2) shouldBe ""
         regex.find(del1)?.groupValues?.get(3) shouldBe "1"
@@ -150,6 +171,12 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
         regex.find(del3)?.groupValues?.get(1) shouldBe "1"
         regex.find(del3)?.groupValues?.get(2) shouldBe "B"
         regex.find(del3)?.groupValues?.get(3) shouldBe "99"
+        regex.find(del4)?.groupValues?.get(1) shouldBe "1"
+        regex.find(del4)?.groupValues?.get(2) shouldBe ""
+        regex.find(del4)?.groupValues?.get(3) shouldBe ""
+        regex.find(del5)?.groupValues?.get(1) shouldBe "14"
+        regex.find(del5)?.groupValues?.get(2) shouldBe ""
+        regex.find(del5)?.groupValues?.get(3) shouldBe ""
     }
 
 }

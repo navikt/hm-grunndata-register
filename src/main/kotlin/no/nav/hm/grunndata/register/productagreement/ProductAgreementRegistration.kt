@@ -21,6 +21,8 @@ data class ProductAgreementRegistration(
     val seriesUuid: UUID? = null,
     val title: String,
     val articleName: String?,
+    val sparePart: Boolean = false,
+    val accessory: Boolean = false,
     val supplierId: UUID,
     val supplierRef: String,
     @field:Column(name = "hms_artnr")
@@ -44,6 +46,9 @@ data class ProductAgreementRegistrationDTO(
     val seriesUuid: UUID?,
     val title: String,
     val articleName: String?,
+    val accessory: Boolean = false,
+    val sparePart: Boolean = false,
+    val isoCategory: String? = null,
     val supplierId: UUID,
     val supplierRef: String,
     val hmsArtNr: String?,
@@ -93,7 +98,9 @@ fun ProductAgreementRegistrationDTO.toEntity(): ProductAgreementRegistration {
         updated = updated,
         published = published,
         expired = expired,
-        updatedBy = updatedBy
+        updatedBy = updatedBy,
+        sparePart = sparePart,
+        accessory = accessory
     )
 }
 
@@ -120,7 +127,10 @@ fun ProductAgreementRegistration.toDTO(): ProductAgreementRegistrationDTO {
         updated = updated,
         published = published,
         expired = expired,
-        updatedBy = updatedBy
+        updatedBy = updatedBy,
+        accessory = accessory,
+        sparePart = sparePart,
+        isoCategory = null
     )
 }
 

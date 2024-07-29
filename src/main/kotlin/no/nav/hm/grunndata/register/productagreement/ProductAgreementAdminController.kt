@@ -31,6 +31,7 @@ class ProductAgreementAdminController(
     private val productRegistrationService: ProductRegistrationService,
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productAgreementRegistrationService: ProductAgreementRegistrationService,
+    private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementAdminController::class.java)
@@ -48,9 +49,13 @@ class ProductAgreementAdminController(
         authentication: Authentication,
     ): ProductAgreementImportDTO {
         LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()}")
-        val productAgreements =
-            file.inputStream.use { input -> productAgreementImportExcelService.importExcelFile(input) }
-
+        val productAgreementsImported =
+            file.inputStream.use { input -> productAgreementImportExcelService.importExcelFile(input, authentication) }
+        LOG.info("Imported ${productAgreementsImported.size} product agreements")
+        val productAgreementsImportResult = productAccessorySparePartAgreementHandler.handleProductsInProductAgreement(productAgreementsImported, authentication, dryRun)
+        val productAgreements = productAgreementsImportResult.productAgreements
+        LOG.info("Product agreements after handling: ${productAgreements.size}")
+        var newCount = 0
         val productAgreementsWithInformation =
             productAgreements.map {
                 val information = mutableListOf<Information>()
@@ -66,17 +71,23 @@ class ProductAgreementAdminController(
                 if (existingProductAgreement != null) {
                     information.add(Information("Product agreement already exists", Type.WARNING))
                 }
+                else {
+                    newCount++
+                }
                 Pair(it, information)
             }
-
         if (!dryRun) {
-            LOG.info("Saving product agreements")
+            LOG.info("Saving excel imported file: ${file.name} with ${productAgreements.size} product agreements")
             productAgreementRegistrationService.saveAll(productAgreements)
         }
         return ProductAgreementImportDTO(
             dryRun = dryRun,
             count = productAgreements.size,
-            productAgreements = productAgreements,
+            newCount = newCount,
+            file = file.filename,
+            createdSeries = productAgreementsImportResult.newSeries,
+            createdAccessoryParts = productAgreementsImportResult.newAccessoryParts,
+            createdMainProducts = productAgreementsImportResult.newProducts,
             productAgreementsWithInformation = productAgreementsWithInformation,
         )
     }
@@ -177,7 +188,10 @@ class ProductAgreementAdminController(
                 articleName = product.articleName,
                 title = regDTO.title,
                 reference = agreement.reference,
-                updatedBy = REGISTER
+                updatedBy = REGISTER,
+                accessory = product.accessory,
+                sparePart = product.sparePart,
+                isoCategory = product.isoCategory
             ),
             isUpdate = false,
         )

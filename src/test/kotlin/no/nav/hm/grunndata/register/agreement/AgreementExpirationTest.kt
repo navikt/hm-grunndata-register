@@ -99,8 +99,8 @@ class AgreementExpirationTest(
 
             val productAgreement =
                 ProductAgreementRegistrationDTO(
+                    productId = null,
                     agreementId = agreement.id,
-                    productId = UUID.randomUUID(),
                     seriesUuid = UUID.randomUUID(),
                     reference = agreement.reference,
                     published = agreement.published,
@@ -120,7 +120,7 @@ class AgreementExpirationTest(
             val productAgreement2 =
                 ProductAgreementRegistrationDTO(
                     agreementId = expired.id,
-                    productId = UUID.randomUUID(),
+                    productId = null,
                     seriesUuid = UUID.randomUUID(),
                     reference = expired.reference,
                     published = expired.published,

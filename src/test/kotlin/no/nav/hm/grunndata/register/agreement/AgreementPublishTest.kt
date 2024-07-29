@@ -85,7 +85,7 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
 
             val productAgreement = ProductAgreementRegistrationDTO(
                 agreementId = agreement.id,
-                productId = UUID.randomUUID(),
+                productId = null,
                 seriesUuid = UUID.randomUUID(),
                 reference = agreement.reference,
                 published = agreement.published,
@@ -104,7 +104,7 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
 
             val productAgreement2 = ProductAgreementRegistrationDTO(
                 agreementId = publishing.id,
-                productId = UUID.randomUUID(),
+                productId = null,
                 seriesUuid = UUID.randomUUID(),
                 reference = publishing.reference,
                 published = publishing.published,
