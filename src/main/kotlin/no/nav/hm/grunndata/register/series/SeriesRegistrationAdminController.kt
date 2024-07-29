@@ -12,11 +12,15 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
+import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import java.time.LocalDateTime
+import java.util.Locale
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
@@ -25,9 +29,6 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
-import java.util.Locale
-import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(SeriesRegistrationAdminController.API_V1_SERIES)
@@ -261,6 +262,77 @@ class SeriesRegistrationAdminController(
                 numberOfVariants = numberOfVariants
             )
         )
+    }
+
+    @Post("/series/create-from/products/{productId}")
+    suspend fun createSeriesFromAProduct(productId: UUID, authentication: Authentication): SeriesRegistrationDTO {
+        LOG.info("creating a new series based on $productId")
+        return productRegistrationService.findById(productId)?.let {
+            val id = UUID.randomUUID()
+            val series = seriesRegistrationService.save(
+                SeriesRegistrationDTO(
+                    id = id,
+                    supplierId = it.supplierId,
+                    isoCategory = it.isoCategory,
+                    title = it.title,
+                    text = it.productData.attributes.text ?:"",
+                    identifier = id.toString(),
+                    draftStatus = DraftStatus.DONE,
+                    adminStatus = AdminStatus.PENDING,
+                    status = SeriesStatus.ACTIVE,
+                    createdBy = REGISTER,
+                    updatedBy = REGISTER,
+                    createdByAdmin = true,
+                    createdByUser = authentication.name,
+                    created = LocalDateTime.now(),
+                    updated = LocalDateTime.now(),
+                    seriesData = SeriesDataDTO(media = it.productData.media),
+                    version = 0
+                )
+            )
+            productRegistrationService.save(it.copy(seriesUUID = series.id))
+            series
+        } ?: throw BadRequestException("Product with id $productId does not exist")
+    }
+
+    @Post("series/create-from/products")
+    suspend fun createSeriesFromProductList(
+        @Body productIds: List<UUID>,
+        authentication: Authentication
+    ): SeriesRegistrationDTO {
+        LOG.info("creating a new series based on a list of productId")
+        val seriesId = UUID.randomUUID()
+        return productRegistrationService.findById(productIds.first())?.let { product ->
+            val series = seriesRegistrationService.save(
+                SeriesRegistrationDTO(
+                    id = seriesId,
+                    supplierId = product.supplierId,
+                    isoCategory = product.isoCategory,
+                    title = product.title,
+                    text = product.productData.attributes.text ?: "",
+                    identifier = seriesId.toString(),
+                    draftStatus = DraftStatus.DONE,
+                    adminStatus = AdminStatus.PENDING,
+                    status = SeriesStatus.ACTIVE,
+                    createdBy = REGISTER,
+                    updatedBy = REGISTER,
+                    createdByAdmin = true,
+                    createdByUser = authentication.name,
+                    created = LocalDateTime.now(),
+                    updated = LocalDateTime.now(),
+                    seriesData = SeriesDataDTO(media = product.productData.media),
+                    version = 0
+                )
+            )
+            productIds.forEach { productId ->
+                productRegistrationService.findById(productId)?.let {
+                    productRegistrationService.save(it.copy(seriesUUID = series.id))
+                }
+
+            }
+            series
+        } ?: throw BadRequestException("Product with id ${productIds.first()} does not exist")
+
     }
 }
 
