@@ -264,45 +264,15 @@ class SeriesRegistrationAdminController(
         )
     }
 
-    @Post("/series/create-from/products/{productId}")
-    suspend fun createSeriesFromAProduct(productId: UUID, authentication: Authentication): SeriesRegistrationDTO {
-        LOG.info("creating a new series based on $productId")
-        return productRegistrationService.findById(productId)?.let {
-            val id = UUID.randomUUID()
-            val series = seriesRegistrationService.save(
-                SeriesRegistrationDTO(
-                    id = id,
-                    supplierId = it.supplierId,
-                    isoCategory = it.isoCategory,
-                    title = it.title,
-                    text = it.productData.attributes.text ?:"",
-                    identifier = id.toString(),
-                    draftStatus = DraftStatus.DONE,
-                    adminStatus = AdminStatus.PENDING,
-                    status = SeriesStatus.ACTIVE,
-                    createdBy = REGISTER,
-                    updatedBy = REGISTER,
-                    createdByAdmin = true,
-                    createdByUser = authentication.name,
-                    created = LocalDateTime.now(),
-                    updated = LocalDateTime.now(),
-                    seriesData = SeriesDataDTO(media = it.productData.media),
-                    version = 0
-                )
-            )
-            productRegistrationService.save(it.copy(seriesUUID = series.id))
-            series
-        } ?: throw BadRequestException("Product with id $productId does not exist")
-    }
 
     @Post("series/create-from/products")
     suspend fun createSeriesFromProductList(
         @Body productIds: List<UUID>,
         authentication: Authentication
-    ): SeriesRegistrationDTO {
+    ): HttpResponse<SeriesRegistrationDTO> {
         LOG.info("creating a new series based on a list of productId")
         val seriesId = UUID.randomUUID()
-        return productRegistrationService.findById(productIds.first())?.let { product ->
+        return HttpResponse.ok(productRegistrationService.findById(productIds.first())?.let { product ->
             val series = seriesRegistrationService.save(
                 SeriesRegistrationDTO(
                     id = seriesId,
@@ -326,14 +296,26 @@ class SeriesRegistrationAdminController(
             )
             productIds.forEach { productId ->
                 productRegistrationService.findById(productId)?.let {
-                    productRegistrationService.save(it.copy(seriesUUID = series.id))
+                    productRegistrationService.save(it.copy(seriesUUID = series.id, adminStatus = AdminStatus.PENDING,
+                        updated = LocalDateTime.now(), updatedByUser = authentication.name ))
                 }
-
             }
             series
-        } ?: throw BadRequestException("Product with id ${productIds.first()} does not exist")
-
+        } ?: throw BadRequestException("Product with id ${productIds.first()} does not exist"))
     }
+
+    @Put("/series/products/move-to/{seriesId}")
+    suspend fun moveProductVariantsToSeries(seriesId: UUID, productIds: List<UUID>, authentication: Authentication) {
+        LOG.info("Moving products to series $seriesId")
+        seriesRegistrationService.findById(seriesId) ?: throw BadRequestException("Series with id $seriesId does not exist")
+        productIds.forEach { productId ->
+            productRegistrationService.findById(productId)?.let {
+                productRegistrationService.save(it.copy(seriesUUID = seriesId, adminStatus = AdminStatus.PENDING,
+                    updatedByUser = authentication.name, updated = LocalDateTime.now()))
+            }
+        }
+    }
+
 }
 
 data class RejectSeriesDTO(val message: String?)
