@@ -162,6 +162,7 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
         val del3 = "d1Br99" // mean no rank
         val del4 = "d1r"   // mean no rank
         val del5 = "d14"   // mean no rank
+        val del6 = "d21d22"
         regex.find(del1)?.groupValues?.get(1) shouldBe "1"
         regex.find(del1)?.groupValues?.get(2) shouldBe ""
         regex.find(del1)?.groupValues?.get(3) shouldBe "1"
@@ -177,6 +178,8 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
         regex.find(del5)?.groupValues?.get(1) shouldBe "14"
         regex.find(del5)?.groupValues?.get(2) shouldBe ""
         regex.find(del5)?.groupValues?.get(3) shouldBe ""
+        regex.find(del6)?.groupValues?.get(1) shouldBe "21"
+        regex.find(del6)?.groupValues?.get(2) shouldBe ""
     }
 
 }

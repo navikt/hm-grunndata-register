@@ -259,5 +259,5 @@ data class ProductAgreementExcelDTO(
     val accessory: Boolean
 )
 
-val delKontraktRegex = Regex("d(\\d+)([A-Q-STU-Z]*)r*(\\d*)", RegexOption.IGNORE_CASE)
+val delKontraktRegex = Regex("d(\\d+)([A-Q-STU-Z]*)r*(\\d*)")
 

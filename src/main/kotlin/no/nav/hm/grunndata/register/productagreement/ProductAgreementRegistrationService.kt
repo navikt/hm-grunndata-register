@@ -28,7 +28,7 @@ open class ProductAgreementRegistrationService(
                 productAgreement.supplierId,
                 productAgreement.supplierRef,
                 productAgreement.agreementId,
-                productAgreement.postId!!,
+                productAgreement.postId,
                 productAgreement.rank,
             ) ?: saveAndCreateEvent(productAgreement, false)
         }
