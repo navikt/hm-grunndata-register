@@ -96,7 +96,7 @@ open class ProductAgreementRegistrationService(
         supplierId: UUID,
         supplierRef: String,
         agreementId: UUID,
-        postId: UUID,
+        postId: UUID?,
         rank: Int,
     ): ProductAgreementRegistrationDTO? =
         productAgreementRegistrationRepository.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(

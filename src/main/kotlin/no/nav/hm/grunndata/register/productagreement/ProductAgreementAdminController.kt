@@ -64,7 +64,7 @@ class ProductAgreementAdminController(
                         it.supplierId,
                         it.supplierRef,
                         it.agreementId,
-                        it.postId!!,
+                        it.postId,
                         it.rank,
                     )
 

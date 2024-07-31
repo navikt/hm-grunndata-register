@@ -5,11 +5,11 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import java.time.LocalDateTime
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.event.EventName
-import java.time.LocalDateTime
-import java.util.*
 
 @Singleton
 open class AgreementRegistrationService(
@@ -27,6 +27,7 @@ open class AgreementRegistrationService(
 
     open suspend fun update(dto: AgreementRegistrationDTO): AgreementRegistrationDTO =
         agreementRegistrationRepository.update(dto.toEntity()).toDTO()
+
 
     @Transactional
     open suspend fun saveAndCreateEventIfNotDraft(
@@ -49,6 +50,8 @@ open class AgreementRegistrationService(
     open suspend fun findByReference(reference: String): AgreementRegistrationDTO? =
         agreementRegistrationRepository.findByReference(reference)?.toDTO()
 
+    open suspend fun findByReferenceLike(reference: String): AgreementRegistrationDTO? =
+        agreementRegistrationRepository.findByReferenceLike(reference)?.toDTO()
 
     open suspend fun findAgreementsToBePublish(): List<AgreementRegistrationDTO> = agreementRegistrationRepository
         .findByDraftStatusAndAgreementStatusAndPublishedBeforeAndExpiredAfter(

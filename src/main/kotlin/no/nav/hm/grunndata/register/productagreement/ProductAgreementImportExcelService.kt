@@ -72,7 +72,7 @@ class ProductAgreementImportExcelService(
 
     private suspend fun ProductAgreementExcelDTO.toProductAgreementDTO(authentication: Authentication?): List<ProductAgreementRegistrationDTO> {
         val cleanRef = reference.lowercase().replace("/", "-")
-        val agreement = findAgreementByReference(cleanRef)
+        val agreement = findAgreementByReferenceLike(cleanRef)
         if (agreement.agreementStatus === AgreementStatus.DELETED) {
             throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er slettet, må den opprettes?")
         }
@@ -81,38 +81,62 @@ class ProductAgreementImportExcelService(
 //        }
         val supplierId = parseSupplierName(supplierName)
         val product = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)
-        val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(delkontraktNr)
-        return postRanks.map { postRank ->
-            LOG.info("Mapping to product agreement for agreement $cleanRef, post ${postRank.first}, rank ${postRank.second}")
-            val delkontrakt: DelkontraktRegistrationDTO =
-                agreement.delkontraktList.find { it.delkontraktData.refNr == postRank.first }
-                    ?: throw BadRequestException("Delkontrakt ${postRank.first} finnes ikke i avtale $cleanRef, må den opprettes?")
-            ProductAgreementRegistrationDTO(
-                hmsArtNr = parseHMSNr(hmsArtNr),
-                agreementId = agreement.id,
-                supplierRef = supplierRef,
-                productId = product?.id,
-                seriesUuid = product?.seriesUUID,
-                title = title,
-                articleName = product?.articleName,
-                reference = reference,
-                post = delkontrakt.delkontraktData.sortNr,
-                rank = postRank.second,
-                postId = delkontrakt.id,
-                supplierId = supplierId,
-                published = agreement.published,
-                expired = agreement.expired,
-                updatedBy = EXCEL,
-                sparePart = sparePart,
-                accessory = accessory,
-                isoCategory = iso,
-                updatedByUser = authentication?.name ?: "system"
-            )
+        if (!delkontraktNr.isNullOrBlank()) {
+            val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(delkontraktNr)
+
+            return postRanks.map { postRank ->
+                LOG.info("Mapping to product agreement for agreement $cleanRef, post ${postRank.first}, rank ${postRank.second}")
+                val delkontrakt: DelkontraktRegistrationDTO =
+                    agreement.delkontraktList.find { it.delkontraktData.refNr == postRank.first }
+                        ?: throw BadRequestException("Delkontrakt ${postRank.first} finnes ikke i avtale $cleanRef, må den opprettes?")
+                ProductAgreementRegistrationDTO(
+                    hmsArtNr = parseHMSNr(hmsArtNr),
+                    agreementId = agreement.id,
+                    supplierRef = supplierRef,
+                    productId = product?.id,
+                    seriesUuid = product?.seriesUUID,
+                    title = title,
+                    articleName = product?.articleName,
+                    reference = reference,
+                    post = delkontrakt.delkontraktData.sortNr,
+                    rank = postRank.second,
+                    postId = delkontrakt.id,
+                    supplierId = supplierId,
+                    published = agreement.published,
+                    expired = agreement.expired,
+                    updatedBy = EXCEL,
+                    sparePart = sparePart,
+                    accessory = accessory,
+                    isoCategory = iso,
+                    updatedByUser = authentication?.name ?: "system"
+                )
+            }
         }
+        else return listOf(ProductAgreementRegistrationDTO(
+            hmsArtNr = parseHMSNr(hmsArtNr),
+            agreementId = agreement.id,
+            supplierRef = supplierRef,
+            productId = product?.id,
+            seriesUuid = product?.seriesUUID,
+            title = title,
+            articleName = product?.articleName,
+            reference = reference,
+            post = 99,
+            rank = 99,
+            postId = null,
+            supplierId = supplierId,
+            published = agreement.published,
+            expired = agreement.expired,
+            updatedBy = EXCEL,
+            sparePart = sparePart,
+            accessory = accessory,
+            isoCategory = iso,
+            updatedByUser = authentication?.name ?: "system"
+        ))
     }
 
-    suspend fun findAgreementByReference(reference: String): AgreementRegistrationDTO =
-        agreementRegistrationService.findByReference(reference)
+    suspend fun findAgreementByReferenceLike(reference: String): AgreementRegistrationDTO =
+        agreementRegistrationService.findByReferenceLike("%$reference%")
             ?: throw BadRequestException("Avtale $reference finnes ikke, må den opprettes?")
 
     private fun parseType(articleType: String): Boolean {
@@ -166,7 +190,7 @@ class ProductAgreementImportExcelService(
                 title = row.getCell(columnMap[beskrivelse.column]!!).toString().trim(),
                 supplierRef = leveartNr,
                 reference = row.getCell(columnMap[anbudsnr.column]!!).toString().trim(),
-                delkontraktNr = row.getCell(columnMap[delkontraktnummer.column]!!).toString().trim(),
+                delkontraktNr = row.getCell(columnMap[delkontraktnummer.column]!!)?.toString()?.trim(),
                 dateFrom = row.getCell(columnMap[datofom.column]!!).toString().trim(),
                 dateTo = row.getCell(columnMap[datotom.column]!!).toString().trim(),
                 articleType = typeArtikkel,
@@ -222,7 +246,7 @@ data class ProductAgreementExcelDTO(
     val title: String,
     val supplierRef: String,
     val reference: String,
-    val delkontraktNr: String,
+    val delkontraktNr: String?,
     val dateFrom: String,
     val dateTo: String,
     val articleType: String,

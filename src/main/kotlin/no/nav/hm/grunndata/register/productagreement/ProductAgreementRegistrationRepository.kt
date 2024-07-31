@@ -4,9 +4,9 @@ import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
-import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
 interface ProductAgreementRegistrationRepository :
@@ -71,7 +71,7 @@ interface ProductAgreementRegistrationRepository :
         supplierId: UUID,
         supplierRef: String,
         agreementId: UUID,
-        postId: UUID,
+        postId: UUID?,
         rank: Int,
     ): ProductAgreementRegistration?
 }
