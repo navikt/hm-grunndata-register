@@ -60,13 +60,22 @@ class ProductAgreementAdminController(
             productAgreements.map {
                 val information = mutableListOf<Information>()
                 val existingProductAgreement =
-                    productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
-                        it.supplierId,
-                        it.supplierRef,
-                        it.agreementId,
-                        it.postId,
-                        it.rank,
-                    )
+                    if (it.postId!=null)
+                        productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
+                            it.supplierId,
+                            it.supplierRef,
+                            it.agreementId,
+                            it.postId,
+                            it.rank,
+                        )
+                    else
+                        productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
+                            it.supplierId,
+                            it.supplierRef,
+                            it.agreementId,
+                            it.post,
+                            it.rank,
+                        )
 
                 if (existingProductAgreement != null) {
                     information.add(Information("Product agreement already exists", Type.WARNING))
