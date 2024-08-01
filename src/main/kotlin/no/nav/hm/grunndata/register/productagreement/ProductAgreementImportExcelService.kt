@@ -26,10 +26,12 @@ import no.nav.hm.grunndata.register.productagreement.ColumnNames.malTypeartikkel
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.malgruppebarn
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.apache.poi.ss.usermodel.Cell
+import org.apache.poi.ss.usermodel.DataFormatter
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.slf4j.LoggerFactory
+
 
 @Singleton
 class ProductAgreementImportExcelService(
@@ -179,31 +181,36 @@ class ProductAgreementImportExcelService(
         row: Row,
         columnMap: Map<String, Int>,
     ): ProductAgreementExcelDTO? {
-        val leveartNr = row.getCell(columnMap[leverandørensartnr.column]!!)?.toString()?.trim()
-        val typeArtikkel = row.getCell(columnMap[malTypeartikkel.column]!!)?.toString()?.trim()
-        if (leveartNr != null && "" != leveartNr && typeArtikkel != null && "HMS Servicetjeneste" != typeArtikkel) {
+        val leveartNr = readCellAsString(row, columnMap[leverandørensartnr.column]!!)
+        val typeArtikkel = readCellAsString(row, columnMap[malTypeartikkel.column]!!)
+        if ("" != leveartNr && "HMS Servicetjeneste" != typeArtikkel) {
             val funksjonsendring = row.getCell(columnMap[funksjonsendring.column]!!).toString().trim()
             val type = mapArticleType(typeArtikkel, funksjonsendring)
             return ProductAgreementExcelDTO(
-                hmsArtNr = row.getCell(columnMap[hms_ArtNr.column]!!).toString().trim(),
-                iso = row.getCell(columnMap[kategori.column]!!).toString().trim().substringBefore(".0"),
-                title = row.getCell(columnMap[beskrivelse.column]!!).toString().trim(),
+                hmsArtNr = readCellAsString(row, columnMap[hms_ArtNr.column]!!),
+                iso = readCellAsString(row, columnMap[kategori.column]!!),
+                title = readCellAsString(row, columnMap[beskrivelse.column]!!),
                 supplierRef = leveartNr,
-                reference = row.getCell(columnMap[anbudsnr.column]!!).toString().trim(),
-                delkontraktNr = row.getCell(columnMap[delkontraktnummer.column]!!)?.toString()?.trim(),
-                dateFrom = row.getCell(columnMap[datofom.column]!!).toString().trim(),
-                dateTo = row.getCell(columnMap[datotom.column]!!).toString().trim(),
+                reference = readCellAsString(row, columnMap[anbudsnr.column]!!),
+                delkontraktNr = readCellAsString(row, columnMap[delkontraktnummer.column]!!),
+                dateFrom = readCellAsString(row, columnMap[datofom.column]!!),
+                dateTo = readCellAsString(row, columnMap[datotom.column]!!),
                 articleType = typeArtikkel,
                 funksjonsendring = funksjonsendring,
-                forChildren = row.getCell(columnMap[malgruppebarn.column]!!).toString().trim(),
-                supplierName = row.getCell(columnMap[leverandorfirmanavn.column]!!).toString().trim(),
-                supplierCity = row.getCell(columnMap[leverandorsted.column]!!).toString().trim(),
+                forChildren = readCellAsString(row, columnMap[malgruppebarn.column]!!),
+                supplierName = readCellAsString(row, columnMap[leverandorfirmanavn.column]!!),
+                supplierCity =readCellAsString(row, columnMap[leverandorsted.column]!!),
                 accessory = type.accessory,
                 sparePart = type.sparePart,
                 mainProduct = type.mainProduct
             )
         }
         return null
+    }
+
+    private fun readCellAsString(row: Row, column: Int): String {
+        val cell = row.getCell(column)
+        return DataFormatter().formatCellValue(cell).trim()
     }
 
     private fun readColumnMapIndex(firstRow: Row): Map<String, Int> =
