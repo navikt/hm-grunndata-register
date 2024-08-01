@@ -147,7 +147,7 @@ class ProductAgreementImportExcelService(
         runBlocking {
             supplierRegistrationService.findNameAndId().find {
                 (it.name.lowercase().indexOf(supplierName.lowercase()) > -1)
-            }?.id ?: throw BadRequestException("Leverandør $supplierName finnes ikke i registeret, må den opprettes?")
+            }?.id ?: throw BadRequestException("Leverandør $supplierName finnes ikke i registeret, sjekk om navnet er riktig skrevet.")
         }
 
     private fun parsedelkontraktNr(subContractNr: String): List<Pair<String, Int>> {
