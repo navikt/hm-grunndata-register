@@ -97,6 +97,7 @@ dependencies {
     // micronaut-leaderelection
     implementation("com.github.navikt:hm-micronaut-leaderelection:202405140823")
 
+    implementation("org.apache.commons:commons-compress:1.26.2")
 }
 
 micronaut {
@@ -118,7 +119,6 @@ java {
     withSourcesJar()
 }
 
-
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = jvmTarget
     kapt.includeCompileClasspath = false
@@ -132,7 +132,6 @@ tasks.named<KotlinCompile>("compileTestKotlin") {
 tasks.named<ShadowJar>("shadowJar") {
     isZip64 = true
 }
-
 
 tasks.withType<Test> {
     useJUnitPlatform()
