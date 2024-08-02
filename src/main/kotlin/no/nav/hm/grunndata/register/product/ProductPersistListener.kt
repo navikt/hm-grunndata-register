@@ -5,16 +5,18 @@ import io.micronaut.data.event.listeners.PostPersistEventListener
 import io.micronaut.data.event.listeners.PostRemoveEventListener
 import io.micronaut.data.event.listeners.PostUpdateEventListener
 import jakarta.inject.Singleton
-import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.HMDB
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import org.slf4j.LoggerFactory
+import java.util.UUID
 
 @Factory
-class ProductPersistListener(private val seriesRegistrationRepository: SeriesRegistrationRepository,
-                             private val productRegistrationVersionService: ProductRegistrationVersionService) {
+class ProductPersistListener(
+    private val seriesRegistrationRepository: SeriesRegistrationRepository,
+    private val productRegistrationVersionService: ProductRegistrationVersionService,
+) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductPersistListener::class.java)
     }
@@ -38,7 +40,7 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
                 insertProductVersion(product)
                 if (product.registrationStatus != RegistrationStatus.ACTIVE) {
                     LOG.info("Product status is ${product.registrationStatus}, update series status")
-                    updateStatusForSeries(product.seriesUUID)
+                    updateStatusForSeries(product.seriesUUID, product.registrationStatus)
                 }
                 updateSeriesCounts(product.seriesUUID)
             }
@@ -55,8 +57,11 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
         }
     }
 
-    private suspend fun updateStatusForSeries(seriesUUID: UUID) {
-        seriesRegistrationRepository.updateStatusForSeries(seriesUUID)
+    private suspend fun updateStatusForSeries(
+        seriesUUID: UUID,
+        newStatus: RegistrationStatus,
+    ) {
+        seriesRegistrationRepository.updateStatusForSeries(seriesUUID, newStatus.name)
     }
 
     private suspend fun updateSeriesCounts(seriesUUID: UUID) {
@@ -69,13 +74,14 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
     }
 
     private suspend fun insertProductVersion(product: ProductRegistration) {
-        if (product.updatedBy == HMDB)  {
+        if (product.updatedBy == HMDB) {
             return
         }
         productRegistrationVersionService.save(product.toVersion())
     }
 
-    private fun ProductRegistration.toVersion(): ProductRegistrationVersion = ProductRegistrationVersion(
+    private fun ProductRegistration.toVersion(): ProductRegistrationVersion =
+        ProductRegistrationVersion(
             productId = this.id,
             version = this.version,
             draftStatus = this.draftStatus,
@@ -83,6 +89,6 @@ class ProductPersistListener(private val seriesRegistrationRepository: SeriesReg
             status = this.registrationStatus,
             updated = this.updated,
             productRegistration = this,
-            updatedBy = this.updatedBy
+            updatedBy = this.updatedBy,
         )
 }

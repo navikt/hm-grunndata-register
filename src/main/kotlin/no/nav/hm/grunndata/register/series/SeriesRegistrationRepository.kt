@@ -8,6 +8,7 @@ import io.micronaut.data.model.Slice
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
+import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import java.util.*
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
@@ -90,6 +91,11 @@ interface SeriesRegistrationRepository :
         "UPDATE series_reg_v1 SET status = 'INACTIVE' WHERE id = :id AND NOT EXISTS( SELECT 1 FROM product_reg_v1 WHERE series_uuid = :id AND registration_status = 'ACTIVE')"
     )
     suspend fun updateStatusForSeries(id: UUID)
+
+    @Query(
+        "UPDATE series_reg_v1 SET status = :newStatus WHERE id = :id AND NOT EXISTS( SELECT 1 FROM product_reg_v1 WHERE series_uuid = :id AND registration_status = 'ACTIVE')"
+    )
+    suspend fun updateStatusForSeries(id: UUID, newStatus: String)
 
 }
 
