@@ -194,38 +194,36 @@ open class SeriesRegistrationService(
     }
 
     @Transactional
-    open suspend fun setPublishedSeriesReadyForApproval(
-        seriesToUpdate: SeriesRegistrationDTO,
+    open suspend fun deleteSeries(
+        seriesToDelete: SeriesRegistrationDTO,
         authentication: Authentication,
     ): SeriesRegistrationDTO {
+        
         val updatedSeries =
-            seriesToUpdate.copy(
-                draftStatus = DraftStatus.DONE,
-                adminStatus = AdminStatus.PENDING,
-                updated = LocalDateTime.now(),
-                updatedBy = REGISTER,
+            seriesToDelete.copy(
+                status = SeriesStatus.DELETED,
+                expired = LocalDateTime.now(),
                 updatedByUser = authentication.name,
+                updatedBy = REGISTER,
+                updated = LocalDateTime.now(),
             )
 
-        val variantsToUpdate =
-            productRegistrationService.findAllBySeriesUUIDAndDraftStatusAndRegistrationStatus(
-                seriesToUpdate.id,
-                DraftStatus.DRAFT,
-                RegistrationStatus.ACTIVE,
-            ).map {
+        val deleted = saveAndCreateEventIfNotDraftAndApproved(updatedSeries, isUpdate = true)
+
+        val variantsToDelete =
+            productRegistrationService.findAllBySeriesUuid(seriesToDelete.id).map {
                 it.copy(
-                    draftStatus = DraftStatus.DONE,
-                    adminStatus = AdminStatus.PENDING,
-                    updated = LocalDateTime.now(),
-                    updatedBy = REGISTER,
+                    registrationStatus = RegistrationStatus.DELETED,
+                    expired = LocalDateTime.now(),
                     updatedByUser = authentication.name,
+                    updatedBy = REGISTER,
+                    updated = LocalDateTime.now(),
                 )
             }
 
-        saveAndCreateEventIfNotDraftAndApproved(updatedSeries, true)
-        productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(variantsToUpdate, true)
+        productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(variantsToDelete, isUpdate = true)
 
-        return updatedSeries
+        return deleted
     }
 
     @Transactional
@@ -280,9 +278,11 @@ open class SeriesRegistrationService(
         return updatedSeries
     }
 
-    suspend fun countBySupplier(supplierId: UUID): Long = seriesRegistrationRepository.count(
-        where {
-            root[SeriesRegistration::supplierId] eq supplierId
-            root[SeriesRegistration::status] eq SeriesStatus.ACTIVE
-        })
+    suspend fun countBySupplier(supplierId: UUID): Long =
+        seriesRegistrationRepository.count(
+            where {
+                root[SeriesRegistration::supplierId] eq supplierId
+                root[SeriesRegistration::status] eq SeriesStatus.ACTIVE
+            },
+        )
 }

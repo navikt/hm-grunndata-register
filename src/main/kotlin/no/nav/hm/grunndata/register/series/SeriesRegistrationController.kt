@@ -234,20 +234,15 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
     ): HttpResponse<SeriesRegistrationDTO> {
         val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
 
+        if (seriesToUpdate.supplierId != authentication.supplierId()) {
+            LOG.warn("SupplierId in request does not match authenticated supplierId")
+            return HttpResponse.unauthorized()
+        }
+
         if (seriesToUpdate.draftStatus != DraftStatus.DRAFT) throw BadRequestException("series is not a draft")
         if (seriesToUpdate.published != null) throw BadRequestException("can not delete a published series")
 
-        val updatedSeries =
-            seriesToUpdate.copy(
-                status = SeriesStatus.DELETED,
-                expired = LocalDateTime.now(),
-                updatedByUser = authentication.name,
-                updatedBy = REGISTER,
-                updated = LocalDateTime.now(),
-            )
-
-        val updated =
-            seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedSeries, isUpdate = true)
+        val updated = seriesRegistrationService.deleteSeries(seriesToUpdate, authentication)
 
         return HttpResponse.ok(updated)
     }
@@ -267,7 +262,8 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
                     root[SeriesRegistration::status] ne params["excludedStatus"]
                 }
                 if (params.contains("adminStatus")) {
-                    val statusList: List<AdminStatus> = params["adminStatus"]!!.split(",").map { AdminStatus.valueOf(it) }
+                    val statusList: List<AdminStatus> =
+                        params["adminStatus"]!!.split(",").map { AdminStatus.valueOf(it) }
                     root[SeriesRegistration::adminStatus] inList statusList
                 }
             }.and { root, criteriaBuilder ->
