@@ -89,7 +89,7 @@ dependencies {
 
     // Microsoft Graph
     implementation("com.microsoft.graph:microsoft-graph:$microsoftGrapVersion")
-    implementation("com.azure:azure-identity:1.2.5")
+    implementation("com.azure:azure-identity:1.13.1")
 
     // flyway-postgresql
     implementation("org.flywaydb:flyway-database-postgresql:10.6.0")
