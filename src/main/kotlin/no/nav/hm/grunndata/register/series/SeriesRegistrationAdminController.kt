@@ -18,9 +18,6 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
-import java.time.LocalDateTime
-import java.util.Locale
-import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
@@ -28,7 +25,11 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
+import java.util.Locale
+import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(SeriesRegistrationAdminController.API_V1_SERIES)
@@ -199,24 +200,13 @@ class SeriesRegistrationAdminController(
     suspend fun deleteSeries(
         @PathVariable id: UUID,
         authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO> =
-        seriesRegistrationService.findById(id)
-            ?.let {
-                LOG.info("Deleting product ${it.id}")
-                val dto =
-                    seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
-                        it.copy(
-                            status = SeriesStatus.DELETED,
-                            expired = LocalDateTime.now(),
-                            updatedByUser = authentication.name,
-                            updatedBy = REGISTER,
-                        ),
-                        isUpdate = true,
-                    )
-                HttpResponse.ok(dto)
-            }
-            ?: HttpResponse.notFound()
+    ): HttpResponse<SeriesRegistrationDTO> {
+        val seriesToUpdate = seriesRegistrationService.findById(id) ?: return HttpResponse.notFound()
 
+        val updated = seriesRegistrationService.deleteSeries(seriesToUpdate, authentication)
+
+        return HttpResponse.ok(updated)
+    }
 
     @Put("/series-to-inactive/{seriesUUID}")
     suspend fun setPublishedSeriesToInactive(
@@ -224,11 +214,12 @@ class SeriesRegistrationAdminController(
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> {
         val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
-        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(
-            seriesToUpdate,
-            authentication,
-            SeriesStatus.INACTIVE
-        )
+        val updated =
+            seriesRegistrationService.setPublishedSeriesRegistrationStatus(
+                seriesToUpdate,
+                authentication,
+                SeriesStatus.INACTIVE,
+            )
 
         return HttpResponse.ok(updated)
     }
@@ -239,11 +230,12 @@ class SeriesRegistrationAdminController(
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> {
         val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
-        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(
-            seriesToUpdate,
-            authentication,
-            SeriesStatus.ACTIVE
-        )
+        val updated =
+            seriesRegistrationService.setPublishedSeriesRegistrationStatus(
+                seriesToUpdate,
+                authentication,
+                SeriesStatus.ACTIVE,
+            )
 
         return HttpResponse.ok(updated)
     }
@@ -251,7 +243,7 @@ class SeriesRegistrationAdminController(
     @Get("/supplier-inventory/{id}")
     suspend fun getSupplierProductInfo(
         id: UUID,
-        authentication: Authentication
+        authentication: Authentication,
     ): HttpResponse<SupplierInventoryDTO> {
         val numberOfSeries = seriesRegistrationService.countBySupplier(id).toInt()
         val numberOfVariants = productRegistrationService.countBySupplier(id).toInt()
@@ -259,64 +251,83 @@ class SeriesRegistrationAdminController(
         return HttpResponse.ok(
             SupplierInventoryDTO(
                 numberOfSeries = numberOfSeries,
-                numberOfVariants = numberOfVariants
-            )
+                numberOfVariants = numberOfVariants,
+            ),
         )
     }
-
 
     @Post("series/create-from/products")
     suspend fun createSeriesFromProductList(
         @Body productIds: List<UUID>,
-        authentication: Authentication
+        authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> {
         LOG.info("creating a new series based on a list of productId")
         val seriesId = UUID.randomUUID()
-        return HttpResponse.ok(productRegistrationService.findById(productIds.first())?.let { product ->
-            val series = seriesRegistrationService.save(
-                SeriesRegistrationDTO(
-                    id = seriesId,
-                    supplierId = product.supplierId,
-                    isoCategory = product.isoCategory,
-                    title = product.title,
-                    text = product.productData.attributes.text ?: "",
-                    identifier = seriesId.toString(),
-                    draftStatus = DraftStatus.DONE,
-                    adminStatus = AdminStatus.PENDING,
-                    status = SeriesStatus.ACTIVE,
-                    createdBy = REGISTER,
-                    updatedBy = REGISTER,
-                    createdByAdmin = true,
-                    createdByUser = authentication.name,
-                    created = LocalDateTime.now(),
-                    updated = LocalDateTime.now(),
-                    seriesData = SeriesDataDTO(media = product.productData.media),
-                    version = 0
-                )
-            )
-            productIds.forEach { productId ->
-                productRegistrationService.findById(productId)?.let {
-                    productRegistrationService.save(it.copy(seriesUUID = series.id, adminStatus = AdminStatus.PENDING,
-                        updated = LocalDateTime.now(), updatedByUser = authentication.name ))
+        return HttpResponse.ok(
+            productRegistrationService.findById(productIds.first())?.let { product ->
+                val series =
+                    seriesRegistrationService.save(
+                        SeriesRegistrationDTO(
+                            id = seriesId,
+                            supplierId = product.supplierId,
+                            isoCategory = product.isoCategory,
+                            title = product.title,
+                            text = product.productData.attributes.text ?: "",
+                            identifier = seriesId.toString(),
+                            draftStatus = DraftStatus.DONE,
+                            adminStatus = AdminStatus.PENDING,
+                            status = SeriesStatus.ACTIVE,
+                            createdBy = REGISTER,
+                            updatedBy = REGISTER,
+                            createdByAdmin = true,
+                            createdByUser = authentication.name,
+                            created = LocalDateTime.now(),
+                            updated = LocalDateTime.now(),
+                            seriesData = SeriesDataDTO(media = product.productData.media),
+                            version = 0,
+                        ),
+                    )
+                productIds.forEach { productId ->
+                    productRegistrationService.findById(productId)?.let {
+                        productRegistrationService.save(
+                            it.copy(
+                                seriesUUID = series.id,
+                                adminStatus = AdminStatus.PENDING,
+                                updated = LocalDateTime.now(),
+                                updatedByUser = authentication.name,
+                            ),
+                        )
+                    }
                 }
-            }
-            series
-        } ?: throw BadRequestException("Product with id ${productIds.first()} does not exist"))
+                series
+            } ?: throw BadRequestException("Product with id ${productIds.first()} does not exist"),
+        )
     }
 
     @Put("/series/products/move-to/{seriesId}")
-    suspend fun moveProductVariantsToSeries(seriesId: UUID, productIds: List<UUID>, authentication: Authentication) {
+    suspend fun moveProductVariantsToSeries(
+        seriesId: UUID,
+        productIds: List<UUID>,
+        authentication: Authentication,
+    ) {
         LOG.info("Moving products to series $seriesId")
-        seriesRegistrationService.findById(seriesId) ?: throw BadRequestException("Series with id $seriesId does not exist")
+        seriesRegistrationService.findById(seriesId)
+            ?: throw BadRequestException("Series with id $seriesId does not exist")
         productIds.forEach { productId ->
             productRegistrationService.findById(productId)?.let {
-                productRegistrationService.save(it.copy(seriesUUID = seriesId, adminStatus = AdminStatus.PENDING,
-                    updatedByUser = authentication.name, updated = LocalDateTime.now()))
+                productRegistrationService.save(
+                    it.copy(
+                        seriesUUID = seriesId,
+                        adminStatus = AdminStatus.PENDING,
+                        updatedByUser = authentication.name,
+                        updated = LocalDateTime.now(),
+                    ),
+                )
             }
         }
     }
-
 }
 
 data class RejectSeriesDTO(val message: String?)
+
 data class SupplierInventoryDTO(val numberOfSeries: Int, val numberOfVariants: Int)
