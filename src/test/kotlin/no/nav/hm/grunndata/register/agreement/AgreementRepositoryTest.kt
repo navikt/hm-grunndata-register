@@ -6,13 +6,13 @@ import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
+import java.time.LocalDateTime
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AgreementDTO
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
-import java.util.*
 
 @MicronautTest
 class AgreementRepositoryTest(private val agreementRegistrationRepository: AgreementRegistrationRepository) {
@@ -22,6 +22,7 @@ class AgreementRepositoryTest(private val agreementRegistrationRepository: Agree
 
     @Test
     fun crudTest() {
+        val pastAgreementId = UUID.randomUUID()
         val agreementId = UUID.randomUUID()
         val agreement = AgreementDTO(id = agreementId, published = LocalDateTime.now(),
             expired = LocalDateTime.now().plusYears(2), title = "Title of agreement",
@@ -41,7 +42,7 @@ class AgreementRepositoryTest(private val agreementRegistrationRepository: Agree
                     description = "post description 2", nr = 2)
             ))
         val agreementRegistration = AgreementRegistration(
-            id = agreementId, published = agreement.published, expired = agreement.expired,
+            id = agreementId, published = agreement.published, expired = agreement.expired, pastAgreement = pastAgreementId,
             title = agreement.title, reference = agreement.reference, updatedByUser = "username", createdByUser = "username", agreementData = data
         )
         runBlocking {
@@ -54,6 +55,7 @@ class AgreementRepositoryTest(private val agreementRegistrationRepository: Agree
             val updated = agreementRegistrationRepository.findById(read.id)
             updated.shouldNotBeNull()
             updated.title shouldBe "ny title"
+            updated.pastAgreement shouldBe pastAgreementId
         }
     }
 }

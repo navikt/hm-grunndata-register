@@ -5,6 +5,8 @@ import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
+import java.time.LocalDateTime
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AgreementAttachment
 import no.nav.hm.grunndata.rapid.dto.AgreementDTO
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
@@ -14,8 +16,6 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
-import java.time.LocalDateTime
-import java.util.*
 
 @MappedEntity("agreement_reg_v1")
 data class AgreementRegistration(
@@ -35,6 +35,7 @@ data class AgreementRegistration(
     val updatedBy: String = REGISTER,
     @field:TypeDef(type = DataType.JSON)
     val agreementData: AgreementData,
+    val pastAgreement: UUID? = null,
     @field:Version
     val version: Long? = 0L
 )
@@ -66,6 +67,7 @@ data class AgreementRegistrationDTO(
     val updatedBy: String = REGISTER,
     val agreementData: AgreementData,
     val delkontraktList: List<DelkontraktRegistrationDTO> = emptyList(),
+    val pastAgreement: UUID?=null,
     val version: Long? = 0L,
 ) : EventPayload {
     override fun toRapidDTO(): RapidDTO = AgreementRegistrationRapidDTO(
@@ -99,7 +101,8 @@ data class AgreementRegistrationDTO(
         updatedBy = registration.updatedBy,
         created = registration.created,
         updated = registration.updated,
-        isoCategory = isoCategory
+        isoCategory = isoCategory,
+        pastAgreement = registration.pastAgreement
     )
 }
 
@@ -138,5 +141,5 @@ fun AgreementRegistrationDTO.toEntity(): AgreementRegistration = AgreementRegist
     title = title, reference = reference, created = created,
     updated = updated, published = published, expired = expired, createdByUser = createdByUser,
     updatedByUser = updatedByUser, createdBy = createdBy, updatedBy = updatedBy,
-    agreementData = agreementData, version = version
+    agreementData = agreementData, version = version, pastAgreement = pastAgreement
 )
