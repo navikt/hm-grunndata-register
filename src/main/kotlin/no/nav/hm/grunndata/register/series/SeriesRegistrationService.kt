@@ -133,9 +133,10 @@ open class SeriesRegistrationService(
     open suspend fun findSeriesToApprove(
         pageable: Pageable,
         params: java.util.HashMap<String, String>?,
-    ): Page<SeriesToApproveDTO> =
-        seriesRegistrationRepository.findAll(buildCriteriaSpecPendingProducts(params), pageable)
+    ): Page<SeriesToApproveDTO> {
+        return seriesRegistrationRepository.findAll(buildCriteriaSpecPendingProducts(params), pageable)
             .mapSuspend { it.toSeriesToApproveDTO() }
+    }
 
     private fun buildCriteriaSpecPendingProducts(params: java.util.HashMap<String, String>?): PredicateSpecification<SeriesRegistration> =
         where {

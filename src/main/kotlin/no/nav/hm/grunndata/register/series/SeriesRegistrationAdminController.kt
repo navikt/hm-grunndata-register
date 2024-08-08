@@ -143,7 +143,7 @@ class SeriesRegistrationAdminController(
             HttpResponse.notFound()
         }
 
-    @Get("/to-approve")
+    @Get("/to-approve{?params*}")
     suspend fun findSeriesPendingApprove(
         @QueryValue params: java.util.HashMap<String, String>?,
         pageable: Pageable,
