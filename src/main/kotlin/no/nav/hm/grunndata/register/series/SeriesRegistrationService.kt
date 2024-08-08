@@ -130,15 +130,23 @@ open class SeriesRegistrationService(
         return draft
     }
 
-    open suspend fun findSeriesToApprove(pageable: Pageable): Page<SeriesToApproveDTO> =
-        seriesRegistrationRepository.findAll(buildCriteriaSpecPendingProducts(), pageable)
+    open suspend fun findSeriesToApprove(
+        pageable: Pageable,
+        params: java.util.HashMap<String, String>?,
+    ): Page<SeriesToApproveDTO> =
+        seriesRegistrationRepository.findAll(buildCriteriaSpecPendingProducts(params), pageable)
             .mapSuspend { it.toSeriesToApproveDTO() }
 
-    private fun buildCriteriaSpecPendingProducts(): PredicateSpecification<SeriesRegistration> =
+    private fun buildCriteriaSpecPendingProducts(params: java.util.HashMap<String, String>?): PredicateSpecification<SeriesRegistration> =
         where {
             root[SeriesRegistration::adminStatus] eq AdminStatus.PENDING
             root[SeriesRegistration::status] eq SeriesStatus.ACTIVE
             root[SeriesRegistration::draftStatus] eq DraftStatus.DONE
+            params?.let {
+                if (it.containsKey("createdByAdmin")) {
+                    root[SeriesRegistration::createdByAdmin] eq (it["createdByAdmin"].toBoolean())
+                }
+            }
         }
 
     private suspend fun SeriesRegistration.toSeriesToApproveDTO(): SeriesToApproveDTO {
@@ -198,7 +206,6 @@ open class SeriesRegistrationService(
         seriesToDelete: SeriesRegistrationDTO,
         authentication: Authentication,
     ): SeriesRegistrationDTO {
-        
         val updatedSeries =
             seriesToDelete.copy(
                 status = SeriesStatus.DELETED,

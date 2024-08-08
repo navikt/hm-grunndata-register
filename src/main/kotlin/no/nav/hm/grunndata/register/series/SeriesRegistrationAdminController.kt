@@ -147,7 +147,7 @@ class SeriesRegistrationAdminController(
     suspend fun findSeriesPendingApprove(
         @QueryValue params: java.util.HashMap<String, String>?,
         pageable: Pageable,
-    ): Page<SeriesToApproveDTO> = seriesRegistrationService.findSeriesToApprove(pageable)
+    ): Page<SeriesToApproveDTO> = seriesRegistrationService.findSeriesToApprove(pageable, params)
 
     @Put("/approve/{id}")
     suspend fun approveSeries(
