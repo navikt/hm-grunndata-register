@@ -42,7 +42,7 @@ class AgreementRepositoryTest(private val agreementRegistrationRepository: Agree
                     description = "post description 2", nr = 2)
             ))
         val agreementRegistration = AgreementRegistration(
-            id = agreementId, published = agreement.published, expired = agreement.expired, pastAgreement = pastAgreementId,
+            id = agreementId, published = agreement.published, expired = agreement.expired, previousAgreement = pastAgreementId,
             title = agreement.title, reference = agreement.reference, updatedByUser = "username", createdByUser = "username", agreementData = data
         )
         runBlocking {
@@ -55,7 +55,7 @@ class AgreementRepositoryTest(private val agreementRegistrationRepository: Agree
             val updated = agreementRegistrationRepository.findById(read.id)
             updated.shouldNotBeNull()
             updated.title shouldBe "ny title"
-            updated.pastAgreement shouldBe pastAgreementId
+            updated.previousAgreement shouldBe pastAgreementId
         }
     }
 }
