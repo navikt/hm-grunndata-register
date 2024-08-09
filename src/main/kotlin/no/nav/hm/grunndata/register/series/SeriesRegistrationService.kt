@@ -35,6 +35,8 @@ open class SeriesRegistrationService(
 
     suspend fun findById(id: UUID): SeriesRegistrationDTO? = seriesRegistrationRepository.findById(id)?.toDTO()
 
+    open suspend fun findByIdIn(ids: List<UUID>) = seriesRegistrationRepository.findByIdIn(ids).map { it.toDTO() }
+
     suspend fun update(
         dto: SeriesRegistrationDTO,
         id: UUID = dto.id,
@@ -232,6 +234,56 @@ open class SeriesRegistrationService(
         productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(variantsToDelete, isUpdate = true)
 
         return deleted
+    }
+
+    @Transactional
+    open suspend fun approveManySeriesAndVariants(
+        seriesListToUpdate: List<SeriesRegistrationDTO>,
+        authentication: Authentication,
+    ): List<SeriesRegistrationDTO> =
+        seriesListToUpdate.map { series ->
+            approveSeriesAndVariants(series, authentication)
+        }
+
+    @Transactional
+    open suspend fun approveSeriesAndVariants(
+        seriesToUpdate: SeriesRegistrationDTO,
+        authentication: Authentication,
+    ): SeriesRegistrationDTO {
+        val updatedSeries =
+            saveAndCreateEventIfNotDraftAndApproved(
+                seriesToUpdate.copy(
+                    message = null,
+                    adminStatus = AdminStatus.APPROVED,
+                    updated = LocalDateTime.now(),
+                    published = seriesToUpdate.published ?: LocalDateTime.now(),
+                    updatedBy = REGISTER,
+                ),
+                isUpdate = true,
+            )
+
+        val variantsToUpdate =
+            productRegistrationService.findAllBySeriesUUIDAndAdminStatusAndDraftStatusAndRegistrationStatus(
+                seriesToUpdate.id,
+                AdminStatus.PENDING,
+                DraftStatus.DONE,
+                RegistrationStatus.ACTIVE,
+            ).map {
+                it.copy(
+                    adminStatus = AdminStatus.APPROVED,
+                    published = it.published ?: LocalDateTime.now(),
+                    updated = LocalDateTime.now(),
+                    updatedBy = REGISTER,
+                    updatedByUser = authentication.name,
+                )
+            }
+
+        productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(
+            variantsToUpdate,
+            true,
+        )
+
+        return updatedSeries
     }
 
     @Transactional

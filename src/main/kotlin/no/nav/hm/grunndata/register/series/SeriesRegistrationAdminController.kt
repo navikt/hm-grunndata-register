@@ -25,7 +25,6 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
@@ -148,6 +147,43 @@ class SeriesRegistrationAdminController(
         @QueryValue params: java.util.HashMap<String, String>?,
         pageable: Pageable,
     ): Page<SeriesToApproveDTO> = seriesRegistrationService.findSeriesToApprove(pageable, params)
+
+    @Put("/approve-v2/{id}")
+    suspend fun approveSeriesAndVariants(
+        id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> {
+        val seriesToUpdate = seriesRegistrationService.findById(id) ?: return HttpResponse.notFound()
+
+        if (seriesToUpdate.adminStatus == AdminStatus.APPROVED) throw BadRequestException("$id is already approved")
+        if (seriesToUpdate.draftStatus != DraftStatus.DONE) throw BadRequestException("Series is not done")
+        if (seriesToUpdate.status == SeriesStatus.DELETED) throw BadRequestException("SeriesStatus should not be Deleted")
+
+        val updatedSeries = seriesRegistrationService.approveSeriesAndVariants(seriesToUpdate, authentication)
+
+        return HttpResponse.ok(updatedSeries)
+    }
+
+    @Put("/approve-multiple")
+    suspend fun approveSeriesAndVariants(
+        @Body ids: List<UUID>,
+        authentication: Authentication,
+    ): HttpResponse<List<SeriesRegistrationDTO>> {
+        val seriesToUpdate =
+            seriesRegistrationService.findByIdIn(ids).onEach {
+                if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("product is not done")
+                if (it.adminStatus == AdminStatus.APPROVED) throw BadRequestException("${it.id} is already approved")
+                if (it.status == SeriesStatus.DELETED) {
+                    throw BadRequestException(
+                        "RegistrationStatus should not be Deleted",
+                    )
+                }
+            }
+
+        val updatedSeries = seriesRegistrationService.approveManySeriesAndVariants(seriesToUpdate, authentication)
+
+        return HttpResponse.ok(updatedSeries)
+    }
 
     @Put("/approve/{id}")
     suspend fun approveSeries(
