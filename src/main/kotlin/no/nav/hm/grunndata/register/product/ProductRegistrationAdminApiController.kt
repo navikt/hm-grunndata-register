@@ -320,61 +320,6 @@ class ProductRegistrationAdminApiController(
         }
     }
 
-    @Put("/approve/{id}")
-    suspend fun approveProduct(
-        id: UUID,
-        authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> =
-        productRegistrationService.findById(id)?.let {
-            if (it.adminStatus == AdminStatus.APPROVED) throw BadRequestException("$id is already approved")
-            if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("product is not done")
-            if (it.registrationStatus == RegistrationStatus.DELETED) throw BadRequestException("RegistrationStatus should not be Deleted")
-            val dto =
-                productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
-                    it.copy(
-                        adminStatus = AdminStatus.APPROVED,
-                        adminInfo = AdminInfo(approvedBy = authentication.name, approved = LocalDateTime.now()),
-                        updated = LocalDateTime.now(),
-                        published = it.published ?: LocalDateTime.now(),
-                        updatedBy = REGISTER,
-                    ),
-                    isUpdate = true,
-                )
-            HttpResponse.ok(dto)
-        } ?: HttpResponse.notFound()
-
-    @Put("/approve")
-    suspend fun approveProducts(
-        @Body ids: List<UUID>,
-        authentication: Authentication,
-    ): HttpResponse<List<ProductRegistrationDTO>> {
-        val productsToUpdate =
-            productRegistrationService.findByIdIn(ids).onEach {
-                if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("product is not done")
-                if (it.registrationStatus == RegistrationStatus.DELETED) {
-                    throw BadRequestException(
-                        "RegistrationStatus should not be Deleted",
-                    )
-                }
-            }
-
-        val approvedProducts =
-            productsToUpdate.map {
-                it.copy(
-                    adminStatus = AdminStatus.APPROVED,
-                    adminInfo = AdminInfo(approvedBy = authentication.name, approved = LocalDateTime.now()),
-                    updated = LocalDateTime.now(),
-                    published = it.published ?: LocalDateTime.now(),
-                    updatedBy = REGISTER,
-                )
-            }
-
-        val updated =
-            productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(approvedProducts, isUpdate = true)
-
-        return HttpResponse.ok(updated)
-    }
-
     @Put("/reject")
     suspend fun rejectProducts(
         @Body ids: List<UUID>,

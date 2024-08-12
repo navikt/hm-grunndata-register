@@ -43,7 +43,6 @@ class SeriesRegistrationControllerApiTest(
     private val apiClient: SeriesControllerApiClient,
     private val apiAdminClient: SeriesAdminControllerApiClient,
     private val productApiClient: ProductRegistrationApiClient,
-    private val productRegistrationAdminApiClient: ProductRegistrationAdminApiClient,
     private val loginClient: LoginClient,
     private val userRepository: UserRepository,
     private val supplierRegistrationRepository: SupplierRepository,
@@ -230,7 +229,8 @@ class SeriesRegistrationControllerApiTest(
             publishedSeries.status shouldBe SeriesStatus.ACTIVE
             publishedSeries.adminStatus shouldBe AdminStatus.APPROVED
 
-            productRegistrationAdminApiClient.approveProduct(jwtAdmin, registration1.id)
+            val approvedVariant = productApiClient.readProduct(jwt, registration1.id)
+            approvedVariant.adminStatus shouldBe AdminStatus.APPROVED
 
             val seriesInDraft = apiClient.setPublishedSeriesToDraft(jwt, updated.id)
             seriesInDraft.shouldNotBeNull()

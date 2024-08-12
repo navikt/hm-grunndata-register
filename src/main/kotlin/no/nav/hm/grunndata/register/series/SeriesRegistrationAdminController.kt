@@ -185,29 +185,6 @@ class SeriesRegistrationAdminController(
         return HttpResponse.ok(updatedSeries)
     }
 
-    @Put("/approve/{id}")
-    suspend fun approveSeries(
-        id: UUID,
-        authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO> =
-        seriesRegistrationService.findById(id)?.let {
-            if (it.adminStatus == AdminStatus.APPROVED) throw BadRequestException("$id is already approved")
-            if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("Series is not done")
-            if (it.status == SeriesStatus.DELETED) throw BadRequestException("SeriesStatus should not be Deleted")
-            val dto =
-                seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
-                    it.copy(
-                        message = null,
-                        adminStatus = AdminStatus.APPROVED,
-                        updated = LocalDateTime.now(),
-                        published = it.published ?: LocalDateTime.now(),
-                        updatedBy = REGISTER,
-                    ),
-                    isUpdate = true,
-                )
-            HttpResponse.ok(dto)
-        } ?: HttpResponse.notFound()
-
     @Put("/reject/{id}")
     suspend fun rejectSeries(
         id: UUID,

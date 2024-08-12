@@ -211,19 +211,6 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductRegistration
         updated.shouldNotBeNull()
         updated.title shouldBe "Changed title"
 
-        // approve the product
-        val approved = apiClient.approveProduct(jwt, updated.id)
-        approved.shouldNotBeNull()
-        approved.draftStatus shouldBe DraftStatus.DONE
-        approved.adminStatus shouldBe AdminStatus.APPROVED
-        approved.adminInfo.shouldNotBeNull()
-        approved.adminInfo?.approvedBy shouldBe  email
-
-
-        val draftStatusChange = apiClient.updateProduct(jwt, approved.id, approved.copy(draftStatus = DraftStatus.DRAFT))
-        draftStatusChange.shouldNotBeNull()
-        draftStatusChange.draftStatus shouldBe DraftStatus.DONE
-
         // flag the registration to deleted
         val deleted = apiClient.deleteProduct(jwt, updated.id)
         deleted.shouldNotBeNull()

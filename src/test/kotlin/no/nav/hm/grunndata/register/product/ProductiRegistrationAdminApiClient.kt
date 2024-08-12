@@ -44,9 +44,6 @@ interface ProductRegistrationAdminApiClient {
                       @Body productRegistrationDTO: ProductRegistrationDTO
     ): ProductRegistrationDTO
 
-    @Put(uri="/approve/{id}", processes = [APPLICATION_JSON])
-    fun approveProduct(@CookieValue("JWT") jwt: String, id:UUID): ProductRegistrationDTO
-
     @Delete(uri="/{id}", consumes = [APPLICATION_JSON])
     fun deleteProduct(@CookieValue("JWT") jwt: String, id:UUID): ProductRegistrationDTO
 

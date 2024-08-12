@@ -11,7 +11,7 @@ import java.util.UUID
 @Client("$CONTEXT_PATH/${SeriesRegistrationAdminController.API_V1_SERIES}")
 interface SeriesAdminControllerApiClient {
 
-    @Put(uri = "/approve/{id}", processes = [APPLICATION_JSON])
+    @Put(uri = "/approve-v2/{id}", processes = [APPLICATION_JSON])
     fun approveSeries(
         @CookieValue("JWT") jwt: String,
         @PathVariable id: UUID,
