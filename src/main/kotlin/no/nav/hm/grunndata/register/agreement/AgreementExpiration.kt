@@ -21,7 +21,7 @@ open class AgreementExpiration(private val agreementService: AgreementRegistrati
         val expiredList = agreementService.findExpiringAgreements()
         LOG.info("Found ${expiredList.size} expired agreements")
         expiredList.forEach {
-            //deactiveProductsInExpiredAgreement(it)
+            deactiveProductsInExpiredAgreement(it)
         }
         return expiredList
     }

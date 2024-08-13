@@ -22,7 +22,7 @@ open class AgreementPublish(private val agreementRegigstrationService: Agreement
         val publishList = agreementRegigstrationService.findAgreementsToBePublish()
         LOG.info("Found ${publishList.size} agreements to be publish")
         publishList.forEach {
-            //publishAgreement(it)
+            publishAgreement(it)
         }
         return publishList
     }
