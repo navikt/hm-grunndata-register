@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.agreement
 
 import io.micronaut.context.annotation.Requires
+import io.micronaut.scheduling.annotation.Scheduled
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.leaderelection.LeaderOnly
@@ -18,9 +19,8 @@ open class AgreementScheduler(
     }
 
     @LeaderOnly
-    //@Scheduled(cron = "0 30 1 * * *") disabled, causing sync problems with HMDB
+    @Scheduled(cron = "0 30 1 * * *")
     open fun handleExpiredAgreements() {
-
         LOG.info("Running expiration agreement scheduler")
         runBlocking {
             agreementExpiration.expiredAgreements()
@@ -28,7 +28,7 @@ open class AgreementScheduler(
     }
 
     @LeaderOnly
-   //@Scheduled(cron = "0 30 2 * * *")
+   @Scheduled(cron = "0 30 2 * * *")
     open fun handlePublishAgreements() {
         LOG.info("Running publish agreement scheduler")
         runBlocking {
