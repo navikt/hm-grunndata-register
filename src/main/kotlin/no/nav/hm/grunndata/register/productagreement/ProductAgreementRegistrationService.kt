@@ -281,6 +281,10 @@ open class ProductAgreementRegistrationService(
                 }
         }
     }
+
+    suspend fun findByAgreementIdAndStatus(id: UUID, status: ProductAgreementStatus): List<ProductAgreementRegistrationDTO> =
+        productAgreementRegistrationRepository.findByAgreementIdAndStatus(id, status).map { it.toDTO() }
+
 }
 
 data class ProductVariantsForDelkontraktDto(

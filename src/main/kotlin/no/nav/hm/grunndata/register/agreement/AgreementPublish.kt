@@ -33,12 +33,14 @@ open class AgreementPublish(private val agreementRegigstrationService: Agreement
         agreementRegigstrationService.saveAndCreateEventIfNotDraft(dto = agreementRegistrationDTO.copy(agreementStatus = AgreementStatus.ACTIVE,
             updated = LocalDateTime.now(), updatedBy = REGISTER, updatedByUser = "system-publish"), isUpdate = true)
         val productsInAgreement = productAgreementRegistrationService
-            .findByAgreementIdAndStatusAndPublishedBeforeAndExpiredAfter(agreementRegistrationDTO.id,
-                ProductAgreementStatus.INACTIVE, LocalDateTime.now(), LocalDateTime.now())
+            .findByAgreementIdAndStatus(agreementRegistrationDTO.id,
+                ProductAgreementStatus.INACTIVE)
         productsInAgreement.forEach { product ->
             LOG.info("Found product: ${product.id} in agreement")
             productAgreementRegistrationService.saveAndCreateEvent(product.copy(status = ProductAgreementStatus.ACTIVE,
-                updated = LocalDateTime.now(), updatedBy = REGISTER, updatedByUser = "system-publish"), isUpdate = true)
+                updated = LocalDateTime.now(), updatedBy = REGISTER, updatedByUser = "system-publish",
+                published = agreementRegistrationDTO.published, expired = agreementRegistrationDTO.expired
+            ), isUpdate = true)
         }
     }
 }

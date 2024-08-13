@@ -32,8 +32,8 @@ open class AgreementExpiration(private val agreementService: AgreementRegistrati
         agreementService.saveAndCreateEventIfNotDraft(dto = expiredAgreement.copy(agreementStatus = AgreementStatus.INACTIVE,
             updated = LocalDateTime.now(), updatedBy = REGISTER, updatedByUser = "system-expired"
         ), isUpdate = true)
-        val productsInAgreement = productAgreementService.findByAgreementIdAndStatusAndExpiredBefore(expiredAgreement.id,
-            ProductAgreementStatus.ACTIVE, LocalDateTime.now())
+        val productsInAgreement = productAgreementService.findByAgreementIdAndStatus(expiredAgreement.id,
+            ProductAgreementStatus.ACTIVE)
         productsInAgreement.forEach { product ->
             LOG.info("Found product: ${product.id} in expired agreement")
             productAgreementService.saveAndCreateEvent(product.copy(status = ProductAgreementStatus.INACTIVE,
