@@ -19,7 +19,7 @@ open class AgreementScheduler(
     }
 
     @LeaderOnly
-    @Scheduled(cron = "0 30 * * * *")
+    @Scheduled(cron = "0 30 1 * * *")
     open fun handleExpiredAgreements() {
         LOG.info("Running expiration agreement scheduler")
         runBlocking {
@@ -28,7 +28,7 @@ open class AgreementScheduler(
     }
 
     @LeaderOnly
-   @Scheduled(cron = "0 45 * * * *")
+   @Scheduled(cron = "0 45 1 * * *")
     open fun handlePublishAgreements() {
         LOG.info("Running publish agreement scheduler")
         runBlocking {
