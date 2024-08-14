@@ -555,6 +555,7 @@ open class ProductRegistrationService(
             agreements = agreeements.map { it.toAgreementInfo() },
             version = version,
             isExpired = expired?.let { it < LocalDateTime.now() } ?: false,
+            isPublished = published?.let { it < LocalDateTime.now() } ?: false,
         )
     }
 

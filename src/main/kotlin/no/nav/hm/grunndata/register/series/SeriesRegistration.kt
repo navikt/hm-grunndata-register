@@ -10,7 +10,6 @@ import java.time.LocalDateTime
 import java.util.Locale
 import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
-import no.nav.hm.grunndata.rapid.dto.AgreementInfo
 import no.nav.hm.grunndata.rapid.dto.CompatibleWith
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.IsoCategoryDTO
@@ -22,11 +21,8 @@ import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
-import no.nav.hm.grunndata.register.product.ProductData
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTOV2
 import no.nav.hm.grunndata.register.product.toRapidMediaInfo
-import no.nav.hm.grunndata.register.supplier.SupplierRegistration
-import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 
 @MappedEntity("series_reg_v1")
 data class SeriesRegistration(
@@ -205,7 +201,7 @@ fun toSeriesRegistrationDTOV2(
     variants = productRegistrationDTOs,
     version = seriesRegistration.version,
     isExpired = seriesRegistration.expired < LocalDateTime.now(),
-    isPublised = seriesRegistration.published?.let { it < LocalDateTime.now() } ?: false,
+    isPublished = seriesRegistration.published?.let { it < LocalDateTime.now() } ?: false,
     inAgreement = inAgreement
 )
 
@@ -294,6 +290,6 @@ data class SeriesRegistrationDTOV2(
     val variants: List<ProductRegistrationDTOV2>,
     val version: Long?,
     val isExpired: Boolean,
-    val isPublised: Boolean,
+    val isPublished: Boolean,
     val inAgreement: Boolean,
 )

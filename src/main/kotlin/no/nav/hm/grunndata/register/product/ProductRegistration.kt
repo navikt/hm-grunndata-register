@@ -259,5 +259,6 @@ data class ProductRegistrationDTOV2(
     val productData: ProductData,
     val agreements: List<AgreementInfo>,
     val version: Long?,
-    val isExpired: Boolean
+    val isExpired: Boolean,
+    val isPublished: Boolean
 )
