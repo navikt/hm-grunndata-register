@@ -210,10 +210,17 @@ open class ProductRegistrationService(
 
     suspend fun findAllBySeriesUuid(seriesUUID: UUID) = productRegistrationRepository.findAllBySeriesUUID(seriesUUID).map { it.toDTO() }
 
+    suspend fun findAllBySeriesUuidV2(seriesUUID: UUID) = productRegistrationRepository.findAllBySeriesUUID(seriesUUID).map { it.toDTOV2() }
+
     suspend fun findBySeriesUUIDAndSupplierId(
         seriesId: UUID,
         supplierId: UUID,
     ) = productRegistrationRepository.findBySeriesUUIDAndSupplierId(seriesId, supplierId).map { it.toDTO() }
+
+    suspend fun findBySeriesUUIDAndSupplierIdV2(
+        seriesId: UUID,
+        supplierId: UUID,
+    ) = productRegistrationRepository.findBySeriesUUIDAndSupplierId(seriesId, supplierId).map { it.toDTOV2() }
 
     suspend fun findSeriesGroup(pageable: Pageable) = seriesRegistrationRepository.findSeriesGroup(pageable)
 
@@ -420,7 +427,6 @@ open class ProductRegistrationService(
     open suspend fun createDraftWithV2(
         seriesUUID: UUID,
         draftWithDTO: DraftVariantDTO,
-        supplierId: UUID,
         authentication: Authentication,
     ): ProductRegistrationDTO {
         val previousProduct = productRegistrationRepository.findLastProductInSeries(seriesUUID)
@@ -445,7 +451,7 @@ open class ProductRegistrationService(
                 seriesUUID = seriesUUID,
                 seriesId = seriesUUID.toString(),
                 isoCategory = series.isoCategory,
-                supplierId = supplierId,
+                supplierId = series.supplierId,
                 supplierRef = draftWithDTO.supplierRef,
                 hmsArtNr = null,
                 articleName = draftWithDTO.articleName,
@@ -532,6 +538,23 @@ open class ProductRegistrationService(
             isoCategory = isoCategory,
             agreements = agreeements.map { it.toAgreementInfo() },
             version = version,
+        )
+    }
+
+    private suspend fun ProductRegistration.toDTOV2(): ProductRegistrationDTOV2 {
+        val agreeements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)
+        return ProductRegistrationDTOV2(
+            id = id,
+            supplierRef = supplierRef,
+            hmsArtNr = if (agreeements.isNotEmpty()) agreeements.first().hmsArtNr else hmsArtNr,
+            articleName = articleName,
+            productData = productData,
+            sparePart = sparePart,
+            created = created,
+            accessory = accessory,
+            agreements = agreeements.map { it.toAgreementInfo() },
+            version = version,
+            isExpired = expired?.let { it < LocalDateTime.now() } ?: false,
         )
     }
 

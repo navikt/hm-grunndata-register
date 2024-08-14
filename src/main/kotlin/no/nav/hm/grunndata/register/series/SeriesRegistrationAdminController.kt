@@ -25,6 +25,8 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.series.SeriesRegistrationController.Companion
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
@@ -116,6 +118,19 @@ class SeriesRegistrationAdminController(
             HttpResponse.notFound()
         }
 
+    @Get("/v2/{id}")
+    suspend fun readSeriesV2(
+        @PathVariable id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTOV2> {
+        return seriesRegistrationService.findByIdV2(id)?.let {
+            HttpResponse.ok(it)
+        } ?: run {
+            LOG.warn("Series with id $id does not exist")
+            HttpResponse.notFound()
+        }
+    }
+
     @Put("/{id}")
     suspend fun updateSeries(
         @PathVariable id: UUID,
@@ -133,6 +148,30 @@ class SeriesRegistrationAdminController(
                             createdByUser = inDb.createdByUser,
                             updated = LocalDateTime.now(),
                             updatedByUser = authentication.name,
+                        ),
+                    true,
+                ),
+            )
+        } ?: run {
+            LOG.warn("Series with id $id does not exist")
+            HttpResponse.notFound()
+        }
+
+    @Put("/v2/{id}")
+    suspend fun updateSeriesV2(
+        @PathVariable id: UUID,
+        @Body updateSeriesRegistrationDTO: UpdateSeriesRegistrationDTO,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> =
+        seriesRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())?.let { inDb ->
+            HttpResponse.ok(
+                seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                    inDb
+                        .copy(
+                            title = updateSeriesRegistrationDTO.title ?: inDb.title,
+                            text = updateSeriesRegistrationDTO.text ?: inDb.text,
+                            updated = LocalDateTime.now(),
+                            updatedByUser = authentication.name
                         ),
                     true,
                 ),

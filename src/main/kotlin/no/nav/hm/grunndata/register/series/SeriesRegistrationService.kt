@@ -15,8 +15,10 @@ import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.iso.IsoCategoryService
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.mapSuspend
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -28,6 +30,9 @@ open class SeriesRegistrationService(
     private val productRegistrationService: ProductRegistrationService,
     private val seriesRegistrationEventHandler: SeriesRegistrationEventHandler,
     private val supplierService: SupplierRegistrationService,
+    private val isoCategoryService: IsoCategoryService,
+    private val productAgreementRegistrationService: ProductAgreementRegistrationService
+
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationService::class.java)
@@ -35,6 +40,35 @@ open class SeriesRegistrationService(
 
     suspend fun findById(id: UUID): SeriesRegistrationDTO? = seriesRegistrationRepository.findById(id)?.toDTO()
 
+    suspend fun findByIdV2(
+        id: UUID,
+    ): SeriesRegistrationDTOV2? {
+        return seriesRegistrationRepository.findById(id)?.let{ seriesRegistration ->
+            val supplierRegistration = supplierService.findById(seriesRegistration.supplierId)
+                ?: throw IllegalArgumentException("cannot find series supplier")
+
+            val isoCategoryDTO = isoCategoryService.lookUpCode(seriesRegistration.isoCategory)
+                ?: throw IllegalArgumentException("cannot find series iso code")
+
+            val productRegistrationDTOs =
+                productRegistrationService.findAllBySeriesUuidV2(id).sortedBy { it.created }
+
+            val inAgreement =
+                productAgreementRegistrationService.findAllByProductIds(
+                    productRegistrationService.findAllBySeriesUuid(seriesRegistration.id)
+                        .filter { it.registrationStatus == RegistrationStatus.ACTIVE }
+                        .map { it.id }
+                ).isNotEmpty()
+
+            toSeriesRegistrationDTOV2(
+                seriesRegistration = seriesRegistration,
+                supplierName = supplierRegistration.name,
+                productRegistrationDTOs = productRegistrationDTOs,
+                isoCategoryDTO = isoCategoryDTO,
+                inAgreement = inAgreement
+            )
+        }
+    }
     open suspend fun findByIdIn(ids: List<UUID>) = seriesRegistrationRepository.findByIdIn(ids).map { it.toDTO() }
 
     suspend fun update(
@@ -69,6 +103,37 @@ open class SeriesRegistrationService(
         id: UUID,
         supplierId: UUID,
     ): SeriesRegistrationDTO? = seriesRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.toDTO()
+
+    suspend fun findByIdAndSupplierIdV2(
+        id: UUID,
+        supplierId: UUID,
+    ): SeriesRegistrationDTOV2? {
+        return seriesRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.let{ seriesRegistration ->
+            val supplierRegistration = supplierService.findById(seriesRegistration.supplierId)
+                ?: throw IllegalArgumentException("cannot find series supplier")
+
+            val isoCategoryDTO = isoCategoryService.lookUpCode(seriesRegistration.isoCategory)
+                ?: throw IllegalArgumentException("cannot find series iso code")
+
+            val productRegistrationDTOs =
+                productRegistrationService.findBySeriesUUIDAndSupplierIdV2(id, supplierId).sortedBy { it.created }
+
+            val inAgreement =
+                productAgreementRegistrationService.findAllByProductIds(
+                    productRegistrationService.findAllBySeriesUuid(seriesRegistration.id)
+                        .filter { it.registrationStatus == RegistrationStatus.ACTIVE }
+                        .map { it.id }
+                ).isNotEmpty()
+
+            toSeriesRegistrationDTOV2(
+                seriesRegistration = seriesRegistration,
+                supplierName = supplierRegistration.name,
+                productRegistrationDTOs = productRegistrationDTOs,
+                isoCategoryDTO = isoCategoryDTO,
+                inAgreement = inAgreement
+            )
+        }
+    }
 
     suspend fun findBySupplierId(supplierId: UUID): List<SeriesRegistrationDTO> =
         seriesRegistrationRepository.findBySupplierId(supplierId).map { it.toDTO() }
@@ -166,14 +231,10 @@ open class SeriesRegistrationService(
     }
 
     @Transactional
-    open suspend fun setPublishedSeriesToDraftStatus(
+    open suspend fun setSeriesToDraftStatus(
         seriesToUpdate: SeriesRegistrationDTO,
         authentication: Authentication,
     ): SeriesRegistrationDTO {
-        if (!seriesToUpdate.isPublishedProduct()) {
-            throw IllegalArgumentException("series is not published")
-        }
-
         val updatedSeries =
             seriesToUpdate.copy(
                 draftStatus = DraftStatus.DRAFT,

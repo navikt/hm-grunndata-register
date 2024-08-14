@@ -10,8 +10,10 @@ import java.time.LocalDateTime
 import java.util.Locale
 import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.AgreementInfo
 import no.nav.hm.grunndata.rapid.dto.CompatibleWith
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.IsoCategoryDTO
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import no.nav.hm.grunndata.rapid.dto.SeriesAttributes
 import no.nav.hm.grunndata.rapid.dto.SeriesData
@@ -20,7 +22,11 @@ import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
+import no.nav.hm.grunndata.register.product.ProductData
+import no.nav.hm.grunndata.register.product.ProductRegistrationDTOV2
 import no.nav.hm.grunndata.register.product.toRapidMediaInfo
+import no.nav.hm.grunndata.register.supplier.SupplierRegistration
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 
 @MappedEntity("series_reg_v1")
 data class SeriesRegistration(
@@ -134,6 +140,12 @@ data class SeriesRegistrationDTO(
             status != SeriesStatus.DELETED &&
             published != null
     }
+
+    fun isPendingApproval(): Boolean {
+        return draftStatus == DraftStatus.DONE &&
+                adminStatus == AdminStatus.PENDING &&
+                status != SeriesStatus.DELETED
+    }
 }
 
 fun SeriesRegistration.toDTO() =
@@ -167,6 +179,36 @@ fun SeriesRegistration.toDTO() =
         countDeclined = countDeclined,
         expired = expired
     )
+
+
+fun toSeriesRegistrationDTOV2(
+    seriesRegistration: SeriesRegistration,
+    supplierName: String,
+    productRegistrationDTOs: List<ProductRegistrationDTOV2>,
+    isoCategoryDTO: IsoCategoryDTO,
+    inAgreement: Boolean
+) = SeriesRegistrationDTOV2(
+    id = seriesRegistration.id,
+    supplierName = supplierName,
+    title = seriesRegistration.title,
+    text = seriesRegistration.text,
+    isoCategory = isoCategoryDTO,
+    message = seriesRegistration.message,
+    status = EditStatus.from(seriesRegistration),
+    seriesData = seriesRegistration.seriesData,
+    created = seriesRegistration.created,
+    updated = seriesRegistration.updated,
+    published = seriesRegistration.published,
+    expired = seriesRegistration.expired,
+    updatedByUser = seriesRegistration.updatedByUser,
+    createdByUser = seriesRegistration.createdByUser,
+    variants = productRegistrationDTOs,
+    version = seriesRegistration.version,
+    isExpired = seriesRegistration.expired < LocalDateTime.now(),
+    isPublised = seriesRegistration.published?.let { it < LocalDateTime.now() } ?: false,
+    inAgreement = inAgreement
+)
+
 
 fun SeriesRegistrationDTO.toEntity() =
     SeriesRegistration(
@@ -204,3 +246,54 @@ fun SeriesDataDTO.toRapidDTO() =
             url = attributes.url, compatibleWith = attributes.compatibleWith
         )
     )
+
+enum class EditStatus {
+    EDITABLE,
+    PENDING_APPROVAL,
+    REJECTED,
+    DONE;
+
+    companion object {
+        fun from(seriesRegistration: SeriesRegistration): EditStatus {
+            return if (seriesRegistration.adminStatus == AdminStatus.REJECTED) {
+                REJECTED
+            } else if (seriesRegistration.draftStatus == DraftStatus.DRAFT && seriesRegistration.adminStatus == AdminStatus.PENDING) {
+                EDITABLE
+            } else if (seriesRegistration.draftStatus == DraftStatus.DONE && seriesRegistration.adminStatus == AdminStatus.PENDING) {
+                PENDING_APPROVAL
+            } else if (seriesRegistration.adminStatus == AdminStatus.APPROVED) {
+                DONE
+            } else {
+                throw IllegalArgumentException("Ukjent EditStatus for serie ${seriesRegistration.id}")
+            }
+        }
+    }
+}
+
+data class UpdateSeriesRegistrationDTO (
+    val title: String?,
+    val text: String?,
+    //val seriesData: SeriesDataDTO?,
+)
+
+data class SeriesRegistrationDTOV2(
+    val id: UUID,
+    val supplierName: String,
+    val title: String,
+    val text: String,
+    val isoCategory: IsoCategoryDTO,
+    val message: String?,
+    val status: EditStatus,
+    val seriesData: SeriesDataDTO,
+    val created: LocalDateTime,
+    val updated: LocalDateTime,
+    val published: LocalDateTime?,
+    val expired: LocalDateTime,
+    val updatedByUser: String,
+    val createdByUser: String,
+    val variants: List<ProductRegistrationDTOV2>,
+    val version: Long?,
+    val isExpired: Boolean,
+    val isPublised: Boolean,
+    val inAgreement: Boolean,
+)

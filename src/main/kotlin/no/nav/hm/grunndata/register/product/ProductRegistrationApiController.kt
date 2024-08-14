@@ -146,7 +146,37 @@ class ProductRegistrationApiController(
                 productRegistrationService.createDraftWithV2(
                     seriesUUID,
                     draftWith,
-                    authentication.supplierId(),
+                    authentication,
+                )
+            return HttpResponse.ok(dto)
+        } catch (dataAccessException: DataAccessException) {
+            LOG.error("Got exception while updating product", dataAccessException)
+            throw BadRequestException(
+                dataAccessException.message ?: "Got exception while creating product",
+            )
+        } catch (e: Exception) {
+            LOG.error("Got exception while updating product", e)
+            throw BadRequestException("Got exception while creating product")
+        }
+    }
+
+    @Post("/draftWithV3/{seriesUUID}")
+    suspend fun draftProductWithV3(
+        @PathVariable seriesUUID: UUID,
+        @Body draftWith: DraftVariantDTO,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> {
+        val series = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
+
+        if (series.supplierId != authentication.supplierId()) {
+            throw BadRequestException("Unauthorized access to series $seriesUUID")
+        }
+
+        try {
+            val dto =
+                productRegistrationService.createDraftWithV2(
+                    seriesUUID,
+                    draftWith,
                     authentication,
                 )
             return HttpResponse.ok(dto)
@@ -183,6 +213,55 @@ class ProductRegistrationApiController(
 
         val updated =
             productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(productsToBeApproved, isUpdate = true)
+
+        return HttpResponse.ok(updated)
+    }
+
+    @Put("/to-expired/{id}")
+    suspend fun setPublishedSeriesToInactive(
+        @PathVariable id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> {
+        val productToUpdate = productRegistrationService.findById(id) ?: return HttpResponse.notFound()
+        if (productToUpdate.supplierId != authentication.supplierId()) {
+            return HttpResponse.unauthorized()
+        }
+        val updatedProduct =
+            productToUpdate.copy(
+                registrationStatus = RegistrationStatus.INACTIVE,
+                expired = LocalDateTime.now(),
+                updated = LocalDateTime.now(),
+                updatedBy = REGISTER,
+                updatedByUser = authentication.name,
+            )
+
+        val updated =
+            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+
+        return HttpResponse.ok(updated)
+    }
+
+    @Put("/to-active/{id}")
+    suspend fun setPublishedSeriesToActive(
+        @PathVariable id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> {
+        val productToUpdate = productRegistrationService.findById(id) ?: return HttpResponse.notFound()
+        if (productToUpdate.supplierId != authentication.supplierId()) {
+            return HttpResponse.unauthorized()
+        }
+
+        val updatedProduct =
+            productToUpdate.copy(
+                registrationStatus = RegistrationStatus.ACTIVE,
+                expired = LocalDateTime.now().plusYears(10),
+                updated = LocalDateTime.now(),
+                updatedBy = REGISTER,
+                updatedByUser = authentication.name,
+            )
+
+        val updated =
+            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
 
         return HttpResponse.ok(updated)
     }
@@ -315,7 +394,7 @@ class ProductRegistrationApiController(
             requireNotNull(seriesToUpdate)
             // todo: could it ever be needed to change unpublished to draft also?
             if (seriesToUpdate.published != null) {
-                seriesRegistrationService.setPublishedSeriesToDraftStatus(seriesToUpdate, authentication)
+                seriesRegistrationService.setSeriesToDraftStatus(seriesToUpdate, authentication)
             }
 
             HttpResponse.ok(products)

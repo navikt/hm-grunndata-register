@@ -31,6 +31,7 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.batch.ProductExcelExport
 import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesGroupDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.apache.commons.io.output.ByteArrayOutputStream
@@ -123,7 +124,23 @@ class ProductRegistrationAdminApiController(
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> = try {
         HttpResponse.ok(
-            productRegistrationService.createDraftWithV2(seriesUUID, draftWith, supplierId, authentication),
+            productRegistrationService.createDraftWithV2(seriesUUID, draftWith, authentication),
+        )
+    } catch (e: DataAccessException) {
+        throw BadRequestException(e.message ?: "Error creating draft")
+    } catch (e: Exception) {
+        throw BadRequestException("Error creating draft")
+    }
+
+    @Post("/draftWithV3/{seriesUUID}")
+    suspend fun draftProductWithV2(
+        @PathVariable seriesUUID: UUID,
+        @Body draftWith: DraftVariantDTO,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> = try {
+
+        HttpResponse.ok(
+            productRegistrationService.createDraftWithV2(seriesUUID, draftWith, authentication),
         )
     } catch (e: DataAccessException) {
         throw BadRequestException(e.message ?: "Error creating draft")
@@ -232,6 +249,51 @@ class ProductRegistrationAdminApiController(
                 throw BadRequestException("Got exception while updating product $id")
             }
         }
+
+
+    @Put("/to-expired/{id}")
+    suspend fun setPublishedSeriesToInactive(
+        @PathVariable id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> {
+        val productToUpdate = productRegistrationService.findById(id) ?: return HttpResponse.notFound()
+
+        val updatedProduct =
+            productToUpdate.copy(
+                registrationStatus = RegistrationStatus.INACTIVE,
+                expired = LocalDateTime.now(),
+                updated = LocalDateTime.now(),
+                updatedBy = REGISTER,
+                updatedByUser = authentication.name,
+            )
+
+        val updated =
+            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+
+        return HttpResponse.ok(updated)
+    }
+
+    @Put("/to-active/{id}")
+    suspend fun setPublishedSeriesToActive(
+        @PathVariable id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> {
+        val productToUpdate = productRegistrationService.findById(id) ?: return HttpResponse.notFound()
+
+        val updatedProduct =
+            productToUpdate.copy(
+                registrationStatus = RegistrationStatus.ACTIVE,
+                expired = LocalDateTime.now().plusYears(10),
+                updated = LocalDateTime.now(),
+                updatedBy = REGISTER,
+                updatedByUser = authentication.name,
+            )
+
+        val updated =
+            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+
+        return HttpResponse.ok(updated)
+    }
 
     @Delete("/{id}")
     suspend fun deleteProduct(

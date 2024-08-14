@@ -101,6 +101,19 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
             HttpResponse.notFound()
         }
 
+    @Get("/v2/{id}")
+    suspend fun readSeriesV2(
+        @PathVariable id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTOV2> {
+        return seriesRegistrationService.findByIdAndSupplierIdV2(id, authentication.supplierId())?.let {
+            HttpResponse.ok(it)
+        } ?: run {
+            LOG.warn("Series with id $id does not exist")
+            HttpResponse.notFound()
+        }
+    }
+
     @Put("/{id}")
     suspend fun updateSeries(
         @PathVariable id: UUID,
@@ -130,6 +143,36 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
                 LOG.warn("Series with id $id does not exist")
                 HttpResponse.notFound()
             }
+        }
+
+    @Put("/v2/{id}")
+    suspend fun updateSeriesV2(
+        @PathVariable id: UUID,
+        @Body updateSeriesRegistrationDTO: UpdateSeriesRegistrationDTO,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> =
+
+        seriesRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())?.let { inDb ->
+            if (inDb.supplierId != authentication.supplierId()) {
+                LOG.warn("SupplierId in request does not match authenticated supplierId")
+                return HttpResponse.unauthorized()
+            }
+
+            HttpResponse.ok(
+                seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                    inDb
+                        .copy(
+                            title = updateSeriesRegistrationDTO.title ?: inDb.title,
+                            text = updateSeriesRegistrationDTO.text ?: inDb.text,
+                            updated = LocalDateTime.now(),
+                            updatedByUser = authentication.name
+                        ),
+                    true,
+                ),
+            )
+        } ?: run {
+            LOG.warn("Series with id $id does not exist")
+            HttpResponse.notFound()
         }
 
     @Put("/serie-til-godkjenning/{seriesUUID}")
@@ -166,13 +209,13 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
             return HttpResponse.unauthorized()
         }
 
-        val updated = seriesRegistrationService.setPublishedSeriesToDraftStatus(seriesToUpdate, authentication)
+        val updated = seriesRegistrationService.setSeriesToDraftStatus(seriesToUpdate, authentication)
 
         return HttpResponse.ok(updated)
     }
 
     @Put("/series_to-draft/{seriesUUID}")
-    suspend fun setPublishedSeriesToDraft(
+    suspend fun setSeriesToDraft(
         @PathVariable seriesUUID: UUID,
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> {
@@ -182,7 +225,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
             return HttpResponse.unauthorized()
         }
 
-        val updated = seriesRegistrationService.setPublishedSeriesToDraftStatus(seriesToUpdate, authentication)
+        val updated = seriesRegistrationService.setSeriesToDraftStatus(seriesToUpdate, authentication)
 
         return HttpResponse.ok(updated)
     }
