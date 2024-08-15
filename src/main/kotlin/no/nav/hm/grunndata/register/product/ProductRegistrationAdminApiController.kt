@@ -31,7 +31,6 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.batch.ProductExcelExport
 import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesGroupDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.apache.commons.io.output.ByteArrayOutputStream
@@ -133,7 +132,7 @@ class ProductRegistrationAdminApiController(
     }
 
     @Post("/draftWithV3/{seriesUUID}")
-    suspend fun draftProductWithV2(
+    suspend fun draftProductWithV3(
         @PathVariable seriesUUID: UUID,
         @Body draftWith: DraftVariantDTO,
         authentication: Authentication,

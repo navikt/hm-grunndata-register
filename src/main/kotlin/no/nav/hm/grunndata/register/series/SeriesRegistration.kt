@@ -136,12 +136,6 @@ data class SeriesRegistrationDTO(
             status != SeriesStatus.DELETED &&
             published != null
     }
-
-    fun isPendingApproval(): Boolean {
-        return draftStatus == DraftStatus.DONE &&
-                adminStatus == AdminStatus.PENDING &&
-                status != SeriesStatus.DELETED
-    }
 }
 
 fun SeriesRegistration.toDTO() =
