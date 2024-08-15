@@ -237,3 +237,28 @@ data class ProductRegistrationDryRunDTO(
     val agreements: List<AgreementInfo> = emptyList(),
     val version: Long? = 0L,
 )
+
+
+data class UpdateProductRegistrationDTO(
+    val hmsArtNr: String?,
+    val articleName: String,
+    val accessory: Boolean,
+    val sparePart: Boolean,
+    val productData: ProductData,
+    val agreements: List<AgreementInfo>,
+)
+
+data class ProductRegistrationDTOV2(
+    val id: UUID,
+    val hmsArtNr: String?,
+    val supplierRef: String,
+    val articleName: String,
+    val accessory: Boolean,
+    val sparePart: Boolean,
+    val created: LocalDateTime,
+    val productData: ProductData,
+    val agreements: List<AgreementInfo>,
+    val version: Long?,
+    val isExpired: Boolean,
+    val isPublished: Boolean
+)

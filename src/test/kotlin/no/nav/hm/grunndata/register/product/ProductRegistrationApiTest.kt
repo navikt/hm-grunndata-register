@@ -60,8 +60,8 @@ class ProductRegistrationApiTest(
     fun createUserSupplierAndSeries() {
         val name1 = "25cfec1d-fc9b-474e-ab3a-7c997fbc8e73"
         val name2 = "ba38e5a7-fce3-46ad-9548-a874d967b2a2"
-        val supplierId = UUID.randomUUID()
-        val supplierId2 = UUID.randomUUID()
+        val supplierId = UUID.fromString("ec7b1c83-f4d6-424f-9513-5a52d6cbd3a3")
+        val supplierId2 = UUID.fromString("b6922b7d-5f9e-43dc-815e-971d810c9a87")
         runBlocking {
             if (supplierRegistrationService.findByName(name1) == null) {
                 supplierRegistrationService.save(
