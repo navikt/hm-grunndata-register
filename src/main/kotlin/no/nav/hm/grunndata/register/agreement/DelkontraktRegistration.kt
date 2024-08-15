@@ -5,7 +5,8 @@ import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.model.DataType
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
+import no.nav.hm.grunndata.register.REGISTER
 
 @MappedEntity("delkontrakt_reg_v1")
 data class DelkontraktRegistration(
@@ -13,12 +14,19 @@ data class DelkontraktRegistration(
     val id: UUID = UUID.randomUUID(),
     val agreementId: UUID,
     val identifier: String = id.toString(),
+    val type: DelkontraktType = DelkontraktType.WITH_DELKONTRAKT,
     @field:TypeDef(type = DataType.JSON)
     val delkontraktData: DelkontraktData,
-    val createdBy: String,
-    val updatedBy: String,
+    val createdBy: String = REGISTER,
+    val updatedBy: String = REGISTER,
     val updated: LocalDateTime = LocalDateTime.now(),
 )
+
+enum class DelkontraktType {
+    WITH_DELKONTRAKT,
+    WITH_NO_DELKONTRAKT,
+
+}
 
 data class DelkontraktData(
     val title: String?=null,
@@ -31,9 +39,10 @@ data class DelkontraktRegistrationDTO(
     val id: UUID,
     val agreementId: UUID,
     val identifier: String,
+    val type: DelkontraktType = DelkontraktType.WITH_DELKONTRAKT,
     val delkontraktData: DelkontraktData,
-    val createdBy: String,
-    val updatedBy: String,
+    val createdBy: String = REGISTER,
+    val updatedBy: String = REGISTER,
     val updated: LocalDateTime = LocalDateTime.now(),
 )
 
@@ -41,6 +50,7 @@ fun DelkontraktRegistration.toDTO() = DelkontraktRegistrationDTO(
     id = id,
     agreementId = agreementId,
     identifier = identifier,
+    type = type,
     delkontraktData = delkontraktData,
     createdBy = createdBy,
     updatedBy = updatedBy,
@@ -51,6 +61,7 @@ fun DelkontraktRegistrationDTO.toEntity() = DelkontraktRegistration(
     id = id,
     agreementId = agreementId,
     identifier = identifier,
+    type = type,
     delkontraktData = delkontraktData,
     createdBy = createdBy,
     updatedBy = updatedBy,

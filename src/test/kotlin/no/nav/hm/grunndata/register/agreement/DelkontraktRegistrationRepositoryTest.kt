@@ -3,9 +3,9 @@ package no.nav.hm.grunndata.register.agreement
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
-import java.util.*
 
 @MicronautTest
 class DelkontraktRegistrationRepositoryTest(private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository) {
@@ -35,6 +35,7 @@ class DelkontraktRegistrationRepositoryTest(private val delkontraktRegistrationR
             found.delkontraktData.sortNr shouldBe 1
             found.delkontraktData.refNr shouldBe "1A"
             found.agreementId shouldBe agreementId
+            found.type shouldBe DelkontraktType.WITH_DELKONTRAKT
         }
     }
 
