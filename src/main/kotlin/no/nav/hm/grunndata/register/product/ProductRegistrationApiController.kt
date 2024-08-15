@@ -218,7 +218,7 @@ class ProductRegistrationApiController(
     }
 
     @Put("/to-expired/{id}")
-    suspend fun setPublishedSeriesToInactive(
+    suspend fun setPublishedProductToInactive(
         @PathVariable id: UUID,
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> {
@@ -242,7 +242,7 @@ class ProductRegistrationApiController(
     }
 
     @Put("/to-active/{id}")
-    suspend fun setPublishedSeriesToActive(
+    suspend fun setPublishedProductToActive(
         @PathVariable id: UUID,
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> {
