@@ -109,6 +109,7 @@ data class AgreementRegistrationDTO(
 fun DelkontraktRegistrationDTO.toAgreementPost(agreement: AgreementRegistrationDTO): AgreementPost = AgreementPost(
     id = id,
     identifier = identifier,
+    type = type,
     title = delkontraktData.title!!,
     description = delkontraktData.description!!,
     nr = delkontraktData.sortNr,

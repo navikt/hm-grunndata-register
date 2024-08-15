@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.rapid.dto.DelkontraktType
 import org.junit.jupiter.api.Test
 
 @MicronautTest

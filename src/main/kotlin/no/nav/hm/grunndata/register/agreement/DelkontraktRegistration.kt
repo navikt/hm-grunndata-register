@@ -6,6 +6,7 @@ import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.model.DataType
 import java.time.LocalDateTime
 import java.util.UUID
+import no.nav.hm.grunndata.rapid.dto.DelkontraktType
 import no.nav.hm.grunndata.register.REGISTER
 
 @MappedEntity("delkontrakt_reg_v1")
@@ -21,12 +22,6 @@ data class DelkontraktRegistration(
     val updatedBy: String = REGISTER,
     val updated: LocalDateTime = LocalDateTime.now(),
 )
-
-enum class DelkontraktType {
-    WITH_DELKONTRAKT,
-    WITH_NO_DELKONTRAKT,
-
-}
 
 data class DelkontraktData(
     val title: String?=null,

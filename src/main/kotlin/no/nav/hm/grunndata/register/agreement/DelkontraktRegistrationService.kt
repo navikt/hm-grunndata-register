@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.agreement
 
 import jakarta.inject.Singleton
 import java.util.UUID
+import no.nav.hm.grunndata.rapid.dto.DelkontraktType
 
 @Singleton
 class DelkontraktRegistrationService(private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository) {
