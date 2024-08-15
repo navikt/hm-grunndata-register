@@ -9,6 +9,7 @@ import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
+import no.nav.hm.grunndata.register.agreement.NoDelKontraktHandler
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.anbudsnr
@@ -38,6 +39,7 @@ class ProductAgreementImportExcelService(
     private val supplierRegistrationService: SupplierRegistrationService,
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productRegistrationRepository: ProductRegistrationRepository,
+    private val noDelKontraktHandler: NoDelKontraktHandler
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementImportExcelService::class.java)
@@ -78,9 +80,7 @@ class ProductAgreementImportExcelService(
         if (agreement.agreementStatus === AgreementStatus.DELETED) {
             throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er slettet, må den opprettes?")
         }
-//        if (agreement.agreementStatus === AgreementStatus.ACTIVE) {
-//            throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er publisert")
-//        }
+
         val supplierId = parseSupplierName(supplierName)
         val product = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)
         if (!delkontraktNr.isNullOrBlank()) {
@@ -114,27 +114,33 @@ class ProductAgreementImportExcelService(
                 )
             }
         }
-        else return listOf(ProductAgreementRegistrationDTO(
-            hmsArtNr = parseHMSNr(hmsArtNr),
-            agreementId = agreement.id,
-            supplierRef = supplierRef,
-            productId = product?.id,
-            seriesUuid = product?.seriesUUID,
-            title = title,
-            articleName = product?.articleName,
-            reference = reference,
-            post = 99,
-            rank = 99,
-            postId = null,
-            supplierId = supplierId,
-            published = agreement.published,
-            expired = agreement.expired,
-            updatedBy = EXCEL,
-            sparePart = sparePart,
-            accessory = accessory,
-            isoCategory = iso,
-            updatedByUser = authentication?.name ?: "system"
-        ))
+        else {
+            val noDelKonktraktPost = noDelKontraktHandler.findAndCreateWithNoDelkonktraktTypeIfNotExists(agreement.id)
+
+            return listOf(
+                ProductAgreementRegistrationDTO(
+                    hmsArtNr = parseHMSNr(hmsArtNr),
+                    agreementId = agreement.id,
+                    supplierRef = supplierRef,
+                    productId = product?.id,
+                    seriesUuid = product?.seriesUUID,
+                    title = title,
+                    articleName = product?.articleName,
+                    reference = reference,
+                    post = noDelKonktraktPost.delkontraktData.sortNr,
+                    rank = noDelKonktraktPost.delkontraktData.sortNr,
+                    postId = noDelKonktraktPost.id,
+                    supplierId = supplierId,
+                    published = agreement.published,
+                    expired = agreement.expired,
+                    updatedBy = EXCEL,
+                    sparePart = sparePart,
+                    accessory = accessory,
+                    isoCategory = iso,
+                    updatedByUser = authentication?.name ?: "system"
+                )
+            )
+        }
     }
 
     suspend fun findAgreementByReferenceLike(reference: String): AgreementRegistrationDTO =
