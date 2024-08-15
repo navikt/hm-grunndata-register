@@ -14,7 +14,7 @@ class NoDelKontraktHandler(private val agreementRegistrationService: AgreementRe
                 DelkontraktRegistration(
                     agreementId = agreementId,
                     type = DelkontraktType.WITH_NO_DELKONTRAKT,
-                    delkontraktData = DelkontraktData(title = "Ingen delkontrakt",
+                    delkontraktData = DelkontraktData(title = "99. Ingen delkontrakt",
                         description = "Produkter som ikke er under en delkontrakt",
                         sortNr = 99, refNr = "99")
                 )
