@@ -16,7 +16,7 @@ class NoDelKontraktHandler(private val agreementRegistrationService: AgreementRe
         return delkontraktRegistrationRepository.findByAgreementIdAndType(agreementId, DelkontraktType.WITH_NO_DELKONTRAKT)
             ?: run {
                 LOG.info("Creating delkontrakt with no delkontrakt type for agreementId: $agreementId")
-                delkontraktRegistrationRepository.save(
+                val saved = delkontraktRegistrationRepository.save(
                     DelkontraktRegistration(
                         agreementId = agreementId,
                         type = DelkontraktType.WITH_NO_DELKONTRAKT,
@@ -25,6 +25,12 @@ class NoDelKontraktHandler(private val agreementRegistrationService: AgreementRe
                             sortNr = 99, refNr = "99")
                     )
                 )
+                // sending agreement event to update agreement posts
+                // consider sending delkontrakt as event instead?
+                agreementRegistrationService.findById(agreementId)?.let {
+                    agreementRegistrationService.saveAndCreateEventIfNotDraft(it, isUpdate = true)
+                }
+                saved
             }
     }
 }
