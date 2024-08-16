@@ -43,7 +43,7 @@ class NoDelKontraktHandler(private val agreementRegistrationService: AgreementRe
            val delKontrakt = findAndCreateWithNoDelkonktraktTypeIfNotExists(agreementId)
             products.forEach { product ->
                 LOG.info("fixing product agreement ${product.id} with no delkontrakt")
-                productAgreementRegistrationRepository.save(product.copy(postId = delKontrakt.id))
+                productAgreementRegistrationRepository.update(product.copy(postId = delKontrakt.id))
             }
         }
     }
