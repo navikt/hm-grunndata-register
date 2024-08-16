@@ -10,18 +10,19 @@ import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
-import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(DelkontraktRegistrationAdminController.API_V1_ADMIN_DELKONTRAKT_REGISTRATIONS)
 @Tag(name="Admin Post/Delkontrakt")
 class DelkontraktRegistrationAdminController(
     private val delkontraktRegistrationService: DelkontraktRegistrationService,
+    private val noDelKontraktHandler: NoDelKontraktHandler,
     private val agreementService: AgreementRegistrationService,
 ) {
     companion object {
@@ -73,5 +74,15 @@ class DelkontraktRegistrationAdminController(
                 throw BadRequestException("Delkontrakt $id cannot be deleted")
             }
         } ?: HttpResponse.notFound()
+    }
+
+    @Post("/agreement/{agreementId}/no-delkontrakt")
+    suspend fun createNoDelkontraktPostForAgreement(agreementId: UUID): HttpResponse<DelkontraktRegistrationDTO> =
+        HttpResponse.ok(noDelKontraktHandler.findAndCreateWithNoDelkonktraktTypeIfNotExists(agreementId).toDTO())
+
+    @Put("/agreement/{agreementId}/fix-no-delkontrakt")
+    suspend fun fixNoDelkontraktForAgreement(agreementId: UUID) {
+        LOG.info("Calling fix no delkontrakt product agreements for agreement $agreementId")
+        noDelKontraktHandler.findAndCreateWithNoDelKonktraktTypeIfProductAgreementsWithNoDelkontrakt()
     }
 }

@@ -49,6 +49,8 @@ interface ProductAgreementRegistrationRepository :
         expired: LocalDateTime,
     ): List<ProductAgreementRegistration>
 
+    suspend fun findByPostIdIsNull(): List<ProductAgreementRegistration>
+
     suspend fun findByPostId(postId: UUID): List<ProductAgreementRegistration>
 
     suspend fun findByPostIdAndStatus(
