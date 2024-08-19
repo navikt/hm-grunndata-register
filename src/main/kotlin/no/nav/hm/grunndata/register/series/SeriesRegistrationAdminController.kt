@@ -195,7 +195,6 @@ class SeriesRegistrationAdminController(
         val seriesToUpdate = seriesRegistrationService.findById(id) ?: return HttpResponse.notFound()
 
         if (seriesToUpdate.adminStatus == AdminStatus.APPROVED) throw BadRequestException("$id is already approved")
-        if (seriesToUpdate.draftStatus != DraftStatus.DONE) throw BadRequestException("Series is not done")
         if (seriesToUpdate.status == SeriesStatus.DELETED) throw BadRequestException("SeriesStatus should not be Deleted")
 
         val updatedSeries = seriesRegistrationService.approveSeriesAndVariants(seriesToUpdate, authentication)
@@ -248,6 +247,25 @@ class SeriesRegistrationAdminController(
             HttpResponse.ok(dto)
         } ?: HttpResponse.notFound()
 
+    @Put("/reject-v2/{id}")
+    suspend fun rejectSeriesAndVariants(
+        id: UUID,
+        @Body rejectSeriesDTO: RejectSeriesDTO,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> {
+
+        val seriesToUpdate = seriesRegistrationService.findById(id) ?: return HttpResponse.notFound()
+        if (seriesToUpdate.adminStatus != AdminStatus.PENDING) throw BadRequestException("series is not pending approval")
+        if (seriesToUpdate.draftStatus != DraftStatus.DONE) throw BadRequestException("series is not done")
+        if (seriesToUpdate.status != SeriesStatus.ACTIVE) throw BadRequestException("SeriesStatus should be Active")
+
+        val updatedSeries = seriesRegistrationService.rejectSeriesAndVariants(seriesToUpdate, rejectSeriesDTO.message, authentication)
+
+
+        return HttpResponse.ok(updatedSeries)
+    }
+
+
     @Delete("/{id}")
     suspend fun deleteSeries(
         @PathVariable id: UUID,
@@ -256,6 +274,17 @@ class SeriesRegistrationAdminController(
         val seriesToUpdate = seriesRegistrationService.findById(id) ?: return HttpResponse.notFound()
 
         val updated = seriesRegistrationService.deleteSeries(seriesToUpdate, authentication)
+
+        return HttpResponse.ok(updated)
+    }
+
+    @Put("/series_to-draft/{seriesUUID}")
+    suspend fun setSeriesToDraft(
+        @PathVariable seriesUUID: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> {
+        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
+        val updated = seriesRegistrationService.setSeriesToDraftStatus(seriesToUpdate, authentication)
 
         return HttpResponse.ok(updated)
     }

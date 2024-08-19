@@ -618,6 +618,17 @@ open class ProductRegistrationService(
             registrationStatus,
         ).map { it.toDTO() }
 
+    suspend fun findAllBySeriesUUIDAndAdminStatusAndRegistrationStatus(
+        seriesUUID: UUID,
+        adminStatus: AdminStatus,
+        registrationStatus: RegistrationStatus,
+    ): List<ProductRegistrationDTO> =
+        productRegistrationRepository.findAllBySeriesUUIDAndAdminStatusAndRegistrationStatus(
+            seriesUUID,
+            adminStatus,
+            registrationStatus,
+        ).map { it.toDTO() }
+
     suspend fun findAllBySeriesUUIDAndDraftStatusAndRegistrationStatus(
         seriesUUID: UUID,
         draftStatus: DraftStatus,

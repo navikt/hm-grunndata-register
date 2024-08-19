@@ -15,6 +15,7 @@ import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.iso.IsoCategoryService
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.mapSuspend
@@ -316,6 +317,7 @@ open class SeriesRegistrationService(
                 seriesToUpdate.copy(
                     message = null,
                     adminStatus = AdminStatus.APPROVED,
+                    draftStatus = DraftStatus.DONE,
                     updated = LocalDateTime.now(),
                     published = seriesToUpdate.published ?: LocalDateTime.now(),
                     updatedBy = REGISTER,
@@ -324,18 +326,61 @@ open class SeriesRegistrationService(
             )
 
         val variantsToUpdate =
-            productRegistrationService.findAllBySeriesUUIDAndAdminStatusAndDraftStatusAndRegistrationStatus(
+            productRegistrationService.findAllBySeriesUUIDAndAdminStatusAndRegistrationStatus(
                 seriesToUpdate.id,
                 AdminStatus.PENDING,
-                DraftStatus.DONE,
                 RegistrationStatus.ACTIVE,
             ).map {
                 it.copy(
                     adminStatus = AdminStatus.APPROVED,
+                    draftStatus = DraftStatus.DONE,
                     published = it.published ?: LocalDateTime.now(),
                     updated = LocalDateTime.now(),
                     updatedBy = REGISTER,
                     updatedByUser = authentication.name,
+                )
+            }
+
+        productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(
+            variantsToUpdate,
+            true,
+        )
+
+        return updatedSeries
+    }
+
+    @Transactional
+    open suspend fun rejectSeriesAndVariants(
+        seriesToUpdate: SeriesRegistrationDTO,
+        message: String?,
+        authentication: Authentication,
+    ): SeriesRegistrationDTO {
+        val updatedSeries =
+            saveAndCreateEventIfNotDraftAndApproved(
+                seriesToUpdate.copy(
+                    message = message,
+                    adminStatus = AdminStatus.REJECTED,
+                    updated = LocalDateTime.now(),
+                    updatedBy = REGISTER,
+                ),
+                isUpdate = true,
+            )
+
+        val variantsToUpdate =
+            productRegistrationService.findBySupplierId(
+                seriesToUpdate.id,
+            ).map {
+                if (it.adminStatus != AdminStatus.PENDING) throw BadRequestException("product is not pending approval")
+                if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("product is not done")
+                if (it.registrationStatus == RegistrationStatus.DELETED) {
+                    throw BadRequestException(
+                        "RegistrationStatus should not be be Deleted",
+                    )
+                }
+                it.copy(
+                    adminStatus = AdminStatus.REJECTED,
+                    updated = LocalDateTime.now(),
+                    updatedBy = REGISTER,
                 )
             }
 
