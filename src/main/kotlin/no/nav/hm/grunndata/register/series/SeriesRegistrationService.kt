@@ -396,8 +396,8 @@ open class SeriesRegistrationService(
         authentication: Authentication,
         status: SeriesStatus,
     ): SeriesRegistrationDTO {
-        if (!seriesToUpdate.isPublishedProduct()) {
-            throw IllegalArgumentException("series is not published")
+        if (seriesToUpdate.published == null || seriesToUpdate.draftStatus != DraftStatus.DRAFT) {
+            throw IllegalArgumentException("series cant be set to expired. published = ${seriesToUpdate.published}, draftstatus: ${seriesToUpdate.draftStatus}}")
         }
 
         val newExpirationDate =
