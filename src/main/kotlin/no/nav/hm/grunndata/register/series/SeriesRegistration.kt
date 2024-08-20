@@ -175,7 +175,7 @@ fun toSeriesRegistrationDTOV2(
     seriesRegistration: SeriesRegistration,
     supplierName: String,
     productRegistrationDTOs: List<ProductRegistrationDTOV2>,
-    isoCategoryDTO: IsoCategoryDTO,
+    isoCategoryDTO: IsoCategoryDTO?,
     inAgreement: Boolean
 ) = SeriesRegistrationDTOV2(
     id = seriesRegistration.id,
@@ -271,7 +271,7 @@ data class SeriesRegistrationDTOV2(
     val supplierName: String,
     val title: String,
     val text: String,
-    val isoCategory: IsoCategoryDTO,
+    val isoCategory: IsoCategoryDTO?,
     val message: String?,
     val status: EditStatus,
     val seriesData: SeriesDataDTO,
