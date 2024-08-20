@@ -49,7 +49,6 @@ open class SeriesRegistrationService(
                 ?: throw IllegalArgumentException("cannot find series supplier")
 
             val isoCategoryDTO = isoCategoryService.lookUpCode(seriesRegistration.isoCategory)
-                ?: throw IllegalArgumentException("cannot find series iso code")
 
             val productRegistrationDTOs =
                 productRegistrationService.findAllBySeriesUuidV2(id).sortedBy { it.created }
