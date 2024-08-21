@@ -207,7 +207,7 @@ open class SeriesRegistrationService(
     private fun buildCriteriaSpecPendingProducts(params: java.util.HashMap<String, String>?): PredicateSpecification<SeriesRegistration> =
         where {
             root[SeriesRegistration::adminStatus] eq AdminStatus.PENDING
-            root[SeriesRegistration::status] eq SeriesStatus.ACTIVE
+            root[SeriesRegistration::status] ne SeriesStatus.DELETED
             root[SeriesRegistration::draftStatus] eq DraftStatus.DONE
             params?.let {
                 if (it.containsKey("createdByAdmin")) {
