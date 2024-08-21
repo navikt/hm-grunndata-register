@@ -265,9 +265,6 @@ open class SeriesRegistrationService(
             seriesToUpdate.copy(
                 draftStatus = DraftStatus.DRAFT,
                 adminStatus = AdminStatus.PENDING,
-                updated = LocalDateTime.now(),
-                updatedBy = REGISTER,
-                updatedByUser = authentication.name,
             )
 
         val variantsToUpdate =
@@ -279,9 +276,6 @@ open class SeriesRegistrationService(
                 it.copy(
                     draftStatus = DraftStatus.DRAFT,
                     adminStatus = AdminStatus.PENDING,
-                    updated = LocalDateTime.now(),
-                    updatedBy = REGISTER,
-                    updatedByUser = authentication.name,
                 )
             }
 
