@@ -175,6 +175,26 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
             HttpResponse.notFound()
         }
 
+    @Put("/request-approval/{seriesUUID}")
+    suspend fun requestApproval(
+        @PathVariable seriesUUID: UUID,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> {
+        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
+
+        if (seriesToUpdate.supplierId != authentication.supplierId()) {
+            LOG.warn("SupplierId in request does not match authenticated supplierId")
+            return HttpResponse.unauthorized()
+        }
+
+        if (seriesToUpdate.draftStatus != DraftStatus.DRAFT) throw BadRequestException("series is marked as done")
+
+        val updated =
+            seriesRegistrationService.requestApprovalForSeriesAndVariants(seriesToUpdate)
+
+        return HttpResponse.ok(updated)
+    }
+
     @Put("/serie-til-godkjenning/{seriesUUID}")
     suspend fun setSeriesToBeApproved(
         @PathVariable seriesUUID: UUID,

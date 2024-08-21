@@ -230,6 +230,33 @@ open class SeriesRegistrationService(
     }
 
     @Transactional
+    open suspend fun requestApprovalForSeriesAndVariants(
+        seriesToUpdate: SeriesRegistrationDTO,
+    ): SeriesRegistrationDTO {
+        val updatedSeries =
+            seriesToUpdate.copy(
+                draftStatus = DraftStatus.DONE,
+                adminStatus = AdminStatus.PENDING,
+            )
+
+        val variantsToUpdate =
+            productRegistrationService.findBySeriesUUIDAndSupplierId(
+                seriesToUpdate.id,
+                seriesToUpdate.supplierId
+            ).map {
+                it.copy(
+                    draftStatus = DraftStatus.DONE,
+                    adminStatus = AdminStatus.PENDING,
+                )
+            }
+
+        saveAndCreateEventIfNotDraftAndApproved(updatedSeries, true)
+        productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(variantsToUpdate, true)
+
+        return updatedSeries
+    }
+
+    @Transactional
     open suspend fun setSeriesToDraftStatus(
         seriesToUpdate: SeriesRegistrationDTO,
         authentication: Authentication,
