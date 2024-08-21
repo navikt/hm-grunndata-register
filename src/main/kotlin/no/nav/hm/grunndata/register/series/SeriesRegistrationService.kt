@@ -316,9 +316,7 @@ open class SeriesRegistrationService(
                     message = null,
                     adminStatus = AdminStatus.APPROVED,
                     draftStatus = DraftStatus.DONE,
-                    updated = LocalDateTime.now(),
                     published = seriesToUpdate.published ?: LocalDateTime.now(),
-                    updatedBy = REGISTER,
                 ),
                 isUpdate = true,
             )
@@ -333,9 +331,6 @@ open class SeriesRegistrationService(
                     adminStatus = AdminStatus.APPROVED,
                     draftStatus = DraftStatus.DONE,
                     published = it.published ?: LocalDateTime.now(),
-                    updated = LocalDateTime.now(),
-                    updatedBy = REGISTER,
-                    updatedByUser = authentication.name,
                 )
             }
 
@@ -358,8 +353,6 @@ open class SeriesRegistrationService(
                 seriesToUpdate.copy(
                     message = message,
                     adminStatus = AdminStatus.REJECTED,
-                    updated = LocalDateTime.now(),
-                    updatedBy = REGISTER,
                 ),
                 isUpdate = true,
             )
@@ -377,8 +370,6 @@ open class SeriesRegistrationService(
                 }
                 it.copy(
                     adminStatus = AdminStatus.REJECTED,
-                    updated = LocalDateTime.now(),
-                    updatedBy = REGISTER,
                 )
             }
 
