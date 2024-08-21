@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   postgresregister:
@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - ./src/test/resources/postgres:/docker-entrypoint-initdb.d
-    command: [ "postgres", "-c", "log_statement=none" ]
+    command: ["postgres", "-c", "log_statement=none"]
     networks:
       - register-net
   kafkaregister:
@@ -25,7 +25,7 @@ services:
       - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092,PLAINTEXT_HOST://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -87,7 +87,7 @@ services:
       MEDIA_STORAGE_CDNURL: "http://media:8080/local"
       REDIS_HOST: "redis"
   register:
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-register:24.222.130754
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-register:24.234.141258
     platform: linux/amd64
     hostname: register
     depends_on:
