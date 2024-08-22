@@ -237,6 +237,7 @@ open class SeriesRegistrationService(
             seriesToUpdate.copy(
                 draftStatus = DraftStatus.DONE,
                 adminStatus = AdminStatus.PENDING,
+                updatedBy = REGISTER,
             )
 
         val variantsToUpdate =
@@ -247,6 +248,7 @@ open class SeriesRegistrationService(
                 it.copy(
                     draftStatus = DraftStatus.DONE,
                     adminStatus = AdminStatus.PENDING,
+                    updatedBy = REGISTER,
                 )
             }
 
@@ -265,6 +267,7 @@ open class SeriesRegistrationService(
             seriesToUpdate.copy(
                 draftStatus = DraftStatus.DRAFT,
                 adminStatus = AdminStatus.PENDING,
+                updatedBy = REGISTER,
             )
 
         val variantsToUpdate =
@@ -276,6 +279,7 @@ open class SeriesRegistrationService(
                 it.copy(
                     draftStatus = DraftStatus.DRAFT,
                     adminStatus = AdminStatus.PENDING,
+                    updatedBy = REGISTER,
                 )
             }
 
@@ -337,6 +341,7 @@ open class SeriesRegistrationService(
                     message = null,
                     adminStatus = AdminStatus.APPROVED,
                     draftStatus = DraftStatus.DONE,
+                    updatedBy = REGISTER,
                     published = seriesToUpdate.published ?: LocalDateTime.now(),
                 ),
                 isUpdate = true,
@@ -351,6 +356,7 @@ open class SeriesRegistrationService(
                 it.copy(
                     adminStatus = AdminStatus.APPROVED,
                     draftStatus = DraftStatus.DONE,
+                    updatedBy = REGISTER,
                     published = it.published ?: LocalDateTime.now(),
                 )
             }
@@ -374,6 +380,7 @@ open class SeriesRegistrationService(
                 seriesToUpdate.copy(
                     message = message,
                     adminStatus = AdminStatus.REJECTED,
+                    updatedBy = REGISTER,
                 ),
                 isUpdate = true,
             )
@@ -391,6 +398,7 @@ open class SeriesRegistrationService(
                 }
                 it.copy(
                     adminStatus = AdminStatus.REJECTED,
+                    updatedBy = REGISTER,
                 )
             }
 
