@@ -438,11 +438,9 @@ open class SeriesRegistrationService(
             if (status == SeriesStatus.ACTIVE) RegistrationStatus.ACTIVE else RegistrationStatus.INACTIVE
 
         val variantsToUpdate =
-            productRegistrationService.findAllBySeriesUUIDAndAdminStatusAndDraftStatusAndRegistrationStatus(
+            productRegistrationService.findAllBySeriesUUIDAndRegistrationStatusAndPublishedIsNotNull(
                 seriesToUpdate.id,
-                AdminStatus.APPROVED,
-                DraftStatus.DONE,
-                oldRegistrationStatus,
+                oldRegistrationStatus
             ).map {
                 it.copy(
                     registrationStatus = newRegistrationStatus,
