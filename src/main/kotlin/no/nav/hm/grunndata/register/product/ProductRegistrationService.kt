@@ -615,15 +615,13 @@ open class ProductRegistrationService(
             registrationStatus,
         ).map { it.toDTO() }
 
-    suspend fun findAllBySeriesUUIDAndAdminStatusAndRegistrationStatus(
+    suspend fun findAllBySeriesUUIDAndAdminStatus(
         seriesUUID: UUID,
         adminStatus: AdminStatus,
-        registrationStatus: RegistrationStatus,
     ): List<ProductRegistrationDTO> =
-        productRegistrationRepository.findAllBySeriesUUIDAndAdminStatusAndRegistrationStatus(
+        productRegistrationRepository.findAllBySeriesUUIDAndAdminStatus(
             seriesUUID,
             adminStatus,
-            registrationStatus,
         ).map { it.toDTO() }
 
     suspend fun findAllBySeriesUUIDAndDraftStatusAndRegistrationStatus(
