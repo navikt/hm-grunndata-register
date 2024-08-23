@@ -86,7 +86,7 @@ class ProductRegistrationEventHandlerTest(private val productRegistrationEventHa
                 updatedBy = REGISTER
             )
             productRegistrationEventHandler.queueDTORapidEvent(registration, eventName = EventName.registeredProductV1)
-            val events = eventItemService.getAllPendingStatus()
+            val events = eventItemService.findByStatusOrderByUpdatedAsc()
             events.size shouldBeGreaterThan 0
             events.forEach {
                 if (it.type == EventItemType.PRODUCT) {

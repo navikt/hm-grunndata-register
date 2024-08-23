@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @Singleton
 open class EventItemService(
@@ -19,7 +19,7 @@ open class EventItemService(
     private var eventHandlers = mutableMapOf<EventItemType, EventHandler>()
 
 
-    suspend fun getAllPendingStatus() = eventItemRepository.findByStatus(EventItemStatus.PENDING)
+    suspend fun findByStatusOrderByUpdatedAsc() = eventItemRepository.findByStatusOrderByUpdatedAsc(EventItemStatus.PENDING)
 
     private suspend fun setEventItemStatusToSent(eventItem: EventItem) {
         eventItemRepository.update(eventItem.copy(status = EventItemStatus.SENT))

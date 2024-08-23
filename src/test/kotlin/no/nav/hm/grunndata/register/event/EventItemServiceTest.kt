@@ -6,13 +6,13 @@ import io.kotest.matchers.MatcherResult
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import java.time.LocalDateTime
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.agreement.AgreementData
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
-import java.util.*
 
 @MicronautTest
 class EventItemServiceTest(private val eventItemService: EventItemService) {
@@ -92,7 +92,7 @@ class EventItemServiceTest(private val eventItemService: EventItemService) {
                 payload = agreementRegistration2,
                 extraKeyValues = emptyMap()
             )
-            val items = eventItemService.getAllPendingStatus()
+            val items = eventItemService.findByStatusOrderByUpdatedAsc()
             items.size shouldBeGreaterThanOrEqual 1
             items.forEach {
                 it.status shouldBe EventItemStatus.PENDING
