@@ -624,15 +624,13 @@ open class ProductRegistrationService(
             adminStatus,
         ).map { it.toDTO() }
 
-    suspend fun findAllBySeriesUUIDAndDraftStatusAndRegistrationStatus(
+    suspend fun findAllBySeriesUUIDAndDraftStatus(
         seriesUUID: UUID,
         draftStatus: DraftStatus,
-        registrationStatus: RegistrationStatus,
     ): List<ProductRegistrationDTO> =
-        productRegistrationRepository.findAllBySeriesUUIDAndDraftStatusAndRegistrationStatus(
+        productRegistrationRepository.findAllBySeriesUUIDAndDraftStatus(
             seriesUUID,
             draftStatus,
-            registrationStatus,
         ).map { it.toDTO() }
 
     suspend fun countBySupplier(supplierId: UUID): Long = productRegistrationRepository.count(
