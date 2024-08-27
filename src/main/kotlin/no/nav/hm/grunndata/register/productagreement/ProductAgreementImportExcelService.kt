@@ -26,6 +26,7 @@ import no.nav.hm.grunndata.register.productagreement.ColumnNames.leverandørensa
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.malTypeartikkel
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.malgruppebarn
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
+import org.apache.poi.openxml4j.util.ZipSecureFile
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.DataFormatter
 import org.apache.poi.ss.usermodel.Row
@@ -48,6 +49,7 @@ class ProductAgreementImportExcelService(
 
     suspend fun importExcelFile(inputStream: InputStream, authentication: Authentication?): List<ProductAgreementRegistrationDTO> {
         LOG.info("Reading xls file")
+        ZipSecureFile.setMinInflateRatio(0.0)
         val workbook = WorkbookFactory.create(inputStream)
         val productAgreementList = readProductData(workbook, authentication)
         workbook.close()
