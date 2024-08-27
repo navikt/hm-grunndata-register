@@ -271,9 +271,8 @@ open class SeriesRegistrationService(
             )
 
         val variantsToUpdate =
-            productRegistrationService.findAllBySeriesUUIDAndDraftStatus(
+            productRegistrationService.findAllBySeriesUuid(
                 seriesToUpdate.id,
-                DraftStatus.DONE,
             ).map {
                 it.copy(
                     draftStatus = DraftStatus.DRAFT,

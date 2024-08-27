@@ -624,15 +624,6 @@ open class ProductRegistrationService(
             adminStatus,
         ).map { it.toDTO() }
 
-    suspend fun findAllBySeriesUUIDAndDraftStatus(
-        seriesUUID: UUID,
-        draftStatus: DraftStatus,
-    ): List<ProductRegistrationDTO> =
-        productRegistrationRepository.findAllBySeriesUUIDAndDraftStatus(
-            seriesUUID,
-            draftStatus,
-        ).map { it.toDTO() }
-
     suspend fun countBySupplier(supplierId: UUID): Long = productRegistrationRepository.count(
         where {
             root[ProductRegistration::supplierId] eq supplierId

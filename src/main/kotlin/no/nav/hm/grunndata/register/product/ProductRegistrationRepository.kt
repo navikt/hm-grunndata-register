@@ -6,7 +6,6 @@ import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
-import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import java.time.LocalDateTime
 import java.util.UUID
@@ -66,11 +65,6 @@ interface ProductRegistrationRepository :
     suspend fun findAllBySeriesUUIDAndAdminStatus(
         seriesUUID: UUID,
         adminStatus: AdminStatus,
-    ): List<ProductRegistration>
-
-    suspend fun findAllBySeriesUUIDAndDraftStatus(
-        seriesUUID: UUID,
-        draftStatus: DraftStatus,
     ): List<ProductRegistration>
 
     suspend fun findBySeriesUUID(seriesUUID: UUID): ProductRegistration?
