@@ -26,7 +26,6 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
-import no.nav.hm.grunndata.register.series.SeriesRegistrationController.Companion
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
@@ -79,6 +78,10 @@ class SeriesRegistrationAdminController(
                     val statusList: List<SeriesStatus> =
                         params["status"]!!.split(",").map { SeriesStatus.valueOf(it) }
                     root[SeriesRegistration::status] inList statusList
+                }
+                if (params.contains("supplierFilter")) {
+                    val supplierList = params["supplierFilter"]!!.split(",").map { UUID.fromString(it) }
+                    root[SeriesRegistration::supplierId] inList supplierList
                 }
                 if (params.contains("supplierId")) root[SeriesRegistration::supplierId] eq UUID.fromString(params["supplierId"]!!)
                 if (params.contains("draft")) root[SeriesRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
@@ -171,7 +174,7 @@ class SeriesRegistrationAdminController(
                             title = updateSeriesRegistrationDTO.title ?: inDb.title,
                             text = updateSeriesRegistrationDTO.text ?: inDb.text,
                             updated = LocalDateTime.now(),
-                            updatedByUser = authentication.name
+                            updatedByUser = authentication.name,
                         ),
                     true,
                 ),
@@ -253,18 +256,16 @@ class SeriesRegistrationAdminController(
         @Body rejectSeriesDTO: RejectSeriesDTO,
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> {
-
         val seriesToUpdate = seriesRegistrationService.findById(id) ?: return HttpResponse.notFound()
         if (seriesToUpdate.adminStatus != AdminStatus.PENDING) throw BadRequestException("series is not pending approval")
         if (seriesToUpdate.draftStatus != DraftStatus.DONE) throw BadRequestException("series is not done")
         if (seriesToUpdate.status != SeriesStatus.ACTIVE) throw BadRequestException("SeriesStatus should be Active")
 
-        val updatedSeries = seriesRegistrationService.rejectSeriesAndVariants(seriesToUpdate, rejectSeriesDTO.message, authentication)
-
+        val updatedSeries =
+            seriesRegistrationService.rejectSeriesAndVariants(seriesToUpdate, rejectSeriesDTO.message, authentication)
 
         return HttpResponse.ok(updatedSeries)
     }
-
 
     @Delete("/{id}")
     suspend fun deleteSeries(
