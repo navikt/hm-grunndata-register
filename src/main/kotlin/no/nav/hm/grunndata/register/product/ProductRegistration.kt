@@ -113,6 +113,7 @@ data class ProductRegistrationDTO(
     override fun toRapidDTO(): RapidDTO =
         ProductRegistrationRapidDTO(
             id = id,
+            partitionKey = seriesUUID.toString(),
             draftStatus = draftStatus,
             adminStatus = adminStatus,
             registrationStatus = registrationStatus,
