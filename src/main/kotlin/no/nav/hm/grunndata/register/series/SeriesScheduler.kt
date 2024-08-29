@@ -25,14 +25,15 @@ open class SeriesScheduler(
         }
     }
 
-    @LeaderOnly
-    @Scheduled(fixedDelay = "1h")
-    open fun findEmptySeriesAndDelete() {
-        LOG.info("Running find empty series scheduler")
-        runBlocking {
-            seriesStateHandler.findEmptyAndDeleteSeries()
-        }
-    }
+    // todo: deactivating this as it removes series in draft also
+//    @LeaderOnly
+//    @Scheduled(fixedDelay = "1h")
+//    open fun findEmptySeriesAndDelete() {
+//        LOG.info("Running find empty series scheduler")
+//        runBlocking {
+//            seriesStateHandler.findEmptyAndDeleteSeries()
+//        }
+//    }
 
 //    @LeaderOnly Disable this scheduler, we should not need anymore
 //    @Scheduled(cron = "0 35 2 * * ?")
