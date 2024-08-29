@@ -11,6 +11,7 @@ on:
       - ".nais/azure-emailer.yml"
     branches:
       - main
+      - removeDeleteEmptyVariantsScheduler
 
 jobs:
   call-workflow:
