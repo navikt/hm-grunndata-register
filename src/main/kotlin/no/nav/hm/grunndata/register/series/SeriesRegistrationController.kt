@@ -25,6 +25,7 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.series.EditStatus
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
@@ -317,18 +318,56 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         params?.let {
             where {
                 root[SeriesRegistration::supplierId] eq supplierId
+
                 if (params.contains("status")) {
                     val statusList: List<SeriesStatus> = params["status"]!!.split(",").map { SeriesStatus.valueOf(it) }
                     root[SeriesRegistration::status] inList statusList
                 }
+
                 if (params.contains("excludedStatus")) {
                     root[SeriesRegistration::status] ne params["excludedStatus"]
                 }
+
                 if (params.contains("adminStatus")) {
                     val statusList: List<AdminStatus> =
                         params["adminStatus"]!!.split(",").map { AdminStatus.valueOf(it) }
                     root[SeriesRegistration::adminStatus] inList statusList
                 }
+
+                if (params.contains("editStatus")) {
+                    val statusList: List<EditStatus> = params["editStatus"]!!.split(",").map { EditStatus.valueOf(it) }
+
+                    val predicates = statusList.flatMap { status ->
+                        when (status) {
+                            EditStatus.REJECTED -> listOf(
+                                criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.REJECTED)
+                            )
+
+                            EditStatus.PENDING_APPROVAL -> listOf(
+                                criteriaBuilder.and(
+                                    criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DONE),
+                                    criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.PENDING)
+                                )
+                            )
+
+                            EditStatus.EDITABLE -> listOf(
+                                criteriaBuilder.and(
+                                    criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DRAFT),
+                                    criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.PENDING)
+                                )
+                            )
+
+                            EditStatus.DONE -> listOf(
+                                criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.APPROVED)
+                            )
+                        }
+                    }
+
+                    if (predicates.isNotEmpty()) {
+                        criteriaBuilder.or(*predicates.toTypedArray())
+                    }
+                }
+
             }.and { root, criteriaBuilder ->
                 if (params.contains("title")) {
                     val term = params["title"]!!.lowercase(Locale.getDefault())

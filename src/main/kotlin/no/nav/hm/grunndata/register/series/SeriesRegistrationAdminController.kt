@@ -50,6 +50,8 @@ class SeriesRegistrationAdminController(
         pageable: Pageable,
         authentication: Authentication,
     ): Page<SeriesRegistrationDTO> {
+        val asd = buildCriteriaSpec(params)
+
         return seriesRegistrationService.findAll(buildCriteriaSpec(params), pageable)
     }
 
@@ -71,23 +73,91 @@ class SeriesRegistrationAdminController(
             seriesRegistrationService.findById(it.seriesUUID)
         }
 
+
     private fun buildCriteriaSpec(params: java.util.HashMap<String, String>?): PredicateSpecification<SeriesRegistration>? =
         params?.let {
             where {
-                if (params.contains("adminStatus")) root[SeriesRegistration::adminStatus] eq AdminStatus.valueOf(params["adminStatus"]!!)
+                if (params.contains("adminStatus"))
+                    root[SeriesRegistration::adminStatus] eq AdminStatus.valueOf(params["adminStatus"]!!)
+                if (params.contains("excludedStatus"))
+                    root[SeriesRegistration::status] ne params["excludedStatus"]
                 if (params.contains("status")) {
                     val statusList: List<SeriesStatus> =
                         params["status"]!!.split(",").map { SeriesStatus.valueOf(it) }
                     root[SeriesRegistration::status] inList statusList
                 }
-                if (params.contains("supplierId")) root[SeriesRegistration::supplierId] eq UUID.fromString(params["supplierId"]!!)
-                if (params.contains("draft")) root[SeriesRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
-                if (params.contains("createdByUser")) root[SeriesRegistration::createdByUser] eq params["createdByUser"]
-                if (params.contains("updatedByUser")) root[SeriesRegistration::updatedByUser] eq params["updatedByUser"]
-                if (params.contains("excludedStatus")) {
-                    root[SeriesRegistration::status] ne params["excludedStatus"]
-                }
+                if (params.contains("supplierId"))
+                    root[SeriesRegistration::supplierId] eq UUID.fromString(params["supplierId"]!!)
+                if (params.contains("draft"))
+                    root[SeriesRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
+                if (params.contains("createdByUser"))
+                    root[SeriesRegistration::createdByUser] eq params["createdByUser"]
+                if (params.contains("updatedByUser"))
+                    root[SeriesRegistration::updatedByUser] eq params["updatedByUser"]
+                /*if (params.contains("editStatus")) {
+                    val statusList: List<EditStatus> = params["editStatus"]!!.split(",").map { EditStatus.valueOf(it) }
+                    val tomListe: List<Boolean> = emptyList()
+                    val predicates = statusList.map { status ->
+                        when (status) {
+                            EditStatus.REJECTED ->
+                                criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.REJECTED)
+
+                            EditStatus.PENDING_APPROVAL ->
+                                criteriaBuilder.and(
+                                    criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DONE),
+                                    criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.PENDING)
+                                )
+
+                            EditStatus.EDITABLE ->
+                                criteriaBuilder.and(
+                                    criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DRAFT),
+                                    criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.PENDING)
+
+                                )
+
+                            EditStatus.DONE ->
+                                criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.APPROVED)
+
+                        }
+                    }
+
+                    root[SeriesRegistration::draftStatus] eq DraftStatus.DONE
+                    criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DONE)
+                    //if (predicates.isNotEmpty()) {
+                    //    criteriaBuilder.or(*predicates.toTypedArray())
+                    //}
+                }*/
             }.and { root, criteriaBuilder ->
+                if (params.contains("editStatus")) {
+                    val statusList: List<EditStatus> = params["editStatus"]!!.split(",").map { EditStatus.valueOf(it) }
+                    val predicates = statusList.map { status ->
+                        when (status) {
+                            EditStatus.REJECTED ->
+                                criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.REJECTED)
+
+                            EditStatus.PENDING_APPROVAL ->
+                                criteriaBuilder.and(
+                                    criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DONE),
+                                    criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.PENDING)
+                                )
+
+                            EditStatus.EDITABLE ->
+                                criteriaBuilder.and(
+                                    criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DRAFT),
+                                    criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.PENDING)
+
+                                )
+
+                            EditStatus.DONE ->
+                                criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.APPROVED)
+
+                        }
+                    }
+
+                    criteriaBuilder.or(*predicates.toTypedArray())
+
+                }
+
                 if (params.contains("title")) {
                     val term = params["title"]!!.lowercase(Locale.getDefault())
                     criteriaBuilder.like(
@@ -100,6 +170,7 @@ class SeriesRegistrationAdminController(
                         root[SeriesRegistration::titleLowercase],
                         LiteralExpression("%$term%"),
                     )
+
                 } else {
                     null
                 }
@@ -259,7 +330,8 @@ class SeriesRegistrationAdminController(
         if (seriesToUpdate.draftStatus != DraftStatus.DONE) throw BadRequestException("series is not done")
         if (seriesToUpdate.status != SeriesStatus.ACTIVE) throw BadRequestException("SeriesStatus should be Active")
 
-        val updatedSeries = seriesRegistrationService.rejectSeriesAndVariants(seriesToUpdate, rejectSeriesDTO.message, authentication)
+        val updatedSeries =
+            seriesRegistrationService.rejectSeriesAndVariants(seriesToUpdate, rejectSeriesDTO.message, authentication)
 
 
         return HttpResponse.ok(updatedSeries)
