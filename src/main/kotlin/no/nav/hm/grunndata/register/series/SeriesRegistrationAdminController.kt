@@ -27,6 +27,7 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.series.SeriesRegistrationController.Companion
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
@@ -77,10 +78,20 @@ class SeriesRegistrationAdminController(
                 val predicates = mutableListOf<Predicate>()
 
                 if (inputparams.contains("adminStatus")) {
-                    predicates.add(criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.valueOf(inputparams["adminStatus"]!!)))
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::adminStatus],
+                            AdminStatus.valueOf(inputparams["adminStatus"]!!)
+                        )
+                    )
                 }
                 if (inputparams.contains("excludedStatus")) {
-                    predicates.add(criteriaBuilder.notEqual(root[SeriesRegistration::status], inputparams["excludedStatus"]))
+                    predicates.add(
+                        criteriaBuilder.notEqual(
+                            root[SeriesRegistration::status],
+                            inputparams["excludedStatus"]
+                        )
+                    )
                 }
                 if (inputparams.contains("status")) {
                     val statusList: List<SeriesStatus> =
@@ -88,21 +99,42 @@ class SeriesRegistrationAdminController(
                     predicates.add(root[SeriesRegistration::status].`in`(statusList))
                 }
                 if (inputparams.contains("supplierId")) {
-                    predicates.add(criteriaBuilder.equal(root[SeriesRegistration::supplierId], UUID.fromString(inputparams["supplierId"]!!)))
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::supplierId],
+                            UUID.fromString(inputparams["supplierId"]!!)
+                        )
+                    )
                 }
                 if (inputparams.contains("draft")) {
-                    predicates.add(criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.valueOf(inputparams["draft"]!!)))
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::draftStatus],
+                            DraftStatus.valueOf(inputparams["draft"]!!)
+                        )
+                    )
                 }
                 if (inputparams.contains("createdByUser")) {
-                    predicates.add(criteriaBuilder.equal(root[SeriesRegistration::createdByUser], inputparams["createdByUser"]))
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::createdByUser],
+                            inputparams["createdByUser"]
+                        )
+                    )
                 }
                 if (inputparams.contains("updatedByUser")) {
-                    predicates.add(criteriaBuilder.equal(root[SeriesRegistration::updatedByUser], inputparams["updatedByUser"]))
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::updatedByUser],
+                            inputparams["updatedByUser"]
+                        )
+                    )
                 }
 
                 if (inputparams.contains("editStatus")) {
                     val statusList: List<EditStatus> =
                         inputparams["editStatus"]!!.split(",").map { EditStatus.valueOf(it) }
+                    LOG.info("editStatus: $statusList")
                     val statusPredicates =
                         statusList.map { status ->
                             when (status) {

@@ -18,6 +18,7 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.persistence.criteria.Predicate
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
@@ -312,76 +313,139 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
     }
 
     private fun buildCriteriaSpec(
-        params: HashMap<String, String>?,
+        inputparams: HashMap<String, String>?,
         supplierId: UUID,
-    ): PredicateSpecification<SeriesRegistration> =
-        params?.let {
-            where {
-                root[SeriesRegistration::supplierId] eq supplierId
+    ): PredicateSpecification<SeriesRegistration>? =
+        inputparams?.let {
+            PredicateSpecification<SeriesRegistration> { root, criteriaBuilder ->
+                val predicates = mutableListOf<Predicate>()
+                predicates.add(criteriaBuilder.equal(root[SeriesRegistration::supplierId], supplierId))
 
-                if (params.contains("status")) {
-                    val statusList: List<SeriesStatus> = params["status"]!!.split(",").map { SeriesStatus.valueOf(it) }
-                    root[SeriesRegistration::status] inList statusList
-                }
-
-                if (params.contains("excludedStatus")) {
-                    root[SeriesRegistration::status] ne params["excludedStatus"]
-                }
-
-                if (params.contains("adminStatus")) {
+                if (inputparams.contains("adminStatus")) {
                     val statusList: List<AdminStatus> =
-                        params["adminStatus"]!!.split(",").map { AdminStatus.valueOf(it) }
-                    root[SeriesRegistration::adminStatus] inList statusList
-                }
-
-                if (params.contains("editStatus")) {
-                    val statusList: List<EditStatus> = params["editStatus"]!!.split(",").map { EditStatus.valueOf(it) }
-
-                    val predicates = statusList.flatMap { status ->
-                        when (status) {
-                            EditStatus.REJECTED -> listOf(
-                                criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.REJECTED)
-                            )
-
-                            EditStatus.PENDING_APPROVAL -> listOf(
-                                criteriaBuilder.and(
-                                    criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DONE),
-                                    criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.PENDING)
-                                )
-                            )
-
-                            EditStatus.EDITABLE -> listOf(
-                                criteriaBuilder.and(
-                                    criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DRAFT),
-                                    criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.PENDING)
-                                )
-                            )
-
-                            EditStatus.DONE -> listOf(
-                                criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.APPROVED)
-                            )
+                        inputparams["adminStatus"]!!.split(",").mapNotNull {
+                            try {
+                                AdminStatus.valueOf(it)
+                            } catch (e: IllegalArgumentException) {
+                                throw BadRequestException("Invalid adminStatus: $it")
+                            }
                         }
-                    }
-
-                    if (predicates.isNotEmpty()) {
-                        criteriaBuilder.or(*predicates.toTypedArray())
+                    if (statusList.isNotEmpty()) {
+                        predicates.add(root[SeriesRegistration::adminStatus].`in`(statusList))
                     }
                 }
 
-            }.and { root, criteriaBuilder ->
-                if (params.contains("title")) {
-                    val term = params["title"]!!.lowercase(Locale.getDefault())
-                    criteriaBuilder.like(
-                        root[SeriesRegistration::titleLowercase],
-                        LiteralExpression("%$term%"),
+                if (inputparams.contains("excludedStatus")) {
+                    predicates.add(
+                        criteriaBuilder.notEqual(
+                            root[SeriesRegistration::status],
+                            inputparams["excludedStatus"]
+                        )
                     )
+                }
+              
+                if (inputparams.contains("status")) {
+                    val statusList: List<SeriesStatus> =
+                        inputparams["status"]!!.split(",").mapNotNull {
+                            try {
+                                SeriesStatus.valueOf(it)
+                            } catch (e: IllegalArgumentException) {
+                                throw BadRequestException("Invalid adminStatus: $it")
+                            }
+                        }
+                    if (statusList.isNotEmpty()) {
+                        predicates.add(root[SeriesRegistration::status].`in`(statusList))
+                    }
+                }
+                if (inputparams.contains("supplierId")) {
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::supplierId],
+                            UUID.fromString(inputparams["supplierId"]!!)
+                        )
+                    )
+                }
+                if (inputparams.contains("draft")) {
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::draftStatus],
+                            DraftStatus.valueOf(inputparams["draft"]!!)
+                        )
+                    )
+                }
+                if (inputparams.contains("createdByUser")) {
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::createdByUser],
+                            inputparams["createdByUser"]
+                        )
+                    )
+                }
+                if (inputparams.contains("updatedByUser")) {
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::updatedByUser],
+                            inputparams["updatedByUser"]
+                        )
+                    )
+                }
+
+                if (inputparams.contains("editStatus")) {
+                    val statusList: List<EditStatus> =
+                        inputparams["editStatus"]!!.split(",").map { EditStatus.valueOf(it) }
+                    LOG.info("editStatus: $statusList")
+                    val statusPredicates =
+                        statusList.map { status ->
+                            when (status) {
+                                EditStatus.REJECTED ->
+                                    criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.REJECTED)
+
+                                EditStatus.PENDING_APPROVAL ->
+                                    criteriaBuilder.and(
+                                        criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DONE),
+                                        criteriaBuilder.equal(
+                                            root[SeriesRegistration::adminStatus],
+                                            AdminStatus.PENDING,
+                                        ),
+                                    )
+
+                                EditStatus.EDITABLE ->
+                                    criteriaBuilder.and(
+                                        criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DRAFT),
+                                        criteriaBuilder.equal(
+                                            root[SeriesRegistration::adminStatus],
+                                            AdminStatus.PENDING,
+                                        ),
+                                    )
+
+                                EditStatus.DONE ->
+                                    criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.APPROVED)
+                            }
+                        }
+                    if (statusPredicates.isNotEmpty()) {
+                        predicates.add(criteriaBuilder.or(*statusPredicates.toTypedArray()))
+                    }
+                }
+
+                if (inputparams.contains("title")) {
+                    val term = inputparams["title"]!!.lowercase(Locale.getDefault())
+                    predicates.add(
+                        criteriaBuilder.like(
+                            root[SeriesRegistration::titleLowercase],
+                            LiteralExpression("%$term%"),
+                        )
+                    )
+                }
+
+                // Return the combined predicates
+                if (predicates.isNotEmpty()) {
+                    criteriaBuilder.and(*predicates.toTypedArray())
                 } else {
                     null
                 }
             }
-        } ?: where {
-            root[SeriesRegistration::supplierId] eq supplierId
         }
 }
+
 
 data class SeriesDraftWithDTO(val title: String, val isoCategory: String)
