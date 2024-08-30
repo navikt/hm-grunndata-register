@@ -515,7 +515,7 @@ open class ProductRegistrationService(
             seriesId = seriesId,
             seriesUUID = seriesUUID,
             supplierRef = supplierRef,
-            hmsArtNr = if (agreeements.isNotEmpty()) agreeements.first().hmsArtNr else hmsArtNr,
+            hmsArtNr = if (!hmsArtNr.isNullOrBlank()) hmsArtNr else if (agreeements.isNotEmpty()) agreeements.first().hmsArtNr else null,
             title = title,
             articleName = articleName,
             draftStatus = draftStatus,
