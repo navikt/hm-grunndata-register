@@ -88,7 +88,7 @@ open class ProductRegistrationService(
     ) = productRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.toDTO()
 
     @Transactional
-    open suspend fun updateProduct(
+    open suspend fun updateProductBySupplier(
         registrationDTO: ProductRegistrationDTO,
         id: UUID,
         authentication: Authentication,
@@ -105,6 +105,8 @@ open class ProductRegistrationService(
                                     registrationDTO.draftStatus
                                 },
                             id = inDb.id,
+                            hmsArtNr = inDb.hmsArtNr, // hmsArtNr cannot be changed by supplier
+                            supplierRef = inDb.supplierRef, // supplierRef cannot be changed by supplier
                             created = inDb.created,
                             updatedBy = REGISTER,
                             updatedByUser = authentication.name,
@@ -546,7 +548,7 @@ open class ProductRegistrationService(
         return ProductRegistrationDTOV2(
             id = id,
             supplierRef = supplierRef,
-            hmsArtNr = if (agreeements.isNotEmpty()) agreeements.first().hmsArtNr else hmsArtNr,
+            hmsArtNr = if (!hmsArtNr.isNullOrBlank()) hmsArtNr else if (agreeements.isNotEmpty()) agreeements.first().hmsArtNr else null,
             articleName = articleName,
             productData = productData,
             sparePart = sparePart,

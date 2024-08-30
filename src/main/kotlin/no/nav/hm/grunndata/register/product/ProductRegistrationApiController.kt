@@ -117,7 +117,7 @@ class ProductRegistrationApiController(
             throw BadRequestException("Product id $id does not match ${registrationDTO.id}")
         } else {
             try {
-                val dto = productRegistrationService.updateProduct(registrationDTO, id, authentication)
+                val dto = productRegistrationService.updateProductBySupplier(registrationDTO, id, authentication)
                 HttpResponse.ok(dto)
             } catch (dataAccessException: DataAccessException) {
                 LOG.error("Got exception while updating product", dataAccessException)
