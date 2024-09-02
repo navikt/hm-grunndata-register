@@ -259,7 +259,6 @@ class SeriesRegistrationAdminController(
         val seriesToUpdate = seriesRegistrationService.findById(id) ?: return HttpResponse.notFound()
         if (seriesToUpdate.adminStatus != AdminStatus.PENDING) throw BadRequestException("series is not pending approval")
         if (seriesToUpdate.draftStatus != DraftStatus.DONE) throw BadRequestException("series is not done")
-        if (seriesToUpdate.status != SeriesStatus.ACTIVE) throw BadRequestException("SeriesStatus should be Active")
 
         val updatedSeries =
             seriesRegistrationService.rejectSeriesAndVariants(seriesToUpdate, rejectSeriesDTO.message, authentication)
