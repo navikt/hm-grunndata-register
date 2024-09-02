@@ -106,7 +106,7 @@ open class ProductRegistrationService(
                                 },
                             id = inDb.id,
                             hmsArtNr = inDb.hmsArtNr, // hmsArtNr cannot be changed by supplier
-                            supplierRef = inDb.supplierRef, // supplierRef cannot be changed by supplier
+                            supplierRef = if (inDb.published != null) inDb.supplierRef else registrationDTO.supplierRef, // supplierRef cannot be changed by supplier if published
                             created = inDb.created,
                             updatedBy = REGISTER,
                             updatedByUser = authentication.name,
