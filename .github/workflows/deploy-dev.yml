@@ -11,6 +11,7 @@ on:
       - ".nais/azure-emailer.yml"
     branches:
       - main
+      - filterEditStatus
 
 jobs:
   call-workflow:
