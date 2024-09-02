@@ -18,6 +18,7 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.persistence.criteria.Predicate
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
@@ -70,39 +71,125 @@ class SeriesRegistrationAdminController(
             seriesRegistrationService.findById(it.seriesUUID)
         }
 
-    private fun buildCriteriaSpec(params: java.util.HashMap<String, String>?): PredicateSpecification<SeriesRegistration>? =
-        params?.let {
-            where {
-                if (params.contains("adminStatus")) root[SeriesRegistration::adminStatus] eq AdminStatus.valueOf(params["adminStatus"]!!)
-                if (params.contains("status")) {
+    private fun buildCriteriaSpec(inputparams: java.util.HashMap<String, String>?): PredicateSpecification<SeriesRegistration>? =
+        inputparams?.let {
+            PredicateSpecification<SeriesRegistration> { root, criteriaBuilder ->
+                val predicates = mutableListOf<Predicate>()
+
+                if (inputparams.contains("adminStatus")) {
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::adminStatus],
+                            AdminStatus.valueOf(inputparams["adminStatus"]!!)
+                        )
+                    )
+                }
+                if (inputparams.contains("excludedStatus")) {
+                    predicates.add(
+                        criteriaBuilder.notEqual(
+                            root[SeriesRegistration::status],
+                            inputparams["excludedStatus"]
+                        )
+                    )
+                }
+                if (inputparams.contains("status")) {
                     val statusList: List<SeriesStatus> =
-                        params["status"]!!.split(",").map { SeriesStatus.valueOf(it) }
-                    root[SeriesRegistration::status] inList statusList
+                        inputparams["status"]!!.split(",").map { SeriesStatus.valueOf(it) }
+                    predicates.add(root[SeriesRegistration::status].`in`(statusList))
                 }
-                if (params.contains("supplierFilter")) {
-                    val supplierList = params["supplierFilter"]!!.split(",").map { UUID.fromString(it) }
-                    root[SeriesRegistration::supplierId] inList supplierList
-                }
-                if (params.contains("supplierId")) root[SeriesRegistration::supplierId] eq UUID.fromString(params["supplierId"]!!)
-                if (params.contains("draft")) root[SeriesRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
-                if (params.contains("createdByUser")) root[SeriesRegistration::createdByUser] eq params["createdByUser"]
-                if (params.contains("updatedByUser")) root[SeriesRegistration::updatedByUser] eq params["updatedByUser"]
-                if (params.contains("excludedStatus")) {
-                    root[SeriesRegistration::status] ne params["excludedStatus"]
-                }
-            }.and { root, criteriaBuilder ->
-                if (params.contains("title")) {
-                    val term = params["title"]!!.lowercase(Locale.getDefault())
-                    criteriaBuilder.like(
-                        root[SeriesRegistration::titleLowercase],
-                        LiteralExpression("%$term%"),
+
+                if (inputparams.contains("supplierId")) {
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::supplierId],
+                            UUID.fromString(inputparams["supplierId"]!!)
+                        )
                     )
-                } else if (params.contains("term")) {
-                    val term = params["term"]!!.lowercase(Locale.getDefault())
-                    criteriaBuilder.like(
-                        root[SeriesRegistration::titleLowercase],
-                        LiteralExpression("%$term%"),
+
+                }
+                if (inputparams.contains("draft")) {
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::draftStatus],
+                            DraftStatus.valueOf(inputparams["draft"]!!)
+                        )
                     )
+                }
+                if (inputparams.contains("createdByUser")) {
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::createdByUser],
+                            inputparams["createdByUser"]
+                        )
+                    )
+                }
+                if (inputparams.contains("updatedByUser")) {
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::updatedByUser],
+                            inputparams["updatedByUser"]
+                        )
+                    )
+                }
+
+                if (inputparams.contains("supplierFilter")) {
+                    val supplierList: List<UUID> =
+                        inputparams["supplierFilter"]!!.split(",").map { UUID.fromString(it) }
+                    predicates.add(root[SeriesRegistration::supplierId].`in`(supplierList))
+                }
+
+                if (inputparams.contains("editStatus")) {
+                    val statusList: List<EditStatus> =
+                        inputparams["editStatus"]!!.split(",").map { EditStatus.valueOf(it) }
+
+                    val statusPredicates =
+                        statusList.map { status ->
+                            when (status) {
+                                EditStatus.REJECTED ->
+                                    criteriaBuilder.equal(
+                                        root[SeriesRegistration::adminStatus],
+                                        AdminStatus.REJECTED
+                                    )
+
+                                EditStatus.PENDING_APPROVAL ->
+                                    criteriaBuilder.and(
+                                        criteriaBuilder.equal(
+                                            root[SeriesRegistration::draftStatus],
+                                            DraftStatus.DONE
+                                        ),
+                                        criteriaBuilder.equal(
+                                            root[SeriesRegistration::adminStatus],
+                                            AdminStatus.PENDING,
+                                        ),
+                                    )
+
+                                EditStatus.EDITABLE ->
+                                    criteriaBuilder.and(
+                                        criteriaBuilder.equal(
+                                            root[SeriesRegistration::draftStatus],
+                                            DraftStatus.DRAFT
+                                        ),
+                                        criteriaBuilder.equal(
+                                            root[SeriesRegistration::adminStatus],
+                                            AdminStatus.PENDING,
+                                        ),
+                                    )
+
+                                EditStatus.DONE ->
+                                    criteriaBuilder.equal(
+                                        root[SeriesRegistration::adminStatus],
+                                        AdminStatus.APPROVED
+                                    )
+                            }
+                        }
+                    if (statusPredicates.isNotEmpty()) {
+                        predicates.add(criteriaBuilder.or(*statusPredicates.toTypedArray()))
+                    }
+                }
+
+                // Return the combined predicates
+                if (predicates.isNotEmpty()) {
+                    criteriaBuilder.and(*predicates.toTypedArray())
                 } else {
                     null
                 }
