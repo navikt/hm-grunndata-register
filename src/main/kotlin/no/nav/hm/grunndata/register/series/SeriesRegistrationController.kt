@@ -343,7 +343,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
                         )
                     )
                 }
-              
+
                 if (inputparams.contains("status")) {
                     val statusList: List<SeriesStatus> =
                         inputparams["status"]!!.split(",").mapNotNull {
@@ -393,7 +393,6 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
                 if (inputparams.contains("editStatus")) {
                     val statusList: List<EditStatus> =
                         inputparams["editStatus"]!!.split(",").map { EditStatus.valueOf(it) }
-                    LOG.info("editStatus: $statusList")
                     val statusPredicates =
                         statusList.map { status ->
                             when (status) {

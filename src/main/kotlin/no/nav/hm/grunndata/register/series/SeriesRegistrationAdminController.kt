@@ -134,7 +134,7 @@ class SeriesRegistrationAdminController(
                 if (inputparams.contains("editStatus")) {
                     val statusList: List<EditStatus> =
                         inputparams["editStatus"]!!.split(",").map { EditStatus.valueOf(it) }
-                    LOG.info("editStatus: $statusList")
+                   
                     val statusPredicates =
                         statusList.map { status ->
                             when (status) {
