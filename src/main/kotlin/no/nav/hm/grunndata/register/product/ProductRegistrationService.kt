@@ -143,6 +143,21 @@ open class ProductRegistrationService(
         authentication: Authentication,
     ): ProductRegistrationDTO {
         findById(id)?.let { inDb ->
+            var changedHmsNrSupplierRef = false
+            if (inDb.hmsArtNr != registrationDTO.hmsArtNr) {
+                LOG.warn("Hms artNr ${inDb.hmsArtNr} has been changed by admin to ${registrationDTO.hmsArtNr} for id: $id")
+                changedHmsNrSupplierRef = true
+            }
+            if (inDb.supplierRef != registrationDTO.supplierRef) {
+                LOG.warn("Supplier ref ${inDb.supplierRef} has been changed by admin to ${registrationDTO.supplierRef} for id: $id")
+                changedHmsNrSupplierRef = true
+            }
+            if (changedHmsNrSupplierRef) {
+                productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(inDb.supplierId, inDb.supplierRef).forEach { change ->
+                    productAgreementRegistrationRepository.update(change.copy(hmsArtNr = registrationDTO.hmsArtNr, supplierRef = registrationDTO.supplierRef))
+                }
+            }
+
             val updated =
                 saveAndCreateEventIfNotDraftAndApproved(
                     registrationDTO.copy(
