@@ -198,7 +198,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductRegistration
         val read = apiClient.readProduct(jwt, created.id)
         read.shouldNotBeNull()
         read.createdByUser shouldBe email
-        read.hmsArtNr shouldBe "12345"
+        read.hmsArtNr shouldBe hmsArtNr
         read.agreements.size shouldBe 1
         read.agreements[0].id shouldBe agreementId
         read.agreements[0].postId shouldBe postId

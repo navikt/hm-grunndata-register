@@ -5,8 +5,8 @@
             </pattern>
         </encoder>
     </appender>
-    <logger name="no.nav.hm" level="DEBUG" />
-    <logger name="io.micronaut.data.query" level="DEBUG" />
+    <logger name="no.nav.hm" level="INFO" />
+    <logger name="io.micronaut.data.query" level="INFO" />
 
     <root level="INFO">
         <appender-ref ref="stdout"/>

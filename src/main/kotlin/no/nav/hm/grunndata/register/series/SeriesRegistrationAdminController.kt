@@ -27,7 +27,6 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
-import no.nav.hm.grunndata.register.series.SeriesRegistrationController.Companion
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
@@ -98,6 +97,7 @@ class SeriesRegistrationAdminController(
                         inputparams["status"]!!.split(",").map { SeriesStatus.valueOf(it) }
                     predicates.add(root[SeriesRegistration::status].`in`(statusList))
                 }
+
                 if (inputparams.contains("supplierId")) {
                     predicates.add(
                         criteriaBuilder.equal(
@@ -105,6 +105,7 @@ class SeriesRegistrationAdminController(
                             UUID.fromString(inputparams["supplierId"]!!)
                         )
                     )
+
                 }
                 if (inputparams.contains("draft")) {
                     predicates.add(
@@ -131,19 +132,31 @@ class SeriesRegistrationAdminController(
                     )
                 }
 
+                if (inputparams.contains("supplierFilter")) {
+                    val supplierList: List<UUID> =
+                        inputparams["supplierFilter"]!!.split(",").map { UUID.fromString(it) }
+                    predicates.add(root[SeriesRegistration::supplierId].`in`(supplierList))
+                }
+
                 if (inputparams.contains("editStatus")) {
                     val statusList: List<EditStatus> =
                         inputparams["editStatus"]!!.split(",").map { EditStatus.valueOf(it) }
-                   
+
                     val statusPredicates =
                         statusList.map { status ->
                             when (status) {
                                 EditStatus.REJECTED ->
-                                    criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.REJECTED)
+                                    criteriaBuilder.equal(
+                                        root[SeriesRegistration::adminStatus],
+                                        AdminStatus.REJECTED
+                                    )
 
                                 EditStatus.PENDING_APPROVAL ->
                                     criteriaBuilder.and(
-                                        criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DONE),
+                                        criteriaBuilder.equal(
+                                            root[SeriesRegistration::draftStatus],
+                                            DraftStatus.DONE
+                                        ),
                                         criteriaBuilder.equal(
                                             root[SeriesRegistration::adminStatus],
                                             AdminStatus.PENDING,
@@ -152,7 +165,10 @@ class SeriesRegistrationAdminController(
 
                                 EditStatus.EDITABLE ->
                                     criteriaBuilder.and(
-                                        criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DRAFT),
+                                        criteriaBuilder.equal(
+                                            root[SeriesRegistration::draftStatus],
+                                            DraftStatus.DRAFT
+                                        ),
                                         criteriaBuilder.equal(
                                             root[SeriesRegistration::adminStatus],
                                             AdminStatus.PENDING,
@@ -160,7 +176,10 @@ class SeriesRegistrationAdminController(
                                     )
 
                                 EditStatus.DONE ->
-                                    criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.APPROVED)
+                                    criteriaBuilder.equal(
+                                        root[SeriesRegistration::adminStatus],
+                                        AdminStatus.APPROVED
+                                    )
                             }
                         }
                     if (statusPredicates.isNotEmpty()) {

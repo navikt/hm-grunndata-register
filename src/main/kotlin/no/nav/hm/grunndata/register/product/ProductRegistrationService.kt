@@ -88,7 +88,7 @@ open class ProductRegistrationService(
     ) = productRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.toDTO()
 
     @Transactional
-    open suspend fun updateProduct(
+    open suspend fun updateProductBySupplier(
         registrationDTO: ProductRegistrationDTO,
         id: UUID,
         authentication: Authentication,
@@ -105,6 +105,8 @@ open class ProductRegistrationService(
                                     registrationDTO.draftStatus
                                 },
                             id = inDb.id,
+                            hmsArtNr = inDb.hmsArtNr, // hmsArtNr cannot be changed by supplier
+                            supplierRef = if (inDb.published != null) inDb.supplierRef else registrationDTO.supplierRef, // supplierRef cannot be changed by supplier if published
                             created = inDb.created,
                             updatedBy = REGISTER,
                             updatedByUser = authentication.name,
@@ -141,6 +143,21 @@ open class ProductRegistrationService(
         authentication: Authentication,
     ): ProductRegistrationDTO {
         findById(id)?.let { inDb ->
+            var changedHmsNrSupplierRef = false
+            if (inDb.hmsArtNr != registrationDTO.hmsArtNr) {
+                LOG.warn("Hms artNr ${inDb.hmsArtNr} has been changed by admin to ${registrationDTO.hmsArtNr} for id: $id")
+                changedHmsNrSupplierRef = true
+            }
+            if (inDb.supplierRef != registrationDTO.supplierRef) {
+                LOG.warn("Supplier ref ${inDb.supplierRef} has been changed by admin to ${registrationDTO.supplierRef} for id: $id")
+                changedHmsNrSupplierRef = true
+            }
+            if (changedHmsNrSupplierRef) {
+                productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(inDb.supplierId, inDb.supplierRef).forEach { change ->
+                    productAgreementRegistrationRepository.update(change.copy(hmsArtNr = registrationDTO.hmsArtNr, supplierRef = registrationDTO.supplierRef))
+                }
+            }
+
             val updated =
                 saveAndCreateEventIfNotDraftAndApproved(
                     registrationDTO.copy(
@@ -515,7 +532,7 @@ open class ProductRegistrationService(
             seriesId = seriesId,
             seriesUUID = seriesUUID,
             supplierRef = supplierRef,
-            hmsArtNr = if (agreeements.isNotEmpty()) agreeements.first().hmsArtNr else hmsArtNr,
+            hmsArtNr = if (!hmsArtNr.isNullOrBlank()) hmsArtNr else if (agreeements.isNotEmpty()) agreeements.first().hmsArtNr else null,
             title = title,
             articleName = articleName,
             draftStatus = draftStatus,
@@ -546,7 +563,7 @@ open class ProductRegistrationService(
         return ProductRegistrationDTOV2(
             id = id,
             supplierRef = supplierRef,
-            hmsArtNr = if (agreeements.isNotEmpty()) agreeements.first().hmsArtNr else hmsArtNr,
+            hmsArtNr = if (!hmsArtNr.isNullOrBlank()) hmsArtNr else if (agreeements.isNotEmpty()) agreeements.first().hmsArtNr else null,
             articleName = articleName,
             productData = productData,
             sparePart = sparePart,
@@ -622,17 +639,6 @@ open class ProductRegistrationService(
         productRegistrationRepository.findAllBySeriesUUIDAndAdminStatus(
             seriesUUID,
             adminStatus,
-        ).map { it.toDTO() }
-
-    suspend fun findAllBySeriesUUIDAndDraftStatusAndRegistrationStatus(
-        seriesUUID: UUID,
-        draftStatus: DraftStatus,
-        registrationStatus: RegistrationStatus,
-    ): List<ProductRegistrationDTO> =
-        productRegistrationRepository.findAllBySeriesUUIDAndDraftStatusAndRegistrationStatus(
-            seriesUUID,
-            draftStatus,
-            registrationStatus,
         ).map { it.toDTO() }
 
     suspend fun countBySupplier(supplierId: UUID): Long = productRegistrationRepository.count(

@@ -252,7 +252,7 @@ class ProductRegistrationApiTest(
             apiClient.updateProduct(
                 jwt,
                 draft1.id,
-                draft1.copy(productData = productData, hmsArtNr = "apitest-222"),
+                draft1.copy(productData = productData),
             )
         created.shouldNotBeNull()
 
@@ -307,7 +307,7 @@ class ProductRegistrationApiTest(
         draftStatusChange.draftStatus shouldBe DraftStatus.DRAFT // not APPROVED yet allowed to change status
 
         val page2 =
-            apiClient.findProducts(jwt = jwt, hmsArtNr = "apitest-222", size = 30, page = 1, sort = "created,asc")
+            apiClient.findProducts(jwt = jwt, supplierRef ="apitest-eksternref-111", size = 30, page = 1, sort = "created,asc")
         page2.totalSize shouldBe 1
 
         val updatedVersion = apiClient.readProduct(jwt, updated.id)
