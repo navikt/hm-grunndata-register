@@ -187,6 +187,15 @@ class SeriesRegistrationAdminController(
                     }
                 }
 
+                if (inputparams.contains("title")) {
+                    val term = inputparams["title"]!!.lowercase(Locale.getDefault())
+                    predicates.add(
+                        criteriaBuilder.like(
+                            root[SeriesRegistration::titleLowercase],
+                            LiteralExpression("%$term%"),
+                        )
+                    )
+                }
                 // Return the combined predicates
                 if (predicates.isNotEmpty()) {
                     criteriaBuilder.and(*predicates.toTypedArray())
