@@ -2,13 +2,13 @@ package no.nav.hm.grunndata.register.productagreement
 
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
-import java.time.LocalDateTime
-import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
+import java.time.LocalDateTime
+import java.util.UUID
 
 @Singleton
 open class ProductAgreementRegistrationService(
@@ -26,7 +26,7 @@ open class ProductAgreementRegistrationService(
         dtos.map { productAgreement -> saveIfNotExists(productAgreement) }
 
     open suspend fun saveIfNotExists(productAgreement: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO {
-       return  if (productAgreement.postId!= null) {
+        return if (productAgreement.postId != null) {
             findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
                 productAgreement.supplierId,
                 productAgreement.supplierRef,
@@ -34,14 +34,15 @@ open class ProductAgreementRegistrationService(
                 productAgreement.postId,
                 productAgreement.rank,
             ) ?: saveAndCreateEvent(productAgreement, false)
+        } else {
+            findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
+                productAgreement.supplierId,
+                productAgreement.supplierRef,
+                productAgreement.agreementId,
+                productAgreement.post,
+                productAgreement.rank,
+            ) ?: saveAndCreateEvent(productAgreement, false)
         }
-        else findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
-            productAgreement.supplierId,
-            productAgreement.supplierRef,
-            productAgreement.agreementId,
-            productAgreement.post,
-            productAgreement.rank
-        ) ?: saveAndCreateEvent(productAgreement, false)
     }
 
     @Transactional
@@ -93,7 +94,7 @@ open class ProductAgreementRegistrationService(
                         published = productAgreement.published,
                         expired = productAgreement.expired,
                         rank = productAgreement.rank,
-                        updatedBy = REGISTER
+                        updatedBy = REGISTER,
                     ),
                     true,
                 )
@@ -195,6 +196,8 @@ open class ProductAgreementRegistrationService(
                     serieIdentifier = seriesInfo?.identifier,
                     rank = varianter.first().rank,
                     productVariants = varianter,
+                    accessory = varianter.first().accessory,
+                    sparePart = varianter.first().sparePart,
                 ),
             )
         }
@@ -208,6 +211,8 @@ open class ProductAgreementRegistrationService(
                     serieIdentifier = null,
                     rank = variant.rank,
                     productVariants = listOf(variant),
+                    accessory = variant.accessory,
+                    sparePart = variant.sparePart,
                 ),
             )
         }
@@ -282,9 +287,11 @@ open class ProductAgreementRegistrationService(
         }
     }
 
-    suspend fun findByAgreementIdAndStatus(id: UUID, status: ProductAgreementStatus): List<ProductAgreementRegistrationDTO> =
+    suspend fun findByAgreementIdAndStatus(
+        id: UUID,
+        status: ProductAgreementStatus,
+    ): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findByAgreementIdAndStatus(id, status).map { it.toDTO() }
-
 }
 
 data class ProductVariantsForDelkontraktDto(
@@ -294,6 +301,8 @@ data class ProductVariantsForDelkontraktDto(
     val serieIdentifier: String?,
     val rank: Int,
     val productVariants: List<ProductAgreementRegistrationDTO>,
+    val accessory: Boolean,
+    val sparePart: Boolean,
 )
 
 data class ProduktvarianterForDelkontrakterDTO(
