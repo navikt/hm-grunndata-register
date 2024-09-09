@@ -9,4 +9,5 @@ data class SeriesToApproveDTO(
     val status: String,
     val supplierName: String,
     val thumbnail: MediaInfoDTO? = null,
+    val isExpired: Boolean
 )

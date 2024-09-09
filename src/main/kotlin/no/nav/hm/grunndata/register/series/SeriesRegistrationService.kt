@@ -226,6 +226,7 @@ open class SeriesRegistrationService(
             seriesUUID = id,
             status = status,
             thumbnail = seriesData.media.firstOrNull { it.type == MediaType.IMAGE },
+            isExpired = expired < LocalDateTime.now()
         )
     }
 
