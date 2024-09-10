@@ -8,6 +8,7 @@ import io.micronaut.data.model.Slice
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
+import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import java.util.UUID
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
@@ -38,9 +39,17 @@ interface SeriesRegistrationRepository :
 
     suspend fun findByIdIn(ids: List<UUID>): List<SeriesRegistration>
 
+    suspend fun findByIdAndStatusIn(id: UUID, statuses: List<SeriesStatus>): SeriesRegistration?
+
     suspend fun findByIdAndSupplierId(
         id: UUID,
         supplierId: UUID,
+    ): SeriesRegistration?
+
+    suspend fun findByIdAndSupplierIdAndStatusIn(
+        id: UUID,
+        supplierId: UUID,
+        statuses: List<SeriesStatus>,
     ): SeriesRegistration?
 
     @Query(

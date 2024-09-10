@@ -44,7 +44,10 @@ open class SeriesRegistrationService(
     suspend fun findByIdV2(
         id: UUID,
     ): SeriesRegistrationDTOV2? {
-        return seriesRegistrationRepository.findById(id)?.let{ seriesRegistration ->
+        return seriesRegistrationRepository.findByIdAndStatusIn(
+            id,
+            listOf(SeriesStatus.ACTIVE, SeriesStatus.INACTIVE)
+        )?.let { seriesRegistration ->
             val supplierRegistration = supplierService.findById(seriesRegistration.supplierId)
                 ?: throw IllegalArgumentException("cannot find series supplier")
 
@@ -108,7 +111,11 @@ open class SeriesRegistrationService(
         id: UUID,
         supplierId: UUID,
     ): SeriesRegistrationDTOV2? {
-        return seriesRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.let{ seriesRegistration ->
+        return seriesRegistrationRepository.findByIdAndSupplierIdAndStatusIn(
+            id,
+            supplierId,
+            listOf(SeriesStatus.ACTIVE, SeriesStatus.INACTIVE)
+        )?.let { seriesRegistration ->
             val supplierRegistration = supplierService.findById(seriesRegistration.supplierId)
                 ?: throw IllegalArgumentException("cannot find series supplier")
 
