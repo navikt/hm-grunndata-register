@@ -51,9 +51,17 @@ open class ProductRegistrationService(
 
     open suspend fun findByIdIn(ids: List<UUID>) = productRegistrationRepository.findByIdIn(ids).map { it.toDTO() }
 
-    open suspend fun findByHmsArtNr(hmsArtNr: String) = productRegistrationRepository.findByHmsArtNr(hmsArtNr)?.toDTO()
+    open suspend fun findByHmsArtNr(hmsArtNr: String) =
+        productRegistrationRepository.findByHmsArtNrAndRegistrationStatusIn(
+            hmsArtNr,
+            listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE)
+        )?.toDTO()
 
-    open suspend fun findBySupplierRef(supplierRef: String) = productRegistrationRepository.findBySupplierRef(supplierRef)?.toDTO()
+    open suspend fun findBySupplierRef(supplierRef: String) =
+        productRegistrationRepository.findBySupplierRefAndRegistrationStatusIn(
+            supplierRef,
+            listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE)
+        )?.toDTO()
 
     open suspend fun save(dto: ProductRegistrationDTO): ProductRegistrationDTO = productRegistrationRepository.save(dto.toEntity()).toDTO()
 
