@@ -5,7 +5,6 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.model.jpa.criteria.impl.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
-import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
@@ -26,7 +25,6 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
-import no.nav.hm.grunndata.register.series.EditStatus
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
@@ -194,6 +192,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         val updated =
             seriesRegistrationService.requestApprovalForSeriesAndVariants(seriesToUpdate)
 
+        LOG.info("set series to pending approval: $seriesUUID")
         return HttpResponse.ok(updated)
     }
 
@@ -249,6 +248,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
 
         val updated = seriesRegistrationService.setSeriesToDraftStatus(seriesToUpdate, authentication)
 
+        LOG.info("set series to draft: $seriesUUID")
         return HttpResponse.ok(updated)
     }
 
@@ -269,6 +269,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
                 SeriesStatus.INACTIVE,
             )
 
+        LOG.info("set series to expired: $seriesUUID")
         return HttpResponse.ok(updated)
     }
 
@@ -289,6 +290,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
                 SeriesStatus.ACTIVE,
             )
 
+        LOG.info("set series to active: $seriesUUID")
         return HttpResponse.ok(updated)
     }
 
@@ -309,6 +311,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
 
         val updated = seriesRegistrationService.deleteSeries(seriesToUpdate, authentication)
 
+        LOG.info("set series to deleted: $seriesUUID")
         return HttpResponse.ok(updated)
     }
 

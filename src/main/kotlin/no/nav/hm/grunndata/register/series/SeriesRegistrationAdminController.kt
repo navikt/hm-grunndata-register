@@ -298,6 +298,7 @@ class SeriesRegistrationAdminController(
 
         val updatedSeries = seriesRegistrationService.approveSeriesAndVariants(seriesToUpdate, authentication)
 
+        LOG.info("set series to approved: $id")
         return HttpResponse.ok(updatedSeries)
     }
 
@@ -359,6 +360,7 @@ class SeriesRegistrationAdminController(
         val updatedSeries =
             seriesRegistrationService.rejectSeriesAndVariants(seriesToUpdate, rejectSeriesDTO.message, authentication)
 
+        LOG.info("set series to rejected: $id")
         return HttpResponse.ok(updatedSeries)
     }
 
@@ -371,6 +373,7 @@ class SeriesRegistrationAdminController(
 
         val updated = seriesRegistrationService.deleteSeries(seriesToUpdate, authentication)
 
+        LOG.info("set series to deleted: $id")
         return HttpResponse.ok(updated)
     }
 
@@ -382,6 +385,7 @@ class SeriesRegistrationAdminController(
         val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
         val updated = seriesRegistrationService.setSeriesToDraftStatus(seriesToUpdate, authentication)
 
+        LOG.info("set series to draft: $seriesUUID")
         return HttpResponse.ok(updated)
     }
 
@@ -398,6 +402,7 @@ class SeriesRegistrationAdminController(
                 SeriesStatus.INACTIVE,
             )
 
+        LOG.info("set series to expired: $seriesUUID")
         return HttpResponse.ok(updated)
     }
 
@@ -414,6 +419,7 @@ class SeriesRegistrationAdminController(
                 SeriesStatus.ACTIVE,
             )
 
+        LOG.info("set series to active: $seriesUUID")
         return HttpResponse.ok(updated)
     }
 
