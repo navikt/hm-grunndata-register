@@ -356,23 +356,6 @@ class ProductRegistrationAdminApiController(
         return HttpResponse.ok(products)
     }
 
-    @Delete("/draft/delete-v2")
-    suspend fun deleteVariants(
-        @Body ids: List<UUID>,
-        authentication: Authentication,
-    ): HttpResponse<List<ProductRegistrationDTO>> {
-        val products =
-            productRegistrationService.findByIdIn(ids)
-
-        products.forEach {
-            LOG.info("Delete called for id ${it.id} and supplierRef ${it.supplierRef} by admin")
-        }
-
-        productRegistrationService.deleteAll(products)
-
-        return HttpResponse.ok(products)
-    }
-
     @Post("/draft/variant/{id}")
     suspend fun createProductVariant(
         @PathVariable id: UUID,
