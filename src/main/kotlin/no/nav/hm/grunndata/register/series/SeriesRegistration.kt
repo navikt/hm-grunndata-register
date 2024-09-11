@@ -6,9 +6,6 @@ import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
-import java.time.LocalDateTime
-import java.util.Locale
-import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.CompatibleWith
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
@@ -23,6 +20,9 @@ import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTOV2
 import no.nav.hm.grunndata.register.product.toRapidMediaInfo
+import java.time.LocalDateTime
+import java.util.Locale
+import java.util.UUID
 
 @MappedEntity("series_reg_v1")
 data class SeriesRegistration(
@@ -167,16 +167,15 @@ fun SeriesRegistration.toDTO() =
         countPublished = countPublished,
         countPending = countPending,
         countDeclined = countDeclined,
-        expired = expired
+        expired = expired,
     )
-
 
 fun toSeriesRegistrationDTOV2(
     seriesRegistration: SeriesRegistration,
     supplierName: String,
     productRegistrationDTOs: List<ProductRegistrationDTOV2>,
     isoCategoryDTO: IsoCategoryDTO?,
-    inAgreement: Boolean
+    inAgreement: Boolean,
 ) = SeriesRegistrationDTOV2(
     id = seriesRegistration.id,
     supplierName = supplierName,
@@ -196,9 +195,9 @@ fun toSeriesRegistrationDTOV2(
     version = seriesRegistration.version,
     isExpired = seriesRegistration.expired < LocalDateTime.now(),
     isPublished = seriesRegistration.published?.let { it < LocalDateTime.now() } ?: false,
-    inAgreement = inAgreement
+    inAgreement = inAgreement,
+    hmdbId = if (seriesRegistration.identifier != seriesRegistration.id.toString()) seriesRegistration.identifier else null,
 )
-
 
 fun SeriesRegistrationDTO.toEntity() =
     SeriesRegistration(
@@ -232,16 +231,20 @@ fun SeriesRegistrationDTO.toEntity() =
 fun SeriesDataDTO.toRapidDTO() =
     SeriesData(
         media = media.map { it.toRapidMediaInfo() }.toSet(),
-        attributes = SeriesAttributes(keywords = attributes.keywords?.toSet(),
-            url = attributes.url, compatibleWith = attributes.compatibleWith
-        )
+        attributes =
+            SeriesAttributes(
+                keywords = attributes.keywords?.toSet(),
+                url = attributes.url,
+                compatibleWith = attributes.compatibleWith,
+            ),
     )
 
 enum class EditStatus {
     EDITABLE,
     PENDING_APPROVAL,
     REJECTED,
-    DONE;
+    DONE,
+    ;
 
     companion object {
         fun from(seriesRegistration: SeriesRegistration): EditStatus {
@@ -260,10 +263,10 @@ enum class EditStatus {
     }
 }
 
-data class UpdateSeriesRegistrationDTO (
+data class UpdateSeriesRegistrationDTO(
     val title: String?,
     val text: String?,
-    //val seriesData: SeriesDataDTO?,
+    // val seriesData: SeriesDataDTO?,
 )
 
 data class SeriesRegistrationDTOV2(
@@ -286,4 +289,5 @@ data class SeriesRegistrationDTOV2(
     val isExpired: Boolean,
     val isPublished: Boolean,
     val inAgreement: Boolean,
+    val hmdbId: String? = null,
 )
