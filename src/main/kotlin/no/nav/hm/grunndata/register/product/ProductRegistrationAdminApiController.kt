@@ -121,31 +121,32 @@ class ProductRegistrationAdminApiController(
         @PathVariable supplierId: UUID,
         @Body draftWith: DraftVariantDTO,
         authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> = try {
-        HttpResponse.ok(
-            productRegistrationService.createDraftWithV2(seriesUUID, draftWith, authentication),
-        )
-    } catch (e: DataAccessException) {
-        throw BadRequestException(e.message ?: "Error creating draft")
-    } catch (e: Exception) {
-        throw BadRequestException("Error creating draft")
-    }
+    ): HttpResponse<ProductRegistrationDTO> =
+        try {
+            HttpResponse.ok(
+                productRegistrationService.createDraftWithV2(seriesUUID, draftWith, authentication),
+            )
+        } catch (e: DataAccessException) {
+            throw BadRequestException(e.message ?: "Error creating draft")
+        } catch (e: Exception) {
+            throw BadRequestException("Error creating draft")
+        }
 
     @Post("/draftWithV3/{seriesUUID}")
     suspend fun draftProductWithV3(
         @PathVariable seriesUUID: UUID,
         @Body draftWith: DraftVariantDTO,
         authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> = try {
-
-        HttpResponse.ok(
-            productRegistrationService.createDraftWithV2(seriesUUID, draftWith, authentication),
-        )
-    } catch (e: DataAccessException) {
-        throw BadRequestException(e.message ?: "Error creating draft")
-    } catch (e: Exception) {
-        throw BadRequestException("Error creating draft")
-    }
+    ): HttpResponse<ProductRegistrationDTO> =
+        try {
+            HttpResponse.ok(
+                productRegistrationService.createDraftWithV2(seriesUUID, draftWith, authentication),
+            )
+        } catch (e: DataAccessException) {
+            throw BadRequestException(e.message ?: "Error creating draft")
+        } catch (e: Exception) {
+            throw BadRequestException("Error creating draft")
+        }
 
     @Post("/draft/supplier/{supplierId}{?isAccessory}{?isSparePart}")
     suspend fun draftProduct(
@@ -249,7 +250,6 @@ class ProductRegistrationAdminApiController(
             }
         }
 
-
     @Put("/to-expired/{id}")
     suspend fun setPublishedProductToInactive(
         @PathVariable id: UUID,
@@ -346,6 +346,23 @@ class ProductRegistrationAdminApiController(
             productRegistrationService.findByIdIn(ids).onEach {
                 if (!(it.draftStatus == DraftStatus.DRAFT && it.published == null)) throw BadRequestException("product is not draft")
             }
+
+        products.forEach {
+            LOG.info("Delete called for id ${it.id} and supplierRef ${it.supplierRef} by admin")
+        }
+
+        productRegistrationService.deleteAll(products)
+
+        return HttpResponse.ok(products)
+    }
+
+    @Delete("/draft/delete-v2")
+    suspend fun deleteVariants(
+        @Body ids: List<UUID>,
+        authentication: Authentication,
+    ): HttpResponse<List<ProductRegistrationDTO>> {
+        val products =
+            productRegistrationService.findByIdIn(ids)
 
         products.forEach {
             LOG.info("Delete called for id ${it.id} and supplierRef ${it.supplierRef} by admin")
