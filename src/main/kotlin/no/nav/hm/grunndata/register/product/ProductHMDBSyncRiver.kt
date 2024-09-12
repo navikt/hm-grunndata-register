@@ -19,6 +19,7 @@ import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
+import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
@@ -63,6 +64,10 @@ class ProductHMDBSyncRiver(
         LOG.info("Detailed event info: ${packet.toJson()}")
         runBlocking {
             productRegistrationRepository.findById(dto.id)?.let { inDb ->
+                if (inDb.updatedBy == REGISTER) {
+                    LOG.info("Skipping updating for product id: ${dto.id} for supplier: ${inDb.supplierId} because updated from register")
+                    return@runBlocking
+                }
                 productRegistrationRepository.update(
                     inDb.copy(
                         seriesId = dto.seriesId!!, seriesUUID = dto.seriesUUID?:dto.id, productData = dto.toProductData(),
@@ -72,7 +77,6 @@ class ProductHMDBSyncRiver(
                         supplierId = dto.supplier.id, published = dto.published, expired = dto.expired
                     )
                 )
-
             } ?: productRegistrationRepository.save(
                 ProductRegistration(
                     id = dto.id,
@@ -100,6 +104,10 @@ class ProductHMDBSyncRiver(
             )
             val series = dto.seriesUUID?.let { uuid ->
                 seriesRegistrationService.findById(uuid)?.let { inDb ->
+                    if (inDb.updatedBy == REGISTER) {
+                        LOG.info("Skipping updating for series uuid: ${uuid} for supplier: ${inDb.supplierId} because updated from register")
+                        return@runBlocking
+                    }
                     if (inDb.isoCategory != dto.isoCategory || inDb.title != dto.title ||
                         inDb.text != dto.attributes.text ) {
                         seriesRegistrationService.update(
