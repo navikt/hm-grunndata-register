@@ -31,10 +31,11 @@ class TechLabelRegistrationRepositoryTest(private val techLabelRegistrationRepos
             found.definition shouldBe "Høyde"
             found.sort shouldBe 1
             found.options shouldBe listOf("1", "2", "3")
-            val updated = techLabelRegistrationRepository.update(found.copy(guide = "Høyde eller noe", updated = LocalDateTime.now()))
+            val updated = techLabelRegistrationRepository.update(found.copy(guide = "Høyde eller noe", isKeyLabel = true, updated = LocalDateTime.now()))
             updated.shouldNotBeNull()
             updated.updated shouldBeAfter saved.updated
             updated.updatedBy shouldBe REGISTER
+            updated.isKeyLabel shouldBe true
         }
     }
 }

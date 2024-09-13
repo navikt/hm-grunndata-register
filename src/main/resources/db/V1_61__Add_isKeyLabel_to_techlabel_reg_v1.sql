@@ -1,0 +1,1 @@
+ALTER TABLE techlabel_reg_v1 ADD COLUMN is_key_label BOOLEAN NOT NULL DEFAULT FALSE;
