@@ -44,7 +44,7 @@ class TechLabelRegistrationAdminApiTest(private val client: TechLabelRegistratio
 
         val dto = TechLabelRegistrationDTO(
             identifier = "HMDB-20816",
-            label = "Lengde",
+            label = "HøydeLængde maks",
             guide = "Lengde",
             definition = "Lengde",
             isoCode = "09070601",
@@ -63,5 +63,7 @@ class TechLabelRegistrationAdminApiTest(private val client: TechLabelRegistratio
         response.status() shouldBe HttpStatus.OK
         body = response.body
         body.get().guide shouldBe "Høyde endret"
+        body.get().systemLabel shouldBe "hoydeLaengdeMaksCM"
+
     }
 }

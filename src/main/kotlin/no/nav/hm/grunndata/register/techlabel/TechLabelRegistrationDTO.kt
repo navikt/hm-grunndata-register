@@ -46,6 +46,7 @@ data class TechLabelRegistrationDTO(
     val options: List<String> = emptyList(),
     val isActive: Boolean = true,
     val isKeyLabel: Boolean = false,
+    val systemLabel: String? = label.systemLabel(unit),
     val createdBy: String = REGISTER,
     val updatedBy: String = REGISTER,
     val updatedByUser: String = "system",
@@ -108,6 +109,7 @@ data class TechLabelDTO(
     val unit: String?,
     val sort: Int,
     val isKeyLabel: Boolean = false,
+    val systemLabel: String? = label.systemLabel(unit),
     val options: List<String> = emptyList(),
     val createdBy: String,
     val updatedBy: String,
@@ -126,9 +128,18 @@ fun TechLabelRegistration.toTechLabelDTO(): TechLabelDTO = TechLabelDTO(
     unit = unit,
     sort = sort,
     isKeyLabel = isKeyLabel,
+    systemLabel = label.systemLabel(unit),
     options = options,
     createdBy = createdBy,
     updatedBy = updatedBy,
     created = created,
     updated = updated
 )
+fun String.systemLabel(unit: String?): String {
+    val replaced = this.replace("æ", "ae")
+        .replace("ø", "o")
+        .replace("å", "a")
+    return replaced.split(" ", "_", "-")
+        .joinToString("") { it.replaceFirstChar(Char::uppercase) }
+        .replaceFirstChar(Char::lowercase)+unit?.uppercase()
+}
