@@ -132,6 +132,15 @@ class SeriesRegistrationAdminController(
                     )
                 }
 
+                if (it.containsKey("createdByAdmin")) {
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::createdByAdmin],
+                            it["createdByAdmin"].toBoolean()
+                        )
+                    )
+                }
+
                 if (inputparams.contains("supplierFilter")) {
                     val supplierList: List<UUID> =
                         inputparams["supplierFilter"]!!.split(",").map { UUID.fromString(it) }
