@@ -338,6 +338,15 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
                     }
                 }
 
+                if (inputparams.contains("excludeExpired") && inputparams["excludeExpired"] == "true") {
+                    predicates.add(
+                        criteriaBuilder.greaterThan(
+                            root[SeriesRegistration::expired],
+                            LocalDateTime.now()
+                        )
+                    )
+                }
+
                 if (inputparams.contains("excludedStatus")) {
                     predicates.add(
                         criteriaBuilder.notEqual(

@@ -92,6 +92,14 @@ class SeriesRegistrationAdminController(
                         )
                     )
                 }
+                if (inputparams.contains("excludeExpired") && inputparams["excludeExpired"] == "true") {
+                    predicates.add(
+                        criteriaBuilder.greaterThan(
+                            root[SeriesRegistration::expired],
+                            LocalDateTime.now()
+                        )
+                    )
+                }
                 if (inputparams.contains("status")) {
                     val statusList: List<SeriesStatus> =
                         inputparams["status"]!!.split(",").map { SeriesStatus.valueOf(it) }
