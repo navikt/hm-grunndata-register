@@ -132,7 +132,7 @@ class SeriesRegistrationAdminController(
                     )
                 }
 
-                if (it.containsKey("createdByAdmin")) {
+                if (inputparams.contains("createdByAdmin")) {
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::createdByAdmin],
