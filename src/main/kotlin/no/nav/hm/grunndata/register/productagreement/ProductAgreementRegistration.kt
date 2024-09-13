@@ -40,6 +40,7 @@ data class ProductAgreementRegistration(
     val published: LocalDateTime = LocalDateTime.now(),
     val expired: LocalDateTime = LocalDateTime.now().plusYears(4)
 )
+
 data class ProductAgreementRegistrationDTO(
     override val id: UUID = UUID.randomUUID(),
     val productId: UUID?,
@@ -67,7 +68,9 @@ data class ProductAgreementRegistrationDTO(
     override val updatedByUser: String = "system"
 ) : EventPayload {
     override fun toRapidDTO(): RapidDTO = ProductAgreementRegistrationRapidDTO(
-        id = id, productId = productId,
+        id = id,
+        partitionKey = agreementId.toString(),
+        productId = productId,
         agreementId = agreementId, post = post, postId = postId,
         rank = rank, hmsArtNr = hmsArtNr, reference = reference, status = status, title = title,
         supplierId = supplierId, supplierRef = supplierRef, created = created, updated = updated,
