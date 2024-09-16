@@ -270,6 +270,10 @@ open class ProductAgreementRegistrationService(
         return productAgreementRegistrationRepository.update(dto.toEntity()).toDTO()
     }
 
+    suspend fun physicalDeleteById(id: UUID): Int {
+        return productAgreementRegistrationRepository.deleteById(id)
+    }
+
     open suspend fun connectProductAgreementToProduct() {
         val productAgreementList = productAgreementRegistrationRepository.findByProductIdIsNull()
         LOG.info("Found product agreements with no connection: ${productAgreementList.size}")

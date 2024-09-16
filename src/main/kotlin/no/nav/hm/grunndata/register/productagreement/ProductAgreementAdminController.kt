@@ -12,8 +12,6 @@ import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
-import java.time.LocalDateTime
-import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
@@ -22,6 +20,8 @@ import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
+import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
@@ -31,7 +31,7 @@ class ProductAgreementAdminController(
     private val productRegistrationService: ProductRegistrationService,
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productAgreementRegistrationService: ProductAgreementRegistrationService,
-    private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler
+    private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementAdminController::class.java)
@@ -52,7 +52,12 @@ class ProductAgreementAdminController(
         val productAgreementsImported =
             file.inputStream.use { input -> productAgreementImportExcelService.importExcelFile(input, authentication) }
         LOG.info("Imported ${productAgreementsImported.size} product agreements")
-        val productAgreementsImportResult = productAccessorySparePartAgreementHandler.handleProductsInProductAgreement(productAgreementsImported, authentication, dryRun)
+        val productAgreementsImportResult =
+            productAccessorySparePartAgreementHandler.handleProductsInProductAgreement(
+                productAgreementsImported,
+                authentication,
+                dryRun,
+            )
         val productAgreements = productAgreementsImportResult.productAgreements
         LOG.info("Product agreements after handling: ${productAgreements.size}")
         var newCount = 0
@@ -60,7 +65,7 @@ class ProductAgreementAdminController(
             productAgreements.map {
                 val information = mutableListOf<Information>()
                 val existingProductAgreement =
-                    if (it.postId!=null)
+                    if (it.postId != null) {
                         productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
                             it.supplierId,
                             it.supplierRef,
@@ -68,7 +73,7 @@ class ProductAgreementAdminController(
                             it.postId,
                             it.rank,
                         )
-                    else
+                    } else {
                         productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
                             it.supplierId,
                             it.supplierRef,
@@ -76,11 +81,11 @@ class ProductAgreementAdminController(
                             it.post,
                             it.rank,
                         )
+                    }
 
                 if (existingProductAgreement != null) {
                     information.add(Information("Product agreement already exists", Type.WARNING))
-                }
-                else {
+                } else {
                     newCount++
                 }
                 Pair(it, information)
@@ -200,7 +205,7 @@ class ProductAgreementAdminController(
                 updatedBy = REGISTER,
                 accessory = product.accessory,
                 sparePart = product.sparePart,
-                isoCategory = product.isoCategory
+                isoCategory = product.isoCategory,
             ),
             isUpdate = false,
         )
@@ -246,16 +251,23 @@ class ProductAgreementAdminController(
         authentication: Authentication,
     ): HttpResponse<ProductAgreementDeletedResponse> {
         LOG.info("deleting product agreement: $id by ${authentication.userId()}")
+
         productAgreementRegistrationService.findById(id)?.let {
-            productAgreementRegistrationService.saveAndCreateEvent(
-                it.copy(
-                    status = ProductAgreementStatus.DELETED,
-                    updated = LocalDateTime.now(),
-                    expired = LocalDateTime.now(),
-                    updatedBy = REGISTER
-                ),
-                isUpdate = true,
-            )
+            if (it.published > LocalDateTime.now()) {
+                LOG.info("Product agreement $id is not published yet, performing physical delete")
+                productAgreementRegistrationService.physicalDeleteById(id)
+            } else {
+                LOG.info("Product agreement $id is published, performing logical delete")
+                productAgreementRegistrationService.saveAndCreateEvent(
+                    it.copy(
+                        status = ProductAgreementStatus.DELETED,
+                        updated = LocalDateTime.now(),
+                        expired = LocalDateTime.now(),
+                        updatedBy = REGISTER,
+                    ),
+                    isUpdate = true,
+                )
+            }
         } ?: throw BadRequestException("Product agreement $id not found")
         return HttpResponse.ok(ProductAgreementDeletedResponse(id))
     }
@@ -273,10 +285,11 @@ class ProductAgreementAdminController(
         ids.forEach { uuid ->
             productAgreementRegistrationService.findById(uuid)?.let {
                 productAgreementRegistrationService.saveAndCreateEvent(
-                    it.copy(status = ProductAgreementStatus.DELETED,
+                    it.copy(
+                        status = ProductAgreementStatus.DELETED,
                         updated = LocalDateTime.now(),
                         expired = LocalDateTime.now(),
-                        updatedBy = REGISTER
+                        updatedBy = REGISTER,
                     ),
                     isUpdate = true,
                 )
