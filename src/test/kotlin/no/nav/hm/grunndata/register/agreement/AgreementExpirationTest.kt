@@ -114,7 +114,8 @@ class AgreementExpirationTest(
                     supplierId = supplier.id,
                     postId = delkontrakt.id,
                     supplierRef = "12345",
-                    updatedBy = REGISTER
+                    updatedBy = REGISTER,
+                    status = ProductAgreementStatus.ACTIVE
                 )
 
             val productAgreement2 =
@@ -134,7 +135,8 @@ class AgreementExpirationTest(
                     hmsArtNr = "123456",
                     supplierId = supplier.id,
                     supplierRef = "123456",
-                    updatedBy = REGISTER
+                    updatedBy = REGISTER,
+                    status = ProductAgreementStatus.ACTIVE
                 )
 
             productAgreementService.saveAndCreateEvent(productAgreement, false)
