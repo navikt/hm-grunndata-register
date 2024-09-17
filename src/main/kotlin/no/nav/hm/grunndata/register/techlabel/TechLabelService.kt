@@ -4,12 +4,12 @@ import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.register.HMDB
-import no.nav.hm.grunndata.register.gdb.GdbApiClient
 import org.slf4j.LoggerFactory
 
 @Singleton
-class TechLabelService(private val gdbApiClient: GdbApiClient, private val techLabelRegistrationRepository: TechLabelRegistrationRepository): LabelService {
+class TechLabelService(
+    private val techLabelRegistrationRepository: TechLabelRegistrationRepository
+) : LabelService {
 
     private var techLabelsByIso: Map<String, List<TechLabelDTO>>
 
@@ -22,39 +22,18 @@ class TechLabelService(private val gdbApiClient: GdbApiClient, private val techL
 
     init {
         runBlocking {
-            var techLabels = techLabelRegistrationRepository.findAll().map { it.toTechLabelDTO() }.toList()
-            if (techLabels.isEmpty()) {
-                techLabels = gdbApiClient.fetchAllTechLabels()
-                techLabels.forEach {
-                techLabelRegistrationRepository.save(
-                    TechLabelRegistration(
-                        isoCode = it.isocode,
-                        label = it.label,
-                        definition = it.definition,
-                        createdByUser = HMDB,
-                        updatedByUser = HMDB,
-                        createdBy = HMDB,
-                        updatedBy = HMDB,
-                        guide = it.guide,
-                        sort = it.sort,
-                        options = it.options,
-                        identifier = it.identifier,
-                        type = it.type,
-                        unit = it.unit
-                    )
-                )
-            }
-            }
+            val techLabels = techLabelRegistrationRepository.findAll().map { it.toTechLabelDTO() }.toList()
+            LOG.info("Init techLabels: ${techLabels.size}")
             techLabelsByIso = techLabels.groupBy { it.isocode }
             techLabelsByName = techLabels.groupBy { it.label }
         }
     }
 
     override fun fetchLabelsByIsoCode(isocode: String): List<TechLabelDTO> {
-        val levels = isocode.length/2
+        val levels = isocode.length / 2
         val techLabels: MutableList<TechLabelDTO> = mutableListOf()
         for (i in levels downTo 0) {
-            val iso = isocode.substring(0, i*2)
+            val iso = isocode.substring(0, i * 2)
             techLabels.addAll(techLabelsByIso[iso] ?: emptyList())
         }
         return techLabels.distinctBy { it.id }
