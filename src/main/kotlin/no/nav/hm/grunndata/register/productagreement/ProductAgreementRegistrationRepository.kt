@@ -4,9 +4,9 @@ import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import java.time.LocalDateTime
 import java.util.UUID
-import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
 interface ProductAgreementRegistrationRepository :
@@ -53,9 +53,9 @@ interface ProductAgreementRegistrationRepository :
 
     suspend fun findByPostId(postId: UUID): List<ProductAgreementRegistration>
 
-    suspend fun findByPostIdAndStatus(
+    suspend fun findByPostIdAndStatusIn(
         postId: UUID,
-        status: ProductAgreementStatus,
+        statuses: List<ProductAgreementStatus>,
     ): List<ProductAgreementRegistration>
 
     suspend fun findAllByIdIn(ids: List<UUID>): List<ProductAgreementRegistration>

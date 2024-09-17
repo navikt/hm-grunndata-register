@@ -178,9 +178,9 @@ open class ProductAgreementRegistrationService(
 
     suspend fun findGroupedProductVariantsByDelkontraktId(delkontraktId: UUID): List<ProductVariantsForDelkontraktDto> {
         val allVariants =
-            productAgreementRegistrationRepository.findByPostIdAndStatus(
+            productAgreementRegistrationRepository.findByPostIdAndStatusIn(
                 delkontraktId,
-                ProductAgreementStatus.ACTIVE,
+                listOf(ProductAgreementStatus.ACTIVE, ProductAgreementStatus.INACTIVE),
             ).map { it.toDTO() }
 
         val groupedList = mutableListOf<ProductVariantsForDelkontraktDto>()
