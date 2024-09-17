@@ -206,6 +206,7 @@ class ProductAgreementAdminController(
                 accessory = product.accessory,
                 sparePart = product.sparePart,
                 isoCategory = product.isoCategory,
+                status = ProductAgreementStatus.INACTIVE,
             ),
             isUpdate = false,
         )

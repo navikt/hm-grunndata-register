@@ -3,15 +3,14 @@ package no.nav.hm.grunndata.register.productagreement
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import jakarta.persistence.Column
-import java.time.LocalDateTime
-import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AgreementInfo
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementRegistrationRapidDTO
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
-
+import java.time.LocalDateTime
+import java.util.UUID
 
 @MappedEntity("product_agreement_reg_v1")
 data class ProductAgreementRegistration(
@@ -38,7 +37,7 @@ data class ProductAgreementRegistration(
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime = LocalDateTime.now(),
-    val expired: LocalDateTime = LocalDateTime.now().plusYears(4)
+    val expired: LocalDateTime = LocalDateTime.now().plusYears(4),
 )
 
 data class ProductAgreementRegistrationDTO(
@@ -58,27 +57,37 @@ data class ProductAgreementRegistrationDTO(
     val post: Int,
     val rank: Int,
     val postId: UUID?,
-    val status: ProductAgreementStatus = ProductAgreementStatus.ACTIVE,
+    val status: ProductAgreementStatus = ProductAgreementStatus.INACTIVE,
     val createdBy: String = ProductAgreementImportExcelService.EXCEL,
     val updatedBy: String = REGISTER,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime,
     val expired: LocalDateTime,
-    override val updatedByUser: String = "system"
+    override val updatedByUser: String = "system",
 ) : EventPayload {
-    override fun toRapidDTO(): RapidDTO = ProductAgreementRegistrationRapidDTO(
-        id = id,
-        partitionKey = agreementId.toString(),
-        productId = productId,
-        agreementId = agreementId, post = post, postId = postId,
-        rank = rank, hmsArtNr = hmsArtNr, reference = reference, status = status, title = title,
-        supplierId = supplierId, supplierRef = supplierRef, created = created, updated = updated,
-        published = published, expired = expired, createdBy = createdBy
-    )
-
+    override fun toRapidDTO(): RapidDTO =
+        ProductAgreementRegistrationRapidDTO(
+            id = id,
+            partitionKey = agreementId.toString(),
+            productId = productId,
+            agreementId = agreementId,
+            post = post,
+            postId = postId,
+            rank = rank,
+            hmsArtNr = hmsArtNr,
+            reference = reference,
+            status = status,
+            title = title,
+            supplierId = supplierId,
+            supplierRef = supplierRef,
+            created = created,
+            updated = updated,
+            published = published,
+            expired = expired,
+            createdBy = createdBy,
+        )
 }
-
 
 fun ProductAgreementRegistrationDTO.toEntity(): ProductAgreementRegistration {
     return ProductAgreementRegistration(
@@ -103,7 +112,7 @@ fun ProductAgreementRegistrationDTO.toEntity(): ProductAgreementRegistration {
         expired = expired,
         updatedBy = updatedBy,
         sparePart = sparePart,
-        accessory = accessory
+        accessory = accessory,
     )
 }
 
@@ -133,18 +142,29 @@ fun ProductAgreementRegistration.toDTO(): ProductAgreementRegistrationDTO {
         updatedBy = updatedBy,
         accessory = accessory,
         sparePart = sparePart,
-        isoCategory = null
+        isoCategory = null,
     )
 }
 
 fun List<ProductAgreementRegistration>.toDTO(): List<ProductAgreementRegistrationDTO> = map { it.toDTO() }
 
-fun ProductAgreementRegistration.toInfo() = AgreementInfo(
-    id = agreementId, reference = reference,
-    postNr = post, rank = rank, expired = expired, postId = postId, status = status
-)
+fun ProductAgreementRegistration.toInfo() =
+    AgreementInfo(
+        id = agreementId,
+        reference = reference,
+        postNr = post,
+        rank = rank,
+        expired = expired,
+        postId = postId,
+        status = status,
+    )
 
-fun ProductAgreementRegistrationDTO.toInfo() = AgreementInfo(
-    id = agreementId, reference = reference, postNr = post, rank = rank, expired = expired, status = status
-)
-
+fun ProductAgreementRegistrationDTO.toInfo() =
+    AgreementInfo(
+        id = agreementId,
+        reference = reference,
+        postNr = post,
+        rank = rank,
+        expired = expired,
+        status = status,
+    )
