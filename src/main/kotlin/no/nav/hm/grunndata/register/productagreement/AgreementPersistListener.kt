@@ -17,18 +17,18 @@ class AgreementPersistListener(private val productAgreementRegistrationService: 
         private val LOG = LoggerFactory.getLogger(AgreementPersistListener::class.java)
     }
 
-
     @Singleton
     fun afterAgreementUpdate(): PostUpdateEventListener<AgreementRegistration> {
         return PostUpdateEventListener { agreement: AgreementRegistration ->
             runBlocking {
                 if (agreement.draftStatus == DraftStatus.DONE) {
-                    val pagreements = productAgreementRegistrationService.findByAgreementIdAndStatusAndPublishedBeforeAndExpiredAfter(
-                        agreement.id,
-                        ProductAgreementStatus.ACTIVE,
-                        LocalDateTime.now(),
-                        LocalDateTime.now()
-                    )
+                    val pagreements =
+                        productAgreementRegistrationService.findByAgreementIdAndStatusAndPublishedBeforeAndExpiredAfter(
+                            agreement.id,
+                            ProductAgreementStatus.ACTIVE,
+                            LocalDateTime.now(),
+                            LocalDateTime.now(),
+                        )
                     LOG.info("Got ${pagreements.size} product agreements from agreement ${agreement.id} for update")
                     pagreements.forEach {
                         if (agreement.published != it.published || agreement.expired != it.expired) {
@@ -36,8 +36,10 @@ class AgreementPersistListener(private val productAgreementRegistrationService: 
                                 it.copy(
                                     status = if (agreement.agreementStatus == AgreementStatus.ACTIVE) ProductAgreementStatus.ACTIVE else ProductAgreementStatus.INACTIVE,
                                     published = agreement.published,
-                                    expired = agreement.expired
-                                ), isUpdate = true
+                                    expired = agreement.expired,
+                                    updated = LocalDateTime.now(),
+                                ),
+                                isUpdate = true,
                             )
                         }
                     }
