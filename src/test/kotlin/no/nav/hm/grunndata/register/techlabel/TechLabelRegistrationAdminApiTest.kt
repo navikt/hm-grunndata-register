@@ -63,7 +63,7 @@ class TechLabelRegistrationAdminApiTest(private val client: TechLabelRegistratio
         response.status() shouldBe HttpStatus.OK
         body = response.body
         body.get().guide shouldBe "Høyde endret"
-        body.get().systemLabel shouldBe "hoydeLaengdeMaksCM"
+        body.get().systemLabel shouldBe "hoydelaengdemaksn"
 
     }
 }
