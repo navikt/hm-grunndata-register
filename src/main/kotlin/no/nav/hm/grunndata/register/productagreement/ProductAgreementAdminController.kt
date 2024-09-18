@@ -285,15 +285,21 @@ class ProductAgreementAdminController(
         LOG.info("deleting product agreements: $ids by ${authentication.userId()}")
         ids.forEach { uuid ->
             productAgreementRegistrationService.findById(uuid)?.let {
-                productAgreementRegistrationService.saveAndCreateEvent(
-                    it.copy(
-                        status = ProductAgreementStatus.DELETED,
-                        updated = LocalDateTime.now(),
-                        expired = LocalDateTime.now(),
-                        updatedBy = REGISTER,
-                    ),
-                    isUpdate = true,
-                )
+                if (it.published > LocalDateTime.now()) {
+                    LOG.info("Product agreement $uuid is not published yet, performing physical delete")
+                    productAgreementRegistrationService.physicalDeleteById(uuid)
+                } else {
+                    LOG.info("Product agreement $uuid is published, performing logical delete")
+                    productAgreementRegistrationService.saveAndCreateEvent(
+                        it.copy(
+                            status = ProductAgreementStatus.DELETED,
+                            updated = LocalDateTime.now(),
+                            expired = LocalDateTime.now(),
+                            updatedBy = REGISTER,
+                        ),
+                        isUpdate = true,
+                    )
+                }
             } ?: throw BadRequestException("Product agreement $uuid not found")
         }
         return HttpResponse.ok(ProductAgreementsDeletedResponse(ids))
