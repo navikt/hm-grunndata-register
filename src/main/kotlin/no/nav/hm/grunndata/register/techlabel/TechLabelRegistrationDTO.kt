@@ -109,7 +109,7 @@ data class TechLabelDTO(
     val unit: String?,
     val sort: Int,
     val isKeyLabel: Boolean = false,
-    val systemLabel: String,
+    val systemLabel: String? = label.systemLabel(type),
     val options: List<String> = emptyList(),
     val createdBy: String,
     val updatedBy: String,
