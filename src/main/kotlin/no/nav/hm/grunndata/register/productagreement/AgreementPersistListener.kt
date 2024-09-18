@@ -31,6 +31,7 @@ class AgreementPersistListener(private val productAgreementRegistrationService: 
                         )
                     LOG.info("Got ${pagreements.size} product agreements from agreement ${agreement.id} for update")
                     pagreements.forEach {
+                        LOG.info("Publishing product agreement ${it.id} from agreement ${agreement.id} for update")
                         if (agreement.published != it.published || agreement.expired != it.expired) {
                             productAgreementRegistrationService.saveAndCreateEvent(
                                 it.copy(
