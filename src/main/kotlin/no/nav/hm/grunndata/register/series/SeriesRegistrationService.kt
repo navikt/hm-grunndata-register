@@ -5,6 +5,7 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
+import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
@@ -23,7 +24,15 @@ import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistratio
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
+import java.util.HashMap
 import java.util.UUID
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toSet
+import kotlinx.coroutines.reactive.asFlow
+import no.nav.hm.grunndata.register.media.MediaUploadService
+import no.nav.hm.grunndata.register.media.ObjectType
+import no.nav.hm.grunndata.register.product.MediaInfoDTO
+import org.reactivestreams.Publisher
 
 @Singleton
 open class SeriesRegistrationService(
@@ -32,7 +41,8 @@ open class SeriesRegistrationService(
     private val seriesRegistrationEventHandler: SeriesRegistrationEventHandler,
     private val supplierService: SupplierRegistrationService,
     private val isoCategoryService: IsoCategoryService,
-    private val productAgreementRegistrationService: ProductAgreementRegistrationService
+    private val productAgreementRegistrationService: ProductAgreementRegistrationService,
+    private val mediaUploadService: MediaUploadService
 
 ) {
     companion object {
@@ -472,4 +482,44 @@ open class SeriesRegistrationService(
                 root[SeriesRegistration::status] eq SeriesStatus.ACTIVE
             },
         )
+
+    open suspend fun uploadMediaAndUpdateSeries(
+        seriesToUpdate: SeriesRegistrationDTO,
+        files: Publisher<CompletedFileUpload>,
+        authentication: Authentication
+    ): SeriesRegistrationDTOV2 {
+        val seriesUUID = seriesToUpdate.id
+
+        val mediaDtos = files.asFlow().map { mediaUploadService.uploadMedia(it, seriesUUID, ObjectType.SERIES) }.toSet()
+
+        val mediaInfos = mediaDtos.map {
+            MediaInfoDTO(
+                sourceUri = it.sourceUri,
+                filename = it.filename,
+                uri = it.uri,
+                type = it.type,
+                text = it.filename?.substringBeforeLast("."),
+                source = it.source,
+                updated = it.updated
+            )
+        }.toSet()
+
+        // lol wtf
+        val newMedia = seriesToUpdate.seriesData.media.plus(mediaInfos)
+        val newData = seriesToUpdate.seriesData.copy(media = newMedia)
+        val newUpdate = seriesToUpdate.copy(seriesData = newData)
+        val updated = seriesRegistrationRepository.update(newUpdate.toEntity())
+
+        return toSeriesRegistrationDTOV2(
+            seriesRegistration = updated,
+            supplierName = authentication.name,
+            productRegistrationDTOs = productRegistrationService.findAllBySeriesUuidV2(seriesUUID),
+            isoCategoryDTO = isoCategoryService.lookUpCode(updated.isoCategory),
+            inAgreement = productAgreementRegistrationService.findAllByProductIds(
+                productRegistrationService.findAllBySeriesUuid(seriesUUID)
+                    .filter { it.registrationStatus == RegistrationStatus.ACTIVE }
+                    .map { it.id }
+            ).isNotEmpty()
+        )
+    }
 }
