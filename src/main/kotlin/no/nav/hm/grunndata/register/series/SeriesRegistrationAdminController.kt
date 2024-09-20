@@ -7,6 +7,7 @@ import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
+import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
@@ -15,6 +16,7 @@ import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.QueryValue
+import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -31,6 +33,7 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
 import java.util.UUID
+import org.reactivestreams.Publisher
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(SeriesRegistrationAdminController.API_V1_SERIES)
@@ -525,6 +528,24 @@ class SeriesRegistrationAdminController(
                 )
             }
         }
+    }
+
+    @Post(
+        value = "/uploadMedia/{seriesUUID}",
+        consumes = [MediaType.MULTIPART_FORM_DATA],
+        produces = [MediaType.APPLICATION_JSON]
+    )
+    suspend fun uploadMedia(
+        seriesUUID: UUID,
+        files: Publisher<CompletedFileUpload>, // FileUpload-struktur, fra front
+        authentication: Authentication
+    ): HttpResponse<Any> {
+        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
+
+        LOG.info("admin uploading files for series $seriesUUID")
+        seriesRegistrationService.uploadMediaAndUpdateSeries(seriesToUpdate, files)
+
+        return HttpResponse.ok()
     }
 }
 
