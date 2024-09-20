@@ -486,8 +486,7 @@ open class SeriesRegistrationService(
     open suspend fun uploadMediaAndUpdateSeries(
         seriesToUpdate: SeriesRegistrationDTO,
         files: Publisher<CompletedFileUpload>,
-        supplierName: String
-    ): SeriesRegistrationDTOV2 {
+    ) {
         val mediaDtos =
             files.asFlow().map { mediaUploadService.uploadMedia(it, seriesToUpdate.id, ObjectType.SERIES) }.toSet()
         val mediaInfos = mediaDtos.map {
@@ -505,24 +504,7 @@ open class SeriesRegistrationService(
         val newMedia = seriesToUpdate.seriesData.media.plus(mediaInfos)
         val newData = seriesToUpdate.seriesData.copy(media = newMedia)
         val newUpdate = seriesToUpdate.copy(seriesData = newData)
-        val updated = seriesRegistrationRepository.update(newUpdate.toEntity())
 
-        return mapToSeriesRegistrationDTOV2(updated, supplierName)
+        seriesRegistrationRepository.update(newUpdate.toEntity())
     }
-
-    private suspend fun mapToSeriesRegistrationDTOV2(
-        series: SeriesRegistration,
-        supplierName: String
-    ): SeriesRegistrationDTOV2 =
-        toSeriesRegistrationDTOV2(
-            seriesRegistration = series,
-            supplierName = supplierName,
-            productRegistrationDTOs = productRegistrationService.findAllBySeriesUuidV2(series.id),
-            isoCategoryDTO = isoCategoryService.lookUpCode(series.isoCategory),
-            inAgreement = productAgreementRegistrationService.findAllByProductIds(
-                productRegistrationService.findAllBySeriesUuid(series.id)
-                    .filter { it.registrationStatus == RegistrationStatus.ACTIVE }
-                    .map { it.id }
-            ).isNotEmpty())
-    
 }

@@ -188,7 +188,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         seriesUUID: UUID,
         files: Publisher<CompletedFileUpload>, // FileUpload-struktur, fra front
         authentication: Authentication
-    ): HttpResponse<SeriesRegistrationDTOV2> {
+    ): HttpResponse<Any> {
         val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
 
         if (seriesToUpdate.supplierId != authentication.supplierId()) {
@@ -197,9 +197,9 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         }
 
         LOG.info("supplier: ${authentication.supplierId()} uploading files for series $seriesUUID")
-        val updated = seriesRegistrationService.uploadMediaAndUpdateSeries(seriesToUpdate, files, authentication.name)
-
-        return HttpResponse.ok(updated)
+        seriesRegistrationService.uploadMediaAndUpdateSeries(seriesToUpdate, files)
+        
+        return HttpResponse.ok()
     }
 
     @Put("/request-approval/{seriesUUID}")
