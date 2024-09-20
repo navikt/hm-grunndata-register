@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
 import java.util.UUID
+import no.nav.hm.grunndata.register.series.SeriesRegistrationService.Companion
 import org.reactivestreams.Publisher
 
 @Secured(Roles.ROLE_SUPPLIER)
@@ -196,7 +197,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         }
 
         LOG.info("supplier: ${authentication.supplierId()} uploading files for series $seriesUUID")
-        val updated = seriesRegistrationService.uploadMediaAndUpdateSeries(seriesToUpdate, files, authentication)
+        val updated = seriesRegistrationService.uploadMediaAndUpdateSeries(seriesToUpdate, files, authentication.name)
 
         return HttpResponse.ok(updated)
     }

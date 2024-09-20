@@ -24,7 +24,6 @@ import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistratio
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.HashMap
 import java.util.UUID
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toSet
@@ -82,6 +81,7 @@ open class SeriesRegistrationService(
             )
         }
     }
+
     open suspend fun findByIdIn(ids: List<UUID>) = seriesRegistrationRepository.findByIdIn(ids).map { it.toDTO() }
 
     suspend fun update(
@@ -486,12 +486,10 @@ open class SeriesRegistrationService(
     open suspend fun uploadMediaAndUpdateSeries(
         seriesToUpdate: SeriesRegistrationDTO,
         files: Publisher<CompletedFileUpload>,
-        authentication: Authentication
+        supplierName: String
     ): SeriesRegistrationDTOV2 {
-        val seriesUUID = seriesToUpdate.id
-
-        val mediaDtos = files.asFlow().map { mediaUploadService.uploadMedia(it, seriesUUID, ObjectType.SERIES) }.toSet()
-
+        val mediaDtos =
+            files.asFlow().map { mediaUploadService.uploadMedia(it, seriesToUpdate.id, ObjectType.SERIES) }.toSet()
         val mediaInfos = mediaDtos.map {
             MediaInfoDTO(
                 sourceUri = it.sourceUri,
@@ -504,22 +502,27 @@ open class SeriesRegistrationService(
             )
         }.toSet()
 
-        // lol wtf
         val newMedia = seriesToUpdate.seriesData.media.plus(mediaInfos)
         val newData = seriesToUpdate.seriesData.copy(media = newMedia)
         val newUpdate = seriesToUpdate.copy(seriesData = newData)
         val updated = seriesRegistrationRepository.update(newUpdate.toEntity())
 
-        return toSeriesRegistrationDTOV2(
-            seriesRegistration = updated,
-            supplierName = authentication.name,
-            productRegistrationDTOs = productRegistrationService.findAllBySeriesUuidV2(seriesUUID),
-            isoCategoryDTO = isoCategoryService.lookUpCode(updated.isoCategory),
+        return mapToSeriesRegistrationDTOV2(updated, supplierName)
+    }
+
+    private suspend fun mapToSeriesRegistrationDTOV2(
+        series: SeriesRegistration,
+        supplierName: String
+    ): SeriesRegistrationDTOV2 =
+        toSeriesRegistrationDTOV2(
+            seriesRegistration = series,
+            supplierName = supplierName,
+            productRegistrationDTOs = productRegistrationService.findAllBySeriesUuidV2(series.id),
+            isoCategoryDTO = isoCategoryService.lookUpCode(series.isoCategory),
             inAgreement = productAgreementRegistrationService.findAllByProductIds(
-                productRegistrationService.findAllBySeriesUuid(seriesUUID)
+                productRegistrationService.findAllBySeriesUuid(series.id)
                     .filter { it.registrationStatus == RegistrationStatus.ACTIVE }
                     .map { it.id }
-            ).isNotEmpty()
-        )
-    }
+            ).isNotEmpty())
+    
 }
