@@ -697,7 +697,7 @@ open class ProductRegistrationService(
             techData.find { it.key == labelKey }?.toDTO(techLabels) ?: TechDataDTO(
                 key = labelKey,
                 value = "",
-                unit = "",
+                unit = techLabel.unit ?: "",
                 type = TechDataType.from(techLabel),
                 definition = techLabel.definition,
                 options = techLabel.options
