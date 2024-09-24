@@ -2,10 +2,10 @@ package no.nav.hm.grunndata.register.productagreement
 
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
-import java.io.InputStream
-import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
@@ -33,21 +33,26 @@ import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.slf4j.LoggerFactory
-
+import java.io.InputStream
+import java.time.LocalDateTime
+import java.util.UUID
 
 @Singleton
 class ProductAgreementImportExcelService(
     private val supplierRegistrationService: SupplierRegistrationService,
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productRegistrationRepository: ProductRegistrationRepository,
-    private val noDelKontraktHandler: NoDelKontraktHandler
+    private val noDelKontraktHandler: NoDelKontraktHandler,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementImportExcelService::class.java)
         const val EXCEL = "EXCEL"
     }
 
-    suspend fun importExcelFile(inputStream: InputStream, authentication: Authentication?): List<ProductAgreementRegistrationDTO> {
+    suspend fun importExcelFile(
+        inputStream: InputStream,
+        authentication: Authentication?,
+    ): List<ProductAgreementRegistrationDTO> {
         LOG.info("Reading xls file")
         ZipSecureFile.setMinInflateRatio(0.0)
         val workbook = WorkbookFactory.create(inputStream)
@@ -56,7 +61,10 @@ class ProductAgreementImportExcelService(
         return productAgreementList
     }
 
-    suspend fun readProductData(workbook: Workbook, authentication: Authentication?): List<ProductAgreementRegistrationDTO> {
+    suspend fun readProductData(
+        workbook: Workbook,
+        authentication: Authentication?,
+    ): List<ProductAgreementRegistrationDTO> {
         val main = workbook.getSheet("Gjeldende") ?: workbook.getSheet("gjeldende")
         LOG.info("First row num ${main.firstRowNum}")
         val columnMap = readColumnMapIndex(main.first())
@@ -69,14 +77,21 @@ class ProductAgreementImportExcelService(
         return productExcel.map { it.toProductAgreementDTO(authentication) }.flatten()
     }
 
-    private fun mapArticleType(articleType: String, funksjonsendring: String): ArticleType {
+    private fun mapArticleType(
+        articleType: String,
+        funksjonsendring: String,
+    ): ArticleType {
         val mainProduct = articleType.lowercase().indexOf("hms hj.middel") > -1
-        val accessory = articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("ja") > -1
-        val sparePart = articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("nei") > -1
+        val accessory =
+            articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("ja") > -1
+        val sparePart =
+            articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("nei") > -1
         return ArticleType(mainProduct, sparePart, accessory)
     }
 
-    private suspend fun ProductAgreementExcelDTO.toProductAgreementDTO(authentication: Authentication?): List<ProductAgreementRegistrationDTO> {
+    private suspend fun ProductAgreementExcelDTO.toProductAgreementDTO(
+        authentication: Authentication?,
+    ): List<ProductAgreementRegistrationDTO> {
         val cleanRef = reference.lowercase().replace("/", "-")
         val agreement = findAgreementByReferenceLike(cleanRef)
         if (agreement.agreementStatus === AgreementStatus.DELETED) {
@@ -112,11 +127,11 @@ class ProductAgreementImportExcelService(
                     sparePart = sparePart,
                     accessory = accessory,
                     isoCategory = iso,
-                    updatedByUser = authentication?.name ?: "system"
+                    updatedByUser = authentication?.name ?: "system",
+                    status = if (agreement.draftStatus == DraftStatus.DONE && agreement.published < LocalDateTime.now() && agreement.expired > LocalDateTime.now()) ProductAgreementStatus.ACTIVE else ProductAgreementStatus.INACTIVE,
                 )
             }
-        }
-        else {
+        } else {
             val noDelKonktraktPost = noDelKontraktHandler.findAndCreateWithNoDelkonktraktTypeIfNotExists(agreement.id)
 
             return listOf(
@@ -139,8 +154,8 @@ class ProductAgreementImportExcelService(
                     sparePart = sparePart,
                     accessory = accessory,
                     isoCategory = iso,
-                    updatedByUser = authentication?.name ?: "system"
-                )
+                    updatedByUser = authentication?.name ?: "system",
+                ),
             )
         }
     }
@@ -157,12 +172,12 @@ class ProductAgreementImportExcelService(
         runBlocking {
             supplierRegistrationService.findNameAndId().find {
                 (it.name.lowercase().indexOf(supplierName.lowercase()) > -1)
-            }?.id ?: throw BadRequestException("Leverandør $supplierName finnes ikke i registeret, sjekk om navnet er riktig skrevet.")
+            }?.id
+                ?: throw BadRequestException("Leverandør $supplierName finnes ikke i registeret, sjekk om navnet er riktig skrevet.")
         }
 
     private fun parsedelkontraktNr(subContractNr: String): List<Pair<String, Int>> {
         try {
-
             var matchResult = delKontraktRegex.find(subContractNr)
             val mutableList: MutableList<Pair<String, Int>> = mutableListOf()
             if (matchResult != null) {
@@ -207,16 +222,19 @@ class ProductAgreementImportExcelService(
                 funksjonsendring = funksjonsendring,
                 forChildren = readCellAsString(row, columnMap[malgruppebarn.column]!!),
                 supplierName = readCellAsString(row, columnMap[leverandorfirmanavn.column]!!),
-                supplierCity =readCellAsString(row, columnMap[leverandorsted.column]!!),
+                supplierCity = readCellAsString(row, columnMap[leverandorsted.column]!!),
                 accessory = type.accessory,
                 sparePart = type.sparePart,
-                mainProduct = type.mainProduct
+                mainProduct = type.mainProduct,
             )
         }
         return null
     }
 
-    private fun readCellAsString(row: Row, column: Int): String {
+    private fun readCellAsString(
+        row: Row,
+        column: Int,
+    ): String {
         val cell = row.getCell(column)
         return DataFormatter().formatCellValue(cell).trim()
     }
@@ -271,8 +289,7 @@ data class ProductAgreementExcelDTO(
     val supplierCity: String,
     val mainProduct: Boolean,
     val sparePart: Boolean,
-    val accessory: Boolean
+    val accessory: Boolean,
 )
 
 val delKontraktRegex = Regex("d(\\d+)([A-Q-STU-Z]*)r*(\\d*)")
-
