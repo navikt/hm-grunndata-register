@@ -10,6 +10,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.AgreementInfo
+import no.nav.hm.grunndata.rapid.dto.Attributes
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.ProductRapidDTO
 import no.nav.hm.grunndata.rapid.dto.ProductRegistrationRapidDTO
@@ -17,11 +18,13 @@ import no.nav.hm.grunndata.rapid.dto.ProductStatus
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierDTO
+import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
+import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
 
 @MappedEntity("product_reg_v1")
 data class ProductRegistration(
@@ -257,9 +260,57 @@ data class ProductRegistrationDTOV2(
     val accessory: Boolean,
     val sparePart: Boolean,
     val created: LocalDateTime,
-    val productData: ProductData,
+    val productData: ProductDataDTO,
     val agreements: List<AgreementInfo>,
     val version: Long?,
     val isExpired: Boolean,
     val isPublished: Boolean
 )
+
+data class ProductDataDTO(
+    val attributes: Attributes = Attributes(),
+    val techData: List<TechDataDTO> = emptyList(),
+)
+
+data class TechDataDTO(
+    val key: String,
+    val value: String,
+    val unit: String,
+    val type: TechDataType,
+    val definition: String?,
+    val options: List<String>?
+)
+
+fun TechData.toDTO(techLabels: Map<String, TechLabelDTO>): TechDataDTO {
+    val techLabel = techLabels[key] ?: throw IllegalArgumentException("Ukjent techLabel: $key")
+    return TechDataDTO(
+        key = key,
+        value = when (value.lowercase()) {
+            "ja" -> "Ja"
+            "nei" -> "Nei"
+            else -> value
+        },
+        unit = unit,
+        type = TechDataType.from(techLabel),
+        definition = techLabel.definition,
+        options = techLabel.options
+    )
+}
+
+enum class TechDataType {
+    NUMBER,
+    BOOLEAN,
+    TEXT,
+    OPTIONS;
+
+    companion object {
+        fun from(techLabel: TechLabelDTO): TechDataType {
+            return when (techLabel.type) {
+                "N" -> NUMBER
+                "L" -> BOOLEAN
+                "C" -> if (techLabel.options.isEmpty()) TEXT else OPTIONS
+                else -> throw IllegalArgumentException("Ukjent TechDataType for techlabel $techLabel")
+            }
+        }
+    }
+}

@@ -30,6 +30,7 @@ import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistratio
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
+import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
 import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.slf4j.LoggerFactory
 
@@ -567,20 +568,29 @@ open class ProductRegistrationService(
     }
 
     private suspend fun ProductRegistration.toDTOV2(): ProductRegistrationDTOV2 {
-        val agreeements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)
+        val agreements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)
+        val techLabels = techLabelService.fetchLabelsByIsoCode(isoCategory).associateBy { it.label }
+
         return ProductRegistrationDTOV2(
             id = id,
             supplierRef = supplierRef,
-            hmsArtNr = if (!hmsArtNr.isNullOrBlank()) hmsArtNr else if (agreeements.isNotEmpty()) agreeements.first().hmsArtNr else null,
+            hmsArtNr = if (!hmsArtNr.isNullOrBlank()) hmsArtNr else if (agreements.isNotEmpty()) agreements.first().hmsArtNr else null,
             articleName = articleName,
-            productData = productData,
+            productData = productData.toProductDataDTO(techLabels),
             sparePart = sparePart,
             created = created,
             accessory = accessory,
-            agreements = agreeements.map { it.toAgreementInfo() },
+            agreements = agreements.map { it.toAgreementInfo() },
             version = version,
             isExpired = expired?.let { it < LocalDateTime.now() } ?: false,
             isPublished = published?.let { it < LocalDateTime.now() } ?: false,
+        )
+    }
+
+    private fun ProductData.toProductDataDTO(techLabels: Map<String, TechLabelDTO>): ProductDataDTO {
+        return ProductDataDTO(
+            attributes = attributes,
+            techData = techData.map { it.toDTO(techLabels) },
         )
     }
 
