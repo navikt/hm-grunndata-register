@@ -107,6 +107,14 @@ class ProductRegistrationAdminApiController(
             }
             ?: HttpResponse.notFound()
 
+    @Get("/v2/{id}")
+    suspend fun getProductByIdV2(id: UUID): HttpResponse<ProductRegistrationDTOV2> =
+        productRegistrationService.findByIdV2(id)
+            ?.let {
+                HttpResponse.ok(it)
+            }
+            ?: HttpResponse.notFound()
+
     @Get("/hmsArtNr/{hmsArtNr}")
     suspend fun getProductByHmsArtNr(hmsArtNr: String): HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findByHmsArtNr(hmsArtNr)
@@ -248,6 +256,25 @@ class ProductRegistrationAdminApiController(
                 LOG.error("Got exception while updating product", e)
                 throw BadRequestException("Got exception while updating product $id")
             }
+        }
+
+    @Put("/v2/{id}")
+    suspend fun updateProductV2(
+        @Body registrationDTO: UpdateProductRegistrationDTO,
+        @PathVariable id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> =
+        try {
+            val dto = productRegistrationService.updateProductByAdminV2(registrationDTO, id, authentication)
+            HttpResponse.ok(dto)
+        } catch (dataAccessException: DataAccessException) {
+            LOG.error("Got exception while updating product", dataAccessException)
+            throw BadRequestException(
+                dataAccessException.message ?: "Got exception while updating product $id",
+            )
+        } catch (e: Exception) {
+            LOG.error("Got exception while updating product", e)
+            throw BadRequestException("Got exception while updating product $id")
         }
 
     @Put("/to-expired/{id}")

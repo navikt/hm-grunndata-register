@@ -28,6 +28,7 @@ import no.nav.hm.grunndata.register.product.batch.toRegistrationDTO
 import no.nav.hm.grunndata.register.product.batch.toRegistrationDryRunDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
+import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
@@ -49,6 +50,8 @@ open class ProductRegistrationService(
     }
 
     open suspend fun findById(id: UUID) = productRegistrationRepository.findById(id)?.toDTO()
+
+    open suspend fun findByIdV2(id: UUID) = productRegistrationRepository.findById(id)?.toDTOV2()
 
     open suspend fun findByIdIn(ids: List<UUID>) = productRegistrationRepository.findByIdIn(ids).map { it.toDTO() }
 
@@ -96,6 +99,12 @@ open class ProductRegistrationService(
         supplierId: UUID,
     ) = productRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.toDTO()
 
+    open suspend fun findByIdAndSupplierIdV2(
+        id: UUID,
+        supplierId: UUID,
+    ) = productRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.toDTOV2()
+
+
     @Transactional
     open suspend fun updateProductBySupplier(
         registrationDTO: ProductRegistrationDTO,
@@ -126,6 +135,46 @@ open class ProductRegistrationService(
                             adminInfo = inDb.adminInfo,
                             updated = LocalDateTime.now(),
                         ),
+                    isUpdate = true,
+                )
+
+            val series = seriesRegistrationRepository.findById(dto.seriesUUID)
+            if (series != null) {
+                val updatedSeries =
+                    series.copy(
+                        updated = LocalDateTime.now(),
+                        updatedByUser = authentication.name,
+                        updatedBy = REGISTER,
+                    )
+                seriesRegistrationRepository.update(updatedSeries)
+            }
+            return dto
+        } ?: run {
+            throw BadRequestException("Product does not exists $id")
+        }
+    }
+
+    @Transactional
+    open suspend fun updateProductBySupplierV2(
+        updateDTO: UpdateProductRegistrationDTO,
+        id: UUID,
+        authentication: Authentication,
+    ): ProductRegistrationDTO {
+        findByIdAndSupplierId(id, authentication.supplierId())?.let { inDb ->
+            val dto =
+                saveAndCreateEventIfNotDraftAndApproved(
+                    inDb.copy(
+                        hmsArtNr = updateDTO.hmsArtNr,
+                        articleName = updateDTO.articleName,
+                        supplierRef = if (inDb.published != null) inDb.supplierRef else updateDTO.supplierRef, // supplierRef cannot be changed by supplier if published,
+                        productData = inDb.productData.copy(
+                            attributes = updateDTO.productData.attributes,
+                            techData = updateDTO.productData.techData.map { it.toEntity() }
+                        ),
+                        updatedByUser = authentication.name,
+                        updatedBy = REGISTER,
+                        updated = LocalDateTime.now(),
+                    ),
                     isUpdate = true,
                 )
 
@@ -184,6 +233,61 @@ open class ProductRegistrationService(
                         updatedBy = REGISTER,
                         createdBy = inDb.createdBy,
                         createdByAdmin = inDb.createdByAdmin,
+                        updated = LocalDateTime.now(),
+                    ),
+                    isUpdate = true,
+                )
+
+            val series = seriesRegistrationRepository.findById(updated.seriesUUID)
+            if (series != null) {
+                val updatedSeries =
+                    series.copy(
+                        updated = LocalDateTime.now(),
+                        updatedByUser = authentication.name,
+                        updatedBy = REGISTER,
+                    )
+                seriesRegistrationRepository.update(updatedSeries)
+            }
+            return updated
+        } ?: run {
+            throw BadRequestException("Product does not exists $id")
+        }
+    }
+
+    @Transactional
+    open suspend fun updateProductByAdminV2(
+        updateDTO: UpdateProductRegistrationDTO,
+        id: UUID,
+        authentication: Authentication,
+    ): ProductRegistrationDTO {
+        findById(id)?.let { inDb ->
+            var changedHmsNrSupplierRef = false
+            if (inDb.hmsArtNr != updateDTO.hmsArtNr) {
+                LOG.warn("Hms artNr ${inDb.hmsArtNr} has been changed by admin to ${updateDTO.hmsArtNr} for id: $id")
+                changedHmsNrSupplierRef = true
+            }
+            if (inDb.supplierRef != updateDTO.supplierRef) {
+                LOG.warn("Supplier ref ${inDb.supplierRef} has been changed by admin to ${updateDTO.supplierRef} for id: $id")
+                changedHmsNrSupplierRef = true
+            }
+            if (changedHmsNrSupplierRef) {
+                productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(inDb.supplierId, inDb.supplierRef).forEach { change ->
+                    productAgreementRegistrationRepository.update(change.copy(hmsArtNr = updateDTO.hmsArtNr, supplierRef = updateDTO.supplierRef))
+                }
+            }
+
+            val updated =
+                saveAndCreateEventIfNotDraftAndApproved(
+                    inDb.copy(
+                        hmsArtNr = updateDTO.hmsArtNr,
+                        articleName = updateDTO.articleName,
+                        supplierRef = updateDTO.supplierRef,
+                        productData = inDb.productData.copy(
+                            attributes = updateDTO.productData.attributes,
+                            techData = updateDTO.productData.techData.map { it.toEntity() }
+                        ),
+                        updatedByUser = authentication.name,
+                        updatedBy = REGISTER,
                         updated = LocalDateTime.now(),
                     ),
                     isUpdate = true,
@@ -573,6 +677,7 @@ open class ProductRegistrationService(
 
         return ProductRegistrationDTOV2(
             id = id,
+            seriesUUID = seriesUUID,
             supplierRef = supplierRef,
             hmsArtNr = if (!hmsArtNr.isNullOrBlank()) hmsArtNr else if (agreements.isNotEmpty()) agreements.first().hmsArtNr else null,
             articleName = articleName,
@@ -588,9 +693,20 @@ open class ProductRegistrationService(
     }
 
     private fun ProductData.toProductDataDTO(techLabels: Map<String, TechLabelDTO>): ProductDataDTO {
+        val techdataDTOs = techLabels.map { (labelKey, techLabel) ->
+            techData.find { it.key == labelKey }?.toDTO(techLabels) ?: TechDataDTO(
+                key = labelKey,
+                value = "",
+                unit = "",
+                type = TechDataType.from(techLabel),
+                definition = techLabel.definition,
+                options = techLabel.options
+            )
+        }.sortedBy { it.key }
+
         return ProductDataDTO(
             attributes = attributes,
-            techData = techData.map { it.toDTO(techLabels) },
+            techData = techdataDTOs,
         )
     }
 

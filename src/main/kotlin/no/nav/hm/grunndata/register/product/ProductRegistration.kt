@@ -246,14 +246,13 @@ data class ProductRegistrationDryRunDTO(
 data class UpdateProductRegistrationDTO(
     val hmsArtNr: String?,
     val articleName: String,
-    val accessory: Boolean,
-    val sparePart: Boolean,
-    val productData: ProductData,
-    val agreements: List<AgreementInfo>,
+    val supplierRef: String,
+    val productData: ProductDataDTO
 )
 
 data class ProductRegistrationDTOV2(
     val id: UUID,
+    val seriesUUID: UUID?,
     val hmsArtNr: String?,
     val supplierRef: String,
     val articleName: String,
@@ -279,7 +278,9 @@ data class TechDataDTO(
     val type: TechDataType,
     val definition: String?,
     val options: List<String>?
-)
+) {
+    fun toEntity(): TechData = TechData(key = key, value = value, unit = unit)
+}
 
 fun TechData.toDTO(techLabels: Map<String, TechLabelDTO>): TechDataDTO {
     val techLabel = techLabels[key] ?: throw IllegalArgumentException("Ukjent techLabel: $key")

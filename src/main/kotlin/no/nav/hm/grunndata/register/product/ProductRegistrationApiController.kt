@@ -105,6 +105,17 @@ class ProductRegistrationApiController(
             }
             ?: HttpResponse.notFound()
 
+    @Get("/v2/{id}")
+    suspend fun getProductByIdV2(
+        id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTOV2> =
+        productRegistrationService.findByIdAndSupplierIdV2(id, authentication.supplierId())
+            ?.let {
+                HttpResponse.ok(it)
+            }
+            ?: HttpResponse.notFound()
+
     @Put("/{id}")
     suspend fun updateProduct(
         @Body registrationDTO: ProductRegistrationDTO,
@@ -129,6 +140,31 @@ class ProductRegistrationApiController(
                 throw BadRequestException("Got exception while updating product $id")
             }
         }
+
+    @Put("/v2/{id}")
+    suspend fun updateProductV2(
+        @Body registrationDTO: UpdateProductRegistrationDTO,
+        @PathVariable id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> {
+        try {
+            val dto = productRegistrationService.updateProductBySupplierV2(registrationDTO, id, authentication)
+
+            if (dto.supplierId != authentication.supplierId()) {
+                return HttpResponse.unauthorized()
+            }
+
+            return HttpResponse.ok(dto)
+        } catch (dataAccessException: DataAccessException) {
+            LOG.error("Got exception while updating product", dataAccessException)
+            throw BadRequestException(
+                dataAccessException.message ?: "Got exception while updating product $id",
+            )
+        } catch (e: Exception) {
+            LOG.error("Got exception while updating product", e)
+            throw BadRequestException("Got exception while updating product $id")
+        }
+    }
 
     @Post("/draftWithV2/{seriesUUID}/supplierId/{supplierId}")
     suspend fun draftProductWithV2(
