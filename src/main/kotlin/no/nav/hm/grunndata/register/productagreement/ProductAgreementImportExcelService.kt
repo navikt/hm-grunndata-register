@@ -155,6 +155,7 @@ class ProductAgreementImportExcelService(
                     accessory = accessory,
                     isoCategory = iso,
                     updatedByUser = authentication?.name ?: "system",
+                    status = if (agreement.draftStatus == DraftStatus.DONE && agreement.published < LocalDateTime.now() && agreement.expired > LocalDateTime.now()) ProductAgreementStatus.ACTIVE else ProductAgreementStatus.INACTIVE,
                 ),
             )
         }
