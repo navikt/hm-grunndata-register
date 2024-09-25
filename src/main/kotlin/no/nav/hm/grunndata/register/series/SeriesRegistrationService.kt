@@ -9,6 +9,9 @@ import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toSet
+import kotlinx.coroutines.reactive.asFlow
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaType
@@ -18,20 +21,17 @@ import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.iso.IsoCategoryService
+import no.nav.hm.grunndata.register.media.MediaUploadService
+import no.nav.hm.grunndata.register.media.ObjectType
+import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
+import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toSet
-import kotlinx.coroutines.reactive.asFlow
-import no.nav.hm.grunndata.register.media.MediaUploadService
-import no.nav.hm.grunndata.register.media.ObjectType
-import no.nav.hm.grunndata.register.product.MediaInfoDTO
-import org.reactivestreams.Publisher
 
 @Singleton
 open class SeriesRegistrationService(
@@ -41,24 +41,52 @@ open class SeriesRegistrationService(
     private val supplierService: SupplierRegistrationService,
     private val isoCategoryService: IsoCategoryService,
     private val productAgreementRegistrationService: ProductAgreementRegistrationService,
-    private val mediaUploadService: MediaUploadService
-
+    private val mediaUploadService: MediaUploadService,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationService::class.java)
     }
 
+    @Transactional
+    open suspend fun moveVariantsToSeries(
+        seriesId: UUID,
+        productIds: List<UUID>,
+        authentication: Authentication,
+    ) {
+        val seriesTo =
+            findById(seriesId)
+                ?: throw BadRequestException("Series with id $seriesId does not exist")
+        productIds.forEach { productId ->
+            productRegistrationService.findById(productId)?.let {
+                productRegistrationService.update(
+                    it.copy(
+                        seriesUUID = seriesId,
+                        adminStatus = AdminStatus.PENDING,
+                        updatedByUser = authentication.name,
+                        updated = LocalDateTime.now(),
+                    ),
+                )
+            }
+        }
+        update(
+            seriesTo.copy(
+                adminStatus = AdminStatus.PENDING,
+                updated = LocalDateTime.now(),
+                updatedByUser = authentication.name,
+            ),
+        )
+    }
+
     suspend fun findById(id: UUID): SeriesRegistrationDTO? = seriesRegistrationRepository.findById(id)?.toDTO()
 
-    suspend fun findByIdV2(
-        id: UUID,
-    ): SeriesRegistrationDTOV2? {
+    suspend fun findByIdV2(id: UUID): SeriesRegistrationDTOV2? {
         return seriesRegistrationRepository.findByIdAndStatusIn(
             id,
-            listOf(SeriesStatus.ACTIVE, SeriesStatus.INACTIVE)
+            listOf(SeriesStatus.ACTIVE, SeriesStatus.INACTIVE),
         )?.let { seriesRegistration ->
-            val supplierRegistration = supplierService.findById(seriesRegistration.supplierId)
-                ?: throw IllegalArgumentException("cannot find series supplier")
+            val supplierRegistration =
+                supplierService.findById(seriesRegistration.supplierId)
+                    ?: throw IllegalArgumentException("cannot find series supplier")
 
             val isoCategoryDTO = isoCategoryService.lookUpCode(seriesRegistration.isoCategory)
 
@@ -69,7 +97,7 @@ open class SeriesRegistrationService(
                 productAgreementRegistrationService.findAllByProductIds(
                     productRegistrationService.findAllBySeriesUuid(seriesRegistration.id)
                         .filter { it.registrationStatus == RegistrationStatus.ACTIVE }
-                        .map { it.id }
+                        .map { it.id },
                 ).isNotEmpty()
 
             toSeriesRegistrationDTOV2(
@@ -77,7 +105,7 @@ open class SeriesRegistrationService(
                 supplierName = supplierRegistration.name,
                 productRegistrationDTOs = productRegistrationDTOs,
                 isoCategoryDTO = isoCategoryDTO,
-                inAgreement = inAgreement
+                inAgreement = inAgreement,
             )
         }
     }
@@ -124,10 +152,11 @@ open class SeriesRegistrationService(
         return seriesRegistrationRepository.findByIdAndSupplierIdAndStatusIn(
             id,
             supplierId,
-            listOf(SeriesStatus.ACTIVE, SeriesStatus.INACTIVE)
+            listOf(SeriesStatus.ACTIVE, SeriesStatus.INACTIVE),
         )?.let { seriesRegistration ->
-            val supplierRegistration = supplierService.findById(seriesRegistration.supplierId)
-                ?: throw IllegalArgumentException("cannot find series supplier")
+            val supplierRegistration =
+                supplierService.findById(seriesRegistration.supplierId)
+                    ?: throw IllegalArgumentException("cannot find series supplier")
 
             val isoCategoryDTO = isoCategoryService.lookUpCode(seriesRegistration.isoCategory)
 
@@ -138,7 +167,7 @@ open class SeriesRegistrationService(
                 productAgreementRegistrationService.findAllByProductIds(
                     productRegistrationService.findAllBySeriesUuid(seriesRegistration.id)
                         .filter { it.registrationStatus == RegistrationStatus.ACTIVE }
-                        .map { it.id }
+                        .map { it.id },
                 ).isNotEmpty()
 
             toSeriesRegistrationDTOV2(
@@ -146,7 +175,7 @@ open class SeriesRegistrationService(
                 supplierName = supplierRegistration.name,
                 productRegistrationDTOs = productRegistrationDTOs,
                 isoCategoryDTO = isoCategoryDTO,
-                inAgreement = inAgreement
+                inAgreement = inAgreement,
             )
         }
     }
@@ -243,14 +272,12 @@ open class SeriesRegistrationService(
             seriesUUID = id,
             status = status,
             thumbnail = seriesData.media.firstOrNull { it.type == MediaType.IMAGE },
-            isExpired = expired < LocalDateTime.now()
+            isExpired = expired < LocalDateTime.now(),
         )
     }
 
     @Transactional
-    open suspend fun requestApprovalForSeriesAndVariants(
-        seriesToUpdate: SeriesRegistrationDTO,
-    ): SeriesRegistrationDTO {
+    open suspend fun requestApprovalForSeriesAndVariants(seriesToUpdate: SeriesRegistrationDTO): SeriesRegistrationDTO {
         val updatedSeries =
             seriesToUpdate.copy(
                 draftStatus = DraftStatus.DONE,
@@ -261,7 +288,7 @@ open class SeriesRegistrationService(
         val variantsToUpdate =
             productRegistrationService.findBySeriesUUIDAndSupplierId(
                 seriesToUpdate.id,
-                seriesToUpdate.supplierId
+                seriesToUpdate.supplierId,
             ).map {
                 it.copy(
                     draftStatus = DraftStatus.DONE,
@@ -432,7 +459,9 @@ open class SeriesRegistrationService(
         status: SeriesStatus,
     ): SeriesRegistrationDTO {
         if (seriesToUpdate.published == null || seriesToUpdate.draftStatus != DraftStatus.DRAFT) {
-            throw IllegalArgumentException("series cant be set to expired. published = ${seriesToUpdate.published}, draftstatus: ${seriesToUpdate.draftStatus}}")
+            throw IllegalArgumentException(
+                "series cant be set to expired. published = ${seriesToUpdate.published}, draftstatus: ${seriesToUpdate.draftStatus}}",
+            )
         }
 
         val newExpirationDate =
@@ -455,7 +484,7 @@ open class SeriesRegistrationService(
         val variantsToUpdate =
             productRegistrationService.findAllBySeriesUUIDAndRegistrationStatusAndPublishedIsNotNull(
                 seriesToUpdate.id,
-                oldRegistrationStatus
+                oldRegistrationStatus,
             ).map {
                 it.copy(
                     registrationStatus = newRegistrationStatus,
@@ -489,17 +518,18 @@ open class SeriesRegistrationService(
     ) {
         val mediaDtos =
             files.asFlow().map { mediaUploadService.uploadMedia(it, seriesToUpdate.id, ObjectType.SERIES) }.toSet()
-        val mediaInfos = mediaDtos.map {
-            MediaInfoDTO(
-                sourceUri = it.sourceUri,
-                filename = it.filename,
-                uri = it.uri,
-                type = it.type,
-                text = it.filename?.substringBeforeLast("."),
-                source = it.source,
-                updated = it.updated
-            )
-        }.toSet()
+        val mediaInfos =
+            mediaDtos.map {
+                MediaInfoDTO(
+                    sourceUri = it.sourceUri,
+                    filename = it.filename,
+                    uri = it.uri,
+                    type = it.type,
+                    text = it.filename?.substringBeforeLast("."),
+                    source = it.source,
+                    updated = it.updated,
+                )
+            }.toSet()
 
         val newMedia = seriesToUpdate.seriesData.media.plus(mediaInfos)
         val newData = seriesToUpdate.seriesData.copy(media = newMedia)

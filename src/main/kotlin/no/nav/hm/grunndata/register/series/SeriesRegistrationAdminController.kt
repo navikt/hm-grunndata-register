@@ -5,7 +5,6 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.model.jpa.criteria.impl.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
-import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
@@ -29,11 +28,11 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
+import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
 import java.util.UUID
-import org.reactivestreams.Publisher
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(SeriesRegistrationAdminController.API_V1_SERIES)
@@ -83,24 +82,24 @@ class SeriesRegistrationAdminController(
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::adminStatus],
-                            AdminStatus.valueOf(inputparams["adminStatus"]!!)
-                        )
+                            AdminStatus.valueOf(inputparams["adminStatus"]!!),
+                        ),
                     )
                 }
                 if (inputparams.contains("excludedStatus")) {
                     predicates.add(
                         criteriaBuilder.notEqual(
                             root[SeriesRegistration::status],
-                            inputparams["excludedStatus"]
-                        )
+                            inputparams["excludedStatus"],
+                        ),
                     )
                 }
                 if (inputparams.contains("excludeExpired") && inputparams["excludeExpired"] == "true") {
                     predicates.add(
                         criteriaBuilder.greaterThan(
                             root[SeriesRegistration::expired],
-                            LocalDateTime.now()
-                        )
+                            LocalDateTime.now(),
+                        ),
                     )
                 }
                 if (inputparams.contains("status")) {
@@ -113,33 +112,32 @@ class SeriesRegistrationAdminController(
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::supplierId],
-                            UUID.fromString(inputparams["supplierId"]!!)
-                        )
+                            UUID.fromString(inputparams["supplierId"]!!),
+                        ),
                     )
-
                 }
                 if (inputparams.contains("draft")) {
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::draftStatus],
-                            DraftStatus.valueOf(inputparams["draft"]!!)
-                        )
+                            DraftStatus.valueOf(inputparams["draft"]!!),
+                        ),
                     )
                 }
                 if (inputparams.contains("createdByUser")) {
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::createdByUser],
-                            inputparams["createdByUser"]
-                        )
+                            inputparams["createdByUser"],
+                        ),
                     )
                 }
                 if (inputparams.contains("updatedByUser")) {
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::updatedByUser],
-                            inputparams["updatedByUser"]
-                        )
+                            inputparams["updatedByUser"],
+                        ),
                     )
                 }
 
@@ -147,8 +145,8 @@ class SeriesRegistrationAdminController(
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::createdByAdmin],
-                            it["createdByAdmin"].toBoolean()
-                        )
+                            it["createdByAdmin"].toBoolean(),
+                        ),
                     )
                 }
 
@@ -168,14 +166,14 @@ class SeriesRegistrationAdminController(
                                 EditStatus.REJECTED ->
                                     criteriaBuilder.equal(
                                         root[SeriesRegistration::adminStatus],
-                                        AdminStatus.REJECTED
+                                        AdminStatus.REJECTED,
                                     )
 
                                 EditStatus.PENDING_APPROVAL ->
                                     criteriaBuilder.and(
                                         criteriaBuilder.equal(
                                             root[SeriesRegistration::draftStatus],
-                                            DraftStatus.DONE
+                                            DraftStatus.DONE,
                                         ),
                                         criteriaBuilder.equal(
                                             root[SeriesRegistration::adminStatus],
@@ -187,7 +185,7 @@ class SeriesRegistrationAdminController(
                                     criteriaBuilder.and(
                                         criteriaBuilder.equal(
                                             root[SeriesRegistration::draftStatus],
-                                            DraftStatus.DRAFT
+                                            DraftStatus.DRAFT,
                                         ),
                                         criteriaBuilder.equal(
                                             root[SeriesRegistration::adminStatus],
@@ -198,7 +196,7 @@ class SeriesRegistrationAdminController(
                                 EditStatus.DONE ->
                                     criteriaBuilder.equal(
                                         root[SeriesRegistration::adminStatus],
-                                        AdminStatus.APPROVED
+                                        AdminStatus.APPROVED,
                                     )
                             }
                         }
@@ -213,7 +211,7 @@ class SeriesRegistrationAdminController(
                         criteriaBuilder.like(
                             root[SeriesRegistration::titleLowercase],
                             LiteralExpression("%$term%"),
-                        )
+                        ),
                     )
                 }
                 // Return the combined predicates
@@ -514,31 +512,18 @@ class SeriesRegistrationAdminController(
         authentication: Authentication,
     ) {
         LOG.info("Moving products to series $seriesId")
-        seriesRegistrationService.findById(seriesId)
-            ?: throw BadRequestException("Series with id $seriesId does not exist")
-        productIds.forEach { productId ->
-            productRegistrationService.findById(productId)?.let {
-                productRegistrationService.update(
-                    it.copy(
-                        seriesUUID = seriesId,
-                        adminStatus = AdminStatus.PENDING,
-                        updatedByUser = authentication.name,
-                        updated = LocalDateTime.now(),
-                    ),
-                )
-            }
-        }
+        seriesRegistrationService.moveVariantsToSeries(seriesId, productIds, authentication)
     }
 
     @Post(
         value = "/uploadMedia/{seriesUUID}",
         consumes = [MediaType.MULTIPART_FORM_DATA],
-        produces = [MediaType.APPLICATION_JSON]
+        produces = [MediaType.APPLICATION_JSON],
     )
     suspend fun uploadMedia(
         seriesUUID: UUID,
         files: Publisher<CompletedFileUpload>, // FileUpload-struktur, fra front
-        authentication: Authentication
+        authentication: Authentication,
     ): HttpResponse<Any> {
         val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
 
