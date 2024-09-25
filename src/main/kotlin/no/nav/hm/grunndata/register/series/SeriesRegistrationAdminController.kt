@@ -518,7 +518,7 @@ class SeriesRegistrationAdminController(
             ?: throw BadRequestException("Series with id $seriesId does not exist")
         productIds.forEach { productId ->
             productRegistrationService.findById(productId)?.let {
-                productRegistrationService.save(
+                productRegistrationService.update(
                     it.copy(
                         seriesUUID = seriesId,
                         adminStatus = AdminStatus.PENDING,
