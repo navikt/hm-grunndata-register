@@ -51,6 +51,8 @@ class BadRequestErrorHandler : ExceptionHandler<BadRequestException, HttpRespons
             return ErrorMessage(message = "articlenameseriesuuid already exists", errorType = ErrorType.INVALID_VALUE)
         } else if (error.message?.contains("product_reg_v1_supplier_id_supplier_ref_key") == true) {
             return ErrorMessage(message = "supplierIdRefId already exists", errorType = ErrorType.INVALID_VALUE)
+        } else if (error.message?.contains("product_agreement_reg_v1_supplier_id_supplier_ref_agreement_key") == true) {
+            return ErrorMessage(message = "supplierIdRefId already exists", errorType = ErrorType.INVALID_VALUE)
         }
         return ErrorMessage(message = error.message!!, errorType = error.type)
     }
