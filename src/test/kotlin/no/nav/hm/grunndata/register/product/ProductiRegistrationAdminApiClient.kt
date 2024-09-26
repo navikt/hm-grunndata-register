@@ -39,9 +39,9 @@ interface ProductRegistrationAdminApiClient {
     @Get(uri = "/{id}", produces = [APPLICATION_JSON])
     fun readProduct(@CookieValue("JWT") jwt: String, id: UUID): ProductRegistrationDTO
 
-    @Put(uri= "/{id}", processes = [APPLICATION_JSON])
+    @Put(uri= "/v2/{id}", processes = [APPLICATION_JSON])
     fun updateProduct(@CookieValue("JWT") jwt: String, id:UUID,
-                      @Body productRegistrationDTO: ProductRegistrationDTO
+                      @Body updateProductRegistrationDTO: UpdateProductRegistrationDTO
     ): ProductRegistrationDTO
 
     @Delete(uri="/{id}", consumes = [APPLICATION_JSON])

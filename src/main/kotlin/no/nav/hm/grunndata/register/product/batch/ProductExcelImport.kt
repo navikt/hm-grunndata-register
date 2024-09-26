@@ -12,7 +12,7 @@ import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductData
-import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
+import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationDryRunDTO
 import no.nav.hm.grunndata.register.techlabel.LabelService
 import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
@@ -141,11 +141,11 @@ data class ProductRegistrationExcelDTO(
     val techData: List<TechData> = emptyList(),
 )
 
-fun ProductRegistrationExcelDTO.toRegistrationDTO(): ProductRegistrationDTO {
+fun ProductRegistrationExcelDTO.toProductRegistration(): ProductRegistration {
     val productId = produktid?.toUUID() ?: UUID.randomUUID()
-    val seriesUUID = produktserieid.toUUID() ?: productId
+    val seriesUUID = produktserieid.toUUID()
     val supplierId = leverandorid.toUUID()
-    return ProductRegistrationDTO(
+    return ProductRegistration(
         id = productId,
         seriesId = seriesUUID.toString(),
         seriesUUID = seriesUUID,
@@ -201,7 +201,7 @@ fun ProductRegistrationExcelDTO.toRegistrationDryRunDTO(): ProductRegistrationDr
     )
 }
 
-fun ProductRegistrationDTO.toProductRegistrationDryRunDTO(): ProductRegistrationDryRunDTO =
+fun ProductRegistration.toProductRegistrationDryRunDTO(): ProductRegistrationDryRunDTO =
     ProductRegistrationDryRunDTO(
         id = id,
         seriesUUID = seriesUUID,

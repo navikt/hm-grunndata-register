@@ -48,16 +48,16 @@ interface ProductRegistrationApiClient {
         id: UUID,
     ): ProductRegistrationDTO
 
-    @Put(uri = "/{id}", processes = [APPLICATION_JSON])
+    @Put(uri = "/v2/{id}", processes = [APPLICATION_JSON])
     fun updateProduct(
         @CookieValue("JWT") jwt: String,
         id: UUID,
-        @Body productRegistrationDTO: ProductRegistrationDTO,
+        @Body updateProductRegistrationDTO: UpdateProductRegistrationDTO
     ): ProductRegistrationDTO
 
     @Delete(uri = "/draft/delete", consumes = [APPLICATION_JSON])
     fun deleteDraftVariants(
         @CookieValue("JWT") jwt: String,
         @Body ids: List<UUID>,
-    ): ProductRegistrationDTO
+    )
 }

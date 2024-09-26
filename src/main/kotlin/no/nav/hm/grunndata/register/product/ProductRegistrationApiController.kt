@@ -57,8 +57,8 @@ class ProductRegistrationApiController(
     suspend fun findBySeriesUUIDAndSupplierId(
         seriesUUID: UUID,
         authentication: Authentication,
-    ) = productRegistrationService.findBySeriesUUIDAndSupplierId(seriesUUID, authentication.supplierId())
-        .sortedBy { it.created }
+    ): List<ProductRegistrationDTO> = productRegistrationService.findBySeriesUUIDAndSupplierId(seriesUUID, authentication.supplierId())
+        .sortedBy { it.created }.map { productDTOMapper.toDTO(it) }
 
     @Get("/{?params*}")
     suspend fun findProducts(
@@ -102,7 +102,7 @@ class ProductRegistrationApiController(
     ): HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
             ?.let {
-                HttpResponse.ok(it)
+                HttpResponse.ok(productDTOMapper.toDTO(it))
             }
             ?: HttpResponse.notFound()
 
@@ -111,36 +111,11 @@ class ProductRegistrationApiController(
         id: UUID,
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTOV2> =
-        productRegistrationService.findByIdAndSupplierIdV2(id, authentication.supplierId())
+        productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
             ?.let {
-                HttpResponse.ok(it)
+                HttpResponse.ok(productDTOMapper.toDTOV2(it))
             }
             ?: HttpResponse.notFound()
-
-    @Put("/{id}")
-    suspend fun updateProduct(
-        @Body registrationDTO: ProductRegistrationDTO,
-        @PathVariable id: UUID,
-        authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> =
-        if (registrationDTO.supplierId != authentication.supplierId()) {
-            HttpResponse.unauthorized()
-        } else if (registrationDTO.id != id) {
-            throw BadRequestException("Product id $id does not match ${registrationDTO.id}")
-        } else {
-            try {
-                val dto = productRegistrationService.updateProductBySupplier(registrationDTO, id, authentication)
-                HttpResponse.ok(dto)
-            } catch (dataAccessException: DataAccessException) {
-                LOG.error("Got exception while updating product", dataAccessException)
-                throw BadRequestException(
-                    dataAccessException.message ?: "Got exception while updating product $id",
-                )
-            } catch (e: Exception) {
-                LOG.error("Got exception while updating product", e)
-                throw BadRequestException("Got exception while updating product $id")
-            }
-        }
 
     @Put("/v2/{id}")
     suspend fun updateProductV2(
@@ -149,12 +124,7 @@ class ProductRegistrationApiController(
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> {
         try {
-            val dto = productRegistrationService.updateProductBySupplierV2(registrationDTO, id, authentication)
-
-            if (dto.supplierId != authentication.supplierId()) {
-                return HttpResponse.unauthorized()
-            }
-
+            val dto = productDTOMapper.toDTO(productRegistrationService.updateProductBySupplierV2(registrationDTO, id, authentication))
             return HttpResponse.ok(dto)
         } catch (dataAccessException: DataAccessException) {
             LOG.error("Got exception while updating product", dataAccessException)
@@ -180,10 +150,12 @@ class ProductRegistrationApiController(
 
         try {
             val dto =
-                productRegistrationService.createDraftWithV2(
-                    seriesUUID,
-                    draftWith,
-                    authentication,
+                productDTOMapper.toDTO(
+                    productRegistrationService.createDraftWithV2(
+                        seriesUUID,
+                        draftWith,
+                        authentication,
+                    )
                 )
             return HttpResponse.ok(dto)
         } catch (dataAccessException: DataAccessException) {
@@ -211,11 +183,11 @@ class ProductRegistrationApiController(
 
         try {
             val dto =
-                productRegistrationService.createDraftWithV2(
+                productDTOMapper.toDTO(productRegistrationService.createDraftWithV2(
                     seriesUUID,
                     draftWith,
                     authentication,
-                )
+                ))
             return HttpResponse.ok(dto)
         } catch (dataAccessException: DataAccessException) {
             LOG.error("Got exception while updating product", dataAccessException)
@@ -249,7 +221,7 @@ class ProductRegistrationApiController(
             }
 
         val updated =
-            productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(productsToBeApproved, isUpdate = true)
+            productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(productsToBeApproved, isUpdate = true).map { productDTOMapper.toDTO(it) }
 
         return HttpResponse.ok(updated)
     }
@@ -273,7 +245,7 @@ class ProductRegistrationApiController(
             )
 
         val updated =
-            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+            productDTOMapper.toDTO(productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true))
 
         return HttpResponse.ok(updated)
     }
@@ -298,7 +270,7 @@ class ProductRegistrationApiController(
             )
 
         val updated =
-            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+            productDTOMapper.toDTO(productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true))
 
         return HttpResponse.ok(updated)
     }
@@ -324,7 +296,7 @@ class ProductRegistrationApiController(
             }
 
         val updated =
-            productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(productsToDelete, isUpdate = true)
+            productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(productsToDelete, isUpdate = true).map { productDTOMapper.toDTO(it) }
 
         return HttpResponse.ok(updated)
     }
@@ -346,7 +318,7 @@ class ProductRegistrationApiController(
 
         productRegistrationService.deleteAll(products)
 
-        return HttpResponse.ok(products)
+        return HttpResponse.ok(emptyList())
     }
 
     @Post(
@@ -367,9 +339,9 @@ class ProductRegistrationApiController(
         if (products.isEmpty()) throw BadRequestException("No products found")
         val id = UUID.randomUUID()
         LOG.info("Generating Excel file: $id.xlsx")
-        return ByteArrayOutputStream().use {
-            xlExport.createWorkbookToOutputStream(products, it)
-            HttpResponse.ok(StreamedFile(it.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
+        return ByteArrayOutputStream().use { byteStream ->
+            xlExport.createWorkbookToOutputStream(products.map { productDTOMapper.toDTO(it) }, byteStream)
+            HttpResponse.ok(StreamedFile(byteStream.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
                 .header("Content-Disposition", "attachment; filename=$id.xlsx")
         }
     }
@@ -384,9 +356,9 @@ class ProductRegistrationApiController(
         if (products.isEmpty()) throw BadRequestException("No products found")
         val id = UUID.randomUUID()
         LOG.info("Generating Excel file: $id.xlsx")
-        return ByteArrayOutputStream().use {
-            xlExport.createWorkbookToOutputStream(products, it)
-            HttpResponse.ok(StreamedFile(it.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
+        return ByteArrayOutputStream().use { byteStream ->
+            xlExport.createWorkbookToOutputStream(products.map { productDTOMapper.toDTO(it) }, byteStream)
+            HttpResponse.ok(StreamedFile(byteStream.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
                 .header("Content-Disposition", "attachment; filename=$id.xlsx")
         }
     }
@@ -404,9 +376,9 @@ class ProductRegistrationApiController(
         if (products.isEmpty()) throw BadRequestException("No products found")
         val id = UUID.randomUUID()
         LOG.info("Generating Excel file: $id.xlsx")
-        return ByteArrayOutputStream().use {
-            xlExport.createWorkbookToOutputStream(products, it)
-            HttpResponse.ok(StreamedFile(it.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
+        return ByteArrayOutputStream().use { byteStream ->
+            xlExport.createWorkbookToOutputStream(products.map { productDTOMapper.toDTO(it) }, byteStream)
+            HttpResponse.ok(StreamedFile(byteStream.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
                 .header("Content-Disposition", "attachment; filename=$id.xlsx")
         }
     }
@@ -434,7 +406,7 @@ class ProductRegistrationApiController(
                 seriesRegistrationService.setSeriesToDraftStatus(seriesToUpdate, authentication)
             }
 
-            HttpResponse.ok(products)
+            HttpResponse.ok(products.map { productDTOMapper.toDTO(it) })
         }
     }
 

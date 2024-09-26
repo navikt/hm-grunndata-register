@@ -39,6 +39,7 @@ class BadRequestErrorHandler : ExceptionHandler<BadRequestException, HttpRespons
                         .body(createMessage(error))
 
                 ErrorType.UNKNOWN -> HttpResponse.serverError(createMessage(error))
+                ErrorType.UNAUTHORIZED -> HttpResponse.unauthorized()
             }
         if (error.type != ErrorType.NOT_FOUND) {
             LOG.error(response.body().toString())
@@ -128,6 +129,7 @@ enum class ErrorType {
     CONFLICT,
     NOT_FOUND,
     UNKNOWN,
+    UNAUTHORIZED
 }
 
 // Global error logger for errorhandler

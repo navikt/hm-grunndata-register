@@ -24,6 +24,7 @@ import no.nav.hm.grunndata.register.iso.IsoCategoryService
 import no.nav.hm.grunndata.register.media.MediaUploadService
 import no.nav.hm.grunndata.register.media.ObjectType
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
+import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
@@ -42,6 +43,7 @@ open class SeriesRegistrationService(
     private val isoCategoryService: IsoCategoryService,
     private val productAgreementRegistrationService: ProductAgreementRegistrationService,
     private val mediaUploadService: MediaUploadService,
+    private val productDTOMapper: ProductDTOMapper,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationService::class.java)
@@ -91,7 +93,8 @@ open class SeriesRegistrationService(
             val isoCategoryDTO = isoCategoryService.lookUpCode(seriesRegistration.isoCategory)
 
             val productRegistrationDTOs =
-                productRegistrationService.findAllBySeriesUuidV2(id).sortedBy { it.created }
+                productRegistrationService.findAllBySeriesUuid(id).sortedBy { it.created }
+                    .map { productDTOMapper.toDTOV2(it) }
 
             val inAgreement =
                 productAgreementRegistrationService.findAllByProductIds(
@@ -161,7 +164,8 @@ open class SeriesRegistrationService(
             val isoCategoryDTO = isoCategoryService.lookUpCode(seriesRegistration.isoCategory)
 
             val productRegistrationDTOs =
-                productRegistrationService.findBySeriesUUIDAndSupplierIdV2(id, supplierId).sortedBy { it.created }
+                productRegistrationService.findBySeriesUUIDAndSupplierId(id, supplierId).sortedBy { it.created }
+                    .map { productDTOMapper.toDTOV2(it) }
 
             val inAgreement =
                 productAgreementRegistrationService.findAllByProductIds(

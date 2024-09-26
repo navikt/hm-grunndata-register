@@ -14,11 +14,8 @@ import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.AgreementDTO
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
 import no.nav.hm.grunndata.rapid.dto.Attributes
-import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
-import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementData
 import no.nav.hm.grunndata.register.agreement.AgreementRegistration
@@ -157,42 +154,36 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductRegistration
         draft.createdByUser shouldBe email
 
         // Edit the draft
-        val productData = draft.productData.copy(
+        val productData = ProductDataDTO(
             attributes = Attributes(
                 shortdescription = "En kort beskrivelse av produktet",
                 text = "En lang beskrivelse av produktet"
             ),
-            techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
-            media = setOf(
-                MediaInfoDTO(
-                    uri = "123.jpg",
-                    text = "bilde av produktet",
-                    source = MediaSourceType.EXTERNALURL,
-                    sourceUri = "https://ekstern.url/123.jpg"
+            techData = listOf(
+                TechDataDTO(
+                    key = "maksvekt",
+                    unit = "kg",
+                    value = "120",
+                    type = TechDataType.NUMBER,
+                    definition = null,
+                    options = null
                 )
             ),
         )
         val hmsArtNr = UUID.randomUUID().toString()
-        val registration = draft.copy(
+
+        val updateDTO = UpdateProductRegistrationDTO(
+            articleName = draft.articleName,
             supplierRef = supplierRef,
-            seriesId = "series-123",
-            isoCategory = "12001314",
             hmsArtNr = hmsArtNr,
-            draftStatus = DraftStatus.DRAFT,
-            adminStatus = AdminStatus.PENDING,
-            message = "Melding til leverandør",
-            adminInfo = null,
             productData = productData
         )
 
         // update draft
-        val created = apiClient.updateProduct(jwt, registration.id, registration)
+        val created = apiClient.updateProduct(jwt, draft.id, updateDTO)
         created.shouldNotBeNull()
         created.adminStatus shouldBe AdminStatus.PENDING
         created.registrationStatus shouldBe RegistrationStatus.ACTIVE
-
-
-
 
         // read it from database
         val read = apiClient.readProduct(jwt, created.id)
@@ -204,15 +195,8 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductRegistration
         read.agreements[0].postId shouldBe postId
         read.agreements[0].postNr shouldBe 1
 
-        // make some changes, with approved by admin
-        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title = "Changed title",
-            draftStatus = DraftStatus.DONE, registrationStatus = RegistrationStatus.ACTIVE))
-
-        updated.shouldNotBeNull()
-        updated.title shouldBe "Changed title"
-
         // flag the registration to deleted
-        val deleted = apiClient.deleteProduct(jwt, updated.id)
+        val deleted = apiClient.deleteProduct(jwt, created.id)
         deleted.shouldNotBeNull()
         deleted.registrationStatus shouldBe RegistrationStatus.DELETED
 
@@ -221,7 +205,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductRegistration
             size = 20, page = 0, sort = "created,asc")
         page.totalSize shouldBe 1
 
-        val updatedVersion = apiClient.readProduct(jwt, updated.id)
+        val updatedVersion = apiClient.readProduct(jwt, created.id)
         updatedVersion.version!! shouldBeGreaterThan 0
         updatedVersion.updatedByUser shouldBe email
 

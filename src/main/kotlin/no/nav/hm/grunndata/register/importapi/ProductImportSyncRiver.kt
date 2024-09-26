@@ -19,7 +19,8 @@ import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.product.AdminInfo
-import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
+import no.nav.hm.grunndata.register.product.ProductDTOMapper
+import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationEventHandler
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.toProductData
@@ -33,6 +34,7 @@ class ProductImportSyncRiver(
     private val objectMapper: ObjectMapper,
     private val productRegistrationService: ProductRegistrationService,
     private val productRegistrationEventHandler: ProductRegistrationEventHandler,
+    private val productDTOMapper: ProductDTOMapper,
     @Value("\${import.autoapprove}") private val autoApprove: Boolean
 ) : River.PacketListener {
 
@@ -76,7 +78,7 @@ class ProductImportSyncRiver(
                         )
                     )
                 } ?: productRegistrationService.save(
-                    ProductRegistrationDTO(
+                    ProductRegistration(
                         id = importDTO.id,
                         title = importDTO.productDTO.title,
                         articleName = importDTO.productDTO.articleName,
@@ -102,7 +104,7 @@ class ProductImportSyncRiver(
                 )
             val extraImportKeyValues =
                 mapOf("transferId" to importDTO.transferId, "version" to importDTO.version)
-            productRegistrationEventHandler.queueDTORapidEvent(registration, eventName = EventName.registeredProductV1, extraKeyValues = extraImportKeyValues)
+            productRegistrationEventHandler.queueDTORapidEvent(productDTOMapper.toDTO(registration), eventName = EventName.registeredProductV1, extraKeyValues = extraImportKeyValues)
             LOG.info(
                 """imported product ${importDTO.id} with eventId $eventId 
             |and version: ${importDTO.version} synced, adminstatus: ${registration.adminStatus}""".trimMargin()
