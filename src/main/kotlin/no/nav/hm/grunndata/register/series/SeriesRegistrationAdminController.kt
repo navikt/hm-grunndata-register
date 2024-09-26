@@ -532,6 +532,21 @@ class SeriesRegistrationAdminController(
 
         return HttpResponse.ok()
     }
+
+    @Post("/supplier/{supplierId}/draftWith")
+    suspend fun draftSeriesWith(
+        supplierId: UUID,
+        @Body draftWith: SeriesDraftWithDTO,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> {
+        return HttpResponse.ok(
+            seriesRegistrationService.createDraftWith(
+                supplierId,
+                authentication,
+                draftWith,
+            ),
+        )
+    }
 }
 
 data class RejectSeriesDTO(val message: String?)
