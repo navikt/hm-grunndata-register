@@ -51,7 +51,7 @@ open class ProductRegistrationService(
 
     open suspend fun findById(id: UUID) = productRegistrationRepository.findById(id)?.toDTO()
 
-    open suspend fun findByIdV2(id: UUID) = productRegistrationRepository.findById(id)?.toDTOV2()
+    open suspend fun findByIdV2(id: UUID) = productRegistrationRepository.findById(id)
 
     open suspend fun findByIdIn(ids: List<UUID>) = productRegistrationRepository.findByIdIn(ids).map { it.toDTO() }
 
@@ -68,8 +68,10 @@ open class ProductRegistrationService(
         )?.toDTO()
 
     open suspend fun save(dto: ProductRegistrationDTO): ProductRegistrationDTO = productRegistrationRepository.save(dto.toEntity()).toDTO()
+    open suspend fun save(dto: ProductRegistration): ProductRegistrationDTO = productRegistrationRepository.save(dto).toDTO()
 
     open suspend fun update(dto: ProductRegistrationDTO) = productRegistrationRepository.update(dto.toEntity()).toDTO()
+    open suspend fun update(dto: ProductRegistration) = productRegistrationRepository.update(dto).toDTO()
 
     open suspend fun findAll(
         spec: PredicateSpecification<ProductRegistration>?,

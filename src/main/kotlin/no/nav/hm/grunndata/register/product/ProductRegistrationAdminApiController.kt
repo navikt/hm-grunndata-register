@@ -46,6 +46,7 @@ class ProductRegistrationAdminApiController(
     private val supplierRegistrationService: SupplierRegistrationService,
     private val xlImport: ProductExcelImport,
     private val xlExport: ProductExcelExport,
+    private val productDTOMapper: ProductDTOMapper,
 ) {
     companion object {
         const val API_V1_ADMIN_PRODUCT_REGISTRATIONS = "/admin/api/v1/product/registrations"
@@ -111,7 +112,7 @@ class ProductRegistrationAdminApiController(
     suspend fun getProductByIdV2(id: UUID): HttpResponse<ProductRegistrationDTOV2> =
         productRegistrationService.findByIdV2(id)
             ?.let {
-                HttpResponse.ok(it)
+                HttpResponse.ok(productDTOMapper.toDTOV2(it))
             }
             ?: HttpResponse.notFound()
 

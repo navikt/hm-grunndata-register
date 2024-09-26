@@ -46,6 +46,7 @@ class ProductRegistrationApiController(
     private val seriesRegistrationService: SeriesRegistrationService,
     private val xlExport: ProductExcelExport,
     private val xlImport: ProductExcelImport,
+    private val productDTOMapper: ProductDTOMapper,
 ) {
     companion object {
         const val API_V1_PRODUCT_REGISTRATIONS = "/vendor/api/v1/product/registrations"
