@@ -262,7 +262,7 @@ class ProductRegistrationAdminApiController(
     ): HttpResponse<ProductRegistrationDTO> =
         try {
             val dto = productDTOMapper.toDTO(
-                productRegistrationService.updateProductByAdminV2(
+                productRegistrationService.updateProduct(
                     registrationDTO,
                     id,
                     authentication

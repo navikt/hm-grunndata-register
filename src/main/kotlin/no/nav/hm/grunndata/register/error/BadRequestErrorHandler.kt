@@ -39,7 +39,7 @@ class BadRequestErrorHandler : ExceptionHandler<BadRequestException, HttpRespons
                         .body(createMessage(error))
 
                 ErrorType.UNKNOWN -> HttpResponse.serverError(createMessage(error))
-                ErrorType.UNAUTHORIZED -> HttpResponse.unauthorized()
+                ErrorType.UNAUTHORIZED -> HttpResponse.serverError(createMessage(error))
             }
         if (error.type != ErrorType.NOT_FOUND) {
             LOG.error(response.body().toString())

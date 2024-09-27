@@ -97,23 +97,47 @@ open class ProductRegistrationService(
     ) = productRegistrationRepository.findByIdAndSupplierId(id, supplierId)
 
     @Transactional
-    open suspend fun updateProductBySupplierV2(
+    open suspend fun updateProduct(
         updateDTO: UpdateProductRegistrationDTO,
         id: UUID,
         authentication: Authentication,
     ): ProductRegistration {
-        findByIdAndSupplierId(id, authentication.supplierId())?.let { inDb ->
-            if (authentication.supplierId() != inDb.supplierId) throw BadRequestException(
-                "product belongs to another supplier",
-                type = ErrorType.UNAUTHORIZED
-            )
+        findById(id)?.let { inDb ->
+            if (!authentication.isAdmin() && authentication.supplierId() != inDb.supplierId) {
+                throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
+            }
+
+            var changedHmsNrSupplierRef = false
+            if ((inDb.hmsArtNr ?: "") != (updateDTO.hmsArtNr ?: "")) {
+                if (!inDb.canChangeHmsArtNr(authentication)) {
+                    throw BadRequestException("not authorized to change hms number", ErrorType.UNAUTHORIZED)
+                }
+                LOG.warn("Hms artNr ${inDb.hmsArtNr} has been changed by admin to ${updateDTO.hmsArtNr} for id: $id")
+                changedHmsNrSupplierRef = true
+            }
+            if (inDb.supplierRef != updateDTO.supplierRef) {
+                if (!inDb.canChangeSupplierRef(authentication)) {
+                    throw BadRequestException("not authorized to change supplierref", ErrorType.UNAUTHORIZED)
+                }
+                LOG.warn("Supplier ref ${inDb.supplierRef} has been changed by admin to ${updateDTO.supplierRef} for id: $id")
+                changedHmsNrSupplierRef = true
+            }
+            if (changedHmsNrSupplierRef) {
+                productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(
+                    inDb.supplierId, inDb.supplierRef
+                ).forEach { change ->
+                    productAgreementRegistrationRepository.update(
+                        change.copy(hmsArtNr = updateDTO.hmsArtNr, supplierRef = updateDTO.supplierRef)
+                    )
+                }
+            }
 
             val dto =
                 saveAndCreateEventIfNotDraftAndApproved(
                     inDb.copy(
                         hmsArtNr = updateDTO.hmsArtNr,
                         articleName = updateDTO.articleName,
-                        supplierRef = if (inDb.published != null) inDb.supplierRef else updateDTO.supplierRef, // supplierRef cannot be changed by supplier if published,
+                        supplierRef = updateDTO.supplierRef,
                         productData = inDb.productData.copy(
                             attributes = updateDTO.productData.attributes,
                             techData = updateDTO.productData.techData.map { it.toEntity() }
@@ -136,67 +160,6 @@ open class ProductRegistrationService(
                 seriesRegistrationRepository.update(updatedSeries)
             }
             return dto
-        } ?: run {
-            throw BadRequestException("Product does not exists $id")
-        }
-    }
-
-    @Transactional
-    open suspend fun updateProductByAdminV2(
-        updateDTO: UpdateProductRegistrationDTO,
-        id: UUID,
-        authentication: Authentication,
-    ): ProductRegistration {
-        findById(id)?.let { inDb ->
-            var changedHmsNrSupplierRef = false
-            if (inDb.hmsArtNr != updateDTO.hmsArtNr) {
-                LOG.warn("Hms artNr ${inDb.hmsArtNr} has been changed by admin to ${updateDTO.hmsArtNr} for id: $id")
-                changedHmsNrSupplierRef = true
-            }
-            if (inDb.supplierRef != updateDTO.supplierRef) {
-                LOG.warn("Supplier ref ${inDb.supplierRef} has been changed by admin to ${updateDTO.supplierRef} for id: $id")
-                changedHmsNrSupplierRef = true
-            }
-            if (changedHmsNrSupplierRef) {
-                productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(inDb.supplierId, inDb.supplierRef)
-                    .forEach { change ->
-                        productAgreementRegistrationRepository.update(
-                            change.copy(
-                                hmsArtNr = updateDTO.hmsArtNr,
-                                supplierRef = updateDTO.supplierRef
-                            )
-                        )
-                    }
-            }
-
-            val updated =
-                saveAndCreateEventIfNotDraftAndApproved(
-                    inDb.copy(
-                        hmsArtNr = updateDTO.hmsArtNr,
-                        articleName = updateDTO.articleName,
-                        supplierRef = updateDTO.supplierRef,
-                        productData = inDb.productData.copy(
-                            attributes = updateDTO.productData.attributes,
-                            techData = updateDTO.productData.techData.map { it.toEntity() }
-                        ),
-                        updatedByUser = authentication.name,
-                        updatedBy = REGISTER,
-                        updated = LocalDateTime.now(),
-                    ),
-                    isUpdate = true,
-                )
-
-            val series = seriesRegistrationRepository.findById(updated.seriesUUID)
-            if (series != null) {
-                val updatedSeries =
-                    series.copy(
-                        updated = LocalDateTime.now(),
-                        updatedByUser = authentication.name,
-                        updatedBy = REGISTER,
-                    )
-                seriesRegistrationRepository.update(updatedSeries)
-            }
-            return updated
         } ?: run {
             throw BadRequestException("Product does not exists $id")
         }

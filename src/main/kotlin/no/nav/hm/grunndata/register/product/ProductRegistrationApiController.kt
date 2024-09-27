@@ -124,7 +124,7 @@ class ProductRegistrationApiController(
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> {
         try {
-            val dto = productDTOMapper.toDTO(productRegistrationService.updateProductBySupplierV2(registrationDTO, id, authentication))
+            val dto = productDTOMapper.toDTO(productRegistrationService.updateProduct(registrationDTO, id, authentication))
             return HttpResponse.ok(dto)
         } catch (dataAccessException: DataAccessException) {
             LOG.error("Got exception while updating product", dataAccessException)
