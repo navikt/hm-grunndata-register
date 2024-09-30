@@ -15,6 +15,7 @@ import no.nav.hm.grunndata.rapid.dto.SeriesAttributes
 import no.nav.hm.grunndata.rapid.dto.SeriesData
 import no.nav.hm.grunndata.rapid.dto.SeriesRegistrationRapidDTO
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.register.HMDB
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
@@ -196,7 +197,14 @@ fun toSeriesRegistrationDTOV2(
     isExpired = seriesRegistration.expired < LocalDateTime.now(),
     isPublished = seriesRegistration.published?.let { it < LocalDateTime.now() } ?: false,
     inAgreement = inAgreement,
-    hmdbId = if (seriesRegistration.identifier != seriesRegistration.id.toString()) seriesRegistration.identifier else null,
+    hmdbId =
+        if (seriesRegistration.identifier != seriesRegistration.id.toString() &&
+            seriesRegistration.updatedBy == HMDB
+        ) {
+            seriesRegistration.identifier
+        } else {
+            null
+        },
 )
 
 fun SeriesRegistrationDTO.toEntity() =
