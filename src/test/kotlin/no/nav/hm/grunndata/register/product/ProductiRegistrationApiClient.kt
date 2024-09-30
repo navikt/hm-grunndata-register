@@ -34,11 +34,10 @@ interface ProductRegistrationApiClient {
         @QueryValue("sort") sort: String? = null,
     ): Page<ProductRegistrationDTO>
 
-    @Post(uri = "/draftWithV2/{seriesUUID}/supplierId/{supplierId}", processes = [APPLICATION_JSON])
-    fun createDraftWith(
+    @Post(uri = "/draftWithV3/{seriesUUID}", processes = [APPLICATION_JSON])
+    fun createDraft(
         @CookieValue("JWT") jwt: String,
         @PathVariable seriesUUID: UUID,
-        @PathVariable supplierId: UUID,
         @Body draftVariantDTO: DraftVariantDTO,
     ): ProductRegistrationDTO
 

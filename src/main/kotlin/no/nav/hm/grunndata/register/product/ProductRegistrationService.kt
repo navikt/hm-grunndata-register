@@ -315,96 +315,6 @@ open class ProductRegistrationService(
     }
 
     open suspend fun createDraft(
-        supplierId: UUID,
-        authentication: Authentication,
-        isAccessory: Boolean,
-        isSparePart: Boolean,
-    ): ProductRegistration {
-        val productId = UUID.randomUUID()
-        val product =
-            ProductData(
-                attributes =
-                Attributes(
-                    shortdescription = "",
-                    text = "en lang beskrivelse",
-                ),
-            )
-        val registration =
-            ProductRegistration(
-                id = productId,
-                seriesUUID = productId, // we just use the productId as seriesUUID
-                seriesId = productId.toString(),
-                isoCategory = "0",
-                supplierId = supplierId,
-                supplierRef = productId.toString(),
-                hmsArtNr = null,
-                title = "",
-                articleName = "",
-                createdBy = REGISTER,
-                updatedBy = REGISTER,
-                message = null,
-                published = LocalDateTime.now(),
-                expired = LocalDateTime.now().plusYears(10),
-                productData = product,
-                createdByUser = authentication.name,
-                updatedByUser = authentication.name,
-                createdByAdmin = authentication.isAdmin(),
-                version = 0,
-                sparePart = false,
-                accessory = false,
-            )
-        val draft = save(registration)
-        LOG.info("Draft was created ${draft.id} by $supplierId")
-        return draft
-    }
-
-    open suspend fun createDraftWith(
-        supplierId: UUID,
-        authentication: Authentication,
-        isAccessory: Boolean,
-        isSparePart: Boolean,
-        draftWithDTO: ProductDraftWithDTO,
-    ): ProductRegistration {
-        val productId = UUID.randomUUID()
-        val product =
-            ProductData(
-                techData = createTechDataDraft(draftWithDTO),
-                attributes =
-                Attributes(
-                    shortdescription = "",
-                    text = draftWithDTO.text,
-                ),
-            )
-        val registration =
-            ProductRegistration(
-                id = productId,
-                seriesUUID = productId, // we just use the productId as seriesUUID
-                seriesId = productId.toString(),
-                isoCategory = draftWithDTO.isoCategory,
-                supplierId = supplierId,
-                supplierRef = productId.toString(),
-                hmsArtNr = null,
-                title = draftWithDTO.title,
-                articleName = "",
-                createdBy = REGISTER,
-                updatedBy = REGISTER,
-                message = null,
-                published = LocalDateTime.now(),
-                expired = LocalDateTime.now().plusYears(10),
-                productData = product,
-                createdByUser = authentication.name,
-                updatedByUser = authentication.name,
-                createdByAdmin = authentication.isAdmin(),
-                version = 0,
-                accessory = false,
-                sparePart = false
-            )
-        val draft = save(registration)
-        LOG.info("Draft was created ${draft.id} by $supplierId")
-        return draft
-    }
-
-    open suspend fun createDraftWithV2(
         seriesUUID: UUID,
         draftWithDTO: DraftVariantDTO,
         authentication: Authentication,
@@ -413,7 +323,15 @@ open class ProductRegistrationService(
 
         val series =
             seriesRegistrationRepository.findById(seriesUUID)
-                ?: throw RuntimeException("Series not found") // consider caching series
+                ?: throw BadRequestException("Series $seriesUUID not found", type = ErrorType.NOT_FOUND)
+
+        if (authentication.isSupplier() && series.supplierId != authentication.supplierId()) {
+            throw BadRequestException(
+                "series $seriesUUID does not belong to supplier ${authentication.supplierId()}",
+                type = ErrorType.UNAUTHORIZED
+            )
+        }
+
         val productId = UUID.randomUUID()
         val product =
             ProductData(
@@ -452,11 +370,6 @@ open class ProductRegistrationService(
         LOG.info("Draft was created ${draft.id}")
         return draft
     }
-
-    private fun createTechDataDraft(draftWithDTO: ProductDraftWithDTO): List<TechData> =
-        techLabelService.fetchLabelsByIsoCode(draftWithDTO.isoCategory).map {
-            TechData(key = it.label, value = "", unit = it.unit ?: "")
-        }
 
     private fun createTechDataDraft(isoCode: String): List<TechData> =
         techLabelService.fetchLabelsByIsoCode(isoCode).map {

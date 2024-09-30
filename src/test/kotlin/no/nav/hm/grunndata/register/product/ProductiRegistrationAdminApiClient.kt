@@ -6,6 +6,7 @@ import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.CookieValue
 import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.QueryValue
@@ -31,11 +32,6 @@ interface ProductRegistrationAdminApiClient {
                      @QueryValue("page") page: Int?=null,
                      @QueryValue("sort") sort: String? = null): Page<ProductRegistrationDTO>
 
-    @Post(uri = "/", processes = [APPLICATION_JSON])
-    fun createProduct(@CookieValue("JWT") jwt: String,
-                      @Body productRegistrationDTO: ProductRegistrationDTO
-    ): ProductRegistrationDTO
-
     @Get(uri = "/{id}", produces = [APPLICATION_JSON])
     fun readProduct(@CookieValue("JWT") jwt: String, id: UUID): ProductRegistrationDTO
 
@@ -47,8 +43,11 @@ interface ProductRegistrationAdminApiClient {
     @Delete(uri="/{id}", consumes = [APPLICATION_JSON])
     fun deleteProduct(@CookieValue("JWT") jwt: String, id:UUID): ProductRegistrationDTO
 
-    @Post(uri="/draft/supplier/{supplierId}", produces = [APPLICATION_JSON])
-    fun draftProduct(@CookieValue("JWT") jwt: String, supplierId: UUID):ProductRegistrationDTO
-
+    @Post(uri = "/draftWithV3/{seriesUUID}", processes = [APPLICATION_JSON])
+    fun createDraft(
+        @CookieValue("JWT") jwt: String,
+        @PathVariable seriesUUID: UUID,
+        @Body draftVariantDTO: DraftVariantDTO,
+    ): ProductRegistrationDTO
 
 }

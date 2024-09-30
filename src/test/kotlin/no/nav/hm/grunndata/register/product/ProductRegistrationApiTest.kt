@@ -164,10 +164,9 @@ class ProductRegistrationApiTest(
 
         val supplierRef = UUID.randomUUID().toString()
 
-        apiClient.createDraftWith(
+        apiClient.createDraft(
             jwt,
             seriesRegistrationSupplier1!!.id,
-            testSupplier!!.id,
             dummyDraftWith(
                 supplierRef = supplierRef,
                 articleName = "variant 1",
@@ -175,10 +174,9 @@ class ProductRegistrationApiTest(
         )
 
         assertThrows<Exception> {
-            apiClient.createDraftWith(
+            apiClient.createDraft(
                 jwt,
                 seriesRegistrationSupplier1!!.id,
-                testSupplier!!.id,
                 dummyDraftWith(
                     articleName = "variant 2",
                     supplierRef = supplierRef,
@@ -192,10 +190,9 @@ class ProductRegistrationApiTest(
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
 
-        val variant = apiClient.createDraftWith(
+        val variant = apiClient.createDraft(
             jwt,
             seriesRegistrationSupplier1!!.id,
-            testSupplier!!.id,
             dummyDraftWith(
                 supplierRef = UUID.randomUUID().toString(),
             ),
@@ -234,10 +231,9 @@ class ProductRegistrationApiTest(
         )
 
         val draft1 =
-            apiClient.createDraftWith(
+            apiClient.createDraft(
                 jwt,
                 seriesUUID,
-                testSupplier!!.id,
                 dummyDraftWith(
                     supplierRef = "apitest-eksternref-111",
                     articleName = "Dette er produkt 1 med og med",
@@ -273,10 +269,9 @@ class ProductRegistrationApiTest(
 
         // should not be allowed to create a product of another supplier
         runCatching {
-            apiClient.createDraftWith(
+            apiClient.createDraft(
                 jwt,
                 seriesRegistrationSupplier2!!.id,
-                testSupplier2!!.id,
                 dummyDraftWith(
                     supplierRef = "apitest-eksternref-333",
                     articleName = "Dette er produkt 1 med og med",

@@ -137,67 +137,22 @@ class ProductRegistrationApiController(
         }
     }
 
-    @Post("/draftWithV2/{seriesUUID}/supplierId/{supplierId}")
-    suspend fun draftProductWithV2(
-        @PathVariable seriesUUID: UUID,
-        @PathVariable supplierId: UUID,
-        @Body draftWith: DraftVariantDTO,
-        authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> {
-        if (supplierId != authentication.supplierId()) {
-            throw BadRequestException("Unauthorized access to series $seriesUUID")
-        }
-
-        try {
-            val dto =
-                productDTOMapper.toDTO(
-                    productRegistrationService.createDraftWithV2(
-                        seriesUUID,
-                        draftWith,
-                        authentication,
-                    )
-                )
-            return HttpResponse.ok(dto)
-        } catch (dataAccessException: DataAccessException) {
-            LOG.error("Got exception while updating product", dataAccessException)
-            throw BadRequestException(
-                dataAccessException.message ?: "Got exception while creating product",
-            )
-        } catch (e: Exception) {
-            LOG.error("Got exception while updating product", e)
-            throw BadRequestException("Got exception while creating product")
-        }
-    }
-
     @Post("/draftWithV3/{seriesUUID}")
-    suspend fun draftProductWithV3(
+    suspend fun createDraft(
         @PathVariable seriesUUID: UUID,
-        @Body draftWith: DraftVariantDTO,
+        @Body draftVariant: DraftVariantDTO,
         authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> {
-        val series = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
-
-        if (series.supplierId != authentication.supplierId()) {
-            throw BadRequestException("Unauthorized access to series $seriesUUID")
-        }
-
-        try {
-            val dto =
-                productDTOMapper.toDTO(productRegistrationService.createDraftWithV2(
-                    seriesUUID,
-                    draftWith,
-                    authentication,
-                ))
-            return HttpResponse.ok(dto)
-        } catch (dataAccessException: DataAccessException) {
-            LOG.error("Got exception while updating product", dataAccessException)
-            throw BadRequestException(
-                dataAccessException.message ?: "Got exception while creating product",
-            )
-        } catch (e: Exception) {
-            LOG.error("Got exception while updating product", e)
-            throw BadRequestException("Got exception while creating product")
-        }
+    ): HttpResponse<ProductRegistrationDTO> = try {
+        val variant = productRegistrationService.createDraft(seriesUUID, draftVariant, authentication)
+        HttpResponse.ok(productDTOMapper.toDTO(variant))
+    } catch (dataAccessException: DataAccessException) {
+        LOG.error("Got exception while updating product", dataAccessException)
+        throw BadRequestException(
+            dataAccessException.message ?: "Got exception while creating product",
+        )
+    } catch (e: Exception) {
+        LOG.error("Got exception while updating product", e)
+        throw BadRequestException("Got exception while creating product")
     }
 
     @Put("/til-godkjenning")
@@ -471,3 +426,5 @@ class ProductRegistrationApiController(
 data class ProductDraftWithDTO(val title: String, val text: String, val isoCategory: String)
 
 data class DraftVariantDTO(val articleName: String, val supplierRef: String)
+
+fun Authentication.isSupplier(): Boolean = roles.contains(Roles.ROLE_SUPPLIER)

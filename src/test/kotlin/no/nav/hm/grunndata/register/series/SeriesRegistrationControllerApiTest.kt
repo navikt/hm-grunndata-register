@@ -168,10 +168,9 @@ class SeriesRegistrationControllerApiTest(
                 )
 
             val draft1 =
-                productApiClient.createDraftWith(
+                productApiClient.createDraft(
                     jwt,
                     seriesRegistrationDTO.id,
-                    testSupplier!!.id,
                     DraftVariantDTO(
                         supplierRef = UUID.randomUUID().toString(),
                         articleName = "variant 1",

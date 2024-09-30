@@ -124,104 +124,20 @@ class ProductRegistrationAdminApiController(
             }
             ?: HttpResponse.notFound()
 
-    @Post("/draftWithV2/{seriesUUID}/supplierId/{supplierId}")
-    suspend fun draftProductWithV2(
-        @PathVariable seriesUUID: UUID,
-        @PathVariable supplierId: UUID,
-        @Body draftWith: DraftVariantDTO,
-        authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> =
-        try {
-            HttpResponse.ok(
-                productDTOMapper.toDTO(
-                    productRegistrationService.createDraftWithV2(
-                        seriesUUID,
-                        draftWith,
-                        authentication
-                    )
-                ),
-            )
-        } catch (e: DataAccessException) {
-            throw BadRequestException(e.message ?: "Error creating draft")
-        } catch (e: Exception) {
-            throw BadRequestException("Error creating draft")
-        }
-
     @Post("/draftWithV3/{seriesUUID}")
-    suspend fun draftProductWithV3(
+    suspend fun createDraft(
         @PathVariable seriesUUID: UUID,
-        @Body draftWith: DraftVariantDTO,
+        @Body draftVariant: DraftVariantDTO,
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> =
         try {
-            HttpResponse.ok(
-                productDTOMapper.toDTO(
-                    productRegistrationService.createDraftWithV2(
-                        seriesUUID,
-                        draftWith,
-                        authentication
-                    )
-                ),
-            )
+            val variant = productRegistrationService.createDraft(seriesUUID, draftVariant, authentication)
+            HttpResponse.ok(productDTOMapper.toDTO(variant))
         } catch (e: DataAccessException) {
             throw BadRequestException(e.message ?: "Error creating draft")
         } catch (e: Exception) {
             throw BadRequestException("Error creating draft")
         }
-
-    @Post("/draft/supplier/{supplierId}{?isAccessory}{?isSparePart}")
-    suspend fun draftProduct(
-        supplierId: UUID,
-        authentication: Authentication,
-        @QueryValue(defaultValue = "false") isAccessory: Boolean,
-        @QueryValue(defaultValue = "false") isSparePart: Boolean,
-    ): HttpResponse<ProductRegistrationDTO> =
-        supplierRegistrationService.findById(supplierId)?.let {
-            try {
-                HttpResponse.ok(
-                    productDTOMapper.toDTO(
-                        productRegistrationService.createDraft(
-                            supplierId,
-                            authentication,
-                            isAccessory,
-                            isSparePart,
-                        )
-                    ),
-                )
-            } catch (e: DataAccessException) {
-                throw BadRequestException(e.message ?: "Error creating draft")
-            } catch (e: Exception) {
-                throw BadRequestException("Error creating draft")
-            }
-        } ?: throw BadRequestException("$supplierId does not exist")
-
-    @Post("/draftWith/supplier/{supplierId}{?isAccessory}{?isSparePart}")
-    suspend fun draftProductWith(
-        supplierId: UUID,
-        @QueryValue(defaultValue = "false") isAccessory: Boolean,
-        @QueryValue(defaultValue = "false") isSparePart: Boolean,
-        @Body draftWith: ProductDraftWithDTO,
-        authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> =
-        supplierRegistrationService.findById(supplierId)?.let {
-            try {
-                HttpResponse.ok(
-                    productDTOMapper.toDTO(
-                        productRegistrationService.createDraftWith(
-                            supplierId,
-                            authentication,
-                            isAccessory,
-                            isSparePart,
-                            draftWith,
-                        )
-                    ),
-                )
-            } catch (e: DataAccessException) {
-                throw BadRequestException(e.message ?: "Error creating draft")
-            } catch (e: Exception) {
-                throw BadRequestException("Error creating draft")
-            }
-        } ?: throw BadRequestException("$supplierId does not exist")
 
     @Post("/")
     suspend fun createProduct(
