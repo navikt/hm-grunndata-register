@@ -15,10 +15,8 @@ import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.AgreementInfo
 import no.nav.hm.grunndata.rapid.dto.Attributes
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
-import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
@@ -166,10 +164,9 @@ class ProductRegistrationApiTest(
 
         val supplierRef = UUID.randomUUID().toString()
 
-        apiClient.createDraftWith(
+        apiClient.createDraft(
             jwt,
             seriesRegistrationSupplier1!!.id,
-            testSupplier!!.id,
             dummyDraftWith(
                 supplierRef = supplierRef,
                 articleName = "variant 1",
@@ -177,10 +174,9 @@ class ProductRegistrationApiTest(
         )
 
         assertThrows<Exception> {
-            apiClient.createDraftWith(
+            apiClient.createDraft(
                 jwt,
                 seriesRegistrationSupplier1!!.id,
-                testSupplier!!.id,
                 dummyDraftWith(
                     articleName = "variant 2",
                     supplierRef = supplierRef,
@@ -194,10 +190,9 @@ class ProductRegistrationApiTest(
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
 
-        val variant = apiClient.createDraftWith(
+        val variant = apiClient.createDraft(
             jwt,
             seriesRegistrationSupplier1!!.id,
-            testSupplier!!.id,
             dummyDraftWith(
                 supplierRef = UUID.randomUUID().toString(),
             ),
@@ -218,127 +213,65 @@ class ProductRegistrationApiTest(
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
         val seriesUUID = seriesRegistrationSupplier1!!.id
-        val productData =
-            ProductData(
-                attributes =
-                    Attributes(
-                        shortdescription = "En kort beskrivelse av produktet",
-                        text = "En lang beskrivelse av produktet",
-                    ),
-                techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
-                media =
-                    setOf(
-                        MediaInfoDTO(
-                            uri = "123.jpg",
-                            text = "bilde av produktet",
-                            source = MediaSourceType.EXTERNALURL,
-                            sourceUri = "https://ekstern.url/123.jpg",
-                        ),
-                    ),
-            )
+        val productData = ProductDataDTO(
+            attributes = Attributes(
+                shortdescription = "En kort beskrivelse av produktet",
+                text = "En lang beskrivelse av produktet",
+            ),
+            techData = listOf(
+                TechDataDTO(
+                    key = "maksvekt",
+                    unit = "kg",
+                    value = "120",
+                    type = TechDataType.NUMBER,
+                    definition = null,
+                    options = null
+                )
+            ),
+        )
 
         val draft1 =
-            apiClient.createDraftWith(
+            apiClient.createDraft(
                 jwt,
                 seriesUUID,
-                testSupplier!!.id,
                 dummyDraftWith(
                     supplierRef = "apitest-eksternref-111",
                     articleName = "Dette er produkt 1 med og med",
                 ),
             )
 
+        val updateDTO = UpdateProductRegistrationDTO(
+            articleName = draft1.articleName,
+            supplierRef = draft1.supplierRef,
+            hmsArtNr = draft1.hmsArtNr,
+            productData = productData
+        )
+
         val created =
             apiClient.updateProduct(
                 jwt,
                 draft1.id,
-                draft1.copy(productData = productData),
+                updateDTO,
             )
         created.shouldNotBeNull()
-
-        // create another one
-
-        val productData2 =
-            ProductData(
-                attributes =
-                    Attributes(
-                        shortdescription = "En kort beskrivelse av produktet",
-                        text = "En lang beskrivelse av produktet",
-                    ),
-                techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
-                media =
-                    setOf(
-                        MediaInfoDTO(
-                            uri = "123.jpg",
-                            text = "bilde av produktet",
-                            source = MediaSourceType.EXTERNALURL,
-                            sourceUri = "https://ekstern.url/123.jpg",
-                        ),
-                    ),
-            )
-
-        val draft2 =
-            apiClient.createDraftWith(
-                jwt,
-                seriesUUID,
-                testSupplier!!.id,
-                dummyDraftWith(
-                    supplierRef = "eksternref-222",
-                    articleName = "en veldig fin tittel med og med",
-                ),
-            )
-        val created2 = apiClient.updateProduct(jwt, draft2.id, draft2.copy(productData = productData2))
-        created2.shouldNotBeNull()
 
         val read = apiClient.readProduct(jwt, created.id)
         read.shouldNotBeNull()
         read.createdByUser shouldBe email
 
-        val updated =
-            apiClient.updateProduct(
-                jwt,
-                read.id,
-                read.copy(title = "Changed title", articleName = "Changed articlename", draftStatus = DraftStatus.DONE),
-            )
-        updated.shouldNotBeNull()
-
-        val draftStatusChange = apiClient.updateProduct(jwt, updated.id, updated.copy(draftStatus = DraftStatus.DRAFT))
-        draftStatusChange.shouldNotBeNull()
-        draftStatusChange.draftStatus shouldBe DraftStatus.DRAFT // not APPROVED yet allowed to change status
-
         val page2 =
             apiClient.findProducts(jwt = jwt, supplierRef ="apitest-eksternref-111", size = 30, page = 1, sort = "created,asc")
         page2.totalSize shouldBe 1
 
-        val updatedVersion = apiClient.readProduct(jwt, updated.id)
+        val updatedVersion = apiClient.readProduct(jwt, created.id)
         updatedVersion.version!! shouldBeGreaterThan 0
         updatedVersion.updatedByUser shouldBe email
 
         // should not be allowed to create a product of another supplier
-        val productData3 =
-            ProductData(
-                attributes =
-                    Attributes(
-                        shortdescription = "En kort beskrivelse av produktet",
-                        text = "En lang beskrivelse av produktet",
-                    ),
-                techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
-                media =
-                    setOf(
-                        MediaInfoDTO(
-                            uri = "123.jpg",
-                            text = "bilde av produktet",
-                            source = MediaSourceType.EXTERNALURL,
-                            sourceUri = "https://ekstern.url/123.jpg",
-                        ),
-                    ),
-            )
-
         runCatching {
-            apiClient.createDraftWith(
+            apiClient.createDraft(
                 jwt,
                 seriesRegistrationSupplier2!!.id,
-                testSupplier2!!.id,
                 dummyDraftWith(
                     supplierRef = "apitest-eksternref-333",
                     articleName = "Dette er produkt 1 med og med",

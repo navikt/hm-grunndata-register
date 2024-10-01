@@ -34,11 +34,10 @@ interface ProductRegistrationApiClient {
         @QueryValue("sort") sort: String? = null,
     ): Page<ProductRegistrationDTO>
 
-    @Post(uri = "/draftWithV2/{seriesUUID}/supplierId/{supplierId}", processes = [APPLICATION_JSON])
-    fun createDraftWith(
+    @Post(uri = "/draftWithV3/{seriesUUID}", processes = [APPLICATION_JSON])
+    fun createDraft(
         @CookieValue("JWT") jwt: String,
         @PathVariable seriesUUID: UUID,
-        @PathVariable supplierId: UUID,
         @Body draftVariantDTO: DraftVariantDTO,
     ): ProductRegistrationDTO
 
@@ -48,16 +47,16 @@ interface ProductRegistrationApiClient {
         id: UUID,
     ): ProductRegistrationDTO
 
-    @Put(uri = "/{id}", processes = [APPLICATION_JSON])
+    @Put(uri = "/v2/{id}", processes = [APPLICATION_JSON])
     fun updateProduct(
         @CookieValue("JWT") jwt: String,
         id: UUID,
-        @Body productRegistrationDTO: ProductRegistrationDTO,
+        @Body updateProductRegistrationDTO: UpdateProductRegistrationDTO
     ): ProductRegistrationDTO
 
     @Delete(uri = "/draft/delete", consumes = [APPLICATION_JSON])
     fun deleteDraftVariants(
         @CookieValue("JWT") jwt: String,
         @Body ids: List<UUID>,
-    ): ProductRegistrationDTO
+    )
 }

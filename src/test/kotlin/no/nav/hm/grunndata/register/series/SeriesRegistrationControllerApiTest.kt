@@ -9,22 +9,17 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
-import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.Attributes
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.MediaType
-import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
-import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.product.DraftVariantDTO
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.ProductData
-import no.nav.hm.grunndata.register.product.ProductRegistrationAdminApiClient
 import no.nav.hm.grunndata.register.product.ProductRegistrationApiClient
-import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierData
@@ -37,6 +32,7 @@ import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
+import java.util.UUID
 
 @MicronautTest
 class SeriesRegistrationControllerApiTest(
@@ -172,44 +168,15 @@ class SeriesRegistrationControllerApiTest(
                 )
 
             val draft1 =
-                productApiClient.createDraftWith(
+                productApiClient.createDraft(
                     jwt,
                     seriesRegistrationDTO.id,
-                    testSupplier!!.id,
                     DraftVariantDTO(
                         supplierRef = UUID.randomUUID().toString(),
                         articleName = "variant 1",
                     ),
                 )
-            val registration1 =
-                productApiClient.updateProduct(
-                    jwt,
-                    draft1.id,
-                    ProductRegistrationDTO(
-                        id = draft1.id,
-                        seriesId = updated.identifier,
-                        seriesUUID = updated.id,
-                        isoCategory = updated.isoCategory,
-                        supplierId = updated.supplierId,
-                        title = updated.title,
-                        articleName = "Dette er produkt 1 med og med",
-                        hmsArtNr = "333333",
-                        supplierRef = "eksternref-333",
-                        draftStatus = DraftStatus.DONE,
-                        adminStatus = AdminStatus.PENDING,
-                        registrationStatus = RegistrationStatus.ACTIVE,
-                        message = "Melding til leverandør",
-                        adminInfo = null,
-                        createdByAdmin = false,
-                        published = null,
-                        updatedByUser = email,
-                        createdByUser = email,
-                        productData = productData3,
-                        createdBy = REGISTER,
-                        updatedBy = REGISTER,
-                    ),
-                )
-            registration1.shouldNotBeNull()
+
             val readWithCount = apiClient.readSeries(jwt, updated.id)
             readWithCount.shouldNotBeNull()
             readWithCount.count shouldBeGreaterThanOrEqual 1
@@ -229,7 +196,7 @@ class SeriesRegistrationControllerApiTest(
             publishedSeries.status shouldBe SeriesStatus.ACTIVE
             publishedSeries.adminStatus shouldBe AdminStatus.APPROVED
 
-            val approvedVariant = productApiClient.readProduct(jwt, registration1.id)
+            val approvedVariant = productApiClient.readProduct(jwt, draft1.id)
             approvedVariant.adminStatus shouldBe AdminStatus.APPROVED
 
             val seriesInDraft = apiClient.setPublishedSeriesToDraft(jwt, updated.id)
@@ -237,7 +204,7 @@ class SeriesRegistrationControllerApiTest(
             seriesInDraft.draftStatus shouldBe DraftStatus.DRAFT
             seriesInDraft.adminStatus shouldBe AdminStatus.PENDING
 
-            val variantInDraft = productApiClient.readProduct(jwt, registration1.id)
+            val variantInDraft = productApiClient.readProduct(jwt, draft1.id)
             variantInDraft.draftStatus shouldBe DraftStatus.DRAFT
 
         }

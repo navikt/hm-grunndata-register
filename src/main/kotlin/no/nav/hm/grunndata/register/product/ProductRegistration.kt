@@ -5,6 +5,7 @@ import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
+import io.micronaut.security.authentication.Authentication
 import jakarta.persistence.Column
 import java.time.LocalDateTime
 import java.util.UUID
@@ -63,7 +64,12 @@ data class ProductRegistration(
     val productData: ProductData,
     @field:Version
     val version: Long? = 0L,
-)
+) {
+
+    fun canChangeSupplierRef(authentication: Authentication): Boolean = authentication.isAdmin() || published == null
+
+    fun canChangeHmsArtNr(authentication: Authentication): Boolean = authentication.isAdmin()
+}
 
 data class AdminInfo(val approvedBy: String?, val note: String? = null, val approved: LocalDateTime? = null)
 

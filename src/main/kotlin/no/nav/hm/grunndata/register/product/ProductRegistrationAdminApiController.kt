@@ -46,6 +46,7 @@ class ProductRegistrationAdminApiController(
     private val supplierRegistrationService: SupplierRegistrationService,
     private val xlImport: ProductExcelImport,
     private val xlExport: ProductExcelExport,
+    private val productDTOMapper: ProductDTOMapper,
 ) {
     companion object {
         const val API_V1_ADMIN_PRODUCT_REGISTRATIONS = "/admin/api/v1/product/registrations"
@@ -82,9 +83,9 @@ class ProductRegistrationAdminApiController(
                 if (params.contains("adminStatus")) root[ProductRegistration::adminStatus] eq AdminStatus.valueOf(params["adminStatus"]!!)
                 if (params.contains("registrationStatus")) {
                     root[ProductRegistration::registrationStatus] eq
-                        RegistrationStatus.valueOf(
-                            params["registrationStatus"]!!,
-                        )
+                            RegistrationStatus.valueOf(
+                                params["registrationStatus"]!!,
+                            )
                 }
                 if (params.contains("supplierId")) root[ProductRegistration::supplierId] eq UUID.fromString(params["supplierId"]!!)
                 if (params.contains("draft")) root[ProductRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
@@ -103,15 +104,15 @@ class ProductRegistrationAdminApiController(
     suspend fun getProductById(id: UUID): HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findById(id)
             ?.let {
-                HttpResponse.ok(it)
+                HttpResponse.ok(productDTOMapper.toDTO(it))
             }
             ?: HttpResponse.notFound()
 
     @Get("/v2/{id}")
     suspend fun getProductByIdV2(id: UUID): HttpResponse<ProductRegistrationDTOV2> =
-        productRegistrationService.findByIdV2(id)
+        productRegistrationService.findById(id)
             ?.let {
-                HttpResponse.ok(it)
+                HttpResponse.ok(productDTOMapper.toDTOV2(it))
             }
             ?: HttpResponse.notFound()
 
@@ -119,92 +120,24 @@ class ProductRegistrationAdminApiController(
     suspend fun getProductByHmsArtNr(hmsArtNr: String): HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findByHmsArtNr(hmsArtNr)
             ?.let {
-                HttpResponse.ok(it)
+                HttpResponse.ok(productDTOMapper.toDTO(it))
             }
             ?: HttpResponse.notFound()
 
-    @Post("/draftWithV2/{seriesUUID}/supplierId/{supplierId}")
-    suspend fun draftProductWithV2(
-        @PathVariable seriesUUID: UUID,
-        @PathVariable supplierId: UUID,
-        @Body draftWith: DraftVariantDTO,
-        authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> =
-        try {
-            HttpResponse.ok(
-                productRegistrationService.createDraftWithV2(seriesUUID, draftWith, authentication),
-            )
-        } catch (e: DataAccessException) {
-            throw BadRequestException(e.message ?: "Error creating draft")
-        } catch (e: Exception) {
-            throw BadRequestException("Error creating draft")
-        }
-
     @Post("/draftWithV3/{seriesUUID}")
-    suspend fun draftProductWithV3(
+    suspend fun createDraft(
         @PathVariable seriesUUID: UUID,
-        @Body draftWith: DraftVariantDTO,
+        @Body draftVariant: DraftVariantDTO,
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> =
         try {
-            HttpResponse.ok(
-                productRegistrationService.createDraftWithV2(seriesUUID, draftWith, authentication),
-            )
+            val variant = productRegistrationService.createDraft(seriesUUID, draftVariant, authentication)
+            HttpResponse.ok(productDTOMapper.toDTO(variant))
         } catch (e: DataAccessException) {
             throw BadRequestException(e.message ?: "Error creating draft")
         } catch (e: Exception) {
             throw BadRequestException("Error creating draft")
         }
-
-    @Post("/draft/supplier/{supplierId}{?isAccessory}{?isSparePart}")
-    suspend fun draftProduct(
-        supplierId: UUID,
-        authentication: Authentication,
-        @QueryValue(defaultValue = "false") isAccessory: Boolean,
-        @QueryValue(defaultValue = "false") isSparePart: Boolean,
-    ): HttpResponse<ProductRegistrationDTO> =
-        supplierRegistrationService.findById(supplierId)?.let {
-            try {
-                HttpResponse.ok(
-                    productRegistrationService.createDraft(
-                        supplierId,
-                        authentication,
-                        isAccessory,
-                        isSparePart,
-                    ),
-                )
-            } catch (e: DataAccessException) {
-                throw BadRequestException(e.message ?: "Error creating draft")
-            } catch (e: Exception) {
-                throw BadRequestException("Error creating draft")
-            }
-        } ?: throw BadRequestException("$supplierId does not exist")
-
-    @Post("/draftWith/supplier/{supplierId}{?isAccessory}{?isSparePart}")
-    suspend fun draftProductWith(
-        supplierId: UUID,
-        @QueryValue(defaultValue = "false") isAccessory: Boolean,
-        @QueryValue(defaultValue = "false") isSparePart: Boolean,
-        @Body draftWith: ProductDraftWithDTO,
-        authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> =
-        supplierRegistrationService.findById(supplierId)?.let {
-            try {
-                HttpResponse.ok(
-                    productRegistrationService.createDraftWith(
-                        supplierId,
-                        authentication,
-                        isAccessory,
-                        isSparePart,
-                        draftWith,
-                    ),
-                )
-            } catch (e: DataAccessException) {
-                throw BadRequestException(e.message ?: "Error creating draft")
-            } catch (e: Exception) {
-                throw BadRequestException("Error creating draft")
-            }
-        } ?: throw BadRequestException("$supplierId does not exist")
 
     @Post("/")
     suspend fun createProduct(
@@ -216,45 +149,24 @@ class ProductRegistrationAdminApiController(
         } ?: run {
             try {
                 val dto =
-                    productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
-                        registrationDTO
-                            .copy(
-                                createdByUser = authentication.name,
-                                updatedByUser = authentication.name,
-                                createdByAdmin = true,
-                                created = LocalDateTime.now(),
-                                updated = LocalDateTime.now(),
-                            ),
-                        isUpdate = false,
+                    productDTOMapper.toDTO(
+                        productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                            registrationDTO
+                                .copy(
+                                    createdByUser = authentication.name,
+                                    updatedByUser = authentication.name,
+                                    createdByAdmin = true,
+                                    created = LocalDateTime.now(),
+                                    updated = LocalDateTime.now(),
+                                ).toEntity(),
+                            isUpdate = false,
+                        )
                     )
                 HttpResponse.created(dto)
             } catch (e: DataAccessException) {
                 throw BadRequestException(e.message ?: "Error creating product")
             } catch (e: Exception) {
                 throw BadRequestException("Error creating product")
-            }
-        }
-
-    @Put("/{id}")
-    suspend fun updateProduct(
-        @Body registrationDTO: ProductRegistrationDTO,
-        @PathVariable id: UUID,
-        authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> =
-        if (registrationDTO.id != id) {
-            throw BadRequestException("Product id $id does not match ${registrationDTO.id}")
-        } else {
-            try {
-                val dto = productRegistrationService.updateProductByAdmin(registrationDTO, id, authentication)
-                HttpResponse.ok(dto)
-            } catch (dataAccessException: DataAccessException) {
-                LOG.error("Got exception while updating product", dataAccessException)
-                throw BadRequestException(
-                    dataAccessException.message ?: "Got exception while updating product $id",
-                )
-            } catch (e: Exception) {
-                LOG.error("Got exception while updating product", e)
-                throw BadRequestException("Got exception while updating product $id")
             }
         }
 
@@ -265,7 +177,13 @@ class ProductRegistrationAdminApiController(
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> =
         try {
-            val dto = productRegistrationService.updateProductByAdminV2(registrationDTO, id, authentication)
+            val dto = productDTOMapper.toDTO(
+                productRegistrationService.updateProduct(
+                    registrationDTO,
+                    id,
+                    authentication
+                )
+            )
             HttpResponse.ok(dto)
         } catch (dataAccessException: DataAccessException) {
             LOG.error("Got exception while updating product", dataAccessException)
@@ -296,7 +214,7 @@ class ProductRegistrationAdminApiController(
         val updated =
             productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
 
-        return HttpResponse.ok(updated)
+        return HttpResponse.ok(productDTOMapper.toDTO(updated))
     }
 
     @Put("/to-active/{id}")
@@ -318,7 +236,7 @@ class ProductRegistrationAdminApiController(
         val updated =
             productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
 
-        return HttpResponse.ok(updated)
+        return HttpResponse.ok(productDTOMapper.toDTO(updated))
     }
 
     @Delete("/{id}")
@@ -330,14 +248,16 @@ class ProductRegistrationAdminApiController(
             ?.let {
                 LOG.info("Deleting product ${it.id}")
                 val dto =
-                    productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
-                        it.copy(
-                            registrationStatus = RegistrationStatus.DELETED,
-                            expired = LocalDateTime.now(),
-                            updatedByUser = authentication.name,
-                            updatedBy = REGISTER,
-                        ),
-                        isUpdate = true,
+                    productDTOMapper.toDTO(
+                        productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                            it.copy(
+                                registrationStatus = RegistrationStatus.DELETED,
+                                expired = LocalDateTime.now(),
+                                updatedByUser = authentication.name,
+                                updatedBy = REGISTER,
+                            ),
+                            isUpdate = true,
+                        )
                     )
                 HttpResponse.ok(dto)
             }
@@ -361,7 +281,7 @@ class ProductRegistrationAdminApiController(
         val updated =
             productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(productsToDelete, isUpdate = true)
 
-        return HttpResponse.ok(updated)
+        return HttpResponse.ok(updated.map { productDTOMapper.toDTO(it) })
     }
 
     @Delete("/draft/delete")
@@ -380,7 +300,7 @@ class ProductRegistrationAdminApiController(
 
         productRegistrationService.deleteAll(products)
 
-        return HttpResponse.ok(products)
+        return HttpResponse.ok(emptyList())
     }
 
     @Post("/draft/variant/{id}")
@@ -391,7 +311,7 @@ class ProductRegistrationAdminApiController(
     ): HttpResponse<ProductRegistrationDTO> {
         return try {
             productRegistrationService.createProductVariant(id, draftVariant, authentication)?.let {
-                HttpResponse.ok(it)
+                HttpResponse.ok(productDTOMapper.toDTO(it))
             } ?: HttpResponse.notFound()
         } catch (e: DataAccessException) {
             LOG.error(
@@ -437,7 +357,7 @@ class ProductRegistrationAdminApiController(
         val updated =
             productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(productsToBeRejected, isUpdate = true)
 
-        return HttpResponse.ok(updated)
+        return HttpResponse.ok(updated.map { productDTOMapper.toDTO(it) })
     }
 
     @Post(
@@ -453,9 +373,9 @@ class ProductRegistrationAdminApiController(
         if (products.isEmpty()) throw BadRequestException("No products found")
         val id = UUID.randomUUID()
         LOG.info("Generating Excel file: $id.xlsx")
-        return ByteArrayOutputStream().use {
-            xlExport.createWorkbookToOutputStream(products, it)
-            HttpResponse.ok(StreamedFile(it.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
+        return ByteArrayOutputStream().use { byteStream ->
+            xlExport.createWorkbookToOutputStream(products.map { productDTOMapper.toDTO(it) }, byteStream)
+            HttpResponse.ok(StreamedFile(byteStream.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
                 .header("Content-Disposition", "attachment; filename=$id.xlsx")
         }
     }
@@ -474,7 +394,7 @@ class ProductRegistrationAdminApiController(
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
             LOG.info("found ${excelDTOList.size} products in Excel file")
             val products = productRegistrationService.importExcelRegistrations(excelDTOList, authentication)
-            HttpResponse.ok(products)
+            HttpResponse.ok(products.map { productDTOMapper.toDTO(it) })
         }
     }
 

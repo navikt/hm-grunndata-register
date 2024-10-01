@@ -15,7 +15,7 @@ class ProductExpirePublishHandler(private val productRegistrationService: Produc
     }
 
 
-    suspend fun expiredProducts(): List<ProductRegistrationDTO> {
+    suspend fun expiredProducts(): List<ProductRegistration> {
         val expiredProducts = productRegistrationService.findExpired()
         LOG.info("Found ${expiredProducts.size} products to be expired")
         expiredProducts.forEach {
@@ -29,7 +29,7 @@ class ProductExpirePublishHandler(private val productRegistrationService: Produc
         return expiredProducts
     }
 
-    suspend fun publishProducts(): List<ProductRegistrationDTO> {
+    suspend fun publishProducts(): List<ProductRegistration> {
         val publishing = productRegistrationService.findProductsToPublish()
         LOG.info("Found ${publishing.size} products to be published")
         publishing.forEach {

@@ -4,11 +4,10 @@ import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
-import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
+import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.ProductRegistrationVersion
 import no.nav.hm.grunndata.register.product.ProductRegistrationVersionService
-import no.nav.hm.grunndata.register.product.toEntity
 import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import no.nav.hm.grunndata.register.series.SeriesRegistrationVersion
@@ -90,7 +89,7 @@ open class CreateBaseVersionHandler(
             updatedBy = this.updatedBy,
         )
 
-    private fun ProductRegistrationDTO.toVersion(): ProductRegistrationVersion =
+    private fun ProductRegistration.toVersion(): ProductRegistrationVersion =
         ProductRegistrationVersion(
             productId = this.id,
             version = this.version,
@@ -98,7 +97,7 @@ open class CreateBaseVersionHandler(
             adminStatus = this.adminStatus,
             status = this.registrationStatus,
             updated = this.updated,
-            productRegistration = this.toEntity(),
+            productRegistration = this,
             updatedBy = this.updatedBy,
         )
 }

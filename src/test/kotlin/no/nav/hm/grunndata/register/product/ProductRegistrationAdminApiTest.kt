@@ -7,18 +7,15 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
-import java.time.LocalDateTime
-import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.AgreementDTO
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
 import no.nav.hm.grunndata.rapid.dto.Attributes
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
-import no.nav.hm.grunndata.rapid.dto.TechData
+import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementData
 import no.nav.hm.grunndata.register.agreement.AgreementRegistration
@@ -31,6 +28,9 @@ import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistratio
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.series.SeriesDataDTO
+import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
+import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
@@ -39,15 +39,19 @@ import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
+import java.util.UUID
 
 @MicronautTest
-class ProductRegistrationAdminApiTest(private val apiClient: ProductRegistrationAdminApiClient,
-                                      private val loginClient: LoginClient,
-                                      private val userRepository: UserRepository,
-                                      private val supplierRegistrationService: SupplierRegistrationService,
-                                      private val agreementRegistrationRepository: AgreementRegistrationRepository,
-                                      private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
-                                      private val delkontraktRegistrationService: DelkontraktRegistrationService,
+class ProductRegistrationAdminApiTest(
+    private val apiClient: ProductRegistrationAdminApiClient,
+    private val loginClient: LoginClient,
+    private val userRepository: UserRepository,
+    private val supplierRegistrationService: SupplierRegistrationService,
+    private val agreementRegistrationRepository: AgreementRegistrationRepository,
+    private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
+    private val delkontraktRegistrationService: DelkontraktRegistrationService,
+    private val seriesRegistrationService: SeriesRegistrationService
 ) {
 
     val email = "ProductRegistrationAdminApiTest@test.test"
@@ -58,6 +62,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductRegistration
     val supplierRef = "eksternref-222"
     var testSupplier : SupplierRegistrationDTO? = null
     var productAgreement:  ProductAgreementRegistration? = null
+    val seriesUUID: UUID = UUID.fromString("6e8830f0-1278-4031-a9b8-08389b55cf3e")
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -141,6 +146,29 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductRegistration
                     articleName = "Test article"
                 )
             )
+
+            seriesRegistrationService.save(
+                SeriesRegistrationDTO(
+                    id = seriesUUID,
+                    supplierId = supplierId,
+                    isoCategory = "",
+                    title = "",
+                    text = "",
+                    identifier = seriesUUID.toString(),
+                    draftStatus = DraftStatus.DRAFT,
+                    adminStatus = AdminStatus.PENDING,
+                    status = SeriesStatus.ACTIVE,
+                    createdBy = REGISTER,
+                    updatedBy = REGISTER,
+                    createdByUser = "",
+                    updatedByUser = "authentication.name",
+                    created = LocalDateTime.now(),
+                    updated = LocalDateTime.now(),
+                    seriesData = SeriesDataDTO(media = emptySet()),
+                    version = 0,
+                )
+            )
+
         }
     }
 
@@ -151,48 +179,42 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductRegistration
         val jwt = resp.getCookie("JWT").get().value
 
         // create a draft to begin product registration
-        val draft = apiClient.draftProduct(jwt, testSupplier!!.id)
+        val draft = apiClient.createDraft(jwt, seriesUUID, DraftVariantDTO("test", "test"))
         draft.shouldNotBeNull()
         draft.createdByAdmin shouldBe true
         draft.createdByUser shouldBe email
 
         // Edit the draft
-        val productData = draft.productData.copy(
+        val productData = ProductDataDTO(
             attributes = Attributes(
                 shortdescription = "En kort beskrivelse av produktet",
                 text = "En lang beskrivelse av produktet"
             ),
-            techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
-            media = setOf(
-                MediaInfoDTO(
-                    uri = "123.jpg",
-                    text = "bilde av produktet",
-                    source = MediaSourceType.EXTERNALURL,
-                    sourceUri = "https://ekstern.url/123.jpg"
+            techData = listOf(
+                TechDataDTO(
+                    key = "maksvekt",
+                    unit = "kg",
+                    value = "120",
+                    type = TechDataType.NUMBER,
+                    definition = null,
+                    options = null
                 )
             ),
         )
         val hmsArtNr = UUID.randomUUID().toString()
-        val registration = draft.copy(
+
+        val updateDTO = UpdateProductRegistrationDTO(
+            articleName = draft.articleName,
             supplierRef = supplierRef,
-            seriesId = "series-123",
-            isoCategory = "12001314",
             hmsArtNr = hmsArtNr,
-            draftStatus = DraftStatus.DRAFT,
-            adminStatus = AdminStatus.PENDING,
-            message = "Melding til leverandør",
-            adminInfo = null,
             productData = productData
         )
 
         // update draft
-        val created = apiClient.updateProduct(jwt, registration.id, registration)
+        val created = apiClient.updateProduct(jwt, draft.id, updateDTO)
         created.shouldNotBeNull()
         created.adminStatus shouldBe AdminStatus.PENDING
         created.registrationStatus shouldBe RegistrationStatus.ACTIVE
-
-
-
 
         // read it from database
         val read = apiClient.readProduct(jwt, created.id)
@@ -204,15 +226,8 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductRegistration
         read.agreements[0].postId shouldBe postId
         read.agreements[0].postNr shouldBe 1
 
-        // make some changes, with approved by admin
-        val updated = apiClient.updateProduct(jwt, read.id, read.copy(title = "Changed title",
-            draftStatus = DraftStatus.DONE, registrationStatus = RegistrationStatus.ACTIVE))
-
-        updated.shouldNotBeNull()
-        updated.title shouldBe "Changed title"
-
         // flag the registration to deleted
-        val deleted = apiClient.deleteProduct(jwt, updated.id)
+        val deleted = apiClient.deleteProduct(jwt, created.id)
         deleted.shouldNotBeNull()
         deleted.registrationStatus shouldBe RegistrationStatus.DELETED
 
@@ -221,7 +236,7 @@ class ProductRegistrationAdminApiTest(private val apiClient: ProductRegistration
             size = 20, page = 0, sort = "created,asc")
         page.totalSize shouldBe 1
 
-        val updatedVersion = apiClient.readProduct(jwt, updated.id)
+        val updatedVersion = apiClient.readProduct(jwt, created.id)
         updatedVersion.version!! shouldBeGreaterThan 0
         updatedVersion.updatedByUser shouldBe email
 
