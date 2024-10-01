@@ -21,7 +21,7 @@ open class NewsScheduler(
     }
 
     @LeaderOnly
-    @Scheduled(fixedDelay = "30s")
+    @Scheduled(cron = "0 0 3 * * *")
     @Transactional
     open fun deactiveNews() {
         runBlocking {
@@ -40,7 +40,7 @@ open class NewsScheduler(
     }
 
     @LeaderOnly
-    @Scheduled(fixedDelay = "15s")
+    @Scheduled(cron = "0 0 4 * * *")
     @Transactional
     open fun activateNews() {
         runBlocking {
