@@ -30,7 +30,12 @@ open class NewsScheduler(
                 expired = LocalDateTime.now()
             )
             LOG.info("Found ${expired.size} news to deactivate")
-            expired.forEach { newsRegistrationService.update(it.copy(status = NewsStatus.INACTIVE)) }
+            expired.forEach {
+                newsRegistrationService.saveAndCreateEventIfNotDraft(
+                    it.copy(status = NewsStatus.INACTIVE),
+                    isUpdate = true
+                )
+            }
         }
     }
 
