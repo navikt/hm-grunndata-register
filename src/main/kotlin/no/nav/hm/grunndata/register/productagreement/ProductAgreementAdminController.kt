@@ -188,7 +188,7 @@ class ProductAgreementAdminController(
                 ?: throw BadRequestException("Agreement ${regDTO.agreementId} not found")
 
         val status =
-            if (agreement.draftStatus != DraftStatus.DONE &&
+            if (agreement.draftStatus != DraftStatus.DRAFT &&
                 agreement.published < LocalDateTime.now() &&
                 agreement.expired > LocalDateTime.now()
             ) {
