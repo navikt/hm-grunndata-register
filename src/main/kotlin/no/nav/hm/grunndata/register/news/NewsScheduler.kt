@@ -45,7 +45,12 @@ open class NewsScheduler(
                 published = LocalDateTime.now()
             )
             LOG.info("Found ${toActivate.size} news to activate")
-            toActivate.forEach { newsRegistrationService.update(it.copy(status = NewsStatus.ACTIVE)) }
+            toActivate.forEach {
+                newsRegistrationService.saveAndCreateEventIfNotDraft(
+                    it.copy(status = NewsStatus.ACTIVE),
+                    isUpdate = true
+                )
+            }
         }
     }
 
