@@ -234,9 +234,57 @@ class ProductAgreementAdminController(
         authentication: Authentication,
     ): List<ProductAgreementRegistrationDTO> {
         LOG.info("Creating ${regDTOs.size} product agreements by ${authentication.userId()}")
+
+        val validated =
+            regDTOs.map { regDTO ->
+                productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
+                    regDTO.supplierId,
+                    regDTO.supplierRef,
+                    regDTO.agreementId,
+                    regDTO.postId!!,
+                    regDTO.rank,
+                )?.let {
+                    throw BadRequestException("Product agreement already exists")
+                }
+
+                val product =
+                    productRegistrationService.findBySupplierRefAndSupplierId(regDTO.supplierRef, regDTO.supplierId)
+                        ?: throw BadRequestException("Product not found")
+
+                val agreement =
+                    agreementRegistrationService.findById(regDTO.agreementId)
+                        ?: throw BadRequestException("Agreement ${regDTO.agreementId} not found")
+
+                val status =
+                    if (agreement.draftStatus != DraftStatus.DRAFT &&
+                        agreement.published < LocalDateTime.now() &&
+                        agreement.expired > LocalDateTime.now()
+                    ) {
+                        ProductAgreementStatus.ACTIVE
+                    } else {
+                        ProductAgreementStatus.INACTIVE
+                    }
+
+                regDTO.copy(
+                    status = status,
+                    createdBy = "REGISTER",
+                    published = agreement.published,
+                    expired = agreement.expired,
+                    hmsArtNr = product.hmsArtNr,
+                    productId = product.id,
+                    seriesUuid = product.seriesUUID,
+                    articleName = product.articleName,
+                    reference = agreement.reference,
+                    updatedBy = REGISTER,
+                    accessory = product.accessory,
+                    sparePart = product.sparePart,
+                    isoCategory = product.isoCategory,
+                )
+            }
+
         val lagrede =
             productAgreementRegistrationService.saveOrUpdateAll(
-                regDTOs,
+                validated,
             )
         return lagrede
     }
