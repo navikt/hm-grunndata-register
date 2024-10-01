@@ -67,7 +67,9 @@ class ProductRegistrationAdminApiController(
     suspend fun findProducts(
         @QueryValue params: HashMap<String, String>?,
         pageable: Pageable,
-    ): Page<ProductRegistrationDTO> = productRegistrationService.findAll(buildCriteriaSpec(params), pageable)
+    ): Page<ProductRegistrationDTO> = productRegistrationService
+        .findAll(buildCriteriaSpec(params), pageable)
+        .mapSuspend { productDTOMapper.toDTO(it) }
 
     @Get("/til-godkjenning")
     suspend fun findProductsPendingApprove(
@@ -200,20 +202,7 @@ class ProductRegistrationAdminApiController(
         @PathVariable id: UUID,
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> {
-        val productToUpdate = productRegistrationService.findById(id) ?: return HttpResponse.notFound()
-
-        val updatedProduct =
-            productToUpdate.copy(
-                registrationStatus = RegistrationStatus.INACTIVE,
-                expired = LocalDateTime.now(),
-                updated = LocalDateTime.now(),
-                updatedBy = REGISTER,
-                updatedByUser = authentication.name,
-            )
-
-        val updated =
-            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
-
+        val updated = productRegistrationService.updateRegistrationStatus(id, authentication, RegistrationStatus.INACTIVE)
         return HttpResponse.ok(productDTOMapper.toDTO(updated))
     }
 
@@ -222,20 +211,7 @@ class ProductRegistrationAdminApiController(
         @PathVariable id: UUID,
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> {
-        val productToUpdate = productRegistrationService.findById(id) ?: return HttpResponse.notFound()
-
-        val updatedProduct =
-            productToUpdate.copy(
-                registrationStatus = RegistrationStatus.ACTIVE,
-                expired = LocalDateTime.now().plusYears(10),
-                updated = LocalDateTime.now(),
-                updatedBy = REGISTER,
-                updatedByUser = authentication.name,
-            )
-
-        val updated =
-            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
-
+        val updated = productRegistrationService.updateRegistrationStatus(id, authentication, RegistrationStatus.ACTIVE)
         return HttpResponse.ok(productDTOMapper.toDTO(updated))
     }
 
@@ -268,19 +244,7 @@ class ProductRegistrationAdminApiController(
         @Body ids: List<UUID>,
         authentication: Authentication,
     ): HttpResponse<List<ProductRegistrationDTO>> {
-        val productsToDelete =
-            productRegistrationService.findByIdIn(ids).map {
-                it.copy(
-                    registrationStatus = RegistrationStatus.DELETED,
-                    expired = LocalDateTime.now(),
-                    updatedByUser = authentication.name,
-                    updatedBy = REGISTER,
-                )
-            }
-
-        val updated =
-            productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(productsToDelete, isUpdate = true)
-
+        val updated = productRegistrationService.setDeletedStatus(ids, authentication)
         return HttpResponse.ok(updated.map { productDTOMapper.toDTO(it) })
     }
 
@@ -289,17 +253,7 @@ class ProductRegistrationAdminApiController(
         @Body ids: List<UUID>,
         authentication: Authentication,
     ): HttpResponse<List<ProductRegistrationDTO>> {
-        val products =
-            productRegistrationService.findByIdIn(ids).onEach {
-                if (!(it.draftStatus == DraftStatus.DRAFT && it.published == null)) throw BadRequestException("product is not draft")
-            }
-
-        products.forEach {
-            LOG.info("Delete called for id ${it.id} and supplierRef ${it.supplierRef} by admin")
-        }
-
-        productRegistrationService.deleteAll(products)
-
+        productRegistrationService.deleteDraftVariants(ids, authentication)
         return HttpResponse.ok(emptyList())
     }
 

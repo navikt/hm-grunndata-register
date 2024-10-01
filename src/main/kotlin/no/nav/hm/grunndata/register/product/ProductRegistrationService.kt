@@ -5,6 +5,7 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
+import io.micronaut.http.annotation.PathVariable
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
@@ -71,7 +72,7 @@ open class ProductRegistrationService(
     open suspend fun findAll(
         spec: PredicateSpecification<ProductRegistration>?,
         pageable: Pageable,
-    ): Page<ProductRegistrationDTO> = productRegistrationRepository.findAll(spec, pageable).mapSuspend { it.toDTO() }
+    ): Page<ProductRegistration> = productRegistrationRepository.findAll(spec, pageable)
 
     open suspend fun findProductsToApprove(pageable: Pageable): Page<ProductToApproveDto> =
         productRegistrationRepository.findAll(buildCriteriaSpecPendingProducts(), pageable)
@@ -477,7 +478,7 @@ open class ProductRegistrationService(
         supplierId,
     )
 
-    suspend fun deleteAll(products: List<ProductRegistration>) =
+    private suspend fun deleteAll(products: List<ProductRegistration>) =
         productRegistrationRepository.deleteAll(products)
 
     suspend fun findAllBySeriesUUIDAndRegistrationStatusAndPublishedIsNotNull(
@@ -503,6 +504,70 @@ open class ProductRegistrationService(
             root[ProductRegistration::supplierId] eq supplierId
             root[ProductRegistration::registrationStatus] eq RegistrationStatus.ACTIVE
         })
+
+    suspend fun updateRegistrationStatus(
+        @PathVariable id: UUID, authentication: Authentication, newStatus: RegistrationStatus
+    ): ProductRegistration {
+        val productToUpdate = findById(id) ?: throw BadRequestException("Product not found", type = ErrorType.NOT_FOUND)
+
+        if (authentication.isSupplier() && productToUpdate.supplierId != authentication.supplierId()) {
+            throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
+        }
+
+        val updatedProduct = productToUpdate.copy(
+            registrationStatus = newStatus,
+            expired = if (newStatus == RegistrationStatus.ACTIVE) LocalDateTime.now()
+                .plusYears(10) else LocalDateTime.now(),
+            updated = LocalDateTime.now(),
+            updatedBy = REGISTER,
+            updatedByUser = authentication.name,
+        )
+
+        return saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+    }
+
+    suspend fun setDeletedStatus(
+        ids: List<UUID>,
+        authentication: Authentication,
+    ): List<ProductRegistration> {
+        val products = findByIdIn(ids).onEach {
+            if (authentication.isSupplier() && it.supplierId != authentication.supplierId()) {
+                throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
+            }
+        }
+
+        val productsToDelete =
+            products.map {
+                it.copy(
+                    registrationStatus = RegistrationStatus.DELETED,
+                    expired = LocalDateTime.now(),
+                    updatedByUser = authentication.name,
+                    updatedBy = REGISTER,
+                )
+            }
+
+        return saveAllAndCreateEventIfNotDraftAndApproved(productsToDelete, isUpdate = true)
+    }
+
+    suspend fun deleteDraftVariants(
+        ids: List<UUID>,
+        authentication: Authentication,
+    ) {
+        val products = findByIdIn(ids).onEach {
+            if (authentication.isSupplier() && it.supplierId != authentication.supplierId()) {
+                throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
+            }
+            if (!(it.draftStatus == DraftStatus.DRAFT && it.published == null)) {
+                throw BadRequestException("product is not draft")
+            }
+        }
+
+        products.forEach {
+            LOG.info("Delete called for id ${it.id} and supplierRef ${it.supplierRef}")
+        }
+
+        deleteAll(products)
+    }
 }
 
 suspend fun <T : Any, R : Any> Page<T>.mapSuspend(transform: suspend (T) -> R): Page<R> {

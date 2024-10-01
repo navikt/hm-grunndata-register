@@ -65,7 +65,9 @@ class ProductRegistrationApiController(
         @QueryValue params: HashMap<String, String>?,
         pageable: Pageable,
         authentication: Authentication,
-    ): Page<ProductRegistrationDTO> = productRegistrationService.findAll(buildCriteriaSpec(params, authentication.supplierId()), pageable)
+    ): Page<ProductRegistrationDTO> = productRegistrationService
+        .findAll(buildCriteriaSpec(params, authentication.supplierId()), pageable)
+        .mapSuspend { productDTOMapper.toDTO(it) }
 
     private fun buildCriteriaSpec(
         params: HashMap<String, String>?,
@@ -186,23 +188,8 @@ class ProductRegistrationApiController(
         @PathVariable id: UUID,
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> {
-        val productToUpdate = productRegistrationService.findById(id) ?: return HttpResponse.notFound()
-        if (productToUpdate.supplierId != authentication.supplierId()) {
-            return HttpResponse.unauthorized()
-        }
-        val updatedProduct =
-            productToUpdate.copy(
-                registrationStatus = RegistrationStatus.INACTIVE,
-                expired = LocalDateTime.now(),
-                updated = LocalDateTime.now(),
-                updatedBy = REGISTER,
-                updatedByUser = authentication.name,
-            )
-
-        val updated =
-            productDTOMapper.toDTO(productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true))
-
-        return HttpResponse.ok(updated)
+        val updated = productRegistrationService.updateRegistrationStatus(id, authentication, RegistrationStatus.INACTIVE)
+        return HttpResponse.ok(productDTOMapper.toDTO(updated))
     }
 
     @Put("/to-active/{id}")
@@ -210,24 +197,8 @@ class ProductRegistrationApiController(
         @PathVariable id: UUID,
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> {
-        val productToUpdate = productRegistrationService.findById(id) ?: return HttpResponse.notFound()
-        if (productToUpdate.supplierId != authentication.supplierId()) {
-            return HttpResponse.unauthorized()
-        }
-
-        val updatedProduct =
-            productToUpdate.copy(
-                registrationStatus = RegistrationStatus.ACTIVE,
-                expired = LocalDateTime.now().plusYears(10),
-                updated = LocalDateTime.now(),
-                updatedBy = REGISTER,
-                updatedByUser = authentication.name,
-            )
-
-        val updated =
-            productDTOMapper.toDTO(productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true))
-
-        return HttpResponse.ok(updated)
+        val updated = productRegistrationService.updateRegistrationStatus(id, authentication, RegistrationStatus.ACTIVE)
+        return HttpResponse.ok(productDTOMapper.toDTO(updated))
     }
 
     @Delete("/delete")
@@ -235,25 +206,8 @@ class ProductRegistrationApiController(
         @Body ids: List<UUID>,
         authentication: Authentication,
     ): HttpResponse<List<ProductRegistrationDTO>> {
-        val products =
-            productRegistrationService.findByIdIn(ids).onEach {
-                if (it.supplierId != authentication.supplierId()) return HttpResponse.unauthorized()
-            }
-
-        val productsToDelete =
-            products.map {
-                it.copy(
-                    registrationStatus = RegistrationStatus.DELETED,
-                    expired = LocalDateTime.now(),
-                    updatedByUser = authentication.name,
-                    updatedBy = REGISTER,
-                )
-            }
-
-        val updated =
-            productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(productsToDelete, isUpdate = true).map { productDTOMapper.toDTO(it) }
-
-        return HttpResponse.ok(updated)
+        val updated = productRegistrationService.setDeletedStatus(ids, authentication)
+        return HttpResponse.ok(updated.map { productDTOMapper.toDTO(it) })
     }
 
     @Delete("/draft/delete")
@@ -261,18 +215,7 @@ class ProductRegistrationApiController(
         @Body ids: List<UUID>,
         authentication: Authentication,
     ): HttpResponse<List<ProductRegistrationDTO>> {
-        val products =
-            productRegistrationService.findByIdIn(ids).onEach {
-                if (it.supplierId != authentication.supplierId()) return HttpResponse.unauthorized()
-                if (!(it.draftStatus == DraftStatus.DRAFT && it.published == null)) throw BadRequestException("product is not draft")
-            }
-
-        products.forEach {
-            LOG.info("Delete called for id ${it.id} and supplierRef ${it.supplierRef}")
-        }
-
-        productRegistrationService.deleteAll(products)
-
+        productRegistrationService.deleteDraftVariants(ids, authentication)
         return HttpResponse.ok(emptyList())
     }
 
@@ -422,8 +365,6 @@ class ProductRegistrationApiController(
         }
     }
 }
-
-data class ProductDraftWithDTO(val title: String, val text: String, val isoCategory: String)
 
 data class DraftVariantDTO(val articleName: String, val supplierRef: String)
 
