@@ -12,6 +12,7 @@ import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
@@ -185,6 +186,17 @@ class ProductAgreementAdminController(
         val agreement =
             agreementRegistrationService.findById(regDTO.agreementId)
                 ?: throw BadRequestException("Agreement ${regDTO.agreementId} not found")
+
+        val status =
+            if (agreement.draftStatus == DraftStatus.DONE &&
+                agreement.published < LocalDateTime.now() &&
+                agreement.expired > LocalDateTime.now()
+            ) {
+                ProductAgreementStatus.ACTIVE
+            } else {
+                ProductAgreementStatus.INACTIVE
+            }
+
         return productAgreementRegistrationService.saveAndCreateEvent(
             ProductAgreementRegistrationDTO(
                 supplierRef = regDTO.supplierRef,
@@ -206,7 +218,7 @@ class ProductAgreementAdminController(
                 accessory = product.accessory,
                 sparePart = product.sparePart,
                 isoCategory = product.isoCategory,
-                status = ProductAgreementStatus.INACTIVE,
+                status = status,
             ),
             isUpdate = false,
         )
