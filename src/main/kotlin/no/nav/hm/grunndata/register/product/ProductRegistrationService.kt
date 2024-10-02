@@ -54,6 +54,9 @@ open class ProductRegistrationService(
 
     open suspend fun findByIdIn(ids: List<UUID>) = productRegistrationRepository.findByIdIn(ids)
 
+    open suspend fun save(dto: ProductRegistration) = productRegistrationRepository.save(dto)
+    open suspend fun update(dto: ProductRegistration) = productRegistrationRepository.update(dto)
+
     open suspend fun findByHmsArtNr(hmsArtNr: String) =
         productRegistrationRepository.findByHmsArtNrAndRegistrationStatusIn(
             hmsArtNr,
@@ -66,24 +69,18 @@ open class ProductRegistrationService(
             listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE)
         )
 
-    open suspend fun save(dto: ProductRegistration) = productRegistrationRepository.save(dto)
-    open suspend fun update(dto: ProductRegistration) = productRegistrationRepository.update(dto)
-
     open suspend fun findAll(
         spec: PredicateSpecification<ProductRegistration>?,
         pageable: Pageable,
     ): Page<ProductRegistration> = productRegistrationRepository.findAll(spec, pageable)
 
     open suspend fun findProductsToApprove(pageable: Pageable): Page<ProductToApproveDto> =
-        productRegistrationRepository.findAll(buildCriteriaSpecPendingProducts(), pageable)
-            .mapSuspend { it.toProductToApproveDto() }
-
-    private fun buildCriteriaSpecPendingProducts(): PredicateSpecification<ProductRegistration> =
-        where {
+        productRegistrationRepository.findAll(where {
             root[ProductRegistration::adminStatus] eq AdminStatus.PENDING
             root[ProductRegistration::registrationStatus] eq RegistrationStatus.ACTIVE
             root[ProductRegistration::draftStatus] eq DraftStatus.DONE
-        }
+        }, pageable)
+            .mapSuspend { it.toProductToApproveDto() }
 
     open suspend fun findBySupplierRefAndSupplierId(
         supplierRef: String,
@@ -96,6 +93,47 @@ open class ProductRegistrationService(
         id: UUID,
         supplierId: UUID,
     ) = productRegistrationRepository.findByIdAndSupplierId(id, supplierId)
+
+    suspend fun findAllBySeriesUuid(seriesUUID: UUID) = productRegistrationRepository.findAllBySeriesUUID(seriesUUID)
+
+    suspend fun findBySeriesUUIDAndSupplierId(
+        seriesId: UUID,
+        supplierId: UUID,
+    ) = productRegistrationRepository.findBySeriesUUIDAndSupplierId(seriesId, supplierId)
+
+    suspend fun findSeriesGroup(pageable: Pageable) = seriesRegistrationRepository.findSeriesGroup(pageable)
+
+    suspend fun findExpired(): List<ProductRegistration> =
+        productRegistrationRepository.findByRegistrationStatusAndExpiredBefore(
+            RegistrationStatus.ACTIVE,
+            expired = LocalDateTime.now(),
+        )
+
+    suspend fun findProductsToPublish(): List<ProductRegistration> =
+        productRegistrationRepository.findByRegistrationStatusAndAdminStatusAndPublishedBeforeAndExpiredAfter(
+            RegistrationStatus.INACTIVE,
+            AdminStatus.APPROVED,
+            published = LocalDateTime.now(),
+            expired = LocalDateTime.now(),
+        )
+
+    suspend fun findAllBySeriesUUIDAndRegistrationStatusAndPublishedIsNotNull(
+        seriesUUID: UUID,
+        registrationStatus: RegistrationStatus,
+    ): List<ProductRegistration> =
+        productRegistrationRepository.findAllBySeriesUUIDAndRegistrationStatusAndPublishedIsNotNull(
+            seriesUUID,
+            registrationStatus,
+        )
+
+    suspend fun findAllBySeriesUUIDAndAdminStatus(
+        seriesUUID: UUID,
+        adminStatus: AdminStatus,
+    ): List<ProductRegistration> =
+        productRegistrationRepository.findAllBySeriesUUIDAndAdminStatus(
+            seriesUUID,
+            adminStatus,
+        )
 
     @Transactional
     open suspend fun updateProduct(
@@ -182,30 +220,8 @@ open class ProductRegistrationService(
     open suspend fun saveAllAndCreateEventIfNotDraftAndApproved(
         dtos: List<ProductRegistration>,
         isUpdate: Boolean,
-    ): List<ProductRegistration> {
-        val updated =
-            dtos.map {
-                val saved = if (isUpdate) update(it) else save(it)
-                if (saved.draftStatus == DraftStatus.DONE && saved.adminStatus == AdminStatus.APPROVED) {
-                    productRegistrationEventHandler.queueDTORapidEvent(
-                        saved.toDTO(),
-                        eventName = EventName.registeredProductV1
-                    )
-                }
-                saved
-            }
+    ): List<ProductRegistration> = dtos.map { saveAndCreateEventIfNotDraftAndApproved(it, isUpdate) }
 
-        return updated
-    }
-
-    suspend fun findAllBySeriesUuid(seriesUUID: UUID) = productRegistrationRepository.findAllBySeriesUUID(seriesUUID)
-
-    suspend fun findBySeriesUUIDAndSupplierId(
-        seriesId: UUID,
-        supplierId: UUID,
-    ) = productRegistrationRepository.findBySeriesUUIDAndSupplierId(seriesId, supplierId)
-
-    suspend fun findSeriesGroup(pageable: Pageable) = seriesRegistrationRepository.findSeriesGroup(pageable)
 
     open suspend fun createProductVariant(
         id: UUID,
@@ -456,20 +472,6 @@ open class ProductRegistrationService(
         )
     }
 
-    suspend fun findExpired(): List<ProductRegistration> =
-        productRegistrationRepository.findByRegistrationStatusAndExpiredBefore(
-            RegistrationStatus.ACTIVE,
-            expired = LocalDateTime.now(),
-        )
-
-    suspend fun findProductsToPublish(): List<ProductRegistration> =
-        productRegistrationRepository.findByRegistrationStatusAndAdminStatusAndPublishedBeforeAndExpiredAfter(
-            RegistrationStatus.INACTIVE,
-            AdminStatus.APPROVED,
-            published = LocalDateTime.now(),
-            expired = LocalDateTime.now(),
-        )
-
     suspend fun exitsBySeriesUUIDAndSupplierId(
         seriesUUID: UUID,
         supplierId: UUID,
@@ -480,24 +482,6 @@ open class ProductRegistrationService(
 
     private suspend fun deleteAll(products: List<ProductRegistration>) =
         productRegistrationRepository.deleteAll(products)
-
-    suspend fun findAllBySeriesUUIDAndRegistrationStatusAndPublishedIsNotNull(
-        seriesUUID: UUID,
-        registrationStatus: RegistrationStatus,
-    ): List<ProductRegistration> =
-        productRegistrationRepository.findAllBySeriesUUIDAndRegistrationStatusAndPublishedIsNotNull(
-            seriesUUID,
-            registrationStatus,
-        )
-
-    suspend fun findAllBySeriesUUIDAndAdminStatus(
-        seriesUUID: UUID,
-        adminStatus: AdminStatus,
-    ): List<ProductRegistration> =
-        productRegistrationRepository.findAllBySeriesUUIDAndAdminStatus(
-            seriesUUID,
-            adminStatus,
-        )
 
     suspend fun countBySupplier(supplierId: UUID): Long = productRegistrationRepository.count(
         where {

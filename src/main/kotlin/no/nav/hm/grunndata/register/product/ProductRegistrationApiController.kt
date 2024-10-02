@@ -22,10 +22,8 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.helse.rapids_rivers.toUUID
-import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
-import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.batch.ProductExcelExport
 import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
@@ -35,7 +33,6 @@ import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 import java.util.UUID
 
 @Secured(Roles.ROLE_SUPPLIER)
@@ -155,32 +152,6 @@ class ProductRegistrationApiController(
     } catch (e: Exception) {
         LOG.error("Got exception while updating product", e)
         throw BadRequestException("Got exception while creating product")
-    }
-
-    @Put("/til-godkjenning")
-    suspend fun setProductsToBeApproved(
-        @Body ids: List<UUID>,
-        authentication: Authentication,
-    ): HttpResponse<List<ProductRegistrationDTO>> {
-        val productsToUpdate =
-            productRegistrationService.findByIdIn(ids).onEach {
-                if (it.draftStatus != DraftStatus.DRAFT) throw BadRequestException("product is marked as done")
-            }
-
-        val productsToBeApproved =
-            productsToUpdate.map {
-                it.copy(
-                    draftStatus = DraftStatus.DONE,
-                    adminStatus = AdminStatus.PENDING,
-                    updated = LocalDateTime.now(),
-                    updatedBy = REGISTER,
-                )
-            }
-
-        val updated =
-            productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(productsToBeApproved, isUpdate = true).map { productDTOMapper.toDTO(it) }
-
-        return HttpResponse.ok(updated)
     }
 
     @Put("/to-expired/{id}")
