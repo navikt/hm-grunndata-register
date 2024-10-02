@@ -5,6 +5,7 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
@@ -33,6 +34,9 @@ import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
+import no.nav.hm.grunndata.register.error.ErrorType
+import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.series.SeriesRegistrationController.Companion
 
 @Singleton
 open class SeriesRegistrationService(
@@ -506,6 +510,51 @@ open class SeriesRegistrationService(
         )
 
         return updatedSeries
+    }
+
+    open suspend fun patchSeries(
+        id: UUID,
+        patch: UpdateSeriesRegistrationDTO,
+        authentication: Authentication
+    ): SeriesRegistrationDTO {
+        val inDbSeries = findByIdAndSupplierId(id, authentication.supplierId()) ?: throw BadRequestException(
+            "Series not found",
+            ErrorType.NOT_FOUND
+        )
+        if (inDbSeries.supplierId != authentication.supplierId()) {
+            LOG.warn("SupplierId in request does not match authenticated supplierId")
+            throw BadRequestException(
+                "SupplierId in request does not match authenticated supplierId",
+                ErrorType.UNAUTHORIZED
+            )
+        }
+
+        val inDbSeriesData = inDbSeries.seriesData
+        val inDbSeriesAttributes = inDbSeries.seriesData.attributes
+
+        val seriesDataAttributes = inDbSeries.seriesData.attributes.copy(
+            keywords = patch.keywords ?: inDbSeriesAttributes.keywords,
+            url = patch.url ?: inDbSeriesAttributes.url,
+            compatibleWith = inDbSeriesAttributes.compatibleWith
+        )
+
+        val seriesData = inDbSeries.seriesData.copy(
+            media = inDbSeriesData.media,
+            attributes = seriesDataAttributes
+        )
+
+        val saved = saveAndCreateEventIfNotDraftAndApproved(
+            inDbSeries
+                .copy(
+                    title = patch.title ?: inDbSeries.title,
+                    text = patch.text ?: inDbSeries.text,
+                    seriesData = seriesData,
+                    updated = LocalDateTime.now(),
+                    updatedByUser = authentication.name
+                ),
+            true,
+        )
+        return saved
     }
 
     suspend fun countBySupplier(supplierId: UUID): Long =

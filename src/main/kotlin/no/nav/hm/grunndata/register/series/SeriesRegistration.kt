@@ -274,6 +274,8 @@ enum class EditStatus {
 data class UpdateSeriesRegistrationDTO(
     val title: String?,
     val text: String?,
+    val keywords: List<String>?,
+    val url: String?
     // val seriesData: SeriesDataDTO?,
 )
 

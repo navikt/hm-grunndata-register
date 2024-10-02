@@ -11,6 +11,7 @@ import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.Patch
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
@@ -178,6 +179,14 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
             LOG.warn("Series with id $id does not exist")
             HttpResponse.notFound()
         }
+
+    @Patch("/v2/{id}")
+    suspend fun patchSeriesV2(
+        @PathVariable id: UUID,
+        @Body updateSeriesRegistrationDTO: UpdateSeriesRegistrationDTO,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTO> =
+        HttpResponse.ok(seriesRegistrationService.patchSeries(id, updateSeriesRegistrationDTO, authentication))
 
     @Post(
         value = "/uploadMedia/{seriesUUID}",
