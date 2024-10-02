@@ -432,8 +432,9 @@ open class SeriesRegistrationService(
             )
 
         val variantsToUpdate =
-            productRegistrationService.findBySupplierId(
+            productRegistrationService.findAllBySeriesUUIDAndAdminStatus(
                 seriesToUpdate.id,
+                AdminStatus.PENDING,
             ).map {
                 if (it.adminStatus != AdminStatus.PENDING) throw BadRequestException("product is not pending approval")
                 if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("product is not done")
