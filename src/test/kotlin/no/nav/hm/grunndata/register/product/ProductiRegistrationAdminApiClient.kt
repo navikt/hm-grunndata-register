@@ -32,16 +32,16 @@ interface ProductRegistrationAdminApiClient {
                      @QueryValue("page") page: Int?=null,
                      @QueryValue("sort") sort: String? = null): Page<ProductRegistrationDTO>
 
-    @Get(uri = "/{id}", produces = [APPLICATION_JSON])
-    fun readProduct(@CookieValue("JWT") jwt: String, id: UUID): ProductRegistrationDTO
+    @Get(uri = "/v2/{id}", produces = [APPLICATION_JSON])
+    fun readProduct(@CookieValue("JWT") jwt: String, id: UUID): ProductRegistrationDTOV2
 
     @Put(uri= "/v2/{id}", processes = [APPLICATION_JSON])
     fun updateProduct(@CookieValue("JWT") jwt: String, id:UUID,
                       @Body updateProductRegistrationDTO: UpdateProductRegistrationDTO
     ): ProductRegistrationDTO
 
-    @Delete(uri="/{id}", consumes = [APPLICATION_JSON])
-    fun deleteProduct(@CookieValue("JWT") jwt: String, id:UUID): ProductRegistrationDTO
+    @Delete(uri="/delete", consumes = [APPLICATION_JSON])
+    fun deleteProduct(@CookieValue("JWT") jwt: String, @Body ids: List<UUID>): ProductRegistrationDTO
 
     @Post(uri = "/draftWithV3/{seriesUUID}", processes = [APPLICATION_JSON])
     fun createDraft(

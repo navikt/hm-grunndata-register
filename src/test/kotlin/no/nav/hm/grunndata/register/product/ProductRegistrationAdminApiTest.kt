@@ -219,7 +219,6 @@ class ProductRegistrationAdminApiTest(
         // read it from database
         val read = apiClient.readProduct(jwt, created.id)
         read.shouldNotBeNull()
-        read.createdByUser shouldBe email
         read.hmsArtNr shouldBe hmsArtNr
         read.agreements.size shouldBe 1
         read.agreements[0].id shouldBe agreementId
@@ -227,7 +226,7 @@ class ProductRegistrationAdminApiTest(
         read.agreements[0].postNr shouldBe 1
 
         // flag the registration to deleted
-        val deleted = apiClient.deleteProduct(jwt, created.id)
+        val deleted = apiClient.deleteProduct(jwt, listOf(created.id))
         deleted.shouldNotBeNull()
         deleted.registrationStatus shouldBe RegistrationStatus.DELETED
 
@@ -238,7 +237,6 @@ class ProductRegistrationAdminApiTest(
 
         val updatedVersion = apiClient.readProduct(jwt, created.id)
         updatedVersion.version!! shouldBeGreaterThan 0
-        updatedVersion.updatedByUser shouldBe email
 
 
 

@@ -54,8 +54,9 @@ class ProductRegistrationApiController(
     suspend fun findBySeriesUUIDAndSupplierId(
         seriesUUID: UUID,
         authentication: Authentication,
-    ): List<ProductRegistrationDTO> = productRegistrationService.findBySeriesUUIDAndSupplierId(seriesUUID, authentication.supplierId())
-        .sortedBy { it.created }.map { productDTOMapper.toDTO(it) }
+    ): List<ProductRegistrationDTO> =
+        productRegistrationService.findBySeriesUUIDAndSupplierId(seriesUUID, authentication.supplierId())
+            .sortedBy { it.created }.map { productDTOMapper.toDTO(it) }
 
     @Get("/{?params*}")
     suspend fun findProducts(
@@ -94,27 +95,13 @@ class ProductRegistrationApiController(
             }
         }
 
-    @Get("/{id}")
-    suspend fun getProductById(
-        id: UUID,
-        authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> =
-        productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
-            ?.let {
-                HttpResponse.ok(productDTOMapper.toDTO(it))
-            }
-            ?: HttpResponse.notFound()
-
     @Get("/v2/{id}")
     suspend fun getProductByIdV2(
         id: UUID,
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTOV2> =
         productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
-            ?.let {
-                HttpResponse.ok(productDTOMapper.toDTOV2(it))
-            }
-            ?: HttpResponse.notFound()
+            ?.let { HttpResponse.ok(productDTOMapper.toDTOV2(it)) } ?: HttpResponse.notFound()
 
     @Put("/v2/{id}")
     suspend fun updateProductV2(
@@ -123,7 +110,8 @@ class ProductRegistrationApiController(
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> {
         try {
-            val dto = productDTOMapper.toDTO(productRegistrationService.updateProduct(registrationDTO, id, authentication))
+            val dto =
+                productDTOMapper.toDTO(productRegistrationService.updateProduct(registrationDTO, id, authentication))
             return HttpResponse.ok(dto)
         } catch (dataAccessException: DataAccessException) {
             LOG.error("Got exception while updating product", dataAccessException)
@@ -159,7 +147,8 @@ class ProductRegistrationApiController(
         @PathVariable id: UUID,
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTO> {
-        val updated = productRegistrationService.updateRegistrationStatus(id, authentication, RegistrationStatus.INACTIVE)
+        val updated =
+            productRegistrationService.updateRegistrationStatus(id, authentication, RegistrationStatus.INACTIVE)
         return HttpResponse.ok(productDTOMapper.toDTO(updated))
     }
 
@@ -314,7 +303,7 @@ class ProductRegistrationApiController(
         if (seriesUniqueList.size > 1) {
             throw BadRequestException(
                 "Det finnes produkter tilknyttet ulike produktserier i filen. " +
-                    "Det er kun støtte for å importere produkter til en produktserie om gangen",
+                        "Det er kun støtte for å importere produkter til en produktserie om gangen",
             )
         }
 
