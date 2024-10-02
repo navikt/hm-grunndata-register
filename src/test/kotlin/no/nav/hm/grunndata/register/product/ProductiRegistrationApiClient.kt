@@ -41,11 +41,11 @@ interface ProductRegistrationApiClient {
         @Body draftVariantDTO: DraftVariantDTO,
     ): ProductRegistrationDTO
 
-    @Get(uri = "/{id}", consumes = [APPLICATION_JSON])
+    @Get(uri = "/v2/{id}", consumes = [APPLICATION_JSON])
     fun readProduct(
         @CookieValue("JWT") jwt: String,
         id: UUID,
-    ): ProductRegistrationDTO
+    ): ProductRegistrationDTOV2
 
     @Put(uri = "/v2/{id}", processes = [APPLICATION_JSON])
     fun updateProduct(

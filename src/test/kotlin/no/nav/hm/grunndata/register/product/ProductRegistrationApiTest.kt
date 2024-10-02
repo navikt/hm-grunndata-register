@@ -257,7 +257,6 @@ class ProductRegistrationApiTest(
 
         val read = apiClient.readProduct(jwt, created.id)
         read.shouldNotBeNull()
-        read.createdByUser shouldBe email
 
         val page2 =
             apiClient.findProducts(jwt = jwt, supplierRef ="apitest-eksternref-111", size = 30, page = 1, sort = "created,asc")
@@ -265,7 +264,6 @@ class ProductRegistrationApiTest(
 
         val updatedVersion = apiClient.readProduct(jwt, created.id)
         updatedVersion.version!! shouldBeGreaterThan 0
-        updatedVersion.updatedByUser shouldBe email
 
         // should not be allowed to create a product of another supplier
         runCatching {

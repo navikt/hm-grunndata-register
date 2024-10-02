@@ -196,16 +196,10 @@ class SeriesRegistrationControllerApiTest(
             publishedSeries.status shouldBe SeriesStatus.ACTIVE
             publishedSeries.adminStatus shouldBe AdminStatus.APPROVED
 
-            val approvedVariant = productApiClient.readProduct(jwt, draft1.id)
-            approvedVariant.adminStatus shouldBe AdminStatus.APPROVED
-
             val seriesInDraft = apiClient.setPublishedSeriesToDraft(jwt, updated.id)
             seriesInDraft.shouldNotBeNull()
             seriesInDraft.draftStatus shouldBe DraftStatus.DRAFT
             seriesInDraft.adminStatus shouldBe AdminStatus.PENDING
-
-            val variantInDraft = productApiClient.readProduct(jwt, draft1.id)
-            variantInDraft.draftStatus shouldBe DraftStatus.DRAFT
 
         }
     }
