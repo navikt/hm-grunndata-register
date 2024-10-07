@@ -70,17 +70,33 @@ class SeriesRegistrationServiceTest(
             url = "new url",
         )
 
+        val patchUpdateDTO2 = UpdateSeriesRegistrationDTO(
+            title = "newer title",
+            text = null,
+            keywords = listOf("newer keyword1", "newer keyword2"),
+            url = "newer url",
+        )
+
         val authentication = Authentication.build("marte", mapOf("supplierId" to supplierId.toString()))
 
         runBlocking {
             service.save(originalSeriesDTO)
-            
-            val patchedSeries = service.patchSeries(seriesId, patchUpdateDTO, authentication)
 
+            var patchedSeries = service.patchSeries(seriesId, patchUpdateDTO, authentication)
+
+            // same as patchDTO
             patchedSeries.title shouldBe patchUpdateDTO.title
             patchedSeries.text shouldBe patchUpdateDTO.text
             patchedSeries.seriesData.attributes.keywords shouldBe patchUpdateDTO.keywords
             patchedSeries.seriesData.attributes.url shouldBe patchUpdateDTO.url
+
+            // text should be old value
+            patchedSeries = service.patchSeries(seriesId, patchUpdateDTO2, authentication)
+
+            patchedSeries.title shouldBe patchUpdateDTO2.title
+            patchedSeries.text shouldBe patchUpdateDTO.text
+            patchedSeries.seriesData.attributes.keywords shouldBe patchUpdateDTO2.keywords
+            patchedSeries.seriesData.attributes.url shouldBe patchUpdateDTO2.url
 
         }
     }
