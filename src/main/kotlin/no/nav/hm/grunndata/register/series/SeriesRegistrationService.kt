@@ -85,36 +85,11 @@ open class SeriesRegistrationService(
 
     suspend fun findById(id: UUID): SeriesRegistrationDTO? = seriesRegistrationRepository.findById(id)?.toDTO()
 
-    suspend fun findByIdV2(id: UUID): SeriesRegistrationDTOV2? {
+    suspend fun findByIdV2(id: UUID): SeriesRegistration? {
         return seriesRegistrationRepository.findByIdAndStatusIn(
             id,
             listOf(SeriesStatus.ACTIVE, SeriesStatus.INACTIVE),
-        )?.let { seriesRegistration ->
-            val supplierRegistration =
-                supplierService.findById(seriesRegistration.supplierId)
-                    ?: throw IllegalArgumentException("cannot find series supplier")
-
-            val isoCategoryDTO = isoCategoryService.lookUpCode(seriesRegistration.isoCategory)
-
-            val productRegistrationDTOs =
-                productRegistrationService.findAllBySeriesUuid(id).sortedBy { it.created }
-                    .map { productDTOMapper.toDTOV2(it) }
-
-            val inAgreement =
-                productAgreementRegistrationService.findAllByProductIds(
-                    productRegistrationService.findAllBySeriesUuid(seriesRegistration.id)
-                        .filter { it.registrationStatus == RegistrationStatus.ACTIVE }
-                        .map { it.id },
-                ).isNotEmpty()
-
-            toSeriesRegistrationDTOV2(
-                seriesRegistration = seriesRegistration,
-                supplierName = supplierRegistration.name,
-                productRegistrationDTOs = productRegistrationDTOs,
-                isoCategoryDTO = isoCategoryDTO,
-                inAgreement = inAgreement,
-            )
-        }
+        )
     }
 
     open suspend fun findByIdIn(ids: List<UUID>) = seriesRegistrationRepository.findByIdIn(ids).map { it.toDTO() }
@@ -155,37 +130,12 @@ open class SeriesRegistrationService(
     suspend fun findByIdAndSupplierIdV2(
         id: UUID,
         supplierId: UUID,
-    ): SeriesRegistrationDTOV2? {
+    ): SeriesRegistration? {
         return seriesRegistrationRepository.findByIdAndSupplierIdAndStatusIn(
             id,
             supplierId,
             listOf(SeriesStatus.ACTIVE, SeriesStatus.INACTIVE),
-        )?.let { seriesRegistration ->
-            val supplierRegistration =
-                supplierService.findById(seriesRegistration.supplierId)
-                    ?: throw IllegalArgumentException("cannot find series supplier")
-
-            val isoCategoryDTO = isoCategoryService.lookUpCode(seriesRegistration.isoCategory)
-
-            val productRegistrationDTOs =
-                productRegistrationService.findBySeriesUUIDAndSupplierId(id, supplierId).sortedBy { it.created }
-                    .map { productDTOMapper.toDTOV2(it) }
-
-            val inAgreement =
-                productAgreementRegistrationService.findAllByProductIds(
-                    productRegistrationService.findAllBySeriesUuid(seriesRegistration.id)
-                        .filter { it.registrationStatus == RegistrationStatus.ACTIVE }
-                        .map { it.id },
-                ).isNotEmpty()
-
-            toSeriesRegistrationDTOV2(
-                seriesRegistration = seriesRegistration,
-                supplierName = supplierRegistration.name,
-                productRegistrationDTOs = productRegistrationDTOs,
-                isoCategoryDTO = isoCategoryDTO,
-                inAgreement = inAgreement,
-            )
-        }
+        )
     }
 
     suspend fun findBySupplierId(supplierId: UUID): List<SeriesRegistrationDTO> =

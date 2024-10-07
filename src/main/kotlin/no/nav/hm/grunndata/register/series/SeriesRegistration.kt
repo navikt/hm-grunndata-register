@@ -171,42 +171,6 @@ fun SeriesRegistration.toDTO() =
         expired = expired,
     )
 
-fun toSeriesRegistrationDTOV2(
-    seriesRegistration: SeriesRegistration,
-    supplierName: String,
-    productRegistrationDTOs: List<ProductRegistrationDTOV2>,
-    isoCategoryDTO: IsoCategoryDTO?,
-    inAgreement: Boolean,
-) = SeriesRegistrationDTOV2(
-    id = seriesRegistration.id,
-    supplierName = supplierName,
-    title = seriesRegistration.title,
-    text = seriesRegistration.text,
-    isoCategory = isoCategoryDTO,
-    message = seriesRegistration.message,
-    status = EditStatus.from(seriesRegistration),
-    seriesData = seriesRegistration.seriesData,
-    created = seriesRegistration.created,
-    updated = seriesRegistration.updated,
-    published = seriesRegistration.published,
-    expired = seriesRegistration.expired,
-    updatedByUser = seriesRegistration.updatedByUser,
-    createdByUser = seriesRegistration.createdByUser,
-    variants = productRegistrationDTOs,
-    version = seriesRegistration.version,
-    isExpired = seriesRegistration.expired < LocalDateTime.now(),
-    isPublished = seriesRegistration.published?.let { it < LocalDateTime.now() } ?: false,
-    inAgreement = inAgreement,
-    hmdbId =
-        if (seriesRegistration.identifier != seriesRegistration.id.toString() &&
-            seriesRegistration.updatedBy == HMDB
-        ) {
-            seriesRegistration.identifier
-        } else {
-            null
-        },
-)
-
 fun SeriesRegistrationDTO.toEntity() =
     SeriesRegistration(
         id = id,

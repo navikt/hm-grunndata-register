@@ -243,7 +243,7 @@ class SeriesRegistrationAdminController(
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTOV2> {
         return seriesRegistrationService.findByIdV2(id)?.let {
-            HttpResponse.ok(it)
+            HttpResponse.ok(seriesDTOMapper.toDTOV2(it))
         } ?: run {
             LOG.warn("Series with id $id does not exist")
             HttpResponse.notFound()
