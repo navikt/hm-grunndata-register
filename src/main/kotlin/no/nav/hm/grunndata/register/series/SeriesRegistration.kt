@@ -268,6 +268,20 @@ enum class EditStatus {
                 throw IllegalArgumentException("Ukjent EditStatus for serie ${seriesRegistration.id}")
             }
         }
+
+        fun from(seriesRegistrationDTO: SeriesRegistrationDTO): EditStatus {
+            return if (seriesRegistrationDTO.adminStatus == AdminStatus.REJECTED) {
+                REJECTED
+            } else if (seriesRegistrationDTO.draftStatus == DraftStatus.DRAFT && seriesRegistrationDTO.adminStatus == AdminStatus.PENDING) {
+                EDITABLE
+            } else if (seriesRegistrationDTO.draftStatus == DraftStatus.DONE && seriesRegistrationDTO.adminStatus == AdminStatus.PENDING) {
+                PENDING_APPROVAL
+            } else if (seriesRegistrationDTO.adminStatus == AdminStatus.APPROVED) {
+                DONE
+            } else {
+                throw IllegalArgumentException("Ukjent EditStatus for serie ${seriesRegistrationDTO.id}")
+            }
+        }
     }
 }
 

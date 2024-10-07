@@ -38,7 +38,10 @@ import org.reactivestreams.Publisher
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SeriesRegistrationController.API_V1_SERIES)
 @Tag(name = "Vendor Series")
-class SeriesRegistrationController(private val seriesRegistrationService: SeriesRegistrationService) {
+class SeriesRegistrationController(
+    private val seriesRegistrationService: SeriesRegistrationService,
+    private val seriesDTOMapper: SeriesDTOMapper
+) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationController::class.java)
         const val API_V1_SERIES = "/vendor/api/v1/series"
@@ -185,8 +188,16 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
         @PathVariable id: UUID,
         @Body updateSeriesRegistrationDTO: UpdateSeriesRegistrationDTO,
         authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO> =
-        HttpResponse.ok(seriesRegistrationService.patchSeries(id, updateSeriesRegistrationDTO, authentication))
+    ): HttpResponse<SeriesRegistrationDTOV2> =
+        HttpResponse.ok(
+            seriesDTOMapper.toDTOV2(
+                seriesRegistrationService.patchSeries(
+                    id,
+                    updateSeriesRegistrationDTO,
+                    authentication
+                )
+            )
+        )
 
     @Post(
         value = "/uploadMedia/{seriesUUID}",
@@ -207,7 +218,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
 
         LOG.info("supplier: ${authentication.supplierId()} uploading files for series $seriesUUID")
         seriesRegistrationService.uploadMediaAndUpdateSeries(seriesToUpdate, files)
-        
+
         return HttpResponse.ok()
     }
 
