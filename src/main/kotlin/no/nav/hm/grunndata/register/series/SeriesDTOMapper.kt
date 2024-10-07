@@ -20,8 +20,11 @@ class SeriesDTOMapper(
 ) {
 
     suspend fun toDTOV2(seriesRegistration: SeriesRegistration): SeriesRegistrationDTOV2 {
-        val supplierName = supplierRegistrationService.findById(seriesRegistration.supplierId)?.name ?: ""
+        val supplierName =
+            supplierRegistrationService.findById(seriesRegistration.supplierId)?.name
+                ?: throw IllegalArgumentException("cannot find series ${seriesRegistration.id} supplier")
         val isoCategoryDTO = isoCategoryService.lookUpCode(seriesRegistration.isoCategory)
+            ?: throw IllegalArgumentException("cannot find series ${seriesRegistration.id} isocategory")
         val productRegistrationDTOs = productRegistrationService.findAllBySeriesUuid(seriesRegistration.id)
             .map { product -> productDTOMapper.toDTOV2(product) }
         val inAgreement = productAgreementRegistrationService.findAllByProductIds(
@@ -29,7 +32,6 @@ class SeriesDTOMapper(
                 .filter { it.registrationStatus == RegistrationStatus.ACTIVE }
                 .map { it.id },
         ).isNotEmpty()
-
 
         return SeriesRegistrationDTOV2(
             id = seriesRegistration.id,
@@ -62,8 +64,10 @@ class SeriesDTOMapper(
     }
 
     suspend fun toDTOV2(seriesRegistrationDTO: SeriesRegistrationDTO): SeriesRegistrationDTOV2 {
-        val supplierName = supplierRegistrationService.findById(seriesRegistrationDTO.supplierId)?.name ?: ""
+        val supplierName = supplierRegistrationService.findById(seriesRegistrationDTO.supplierId)?.name
+            ?: throw IllegalArgumentException("cannot find series ${seriesRegistrationDTO.id} supplier")
         val isoCategoryDTO = isoCategoryService.lookUpCode(seriesRegistrationDTO.isoCategory)
+            ?: throw IllegalArgumentException("cannot find series ${seriesRegistrationDTO.id} isocategory")
         val productRegistrationDTOs = productRegistrationService.findAllBySeriesUuid(seriesRegistrationDTO.id)
             .map { product -> productDTOMapper.toDTOV2(product) }
         val inAgreement = productAgreementRegistrationService.findAllByProductIds(
@@ -71,7 +75,6 @@ class SeriesDTOMapper(
                 .filter { it.registrationStatus == RegistrationStatus.ACTIVE }
                 .map { it.id },
         ).isNotEmpty()
-
 
         return SeriesRegistrationDTOV2(
             id = seriesRegistrationDTO.id,
