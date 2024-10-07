@@ -572,6 +572,10 @@ open class SeriesRegistrationService(
     ) {
         val mediaDtos =
             files.asFlow().map { mediaUploadService.uploadMedia(it, seriesToUpdate.id, ObjectType.SERIES) }.toSet()
+
+        var lowestPriority = seriesToUpdate.seriesData.media.let { oldMedia ->
+            if (oldMedia.isEmpty()) 0 else oldMedia.maxOf { it.priority }
+        }
         val mediaInfos =
             mediaDtos.map {
                 MediaInfoDTO(
@@ -582,6 +586,7 @@ open class SeriesRegistrationService(
                     text = it.filename?.substringBeforeLast("."),
                     source = it.source,
                     updated = it.updated,
+                    priority = ++lowestPriority
                 )
             }.toSet()
 
