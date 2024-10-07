@@ -11,6 +11,7 @@ import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.Patch
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
@@ -37,7 +38,10 @@ import org.reactivestreams.Publisher
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SeriesRegistrationController.API_V1_SERIES)
 @Tag(name = "Vendor Series")
-class SeriesRegistrationController(private val seriesRegistrationService: SeriesRegistrationService) {
+class SeriesRegistrationController(
+    private val seriesRegistrationService: SeriesRegistrationService,
+    private val seriesDTOMapper: SeriesDTOMapper
+) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationController::class.java)
         const val API_V1_SERIES = "/vendor/api/v1/series"
@@ -179,6 +183,22 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
             HttpResponse.notFound()
         }
 
+    @Patch("/v2/{id}")
+    suspend fun patchSeriesV2(
+        @PathVariable id: UUID,
+        @Body updateSeriesRegistrationDTO: UpdateSeriesRegistrationDTO,
+        authentication: Authentication,
+    ): HttpResponse<SeriesRegistrationDTOV2> =
+        HttpResponse.ok(
+            seriesDTOMapper.toDTOV2(
+                seriesRegistrationService.patchSeries(
+                    id,
+                    updateSeriesRegistrationDTO,
+                    authentication
+                )
+            )
+        )
+
     @Post(
         value = "/uploadMedia/{seriesUUID}",
         consumes = [MediaType.MULTIPART_FORM_DATA],
@@ -198,7 +218,7 @@ class SeriesRegistrationController(private val seriesRegistrationService: Series
 
         LOG.info("supplier: ${authentication.supplierId()} uploading files for series $seriesUUID")
         seriesRegistrationService.uploadMediaAndUpdateSeries(seriesToUpdate, files)
-        
+
         return HttpResponse.ok()
     }
 
