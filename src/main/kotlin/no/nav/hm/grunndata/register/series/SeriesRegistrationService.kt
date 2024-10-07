@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
 import no.nav.hm.grunndata.register.error.ErrorType
+import no.nav.hm.grunndata.register.product.isAdmin
 import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesRegistrationController.Companion
 
@@ -468,11 +469,14 @@ open class SeriesRegistrationService(
         patch: UpdateSeriesRegistrationDTO,
         authentication: Authentication
     ): SeriesRegistrationDTO {
-        val inDbSeries = findByIdAndSupplierId(id, authentication.supplierId()) ?: throw BadRequestException(
+        val inDbSeries = if (authentication.isAdmin()) findById(id) ?: throw BadRequestException(
+            "Series not found",
+            ErrorType.NOT_FOUND
+        ) else findByIdAndSupplierId(id, authentication.supplierId()) ?: throw BadRequestException(
             "Series not found",
             ErrorType.NOT_FOUND
         )
-        if (inDbSeries.supplierId != authentication.supplierId()) {
+        if (!authentication.isAdmin() && inDbSeries.supplierId != authentication.supplierId()) {
             LOG.warn("SupplierId in request does not match authenticated supplierId")
             throw BadRequestException(
                 "SupplierId in request does not match authenticated supplierId",
