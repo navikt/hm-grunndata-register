@@ -54,7 +54,7 @@ class SeriesDTOMapper(
             isPublished = seriesRegistration.published?.let { it < LocalDateTime.now() } ?: false,
             inAgreement = inAgreement,
             hmdbId = if (seriesRegistration.identifier != seriesRegistration.id.toString() &&
-                seriesRegistration.updatedBy == HMDB
+                seriesRegistration.createdBy == HMDB
             ) {
                 seriesRegistration.identifier
             } else {
@@ -97,7 +97,7 @@ class SeriesDTOMapper(
             isPublished = seriesRegistrationDTO.published?.let { it < LocalDateTime.now() } ?: false,
             inAgreement = inAgreement,
             hmdbId = if (seriesRegistrationDTO.identifier != seriesRegistrationDTO.id.toString() &&
-                seriesRegistrationDTO.updatedBy == HMDB
+                seriesRegistrationDTO.createdBy == HMDB
             ) {
                 seriesRegistrationDTO.identifier
             } else {
