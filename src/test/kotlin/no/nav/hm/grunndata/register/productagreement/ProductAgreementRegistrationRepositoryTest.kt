@@ -9,14 +9,16 @@ import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.DelkontraktData
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
+import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationRepository
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationService
+import no.nav.hm.grunndata.register.agreement.toEntity
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService.Companion.EXCEL
 import org.junit.jupiter.api.Test
 
 @MicronautTest
 class ProductAgreementRegistrationRepositoryTest(
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
-    private val delkontraktRegistrationService: DelkontraktRegistrationService,
+    private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository,
 ) {
     @Test
     fun testProductAgreementRegistrationRepository() {
@@ -33,7 +35,7 @@ class ProductAgreementRegistrationRepositoryTest(
                     updatedBy = "tester",
                     identifier = postId.toString()
                 )
-            delkontraktRegistrationService.save(delkontraktToSave)
+            delkontraktRegistrationRepository.save(delkontraktToSave.toEntity())
             val saved =
                 productAgreementRegistrationRepository.save(
                     ProductAgreementRegistration(

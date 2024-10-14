@@ -16,7 +16,8 @@ import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.agreement.DelkontraktData
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
-import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationService
+import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationRepository
+import no.nav.hm.grunndata.register.agreement.toEntity
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
@@ -28,7 +29,7 @@ class ProductRegistrationRepositoryTest(
     private val seriesGroupRepository: SeriesRegistrationRepository,
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
     private val objectMapper: ObjectMapper,
-    private val delkontraktRegistrationService: DelkontraktRegistrationService,
+    private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository,
 ) {
     @Test
     fun crudRepositoryTest() {
@@ -148,7 +149,7 @@ class ProductRegistrationRepositoryTest(
         runBlocking {
             val saved = productRegistrationRepository.save(registration)
             saved.shouldNotBeNull()
-            val savedDelkontrakt = delkontraktRegistrationService.save(delkontraktToSave)
+            val savedDelkontrakt = delkontraktRegistrationRepository.save(delkontraktToSave.toEntity())
             val savedAgreement = productAgreementRegistrationRepository.save(agreement)
             val savedAgreement2 = productAgreementRegistrationRepository.save(agreement2)
             val savedAgreement3 = productAgreementRegistrationRepository.save(agreement3)

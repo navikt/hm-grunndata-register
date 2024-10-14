@@ -9,7 +9,10 @@ import no.nav.hm.grunndata.rapid.dto.DelkontraktType
 import org.junit.jupiter.api.Test
 
 @MicronautTest
-class DelkontraktRegistrationRepositoryTest(private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository) {
+class DelkontraktRegistrationRepositoryTest(
+    private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository,
+
+) {
 
     @Test
     fun crudTest() {

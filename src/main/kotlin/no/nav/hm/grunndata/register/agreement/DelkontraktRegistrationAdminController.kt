@@ -68,7 +68,7 @@ class DelkontraktRegistrationAdminController(
         return delkontraktRegistrationService.findById(id)?.let { inDb ->
             val agreement = agreementService.findById(inDb.agreementId)
             if (agreement != null && agreement.draftStatus == DraftStatus.DRAFT) {
-                delkontraktRegistrationService.deleteById(id)
+                delkontraktRegistrationService.deleteById(id, agreement.id)
                 HttpResponse.noContent()
             } else {
                 throw BadRequestException("Delkontrakt $id cannot be deleted")
