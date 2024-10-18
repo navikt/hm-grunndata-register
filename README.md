@@ -54,7 +54,7 @@ Then dump the database from the downloaded file:
 
 ```
 gunzip register-db-dump.gz
-psql -h localhost -U register < register-db-dump
+psql -h localhost -U register -f register-db-dump
 ```
 
 ## Running in localhost, for frontend developing.
