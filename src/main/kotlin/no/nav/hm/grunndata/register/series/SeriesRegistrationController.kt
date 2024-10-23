@@ -26,26 +26,48 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
+import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
 import java.util.UUID
-import no.nav.hm.grunndata.register.series.SeriesRegistrationService.Companion
-import org.reactivestreams.Publisher
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SeriesRegistrationController.API_V1_SERIES)
 @Tag(name = "Vendor Series")
 class SeriesRegistrationController(
     private val seriesRegistrationService: SeriesRegistrationService,
-    private val seriesDTOMapper: SeriesDTOMapper
+    private val productRegistrationService: ProductRegistrationService,
+    private val seriesDTOMapper: SeriesDTOMapper,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationController::class.java)
         const val API_V1_SERIES = "/vendor/api/v1/series"
     }
+
+    @Get("/hmsNr/{hmsNr}")
+    suspend fun findSeriesForHmsNr(
+        @PathVariable hmsNr: String,
+        authentication: Authentication,
+    ): SeriesRegistrationDTO? =
+        productRegistrationService.findByHmsArtNrAndSupplierId(hmsNr, authentication.supplierId())?.let {
+            seriesRegistrationService.findById(it.seriesUUID)
+        }
+
+    @Get("/supplierRef/{supplierRef}")
+    suspend fun findSeriesForSupplierRef(
+        @PathVariable supplierRef: String,
+        authentication: Authentication,
+    ): SeriesRegistrationDTO? =
+        productRegistrationService.findBySupplierRefAndSupplierIdAndStatusNotDeleted(
+            supplierRef,
+            authentication.supplierId(),
+        )?.let {
+            seriesRegistrationService.findById(it.seriesUUID)
+        }
 
     @Get("/{?params*}")
     suspend fun getSeries(
@@ -173,7 +195,7 @@ class SeriesRegistrationController(
                             title = updateSeriesRegistrationDTO.title ?: inDb.title,
                             text = updateSeriesRegistrationDTO.text ?: inDb.text,
                             updated = LocalDateTime.now(),
-                            updatedByUser = authentication.name
+                            updatedByUser = authentication.name,
                         ),
                     true,
                 ),
@@ -194,20 +216,20 @@ class SeriesRegistrationController(
                 seriesRegistrationService.patchSeries(
                     id,
                     updateSeriesRegistrationDTO,
-                    authentication
-                )
-            )
+                    authentication,
+                ),
+            ),
         )
 
     @Post(
         value = "/uploadMedia/{seriesUUID}",
         consumes = [MediaType.MULTIPART_FORM_DATA],
-        produces = [MediaType.APPLICATION_JSON]
+        produces = [MediaType.APPLICATION_JSON],
     )
     suspend fun uploadMedia(
         seriesUUID: UUID,
         files: Publisher<CompletedFileUpload>, // FileUpload-struktur, fra front
-        authentication: Authentication
+        authentication: Authentication,
     ): HttpResponse<Any> {
         val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
 
@@ -389,8 +411,8 @@ class SeriesRegistrationController(
                     predicates.add(
                         criteriaBuilder.greaterThan(
                             root[SeriesRegistration::expired],
-                            LocalDateTime.now()
-                        )
+                            LocalDateTime.now(),
+                        ),
                     )
                 }
 
@@ -398,8 +420,8 @@ class SeriesRegistrationController(
                     predicates.add(
                         criteriaBuilder.notEqual(
                             root[SeriesRegistration::status],
-                            inputparams["excludedStatus"]
-                        )
+                            inputparams["excludedStatus"],
+                        ),
                     )
                 }
 
@@ -420,32 +442,32 @@ class SeriesRegistrationController(
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::supplierId],
-                            UUID.fromString(inputparams["supplierId"]!!)
-                        )
+                            UUID.fromString(inputparams["supplierId"]!!),
+                        ),
                     )
                 }
                 if (inputparams.contains("draft")) {
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::draftStatus],
-                            DraftStatus.valueOf(inputparams["draft"]!!)
-                        )
+                            DraftStatus.valueOf(inputparams["draft"]!!),
+                        ),
                     )
                 }
                 if (inputparams.contains("createdByUser")) {
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::createdByUser],
-                            inputparams["createdByUser"]
-                        )
+                            inputparams["createdByUser"],
+                        ),
                     )
                 }
                 if (inputparams.contains("updatedByUser")) {
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::updatedByUser],
-                            inputparams["updatedByUser"]
-                        )
+                            inputparams["updatedByUser"],
+                        ),
                     )
                 }
 
@@ -491,7 +513,7 @@ class SeriesRegistrationController(
                         criteriaBuilder.like(
                             root[SeriesRegistration::titleLowercase],
                             LiteralExpression("%$term%"),
-                        )
+                        ),
                     )
                 }
 
@@ -504,6 +526,5 @@ class SeriesRegistrationController(
             }
         }
 }
-
 
 data class SeriesDraftWithDTO(val title: String, val isoCategory: String)
