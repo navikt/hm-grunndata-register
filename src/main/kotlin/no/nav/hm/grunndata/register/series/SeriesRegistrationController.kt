@@ -396,7 +396,7 @@ class SeriesRegistrationController(
 
                 if (inputparams.contains("mainProduct")) {
                     predicates.add(
-                        criteriaBuilder.notEqual(
+                        criteriaBuilder.equal(
                             root[SeriesRegistration::mainProduct],
                             inputparams["mainProduct"],
                         ),
