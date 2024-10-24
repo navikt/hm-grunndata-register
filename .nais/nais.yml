@@ -90,3 +90,6 @@ spec:
         - host: login.microsoftonline.com
         - host: graph.microsoft.com
         - host: navikt.github.io
+    inbound:
+      rules:
+        - application: hm-grunndata-index
