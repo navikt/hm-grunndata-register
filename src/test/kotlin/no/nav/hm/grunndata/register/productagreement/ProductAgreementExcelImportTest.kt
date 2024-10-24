@@ -150,7 +150,10 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
                 productAgreementImportResult.newSeries.size shouldBe 4
                 productAgreementImportResult.newAccessoryParts.size shouldBe 5
                 productAgreementImportResult.newProducts.size shouldBe 2
-                println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(productAgreementGroupInSeries))
+                productAgreementImportResult.newSeries.forEach{
+                    println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(it))
+                }
+                //println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(productAgreementGroupInSeries))
             }
         }
     }
