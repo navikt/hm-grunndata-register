@@ -15,7 +15,6 @@ import no.nav.hm.grunndata.rapid.dto.SeriesAttributes
 import no.nav.hm.grunndata.rapid.dto.SeriesData
 import no.nav.hm.grunndata.rapid.dto.SeriesRegistrationRapidDTO
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
-import no.nav.hm.grunndata.register.HMDB
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
@@ -51,6 +50,7 @@ data class SeriesRegistration(
     val updatedByUser: String = "system",
     val createdByUser: String = "system",
     val createdByAdmin: Boolean = false,
+    val mainProduct: Boolean = true,
     @field:GeneratedValue
     val count: Int = 0,
     @field:GeneratedValue
@@ -105,6 +105,7 @@ data class SeriesRegistrationDTO(
     val countDeclined: Int = 0,
     val version: Long? = 0L,
     val titleLowercase: String = title.lowercase(Locale.getDefault()),
+    val mainProduct: Boolean = true,
 ) : EventPayload {
     override fun toRapidDTO(): RapidDTO =
         SeriesRegistrationRapidDTO(
@@ -253,7 +254,7 @@ data class UpdateSeriesRegistrationDTO(
     val title: String?,
     val text: String?,
     val keywords: List<String>?,
-    val url: String?
+    val url: String?,
     // val seriesData: SeriesDataDTO?,
 )
 
