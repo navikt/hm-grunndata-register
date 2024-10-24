@@ -41,7 +41,7 @@ import java.util.UUID
 class SeriesRegistrationAdminController(
     private val seriesRegistrationService: SeriesRegistrationService,
     private val productRegistrationService: ProductRegistrationService,
-    private val seriesDTOMapper: SeriesDTOMapper
+    private val seriesDTOMapper: SeriesDTOMapper,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationAdminController::class.java)
@@ -79,6 +79,15 @@ class SeriesRegistrationAdminController(
         inputparams?.let {
             PredicateSpecification<SeriesRegistration> { root, criteriaBuilder ->
                 val predicates = mutableListOf<Predicate>()
+
+                if (inputparams.contains("mainProduct")) {
+                    predicates.add(
+                        criteriaBuilder.notEqual(
+                            root[SeriesRegistration::mainProduct],
+                            inputparams["mainProduct"],
+                        ),
+                    )
+                }
 
                 if (inputparams.contains("adminStatus")) {
                     predicates.add(
@@ -311,9 +320,9 @@ class SeriesRegistrationAdminController(
                 seriesRegistrationService.patchSeries(
                     id,
                     updateSeriesRegistrationDTO,
-                    authentication
-                )
-            )
+                    authentication,
+                ),
+            ),
         )
 
     @Get("/to-approve{?params*}")

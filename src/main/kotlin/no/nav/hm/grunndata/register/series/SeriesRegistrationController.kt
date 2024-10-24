@@ -393,6 +393,16 @@ class SeriesRegistrationController(
                 val predicates = mutableListOf<Predicate>()
                 predicates.add(criteriaBuilder.equal(root[SeriesRegistration::supplierId], supplierId))
 
+
+                if (inputparams.contains("mainProduct")) {
+                    predicates.add(
+                        criteriaBuilder.notEqual(
+                            root[SeriesRegistration::mainProduct],
+                            inputparams["mainProduct"],
+                        ),
+                    )
+                }
+
                 if (inputparams.contains("adminStatus")) {
                     val statusList: List<AdminStatus> =
                         inputparams["adminStatus"]!!.split(",").mapNotNull {
