@@ -13,7 +13,8 @@ val excludedKeys: Set<String> =
         "countDeclined",
         "published",
         "titleLowercase",
-        "updatedByUser"
+        "updatedByUser",
+        "mainProduct"
     )
 
 data class MapDifference<K, V>(
