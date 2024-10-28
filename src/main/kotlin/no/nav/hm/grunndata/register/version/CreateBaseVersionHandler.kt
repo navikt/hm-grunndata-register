@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.version
 
+import io.micronaut.data.model.Pageable
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
@@ -33,8 +34,10 @@ open class CreateBaseVersionHandler(
 
     @Transactional
     open suspend fun createVersionsWhereMissingForMigratedSuppliers() {
+        val allSuppliers = supplierRegistrationService.findAll(emptyMap(), Pageable.UNPAGED).map { it.identifier }
+
         LOG.info("Creating base versions for migrated suppliers")
-        suppliersInRegister.forEach {
+        allSuppliers.forEach {
             var countSeriesBaseVersionsCreated = 0
             var countProductVersionsCreated = 0
 
