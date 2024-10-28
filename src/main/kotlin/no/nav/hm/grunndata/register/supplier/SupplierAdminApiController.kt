@@ -69,4 +69,12 @@ class SupplierAdminApiController(private val supplierRegistrationService: Suppli
                 isUpdate = true)
             )} ?:run { HttpResponse.notFound()}
 
+    @Put("/activate/{id}")
+    suspend fun activateSupplier(id: UUID, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> =
+        supplierRegistrationService.findById(id)
+            ?.let { inDb -> HttpResponse.ok(supplierRegistrationService.saveAndCreateEventIfNotDraft (
+                supplier = inDb.copy(status = SupplierStatus.ACTIVE),
+                isUpdate = true)
+            )} ?:run { HttpResponse.notFound()}
+
 }
