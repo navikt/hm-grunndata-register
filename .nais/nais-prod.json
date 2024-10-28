@@ -11,7 +11,7 @@
   "schedulers_enabled": true,
   "import_autoapprove": false,
   "java_opts": "-Xms256m -Xmx2048m -XX:+UseG1GC",
-  "baseversion_scheduler_enabled": false,
+  "baseversion_scheduler_enabled": true,
   "env": {
     "DIGITAL_SOKNAD_SORTIMENT_URL": "https://navikt.github.io/digihot-sortiment/sortiment_av_apostid_per_kategori2.json"
   }
