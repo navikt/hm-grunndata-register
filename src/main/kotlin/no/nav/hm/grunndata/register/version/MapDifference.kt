@@ -13,6 +13,7 @@ val excludedKeys: Set<String> =
         "countDeclined",
         "published",
         "titleLowercase",
+        "updatedBy",
         "updatedByUser",
         "mainProduct"
     )
