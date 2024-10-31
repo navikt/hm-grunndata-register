@@ -1,14 +1,14 @@
 package no.nav.hm.grunndata.register.agreement
 
+import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
-import io.micronaut.data.model.jpa.criteria.impl.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
-import io.micronaut.http.annotation.QueryValue
+import io.micronaut.http.annotation.RequestBean
 import io.micronaut.security.annotation.Secured
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.register.security.Roles
@@ -23,22 +23,28 @@ class AgreementRegistrationApiController(private val agreementRegistrationServic
         private val LOG = LoggerFactory.getLogger(AgreementRegistrationApiController::class.java)
     }
 
-    @Get("/{?params*}")
+    @Get("/")
     suspend fun findAgreements(
-        @QueryValue params: HashMap<String, String>?,
+        @RequestBean agreementCriteria: AgreementCriteria,
         pageable: Pageable,
-    ): Page<AgreementBasicInformationDto> = agreementRegistrationService.findAll(buildCriteriaSpec(params), pageable)
+    ): Page<AgreementBasicInformationDto> = agreementRegistrationService.findAll(buildCriteriaSpec(agreementCriteria), pageable)
 
-    private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<AgreementRegistration>? =
-        params?.let {
+    private fun buildCriteriaSpec(criteria: AgreementCriteria): PredicateSpecification<AgreementRegistration>? =
+        if (criteria.isNotEmpty()) {
             where {
-                if (params.contains("reference")) root[AgreementRegistration::reference] eq params["reference"]
+                criteria.reference?.let { root[AgreementRegistration::reference] eq it }
             }.and { root, criteriaBuilder ->
-                if (params.contains("title")) {
-                    criteriaBuilder.like(root[AgreementRegistration::title], LiteralExpression("%${params["title"]}%"))
-                } else {
-                    null
-                }
+                if (criteria.title != null) {
+                    criteriaBuilder.like(root[AgreementRegistration::title], criteriaBuilder.literal("%${criteria.title}%"))
+                } else null
             }
-        }
+        } else null
+
+    @Introspected
+    data class AgreementCriteria(
+        val reference: String?,
+        val title: String?,
+    ) {
+        fun isNotEmpty(): Boolean = reference != null || title != null
+    }
 }

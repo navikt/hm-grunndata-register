@@ -4,7 +4,7 @@ import io.micronaut.data.exceptions.DataAccessException
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.model.Slice
-import io.micronaut.data.model.jpa.criteria.impl.LiteralExpression
+import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
