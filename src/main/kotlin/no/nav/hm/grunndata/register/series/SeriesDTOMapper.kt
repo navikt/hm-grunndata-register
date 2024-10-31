@@ -66,7 +66,6 @@ class SeriesDTOMapper(
         val supplierName = supplierRegistrationService.findById(seriesRegistrationDTO.supplierId)?.name
             ?: throw IllegalArgumentException("cannot find series ${seriesRegistrationDTO.id} supplier")
         val isoCategoryDTO = isoCategoryService.lookUpCode(seriesRegistrationDTO.isoCategory)
-            ?: throw IllegalArgumentException("cannot find series ${seriesRegistrationDTO.id} isocategory")
         val productRegistrationDTOs = productRegistrationService.findAllBySeriesUuid(seriesRegistrationDTO.id)
             .map { product -> productDTOMapper.toDTOV2(product) }
         val inAgreement = productAgreementRegistrationService.findAllByProductIds(
