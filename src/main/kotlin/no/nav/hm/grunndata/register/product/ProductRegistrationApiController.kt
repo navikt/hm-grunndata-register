@@ -1,11 +1,12 @@
 package no.nav.hm.grunndata.register.product
 
+import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.exceptions.DataAccessException
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
+import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
-import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
@@ -15,7 +16,7 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
-import io.micronaut.http.annotation.QueryValue
+import io.micronaut.http.annotation.RequestBean
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.http.server.types.files.StreamedFile
 import io.micronaut.security.annotation.Secured
@@ -34,6 +35,7 @@ import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.slf4j.LoggerFactory
 import java.util.UUID
+import no.nav.hm.grunndata.register.runtime.where
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS)
@@ -58,42 +60,31 @@ class ProductRegistrationApiController(
         productRegistrationService.findBySeriesUUIDAndSupplierId(seriesUUID, authentication.supplierId())
             .sortedBy { it.created }.map { productDTOMapper.toDTO(it) }
 
-    @Get("/{?params*}")
+    @Get("/")
     suspend fun findProducts(
-        @QueryValue params: HashMap<String, String>?,
+        @RequestBean criteria: ProductRegistrationCriteria,
         pageable: Pageable,
         authentication: Authentication,
     ): Page<ProductRegistrationDTO> = productRegistrationService
-        .findAll(buildCriteriaSpec(params, authentication.supplierId()), pageable)
+        .findAll(buildCriteriaSpec(criteria, authentication.supplierId()), pageable)
         .mapSuspend { productDTOMapper.toDTO(it) }
 
     private fun buildCriteriaSpec(
-        params: HashMap<String, String>?,
+        criteria: ProductRegistrationCriteria,
         supplierId: UUID,
-    ): PredicateSpecification<ProductRegistration>? =
-        params?.let {
+    ): PredicateSpecification<ProductRegistration> ? =
+        if (criteria.isNotEmpty()){
             where {
                 root[ProductRegistration::supplierId] eq supplierId
-                if (params.contains("supplierRef")) root[ProductRegistration::supplierRef] eq params["supplierRef"]
-                if (params.contains("seriesUUID")) root[ProductRegistration::seriesUUID] eq params["seriesUUID"]
-                if (params.contains("hmsArtNr")) root[ProductRegistration::hmsArtNr] eq params["hmsArtNr"]
-                if (params.contains("draft")) root[ProductRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
-                if (params.contains("registrationStatus")) {
-                    val statusList: List<RegistrationStatus> =
-                        params["registrationStatus"]!!.split(",").map { RegistrationStatus.valueOf(it) }
-                    root[ProductRegistration::registrationStatus] inList statusList
-                }
-            }.and { root, criteriaBuilder ->
-                if (params.contains("title")) {
-                    criteriaBuilder.like(
-                        root[ProductRegistration::title],
-                        params["title"],
-                    )
-                } else {
-                    null
-                }
+                criteria.supplierRef?.let {root[ProductRegistration::supplierRef] eq it }
+                criteria.seriesUUID?.let { root[ProductRegistration::seriesUUID] eq it }
+                criteria.hmsArtNr?.let { root[ProductRegistration::hmsArtNr] eq it }
+                criteria.draft?.let { root[ProductRegistration::draftStatus] eq it }
+                criteria.registrationStatus?.let { statusList ->
+                    root[ProductRegistration::registrationStatus] inList statusList }
+                criteria.title?.let { root[ProductRegistration::title] like LiteralExpression("%$it%") }
             }
-        }
+        } else null
 
     @Get("/v2/{id}")
     suspend fun getProductByIdV2(
@@ -324,6 +315,21 @@ class ProductRegistrationApiController(
             }
         }
     }
+
+}
+
+@Introspected
+data class ProductRegistrationCriteria(
+    val supplierId: UUID? = null,
+    val supplierRef: String? = null,
+    val seriesUUID: UUID? = null,
+    val hmsArtNr: String? = null,
+    val draft: DraftStatus? = null,
+    val registrationStatus: List<RegistrationStatus>? = null,
+    val title: String? = null,
+) {
+    fun isNotEmpty(): Boolean = supplierId != null || supplierRef != null || seriesUUID != null || hmsArtNr != null ||
+            draft != null || registrationStatus != null || title != null
 }
 
 data class DraftVariantDTO(val articleName: String, val supplierRef: String)

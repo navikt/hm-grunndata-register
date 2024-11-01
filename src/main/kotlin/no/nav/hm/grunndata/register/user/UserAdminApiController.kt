@@ -1,11 +1,11 @@
 package no.nav.hm.grunndata.register.user
 
+import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
-import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
@@ -13,7 +13,7 @@ import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
-import io.micronaut.http.annotation.QueryValue
+import io.micronaut.http.annotation.RequestBean
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -24,6 +24,7 @@ import no.nav.hm.grunndata.register.user.UserAdminApiController.Companion.API_V1
 import no.nav.hm.grunndata.register.user.UserAttribute.SUPPLIER_ID
 import org.slf4j.LoggerFactory
 import java.util.*
+import no.nav.hm.grunndata.register.runtime.where
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(API_V1_ADMIN_USER_REGISTRATIONS)
@@ -37,24 +38,19 @@ class UserAdminApiController(
         private val LOG = LoggerFactory.getLogger(UserAdminApiController::class.java)
     }
 
-    @Get("/{?params*}")
+    @Get("/")
     suspend fun getUsers(
-        @QueryValue params: HashMap<String, String>?,
+        @RequestBean criteria: UserAdminCriteria,
         pageable: Pageable,
-    ): Page<UserDTO> = userRepository.findAll(buildCriteriaSpec(params), pageable).map { it.toDTO() }
+    ): Page<UserDTO> = userRepository.findAll(buildCriteriaSpec(criteria), pageable).map { it.toDTO() }
 
-    private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<User>? =
-        params?.let {
+    private fun buildCriteriaSpec(criteria: UserAdminCriteria): PredicateSpecification<User>? =
+        if (criteria.isNotEmpty()) {
             where {
-                if (params.contains("email")) root[User::email] eq params["email"]
-            }.and { root, criteriaBuilder ->
-                if (params.contains("name")) {
-                    criteriaBuilder.like(root[User::name], LiteralExpression("%${params["name"]}%"))
-                } else {
-                    null
-                }
+                criteria.email?.let { root[User::email] eq it }
+                criteria.name?.let { root[User::name] like LiteralExpression("%$it%") }
             }
-        }
+        } else null
 
     @Get("/supplierId/{supplierId}")
     suspend fun getUsersBySupplierId(supplierId: UUID): List<UserDTO> =
@@ -130,4 +126,11 @@ class UserAdminApiController(
             userRepository.changePassword(it.id, changePassword.oldPassword, changePassword.newPassword)
             HttpResponse.ok()
         } ?: throw BadRequestException("Wrong user info, please check password and email is correct")
+
+
+}
+
+@Introspected
+data class UserAdminCriteria(val email: String?=null, val name: String?=null) {
+    fun isNotEmpty() = email != null || name != null
 }

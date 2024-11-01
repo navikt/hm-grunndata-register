@@ -2,15 +2,12 @@ package no.nav.hm.grunndata.register.supplier
 
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
-import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
-import io.micronaut.data.runtime.criteria.get
-import io.micronaut.data.runtime.criteria.where
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import java.util.UUID
 import kotlinx.coroutines.flow.map
 import no.nav.hm.grunndata.rapid.event.EventName
-import java.util.UUID
 
 @Singleton
 open class SupplierRegistrationService(
@@ -53,27 +50,11 @@ open class SupplierRegistrationService(
     }
 
     open suspend fun findAll(
-        params: Map<String, String>?,
-        pageable: Pageable,
-    ): Page<SupplierRegistrationDTO> = findAll(buildCriteriaSpec(params), pageable)
-
-    open suspend fun findAll(
         spec: PredicateSpecification<SupplierRegistration>?,
         pageable: Pageable,
     ): Page<SupplierRegistrationDTO> = supplierRepository.findAll(spec, pageable).map { it.toDTO() }
 
-    private fun buildCriteriaSpec(params: Map<String, String>?): PredicateSpecification<SupplierRegistration>? =
-        params?.let {
-            where {
-                if (params.contains("status")) root[SupplierRegistration::status] eq params["status"]
-            }.and { root, criteriaBuilder ->
-                if (params.contains("name")) {
-                    criteriaBuilder.like(root[SupplierRegistration::name], LiteralExpression("%${params["name"]}%"))
-                } else {
-                    null
-                }
-            }
-        }
+
 
     open suspend fun findNameAndId(): List<SupplierNameAndId> = supplierRepository.findNameAndId()
 }

@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.product
 
+import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
@@ -8,7 +9,7 @@ import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
-import io.micronaut.http.annotation.QueryValue
+import io.micronaut.http.annotation.RequestBean
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -31,25 +32,25 @@ class ProductRegistrationVersionAdminController(private val productRegistrationV
         const val API_V1_PRODUCT_VERSIONS = "/admin/api/v1/product/versions"
     }
 
-    @Get("/{?params*}")
+    @Get("/")
     suspend fun getSeriesVersions(
-        @QueryValue params: HashMap<String, String>?,
+        @RequestBean criteria: ProductRegistrationVersionCriteria,
         pageable: Pageable,
         authentication: Authentication,
     ): Page<ProductRegistrationVersionDTO> {
-        return productRegistrationVersionService.findAll(buildCriteriaSpec(params), pageable).map { it.toDTO() }
+        return productRegistrationVersionService.findAll(buildCriteriaSpec(criteria), pageable).map { it.toDTO() }
     }
 
-    private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<ProductRegistrationVersion>? =
-        params?.let {
+    private fun buildCriteriaSpec(criteria: ProductRegistrationVersionCriteria): PredicateSpecification<ProductRegistrationVersion>? =
+        if (criteria.isNotEmpty()) {
             where {
-                if (it.containsKey("productId")) root[ProductRegistrationVersion::productId] eq it["productId"]
-                if (it.containsKey("version")) root[ProductRegistrationVersion::version] eq it["version"]
-                if (it.containsKey("status")) root[ProductRegistrationVersion::status] eq RegistrationStatus.valueOf(it["status"]!!)
-                if (it.containsKey("adminStatus")) root[ProductRegistrationVersion::adminStatus] eq AdminStatus.valueOf(it["adminStatus"]!!)
-                if (it.containsKey("draftStatus")) root[ProductRegistrationVersion::draftStatus] eq DraftStatus.valueOf(it["draftStatus"]!!)
+                criteria.productId?.let { root[ProductRegistrationVersion::productId] eq it  }
+                criteria.version?.let { root[ProductRegistrationVersion::version] eq it }
+                criteria.status?.let { root[ProductRegistrationVersion::status] eq it }
+                criteria.adminStatus?.let { root[ProductRegistrationVersion::adminStatus] eq it }
+                criteria.draftStatus?.let { root[ProductRegistrationVersion::draftStatus] eq it }
             }
-        }
+        } else null
 
     @Get("/{productId}/compare/{version}/approved")
     suspend fun compareVersionWithApproved(
@@ -62,4 +63,14 @@ class ProductRegistrationVersionAdminController(private val productRegistrationV
         return HttpResponse.ok(productRegistrationVersionService.diffWithLastApprovedVersion(productVersion))
     }
 
+    @Introspected
+    data class ProductRegistrationVersionCriteria(
+        val productId: UUID? = null,
+        val version: Long? = null,
+        val status: RegistrationStatus? = null,
+        val adminStatus: AdminStatus? = null,
+        val draftStatus: DraftStatus? = null,
+    ) {
+        fun isNotEmpty(): Boolean = productId != null || version != null || status != null || adminStatus != null || draftStatus != null
+    }
 }

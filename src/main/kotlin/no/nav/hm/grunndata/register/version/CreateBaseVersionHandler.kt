@@ -14,6 +14,7 @@ import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import no.nav.hm.grunndata.register.series.SeriesRegistrationVersion
 import no.nav.hm.grunndata.register.series.SeriesRegistrationVersionService
 import no.nav.hm.grunndata.register.series.toEntity
+import no.nav.hm.grunndata.register.supplier.SupplierAdminApiController
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.slf4j.LoggerFactory
 
@@ -34,7 +35,7 @@ open class CreateBaseVersionHandler(
 
     @Transactional
     open suspend fun createVersionsWhereMissingForMigratedSuppliers() {
-        val allSuppliers = supplierRegistrationService.findAll(emptyMap(), Pageable.UNPAGED).map { it.identifier }
+        val allSuppliers = supplierRegistrationService.findAll(null, Pageable.UNPAGED).map { it.identifier }
 
         LOG.info("Creating base versions for migrated suppliers")
         allSuppliers.forEach {
