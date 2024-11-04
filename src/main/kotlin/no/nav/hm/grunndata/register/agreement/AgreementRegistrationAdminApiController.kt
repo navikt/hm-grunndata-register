@@ -1,11 +1,11 @@
 package no.nav.hm.grunndata.register.agreement
 
+import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
-import io.micronaut.data.model.jpa.criteria.impl.LiteralExpression
+import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
-import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
@@ -14,19 +14,20 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
-import io.micronaut.http.annotation.QueryValue
+import io.micronaut.http.annotation.RequestBean
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import java.time.LocalDateTime
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
-import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(AgreementRegistrationAdminApiController.API_V1_ADMIN_AGREEMENT_REGISTRATIONS)
@@ -37,48 +38,27 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
         private val LOG = LoggerFactory.getLogger(AgreementRegistrationAdminApiController::class.java)
     }
 
-    @Get("/{?params*}")
+    @Get("/")
     suspend fun findAgreements(
-        @QueryValue params: HashMap<String, String>?,
-        pageable: Pageable,
-    ): Page<AgreementBasicInformationDto> = agreementRegistrationService.findAll(buildCriteriaSpec(params), pageable)
+        @RequestBean criteria: AgreementAdminCriteria,
+        pageable: Pageable
+    ): Page<AgreementBasicInformationDto> {
+        return agreementRegistrationService.findAll(buildCriteriaSpec(criteria), pageable)
+    }
 
-    private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<AgreementRegistration>? =
-        params?.let {
+    private fun buildCriteriaSpec(criteria: AgreementAdminCriteria): PredicateSpecification<AgreementRegistration>? =
+        if (criteria.isNotEmpty()) {
             where {
-                if (params.contains("reference")) root[AgreementRegistration::reference] eq params["reference"]
-                if (params.contains("draftStatus")) {
-                    root[AgreementRegistration::draftStatus] eq
-                        DraftStatus.valueOf(
-                            params["draftStatus"]!!,
-                        )
-                }
-                if (params.contains("agreementStatus")) root[AgreementRegistration::agreementStatus] eq params["agreementStatus"]
-                if (params.contains(
-                        "excludedAgreementStatus",
-                    )
-                ) {
-                    root[AgreementRegistration::agreementStatus] ne params["excludedAgreementStatus"]
-                }
-                if (params.contains("createdByUser")) root[AgreementRegistration::createdByUser] eq params["createdByUser"]
-                if (params.contains("updatedByUser")) root[AgreementRegistration::updatedByUser] eq params["updatedByUser"]
-                if (params.contains("filter")) {
-                    if (params["filter"] == "ACTIVE") {
-                        root[AgreementRegistration::agreementStatus] eq AgreementStatus.ACTIVE
-                    } else if (params["filter"] == "EXPIRED") {
-                        root[AgreementRegistration::expired] lessThan LocalDateTime.now()
-                    } else if (params["filter"] == "FUTURE") {
-                        root[AgreementRegistration::published] greaterThan LocalDateTime.now()
-                    }
-                }
-            }.and { root, criteriaBuilder ->
-                if (params.contains("title")) {
-                    criteriaBuilder.like(root[AgreementRegistration::title], LiteralExpression("%${params["title"]}%"))
-                } else {
-                    null
-                }
+                criteria.reference?.let { root[AgreementRegistration::reference] eq it }
+                criteria.draftStatus?.let { root[AgreementRegistration::draftStatus] eq it }
+                criteria.agreementStatus?.let { root[AgreementRegistration::agreementStatus] eq it }
+                criteria.excludedAgreementStatus?.let { root[AgreementRegistration::agreementStatus] eq it }
+                criteria.createdByUser?.let { root[AgreementRegistration::createdByUser] eq it }
+                criteria.updatedByUser?.let { root[AgreementRegistration::updatedByUser] eq it }
+
+                criteria.title?.let { root[AgreementRegistration::title] like LiteralExpression("%${it}%") }
             }
-        }
+        } else null
 
     @Get("/{id}")
     suspend fun getAgreementById(id: UUID): HttpResponse<AgreementRegistrationDTO> =
@@ -110,9 +90,9 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
             val updated =
                 inDb.copy(
                     agreementData =
-                        inDb.agreementData.copy(
-                            posts = inDb.agreementData.posts.filter { post -> post.identifier != delkontraktId },
-                        ),
+                    inDb.agreementData.copy(
+                        posts = inDb.agreementData.posts.filter { post -> post.identifier != delkontraktId },
+                    ),
                 )
             val dto = agreementRegistrationService.saveAndCreateEventIfNotDraft(updated, isUpdate = true)
             HttpResponse.ok(dto)
@@ -155,13 +135,13 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                     createdByUser = authentication.name,
                     updatedByUser = authentication.name,
                     agreementData =
-                        AgreementData(
-                            resume = "kort beskrivelse",
-                            text = "rammeavtale tekst her",
-                            identifier = UUID.randomUUID().toString(),
-                            attachments = emptyList(),
-                            posts = emptyList(),
-                        ),
+                    AgreementData(
+                        resume = "kort beskrivelse",
+                        text = "rammeavtale tekst her",
+                        identifier = UUID.randomUUID().toString(),
+                        attachments = emptyList(),
+                        posts = emptyList(),
+                    ),
                 )
             val dto = agreementRegistrationService.saveAndCreateEventIfNotDraft(draft, isUpdate = false)
             HttpResponse.created(dto)
@@ -187,13 +167,13 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                     createdByUser = authentication.name,
                     updatedByUser = authentication.name,
                     agreementData =
-                        AgreementData(
-                            resume = "kort beskrivelse",
-                            text = "rammeavtaletekst her",
-                            identifier = UUID.randomUUID().toString(),
-                            attachments = emptyList(),
-                            posts = emptyList(),
-                        ),
+                    AgreementData(
+                        resume = "kort beskrivelse",
+                        text = "rammeavtaletekst her",
+                        identifier = UUID.randomUUID().toString(),
+                        attachments = emptyList(),
+                        posts = emptyList(),
+                    ),
                 )
             val dto = agreementRegistrationService.saveAndCreateEventIfNotDraft(draft, isUpdate = false)
             HttpResponse.created(dto)
@@ -272,6 +252,21 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                 HttpResponse.ok(dto)
             }
             ?: HttpResponse.notFound()
+
+    @Introspected
+    data class AgreementAdminCriteria(
+        val title: String?,
+        val reference: String?,
+        val draftStatus: DraftStatus?,
+        val agreementStatus: AgreementStatus?,
+        val excludedAgreementStatus: AgreementStatus?,
+        val createdByUser: String?,
+        val updatedByUser: String?,
+        val filter: String?,
+    ) {
+        fun isNotEmpty() = title != null || reference != null || draftStatus != null || agreementStatus != null ||
+                excludedAgreementStatus != null || createdByUser != null || updatedByUser != null || filter != null
+    }
 }
 
 data class AgreementDraftWithDTO(

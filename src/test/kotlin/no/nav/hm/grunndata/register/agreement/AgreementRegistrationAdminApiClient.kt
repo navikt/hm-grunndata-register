@@ -23,6 +23,7 @@ interface AgreementRegistrationAdminApiClient {
                        @QueryValue reference: String?=null,
                        @QueryValue createdByUser: String? = null,
                        @QueryValue updatedByUser: String? = null,
+                       @QueryValue title: String? = null,
                        @QueryValue("size") size: Int? = null,
                        @QueryValue("page") page: Int?=null,
                        @QueryValue("sort") sort: String? = null): Page<AgreementBasicInformationDto>

@@ -2,10 +2,9 @@ package no.nav.hm.grunndata.register.news
 
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
-import io.micronaut.data.model.jpa.criteria.impl.LiteralExpression
+import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
-import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
@@ -13,7 +12,7 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
-import io.micronaut.http.annotation.QueryValue
+import io.micronaut.http.annotation.RequestBean
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -25,6 +24,7 @@ import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
+import no.nav.hm.grunndata.register.runtime.where
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(NewRegistrationAdminController.ADMIN_API_V1_NEWS)
@@ -35,28 +35,20 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
         const val ADMIN_API_V1_NEWS = "/admin/api/v1/news"
     }
 
-    @Get("/{?params*}")
-    suspend fun getNews(@QueryValue params: Map<String, String>?, pageable: Pageable): Page<NewsRegistrationDTO> {
-        return newsRegistrationService.findAll(buildSpec(params), pageable)
+    @Get("/")
+    suspend fun getNews(@RequestBean criteria: NewsRegistrationCriteria, pageable: Pageable): Page<NewsRegistrationDTO> {
+        return newsRegistrationService.findAll(buildSpec(criteria), pageable)
     }
 
-    private fun buildSpec(params: Map<String, String>?): PredicateSpecification<NewsRegistration>? = params?.let {
+    private fun buildSpec(criteria: NewsRegistrationCriteria): PredicateSpecification<NewsRegistration>? =
+        if (criteria.isNotEmpty()) {
         where {
-            if (params.contains("status")) {
-                val statusList: List<NewsStatus> =
-                    params["status"]!!.split(",").map { NewsStatus.valueOf(it) }
-                root[NewsRegistration::status] inList statusList
-            }
-            if (params.contains("draftStatus")) root[NewsRegistration::draftStatus] eq params["draftStatus"]
-            if (params.contains("createdByUser")) root[NewsRegistration::createdByUser] eq params["createdByUser"]
-        }.and { root, criteriaBuilder ->
-            if (params.contains("title")) {
-                criteriaBuilder.like(root[NewsRegistration::title], LiteralExpression("%${params["title"]}%"))
-            } else {
-                null
-            }
+            if (criteria.status.isNotEmpty()) { root[NewsRegistration::status] inList criteria.status }
+            criteria.draftStatus?.let { root[NewsRegistration::draftStatus] eq it }
+            criteria.createdByUser?.let { root[NewsRegistration::createdByUser] eq it }
+            criteria.title?.let { root[NewsRegistration::title] like LiteralExpression("%$it%") }
         }
-    }
+    } else null
 
     @Post("/")
     suspend fun createNews(@Body news: CreateUpdateNewsDTO, authentication: Authentication): NewsRegistrationDTO {
@@ -158,6 +150,15 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
                 inDb.copy(status = NewsStatus.DELETED, expired = LocalDateTime.now()), isUpdate = true
             )
         } ?: throw BadRequestException("News with id $id does not exist")
+    }
+
+    data class NewsRegistrationCriteria (
+        val status: List<NewsStatus> = emptyList(),
+        val draftStatus: DraftStatus? = null,
+        val createdByUser: String? = null,
+        val title: String? = null
+    ) {
+        fun isNotEmpty() = status.isNotEmpty() || draftStatus != null || createdByUser != null || title != null
     }
 }
 

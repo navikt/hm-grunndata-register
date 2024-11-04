@@ -29,6 +29,7 @@ import java.util.*
 @MicronautTest
 class SupplierRegistrationAdminApiControllerTest(private val supplierRegistrationService: SupplierRegistrationService,
                                                  private val userRepository: UserRepository,
+                                                 private val supplierRegistrationAdminApiClient: SupplierRegistrationAdminApiClient,
                                                  private val loginClient: LoginClient) {
 
     @Inject
@@ -76,7 +77,7 @@ class SupplierRegistrationAdminApiControllerTest(private val supplierRegistratio
     @Test
     fun crudAPItest() {
         // login
-        val jwt = loginClient.login(UsernamePasswordCredentials(email, token)).getCookie("JWT").get()
+        val jwt = loginClient.login(UsernamePasswordCredentials(email, token)).getCookie("JWT").get().value
         val supplier = SupplierRegistrationDTO(
             status = SupplierStatus.ACTIVE,
             name = "Leverandør AS",
@@ -88,14 +89,12 @@ class SupplierRegistrationAdminApiControllerTest(private val supplierRegistratio
             ),
             identifier = "leverandor-as"
         )
-        val respons = client.toBlocking().exchange(
-            HttpRequest.POST("$CONTEXT_PATH/$API_V1_ADMIN_SUPPLIER_REGISTRATIONS", supplier)
-                .accept(MediaType.APPLICATION_JSON)
-                .cookie(jwt), SupplierRegistrationDTO::class.java
-        )
-        respons.shouldNotBeNull()
-        respons.body.shouldNotBeNull()
-        val sup = respons.body.get()
-        sup.id shouldBe supplier.id
+        val created  = supplierRegistrationAdminApiClient.createSupplier(jwt, supplier)
+        created.shouldNotBeNull()
+        created.id shouldBe supplier.id
+        val found = supplierRegistrationAdminApiClient.findSuppliers(jwt, name = "Leverandør AS", page = 0, size = 10)
+        found.totalSize shouldBe 1
+        val updated = supplierRegistrationAdminApiClient.updateSupplier(jwt, created.id, created.copy(status = SupplierStatus.INACTIVE))
+        updated.status shouldBe SupplierStatus.INACTIVE
     }
 }

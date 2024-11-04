@@ -1,13 +1,13 @@
 package no.nav.hm.grunndata.register.product
 
+import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.exceptions.DataAccessException
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.model.Slice
-import io.micronaut.data.model.jpa.criteria.impl.LiteralExpression
+import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
-import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
@@ -17,7 +17,7 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
-import io.micronaut.http.annotation.QueryValue
+import io.micronaut.http.annotation.RequestBean
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.http.server.types.files.StreamedFile
 import io.micronaut.security.annotation.Secured
@@ -34,6 +34,7 @@ import no.nav.hm.grunndata.register.series.SeriesGroupDTO
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.slf4j.LoggerFactory
 import java.util.UUID
+import no.nav.hm.grunndata.register.runtime.where
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
@@ -49,9 +50,8 @@ class ProductRegistrationAdminApiController(
         private val LOG = LoggerFactory.getLogger(ProductRegistrationAdminApiController::class.java)
     }
 
-    @Get("/series/group{?params*}")
+    @Get("/series/group")
     suspend fun findSeriesGroup(
-        @QueryValue params: HashMap<String, String>?,
         pageable: Pageable,
     ): Slice<SeriesGroupDTO> = productRegistrationService.findSeriesGroup(pageable)
 
@@ -59,44 +59,33 @@ class ProductRegistrationAdminApiController(
     suspend fun findBySeriesUUIDAndSupplierId(seriesUUID: UUID) =
         productRegistrationService.findAllBySeriesUuid(seriesUUID).sortedBy { it.created }
 
-    @Get("/{?params*}")
+    @Get("/")
     suspend fun findProducts(
-        @QueryValue params: HashMap<String, String>?,
+        @RequestBean criteria: ProductRegistrationAdminCriteria,
         pageable: Pageable,
     ): Page<ProductRegistrationDTO> = productRegistrationService
-        .findAll(buildCriteriaSpec(params), pageable)
+        .findAll(buildCriteriaSpec(criteria), pageable)
         .mapSuspend { productDTOMapper.toDTO(it) }
+
+    private fun buildCriteriaSpec(criteria: ProductRegistrationAdminCriteria): PredicateSpecification<ProductRegistration>? =
+        if (criteria.isNotEmpty()) {
+            where {
+                criteria.supplierRef?.let { root[ProductRegistration::supplierRef] eq it }
+                criteria.hmsArtNr?.let { root[ProductRegistration::hmsArtNr] eq it }
+                criteria.adminStatus?.let { root[ProductRegistration::adminStatus] eq it }
+                criteria.registrationStatus?.let { root[ProductRegistration::registrationStatus] eq it }
+                criteria.supplierId?.let { root[ProductRegistration::supplierId] eq it }
+                criteria.draft?.let { root[ProductRegistration::draftStatus] eq it }
+                criteria.createdByUser?.let { root[ProductRegistration::createdByUser] eq it }
+                criteria.updatedByUser?.let { root[ProductRegistration::updatedByUser] eq it }
+                criteria.title?.let { root[ProductRegistration::title] like LiteralExpression("%${it}%") }
+            }
+        } else null
 
     @Get("/til-godkjenning")
     suspend fun findProductsPendingApprove(
-        @QueryValue params: HashMap<String, String>?,
         pageable: Pageable,
     ): Page<ProductToApproveDto> = productRegistrationService.findProductsToApprove(pageable)
-
-    private fun buildCriteriaSpec(params: HashMap<String, String>?): PredicateSpecification<ProductRegistration>? =
-        params?.let {
-            where {
-                if (params.contains("supplierRef")) root[ProductRegistration::supplierRef] eq params["supplierRef"]
-                if (params.contains("hmsArtNr")) root[ProductRegistration::hmsArtNr] eq params["hmsArtNr"]
-                if (params.contains("adminStatus")) root[ProductRegistration::adminStatus] eq AdminStatus.valueOf(params["adminStatus"]!!)
-                if (params.contains("registrationStatus")) {
-                    root[ProductRegistration::registrationStatus] eq
-                            RegistrationStatus.valueOf(
-                                params["registrationStatus"]!!,
-                            )
-                }
-                if (params.contains("supplierId")) root[ProductRegistration::supplierId] eq UUID.fromString(params["supplierId"]!!)
-                if (params.contains("draft")) root[ProductRegistration::draftStatus] eq DraftStatus.valueOf(params["draft"]!!)
-                if (params.contains("createdByUser")) root[ProductRegistration::createdByUser] eq params["createdByUser"]
-                if (params.contains("updatedByUser")) root[ProductRegistration::updatedByUser] eq params["updatedByUser"]
-            }.and { root, criteriaBuilder ->
-                if (params.contains("title")) {
-                    criteriaBuilder.like(root[ProductRegistration::title], LiteralExpression("%${params["title"]}%"))
-                } else {
-                    null
-                }
-            }
-        }
 
     @Get("/v2/{id}")
     suspend fun getProductByIdV2(id: UUID): HttpResponse<ProductRegistrationDTOV2> =
@@ -256,6 +245,23 @@ class ProductRegistrationAdminApiController(
             val products = productRegistrationService.importDryRunExcelRegistrations(excelDTOList, authentication)
             HttpResponse.ok(products)
         }
+    }
+
+    @Introspected
+    data class ProductRegistrationAdminCriteria(
+        val supplierRef: String? = null,
+        val hmsArtNr: String? = null,
+        val adminStatus: AdminStatus? = null,
+        val registrationStatus: RegistrationStatus? = null,
+        val supplierId: UUID? = null,
+        val draft: DraftStatus? = null,
+        val createdByUser: String? = null,
+        val updatedByUser: String? = null,
+        val title: String? = null,
+    ) {
+        fun isNotEmpty(): Boolean = listOfNotNull(
+            supplierRef, hmsArtNr, adminStatus, registrationStatus, supplierId, draft, createdByUser, updatedByUser, title
+        ).isNotEmpty()
     }
 }
 

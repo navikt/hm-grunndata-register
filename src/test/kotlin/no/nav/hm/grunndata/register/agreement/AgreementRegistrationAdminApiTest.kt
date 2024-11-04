@@ -110,6 +110,9 @@ class AgreementRegistrationAdminApiTest(private val apiClient: AgreementRegistra
             size = 20, page = 0, sort = "created,asc")
         page.totalSize shouldBe 2
 
+        val page2 = apiClient.findAgreements(jwt, size = 20, page = 0, sort = "created,asc", title = "Rammeavtale")
+        page2.totalSize shouldBe 1
+
         val updatedVersion = apiClient.getAgreementById(jwt, updated.id).body()
         updatedVersion.version!! shouldBeGreaterThan 0
         updatedVersion.updatedByUser shouldBe email

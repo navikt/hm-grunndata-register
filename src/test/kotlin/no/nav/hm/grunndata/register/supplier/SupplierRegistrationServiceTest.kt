@@ -34,12 +34,6 @@ class SupplierRegistrationServiceTest(private val supplierRegistrationService: S
             val dto = supplierRegistrationService.save(supplierRegistration)
             dto.shouldNotBeNull()
             dto.name shouldBe name
-            supplierRegistrationService.findAll(mapOf("name" to "doesnotexist"), Pageable.from(0, 10))
-                .content.size shouldBe 0
-            supplierRegistrationService.findAll(hashMapOf("name" to "leverandør as"), Pageable.from(0, 10))
-                .content.size shouldBe 1
-
-
         }
     }
 }
