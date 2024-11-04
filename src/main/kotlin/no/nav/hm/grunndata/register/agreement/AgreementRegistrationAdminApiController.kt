@@ -1,13 +1,11 @@
 package no.nav.hm.grunndata.register.agreement
 
-import io.micronaut.core.annotation.Experimental
 import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
-import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
@@ -20,10 +18,6 @@ import io.micronaut.http.annotation.RequestBean
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
-import jakarta.persistence.criteria.CriteriaBuilder
-import jakarta.persistence.criteria.Expression
-import jakarta.persistence.criteria.Predicate
-import jakarta.persistence.criteria.Root
 import java.time.LocalDateTime
 import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
@@ -31,6 +25,7 @@ import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
 
@@ -53,37 +48,15 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
 
     private fun buildCriteriaSpec(criteria: AgreementAdminCriteria): PredicateSpecification<AgreementRegistration>? =
         if (criteria.isNotEmpty()) {
-            PredicateSpecification { root, criteriaBuilder ->
-                val predicates = mutableListOf<Predicate>()
+            where {
+                criteria.reference?.let { root[AgreementRegistration::reference] eq it }
+                criteria.draftStatus?.let { root[AgreementRegistration::draftStatus] eq it }
+                criteria.agreementStatus?.let { root[AgreementRegistration::agreementStatus] eq it }
+                criteria.excludedAgreementStatus?.let { root[AgreementRegistration::agreementStatus] eq it }
+                criteria.createdByUser?.let { root[AgreementRegistration::createdByUser] eq it }
+                criteria.updatedByUser?.let { root[AgreementRegistration::updatedByUser] eq it }
 
-                criteria.reference?.let {
-                    predicates.add(criteriaBuilder.equal(root[AgreementRegistration::reference], it))
-                }
-                criteria.draftStatus?.let {
-                    predicates.add(criteriaBuilder.equal(root[AgreementRegistration::draftStatus], it))
-                }
-                criteria.agreementStatus?.let {
-                    predicates.add(criteriaBuilder.equal(root[AgreementRegistration::agreementStatus], it))
-                }
-                criteria.excludedAgreementStatus?.let {
-                    predicates.add(criteriaBuilder.notEqual(root[AgreementRegistration::agreementStatus], it))
-                }
-                criteria.createdByUser?.let {
-                    predicates.add(criteriaBuilder.equal(root[AgreementRegistration::createdByUser], it))
-                }
-                criteria.updatedByUser?.let {
-                    predicates.add(criteriaBuilder.equal(root[AgreementRegistration::updatedByUser], it))
-                }
-
-                criteria.title?.let {
-                    predicates.add(
-                        criteriaBuilder.like(
-                            root[AgreementRegistration::title],
-                            LiteralExpression("%${it}%")
-                        )
-                    )
-                }
-                criteriaBuilder.and(*predicates.toTypedArray())
+                criteria.title?.let { root[AgreementRegistration::title] like LiteralExpression("%${it}%") }
             }
         } else null
 
