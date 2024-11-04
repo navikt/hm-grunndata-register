@@ -52,10 +52,18 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
                 criteria.reference?.let { root[AgreementRegistration::reference] eq it }
                 criteria.draftStatus?.let { root[AgreementRegistration::draftStatus] eq it }
                 criteria.agreementStatus?.let { root[AgreementRegistration::agreementStatus] eq it }
-                criteria.excludedAgreementStatus?.let { root[AgreementRegistration::agreementStatus] eq it }
+                criteria.excludedAgreementStatus?.let { root[AgreementRegistration::agreementStatus] ne it }
+                criteria.filter?.let {
+                    if (criteria.filter == "ACTIVE") {
+                        root[AgreementRegistration::agreementStatus] eq AgreementStatus.ACTIVE
+                    } else if (criteria.filter == "EXPIRED") {
+                        root[AgreementRegistration::expired] lessThan LocalDateTime.now()
+                    } else if (criteria.filter == "FUTURE") {
+                        root[AgreementRegistration::published] greaterThan LocalDateTime.now()
+                    }
+                }
                 criteria.createdByUser?.let { root[AgreementRegistration::createdByUser] eq it }
                 criteria.updatedByUser?.let { root[AgreementRegistration::updatedByUser] eq it }
-
                 criteria.title?.let { root[AgreementRegistration::title] like LiteralExpression("%${it}%") }
             }
         } else null
