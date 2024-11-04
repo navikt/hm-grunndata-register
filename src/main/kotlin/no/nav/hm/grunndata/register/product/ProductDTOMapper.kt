@@ -53,7 +53,7 @@ class ProductDTOMapper(
 
     suspend fun toDTOV2(productRegistration: ProductRegistration): ProductRegistrationDTOV2 {
         val agreements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(productRegistration.supplierId, productRegistration.supplierRef)
-        val techLabels = techLabelService.fetchLabelsByIsoCode(productRegistration.isoCategory).associateBy { it.label }
+        val techLabels = techLabelService.fetchLabelsByIsoCode(productRegistration.isoCategory)
 
         return ProductRegistrationDTOV2(
             id = productRegistration.id,
@@ -72,10 +72,10 @@ class ProductDTOMapper(
         )
     }
 
-    private fun ProductData.toProductDataDTO(techLabels: Map<String, TechLabelDTO>): ProductDataDTO {
-        val techdataDTOs = techLabels.map { (labelKey, techLabel) ->
-            techData.find { it.key == labelKey }?.toDTO(techLabels) ?: TechDataDTO(
-                key = labelKey,
+    private fun ProductData.toProductDataDTO(techLabels: List<TechLabelDTO>): ProductDataDTO {
+        val extendedTechdataDTOs = techLabels.map { techLabel ->
+            techData.find { it.key == techLabel.label }?.toExtendedDTO(techLabels) ?: ExtendedTechDataDTO(
+                key = techLabel.label,
                 value = "",
                 unit = techLabel.unit ?: "",
                 type = TechDataType.from(techLabel),
@@ -86,7 +86,7 @@ class ProductDTOMapper(
 
         return ProductDataDTO(
             attributes = attributes,
-            techData = techdataDTOs,
+            techData = extendedTechdataDTOs,
         )
     }
 

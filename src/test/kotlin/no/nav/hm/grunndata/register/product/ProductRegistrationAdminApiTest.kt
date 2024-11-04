@@ -191,7 +191,7 @@ class ProductRegistrationAdminApiTest(
                 text = "En lang beskrivelse av produktet"
             ),
             techData = listOf(
-                TechDataDTO(
+                ExtendedTechDataDTO(
                     key = "maksvekt",
                     unit = "kg",
                     value = "120",

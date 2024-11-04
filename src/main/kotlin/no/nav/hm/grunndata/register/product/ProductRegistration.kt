@@ -274,10 +274,10 @@ data class ProductRegistrationDTOV2(
 
 data class ProductDataDTO(
     val attributes: Attributes = Attributes(),
-    val techData: List<TechDataDTO> = emptyList(),
+    val techData: List<ExtendedTechDataDTO> = emptyList(),
 )
 
-data class TechDataDTO(
+data class ExtendedTechDataDTO(
     val key: String,
     val value: String,
     val unit: String,
@@ -288,9 +288,9 @@ data class TechDataDTO(
     fun toEntity(): TechData = TechData(key = key, value = value, unit = unit)
 }
 
-fun TechData.toDTO(techLabels: Map<String, TechLabelDTO>): TechDataDTO {
-    val techLabel = techLabels[key] ?: throw IllegalArgumentException("Ukjent techLabel: $key")
-    return TechDataDTO(
+fun TechData.toExtendedDTO(techLabels: List<TechLabelDTO>): ExtendedTechDataDTO {
+    val techLabel = techLabels.find { it.label == key } ?: throw IllegalArgumentException("Ukjent techLabel: $key")
+    return ExtendedTechDataDTO(
         key = key,
         value = when (value.lowercase()) {
             "ja" -> "Ja"
