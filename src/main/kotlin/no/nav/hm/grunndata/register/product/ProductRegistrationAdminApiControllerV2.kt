@@ -2,7 +2,6 @@ package no.nav.hm.grunndata.register.product
 
 import io.micronaut.data.exceptions.DataAccessException
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
@@ -10,14 +9,12 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
-import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.error.BadRequestException
-import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
 
@@ -26,7 +23,6 @@ import org.slf4j.LoggerFactory
 @Tag(name = "Admin Product V2")
 class ProductRegistrationAdminApiControllerV2(
     private val productRegistrationService: ProductRegistrationService,
-    private val xlImport: ProductExcelImport,
     private val productDTOMapper: ProductDTOMapper,
 ) {
     companion object {
@@ -107,23 +103,5 @@ class ProductRegistrationAdminApiControllerV2(
     ): HttpResponse<Any> {
         productRegistrationService.deleteDraftVariants(ids, authentication)
         return HttpResponse.ok()
-    }
-
-    @Post(
-        "/excel/import",
-        consumes = [MediaType.MULTIPART_FORM_DATA],
-        produces = [MediaType.APPLICATION_JSON],
-    )
-    suspend fun importExcel(
-        file: CompletedFileUpload,
-        authentication: Authentication,
-    ): HttpResponse<List<ProductRegistrationDTOV2>> {
-        LOG.info("Importing Excel file ${file.filename} by admin")
-        return file.inputStream.use { inputStream ->
-            val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
-            LOG.info("found ${excelDTOList.size} products in Excel file")
-            val products = productRegistrationService.importExcelRegistrations(excelDTOList, authentication)
-            HttpResponse.ok(products.map { productDTOMapper.toDTOV2(it) })
-        }
     }
 }

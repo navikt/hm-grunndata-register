@@ -7,7 +7,6 @@ import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
@@ -16,20 +15,15 @@ import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.RequestBean
-import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.UUID
-import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.error.BadRequestException
-import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
-import no.nav.hm.grunndata.register.product.batch.ProductRegistrationExcelDTO
 import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
-import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import org.slf4j.LoggerFactory
 
 @Secured(Roles.ROLE_SUPPLIER)
@@ -37,8 +31,6 @@ import org.slf4j.LoggerFactory
 @Tag(name = "Vendor Product V2")
 class ProductRegistrationApiControllerV2(
     private val productRegistrationService: ProductRegistrationService,
-    private val seriesRegistrationService: SeriesRegistrationService,
-    private val xlImport: ProductExcelImport,
     private val productDTOMapper: ProductDTOMapper,
 ) {
     companion object {
@@ -162,69 +154,5 @@ class ProductRegistrationApiControllerV2(
     ): HttpResponse<Any> {
         productRegistrationService.deleteDraftVariants(ids, authentication)
         return HttpResponse.ok()
-    }
-
-    @Post(
-        "/excel/import/{seriesId}",
-        consumes = [MediaType.MULTIPART_FORM_DATA],
-        produces = [MediaType.APPLICATION_JSON],
-    )
-    suspend fun importExcelForSeries(
-        @PathVariable seriesId: UUID,
-        file: CompletedFileUpload,
-        authentication: Authentication,
-    ): HttpResponse<List<ProductRegistrationDTOV2>> {
-        LOG.info("Importing Excel file ${file.filename} for supplierId ${authentication.supplierId()}")
-        return file.inputStream.use { inputStream ->
-            val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
-            validateProductsToBeImported(excelDTOList, seriesId, authentication)
-            LOG.info("found ${excelDTOList.size} products in Excel file")
-            val products = productRegistrationService.importExcelRegistrations(excelDTOList, authentication)
-            val seriesToUpdate = seriesRegistrationService.findById(seriesId)
-            requireNotNull(seriesToUpdate)
-            // todo: could it ever be needed to change unpublished to draft also?
-            if (seriesToUpdate.published != null) {
-                seriesRegistrationService.setSeriesToDraftStatus(seriesToUpdate, authentication)
-            }
-
-            HttpResponse.ok(products.map { productDTOMapper.toDTOV2(it) })
-        }
-    }
-
-    private suspend fun validateProductsToBeImported(
-        dtos: List<ProductRegistrationExcelDTO>,
-        seriesId: UUID,
-        authentication: Authentication,
-    ) {
-        val levArtNrUniqueList = dtos.map { it.levartnr }.distinct()
-        if (levArtNrUniqueList.size < dtos.size) {
-            throw BadRequestException("Det finnes produkter med samme lev-artnr. i filen. Disse må være unike.")
-        }
-
-        val seriesUniqueList = dtos.map { it.produktserieid.toUUID() }.distinct()
-
-        if (seriesUniqueList.size > 1) {
-            throw BadRequestException(
-                "Det finnes produkter tilknyttet ulike produktserier i filen. " +
-                        "Det er kun støtte for å importere produkter til en produktserie om gangen",
-            )
-        }
-
-        if (seriesUniqueList.size == 1 && seriesUniqueList[0] != seriesId) {
-            throw BadRequestException("Produktserien i filen er ulik produktserien du importerte for.")
-        }
-
-        seriesUniqueList.forEach {
-            if (!productRegistrationService.exitsBySeriesUUIDAndSupplierId(it, authentication.supplierId())) {
-                throw BadRequestException("ProduktserieId $it finnes ikke for leverandør ${authentication.supplierId()}")
-            }
-        }
-        dtos.forEach {
-            if (it.leverandorid.toUUID() != authentication.supplierId()) {
-                throw BadRequestException(
-                    "Innlogget bruker har ikke rettigheter til leverandørId ${it.leverandorid}",
-                )
-            }
-        }
     }
 }
