@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductRegistrationAdminApiControllerV2.API_V2_ADMIN_PRODUCT_REGISTRATIONS)
-@Tag(name = "Admin Product")
+@Tag(name = "Admin Product V2")
 class ProductRegistrationAdminApiControllerV2(
     private val productRegistrationService: ProductRegistrationService,
     private val xlImport: ProductExcelImport,

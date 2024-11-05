@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(ProductRegistrationApiControllerV2.API_V2_PRODUCT_REGISTRATIONS)
-@Tag(name = "Vendor Product")
+@Tag(name = "Vendor Product V2")
 class ProductRegistrationApiControllerV2(
     private val productRegistrationService: ProductRegistrationService,
     private val seriesRegistrationService: SeriesRegistrationService,
