@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.news
 
+import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
@@ -152,6 +153,7 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
         } ?: throw BadRequestException("News with id $id does not exist")
     }
 
+    @Introspected
     data class NewsRegistrationCriteria (
         val status: List<NewsStatus> = emptyList(),
         val draftStatus: DraftStatus? = null,
