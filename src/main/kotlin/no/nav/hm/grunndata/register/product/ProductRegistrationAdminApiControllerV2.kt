@@ -39,6 +39,11 @@ class ProductRegistrationAdminApiControllerV2(
         productRegistrationService.findById(id)
             ?.let { HttpResponse.ok(productDTOMapper.toDTOV2(it)) } ?: HttpResponse.notFound()
 
+    @Get("/series/{seriesUUID}")
+    suspend fun findBySeriesUUIDAndSupplierId(seriesUUID: UUID) =
+        productRegistrationService.findAllBySeriesUuid(seriesUUID).sortedBy { it.created }
+            .map { productDTOMapper.toDTOV2(it) }
+
     @Post("/draftWithV3/{seriesUUID}")
     suspend fun createDraft(
         @PathVariable seriesUUID: UUID,
