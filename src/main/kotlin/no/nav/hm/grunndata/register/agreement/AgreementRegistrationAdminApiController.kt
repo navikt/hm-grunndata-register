@@ -261,20 +261,21 @@ class AgreementRegistrationAdminApiController(private val agreementRegistrationS
             }
             ?: HttpResponse.notFound()
 
-    @Introspected
-    data class AgreementAdminCriteria(
-        val title: String?,
-        val reference: String?,
-        val draftStatus: DraftStatus?,
-        val agreementStatus: AgreementStatus?,
-        val excludedAgreementStatus: AgreementStatus?,
-        val createdByUser: String?,
-        val updatedByUser: String?,
-        val filter: String?,
-    ) {
-        fun isNotEmpty() = title != null || reference != null || draftStatus != null || agreementStatus != null ||
-                excludedAgreementStatus != null || createdByUser != null || updatedByUser != null || filter != null
-    }
+}
+
+@Introspected
+data class AgreementAdminCriteria(
+    val title: String?,
+    val reference: String?,
+    val draftStatus: DraftStatus?,
+    val agreementStatus: AgreementStatus?,
+    val excludedAgreementStatus: AgreementStatus?,
+    val createdByUser: String?,
+    val updatedByUser: String?,
+    val filter: String?,
+) {
+    fun isNotEmpty() = title != null || reference != null || draftStatus != null || agreementStatus != null ||
+            excludedAgreementStatus != null || createdByUser != null || updatedByUser != null || filter != null
 }
 
 data class AgreementDraftWithDTO(

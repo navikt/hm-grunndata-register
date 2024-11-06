@@ -34,6 +34,11 @@ interface SeriesControllerApiClient {
         @CookieValue("JWT") jwt: String,
     ): Page<SeriesRegistrationDTO>
 
+    @Get(uri = "?status=ACTIVE,INACTIVE", consumes = [APPLICATION_JSON])
+    fun findSeriesByActiveOrInactiveStatus(
+        @CookieValue("JWT") jwt: String,
+    ): Page<SeriesRegistrationDTO>
+
     @Post(uri = "/", processes = [APPLICATION_JSON])
     fun createSeries(
         @CookieValue("JWT") jwt: String,

@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.series
 
+import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
@@ -16,6 +17,7 @@ import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.QueryValue
+import io.micronaut.http.annotation.RequestBean
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
@@ -35,6 +37,7 @@ import java.time.LocalDateTime
 import java.util.Locale
 import java.util.UUID
 
+
 @Secured(Roles.ROLE_ADMIN)
 @Controller(SeriesRegistrationAdminController.API_V1_SERIES)
 @Tag(name = "Admin Series")
@@ -48,13 +51,13 @@ class SeriesRegistrationAdminController(
         const val API_V1_SERIES = "/admin/api/v1/series"
     }
 
-    @Get("/{?params*}")
+    @Get("/")
     suspend fun getSeries(
-        @QueryValue params: HashMap<String, String>?,
+        @RequestBean seriesCriteria: SeriesAdminCriteria,
         pageable: Pageable,
         authentication: Authentication,
     ): Page<SeriesRegistrationDTO> {
-        return seriesRegistrationService.findAll(buildCriteriaSpec(params), pageable)
+        return seriesRegistrationService.findAll(buildCriteriaSpec(seriesCriteria), pageable)
     }
 
     @Get("/hmsNr/{hmsNr}")
@@ -75,37 +78,36 @@ class SeriesRegistrationAdminController(
             seriesRegistrationService.findById(it.seriesUUID)
         }
 
-    private fun buildCriteriaSpec(inputparams: java.util.HashMap<String, String>?): PredicateSpecification<SeriesRegistration>? =
-        inputparams?.let {
+    private fun buildCriteriaSpec(criteria: SeriesAdminCriteria): PredicateSpecification<SeriesRegistration>? =
+        if (criteria.isNotEmpty()) {
             PredicateSpecification<SeriesRegistration> { root, criteriaBuilder ->
                 val predicates = mutableListOf<Predicate>()
-
-                if (inputparams.contains("mainProduct")) {
+                if (criteria.mainProduct != null) {
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::mainProduct],
-                            inputparams["mainProduct"],
+                            criteria.mainProduct,
                         ),
                     )
                 }
 
-                if (inputparams.contains("adminStatus")) {
+                if (criteria.adminStatus != null) {
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::adminStatus],
-                            AdminStatus.valueOf(inputparams["adminStatus"]!!),
+                            criteria.adminStatus,
                         ),
                     )
                 }
-                if (inputparams.contains("excludedStatus")) {
+                if (criteria.excludedStatus != null) {
                     predicates.add(
                         criteriaBuilder.notEqual(
                             root[SeriesRegistration::status],
-                            inputparams["excludedStatus"],
+                            criteria.excludedStatus,
                         ),
                     )
                 }
-                if (inputparams.contains("excludeExpired") && inputparams["excludeExpired"] == "true") {
+                if (criteria.excludeExpired != null  && criteria.excludeExpired ) {
                     predicates.add(
                         criteriaBuilder.greaterThan(
                             root[SeriesRegistration::expired],
@@ -113,66 +115,56 @@ class SeriesRegistrationAdminController(
                         ),
                     )
                 }
-                if (inputparams.contains("status")) {
-                    val statusList: List<SeriesStatus> =
-                        inputparams["status"]!!.split(",").map { SeriesStatus.valueOf(it) }
-                    predicates.add(root[SeriesRegistration::status].`in`(statusList))
+                if (!criteria.status.isNullOrEmpty()) {
+                    predicates.add(root[SeriesRegistration::status].`in`(criteria.status))
                 }
 
-                if (inputparams.contains("supplierId")) {
+                if (criteria.supplierId != null) {
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::supplierId],
-                            UUID.fromString(inputparams["supplierId"]!!),
-                        ),
+                            criteria.supplierId)
                     )
                 }
-                if (inputparams.contains("draft")) {
+                if (criteria.draft != null ) {
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::draftStatus],
-                            DraftStatus.valueOf(inputparams["draft"]!!),
-                        ),
+                            criteria.draft)
                     )
                 }
-                if (inputparams.contains("createdByUser")) {
+                if (criteria.createdByUser != null) {
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::createdByUser],
-                            inputparams["createdByUser"],
-                        ),
+                            criteria.createdByUser
+                        )
                     )
                 }
-                if (inputparams.contains("updatedByUser")) {
+                if (criteria.updatedByUser != null) {
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::updatedByUser],
-                            inputparams["updatedByUser"],
+                            criteria.updatedByUser,
                         ),
                     )
                 }
-
-                if (inputparams.contains("createdByAdmin")) {
+                if (criteria.createdByAdmin != null) {
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::createdByAdmin],
-                            it["createdByAdmin"].toBoolean(),
+                            criteria.createdByAdmin,
                         ),
                     )
                 }
 
-                if (inputparams.contains("supplierFilter")) {
-                    val supplierList: List<UUID> =
-                        inputparams["supplierFilter"]!!.split(",").map { UUID.fromString(it) }
-                    predicates.add(root[SeriesRegistration::supplierId].`in`(supplierList))
+                if (criteria.supplierFilter != null) {
+                    predicates.add(root[SeriesRegistration::supplierId].`in`(criteria.supplierFilter))
                 }
 
-                if (inputparams.contains("editStatus")) {
-                    val statusList: List<EditStatus> =
-                        inputparams["editStatus"]!!.split(",").map { EditStatus.valueOf(it) }
-
+                if (criteria.editStatus != null) {
                     val statusPredicates =
-                        statusList.map { status ->
+                        criteria.editStatus.map { status ->
                             when (status) {
                                 EditStatus.REJECTED ->
                                     criteriaBuilder.equal(
@@ -216,8 +208,8 @@ class SeriesRegistrationAdminController(
                     }
                 }
 
-                if (inputparams.contains("title")) {
-                    val term = inputparams["title"]!!.lowercase(Locale.getDefault())
+                if (criteria.title != null) {
+                    val term = criteria.title.lowercase(Locale.getDefault())
                     predicates.add(
                         criteriaBuilder.like(
                             root[SeriesRegistration::titleLowercase],
@@ -232,7 +224,7 @@ class SeriesRegistrationAdminController(
                     null
                 }
             }
-        }
+        } else null
 
     @Get("/{id}")
     suspend fun readSeries(
@@ -574,6 +566,28 @@ class SeriesRegistrationAdminController(
             ),
         )
     }
+}
+@Introspected
+data class SeriesAdminCriteria(
+    val mainProduct: UUID? = null,
+    val adminStatus: AdminStatus? = null,
+    val excludedStatus: SeriesStatus? = null,
+    val excludeExpired: Boolean? = null,
+    val status: List<SeriesStatus>? = null,
+    val supplierId: UUID? = null,
+    val draft: DraftStatus? = null,
+    val createdByUser: String? = null,
+    val updatedByUser: String? = null,
+    val createdByAdmin: Boolean? = null,
+    val supplierFilter: List<UUID>? = null,
+    val editStatus: List<EditStatus>? = null,
+    val title: String? = null,
+) {
+    fun isNotEmpty(): Boolean =
+        mainProduct != null || adminStatus != null || excludedStatus != null || excludeExpired != null
+                || status != null || supplierId != null || draft != null || createdByUser != null
+                || updatedByUser != null || createdByAdmin != null || supplierFilter != null || editStatus != null
+                || title != null
 }
 
 data class RejectSeriesDTO(val message: String?)

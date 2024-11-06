@@ -247,22 +247,23 @@ class ProductRegistrationAdminApiController(
         }
     }
 
-    @Introspected
-    data class ProductRegistrationAdminCriteria(
-        val supplierRef: String? = null,
-        val hmsArtNr: String? = null,
-        val adminStatus: AdminStatus? = null,
-        val registrationStatus: RegistrationStatus? = null,
-        val supplierId: UUID? = null,
-        val draft: DraftStatus? = null,
-        val createdByUser: String? = null,
-        val updatedByUser: String? = null,
-        val title: String? = null,
-    ) {
-        fun isNotEmpty(): Boolean = listOfNotNull(
-            supplierRef, hmsArtNr, adminStatus, registrationStatus, supplierId, draft, createdByUser, updatedByUser, title
-        ).isNotEmpty()
-    }
+}
+
+@Introspected
+data class ProductRegistrationAdminCriteria(
+    val supplierRef: String? = null,
+    val hmsArtNr: String? = null,
+    val adminStatus: AdminStatus? = null,
+    val registrationStatus: RegistrationStatus? = null,
+    val supplierId: UUID? = null,
+    val draft: DraftStatus? = null,
+    val createdByUser: String? = null,
+    val updatedByUser: String? = null,
+    val title: String? = null,
+) {
+    fun isNotEmpty(): Boolean = listOfNotNull(
+        supplierRef, hmsArtNr, adminStatus, registrationStatus, supplierId, draft, createdByUser, updatedByUser, title
+    ).isNotEmpty()
 }
 
 fun Authentication.isAdmin(): Boolean = roles.contains(Roles.ROLE_ADMIN)

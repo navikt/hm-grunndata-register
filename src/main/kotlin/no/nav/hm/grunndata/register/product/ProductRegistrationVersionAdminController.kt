@@ -63,14 +63,15 @@ class ProductRegistrationVersionAdminController(private val productRegistrationV
         return HttpResponse.ok(productRegistrationVersionService.diffWithLastApprovedVersion(productVersion))
     }
 
-    @Introspected
-    data class ProductRegistrationVersionCriteria(
-        val productId: UUID? = null,
-        val version: Long? = null,
-        val status: RegistrationStatus? = null,
-        val adminStatus: AdminStatus? = null,
-        val draftStatus: DraftStatus? = null,
-    ) {
-        fun isNotEmpty(): Boolean = productId != null || version != null || status != null || adminStatus != null || draftStatus != null
-    }
+}
+
+@Introspected
+data class ProductRegistrationVersionCriteria(
+    val productId: UUID? = null,
+    val version: Long? = null,
+    val status: RegistrationStatus? = null,
+    val adminStatus: AdminStatus? = null,
+    val draftStatus: DraftStatus? = null,
+) {
+    fun isNotEmpty(): Boolean = productId != null || version != null || status != null || adminStatus != null || draftStatus != null
 }

@@ -153,15 +153,17 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
         } ?: throw BadRequestException("News with id $id does not exist")
     }
 
-    @Introspected
-    data class NewsRegistrationCriteria (
-        val status: List<NewsStatus> = emptyList(),
-        val draftStatus: DraftStatus? = null,
-        val createdByUser: String? = null,
-        val title: String? = null
-    ) {
-        fun isNotEmpty() = status.isNotEmpty() || draftStatus != null || createdByUser != null || title != null
-    }
+
+}
+
+@Introspected
+data class NewsRegistrationCriteria (
+    val status: List<NewsStatus> = emptyList(),
+    val draftStatus: DraftStatus? = null,
+    val createdByUser: String? = null,
+    val title: String? = null
+) {
+    fun isNotEmpty() = status.isNotEmpty() || draftStatus != null || createdByUser != null || title != null
 }
 
 data class CreateUpdateNewsDTO(

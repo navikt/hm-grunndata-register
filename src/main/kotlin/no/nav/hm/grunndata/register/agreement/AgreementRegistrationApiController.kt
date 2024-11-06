@@ -40,11 +40,12 @@ class AgreementRegistrationApiController(private val agreementRegistrationServic
             }
         } else null
 
-    @Introspected
-    data class AgreementCriteria(
-        val reference: String?,
-        val title: String?,
-    ) {
-        fun isNotEmpty(): Boolean = reference != null || title != null
-    }
+}
+
+@Introspected
+data class AgreementCriteria(
+    val reference: String?,
+    val title: String?,
+) {
+    fun isNotEmpty(): Boolean = reference != null || title != null
 }

@@ -201,6 +201,9 @@ class SeriesRegistrationControllerApiTest(
             seriesInDraft.draftStatus shouldBe DraftStatus.DRAFT
             seriesInDraft.adminStatus shouldBe AdminStatus.PENDING
 
+            val seriesWithStatus = apiClient.findSeriesByActiveOrInactiveStatus(jwt)
+            seriesWithStatus.content.size shouldBeGreaterThanOrEqual 1
+
         }
     }
 }
