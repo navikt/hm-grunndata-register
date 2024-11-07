@@ -569,7 +569,7 @@ class SeriesRegistrationAdminController(
 }
 @Introspected
 data class SeriesAdminCriteria(
-    val mainProduct: UUID? = null,
+    val mainProduct: Boolean? = null,
     val adminStatus: AdminStatus? = null,
     val excludedStatus: SeriesStatus? = null,
     val excludeExpired: Boolean? = null,

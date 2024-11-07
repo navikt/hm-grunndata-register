@@ -517,7 +517,7 @@ class SeriesRegistrationController(
 
 @Introspected
 data class SeriesCriteria (
-    val mainProduct: String? = null,
+    val mainProduct: Boolean? = null,
     val adminStatus: List<AdminStatus>? = null,
     val excludeExpired: Boolean? = null,
     val excludedStatus: String? = null,
