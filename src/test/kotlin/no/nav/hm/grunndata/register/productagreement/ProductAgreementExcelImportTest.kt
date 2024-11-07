@@ -136,16 +136,19 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
             delkontraktRegistrationRepository.save(delkontrakt1B)
 
             ProductAgreementExcelImportTest::class.java.classLoader.getResourceAsStream("productagreement/katalog-test.xls").use {
-                val productAgreements = productAgreementImportExcelService.importExcelFile(it!!, null)
-                productAgreements.productAgreementRegistrationList.size shouldBe 8
-                productAgreements.productAgreementRegistrationList[0].accessory shouldBe false
-                productAgreements.productAgreementRegistrationList[0].sparePart shouldBe false
-                productAgreements.productAgreementRegistrationList[4].sparePart shouldBe true
-                productAgreements.productAgreementRegistrationList[4].accessory shouldBe false
-                productAgreements.productAgreementRegistrationList[5].accessory shouldBe false
-                productAgreements.productAgreementRegistrationList[5].sparePart shouldBe true
-                productAgreements.productAgreementRegistrationList[6].isoCategory shouldBe "093390"
-                val productAgreementImportResult = accessoryPartHandler.handleProductsInProductAgreement(productAgreements.productAgreementRegistrationList, null, false)
+                val excelImportedResult = productAgreementImportExcelService.importExcelFile(it!!, null)
+                excelImportedResult.productExcelList.size shouldBe 7
+                excelImportedResult.productExcelList[0].bestillingsNr shouldBe "3574253"
+                excelImportedResult.productExcelList[0].rammeavtaleHandling shouldBe "insert"
+                excelImportedResult.productAgreementRegistrationList.size shouldBe 8
+                excelImportedResult.productAgreementRegistrationList[0].accessory shouldBe false
+                excelImportedResult.productAgreementRegistrationList[0].sparePart shouldBe false
+                excelImportedResult.productAgreementRegistrationList[4].sparePart shouldBe true
+                excelImportedResult.productAgreementRegistrationList[4].accessory shouldBe false
+                excelImportedResult.productAgreementRegistrationList[5].accessory shouldBe false
+                excelImportedResult.productAgreementRegistrationList[5].sparePart shouldBe true
+                excelImportedResult.productAgreementRegistrationList[6].isoCategory shouldBe "093390"
+                val productAgreementImportResult = accessoryPartHandler.handleProductsInProductAgreement(excelImportedResult.productAgreementRegistrationList, null, false)
                 val productAgreementGroupInSeries = productAgreementImportResult.productAgreements
                 productAgreementImportResult.newSeries.size shouldBe 4
                 productAgreementImportResult.newAccessoryParts.size shouldBe 5
