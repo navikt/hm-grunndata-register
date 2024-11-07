@@ -23,4 +23,6 @@ CREATE TABLE catalog_import_v1 (
     updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX catalog_import_order_ref_idx ON catalog_import_v1 (order_ref);
+CREATE INDEX catalog_import_v1_order_ref_idx ON catalog_import_v1 (order_ref);
+CREATE INDEX catalog_import_v1_hms_art_nr_idx ON catalog_import_v1 (hms_art_nr);
+CREATE UNIQUE INDEX catalog_import_v1_order_ref_supplier_ref_idx ON catalog_import_v1 (order_ref, supplier_ref);

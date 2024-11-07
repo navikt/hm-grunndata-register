@@ -23,6 +23,7 @@ import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
+import no.nav.hm.grunndata.register.catalog.CatalogImportRepository
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
@@ -33,6 +34,7 @@ class ProductAgreementAdminController(
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productAgreementRegistrationService: ProductAgreementRegistrationService,
     private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler,
+    private val catalogImportRepository: CatalogImportRepository
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementAdminController::class.java)
@@ -91,10 +93,17 @@ class ProductAgreementAdminController(
                 }
                 Pair(it, information)
             }
+
+        if (!dryRun) {
+            val catalogList = productAgreementsImported.productExcelList.map { it.toEntity() }
+            catalogImportRepository.saveAll(catalogList)
+        }
+
         if (!dryRun) {
             LOG.info("Saving excel imported file: ${file.name} with ${productAgreements.size} product agreements")
             productAgreementRegistrationService.saveAll(productAgreements)
         }
+
         return ProductAgreementImportDTO(
             dryRun = dryRun,
             count = productAgreements.size,

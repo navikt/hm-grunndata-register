@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory
 import java.io.InputStream
 import java.time.LocalDateTime
 import java.util.UUID
+import no.nav.hm.grunndata.register.catalog.CatalogImport
 
 @Singleton
 class ProductAgreementImportExcelService(
@@ -69,7 +70,7 @@ class ProductAgreementImportExcelService(
     suspend fun readProductData(
         workbook: Workbook,
         authentication: Authentication?,
-    ): List<ProductAgreementExcelDTO> {
+    ): List<CatalogImportExcelDTO> {
         val main = workbook.getSheet("Gjeldende") ?: workbook.getSheet("gjeldende")
         LOG.info("First row num ${main.firstRowNum}")
         val columnMap = readColumnMapIndex(main.first())
@@ -94,7 +95,7 @@ class ProductAgreementImportExcelService(
         return ArticleType(mainProduct, sparePart, accessory)
     }
 
-    private suspend fun ProductAgreementExcelDTO.toProductAgreementDTO(
+    private suspend fun CatalogImportExcelDTO.toProductAgreementDTO(
         authentication: Authentication?,
     ): List<ProductAgreementRegistrationDTO> {
         val cleanRef = reference.lowercase().replace("/", "-")
@@ -209,13 +210,13 @@ class ProductAgreementImportExcelService(
     private fun mapRowToProductAgreement(
         row: Row,
         columnMap: Map<String, Int>,
-    ): ProductAgreementExcelDTO? {
+    ): CatalogImportExcelDTO? {
         val leveartNr = readCellAsString(row, columnMap[leverandørensartnr.column]!!)
         val typeArtikkel = readCellAsString(row, columnMap[malTypeartikkel.column]!!)
         if ("" != leveartNr && "HMS Servicetjeneste" != typeArtikkel) {
             val funksjonsendring = row.getCell(columnMap[funksjonsendring.column]!!).toString().trim()
             val type = mapArticleType(typeArtikkel, funksjonsendring)
-            return ProductAgreementExcelDTO(
+            return CatalogImportExcelDTO(
                 rammeavtaleHandling = readCellAsString(row, columnMap[ColumnNames.rammeavtaleHandling.column]!!),
                 bestillingsNr = readCellAsString(row, columnMap[ColumnNames.bestillingsnr.column]!!),
                 hmsArtNr = readCellAsString(row, columnMap[hms_ArtNr.column]!!),
@@ -285,7 +286,7 @@ enum class ColumnNames(val column: String) {
     leverandorsted("Leverandørsted"),
 }
 
-data class ProductAgreementExcelDTO(
+data class CatalogImportExcelDTO(
     val rammeavtaleHandling:String, // oebs operation for rammeavtale
     val bestillingsNr: String,
     val hmsArtNr: String,
@@ -308,8 +309,30 @@ data class ProductAgreementExcelDTO(
 )
 
 data class ExcelImportedResult(
-    val productExcelList: List<ProductAgreementExcelDTO>,
+    val productExcelList: List<CatalogImportExcelDTO>,
     val productAgreementRegistrationList: List<ProductAgreementRegistrationDTO>
+)
+
+fun CatalogImportExcelDTO.toEntity() = CatalogImport(
+    agreementAction = rammeavtaleHandling,
+    orderRef = bestillingsNr,
+    hmsArtNr = hmsArtNr,
+    iso = iso,
+    title = title,
+    supplierRef = supplierRef,
+    reference = reference,
+    postNr = delkontraktNr,
+    dateFrom = dateFrom,
+    dateTo = dateTo,
+    articleAction = artikkelHandling,
+    articleType = articleType,
+    functionalChange = funksjonsendring,
+    forChildren = forChildren,
+    supplierName = supplierName,
+    supplierCity = supplierCity,
+    mainProduct = mainProduct,
+    sparePart = sparePart,
+    accessory = accessory,
 )
 
 val delKontraktRegex = Regex("d(\\d+)([A-Q-STU-Z]*)r*(\\d*)")
