@@ -137,15 +137,15 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
 
             ProductAgreementExcelImportTest::class.java.classLoader.getResourceAsStream("productagreement/katalog-test.xls").use {
                 val productAgreements = productAgreementImportExcelService.importExcelFile(it!!, null)
-                productAgreements.size shouldBe 8
-                productAgreements[0].accessory shouldBe false
-                productAgreements[0].sparePart shouldBe false
-                productAgreements[4].sparePart shouldBe true
-                productAgreements[4].accessory shouldBe false
-                productAgreements[5].accessory shouldBe false
-                productAgreements[5].sparePart shouldBe true
-                productAgreements[6].isoCategory shouldBe "093390"
-                val productAgreementImportResult = accessoryPartHandler.handleProductsInProductAgreement(productAgreements, null, false)
+                productAgreements.productAgreementRegistrationList.size shouldBe 8
+                productAgreements.productAgreementRegistrationList[0].accessory shouldBe false
+                productAgreements.productAgreementRegistrationList[0].sparePart shouldBe false
+                productAgreements.productAgreementRegistrationList[4].sparePart shouldBe true
+                productAgreements.productAgreementRegistrationList[4].accessory shouldBe false
+                productAgreements.productAgreementRegistrationList[5].accessory shouldBe false
+                productAgreements.productAgreementRegistrationList[5].sparePart shouldBe true
+                productAgreements.productAgreementRegistrationList[6].isoCategory shouldBe "093390"
+                val productAgreementImportResult = accessoryPartHandler.handleProductsInProductAgreement(productAgreements.productAgreementRegistrationList, null, false)
                 val productAgreementGroupInSeries = productAgreementImportResult.productAgreements
                 productAgreementImportResult.newSeries.size shouldBe 4
                 productAgreementImportResult.newAccessoryParts.size shouldBe 5

@@ -52,19 +52,24 @@ class ProductAgreementImportExcelService(
     suspend fun importExcelFile(
         inputStream: InputStream,
         authentication: Authentication?,
-    ): List<ProductAgreementRegistrationDTO> {
-        LOG.info("Reading xls file")
+    ): ExcelImportedResult {
+        LOG.info("Reading oebs catalog xls file")
         ZipSecureFile.setMinInflateRatio(0.0)
         val workbook = WorkbookFactory.create(inputStream)
-        val productAgreementList = readProductData(workbook, authentication)
+        val productExcel = readProductData(workbook, authentication)
+        val productAgreementList = productExcel.map { it.toProductAgreementDTO(authentication) }.flatten()
         workbook.close()
-        return productAgreementList
+        return ExcelImportedResult(
+            productExcelList = productExcel,
+            productAgreementRegistrationList = productAgreementList
+        )
+
     }
 
     suspend fun readProductData(
         workbook: Workbook,
         authentication: Authentication?,
-    ): List<ProductAgreementRegistrationDTO> {
+    ): List<ProductAgreementExcelDTO> {
         val main = workbook.getSheet("Gjeldende") ?: workbook.getSheet("gjeldende")
         LOG.info("First row num ${main.firstRowNum}")
         val columnMap = readColumnMapIndex(main.first())
@@ -74,7 +79,7 @@ class ProductAgreementImportExcelService(
             }.filterNotNull()
         if (productExcel.isEmpty()) throw BadRequestException("Fant ingen produkter i Excel-fil")
         LOG.info("Total product agreements in Excel file: ${productExcel.size}")
-        return productExcel.map { it.toProductAgreementDTO(authentication) }.flatten()
+        return productExcel
     }
 
     private fun mapArticleType(
@@ -211,6 +216,8 @@ class ProductAgreementImportExcelService(
             val funksjonsendring = row.getCell(columnMap[funksjonsendring.column]!!).toString().trim()
             val type = mapArticleType(typeArtikkel, funksjonsendring)
             return ProductAgreementExcelDTO(
+                rammeavtaleHandling = readCellAsString(row, columnMap[ColumnNames.rammeavtaleHandling.column]!!),
+                bestillingsNr = readCellAsString(row, columnMap[ColumnNames.bestillingsnr.column]!!),
                 hmsArtNr = readCellAsString(row, columnMap[hms_ArtNr.column]!!),
                 iso = readCellAsString(row, columnMap[kategori.column]!!),
                 title = readCellAsString(row, columnMap[beskrivelse.column]!!),
@@ -219,6 +226,7 @@ class ProductAgreementImportExcelService(
                 delkontraktNr = readCellAsString(row, columnMap[delkontraktnummer.column]!!),
                 dateFrom = readCellAsString(row, columnMap[datofom.column]!!),
                 dateTo = readCellAsString(row, columnMap[datotom.column]!!),
+                artikkelHandling = readCellAsString(row, columnMap[ColumnNames.artikkelHandling.column]!!),
                 articleType = typeArtikkel,
                 funksjonsendring = funksjonsendring,
                 forChildren = readCellAsString(row, columnMap[malgruppebarn.column]!!),
@@ -259,6 +267,8 @@ class ProductAgreementImportExcelService(
 }
 
 enum class ColumnNames(val column: String) {
+    rammeavtaleHandling("RammeavtaleHandling"),
+    bestillingsnr("Bestillingsnr"),
     hms_ArtNr("HMS-Artnr"),
     kategori("Kategori"),
     beskrivelse("Beskrivelse"),
@@ -267,6 +277,7 @@ enum class ColumnNames(val column: String) {
     delkontraktnummer("Delkontraktnummer"),
     datofom("Datofom"),
     datotom("Datotom"),
+    artikkelHandling("ArtikkelHandling"),
     malTypeartikkel("MalTypeartikkel"),
     funksjonsendring("Funksjonsendring"),
     malgruppebarn("Målgruppebarn"),
@@ -275,6 +286,8 @@ enum class ColumnNames(val column: String) {
 }
 
 data class ProductAgreementExcelDTO(
+    val rammeavtaleHandling:String, // oebs operation for rammeavtale
+    val bestillingsNr: String,
     val hmsArtNr: String,
     val iso: String,
     val title: String,
@@ -283,6 +296,7 @@ data class ProductAgreementExcelDTO(
     val delkontraktNr: String?,
     val dateFrom: String,
     val dateTo: String,
+    val artikkelHandling: String, // oebs operation for artikkel
     val articleType: String,
     val funksjonsendring: String,
     val forChildren: String,
@@ -291,6 +305,11 @@ data class ProductAgreementExcelDTO(
     val mainProduct: Boolean,
     val sparePart: Boolean,
     val accessory: Boolean,
+)
+
+data class ExcelImportedResult(
+    val productExcelList: List<ProductAgreementExcelDTO>,
+    val productAgreementRegistrationList: List<ProductAgreementRegistrationDTO>
 )
 
 val delKontraktRegex = Regex("d(\\d+)([A-Q-STU-Z]*)r*(\\d*)")
