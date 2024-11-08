@@ -35,9 +35,9 @@ open class CatalogImportService(private val catalogImportRepository: CatalogImpo
 
     @Transactional
     open suspend fun persistCatalogImportResult(catalogImportResult: CatalogImportResult) {
-        catalogImportRepository.saveAll(catalogImportResult.insertedList)
-        catalogImportRepository.updateAll(catalogImportResult.updatedList)
-        catalogImportRepository.updateAll(catalogImportResult.deactivatedList)
+        catalogImportResult.updatedList.forEach { catalogImportRepository.update(it) }
+        catalogImportResult.deactivatedList.forEach { catalogImportRepository.delete(it) }
+        catalogImportResult.insertedList.forEach { catalogImportRepository.save(it) }
     }
 }
 

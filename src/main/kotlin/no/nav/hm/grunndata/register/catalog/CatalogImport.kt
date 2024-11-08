@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.catalog
 
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -17,8 +18,8 @@ data class CatalogImport(
     val supplierRef: String,
     val reference: String, // agreement reference
     val postNr: String?,
-    val dateFrom: LocalDateTime,
-    val dateTo: LocalDateTime,
+    val dateFrom: LocalDate,
+    val dateTo: LocalDate,
     val articleAction: String,
     val articleType: String,
     val functionalChange: String,
