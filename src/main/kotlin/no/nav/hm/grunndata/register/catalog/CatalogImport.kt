@@ -17,8 +17,8 @@ data class CatalogImport(
     val supplierRef: String,
     val reference: String, // agreement reference
     val postNr: String?,
-    val dateFrom: String,
-    val dateTo: String,
+    val dateFrom: LocalDateTime,
+    val dateTo: LocalDateTime,
     val articleAction: String,
     val articleType: String,
     val functionalChange: String,

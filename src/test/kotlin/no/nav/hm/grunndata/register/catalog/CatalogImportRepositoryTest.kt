@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.catalog
 
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import java.time.LocalDateTime
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 
@@ -19,8 +20,8 @@ class CatalogImportRepositoryTest(private val catalogImportRepository: CatalogIm
             supplierRef = "supplierRef1",
             reference = "reference",
             postNr = "postNr",
-            dateFrom = "dateFrom",
-            dateTo = "dateTo",
+            dateFrom = LocalDateTime.now(),
+            dateTo = LocalDateTime.now(),
             articleAction = "articleAction",
             articleType = "articleType",
             functionalChange = "functionalChange",
@@ -40,8 +41,8 @@ class CatalogImportRepositoryTest(private val catalogImportRepository: CatalogIm
             supplierRef = "supplierRef2",
             reference = "reference",
             postNr = "postNr",
-            dateFrom = "dateFrom",
-            dateTo = "dateTo",
+            dateFrom = LocalDateTime.now(),
+            dateTo = LocalDateTime.now(),
             articleAction = "articleAction",
             articleType = "articleType",
             functionalChange = "functionalChange",

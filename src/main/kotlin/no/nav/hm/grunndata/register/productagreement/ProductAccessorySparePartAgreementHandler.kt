@@ -33,11 +33,12 @@ class ProductAccessorySparePartAgreementHandler(
      * returns a list of productAgreements with seriesUuid and productId
      * The products will have admin status PENDING and draft status DONE
      */
-    suspend fun handleProductsInProductAgreement(
-        productAgreements: List<ProductAgreementRegistrationDTO>,
+    suspend fun handleProductsInExcelImport(
+        productExcelImportedResult: ExcelImportedResult,
         authentication: Authentication?,
         dryRun: Boolean = true,
     ): ProductAgreementImportResult {
+        val productAgreements = productExcelImportedResult.productAgreementRegistrationList
         val distinctProductAgreements = productAgreements.distinctBy { it.supplierRef }
         val mainProductAgreements = distinctProductAgreements.filter { !it.accessory && !it.sparePart }
         val accessoryOrSpareParts = distinctProductAgreements.filter { it.accessory || it.sparePart }

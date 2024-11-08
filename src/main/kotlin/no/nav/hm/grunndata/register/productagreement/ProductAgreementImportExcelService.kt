@@ -34,7 +34,9 @@ import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.slf4j.LoggerFactory
 import java.io.InputStream
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 import no.nav.hm.grunndata.register.catalog.CatalogImport
 
@@ -322,8 +324,8 @@ fun CatalogImportExcelDTO.toEntity() = CatalogImport(
     supplierRef = supplierRef,
     reference = reference,
     postNr = delkontraktNr,
-    dateFrom = dateFrom,
-    dateTo = dateTo,
+    dateFrom = LocalDateTime.parse(dateFrom, dateTimeFormatter),
+    dateTo = LocalDateTime.parse(dateTo, dateTimeFormatter),
     articleAction = artikkelHandling,
     articleType = articleType,
     functionalChange = funksjonsendring,
@@ -335,4 +337,5 @@ fun CatalogImportExcelDTO.toEntity() = CatalogImport(
     accessory = accessory,
 )
 
+val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 val delKontraktRegex = Regex("d(\\d+)([A-Q-STU-Z]*)r*(\\d*)")

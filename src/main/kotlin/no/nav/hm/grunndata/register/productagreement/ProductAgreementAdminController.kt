@@ -52,12 +52,12 @@ class ProductAgreementAdminController(
         authentication: Authentication,
     ): ProductAgreementImportDTO {
         LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()}")
-        val productAgreementsImported =
+        val importedResult =
             file.inputStream.use { input -> productAgreementImportExcelService.importExcelFile(input, authentication) }
-        LOG.info("Imported ${productAgreementsImported.productAgreementRegistrationList.size} product agreements")
+        LOG.info("Imported ${importedResult.productAgreementRegistrationList.size} product agreements")
         val productAgreementsImportResult =
-            productAccessorySparePartAgreementHandler.handleProductsInProductAgreement(
-                productAgreementsImported.productAgreementRegistrationList,
+            productAccessorySparePartAgreementHandler.handleProductsInExcelImport(
+                importedResult,
                 authentication,
                 dryRun,
             )
@@ -95,12 +95,9 @@ class ProductAgreementAdminController(
             }
 
         if (!dryRun) {
-            val catalogList = productAgreementsImported.productExcelList.map { it.toEntity() }
-            catalogImportRepository.saveAll(catalogList)
-        }
-
-        if (!dryRun) {
             LOG.info("Saving excel imported file: ${file.name} with ${productAgreements.size} product agreements")
+            val catalogList = importedResult.productExcelList.map { it.toEntity() }
+            catalogImportRepository.saveAll(catalogList)
             productAgreementRegistrationService.saveAll(productAgreements)
         }
 
