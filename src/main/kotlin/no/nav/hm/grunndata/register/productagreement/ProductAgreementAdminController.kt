@@ -23,18 +23,21 @@ import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
+import no.nav.hm.grunndata.register.catalog.CatalogExcelFileImport
 import no.nav.hm.grunndata.register.catalog.CatalogImportRepository
+import no.nav.hm.grunndata.register.catalog.CatalogImportService
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
 @Tag(name = "Admin Product Agreement")
 class ProductAgreementAdminController(
+    private val catalogExcelFileImport: CatalogExcelFileImport,
     private val productAgreementImportExcelService: ProductAgreementImportExcelService,
     private val productRegistrationService: ProductRegistrationService,
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productAgreementRegistrationService: ProductAgreementRegistrationService,
     private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler,
-    private val catalogImportRepository: CatalogImportRepository
+    private val catalogImportService: CatalogImportService
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementAdminController::class.java)
@@ -52,12 +55,15 @@ class ProductAgreementAdminController(
         authentication: Authentication,
     ): ProductAgreementImportDTO {
         LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()}")
-        val importedResult =
-            file.inputStream.use { input -> productAgreementImportExcelService.importExcelFile(input, authentication) }
-        LOG.info("Imported ${importedResult.productAgreementRegistrationList.size} product agreements")
+        val importedExcelCatalog =
+            file.inputStream.use { input -> catalogExcelFileImport.importExcelFile(input) }
+        val catalogImportResult = catalogImportService.createCatalogImportResult(importedExcelCatalog.map { it.toEntity() })
+        val productAgreementList = productAgreementImportExcelService.mapCatalogImport(importedExcelCatalog, authentication)
+        LOG.info("Imported ${productAgreementList.size} product agreements")
+
         val productAgreementsImportResult =
             productAccessorySparePartAgreementHandler.handleProductsInExcelImport(
-                importedResult,
+                ExcelImportedResult(importedExcelCatalog, productAgreementList),
                 authentication,
                 dryRun,
             )
@@ -96,8 +102,7 @@ class ProductAgreementAdminController(
 
         if (!dryRun) {
             LOG.info("Saving excel imported file: ${file.name} with ${productAgreements.size} product agreements")
-            val catalogList = importedResult.productExcelList.map { it.toEntity() }
-            catalogImportRepository.saveAll(catalogList)
+            catalogImportService.persistCatalogImportResult(catalogImportResult)
             productAgreementRegistrationService.saveAll(productAgreements)
         }
 

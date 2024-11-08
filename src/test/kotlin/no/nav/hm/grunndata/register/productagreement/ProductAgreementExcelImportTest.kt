@@ -17,6 +17,7 @@ import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.agreement.DelkontraktData
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistration
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationRepository
+import no.nav.hm.grunndata.register.catalog.CatalogExcelFileImport
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
@@ -30,7 +31,8 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
                                       private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository,
                                       private val productAgreementImportExcelService: ProductAgreementImportExcelService,
                                       private val accessoryPartHandler: ProductAccessorySparePartAgreementHandler,
-                                      private val objectMapper: ObjectMapper) {
+                                      private val objectMapper: ObjectMapper,
+                                      private val catalogExcelFileImport: CatalogExcelFileImport) {
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -136,18 +138,20 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
             delkontraktRegistrationRepository.save(delkontrakt1B)
 
             ProductAgreementExcelImportTest::class.java.classLoader.getResourceAsStream("productagreement/katalog-test.xls").use {
-                val excelImportedResult = productAgreementImportExcelService.importExcelFile(it!!, null)
-                excelImportedResult.productExcelList.size shouldBe 7
-                excelImportedResult.productExcelList[0].bestillingsNr shouldBe "3574253"
-                excelImportedResult.productExcelList[0].rammeavtaleHandling shouldBe "insert"
-                excelImportedResult.productAgreementRegistrationList.size shouldBe 8
-                excelImportedResult.productAgreementRegistrationList[0].accessory shouldBe false
-                excelImportedResult.productAgreementRegistrationList[0].sparePart shouldBe false
-                excelImportedResult.productAgreementRegistrationList[4].sparePart shouldBe true
-                excelImportedResult.productAgreementRegistrationList[4].accessory shouldBe false
-                excelImportedResult.productAgreementRegistrationList[5].accessory shouldBe false
-                excelImportedResult.productAgreementRegistrationList[5].sparePart shouldBe true
-                excelImportedResult.productAgreementRegistrationList[6].isoCategory shouldBe "093390"
+                val productExcelList = catalogExcelFileImport.importExcelFile(it!!)
+                val productAgreementRegistrationList = productAgreementImportExcelService.mapCatalogImport(productExcelList, null)
+                val excelImportedResult = ExcelImportedResult(productExcelList, productAgreementRegistrationList)
+                productExcelList.size shouldBe 7
+                productExcelList[0].bestillingsNr shouldBe "3574253"
+                productExcelList[0].rammeavtaleHandling shouldBe "insert"
+                productAgreementRegistrationList.size shouldBe 8
+                productAgreementRegistrationList[0].accessory shouldBe false
+                productAgreementRegistrationList[0].sparePart shouldBe false
+                productAgreementRegistrationList[4].sparePart shouldBe true
+                productAgreementRegistrationList[4].accessory shouldBe false
+                productAgreementRegistrationList[5].accessory shouldBe false
+                productAgreementRegistrationList[5].sparePart shouldBe true
+                productAgreementRegistrationList[6].isoCategory shouldBe "093390"
                 val productAgreementImportResult = accessoryPartHandler.handleProductsInExcelImport(excelImportedResult, null, false)
                 val productAgreementGroupInSeries = productAgreementImportResult.productAgreements
                 productAgreementImportResult.newSeries.size shouldBe 4

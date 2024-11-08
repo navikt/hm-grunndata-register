@@ -1,35 +1,44 @@
 package no.nav.hm.grunndata.register.catalog
 
 import jakarta.inject.Singleton
+import jakarta.transaction.Transactional
 
 @Singleton
-class CatalogImportService(private val catalogImportRepository: CatalogImportRepository) {
+open class CatalogImportService(private val catalogImportRepository: CatalogImportRepository) {
 
     suspend fun findByOrderRef(orderRef: String): List<CatalogImport> {
         return catalogImportRepository.findByOrderRef(orderRef)
     }
 
-    suspend fun persistCatalog(catalogImportList: List<CatalogImport>): CatalogImportResult {
+
+    @Transactional
+    open suspend fun createCatalogImportResult(catalogImportList: List<CatalogImport>): CatalogImportResult {
         val updatedList = mutableListOf<CatalogImport>()
-        val deactivatedList = mutableListOf<CatalogImport>()
         val insertedList = mutableListOf<CatalogImport>()
         val existingCatalog = catalogImportRepository.findByOrderRef(catalogImportList.first().orderRef)
         if (existingCatalog.isEmpty()) {
             insertedList.addAll(catalogImportList)
-        }
-        catalogImportList.forEach { catalogImport ->
-            val existing = existingCatalog.find { it.supplierRef == catalogImport.supplierRef }
-            if (existing == null) {
-                insertedList.add(catalogImport)
-            } 
-        }
+        } else {
+            catalogImportList.forEach { catalogImport ->
+                val existing = existingCatalog.find { it.supplierRef == catalogImport.supplierRef }
+                if (existing == null) {
+                    insertedList.add(catalogImport)
+                } else {
+                    updatedList.add(catalogImport.copy(id = existing.id))
+                }
 
-        updatedList.forEach { catalogImportRepository.update(it) }
-        insertedList.forEach { catalogImportRepository.save(it) }
-
+            }
+        }
+        val deactivatedList = existingCatalog.filter { it.supplierRef !in catalogImportList.map { c -> c.supplierRef } }
         return CatalogImportResult(updatedList, deactivatedList, insertedList)
     }
 
+    @Transactional
+    open suspend fun persistCatalogImportResult(catalogImportResult: CatalogImportResult) {
+        catalogImportRepository.saveAll(catalogImportResult.insertedList)
+        catalogImportRepository.updateAll(catalogImportResult.updatedList)
+        catalogImportRepository.updateAll(catalogImportResult.deactivatedList)
+    }
 }
 
 data class CatalogImportResult(

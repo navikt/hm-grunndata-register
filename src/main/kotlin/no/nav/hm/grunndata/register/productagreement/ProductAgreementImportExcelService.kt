@@ -52,49 +52,10 @@ class ProductAgreementImportExcelService(
         const val EXCEL = "EXCEL"
     }
 
-    suspend fun importExcelFile(
-        inputStream: InputStream,
-        authentication: Authentication?,
-    ): ExcelImportedResult {
-        LOG.info("Reading oebs catalog xls file")
-        ZipSecureFile.setMinInflateRatio(0.0)
-        val workbook = WorkbookFactory.create(inputStream)
-        val productExcel = readProductData(workbook, authentication)
-        val productAgreementList = productExcel.map { it.toProductAgreementDTO(authentication) }.flatten()
-        workbook.close()
-        return ExcelImportedResult(
-            productExcelList = productExcel,
-            productAgreementRegistrationList = productAgreementList
-        )
 
-    }
 
-    suspend fun readProductData(
-        workbook: Workbook,
-        authentication: Authentication?,
-    ): List<CatalogImportExcelDTO> {
-        val main = workbook.getSheet("Gjeldende") ?: workbook.getSheet("gjeldende")
-        LOG.info("First row num ${main.firstRowNum}")
-        val columnMap = readColumnMapIndex(main.first())
-        val productExcel =
-            main.toList().mapIndexed { index, row ->
-                if (index > 0) mapRowToProductAgreement(row, columnMap) else null
-            }.filterNotNull()
-        if (productExcel.isEmpty()) throw BadRequestException("Fant ingen produkter i Excel-fil")
-        LOG.info("Total product agreements in Excel file: ${productExcel.size}")
-        return productExcel
-    }
-
-    private fun mapArticleType(
-        articleType: String,
-        funksjonsendring: String,
-    ): ArticleType {
-        val mainProduct = articleType.lowercase().indexOf("hms hj.middel") > -1
-        val accessory =
-            articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("ja") > -1
-        val sparePart =
-            articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("nei") > -1
-        return ArticleType(mainProduct, sparePart, accessory)
+    suspend fun mapCatalogImport(catalogImportList: List<CatalogImportExcelDTO>, authentication: Authentication?): List<ProductAgreementRegistrationDTO> {
+        return catalogImportList.map { it.toProductAgreementDTO(authentication )}.flatten()
     }
 
     private suspend fun CatalogImportExcelDTO.toProductAgreementDTO(
@@ -173,9 +134,6 @@ class ProductAgreementImportExcelService(
         agreementRegistrationService.findByReferenceLike("%$reference%")
             ?: throw BadRequestException("Avtale $reference finnes ikke, må den opprettes?")
 
-    private fun parseType(articleType: String): Boolean {
-        return articleType.lowercase().indexOf("hms del") > -1
-    }
 
     private fun parseSupplierName(supplierName: String): UUID =
         runBlocking {
@@ -206,67 +164,8 @@ class ProductAgreementImportExcelService(
             throw BadRequestException("Klarte ikke å lese post og rangering fra delkontrakt nr. $subContractNr")
         }
     }
-
     private fun parseHMSNr(hmsArtNr: String): String = hmsArtNr.substringBefore(".").toInt().toString()
 
-    private fun mapRowToProductAgreement(
-        row: Row,
-        columnMap: Map<String, Int>,
-    ): CatalogImportExcelDTO? {
-        val leveartNr = readCellAsString(row, columnMap[leverandørensartnr.column]!!)
-        val typeArtikkel = readCellAsString(row, columnMap[malTypeartikkel.column]!!)
-        if ("" != leveartNr && "HMS Servicetjeneste" != typeArtikkel) {
-            val funksjonsendring = row.getCell(columnMap[funksjonsendring.column]!!).toString().trim()
-            val type = mapArticleType(typeArtikkel, funksjonsendring)
-            return CatalogImportExcelDTO(
-                rammeavtaleHandling = readCellAsString(row, columnMap[ColumnNames.rammeavtaleHandling.column]!!),
-                bestillingsNr = readCellAsString(row, columnMap[ColumnNames.bestillingsnr.column]!!),
-                hmsArtNr = readCellAsString(row, columnMap[hms_ArtNr.column]!!),
-                iso = readCellAsString(row, columnMap[kategori.column]!!),
-                title = readCellAsString(row, columnMap[beskrivelse.column]!!),
-                supplierRef = leveartNr,
-                reference = readCellAsString(row, columnMap[anbudsnr.column]!!),
-                delkontraktNr = readCellAsString(row, columnMap[delkontraktnummer.column]!!),
-                dateFrom = readCellAsString(row, columnMap[datofom.column]!!),
-                dateTo = readCellAsString(row, columnMap[datotom.column]!!),
-                artikkelHandling = readCellAsString(row, columnMap[ColumnNames.artikkelHandling.column]!!),
-                articleType = typeArtikkel,
-                funksjonsendring = funksjonsendring,
-                forChildren = readCellAsString(row, columnMap[malgruppebarn.column]!!),
-                supplierName = readCellAsString(row, columnMap[leverandorfirmanavn.column]!!),
-                supplierCity = readCellAsString(row, columnMap[leverandorsted.column]!!),
-                accessory = type.accessory,
-                sparePart = type.sparePart,
-                mainProduct = type.mainProduct,
-            )
-        }
-        return null
-    }
-
-    private fun readCellAsString(
-        row: Row,
-        column: Int,
-    ): String {
-        val cell = row.getCell(column)
-        return DataFormatter().formatCellValue(cell).trim()
-    }
-
-    private fun readColumnMapIndex(firstRow: Row): Map<String, Int> =
-        firstRow.toList().map { cell ->
-            ColumnNames.values().map { getColumnIndex(cell, it.column) }
-        }.flatten().filterNotNull().associate { it.first to it.second }
-
-    private fun getColumnIndex(
-        cell: Cell,
-        column: String,
-    ): Pair<String, Int>? =
-        if (cell.toString().replace("\\s".toRegex(), "").indexOf(column) > -1) {
-            column to cell.columnIndex
-        } else {
-            null
-        }
-
-    data class ArticleType(val mainProduct: Boolean, val sparePart: Boolean, val accessory: Boolean)
 }
 
 enum class ColumnNames(val column: String) {
