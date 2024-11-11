@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
 import no.nav.hm.grunndata.register.catalog.CatalogExcelFileImport
-import no.nav.hm.grunndata.register.catalog.CatalogImportRepository
 import no.nav.hm.grunndata.register.catalog.CatalogImportService
 
 @Secured(Roles.ROLE_ADMIN)
@@ -57,48 +56,18 @@ class ProductAgreementAdminController(
         LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()}")
         val importedExcelCatalog =
             file.inputStream.use { input -> catalogExcelFileImport.importExcelFile(input) }
-        val catalogImportResult = catalogImportService.createCatalogImportResult(importedExcelCatalog.map { it.toEntity() })
-        val productAgreementList = productAgreementImportExcelService.mapCatalogImport(importedExcelCatalog, authentication)
-        LOG.info("Imported ${productAgreementList.size} product agreements")
+        val catalogImportResult = catalogImportService.prepareCatalogImportResult(importedExcelCatalog.map { it.toEntity() })
+        val productAgreementResult = productAgreementImportExcelService.mapCatalogImport(catalogImportResult, authentication)
 
         val productAgreementsImportResult =
             productAccessorySparePartAgreementHandler.handleProductsInExcelImport(
-                ExcelImportedResult(importedExcelCatalog, productAgreementList),
+                productAgreementResult,
                 authentication,
                 dryRun,
             )
-        val productAgreements = productAgreementsImportResult.productAgreements
+        val productAgreements = productAgreementsImportResult.newProductAgreements
         LOG.info("Product agreements after handling: ${productAgreements.size}")
         var newCount = 0
-        val productAgreementsWithInformation =
-            productAgreements.map {
-                val information = mutableListOf<Information>()
-                val existingProductAgreement =
-                    if (it.postId != null) {
-                        productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
-                            it.supplierId,
-                            it.supplierRef,
-                            it.agreementId,
-                            it.postId,
-                            it.rank,
-                        )
-                    } else {
-                        productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
-                            it.supplierId,
-                            it.supplierRef,
-                            it.agreementId,
-                            it.post,
-                            it.rank,
-                        )
-                    }
-
-                if (existingProductAgreement != null) {
-                    information.add(Information("Product agreement already exists", Type.WARNING))
-                } else {
-                    newCount++
-                }
-                Pair(it, information)
-            }
 
         if (!dryRun) {
             LOG.info("Saving excel imported file: ${file.name} with ${productAgreements.size} product agreements")
@@ -113,8 +82,7 @@ class ProductAgreementAdminController(
             file = file.filename,
             createdSeries = productAgreementsImportResult.newSeries,
             createdAccessoryParts = productAgreementsImportResult.newAccessoryParts,
-            createdMainProducts = productAgreementsImportResult.newProducts,
-            productAgreementsWithInformation = productAgreementsWithInformation,
+            createdMainProducts = productAgreementsImportResult.newProducts
         )
     }
 

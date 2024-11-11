@@ -11,7 +11,11 @@ data class ProductAgreementImportDTO(
     val createdSeries: List<SeriesRegistration> = emptyList(),
     val createdAccessoryParts: List<ProductRegistration> = emptyList(),
     val createdMainProducts: List<ProductRegistration> = emptyList(),
-    val productAgreementsWithInformation: List<Pair<ProductAgreementRegistrationDTO, List<Information>>>,
+    val newProductAgreements: List<ProductAgreementRegistrationDTO> = emptyList(),
+    val updatedAgreements: List<ProductAgreementRegistrationDTO> = emptyList(),
+    val deactivatedAgreements: List<ProductAgreementRegistrationDTO> = emptyList(),
+    @Deprecated("No need for this field anymore")
+    val productAgreementsWithInformation: List<Pair<ProductAgreementRegistrationDTO, List<Information>>> = emptyList()
 )
 
 data class Information(

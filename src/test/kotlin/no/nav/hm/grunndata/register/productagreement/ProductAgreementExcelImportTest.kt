@@ -153,7 +153,7 @@ class ProductAgreementExcelImportTest(private val supplierRegistrationService: S
                 productAgreementRegistrationList[5].sparePart shouldBe true
                 productAgreementRegistrationList[6].isoCategory shouldBe "093390"
                 val productAgreementImportResult = accessoryPartHandler.handleProductsInExcelImport(excelImportedResult, null, false)
-                val productAgreementGroupInSeries = productAgreementImportResult.productAgreements
+                val productAgreementGroupInSeries = productAgreementImportResult.newProductAgreements
                 productAgreementImportResult.newSeries.size shouldBe 4
                 productAgreementImportResult.newAccessoryParts.size shouldBe 5
                 productAgreementImportResult.newProducts.size shouldBe 2

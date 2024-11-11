@@ -34,12 +34,12 @@ class ProductAccessorySparePartAgreementHandler(
      * The products will have admin status PENDING and draft status DONE
      */
     suspend fun handleProductsInExcelImport(
-        productExcelImportedResult: ExcelImportedResult,
+        importResult: ProductAgreementRegistrationResult,
         authentication: Authentication?,
         dryRun: Boolean = true,
     ): ProductAgreementImportResult {
-        val productAgreements = productExcelImportedResult.productAgreementRegistrationList
-        val distinctProductAgreements = productAgreements.distinctBy { it.supplierRef }
+        val newProductAgreements = importResult.insertedList
+        val distinctProductAgreements = newProductAgreements.distinctBy { it.supplierRef }
         val mainProductAgreements = distinctProductAgreements.filter { !it.accessory && !it.sparePart }
         val accessoryOrSpareParts = distinctProductAgreements.filter { it.accessory || it.sparePart }
         val supplierId = accessoryOrSpareParts.first().supplierId
@@ -52,7 +52,7 @@ class ProductAccessorySparePartAgreementHandler(
         val compatibleAccessory =
             createCompatibleWithLinkForAccessoryParts(createdAccessorSpareParts, createdMainProducts, dryRun)
         return ProductAgreementImportResult(
-            productAgreements = createdAccessorSpareParts.productAgreement + createdMainProducts.productAgreement,
+            newProductAgreements = createdAccessorSpareParts.productAgreement + createdMainProducts.productAgreement,
             newSeries = createdMainProducts.newSeries + createdAccessorSpareParts.newSeries,
             newAccessoryParts = compatibleAccessory.newProducts,
             newProducts = createdMainProducts.newProducts,
@@ -316,7 +316,7 @@ class ProductAccessorySparePartAgreementHandler(
 }
 
 data class ProductAgreementImportResult(
-    val productAgreements: List<ProductAgreementRegistrationDTO>,
+    val newProductAgreements: List<ProductAgreementRegistrationDTO>,
     val newSeries: List<SeriesRegistration>,
     val newAccessoryParts: List<ProductRegistration>,
     val newProducts: List<ProductRegistration>,

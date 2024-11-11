@@ -2,6 +2,8 @@ package no.nav.hm.grunndata.register.catalog
 
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Singleton
 open class CatalogImportService(private val catalogImportRepository: CatalogImportRepository) {
@@ -12,7 +14,7 @@ open class CatalogImportService(private val catalogImportRepository: CatalogImpo
 
 
     @Transactional
-    open suspend fun createCatalogImportResult(catalogImportList: List<CatalogImport>): CatalogImportResult {
+    open suspend fun prepareCatalogImportResult(catalogImportList: List<CatalogImport>): CatalogImportResult {
         val updatedList = mutableListOf<CatalogImport>()
         val insertedList = mutableListOf<CatalogImport>()
         val existingCatalog = catalogImportRepository.findByOrderRef(catalogImportList.first().orderRef)
@@ -29,7 +31,9 @@ open class CatalogImportService(private val catalogImportRepository: CatalogImpo
 
             }
         }
-        val deactivatedList = existingCatalog.filter { it.supplierRef !in catalogImportList.map { c -> c.supplierRef } }
+        val deactivatedList = existingCatalog.filter { it.supplierRef !in catalogImportList.map { c -> c.supplierRef } }.map {
+            it.copy( dateTo = LocalDate.now(), updated = LocalDateTime.now())
+        }
         return CatalogImportResult(updatedList, deactivatedList, insertedList)
     }
 

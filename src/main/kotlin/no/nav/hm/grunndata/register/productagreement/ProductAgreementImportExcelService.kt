@@ -39,6 +39,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import no.nav.hm.grunndata.register.catalog.CatalogImport
+import no.nav.hm.grunndata.register.catalog.CatalogImportResult
 
 @Singleton
 class ProductAgreementImportExcelService(
@@ -54,11 +55,15 @@ class ProductAgreementImportExcelService(
 
 
 
-    suspend fun mapCatalogImport(catalogImportList: List<CatalogImportExcelDTO>, authentication: Authentication?): List<ProductAgreementRegistrationDTO> {
-        return catalogImportList.map { it.toProductAgreementDTO(authentication )}.flatten()
+    suspend fun mapCatalogImport(catalogImportResult: CatalogImportResult, authentication: Authentication?):
+            ProductAgreementRegistrationResult {
+        val updatedList = catalogImportResult.updatedList.flatMap { it.toProductAgreementDTO(authentication) }
+        val insertedList = catalogImportResult.insertedList.flatMap { it.toProductAgreementDTO(authentication) }
+        val deactivatedList = catalogImportResult.deactivatedList.flatMap { it.toProductAgreementDTO(authentication) }
+        return ProductAgreementRegistrationResult(updatedList, insertedList, deactivatedList)
     }
 
-    private suspend fun CatalogImportExcelDTO.toProductAgreementDTO(
+    private suspend fun CatalogImport.toProductAgreementDTO(
         authentication: Authentication?,
     ): List<ProductAgreementRegistrationDTO> {
         val cleanRef = reference.lowercase().replace("/", "-")
@@ -69,8 +74,8 @@ class ProductAgreementImportExcelService(
 
         val supplierId = parseSupplierName(supplierName)
         val product = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)
-        if (!delkontraktNr.isNullOrBlank()) {
-            val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(delkontraktNr)
+        if (!postNr.isNullOrBlank()) {
+            val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(postNr)
 
             return postRanks.map { postRank ->
                 LOG.info("Mapping to product agreement for agreement $cleanRef, post ${postRank.first}, rank ${postRank.second}")
@@ -234,6 +239,12 @@ fun CatalogImportExcelDTO.toEntity() = CatalogImport(
     mainProduct = mainProduct,
     sparePart = sparePart,
     accessory = accessory,
+)
+
+data class ProductAgreementRegistrationResult(
+    val updatedList: List<ProductAgreementRegistrationDTO>,
+    val insertedList: List<ProductAgreementRegistrationDTO>,
+    val deactivatedList: List<ProductAgreementRegistrationDTO>,
 )
 
 val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
