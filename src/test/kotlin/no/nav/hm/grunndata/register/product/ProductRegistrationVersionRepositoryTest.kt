@@ -11,6 +11,8 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersion
+import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersionRepository
 import org.junit.jupiter.api.Test
 
 @MicronautTest

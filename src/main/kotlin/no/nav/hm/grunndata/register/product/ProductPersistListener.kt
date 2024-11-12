@@ -11,6 +11,8 @@ import no.nav.hm.grunndata.register.HMDB
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import org.slf4j.LoggerFactory
 import java.util.UUID
+import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersion
+import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersionService
 
 @Factory
 class ProductPersistListener(

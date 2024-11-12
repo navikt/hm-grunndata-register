@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.product
+package no.nav.hm.grunndata.register.series.version
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.scheduling.annotation.Scheduled
@@ -8,13 +8,14 @@ import no.nav.hm.grunndata.register.leaderelection.LeaderOnly
 
 @Singleton
 @Requires(property = "schedulers.enabled", value = "true")
-open class ProductRegistrationVersionScheduler(
-    private val productRegistrationVersionService: ProductRegistrationVersionService) {
+open class SeriesRegistrationVersionScheduler(
+    private val seriesRegistrationVersionService: SeriesRegistrationVersionService
+) {
 
     @LeaderOnly
-    @Scheduled(cron = "0 0 1 * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     open fun deleteOldSeriesRegistrationVersions() = runBlocking {
-        productRegistrationVersionService.deleteOldVersions()
+        seriesRegistrationVersionService.deleteOldVersions()
     }
 
 }

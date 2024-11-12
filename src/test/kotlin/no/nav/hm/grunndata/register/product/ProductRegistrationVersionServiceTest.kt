@@ -10,6 +10,8 @@ import no.nav.hm.grunndata.rapid.dto.Attributes
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
+import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersion
+import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersionService
 import no.nav.hm.grunndata.register.version.DiffStatus
 import no.nav.hm.grunndata.register.version.Difference
 import org.junit.jupiter.api.Test
@@ -97,7 +99,8 @@ class ProductRegistrationVersionServiceTest(private val productRegistrationVersi
                     )
                 )
             )
-            val pendingVersion = productRegistrationVersionService.save(ProductRegistrationVersion(
+            val pendingVersion = productRegistrationVersionService.save(
+                ProductRegistrationVersion(
                 productId = pending.id,
                 status = pending.registrationStatus,
                 adminStatus = pending.adminStatus,
@@ -105,7 +108,8 @@ class ProductRegistrationVersionServiceTest(private val productRegistrationVersi
                 productRegistration = pending,
                 updatedBy = pending.updatedBy,
                 updated = pending.updated
-            ))
+                )
+            )
             val diffSinceLastApproved: Difference<String, Any> = productRegistrationVersionService.diffWithLastApprovedVersion(pendingVersion)
             diffSinceLastApproved.status shouldBe DiffStatus.DIFF
             diffSinceLastApproved.diff.entriesDiffering.size shouldBe 3

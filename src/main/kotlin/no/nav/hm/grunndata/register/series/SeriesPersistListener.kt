@@ -6,6 +6,8 @@ import io.micronaut.data.event.listeners.PostUpdateEventListener
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.HMDB
+import no.nav.hm.grunndata.register.series.version.SeriesRegistrationVersion
+import no.nav.hm.grunndata.register.series.version.SeriesRegistrationVersionService
 import org.slf4j.LoggerFactory
 
 @Factory

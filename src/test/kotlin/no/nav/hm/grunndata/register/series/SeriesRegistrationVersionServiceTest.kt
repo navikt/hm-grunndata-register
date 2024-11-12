@@ -12,6 +12,8 @@ import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
+import no.nav.hm.grunndata.register.series.version.SeriesRegistrationVersion
+import no.nav.hm.grunndata.register.series.version.SeriesRegistrationVersionService
 import no.nav.hm.grunndata.register.version.DiffStatus
 import no.nav.hm.grunndata.register.version.Difference
 import org.junit.jupiter.api.Test
@@ -107,7 +109,8 @@ class SeriesRegistrationVersionServiceTest(private val seriesRegistrationVersion
                     )
                 )
             )
-            val pendingVersion = seriesRegistrationVersionService.save(SeriesRegistrationVersion(
+            val pendingVersion = seriesRegistrationVersionService.save(
+                SeriesRegistrationVersion(
                 seriesId = pending.id,
                 status = pending.status,
                 adminStatus = pending.adminStatus,
@@ -115,7 +118,8 @@ class SeriesRegistrationVersionServiceTest(private val seriesRegistrationVersion
                 seriesRegistration = pending,
                 updatedBy = pending.updatedBy,
                 updated = pending.updated
-            ))
+                )
+            )
             val diffSinceLastApproved: Difference<String, Any> = seriesRegistrationVersionService.diffWithLastApprovedVersion(pendingVersion)
             diffSinceLastApproved.status shouldBe DiffStatus.DIFF
             diffSinceLastApproved.diff.entriesDiffering.size shouldBe 2

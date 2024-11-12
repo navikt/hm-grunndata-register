@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.series
+package no.nav.hm.grunndata.register.series.version
 
 import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.model.Page
@@ -8,7 +8,6 @@ import io.micronaut.data.runtime.criteria.get
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
-import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.annotation.RequestBean
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
@@ -17,7 +16,7 @@ import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
-import no.nav.hm.grunndata.register.product.ProductRegistrationVersionService
+import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersionService
 import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.version.Difference

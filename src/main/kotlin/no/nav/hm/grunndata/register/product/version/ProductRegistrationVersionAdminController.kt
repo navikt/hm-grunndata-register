@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.product
+package no.nav.hm.grunndata.register.product.version
 
 import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.model.Page

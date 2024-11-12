@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.product
+package no.nav.hm.grunndata.register.product.version
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
@@ -10,6 +10,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.version.DiffStatus
 import no.nav.hm.grunndata.register.version.Difference
 import no.nav.hm.grunndata.register.version.MapDifference

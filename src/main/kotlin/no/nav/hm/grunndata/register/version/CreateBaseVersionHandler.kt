@@ -7,14 +7,13 @@ import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
-import no.nav.hm.grunndata.register.product.ProductRegistrationVersion
-import no.nav.hm.grunndata.register.product.ProductRegistrationVersionService
+import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersion
+import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersionService
 import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
-import no.nav.hm.grunndata.register.series.SeriesRegistrationVersion
-import no.nav.hm.grunndata.register.series.SeriesRegistrationVersionService
+import no.nav.hm.grunndata.register.series.version.SeriesRegistrationVersion
+import no.nav.hm.grunndata.register.series.version.SeriesRegistrationVersionService
 import no.nav.hm.grunndata.register.series.toEntity
-import no.nav.hm.grunndata.register.supplier.SupplierAdminApiController
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.slf4j.LoggerFactory
 

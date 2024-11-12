@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.product
+package no.nav.hm.grunndata.register.product.version
 
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
@@ -9,6 +9,7 @@ import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.register.product.ProductRegistration
 
 @MappedEntity("product_reg_version_v1")
 data class ProductRegistrationVersion(

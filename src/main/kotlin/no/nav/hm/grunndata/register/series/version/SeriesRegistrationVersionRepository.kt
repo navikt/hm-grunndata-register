@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.series
+package no.nav.hm.grunndata.register.series.version
 
 import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect
