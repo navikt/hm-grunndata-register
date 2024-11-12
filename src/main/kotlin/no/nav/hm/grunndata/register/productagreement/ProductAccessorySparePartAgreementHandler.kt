@@ -33,7 +33,7 @@ class ProductAccessorySparePartAgreementHandler(
      * returns a list of productAgreements with seriesUuid and productId
      * The products will have admin status PENDING and draft status DONE
      */
-    suspend fun handleProductsInExcelImport(
+    suspend fun handleNewProductsInExcelImport(
         importResult: ProductAgreementRegistrationResult,
         authentication: Authentication?,
         dryRun: Boolean = true,

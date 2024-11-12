@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.productagreement
 
 import io.micronaut.security.authentication.Authentication
+import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
@@ -11,41 +12,24 @@ import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
 import no.nav.hm.grunndata.register.agreement.NoDelKontraktHandler
 import no.nav.hm.grunndata.register.error.BadRequestException
-import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.anbudsnr
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.beskrivelse
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.datofom
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.datotom
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.delkontraktnummer
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.funksjonsendring
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.hms_ArtNr
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.kategori
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.leverandorfirmanavn
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.leverandorsted
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.leverandørensartnr
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.malTypeartikkel
-import no.nav.hm.grunndata.register.productagreement.ColumnNames.malgruppebarn
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
-import org.apache.poi.openxml4j.util.ZipSecureFile
-import org.apache.poi.ss.usermodel.Cell
-import org.apache.poi.ss.usermodel.DataFormatter
-import org.apache.poi.ss.usermodel.Row
-import org.apache.poi.ss.usermodel.Workbook
-import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.slf4j.LoggerFactory
-import java.io.InputStream
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
+import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.catalog.CatalogImport
 import no.nav.hm.grunndata.register.catalog.CatalogImportResult
+import no.nav.hm.grunndata.register.product.ProductRegistrationService
 
 @Singleton
-class ProductAgreementImportExcelService(
+open class ProductAgreementImportExcelService(
     private val supplierRegistrationService: SupplierRegistrationService,
     private val agreementRegistrationService: AgreementRegistrationService,
-    private val productRegistrationRepository: ProductRegistrationRepository,
+    private val productRegistrationService: ProductRegistrationService,
+    private val productAgreementService: ProductAgreementRegistrationService,
     private val noDelKontraktHandler: NoDelKontraktHandler,
 ) {
     companion object {
@@ -53,7 +37,81 @@ class ProductAgreementImportExcelService(
         const val EXCEL = "EXCEL"
     }
 
+    @Transactional
+    open suspend fun persistProductAgreementFromCatalogImport(productAgreementResult: ProductAgreementRegistrationResult) {
+        productAgreementResult.updatedList.forEach {
+            updateProductAndProductAgreement(it)
+        }
 
+        productAgreementResult.deactivatedList.forEach {
+            deactivateProductAgreement(it)
+        }
+
+        productAgreementService.saveAll(productAgreementResult.insertedList)
+    }
+
+    private suspend fun deactivateProductAgreement(pa: ProductAgreementRegistrationDTO) {
+        LOG.info("Excel import deactivating product agreement for agreement ${pa.agreementId}, " +
+                "post ${pa.postId} and productId: ${pa.productId}")
+        productAgreementService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
+            pa.supplierId, pa.supplierRef, pa.agreementId, pa.postId, pa.rank
+        )?.let { existing ->
+
+            productAgreementService.update(
+                existing.copy(
+                    expired = LocalDateTime.now(),
+                    updatedBy = EXCEL,
+                    status = ProductAgreementStatus.INACTIVE
+                )
+            )
+            if (pa.productId != null && (pa.accessory || pa.sparePart)) {
+                productRegistrationService.findById(pa.productId)?.let { product ->
+                    productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                        product.copy(
+                            expired = LocalDateTime.now(),
+                            updatedBy = REGISTER,
+                            updatedByUser = "EXCEL",
+                            registrationStatus = RegistrationStatus.INACTIVE
+                        ), true
+                    )
+                }
+            }
+        }
+    }
+
+
+
+    private suspend fun updateProductAndProductAgreement(pa: ProductAgreementRegistrationDTO) {
+        productAgreementService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
+            pa.supplierId, pa.supplierRef, pa.agreementId, pa.postId, pa.rank
+        )?.let { existing ->
+            LOG.info("Excel import updating product agreement for agreement ${pa.agreementId}, " +
+                    "post ${pa.postId} and productId: ${pa.productId}")
+            productAgreementService.update(
+                existing.copy(
+                    productId = pa.productId,
+                    hmsArtNr = pa.hmsArtNr,
+                    seriesUuid = pa.seriesUuid,
+                    title = pa.title,
+                    articleName = pa.articleName,
+                    sparePart = pa.sparePart,
+                    accessory = pa.accessory,
+                    updatedBy = EXCEL,
+                    expired = pa.expired
+                )
+            )
+            if (pa.accessory || pa.sparePart && pa.productId != null) {
+                productRegistrationService.findById(pa.productId!!)?.let { product ->
+                    productRegistrationService.update(
+                        product.copy(
+                            title = pa.title,
+                            articleName = pa.articleName ?: ""
+                        )
+                    )
+                }
+            }
+        }
+    }
 
     suspend fun mapCatalogImport(catalogImportResult: CatalogImportResult, authentication: Authentication?):
             ProductAgreementRegistrationResult {
@@ -73,7 +131,7 @@ class ProductAgreementImportExcelService(
         }
 
         val supplierId = parseSupplierName(supplierName)
-        val product = productRegistrationRepository.findBySupplierRefAndSupplierId(supplierRef, supplierId)
+        val product = productRegistrationService.findBySupplierRefAndSupplierId(supplierRef, supplierId)
         if (!postNr.isNullOrBlank()) {
             val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(postNr)
 

@@ -11,6 +11,7 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import io.micronaut.transaction.annotation.Transactional
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
@@ -24,12 +25,13 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
 import no.nav.hm.grunndata.register.catalog.CatalogExcelFileImport
+import no.nav.hm.grunndata.register.catalog.CatalogImportResult
 import no.nav.hm.grunndata.register.catalog.CatalogImportService
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
 @Tag(name = "Admin Product Agreement")
-class ProductAgreementAdminController(
+open class ProductAgreementAdminController(
     private val catalogExcelFileImport: CatalogExcelFileImport,
     private val productAgreementImportExcelService: ProductAgreementImportExcelService,
     private val productRegistrationService: ProductRegistrationService,
@@ -60,19 +62,17 @@ class ProductAgreementAdminController(
         val productAgreementResult = productAgreementImportExcelService.mapCatalogImport(catalogImportResult, authentication)
 
         val productAgreementsImportResult =
-            productAccessorySparePartAgreementHandler.handleProductsInExcelImport(
+            productAccessorySparePartAgreementHandler.handleNewProductsInExcelImport(
                 productAgreementResult,
                 authentication,
                 dryRun,
             )
         val productAgreements = productAgreementsImportResult.newProductAgreements
-        LOG.info("Product agreements after handling: ${productAgreements.size}")
-        var newCount = 0
+        LOG.info("New product agreements found: ${productAgreements.size}")
+        val newCount = productAgreementsImportResult.newProductAgreements.size
 
         if (!dryRun) {
-            LOG.info("Saving excel imported file: ${file.name} with ${productAgreements.size} product agreements")
-            catalogImportService.persistCatalogImportResult(catalogImportResult)
-            productAgreementRegistrationService.saveAll(productAgreements)
+
         }
 
         return ProductAgreementImportDTO(
@@ -82,7 +82,10 @@ class ProductAgreementAdminController(
             file = file.filename,
             createdSeries = productAgreementsImportResult.newSeries,
             createdAccessoryParts = productAgreementsImportResult.newAccessoryParts,
-            createdMainProducts = productAgreementsImportResult.newProducts
+            createdMainProducts = productAgreementsImportResult.newProducts,
+            newProductAgreements = productAgreementsImportResult.newProductAgreements,
+            updatedAgreements = productAgreementResult.updatedList,
+            deactivatedAgreements = productAgreementResult.deactivatedList,
         )
     }
 
@@ -342,6 +345,14 @@ class ProductAgreementAdminController(
             } ?: throw BadRequestException("Product agreement $uuid not found")
         }
         return HttpResponse.ok(ProductAgreementsDeletedResponse(ids))
+    }
+
+    @Transactional
+    open suspend fun persistCatalogResult(catalogImportResult: CatalogImportResult, file: CompletedFileUpload,
+                             productAgreementResult: ProductAgreementRegistrationResult) {
+        LOG.info("Persisting products from excel imported file: ${file.name}")
+        catalogImportService.persistCatalogImportResult(catalogImportResult)
+        productAgreementImportExcelService.persistProductAgreementFromCatalogImport(productAgreementResult)
     }
 }
 
