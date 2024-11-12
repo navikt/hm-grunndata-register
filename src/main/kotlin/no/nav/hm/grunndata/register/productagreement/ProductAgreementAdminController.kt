@@ -72,7 +72,7 @@ open class ProductAgreementAdminController(
         val newCount = productAgreementsImportResult.newProductAgreements.size
 
         if (!dryRun) {
-
+            persistCatalogResult(catalogImportResult, file, productAgreementResult)
         }
 
         return ProductAgreementImportDTO(
