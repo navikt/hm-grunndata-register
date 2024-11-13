@@ -23,6 +23,7 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.catalog.CatalogImport
 import no.nav.hm.grunndata.register.catalog.CatalogImportResult
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService.Companion.LOG
 
 @Singleton
 open class ProductAgreementImportExcelService(
@@ -154,13 +155,13 @@ open class ProductAgreementImportExcelService(
                     postId = delkontrakt.id,
                     supplierId = supplierId,
                     published = agreement.published,
-                    expired = agreement.expired,
+                    expired = dateTo.atTime(0,0,0),
                     updatedBy = EXCEL,
                     sparePart = sparePart,
                     accessory = accessory,
                     isoCategory = iso,
                     updatedByUser = authentication?.name ?: "system",
-                    status = if (agreement.draftStatus == DraftStatus.DONE && agreement.published < LocalDateTime.now() && agreement.expired > LocalDateTime.now()) ProductAgreementStatus.ACTIVE else ProductAgreementStatus.INACTIVE,
+                    status = mapProductAgreementStatus(agreement),
                 )
             }
         } else {
@@ -181,16 +182,27 @@ open class ProductAgreementImportExcelService(
                     postId = noDelKonktraktPost.id,
                     supplierId = supplierId,
                     published = agreement.published,
-                    expired = agreement.expired,
+                    expired =dateTo.atTime(0,0,0,),
                     updatedBy = EXCEL,
                     sparePart = sparePart,
                     accessory = accessory,
                     isoCategory = iso,
                     updatedByUser = authentication?.name ?: "system",
-                    status = if (agreement.draftStatus == DraftStatus.DONE && agreement.published < LocalDateTime.now() && agreement.expired > LocalDateTime.now()) ProductAgreementStatus.ACTIVE else ProductAgreementStatus.INACTIVE,
+                    status = mapProductAgreementStatus(agreement),
                 ),
             )
         }
+    }
+
+    private fun CatalogImport.mapProductAgreementStatus(agreement: AgreementRegistrationDTO): ProductAgreementStatus {
+        val nowDate = LocalDate.now()
+        val now = LocalDateTime.now()
+        return if (agreement.draftStatus == DraftStatus.DONE
+                    && agreement.published < now
+                    && agreement.expired > now
+                    && dateTo > nowDate)
+             ProductAgreementStatus.ACTIVE
+        else ProductAgreementStatus.INACTIVE
     }
 
     suspend fun findAgreementByReferenceLike(reference: String): AgreementRegistrationDTO =
@@ -206,28 +218,29 @@ open class ProductAgreementImportExcelService(
                 ?: throw BadRequestException("Leverandør $supplierName finnes ikke i registeret, sjekk om navnet er riktig skrevet.")
         }
 
-    private fun parsedelkontraktNr(subContractNr: String): List<Pair<String, Int>> {
-        try {
-            var matchResult = delKontraktRegex.find(subContractNr)
-            val mutableList: MutableList<Pair<String, Int>> = mutableListOf()
-            if (matchResult != null) {
-                while (matchResult != null) {
-                    val groupValues = delKontraktRegex.find(subContractNr)?.groupValues
-                    val post = groupValues?.get(1) + groupValues?.get(2)?.uppercase()
-                    val rank1 = groupValues?.get(3)?.toIntOrNull() ?: 99
-                    mutableList.add(Pair(post, rank1))
-                    matchResult = matchResult.next()
-                }
-            } else {
-                throw BadRequestException("Klarte ikke å lese delkontrakt nr. $subContractNr")
-            }
-            return mutableList
-        } catch (e: Exception) {
-            LOG.error("Klarte ikke å lese post og rangering fra delkontrakt nr. $subContractNr", e)
-            throw BadRequestException("Klarte ikke å lese post og rangering fra delkontrakt nr. $subContractNr")
-        }
-    }
     private fun parseHMSNr(hmsArtNr: String): String = hmsArtNr.substringBefore(".").toInt().toString()
+
+}
+
+fun parsedelkontraktNr(subContractNr: String): List<Pair<String, Int>> {
+    try {
+        var matchResult = delKontraktRegex.find(subContractNr)
+        val mutableList: MutableList<Pair<String, Int>> = mutableListOf()
+        if (matchResult != null) {
+            while (matchResult != null) {
+                val groupValues = matchResult.groupValues
+                val post = groupValues[1] + groupValues[2].uppercase()
+                val rank1 = groupValues[3].toIntOrNull() ?: 99
+                mutableList.add(Pair(post, rank1))
+                matchResult = matchResult.next()
+            }
+        } else {
+            throw BadRequestException("Klarte ikke å lese delkontrakt nr. $subContractNr")
+        }
+        return mutableList
+    } catch (e: Exception) {
+        throw BadRequestException("Klarte ikke å lese post og rangering fra delkontrakt nr. $subContractNr")
+    }
 
 }
 

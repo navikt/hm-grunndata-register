@@ -203,6 +203,10 @@ class ProductAgreementExcelImportTest(
             response.status shouldBe HttpStatus.OK
             val body2 = response2.body()
             body2.shouldNotBeNull()
+            body2.newProductAgreements.size shouldBe 2
+            body2.deactivatedAgreements.size shouldBe 2
+            body2.createdAccessoryParts.size shouldBe 1
+            body2.updatedAgreements.size shouldBe 6
         }
     }
 }
