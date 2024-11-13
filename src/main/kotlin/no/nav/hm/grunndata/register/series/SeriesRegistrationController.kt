@@ -16,7 +16,6 @@ import io.micronaut.http.annotation.Patch
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
-import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.annotation.RequestBean
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
@@ -29,6 +28,7 @@ import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
+import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.reactivestreams.Publisher
@@ -56,7 +56,7 @@ class SeriesRegistrationController(
         authentication: Authentication,
     ): SeriesRegistrationDTO? =
         productRegistrationService.findByHmsArtNrAndSupplierId(hmsNr, authentication.supplierId())?.let {
-            seriesRegistrationService.findById(it.seriesUUID)
+            seriesRegistrationService.findById(it.seriesUUID)?.toDTO()
         }
 
     @Get("/supplierRef/{supplierRef}")
@@ -68,7 +68,7 @@ class SeriesRegistrationController(
             supplierRef,
             authentication.supplierId(),
         )?.let {
-            seriesRegistrationService.findById(it.seriesUUID)
+            seriesRegistrationService.findById(it.seriesUUID)?.toDTO()
         }
 
     @Get("/")
@@ -77,7 +77,7 @@ class SeriesRegistrationController(
         pageable: Pageable,
         authentication: Authentication,
     ): Page<SeriesRegistrationDTO> {
-        return seriesRegistrationService.findAll(buildCriteriaSpec(seriesCriteria, authentication.supplierId()), pageable)
+        return seriesRegistrationService.findAll(buildCriteriaSpec(seriesCriteria, authentication.supplierId()), pageable).mapSuspend { it.toDTO() }
     }
 
     @Post("/")
@@ -104,7 +104,7 @@ class SeriesRegistrationController(
 
     @Post("/draft")
     suspend fun createDraftSeries(authentication: Authentication): HttpResponse<SeriesRegistrationDTO> {
-        return HttpResponse.ok(seriesRegistrationService.createDraft(authentication.supplierId(), authentication))
+        return HttpResponse.ok(seriesRegistrationService.createDraft(authentication.supplierId(), authentication).toDTO())
     }
 
     @Post("/draftWith")
@@ -117,7 +117,7 @@ class SeriesRegistrationController(
                 authentication.supplierId(),
                 authentication,
                 draftWith,
-            ),
+            ).toDTO(),
         )
     }
 
@@ -127,7 +127,7 @@ class SeriesRegistrationController(
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> =
         seriesRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())?.let {
-            HttpResponse.ok(it)
+            HttpResponse.ok(it.toDTO())
         } ?: run {
             LOG.warn("Series with id $id does not exist")
             HttpResponse.notFound()
@@ -200,7 +200,7 @@ class SeriesRegistrationController(
                             updatedByUser = authentication.name,
                         ),
                     true,
-                ),
+                ).toDTO(),
             )
         } ?: run {
             LOG.warn("Series with id $id does not exist")
@@ -264,7 +264,7 @@ class SeriesRegistrationController(
             seriesRegistrationService.requestApprovalForSeriesAndVariants(seriesToUpdate)
 
         LOG.info("set series to pending approval: $seriesUUID")
-        return HttpResponse.ok(updated)
+        return HttpResponse.ok(updated.toDTO())
     }
 
     @Put("/serie-til-godkjenning/{seriesUUID}")
@@ -287,7 +287,7 @@ class SeriesRegistrationController(
         val updated =
             seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedSeries, isUpdate = true)
 
-        return HttpResponse.ok(updated)
+        return HttpResponse.ok(updated.toDTO())
     }
 
     @Put("/series_ready-for-approval/{seriesUUID}")
@@ -303,7 +303,7 @@ class SeriesRegistrationController(
 
         val updated = seriesRegistrationService.setSeriesToDraftStatus(seriesToUpdate, authentication)
 
-        return HttpResponse.ok(updated)
+        return HttpResponse.ok(updated.toDTO())
     }
 
     @Put("/series_to-draft/{seriesUUID}")
@@ -320,7 +320,7 @@ class SeriesRegistrationController(
         val updated = seriesRegistrationService.setSeriesToDraftStatus(seriesToUpdate, authentication)
 
         LOG.info("set series to draft: $seriesUUID")
-        return HttpResponse.ok(updated)
+        return HttpResponse.ok(updated.toDTO())
     }
 
     @Put("/series-to-inactive/{seriesUUID}")
@@ -341,7 +341,7 @@ class SeriesRegistrationController(
             )
 
         LOG.info("set series to expired: $seriesUUID")
-        return HttpResponse.ok(updated)
+        return HttpResponse.ok(updated.toDTO())
     }
 
     @Put("/series-to-active/{seriesUUID}")
@@ -362,7 +362,7 @@ class SeriesRegistrationController(
             )
 
         LOG.info("set series to active: $seriesUUID")
-        return HttpResponse.ok(updated)
+        return HttpResponse.ok(updated.toDTO())
     }
 
     @Delete("/{seriesUUID}")
@@ -383,7 +383,7 @@ class SeriesRegistrationController(
         val updated = seriesRegistrationService.deleteSeries(seriesToUpdate, authentication)
 
         LOG.info("set series to deleted: $seriesUUID")
-        return HttpResponse.ok(updated)
+        return HttpResponse.ok(updated.toDTO())
     }
 
     private fun buildCriteriaSpec(

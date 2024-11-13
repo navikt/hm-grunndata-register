@@ -75,7 +75,7 @@ class SeriesImportRiver(
                         ),
                     )
                 } ?: seriesRegistrationService.save(
-                    SeriesRegistrationDTO(
+                    SeriesRegistration(
                         adminStatus = AdminStatus.PENDING,
                         draftStatus = DraftStatus.DONE,
                         id = dto.id,

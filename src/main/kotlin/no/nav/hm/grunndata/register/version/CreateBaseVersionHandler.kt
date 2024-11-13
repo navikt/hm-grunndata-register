@@ -11,6 +11,7 @@ import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersion
 import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersionService
 import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
+import no.nav.hm.grunndata.register.series.toDTO
 import no.nav.hm.grunndata.register.series.version.SeriesRegistrationVersion
 import no.nav.hm.grunndata.register.series.version.SeriesRegistrationVersionService
 import no.nav.hm.grunndata.register.series.toEntity
@@ -54,7 +55,7 @@ open class CreateBaseVersionHandler(
                 val seriesVersion =
                     seriesRegistrationVersionService.findBySeriesIdAndVersion(series.id, series.version ?: 0)
                 if (seriesVersion == null) {
-                    seriesRegistrationVersionService.save(series.toVersion())
+                    seriesRegistrationVersionService.save(series.toDTO().toVersion())
                     countSeriesBaseVersionsCreated++
                 }
             }

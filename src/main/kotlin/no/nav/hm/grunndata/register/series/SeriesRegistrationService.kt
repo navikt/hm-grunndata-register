@@ -5,7 +5,6 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
-import io.micronaut.http.HttpResponse
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
@@ -21,23 +20,22 @@ import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.error.ErrorType
 import no.nav.hm.grunndata.register.iso.IsoCategoryService
 import no.nav.hm.grunndata.register.media.MediaUploadService
 import no.nav.hm.grunndata.register.media.ObjectType
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
+import no.nav.hm.grunndata.register.product.isAdmin
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
+import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
-import no.nav.hm.grunndata.register.error.ErrorType
-import no.nav.hm.grunndata.register.product.isAdmin
-import no.nav.hm.grunndata.register.security.supplierId
-import no.nav.hm.grunndata.register.series.SeriesRegistrationController.Companion
 
 @Singleton
 open class SeriesRegistrationService(
@@ -84,7 +82,7 @@ open class SeriesRegistrationService(
         )
     }
 
-    suspend fun findById(id: UUID): SeriesRegistrationDTO? = seriesRegistrationRepository.findById(id)?.toDTO()
+    suspend fun findById(id: UUID): SeriesRegistration? = seriesRegistrationRepository.findById(id)
 
     suspend fun findByIdV2(id: UUID): SeriesRegistration? {
         return seriesRegistrationRepository.findByIdAndStatusIn(
@@ -93,17 +91,27 @@ open class SeriesRegistrationService(
         )
     }
 
-    open suspend fun findByIdIn(ids: List<UUID>) = seriesRegistrationRepository.findByIdIn(ids).map { it.toDTO() }
+    open suspend fun findByIdIn(ids: List<UUID>) = seriesRegistrationRepository.findByIdIn(ids)
 
     suspend fun update(
         dto: SeriesRegistrationDTO,
         id: UUID = dto.id,
     ) = seriesRegistrationRepository.update(dto.toEntity()).toDTO()
 
+    suspend fun update(
+        dto: SeriesRegistration,
+        id: UUID = dto.id,
+    ) = seriesRegistrationRepository.update(dto)
+
     suspend fun save(
         dto: SeriesRegistrationDTO,
         id: UUID = dto.id,
     ) = seriesRegistrationRepository.save(dto.toEntity()).toDTO()
+
+    suspend fun save(
+        dto: SeriesRegistration,
+        id: UUID = dto.id,
+    ) = seriesRegistrationRepository.save(dto)
 
     @Transactional
     open suspend fun saveAndCreateEventIfNotDraftAndApproved(
@@ -118,15 +126,28 @@ open class SeriesRegistrationService(
         return saved
     }
 
+    @Transactional
+    open suspend fun saveAndCreateEventIfNotDraftAndApproved(
+        dto: SeriesRegistration,
+        isUpdate: Boolean,
+        eventName: String = EventName.registeredSeriesV1,
+    ): SeriesRegistration {
+        val saved = if (isUpdate) update(dto) else save(dto)
+        if (saved.draftStatus == DraftStatus.DONE && saved.adminStatus == AdminStatus.APPROVED) {
+            seriesRegistrationEventHandler.queueDTORapidEvent(saved.toDTO(), eventName = eventName)
+        }
+        return saved
+    }
+
     suspend fun findAll(
         spec: PredicateSpecification<SeriesRegistration>?,
         pageable: Pageable,
-    ): Page<SeriesRegistrationDTO> = seriesRegistrationRepository.findAll(spec, pageable).map { it.toDTO() }
+    ): Page<SeriesRegistration> = seriesRegistrationRepository.findAll(spec, pageable)
 
     suspend fun findByIdAndSupplierId(
         id: UUID,
         supplierId: UUID,
-    ): SeriesRegistrationDTO? = seriesRegistrationRepository.findByIdAndSupplierId(id, supplierId)?.toDTO()
+    ): SeriesRegistration? = seriesRegistrationRepository.findByIdAndSupplierId(id, supplierId)
 
     suspend fun findByIdAndSupplierIdV2(
         id: UUID,
@@ -139,17 +160,17 @@ open class SeriesRegistrationService(
         )
     }
 
-    suspend fun findBySupplierId(supplierId: UUID): List<SeriesRegistrationDTO> =
-        seriesRegistrationRepository.findBySupplierId(supplierId).map { it.toDTO() }
+    suspend fun findBySupplierId(supplierId: UUID): List<SeriesRegistration> =
+        seriesRegistrationRepository.findBySupplierId(supplierId)
 
     suspend fun createDraftWith(
         supplierId: UUID,
         authentication: Authentication,
         draftWithDTO: SeriesDraftWithDTO,
-    ): SeriesRegistrationDTO {
+    ): SeriesRegistration {
         val id = UUID.randomUUID()
         val series =
-            SeriesRegistrationDTO(
+            SeriesRegistration(
                 id = id,
                 supplierId = supplierId,
                 isoCategory = draftWithDTO.isoCategory,
@@ -176,10 +197,10 @@ open class SeriesRegistrationService(
     suspend fun createDraft(
         supplierId: UUID,
         authentication: Authentication,
-    ): SeriesRegistrationDTO? {
+    ): SeriesRegistration {
         val id = UUID.randomUUID()
         val series =
-            SeriesRegistrationDTO(
+            SeriesRegistration(
                 id = id,
                 supplierId = supplierId,
                 isoCategory = "0",
@@ -236,7 +257,7 @@ open class SeriesRegistrationService(
     }
 
     @Transactional
-    open suspend fun requestApprovalForSeriesAndVariants(seriesToUpdate: SeriesRegistrationDTO): SeriesRegistrationDTO {
+    open suspend fun requestApprovalForSeriesAndVariants(seriesToUpdate: SeriesRegistration): SeriesRegistration {
         val updatedSeries =
             seriesToUpdate.copy(
                 draftStatus = DraftStatus.DONE,
@@ -264,9 +285,9 @@ open class SeriesRegistrationService(
 
     @Transactional
     open suspend fun setSeriesToDraftStatus(
-        seriesToUpdate: SeriesRegistrationDTO,
+        seriesToUpdate: SeriesRegistration,
         authentication: Authentication,
-    ): SeriesRegistrationDTO {
+    ): SeriesRegistration {
         val updatedSeries =
             seriesToUpdate.copy(
                 draftStatus = DraftStatus.DRAFT,
@@ -293,9 +314,9 @@ open class SeriesRegistrationService(
 
     @Transactional
     open suspend fun deleteSeries(
-        seriesToDelete: SeriesRegistrationDTO,
+        seriesToDelete: SeriesRegistration,
         authentication: Authentication,
-    ): SeriesRegistrationDTO {
+    ): SeriesRegistration {
         val updatedSeries =
             seriesToDelete.copy(
                 status = SeriesStatus.DELETED,
@@ -325,18 +346,18 @@ open class SeriesRegistrationService(
 
     @Transactional
     open suspend fun approveManySeriesAndVariants(
-        seriesListToUpdate: List<SeriesRegistrationDTO>,
+        seriesListToUpdate: List<SeriesRegistration>,
         authentication: Authentication,
-    ): List<SeriesRegistrationDTO> =
+    ): List<SeriesRegistration> =
         seriesListToUpdate.map { series ->
             approveSeriesAndVariants(series, authentication)
         }
 
     @Transactional
     open suspend fun approveSeriesAndVariants(
-        seriesToUpdate: SeriesRegistrationDTO,
+        seriesToUpdate: SeriesRegistration,
         authentication: Authentication,
-    ): SeriesRegistrationDTO {
+    ): SeriesRegistration {
         val updatedSeries =
             saveAndCreateEventIfNotDraftAndApproved(
                 seriesToUpdate.copy(
@@ -372,10 +393,10 @@ open class SeriesRegistrationService(
 
     @Transactional
     open suspend fun rejectSeriesAndVariants(
-        seriesToUpdate: SeriesRegistrationDTO,
+        seriesToUpdate: SeriesRegistration,
         message: String?,
         authentication: Authentication,
-    ): SeriesRegistrationDTO {
+    ): SeriesRegistration {
         val updatedSeries =
             saveAndCreateEventIfNotDraftAndApproved(
                 seriesToUpdate.copy(
@@ -414,10 +435,10 @@ open class SeriesRegistrationService(
 
     @Transactional
     open suspend fun setPublishedSeriesRegistrationStatus(
-        seriesToUpdate: SeriesRegistrationDTO,
+        seriesToUpdate: SeriesRegistration,
         authentication: Authentication,
         status: SeriesStatus,
-    ): SeriesRegistrationDTO {
+    ): SeriesRegistration {
         if (seriesToUpdate.published == null || seriesToUpdate.draftStatus != DraftStatus.DRAFT) {
             throw IllegalArgumentException(
                 "series cant be set to expired. published = ${seriesToUpdate.published}, draftstatus: ${seriesToUpdate.draftStatus}}",
@@ -468,7 +489,7 @@ open class SeriesRegistrationService(
         id: UUID,
         patch: UpdateSeriesRegistrationDTO,
         authentication: Authentication
-    ): SeriesRegistrationDTO {
+    ): SeriesRegistration {
         val inDbSeries = if (authentication.isAdmin()) findById(id) ?: throw BadRequestException(
             "Series not found",
             ErrorType.NOT_FOUND
@@ -521,7 +542,7 @@ open class SeriesRegistrationService(
         )
 
     open suspend fun uploadMediaAndUpdateSeries(
-        seriesToUpdate: SeriesRegistrationDTO,
+        seriesToUpdate: SeriesRegistration,
         files: Publisher<CompletedFileUpload>,
     ) {
         val mediaDtos =
@@ -548,6 +569,6 @@ open class SeriesRegistrationService(
         val newData = seriesToUpdate.seriesData.copy(media = newMedia)
         val newUpdate = seriesToUpdate.copy(seriesData = newData)
 
-        seriesRegistrationRepository.update(newUpdate.toEntity())
+        seriesRegistrationRepository.update(newUpdate)
     }
 }

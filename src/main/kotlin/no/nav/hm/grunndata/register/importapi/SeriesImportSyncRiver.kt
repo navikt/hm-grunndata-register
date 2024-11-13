@@ -10,17 +10,16 @@ import no.nav.helse.rapids_rivers.MessageContext
 import no.nav.helse.rapids_rivers.River
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.ProductStatus
-import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesImportRapidDTO
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.rapid.dto.rapidDTOVersion
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.rapid.event.RapidApp
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
-import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
+import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationEventHandler
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
+import no.nav.hm.grunndata.register.series.toDTO
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -72,7 +71,7 @@ class SeriesImportSyncRiver(
                         ),
                     )
                 } ?: seriesRegistrationService.save(
-                    SeriesRegistrationDTO(
+                    SeriesRegistration(
                         id = dto.id,
                         supplierId = dto.supplierId,
                         identifier = dto.id.toString(),
@@ -93,7 +92,7 @@ class SeriesImportSyncRiver(
             val extraImportKeyValues =
                 mapOf("transferId" to dto.transferId, "version" to dto.version)
             seriesRegistrationEventHandler.queueDTORapidEvent(
-                series,
+                series.toDTO(),
                 eventName = EventName.registeredSeriesV1,
                 extraKeyValues = extraImportKeyValues,
             )

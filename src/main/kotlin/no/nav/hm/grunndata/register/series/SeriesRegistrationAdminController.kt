@@ -29,6 +29,7 @@ import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
+import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.reactivestreams.Publisher
@@ -57,7 +58,7 @@ class SeriesRegistrationAdminController(
         pageable: Pageable,
         authentication: Authentication,
     ): Page<SeriesRegistrationDTO> {
-        return seriesRegistrationService.findAll(buildCriteriaSpec(seriesCriteria), pageable)
+        return seriesRegistrationService.findAll(buildCriteriaSpec(seriesCriteria), pageable).mapSuspend { it.toDTO() }
     }
 
     @Get("/hmsNr/{hmsNr}")
@@ -66,7 +67,7 @@ class SeriesRegistrationAdminController(
         authentication: Authentication,
     ): SeriesRegistrationDTO? =
         productRegistrationService.findByHmsArtNr(hmsNr)?.let {
-            seriesRegistrationService.findById(it.seriesUUID)
+            seriesRegistrationService.findById(it.seriesUUID)?.toDTO()
         }
 
     @Get("/supplierRef/{supplierRef}")
@@ -75,7 +76,7 @@ class SeriesRegistrationAdminController(
         authentication: Authentication,
     ): SeriesRegistrationDTO? =
         productRegistrationService.findBySupplierRef(supplierRef)?.let {
-            seriesRegistrationService.findById(it.seriesUUID)
+            seriesRegistrationService.findById(it.seriesUUID)?.toDTO()
         }
 
     private fun buildCriteriaSpec(criteria: SeriesAdminCriteria): PredicateSpecification<SeriesRegistration>? =
@@ -232,7 +233,7 @@ class SeriesRegistrationAdminController(
         authentication: Authentication,
     ): HttpResponse<SeriesRegistrationDTO> =
         seriesRegistrationService.findById(id)?.let {
-            HttpResponse.ok(it)
+            HttpResponse.ok(it.toDTO())
         } ?: run {
             LOG.warn("Series with id $id does not exist")
             HttpResponse.notFound()
@@ -294,7 +295,7 @@ class SeriesRegistrationAdminController(
                             updatedByUser = authentication.name,
                         ),
                     true,
-                ),
+                ).toDTO(),
             )
         } ?: run {
             LOG.warn("Series with id $id does not exist")
@@ -336,7 +337,7 @@ class SeriesRegistrationAdminController(
         val updatedSeries = seriesRegistrationService.approveSeriesAndVariants(seriesToUpdate, authentication)
 
         LOG.info("set series to approved: $id")
-        return HttpResponse.ok(updatedSeries)
+        return HttpResponse.ok(updatedSeries.toDTO())
     }
 
     @Put("/approve-multiple")
@@ -357,7 +358,7 @@ class SeriesRegistrationAdminController(
 
         val updatedSeries = seriesRegistrationService.approveManySeriesAndVariants(seriesToUpdate, authentication)
 
-        return HttpResponse.ok(updatedSeries)
+        return HttpResponse.ok(updatedSeries.map { it.toDTO() })
     }
 
     @Put("/reject/{id}")
@@ -380,7 +381,7 @@ class SeriesRegistrationAdminController(
                         updatedBy = REGISTER,
                     ),
                     isUpdate = true,
-                )
+                ).toDTO()
             HttpResponse.ok(dto)
         } ?: HttpResponse.notFound()
 
@@ -398,7 +399,7 @@ class SeriesRegistrationAdminController(
             seriesRegistrationService.rejectSeriesAndVariants(seriesToUpdate, rejectSeriesDTO.message, authentication)
 
         LOG.info("set series to rejected: $id")
-        return HttpResponse.ok(updatedSeries)
+        return HttpResponse.ok(updatedSeries.toDTO())
     }
 
     @Delete("/{id}")
@@ -411,7 +412,7 @@ class SeriesRegistrationAdminController(
         val updated = seriesRegistrationService.deleteSeries(seriesToUpdate, authentication)
 
         LOG.info("set series to deleted: $id")
-        return HttpResponse.ok(updated)
+        return HttpResponse.ok(updated.toDTO())
     }
 
     @Put("/series_to-draft/{seriesUUID}")
@@ -423,7 +424,7 @@ class SeriesRegistrationAdminController(
         val updated = seriesRegistrationService.setSeriesToDraftStatus(seriesToUpdate, authentication)
 
         LOG.info("set series to draft: $seriesUUID")
-        return HttpResponse.ok(updated)
+        return HttpResponse.ok(updated.toDTO())
     }
 
     @Put("/series-to-inactive/{seriesUUID}")
@@ -440,7 +441,7 @@ class SeriesRegistrationAdminController(
             )
 
         LOG.info("set series to expired: $seriesUUID")
-        return HttpResponse.ok(updated)
+        return HttpResponse.ok(updated.toDTO())
     }
 
     @Put("/series-to-active/{seriesUUID}")
@@ -457,7 +458,7 @@ class SeriesRegistrationAdminController(
             )
 
         LOG.info("set series to active: $seriesUUID")
-        return HttpResponse.ok(updated)
+        return HttpResponse.ok(updated.toDTO())
     }
 
     @Get("/supplier-inventory/{id}")
@@ -563,7 +564,7 @@ class SeriesRegistrationAdminController(
                 supplierId,
                 authentication,
                 draftWith,
-            ),
+            ).toDTO(),
         )
     }
 }
