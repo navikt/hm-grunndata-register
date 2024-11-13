@@ -29,7 +29,6 @@ open class CatalogImportService(private val catalogImportRepository: CatalogImpo
                 } else {
                     updatedList.add(catalogImport.copy(id = existing.id))
                 }
-
             }
         }
         val deactivatedList = existingCatalog.filter { it.supplierRef !in catalogImportList.map { c -> c.supplierRef } }.map {
