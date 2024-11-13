@@ -38,16 +38,16 @@ open class ProductAgreementImportExcelService(
     }
 
     @Transactional
-    open suspend fun persistProductAgreementFromCatalogImport(productAgreementResult: ProductAgreementRegistrationResult) {
-        productAgreementResult.updatedList.forEach {
+    open suspend fun persistProductAgreementFromCatalogImport(productAgreementResult: ProductAgreementImportResult) {
+        productAgreementResult.updateList.forEach {
             updateProductAndProductAgreement(it)
         }
 
-        productAgreementResult.deactivatedList.forEach {
+        productAgreementResult.deactivateList.forEach {
             deactivateProductAgreement(it)
         }
 
-        productAgreementService.saveAll(productAgreementResult.insertedList)
+        productAgreementService.saveAll(productAgreementResult.insertList)
     }
 
     private suspend fun deactivateProductAgreement(pa: ProductAgreementRegistrationDTO) {
@@ -114,11 +114,11 @@ open class ProductAgreementImportExcelService(
     }
 
     suspend fun mapCatalogImport(catalogImportResult: CatalogImportResult, authentication: Authentication?):
-            ProductAgreementRegistrationResult {
+            ProductAgreementMappedResultLists {
         val updatedList = catalogImportResult.updatedList.flatMap { it.toProductAgreementDTO(authentication) }
         val insertedList = catalogImportResult.insertedList.flatMap { it.toProductAgreementDTO(authentication) }
         val deactivatedList = catalogImportResult.deactivatedList.flatMap { it.toProductAgreementDTO(authentication) }
-        return ProductAgreementRegistrationResult(updatedList, insertedList, deactivatedList)
+        return ProductAgreementMappedResultLists(updatedList, insertedList, deactivatedList)
     }
 
     private suspend fun CatalogImport.toProductAgreementDTO(
@@ -272,11 +272,6 @@ data class CatalogImportExcelDTO(
     val accessory: Boolean,
 )
 
-data class ExcelImportedResult(
-    val productExcelList: List<CatalogImportExcelDTO>,
-    val productAgreementRegistrationList: List<ProductAgreementRegistrationDTO>
-)
-
 fun CatalogImportExcelDTO.toEntity() = CatalogImport(
     agreementAction = rammeavtaleHandling,
     orderRef = bestillingsNr,
@@ -299,10 +294,10 @@ fun CatalogImportExcelDTO.toEntity() = CatalogImport(
     accessory = accessory,
 )
 
-data class ProductAgreementRegistrationResult(
-    val updatedList: List<ProductAgreementRegistrationDTO>,
-    val insertedList: List<ProductAgreementRegistrationDTO>,
-    val deactivatedList: List<ProductAgreementRegistrationDTO>,
+data class ProductAgreementMappedResultLists(
+    val updateList: List<ProductAgreementRegistrationDTO>,
+    val insertList: List<ProductAgreementRegistrationDTO>,
+    val deactivateList: List<ProductAgreementRegistrationDTO>,
 )
 
 val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")

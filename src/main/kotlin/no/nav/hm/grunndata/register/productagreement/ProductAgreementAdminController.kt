@@ -59,20 +59,20 @@ open class ProductAgreementAdminController(
         val importedExcelCatalog =
             file.inputStream.use { input -> catalogExcelFileImport.importExcelFile(input) }
         val catalogImportResult = catalogImportService.prepareCatalogImportResult(importedExcelCatalog.map { it.toEntity() })
-        val productAgreementResult = productAgreementImportExcelService.mapCatalogImport(catalogImportResult, authentication)
+        val mappedCatalogImportResult = productAgreementImportExcelService.mapCatalogImport(catalogImportResult, authentication)
 
         val productAgreementsImportResult =
             productAccessorySparePartAgreementHandler.handleNewProductsInExcelImport(
-                productAgreementResult,
+                mappedCatalogImportResult,
                 authentication,
                 dryRun,
             )
-        val productAgreements = productAgreementsImportResult.newProductAgreements
+        val productAgreements = productAgreementsImportResult.insertList
         LOG.info("New product agreements found: ${productAgreements.size}")
-        val newCount = productAgreementsImportResult.newProductAgreements.size
+        val newCount = productAgreementsImportResult.insertList.size
 
         if (!dryRun) {
-            persistCatalogResult(catalogImportResult, file, productAgreementResult)
+            persistCatalogResult(catalogImportResult, file, productAgreementsImportResult)
         }
 
         return ProductAgreementImportDTO(
@@ -83,9 +83,9 @@ open class ProductAgreementAdminController(
             createdSeries = productAgreementsImportResult.newSeries,
             createdAccessoryParts = productAgreementsImportResult.newAccessoryParts,
             createdMainProducts = productAgreementsImportResult.newProducts,
-            newProductAgreements = productAgreementsImportResult.newProductAgreements,
-            updatedAgreements = productAgreementResult.updatedList,
-            deactivatedAgreements = productAgreementResult.deactivatedList,
+            newProductAgreements = productAgreementsImportResult.insertList,
+            updatedAgreements = mappedCatalogImportResult.updateList,
+            deactivatedAgreements = mappedCatalogImportResult.deactivateList,
         )
     }
 
@@ -349,7 +349,7 @@ open class ProductAgreementAdminController(
 
     @Transactional
     open suspend fun persistCatalogResult(catalogImportResult: CatalogImportResult, file: CompletedFileUpload,
-                             productAgreementResult: ProductAgreementRegistrationResult) {
+                             productAgreementResult: ProductAgreementImportResult) {
         LOG.info("Persisting products from excel imported file: ${file.name}")
         catalogImportService.persistCatalogImportResult(catalogImportResult)
         productAgreementImportExcelService.persistProductAgreementFromCatalogImport(productAgreementResult)

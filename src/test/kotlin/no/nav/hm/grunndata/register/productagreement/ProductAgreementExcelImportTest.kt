@@ -1,6 +1,8 @@
 package no.nav.hm.grunndata.register.productagreement
 
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.micronaut.http.HttpStatus
 import io.micronaut.http.MediaType
 import io.micronaut.http.client.multipart.MultipartBody
 import io.micronaut.security.authentication.UsernamePasswordCredentials
@@ -21,6 +23,9 @@ import no.nav.hm.grunndata.register.agreement.DelkontraktRegistration
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationRepository
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.supplier.SupplierData
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
@@ -30,13 +35,14 @@ import org.slf4j.LoggerFactory
 @MicronautTest
 class ProductAgreementExcelImportTest(
     private val agreementRegistrationService: AgreementRegistrationService,
+    private val supplierRegistrationService: SupplierRegistrationService,
     private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository,
     private val userRepository: UserRepository,
     private val client: ProductAgreementImportExcelClient,
     private val loginClient: LoginClient,
 
 
-) {
+    ) {
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -50,6 +56,20 @@ class ProductAgreementExcelImportTest(
 
     init {
         runBlocking {
+            val supplierId = UUID.randomUUID()
+            val testSupplier = supplierRegistrationService.save(
+                SupplierRegistrationDTO(
+                    id = supplierId,
+                    supplierData = SupplierData(
+                        address = "address 4",
+                        homepage = "https://www.hompage.no",
+                        phone = "+47 12345678",
+                        email = "supplier4@test.test",
+                    ),
+                    identifier = "$supplierId-unique-name",
+                    name = "Leverandør AS -$supplierId"
+                )
+            ).toRapidDTO()
             userRepository.createUser(
                 User(
                     email = email, token = password, name = "UserAdmin tester", roles = listOf(Roles.ROLE_ADMIN)
@@ -154,17 +174,35 @@ class ProductAgreementExcelImportTest(
         runBlocking {
             val resp = loginClient.login(UsernamePasswordCredentials(email, password))
             val jwt = resp.getCookie("JWT").get().value
-            val bytes = ProductAgreementExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test.xls").readAllBytes()
-            val multipartBody = MultipartBody
+            val bytes1 = ProductAgreementExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test.xls").readAllBytes()
+            val multipartBody1 = MultipartBody
                 .builder()
                 .addPart(
                     "file", "katalog-test.xls",
-                    MediaType.MICROSOFT_EXCEL_TYPE, bytes
+                    MediaType.MICROSOFT_EXCEL_TYPE, bytes1
                 )
                 .build()
-            val response = client.excelImport(jwt, multipartBody, true)
-            response.status shouldBe 200
-            LOG.info("We are here")
+            val response = client.excelImport(jwt, multipartBody1, false)
+            response.status shouldBe HttpStatus.OK
+            val body = response.body()
+            body.shouldNotBeNull()
+            body.newCount shouldBe 8
+            body.createdSeries.size shouldBe 4
+            body.createdAccessoryParts.size shouldBe 5
+            body.createdMainProducts.size shouldBe 2
+            body.newProductAgreements.size shouldBe 8
+            val bytes2 = ProductAgreementExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test-2.xls").readAllBytes()
+            val multipartBody2 = MultipartBody
+                .builder()
+                .addPart(
+                    "file", "katalog-test-2.xls",
+                    MediaType.MICROSOFT_EXCEL_TYPE, bytes2
+                )
+                .build()
+            val response2 = client.excelImport(jwt, multipartBody2, false)
+            response.status shouldBe HttpStatus.OK
+            val body2 = response2.body()
+            body2.shouldNotBeNull()
         }
     }
 }
