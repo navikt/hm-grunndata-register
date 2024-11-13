@@ -9,7 +9,6 @@ import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
@@ -18,31 +17,24 @@ import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.RequestBean
-import io.micronaut.http.multipart.CompletedFileUpload
-import io.micronaut.http.server.types.files.StreamedFile
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.error.BadRequestException
-import no.nav.hm.grunndata.register.product.batch.ProductExcelExport
-import no.nav.hm.grunndata.register.product.batch.ProductExcelImport
+import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.series.SeriesGroupDTO
-import org.apache.commons.io.output.ByteArrayOutputStream
 import org.slf4j.LoggerFactory
-import java.util.UUID
-import no.nav.hm.grunndata.register.runtime.where
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
 @Tag(name = "Admin Product")
 class ProductRegistrationAdminApiController(
     private val productRegistrationService: ProductRegistrationService,
-    private val xlImport: ProductExcelImport,
-    private val xlExport: ProductExcelExport,
     private val productDTOMapper: ProductDTOMapper,
 ) {
     companion object {
@@ -190,63 +182,6 @@ class ProductRegistrationAdminApiController(
             throw e
         }
     }
-
-    @Post(
-        "/excel/export",
-        consumes = ["application/json"],
-        produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
-    )
-    suspend fun createExport(
-        @Body uuids: List<UUID>,
-        authentication: Authentication,
-    ): HttpResponse<StreamedFile> {
-        val products = uuids.map { productRegistrationService.findById(it) }.filterNotNull()
-        if (products.isEmpty()) throw BadRequestException("No products found")
-        val id = UUID.randomUUID()
-        LOG.info("Generating Excel file: $id.xlsx")
-        return ByteArrayOutputStream().use { byteStream ->
-            xlExport.createWorkbookToOutputStream(products.map { productDTOMapper.toDTO(it) }, byteStream)
-            HttpResponse.ok(StreamedFile(byteStream.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
-                .header("Content-Disposition", "attachment; filename=$id.xlsx")
-        }
-    }
-
-    @Post(
-        "/excel/import",
-        consumes = [MediaType.MULTIPART_FORM_DATA],
-        produces = [MediaType.APPLICATION_JSON],
-    )
-    suspend fun importExcel(
-        file: CompletedFileUpload,
-        authentication: Authentication,
-    ): HttpResponse<List<ProductRegistrationDTO>> {
-        LOG.info("Importing Excel file ${file.filename} by admin")
-        return file.inputStream.use { inputStream ->
-            val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
-            LOG.info("found ${excelDTOList.size} products in Excel file")
-            val products = productRegistrationService.importExcelRegistrations(excelDTOList, authentication)
-            HttpResponse.ok(products.map { productDTOMapper.toDTO(it) })
-        }
-    }
-
-    @Post(
-        "/excel/import-dryrun",
-        consumes = [MediaType.MULTIPART_FORM_DATA],
-        produces = [MediaType.APPLICATION_JSON],
-    )
-    suspend fun importExcelDryrun(
-        file: CompletedFileUpload,
-        authentication: Authentication,
-    ): HttpResponse<List<ProductRegistrationDryRunDTO>> {
-        LOG.info("Dryrun - Importing Excel file ${file.filename} by admin")
-        return file.inputStream.use { inputStream ->
-            val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
-            LOG.info("found ${excelDTOList.size} products in Excel file")
-            val products = productRegistrationService.importDryRunExcelRegistrations(excelDTOList, authentication)
-            HttpResponse.ok(products)
-        }
-    }
-
 }
 
 @Introspected
