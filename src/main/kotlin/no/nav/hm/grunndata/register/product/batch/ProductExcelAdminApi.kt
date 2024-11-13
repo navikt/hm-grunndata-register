@@ -23,11 +23,11 @@ import org.slf4j.LoggerFactory
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(API_V1_ADMIN_PRODUCT_REGISTRATIONS_EXCEL)
-@Tag(name = "Product Excel API")
+@Tag(name = "Product Excel API Admin")
 class ProductExcelAdminApi(
     private val productRegistrationService: ProductRegistrationService,
     private val xlImport: ProductExcelImport,
-    private val xlExport2: ProductExcelExport2,
+    private val xlExport: ProductExcelExport,
     private val productDTOMapper: ProductDTOMapper,
     private val excelExportMapper: ExcelExportMapper,
 ) {
@@ -53,7 +53,7 @@ class ProductExcelAdminApi(
         val id = UUID.randomUUID()
         LOG.info("Generating Excel file: $id.xlsx")
         return ByteArrayOutputStream().use { byteStream ->
-            xlExport2.createWorkbookToOutputStream(excelExportDtos, byteStream)
+            xlExport.createWorkbookToOutputStream(excelExportDtos, byteStream)
             HttpResponse.ok(StreamedFile(byteStream.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
                 .header("Content-Disposition", "attachment; filename=$id.xlsx")
         }

@@ -8,7 +8,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 
 @Singleton
-class ProductExcelExport2(private val labelService: LabelService) {
+class ProductExcelExport(private val labelService: LabelService) {
 
     fun createWorkbookToOutputStream(productExcelExportDtos: List<ProductExcelExportDto>, out: OutputStream) {
         val workbook = createWorkbook(productExcelExportDtos)

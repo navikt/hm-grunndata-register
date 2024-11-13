@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory
 class ProductExcelApi(
     private val productRegistrationService: ProductRegistrationService,
     private val xlImport: ProductExcelImport,
-    private val xlExport: ProductExcelExport2,
+    private val xlExport: ProductExcelExport,
     private val productDTOMapper: ProductDTOMapper,
     private val excelExportMapper: ExcelExportMapper,
     private val seriesRegistrationService: SeriesRegistrationService

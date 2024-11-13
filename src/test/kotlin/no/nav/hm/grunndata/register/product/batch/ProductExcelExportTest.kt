@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test
 
 @MicronautTest
 class ProductExcelExportTest(
-    private val productExcelExport: ProductExcelExport2,
+    private val productExcelExport: ProductExcelExport,
     private val supplierRepository: SupplierRepository,
     private val userRepository: UserRepository,
     private val objectMapper: ObjectMapper,
