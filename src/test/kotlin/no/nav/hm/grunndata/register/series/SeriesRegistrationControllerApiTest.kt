@@ -136,13 +136,10 @@ class SeriesRegistrationControllerApiTest(
                 apiClient.updateSeries(
                     jwt,
                     read.id,
-                    read.copy(title = "New title", isoCategory = "111111", text = "new text"),
+                    UpdateSeriesRegistrationDTO(title = "New title"),
                 )
             updated.shouldNotBeNull()
             updated.title shouldBe "New title"
-            updated.isoCategory shouldBe "111111"
-            updated.text shouldBe "new text"
-            updated.count shouldBe 0
 
             val seriesList = apiClient.findSeries(jwt)
             seriesList.size shouldBeGreaterThan 1

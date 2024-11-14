@@ -5,6 +5,7 @@ import io.micronaut.http.MediaType.APPLICATION_JSON
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.CookieValue
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.Patch
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
@@ -45,12 +46,12 @@ interface SeriesControllerApiClient {
         @Body seriesRegistrationDTO: SeriesRegistrationDTO,
     ): SeriesRegistrationDTO
 
-    @Put(uri = "/{id}", processes = [APPLICATION_JSON])
+    @Patch(uri = "/v2/{id}", processes = [APPLICATION_JSON])
     fun updateSeries(
         @CookieValue("JWT") jwt: String,
         @PathVariable id: UUID,
-        @Body seriesRegistrationDTO: SeriesRegistrationDTO,
-    ): SeriesRegistrationDTO
+        @Body updateSeriesRegistrationDTO: UpdateSeriesRegistrationDTO,
+    ): SeriesRegistrationDTOV2
 
     @Get(uri = "/{id}", consumes = [APPLICATION_JSON])
     fun readSeries(

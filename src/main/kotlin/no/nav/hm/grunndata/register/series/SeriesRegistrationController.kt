@@ -177,36 +177,6 @@ class SeriesRegistrationController(
             }
         }
 
-    @Put("/v2/{id}")
-    suspend fun updateSeriesV2(
-        @PathVariable id: UUID,
-        @Body updateSeriesRegistrationDTO: UpdateSeriesRegistrationDTO,
-        authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO> =
-
-        seriesRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())?.let { inDb ->
-            if (inDb.supplierId != authentication.supplierId()) {
-                LOG.warn("SupplierId in request does not match authenticated supplierId")
-                return HttpResponse.unauthorized()
-            }
-
-            HttpResponse.ok(
-                seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
-                    inDb
-                        .copy(
-                            title = updateSeriesRegistrationDTO.title ?: inDb.title,
-                            text = updateSeriesRegistrationDTO.text ?: inDb.text,
-                            updated = LocalDateTime.now(),
-                            updatedByUser = authentication.name,
-                        ),
-                    true,
-                ).toDTO(),
-            )
-        } ?: run {
-            LOG.warn("Series with id $id does not exist")
-            HttpResponse.notFound()
-        }
-
     @Patch("/v2/{id}")
     suspend fun patchSeriesV2(
         @PathVariable id: UUID,

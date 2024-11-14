@@ -31,7 +31,6 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.security.supplierId
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -272,30 +271,6 @@ class SeriesRegistrationAdminController(
                         ),
                     true,
                 ),
-            )
-        } ?: run {
-            LOG.warn("Series with id $id does not exist")
-            HttpResponse.notFound()
-        }
-
-    @Put("/v2/{id}")
-    suspend fun updateSeriesV2(
-        @PathVariable id: UUID,
-        @Body updateSeriesRegistrationDTO: UpdateSeriesRegistrationDTO,
-        authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO> =
-        seriesRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())?.let { inDb ->
-            HttpResponse.ok(
-                seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
-                    inDb
-                        .copy(
-                            title = updateSeriesRegistrationDTO.title ?: inDb.title,
-                            text = updateSeriesRegistrationDTO.text ?: inDb.text,
-                            updated = LocalDateTime.now(),
-                            updatedByUser = authentication.name,
-                        ),
-                    true,
-                ).toDTO(),
             )
         } ?: run {
             LOG.warn("Series with id $id does not exist")
