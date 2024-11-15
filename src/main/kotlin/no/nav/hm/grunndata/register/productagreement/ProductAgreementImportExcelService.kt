@@ -103,11 +103,11 @@ open class ProductAgreementImportExcelService(
             )
             if (pa.accessory || pa.sparePart && pa.productId != null) {
                 productRegistrationService.findById(pa.productId!!)?.let { product ->
-                    productRegistrationService.update(
+                    productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                         product.copy(
                             title = pa.title,
                             articleName = pa.articleName ?: ""
-                        )
+                        ), true
                     )
                 }
             }
@@ -148,14 +148,14 @@ open class ProductAgreementImportExcelService(
                     productId = product?.id,
                     seriesUuid = product?.seriesUUID,
                     title = title,
-                    articleName = product?.articleName,
+                    articleName = product?.articleName ?: title,
                     reference = reference,
                     post = delkontrakt.delkontraktData.sortNr,
                     rank = postRank.second,
                     postId = delkontrakt.id,
                     supplierId = supplierId,
                     published = agreement.published,
-                    expired = dateTo.atTime(0,0,0),
+                    expired = dateTo.atTime(23,59,59),
                     updatedBy = EXCEL,
                     sparePart = sparePart,
                     accessory = accessory,
@@ -175,14 +175,14 @@ open class ProductAgreementImportExcelService(
                     productId = product?.id,
                     seriesUuid = product?.seriesUUID,
                     title = title,
-                    articleName = product?.articleName,
+                    articleName = product?.articleName ?: title,
                     reference = reference,
                     post = noDelKonktraktPost.delkontraktData.sortNr,
                     rank = noDelKonktraktPost.delkontraktData.sortNr,
                     postId = noDelKonktraktPost.id,
                     supplierId = supplierId,
                     published = agreement.published,
-                    expired =dateTo.atTime(0,0,0,),
+                    expired = dateTo.atTime(23,59,59,),
                     updatedBy = EXCEL,
                     sparePart = sparePart,
                     accessory = accessory,

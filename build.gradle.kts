@@ -3,7 +3,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jvmTarget = "17"
-val micronautVersion = "4.6.0"
+val micronautVersion = "4.7.0"
 val junitJupiterVersion = "5.9.0"
 val logbackEncoderVersion = "7.3"
 val postgresqlVersion = "42.7.2"
@@ -23,7 +23,7 @@ plugins {
     kotlin("kapt") version "1.9.21"
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("io.micronaut.application") version "4.4.0"
+    id("io.micronaut.application") version "4.4.4"
 }
 
 configurations.all {
@@ -81,7 +81,8 @@ dependencies {
     // OpenApi
     kapt("io.micronaut.openapi:micronaut-openapi")
     implementation("io.micronaut.openapi:micronaut-openapi")
-    implementation("io.swagger.core.v3:swagger-annotations")
+    compileOnly("io.micronaut.openapi:micronaut-openapi-annotations")
+
 
     // excel import
     implementation("org.apache.poi:poi:$poiVersion")
@@ -129,6 +130,7 @@ tasks.named<KotlinCompile>("compileTestKotlin") {
     kapt.includeCompileClasspath = false
 }
 
+
 tasks.named<ShadowJar>("shadowJar") {
     isZip64 = true
 }
@@ -148,6 +150,8 @@ tasks.withType<Test> {
 tasks.withType<Wrapper> {
     gradleVersion = "8.5"
 }
+
+
 
 repositories {
     mavenLocal()
