@@ -523,7 +523,6 @@ open class SeriesRegistrationService(
             inDbSeries
                 .copy(
                     title = patch.title ?: inDbSeries.title,
-                    titleLowercase = patch.title?.lowercase() ?: inDbSeries.title,
                     text = patch.text ?: inDbSeries.text,
                     seriesData = seriesData,
                     updated = LocalDateTime.now(),

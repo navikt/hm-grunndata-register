@@ -212,7 +212,7 @@ class SeriesRegistrationAdminController(
                     val term = criteria.title.lowercase(Locale.getDefault())
                     predicates.add(
                         criteriaBuilder.like(
-                            root[SeriesRegistration::titleLowercase],
+                            criteriaBuilder.lower(root[SeriesRegistration::title]),
                             LiteralExpression("%$term%"),
                         ),
                     )

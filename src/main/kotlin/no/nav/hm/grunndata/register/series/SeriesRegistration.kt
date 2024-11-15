@@ -31,6 +31,7 @@ data class SeriesRegistration(
     val supplierId: UUID,
     val identifier: String,
     val title: String,
+    @Deprecated("Use case-insensitive search instead")
     val titleLowercase: String = title.lowercase(Locale.getDefault()),
     val text: String,
     val formattedText: String? = null,
