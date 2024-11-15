@@ -26,6 +26,8 @@ open class ProductAgreementRegistrationService(
         dtos.map { productAgreement -> saveIfNotExists(productAgreement) }
 
     open suspend fun saveIfNotExists(productAgreement: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO {
+        LOG.info("Saving product agreement: ${productAgreement.agreementId} for supplier: ${productAgreement.supplierId} " +
+                "and for product: ${productAgreement.productId} supplierRef: ${productAgreement.supplierRef}")
         return if (productAgreement.postId != null) {
             findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
                 productAgreement.supplierId,

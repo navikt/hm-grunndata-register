@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.productagreement
 
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.micronaut.data.exceptions.DataAccessException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
@@ -14,6 +15,7 @@ import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationService
 import no.nav.hm.grunndata.register.agreement.toEntity
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService.Companion.EXCEL
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 @MicronautTest
 class ProductAgreementRegistrationRepositoryTest(
@@ -25,6 +27,8 @@ class ProductAgreementRegistrationRepositoryTest(
         runBlocking {
             val postId = UUID.randomUUID()
             val agreementId = UUID.randomUUID()
+
+            val supplierId = UUID.randomUUID()
 
             val delkontraktToSave =
                 DelkontraktRegistrationDTO(
@@ -45,7 +49,7 @@ class ProductAgreementRegistrationRepositoryTest(
                         rank = 1,
                         postId = postId,
                         reference = "20-1423",
-                        supplierId = UUID.randomUUID(),
+                        supplierId = supplierId,
                         supplierRef = "TK1235-213",
                         createdBy = EXCEL,
                         title = "Test product agreement",
@@ -63,6 +67,26 @@ class ProductAgreementRegistrationRepositoryTest(
             found.title shouldBe "Test product agreement"
             found.status shouldBe ProductAgreementStatus.ACTIVE
             found.postId shouldBe postId
+
+            // should throw Duplicate key exception
+            assertThrows<DataAccessException> {
+                productAgreementRegistrationRepository.save(
+                    ProductAgreementRegistration(
+                        agreementId = agreementId,
+                        hmsArtNr = "1234",
+                        post = 1,
+                        rank = 1,
+                        postId = postId,
+                        reference = "20-1423",
+                        supplierId = supplierId,
+                        supplierRef = "TK1235-213",
+                        createdBy = EXCEL,
+                        title = "Test product agreement",
+                        status = ProductAgreementStatus.ACTIVE,
+                        articleName = "Test article",
+                    ),
+                )
+            }
         }
     }
 }

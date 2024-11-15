@@ -33,14 +33,24 @@ class ProductAccessorySparePartAgreementHandler(
      * returns a list of productAgreements with seriesUuid and productId
      * The products will have admin status PENDING and draft status DONE
      */
-    suspend fun handleProductsInProductAgreement(
-        productAgreements: List<ProductAgreementRegistrationDTO>,
+    suspend fun handleNewProductsInExcelImport(
+        importResult: ProductAgreementMappedResultLists,
         authentication: Authentication?,
         dryRun: Boolean = true,
     ): ProductAgreementImportResult {
-        val distinctProductAgreements = productAgreements.distinctBy { it.supplierRef }
-        val mainProductAgreements = distinctProductAgreements.filter { !it.accessory && !it.sparePart }
-        val accessoryOrSpareParts = distinctProductAgreements.filter { it.accessory || it.sparePart }
+        val newProductAgreements = importResult.insertList
+        if (newProductAgreements.isEmpty()) {
+            return ProductAgreementImportResult(
+                insertList = emptyList(),
+                updateList = importResult.updateList,
+                deactivateList = importResult.deactivateList,
+                newSeries = emptyList(),
+                newAccessoryParts = emptyList(),
+                newProducts = emptyList(),
+            )
+        }
+        val mainProductAgreements = newProductAgreements.filter { !it.accessory && !it.sparePart }
+        val accessoryOrSpareParts = newProductAgreements.filter { it.accessory || it.sparePart }
         val supplierId = accessoryOrSpareParts.first().supplierId
         val groupedAccessoryOrSpareParts = groupInSeriesBasedOnTitle(accessoryOrSpareParts)
         val groupedMainProducts = groupInSeriesBasedOnTitle(mainProductAgreements)
@@ -48,16 +58,16 @@ class ProductAccessorySparePartAgreementHandler(
             createSeriesAndProductsIfNotExists(groupedAccessoryOrSpareParts, supplierId, authentication, dryRun)
         val createdMainProducts =
             createSeriesAndProductsIfNotExists(groupedMainProducts, supplierId, authentication, dryRun)
-        val compatibleAccessory =
-            createCompatibleWithLinkForAccessoryParts(createdAccessorSpareParts, createdMainProducts, dryRun)
         return ProductAgreementImportResult(
-            productAgreements = createdAccessorSpareParts.productAgreement + createdMainProducts.productAgreement,
+            insertList = createdAccessorSpareParts.productAgreement + createdMainProducts.productAgreement,
+            updateList = importResult.updateList,
+            deactivateList = importResult.deactivateList,
             newSeries = createdMainProducts.newSeries + createdAccessorSpareParts.newSeries,
-            newAccessoryParts = compatibleAccessory.newProducts,
+            newAccessoryParts = createdAccessorSpareParts.newProducts,
             newProducts = createdMainProducts.newProducts,
         )
     }
-
+    // experimental code
     private suspend fun createCompatibleWithLinkForAccessoryParts(
         accessorSparePartsResult: ProductAgreementImportResultData,
         mainProductsResult: ProductAgreementImportResultData,
@@ -66,8 +76,8 @@ class ProductAccessorySparePartAgreementHandler(
         if (accessorSparePartsResult.newProducts.isEmpty() || mainProductsResult.newProducts.isEmpty()) {
             return accessorSparePartsResult
         }
-        val accessorSpareParts = accessorSparePartsResult.productAgreement
-        val mainProducts = mainProductsResult.productAgreement
+        val accessorSpareParts = accessorSparePartsResult.productAgreement.distinctBy { it.productId!! }
+        val mainProducts = mainProductsResult.productAgreement.distinctBy { it.productId!!}
         if (accessorSpareParts.isEmpty() || mainProducts.isEmpty()) {
             return accessorSparePartsResult
         }
@@ -173,7 +183,10 @@ class ProductAccessorySparePartAgreementHandler(
                                 mainProduct = value.none { it.accessory || it.sparePart },
                             )
                         newSeries.add(series)
-                        if (!dryRun) seriesRegistrationRepository.save(series)
+                        if (!dryRun) {
+                            LOG.info("creating new series: ${series.title}")
+                            seriesRegistrationRepository.save(series)
+                        }
                         value.map {
                             it.copy(seriesUuid = series.id)
                         }
@@ -185,15 +198,18 @@ class ProductAccessorySparePartAgreementHandler(
                     }
                 seriesGroup
             }
-        // only save one product if more than one productAgreement. Because one product can be in many productAgreements
-        val distinct = withSeriesId.distinctBy { it.supplierRef }
+
         val newProducts = mutableListOf<ProductRegistration>()
         val withProductsId =
-            distinct.map {
+            withSeriesId.map {
                 if (it.productId == null) {
-                    val product = createNewProduct(it, authentication, dryRun)
-                    newProducts.add(product)
-                    it.copy(productId = product.id)
+                        productRegistrationRepository.findBySupplierRefAndSupplierId(it.supplierRef, it.supplierId)?.let { p ->
+                            it.copy(productId = p.id)
+                        } ?: run {
+                            val product = createNewProduct(it, authentication, dryRun)
+                            newProducts.add(product)
+                            it.copy(productId = product.id)
+                        }
                 } else {
                     it
                 }
@@ -201,8 +217,8 @@ class ProductAccessorySparePartAgreementHandler(
 
         return ProductAgreementImportResultData(
             productAgreement = withProductsId,
-            newSeries = newSeries,
-            newProducts = newProducts,
+            newSeries = newSeries.distinctBy { it.id },
+            newProducts = newProducts.distinctBy { it.id }
         )
     }
 
@@ -211,7 +227,6 @@ class ProductAccessorySparePartAgreementHandler(
         authentication: Authentication?,
         dryRun: Boolean,
     ): ProductRegistration {
-        LOG.info("Creating new product for productAgreement: ${productAgreement.supplierRef}")
         val product =
             ProductRegistration(
                 seriesUUID = productAgreement.seriesUuid!!,
@@ -231,7 +246,10 @@ class ProductAccessorySparePartAgreementHandler(
                 updatedByUser = authentication?.name ?: "system",
                 createdByAdmin = authentication?.isAdmin() ?: true,
             )
-        if (!dryRun) productRegistrationRepository.save(product)
+        if (!dryRun) {
+            LOG.info("creating new product: ${product.articleName}")
+            productRegistrationRepository.save(product)
+        }
         return product
     }
 
@@ -315,7 +333,9 @@ class ProductAccessorySparePartAgreementHandler(
 }
 
 data class ProductAgreementImportResult(
-    val productAgreements: List<ProductAgreementRegistrationDTO>,
+    val insertList: List<ProductAgreementRegistrationDTO>,
+    val updateList: List<ProductAgreementRegistrationDTO>,
+    val deactivateList: List<ProductAgreementRegistrationDTO>,
     val newSeries: List<SeriesRegistration>,
     val newAccessoryParts: List<ProductRegistration>,
     val newProducts: List<ProductRegistration>,

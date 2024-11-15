@@ -11,6 +11,7 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
+import io.micronaut.transaction.annotation.Transactional
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
@@ -23,16 +24,23 @@ import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
+import no.nav.hm.grunndata.register.catalog.CatalogExcelFileImport
+import no.nav.hm.grunndata.register.catalog.CatalogImportResult
+import no.nav.hm.grunndata.register.catalog.CatalogImportService
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
 @Tag(name = "Admin Product Agreement")
-class ProductAgreementAdminController(
+open class ProductAgreementAdminController(
+    private val catalogExcelFileImport: CatalogExcelFileImport,
     private val productAgreementImportExcelService: ProductAgreementImportExcelService,
     private val productRegistrationService: ProductRegistrationService,
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productAgreementRegistrationService: ProductAgreementRegistrationService,
     private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler,
+    private val catalogImportService: CatalogImportService,
+    private val supplierRegistrationService: SupplierRegistrationService
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementAdminController::class.java)
@@ -47,63 +55,42 @@ class ProductAgreementAdminController(
     suspend fun excelImport(
         file: CompletedFileUpload,
         @QueryValue dryRun: Boolean = true,
+        @QueryValue supplierId: UUID,
         authentication: Authentication,
     ): ProductAgreementImportDTO {
-        LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()}")
-        val productAgreementsImported =
-            file.inputStream.use { input -> productAgreementImportExcelService.importExcelFile(input, authentication) }
-        LOG.info("Imported ${productAgreementsImported.size} product agreements")
+        val supplier = supplierRegistrationService.findById(supplierId) ?: throw BadRequestException("Supplier $supplierId not found")
+        LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()} for supplier ${supplier.name}")
+        val importedExcelCatalog =
+            file.inputStream.use { input -> catalogExcelFileImport.importExcelFile(input) }
+        val catalogImportResult = catalogImportService.prepareCatalogImportResult(importedExcelCatalog.map { it.toEntity() })
+        val mappedCatalogImportResult = productAgreementImportExcelService.mapCatalogImport(catalogImportResult, authentication, supplierId)
+
         val productAgreementsImportResult =
-            productAccessorySparePartAgreementHandler.handleProductsInProductAgreement(
-                productAgreementsImported,
+            productAccessorySparePartAgreementHandler.handleNewProductsInExcelImport(
+                mappedCatalogImportResult,
                 authentication,
                 dryRun,
             )
-        val productAgreements = productAgreementsImportResult.productAgreements
-        LOG.info("Product agreements after handling: ${productAgreements.size}")
-        var newCount = 0
-        val productAgreementsWithInformation =
-            productAgreements.map {
-                val information = mutableListOf<Information>()
-                val existingProductAgreement =
-                    if (it.postId != null) {
-                        productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
-                            it.supplierId,
-                            it.supplierRef,
-                            it.agreementId,
-                            it.postId,
-                            it.rank,
-                        )
-                    } else {
-                        productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
-                            it.supplierId,
-                            it.supplierRef,
-                            it.agreementId,
-                            it.post,
-                            it.rank,
-                        )
-                    }
+        val productAgreements = productAgreementsImportResult.insertList
+        LOG.info("New product agreements found: ${productAgreements.size}")
+        val newCount = productAgreementsImportResult.insertList.size
 
-                if (existingProductAgreement != null) {
-                    information.add(Information("Product agreement already exists", Type.WARNING))
-                } else {
-                    newCount++
-                }
-                Pair(it, information)
-            }
         if (!dryRun) {
-            LOG.info("Saving excel imported file: ${file.name} with ${productAgreements.size} product agreements")
-            productAgreementRegistrationService.saveAll(productAgreements)
+            persistCatalogResult(catalogImportResult, file, productAgreementsImportResult)
         }
+
         return ProductAgreementImportDTO(
             dryRun = dryRun,
             count = productAgreements.size,
             newCount = newCount,
             file = file.filename,
+            supplier = supplier.name,
             createdSeries = productAgreementsImportResult.newSeries,
             createdAccessoryParts = productAgreementsImportResult.newAccessoryParts,
             createdMainProducts = productAgreementsImportResult.newProducts,
-            productAgreementsWithInformation = productAgreementsWithInformation,
+            newProductAgreements = productAgreementsImportResult.insertList,
+            updatedAgreements = mappedCatalogImportResult.updateList,
+            deactivatedAgreements = mappedCatalogImportResult.deactivateList,
         )
     }
 
@@ -363,6 +350,14 @@ class ProductAgreementAdminController(
             } ?: throw BadRequestException("Product agreement $uuid not found")
         }
         return HttpResponse.ok(ProductAgreementsDeletedResponse(ids))
+    }
+
+    @Transactional
+    open suspend fun persistCatalogResult(catalogImportResult: CatalogImportResult, file: CompletedFileUpload,
+                             productAgreementResult: ProductAgreementImportResult) {
+        LOG.info("Persisting products from excel imported file: ${file.name}")
+        catalogImportService.persistCatalogImportResult(catalogImportResult)
+        productAgreementImportExcelService.persistProductAgreementFromCatalogImport(productAgreementResult)
     }
 }
 

@@ -80,7 +80,7 @@ class SupplierRegistrationAdminApiControllerTest(private val supplierRegistratio
         val jwt = loginClient.login(UsernamePasswordCredentials(email, token)).getCookie("JWT").get().value
         val supplier = SupplierRegistrationDTO(
             status = SupplierStatus.ACTIVE,
-            name = "Leverandør AS",
+            name = "CRUD AS",
             supplierData = SupplierData(
                 address = "veien 1",
                 homepage = "www.hjemmesiden.no",
@@ -92,7 +92,7 @@ class SupplierRegistrationAdminApiControllerTest(private val supplierRegistratio
         val created  = supplierRegistrationAdminApiClient.createSupplier(jwt, supplier)
         created.shouldNotBeNull()
         created.id shouldBe supplier.id
-        val found = supplierRegistrationAdminApiClient.findSuppliers(jwt, name = "Leverandør AS", page = 0, size = 10)
+        val found = supplierRegistrationAdminApiClient.findSuppliers(jwt, name = "CRUD AS", page = 0, size = 10)
         found.totalSize shouldBe 1
         val updated = supplierRegistrationAdminApiClient.updateSupplier(jwt, created.id, created.copy(status = SupplierStatus.INACTIVE))
         updated.status shouldBe SupplierStatus.INACTIVE
