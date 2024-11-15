@@ -24,6 +24,7 @@ import no.nav.hm.grunndata.register.catalog.CatalogImport
 import no.nav.hm.grunndata.register.catalog.CatalogImportResult
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService.Companion.LOG
+import no.nav.hm.grunndata.register.supplier.SupplierRegistration
 
 @Singleton
 open class ProductAgreementImportExcelService(
@@ -114,16 +115,16 @@ open class ProductAgreementImportExcelService(
         }
     }
 
-    suspend fun mapCatalogImport(catalogImportResult: CatalogImportResult, authentication: Authentication?):
+    suspend fun mapCatalogImport(catalogImportResult: CatalogImportResult, authentication: Authentication?,  supplierId: UUID):
             ProductAgreementMappedResultLists {
-        val updatedList = catalogImportResult.updatedList.flatMap { it.toProductAgreementDTO(authentication) }
-        val insertedList = catalogImportResult.insertedList.flatMap { it.toProductAgreementDTO(authentication) }
-        val deactivatedList = catalogImportResult.deactivatedList.flatMap { it.toProductAgreementDTO(authentication) }
+        val updatedList = catalogImportResult.updatedList.flatMap { it.toProductAgreementDTO(authentication, supplierId) }
+        val insertedList = catalogImportResult.insertedList.flatMap { it.toProductAgreementDTO(authentication, supplierId) }
+        val deactivatedList = catalogImportResult.deactivatedList.flatMap { it.toProductAgreementDTO(authentication, supplierId) }
         return ProductAgreementMappedResultLists(updatedList, insertedList, deactivatedList)
     }
 
     private suspend fun CatalogImport.toProductAgreementDTO(
-        authentication: Authentication?,
+        authentication: Authentication?, supplierId: UUID
     ): List<ProductAgreementRegistrationDTO> {
         val cleanRef = reference.lowercase().replace("/", "-")
         val agreement = findAgreementByReferenceLike(cleanRef)
@@ -131,7 +132,6 @@ open class ProductAgreementImportExcelService(
             throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er slettet, må den opprettes?")
         }
 
-        val supplierId = parseSupplierName(supplierName)
         val product = productRegistrationService.findBySupplierRefAndSupplierId(supplierRef, supplierId)
         if (!postNr.isNullOrBlank()) {
             val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(postNr)

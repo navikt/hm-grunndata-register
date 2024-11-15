@@ -49,6 +49,7 @@ class ProductAgreementExcelImportTest(
 
     val email = "ProductAgreementExcelImportTest@test.test"
     val password = "admin-123"
+    val supplierId = UUID.randomUUID()
 
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementExcelImportTest::class.java)
@@ -56,7 +57,7 @@ class ProductAgreementExcelImportTest(
 
     init {
         runBlocking {
-            val supplierId = UUID.randomUUID()
+
             val testSupplier = supplierRegistrationService.save(
                 SupplierRegistrationDTO(
                     id = supplierId,
@@ -182,7 +183,7 @@ class ProductAgreementExcelImportTest(
                     MediaType.MICROSOFT_EXCEL_TYPE, bytes1
                 )
                 .build()
-            val response = client.excelImport(jwt, multipartBody1, false)
+            val response = client.excelImport(jwt, multipartBody1, false, supplierId)
             response.status shouldBe HttpStatus.OK
             val body = response.body()
             body.shouldNotBeNull()
@@ -199,7 +200,7 @@ class ProductAgreementExcelImportTest(
                     MediaType.MICROSOFT_EXCEL_TYPE, bytes2
                 )
                 .build()
-            val response2 = client.excelImport(jwt, multipartBody2, false)
+            val response2 = client.excelImport(jwt, multipartBody2, false, supplierId)
             response.status shouldBe HttpStatus.OK
             val body2 = response2.body()
             body2.shouldNotBeNull()

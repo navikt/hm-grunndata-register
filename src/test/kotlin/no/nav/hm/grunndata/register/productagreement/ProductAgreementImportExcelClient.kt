@@ -9,6 +9,7 @@ import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.multipart.MultipartBody
+import java.util.UUID
 
 import no.nav.hm.grunndata.register.CONTEXT_PATH
 
@@ -19,6 +20,8 @@ interface ProductAgreementImportExcelClient {
     fun excelImport(
         @CookieValue("JWT") jwt: String,
         @Body file: MultipartBody,
-        @QueryValue dryRun: Boolean): HttpResponse<ProductAgreementImportDTO>
+        @QueryValue dryRun: Boolean,
+        @QueryValue supplierId: UUID
+    ): HttpResponse<ProductAgreementImportDTO>
 
 }

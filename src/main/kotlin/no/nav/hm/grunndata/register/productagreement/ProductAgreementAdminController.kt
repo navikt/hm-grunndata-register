@@ -27,6 +27,7 @@ import java.util.UUID
 import no.nav.hm.grunndata.register.catalog.CatalogExcelFileImport
 import no.nav.hm.grunndata.register.catalog.CatalogImportResult
 import no.nav.hm.grunndata.register.catalog.CatalogImportService
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
@@ -38,7 +39,8 @@ open class ProductAgreementAdminController(
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productAgreementRegistrationService: ProductAgreementRegistrationService,
     private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler,
-    private val catalogImportService: CatalogImportService
+    private val catalogImportService: CatalogImportService,
+    private val supplierRegistrationService: SupplierRegistrationService
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementAdminController::class.java)
@@ -53,13 +55,15 @@ open class ProductAgreementAdminController(
     suspend fun excelImport(
         file: CompletedFileUpload,
         @QueryValue dryRun: Boolean = true,
+        @QueryValue supplierId: UUID,
         authentication: Authentication,
     ): ProductAgreementImportDTO {
-        LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()}")
+        val supplier = supplierRegistrationService.findById(supplierId) ?: throw BadRequestException("Supplier $supplierId not found")
+        LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()} for supplier ${supplier.name}")
         val importedExcelCatalog =
             file.inputStream.use { input -> catalogExcelFileImport.importExcelFile(input) }
         val catalogImportResult = catalogImportService.prepareCatalogImportResult(importedExcelCatalog.map { it.toEntity() })
-        val mappedCatalogImportResult = productAgreementImportExcelService.mapCatalogImport(catalogImportResult, authentication)
+        val mappedCatalogImportResult = productAgreementImportExcelService.mapCatalogImport(catalogImportResult, authentication, supplierId)
 
         val productAgreementsImportResult =
             productAccessorySparePartAgreementHandler.handleNewProductsInExcelImport(
@@ -80,6 +84,7 @@ open class ProductAgreementAdminController(
             count = productAgreements.size,
             newCount = newCount,
             file = file.filename,
+            supplier = supplier.name,
             createdSeries = productAgreementsImportResult.newSeries,
             createdAccessoryParts = productAgreementsImportResult.newAccessoryParts,
             createdMainProducts = productAgreementsImportResult.newProducts,

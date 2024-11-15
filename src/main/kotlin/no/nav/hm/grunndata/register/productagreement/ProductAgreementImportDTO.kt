@@ -10,6 +10,7 @@ data class ProductAgreementImportDTO(
     @Deprecated("remove this later, confusing")
     val newCount: Int,
     val file: String,
+    val supplier: String,
     val createdSeries: List<SeriesRegistration> = emptyList(),
     val createdAccessoryParts: List<ProductRegistration> = emptyList(),
     val createdMainProducts: List<ProductRegistration> = emptyList(),
