@@ -218,7 +218,7 @@ class ProductAccessorySparePartAgreementHandler(
         return ProductAgreementImportResultData(
             productAgreement = withProductsId,
             newSeries = newSeries.distinctBy { it.id },
-            newProducts = newProducts.distinctBy { it.id }
+            newProducts = newProducts.distinctBy { it.supplierRef }
         )
     }
 

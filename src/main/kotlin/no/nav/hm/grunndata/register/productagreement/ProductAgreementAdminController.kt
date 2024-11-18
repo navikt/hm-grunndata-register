@@ -71,10 +71,13 @@ open class ProductAgreementAdminController(
                 authentication,
                 dryRun,
             )
-        val productAgreements = productAgreementsImportResult.insertList
-        LOG.info("New product agreements found: ${productAgreements.size}")
-        val newCount = productAgreementsImportResult.insertList.size
+        LOG.info("New product agreements found: ${productAgreementsImportResult.insertList.size}")
+        LOG.info("New series found: ${productAgreementsImportResult.newSeries.size}")
+        LOG.info("New accessory parts found: ${productAgreementsImportResult.newAccessoryParts.size}")
+        LOG.info("New main products found: ${productAgreementsImportResult.newProducts.size}")
 
+        val productAgreements = productAgreementsImportResult.insertList
+        val newCount = productAgreementsImportResult.insertList.size
         if (!dryRun) {
             persistCatalogResult(catalogImportResult, file, productAgreementsImportResult)
         }
