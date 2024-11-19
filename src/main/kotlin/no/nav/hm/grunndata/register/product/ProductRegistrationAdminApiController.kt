@@ -47,9 +47,15 @@ class ProductRegistrationAdminApiController(
         pageable: Pageable,
     ): Slice<SeriesGroupDTO> = productRegistrationService.findSeriesGroup(pageable)
 
+    @Get("/old/series/{seriesUUID}")
+    suspend fun findBySeriesUUIDAndSupplierIdOld(seriesUUID: UUID) =
+        productRegistrationService.findAllBySeriesUuid(seriesUUID).sortedBy { it.created }
+
     @Get("/series/{seriesUUID}")
     suspend fun findBySeriesUUIDAndSupplierId(seriesUUID: UUID) =
         productRegistrationService.findAllBySeriesUuid(seriesUUID).sortedBy { it.created }
+            .map { productDTOMapper.toDTOV2(it) }
+
 
     @Get("/")
     suspend fun findProducts(
