@@ -44,18 +44,18 @@ class ProductRegistrationApiController(
     suspend fun findBySeriesUUIDAndSupplierId(
         seriesUUID: UUID,
         authentication: Authentication,
-    ): List<ProductRegistrationDTO> =
+    ): List<ProductRegistrationDTOV2> =
         productRegistrationService.findBySeriesUUIDAndSupplierId(seriesUUID, authentication.supplierId())
-            .sortedBy { it.created }.map { productDTOMapper.toDTO(it) }
+            .sortedBy { it.created }.map { productDTOMapper.toDTOV2(it) }
 
     @Get("/")
     suspend fun findProducts(
         @RequestBean criteria: ProductRegistrationCriteria,
         pageable: Pageable,
         authentication: Authentication,
-    ): Page<ProductRegistrationDTO> = productRegistrationService
+    ): Page<ProductRegistrationDTOV2> = productRegistrationService
         .findAll(buildCriteriaSpec(criteria, authentication.supplierId()), pageable)
-        .mapSuspend { productDTOMapper.toDTO(it) }
+        .mapSuspend { productDTOMapper.toDTOV2(it) }
 
     private fun buildCriteriaSpec(
         criteria: ProductRegistrationCriteria,
@@ -75,23 +75,23 @@ class ProductRegistrationApiController(
             }
         } else null
 
-    @Get("/v2/{id}")
-    suspend fun getProductByIdV2(
+    @Get("/{id}")
+    suspend fun getProductById(
         id: UUID,
         authentication: Authentication,
     ): HttpResponse<ProductRegistrationDTOV2> =
         productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
             ?.let { HttpResponse.ok(productDTOMapper.toDTOV2(it)) } ?: HttpResponse.notFound()
 
-    @Put("/v2/{id}")
-    suspend fun updateProductV2(
+    @Put("/{id}")
+    suspend fun updateProduct(
         @Body registrationDTO: UpdateProductRegistrationDTO,
         @PathVariable id: UUID,
         authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> {
+    ): HttpResponse<ProductRegistrationDTOV2> {
         try {
             val dto =
-                productDTOMapper.toDTO(productRegistrationService.updateProduct(registrationDTO, id, authentication))
+                productDTOMapper.toDTOV2(productRegistrationService.updateProduct(registrationDTO, id, authentication))
             return HttpResponse.ok(dto)
         } catch (dataAccessException: DataAccessException) {
             LOG.error("Got exception while updating product", dataAccessException)
@@ -109,9 +109,9 @@ class ProductRegistrationApiController(
         @PathVariable seriesUUID: UUID,
         @Body draftVariant: DraftVariantDTO,
         authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> = try {
+    ): HttpResponse<ProductRegistrationDTOV2> = try {
         val variant = productRegistrationService.createDraft(seriesUUID, draftVariant, authentication)
-        HttpResponse.ok(productDTOMapper.toDTO(variant))
+        HttpResponse.ok(productDTOMapper.toDTOV2(variant))
     } catch (dataAccessException: DataAccessException) {
         LOG.error("Got exception while updating product", dataAccessException)
         throw BadRequestException(
@@ -126,37 +126,36 @@ class ProductRegistrationApiController(
     suspend fun setPublishedProductToInactive(
         @PathVariable id: UUID,
         authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> {
-        val updated =
-            productRegistrationService.updateRegistrationStatus(id, authentication, RegistrationStatus.INACTIVE)
-        return HttpResponse.ok(productDTOMapper.toDTO(updated))
+    ): HttpResponse<Any> {
+        productRegistrationService.updateRegistrationStatus(id, authentication, RegistrationStatus.INACTIVE)
+        return HttpResponse.ok()
     }
 
     @Put("/to-active/{id}")
     suspend fun setPublishedProductToActive(
         @PathVariable id: UUID,
         authentication: Authentication,
-    ): HttpResponse<ProductRegistrationDTO> {
-        val updated = productRegistrationService.updateRegistrationStatus(id, authentication, RegistrationStatus.ACTIVE)
-        return HttpResponse.ok(productDTOMapper.toDTO(updated))
+    ): HttpResponse<Any> {
+        productRegistrationService.updateRegistrationStatus(id, authentication, RegistrationStatus.ACTIVE)
+        return HttpResponse.ok()
     }
 
     @Delete("/delete")
     suspend fun deleteProducts(
         @Body ids: List<UUID>,
         authentication: Authentication,
-    ): HttpResponse<List<ProductRegistrationDTO>> {
-        val updated = productRegistrationService.setDeletedStatus(ids, authentication)
-        return HttpResponse.ok(updated.map { productDTOMapper.toDTO(it) })
+    ): HttpResponse<Any> {
+        productRegistrationService.setDeletedStatus(ids, authentication)
+        return HttpResponse.ok()
     }
 
     @Delete("/draft/delete")
     suspend fun deleteDraftVariants(
         @Body ids: List<UUID>,
         authentication: Authentication,
-    ): HttpResponse<List<ProductRegistrationDTO>> {
+    ): HttpResponse<Any> {
         productRegistrationService.deleteDraftVariants(ids, authentication)
-        return HttpResponse.ok(emptyList())
+        return HttpResponse.ok()
     }
 }
 
