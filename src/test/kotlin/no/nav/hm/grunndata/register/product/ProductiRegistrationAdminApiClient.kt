@@ -17,7 +17,7 @@ import no.nav.hm.grunndata.register.CONTEXT_PATH
 import java.util.*
 
 
-@Client("$CONTEXT_PATH/${ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS}")
+@Client("$CONTEXT_PATH${ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS}")
 interface ProductRegistrationAdminApiClient {
 
     @Get(uri = "/", consumes = [APPLICATION_JSON])
@@ -30,24 +30,25 @@ interface ProductRegistrationAdminApiClient {
                      @QueryValue updatedByUser: String? = null,
                      @QueryValue("size") size: Int? = null,
                      @QueryValue("page") page: Int?=null,
-                     @QueryValue("sort") sort: String? = null): Page<ProductRegistrationDTO>
+                     @QueryValue("sort") sort: String? = null
+    ): Page<ProductRegistrationDTOV2>
 
-    @Get(uri = "/v2/{id}", produces = [APPLICATION_JSON])
+    @Get(uri = "/{id}", produces = [APPLICATION_JSON])
     fun readProduct(@CookieValue("JWT") jwt: String, id: UUID): ProductRegistrationDTOV2
 
-    @Put(uri= "/v2/{id}", processes = [APPLICATION_JSON])
+    @Put(uri = "/{id}", processes = [APPLICATION_JSON])
     fun updateProduct(@CookieValue("JWT") jwt: String, id:UUID,
                       @Body updateProductRegistrationDTO: UpdateProductRegistrationDTO
-    ): ProductRegistrationDTO
+    ): ProductRegistrationDTOV2
 
     @Delete(uri="/delete", consumes = [APPLICATION_JSON])
-    fun deleteProduct(@CookieValue("JWT") jwt: String, @Body ids: List<UUID>): ProductRegistrationDTO
+    fun deleteProduct(@CookieValue("JWT") jwt: String, @Body ids: List<UUID>): ProductRegistrationDTOV2
 
     @Post(uri = "/draftWithV3/{seriesUUID}", processes = [APPLICATION_JSON])
     fun createDraft(
         @CookieValue("JWT") jwt: String,
         @PathVariable seriesUUID: UUID,
         @Body draftVariantDTO: DraftVariantDTO,
-    ): ProductRegistrationDTO
+    ): ProductRegistrationDTOV2
 
 }

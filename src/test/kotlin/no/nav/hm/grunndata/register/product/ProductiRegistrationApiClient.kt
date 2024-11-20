@@ -14,13 +14,13 @@ import io.micronaut.http.client.annotation.Client
 import no.nav.hm.grunndata.register.CONTEXT_PATH
 import java.util.UUID
 
-@Client("$CONTEXT_PATH/${ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS}")
+@Client("$CONTEXT_PATH${ProductRegistrationApiController.API_V1_PRODUCT_REGISTRATIONS}")
 interface ProductRegistrationApiClient {
     @Get(uri = "/series/{seriesUUID}", consumes = [APPLICATION_JSON])
     fun findBySeriesUUIDAndSupplierId(
         @CookieValue("JWT") jwt: String,
         @PathVariable seriesUUID: UUID,
-    ): List<ProductRegistrationDTO>
+    ): List<ProductRegistrationDTOV2>
 
     @Get(uri = "/", consumes = [APPLICATION_JSON])
     fun findProducts(
@@ -32,27 +32,27 @@ interface ProductRegistrationApiClient {
         @QueryValue("size") size: Int? = null,
         @QueryValue("page") page: Int? = null,
         @QueryValue("sort") sort: String? = null,
-    ): Page<ProductRegistrationDTO>
+    ): Page<ProductRegistrationDTOV2>
 
     @Post(uri = "/draftWithV3/{seriesUUID}", processes = [APPLICATION_JSON])
     fun createDraft(
         @CookieValue("JWT") jwt: String,
         @PathVariable seriesUUID: UUID,
         @Body draftVariantDTO: DraftVariantDTO,
-    ): ProductRegistrationDTO
+    ): ProductRegistrationDTOV2
 
-    @Get(uri = "/v2/{id}", consumes = [APPLICATION_JSON])
+    @Get(uri = "/{id}", consumes = [APPLICATION_JSON])
     fun readProduct(
         @CookieValue("JWT") jwt: String,
         id: UUID,
     ): ProductRegistrationDTOV2
 
-    @Put(uri = "/v2/{id}", processes = [APPLICATION_JSON])
+    @Put(uri = "/{id}", processes = [APPLICATION_JSON])
     fun updateProduct(
         @CookieValue("JWT") jwt: String,
         id: UUID,
         @Body updateProductRegistrationDTO: UpdateProductRegistrationDTO
-    ): ProductRegistrationDTO
+    ): ProductRegistrationDTOV2
 
     @Delete(uri = "/draft/delete", consumes = [APPLICATION_JSON])
     fun deleteDraftVariants(

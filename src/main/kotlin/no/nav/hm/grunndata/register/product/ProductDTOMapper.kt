@@ -1,18 +1,18 @@
 package no.nav.hm.grunndata.register.product
 
 import jakarta.inject.Singleton
+import java.time.LocalDateTime
 import no.nav.hm.grunndata.rapid.dto.AgreementInfo
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
+import no.nav.hm.grunndata.register.techlabel.LabelService
 import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
-import no.nav.hm.grunndata.register.techlabel.TechLabelService
-import java.time.LocalDateTime
 
 @Singleton
 class ProductDTOMapper(
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
-    private val techLabelService: TechLabelService,
+    private val techLabelService: LabelService,
     private val agreementRegistrationService: AgreementRegistrationService,
     )
 {

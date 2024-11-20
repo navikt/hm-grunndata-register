@@ -61,9 +61,9 @@ class ProductRegistrationAdminApiController(
     suspend fun findProducts(
         @RequestBean criteria: ProductRegistrationAdminCriteria,
         pageable: Pageable,
-    ): Page<ProductRegistrationDTO> = productRegistrationService
+    ): Page<ProductRegistrationDTOV2> = productRegistrationService
         .findAll(buildCriteriaSpec(criteria), pageable)
-        .mapSuspend { productDTOMapper.toDTO(it) }
+        .mapSuspend { productDTOMapper.toDTOV2(it) }
 
     private fun buildCriteriaSpec(criteria: ProductRegistrationAdminCriteria): PredicateSpecification<ProductRegistration>? =
         if (criteria.isNotEmpty()) {
@@ -155,9 +155,9 @@ class ProductRegistrationAdminApiController(
     suspend fun deleteProducts(
         @Body ids: List<UUID>,
         authentication: Authentication,
-    ): HttpResponse<List<ProductRegistrationDTO>> {
+    ): HttpResponse<List<ProductRegistrationDTOV2>> {
         val updated = productRegistrationService.setDeletedStatus(ids, authentication)
-        return HttpResponse.ok(updated.map { productDTOMapper.toDTO(it) })
+        return HttpResponse.ok(updated.map { productDTOMapper.toDTOV2(it) })
     }
 
     @Delete("/draft/delete")

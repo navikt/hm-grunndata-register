@@ -1,6 +1,5 @@
 package no.nav.hm.grunndata.register.product
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -8,14 +7,11 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
-import java.time.LocalDateTime
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
-import no.nav.hm.grunndata.rapid.dto.AgreementInfo
 import no.nav.hm.grunndata.rapid.dto.Attributes
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.security.LoginClient
@@ -41,7 +37,6 @@ class ProductRegistrationApiTest(
     private val loginClient: LoginClient,
     private val userRepository: UserRepository,
     private val seriesRepository: SeriesRegistrationRepository,
-    private val objectMapper: ObjectMapper,
     private val supplierRegistrationService: SupplierRegistrationService,
 ) {
     private val email = "api@test.test"
@@ -202,7 +197,7 @@ class ProductRegistrationApiTest(
 
         val variants = apiClient.findBySeriesUUIDAndSupplierId(
             jwt = jwt,
-            seriesUUID = variant.seriesUUID
+            seriesUUID = variant.seriesUUID!!
         )
 
         variants.size shouldBe 0
@@ -285,65 +280,6 @@ class ProductRegistrationApiTest(
         return DraftVariantDTO(
             supplierRef = supplierRef,
             articleName = articleName,
-        )
-    }
-
-    private fun dummyProductRegistrationDTO(
-        id: UUID = UUID.randomUUID(),
-        supplierId: UUID = UUID.randomUUID(),
-        supplierRef: String = UUID.randomUUID().toString(),
-        hmsArtNr: String? = null,
-        seriesUUID: UUID = UUID.randomUUID(),
-        seriesId: String = seriesUUID.toString(),
-        isoCategory: String = "dummyIso",
-        title: String = "dummyTitle",
-        articleName: String = "dummyArticleName",
-        draftStatus: DraftStatus = DraftStatus.DRAFT,
-        adminStatus: AdminStatus = AdminStatus.PENDING,
-        registrationStatus: RegistrationStatus = RegistrationStatus.ACTIVE,
-        message: String? = null,
-        adminInfo: AdminInfo? = null,
-        published: LocalDateTime? = null,
-        updatedByUser: String = "dummyUser",
-        createdByUser: String = "dummyUser",
-        createdBy: String = REGISTER,
-        updatedBy: String = REGISTER,
-        createdByAdmin: Boolean = false,
-        productData: ProductData =
-            ProductData(
-                attributes =
-                    Attributes(
-                        shortdescription = "En kort beskrivelse av produktet",
-                        text = "En lang beskrivelse av produktet",
-                    ),
-            ),
-        agreements: List<AgreementInfo> = emptyList(),
-        version: Long? = 1,
-    ): ProductRegistrationDTO {
-        return ProductRegistrationDTO(
-            seriesId = seriesId,
-            seriesUUID = seriesUUID,
-            title = title,
-            articleName = articleName,
-            id = id,
-            isoCategory = isoCategory,
-            supplierId = supplierId,
-            hmsArtNr = hmsArtNr,
-            supplierRef = supplierRef,
-            draftStatus = draftStatus,
-            adminStatus = adminStatus,
-            registrationStatus = registrationStatus,
-            message = message,
-            adminInfo = adminInfo,
-            createdByAdmin = createdByAdmin,
-            published = published,
-            updatedByUser = updatedByUser,
-            createdByUser = createdByUser,
-            productData = productData,
-            version = version,
-            createdBy = createdBy,
-            updatedBy = updatedBy,
-            agreements = agreements,
         )
     }
 }
