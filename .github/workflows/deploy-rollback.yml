@@ -1,0 +1,28 @@
+name: deploy-rollback
+on:
+  workflow_dispatch:
+    inputs:
+      CLUSTER:
+        description: 'Cluster:'
+        default: 'dev-gcp'
+        type: choice
+        options:
+          - dev-gcp
+          - prod-gcp
+      VERSION:
+        description: "Version"
+        type: string
+
+jobs:
+  call-workflow:
+    permissions:
+      contents: read
+      id-token: write
+      actions: read
+    uses: navikt/pam-deploy/.github/workflows/deploy-rollback.yml@v7
+    with:
+      NAIS_RESOURCE: ".nais/nais.yml"
+      NAIS_VARS: '.nais/nais_${{ inputs.CLUSTER }}.json'
+      TEAM: "teamdigihot"
+      CLUSTER: ${{ inputs.CLUSTER }}
+      VERSION: ${{ inputs.VERSION }}
