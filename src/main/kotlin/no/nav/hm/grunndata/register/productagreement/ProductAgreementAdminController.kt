@@ -339,10 +339,10 @@ open class ProductAgreementAdminController(
                     LOG.info("Product agreement $uuid is not published yet, performing physical delete")
                     productAgreementRegistrationService.physicalDeleteById(uuid)
                 } else {
-                    LOG.info("Product agreement $uuid is published, performing logical delete")
+                    LOG.info("Product agreement $uuid is published, deqctivating")
                     productAgreementRegistrationService.saveAndCreateEvent(
                         it.copy(
-                            status = ProductAgreementStatus.DELETED,
+                            status = ProductAgreementStatus.INACTIVE,
                             updated = LocalDateTime.now(),
                             expired = LocalDateTime.now(),
                             updatedBy = REGISTER,
@@ -367,6 +367,7 @@ open class ProductAgreementAdminController(
 data class ProductAgreementsDeletedResponse(
     val ids: List<UUID>,
 )
+
 
 data class ProductAgreementDeletedResponse(
     val id: UUID,

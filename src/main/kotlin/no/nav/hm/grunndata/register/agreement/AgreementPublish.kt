@@ -42,9 +42,11 @@ open class AgreementPublish(
         )
         val productsInAgreement =
             productAgreementRegistrationService
-                .findByAgreementIdAndStatus(
+                .findByAgreementIdAndStatusAndPublishedBeforeAndExpiredAfter(
                     agreementRegistrationDTO.id,
                     ProductAgreementStatus.INACTIVE,
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
                 )
 
         LOG.info("Found ${productsInAgreement.size} products in agreement ${agreementRegistrationDTO.id}")
