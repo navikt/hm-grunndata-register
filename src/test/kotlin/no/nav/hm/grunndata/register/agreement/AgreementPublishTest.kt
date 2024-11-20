@@ -121,23 +121,50 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                 updatedBy = REGISTER
             )
 
+            val expiredProductAgreement = ProductAgreementRegistrationDTO(
+                agreementId = publishing.id,
+                productId = null,
+                seriesUuid = UUID.randomUUID(),
+                reference = publishing.reference,
+                published = publishing.published,
+                expired = LocalDateTime.now().minusDays(1),
+                status = ProductAgreementStatus.INACTIVE,
+                post = 1,
+                rank = 3,
+                postId = postId,
+                title = publishing.title,
+                articleName = publishing.title,
+                createdBy = "tester",
+                hmsArtNr = "123456",
+                supplierId = supplier.id,
+                supplierRef = "1234567",
+                updatedBy = REGISTER
+            )
+
 
             agreementService.saveAndCreateEventIfNotDraft(agreement, false)
             agreementService.saveAndCreateEventIfNotDraft(publishing, false)
             val savedDelkontrakt = delkontraktRegistrationService.save(delkontraktToSave)
             productAgreementService.saveAndCreateEvent(productAgreement, false)
             productAgreementService.saveAndCreateEvent(productAgreement2, false)
+            productAgreementService.saveAndCreateEvent(expiredProductAgreement, false)
 
             val publishList = agreementPublish.publishAgreements()
 
             publishList.size shouldBe 1
 
             productAgreementService.findByAgreementId(publishing.id).forEach {
-                it.status shouldBe ProductAgreementStatus.ACTIVE
-                it.published shouldBeBefore LocalDateTime.now()
-                it.expired shouldBeAfter LocalDateTime.now()
+                if (it.supplierRef == "1234567") {
+                    it.status shouldBe ProductAgreementStatus.INACTIVE
+                    it.published shouldBeBefore LocalDateTime.now()
+                    it.expired shouldBeBefore LocalDateTime.now()
+                }
+                else {
+                    it.status shouldBe ProductAgreementStatus.ACTIVE
+                    it.published shouldBeBefore LocalDateTime.now()
+                    it.expired shouldBeAfter LocalDateTime.now()
+                }
             }
-
 
         }
     }
