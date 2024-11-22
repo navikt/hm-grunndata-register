@@ -36,6 +36,8 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
 import java.util.UUID
+import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.series.SeriesRegistrationController.Companion
 
 
 @Secured(Roles.ROLE_ADMIN)
@@ -524,6 +526,24 @@ class SeriesRegistrationAdminController(
 
         LOG.info("admin uploading files for series $seriesUUID")
         seriesRegistrationService.uploadMediaAndUpdateSeries(seriesToUpdate, files)
+
+        return HttpResponse.ok()
+    }
+
+    @Put("/update-media-priority/{seriesUUID}")
+    suspend fun updateMedia(
+        seriesUUID: UUID,
+        @Body mediaSort: List<MediaSort>,
+        authentication: Authentication
+    ): HttpResponse<Any> {
+        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
+
+        if (seriesToUpdate.supplierId != authentication.supplierId()) {
+            LOG.warn("SupplierId in request does not match authenticated supplierId")
+            return HttpResponse.unauthorized()
+        }
+
+        seriesRegistrationService.updateSeriesMediaPriority(seriesToUpdate, mediaSort, authentication)
 
         return HttpResponse.ok()
     }

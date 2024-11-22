@@ -1,6 +1,8 @@
 package no.nav.hm.grunndata.register.series
 
 import io.kotest.common.runBlocking
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.test.annotation.MockBean
@@ -14,6 +16,7 @@ import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
+import no.nav.hm.grunndata.register.series.SeriesRegistrationController.MediaSort
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
 
@@ -99,5 +102,86 @@ class SeriesRegistrationServiceTest(
             patchedSeries.seriesData.attributes.url shouldBe patchUpdateDTO2.url
 
         }
+    }
+
+    @Test
+    fun `Change media priority`() {
+        val seriesId = UUID.randomUUID()
+        val supplierId = UUID.randomUUID()
+        val mediaUri = "mediaUri"
+
+        val originalSeries = SeriesRegistration(
+            id = seriesId,
+            supplierId = supplierId,
+            identifier = "identifier",
+            title = "title",
+            text = "text",
+            isoCategory = "12345678",
+            draftStatus = DraftStatus.DRAFT,
+            status = SeriesStatus.ACTIVE,
+            adminStatus = AdminStatus.PENDING,
+            seriesData = SeriesDataDTO(
+                media = setOf(
+                    MediaInfoDTO(
+                        sourceUri = "sourceUri",
+                        filename = "filename",
+                        uri = mediaUri,
+                        priority = 1,
+                        type = MediaType.IMAGE,
+                        text = "text",
+                        source = MediaSourceType.REGISTER,
+                        updated = LocalDateTime.now(),
+                    ),
+                    MediaInfoDTO(
+                        sourceUri = "sourceUri2",
+                        filename = "filename2",
+                        uri = "uri2",
+                        priority = 2,
+                        type = MediaType.IMAGE,
+                        text = "text2",
+                        source = MediaSourceType.REGISTER,
+                        updated = LocalDateTime.now(),
+                    ),
+                    MediaInfoDTO(
+                        sourceUri = "sourceUri3",
+                        filename = "filename2",
+                        uri = "uri3",
+                        priority = 3,
+                        type = MediaType.IMAGE,
+                        text = "text3",
+                        source = MediaSourceType.REGISTER,
+                        updated = LocalDateTime.now(),
+                    )
+                ),
+                attributes = SeriesAttributesDTO(
+                    keywords = listOf("keyword1", "keyword2"),
+                    url = "url",
+                )
+            )
+        )
+
+        val authentication = Authentication.build("marte", mapOf("supplierId" to supplierId.toString()))
+
+        val newMediaPriority = listOf(MediaSort(uri = mediaUri, priority = 2))
+
+        runBlocking {
+            service.save(originalSeries)
+
+            service.updateSeriesMediaPriority(originalSeries, newMediaPriority, authentication)
+
+            val series = service.findById(seriesId)
+            series.shouldNotBeNull()
+            val seriesMedia = series.seriesData.media
+            seriesMedia.shouldNotBeNull()
+            seriesMedia shouldHaveSize 1
+
+            val media = seriesMedia.first()
+            media.uri shouldBe mediaUri
+            media.priority shouldBe 2
+
+
+            println(seriesMedia)
+        }
+
     }
 }

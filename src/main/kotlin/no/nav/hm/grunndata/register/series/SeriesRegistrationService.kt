@@ -9,6 +9,8 @@ import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import java.time.LocalDateTime
+import java.util.UUID
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactive.asFlow
@@ -34,8 +36,6 @@ import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
-import java.util.UUID
 
 @Singleton
 open class SeriesRegistrationService(
@@ -571,4 +571,35 @@ open class SeriesRegistrationService(
 
         seriesRegistrationRepository.update(newUpdate)
     }
+
+    @Transactional
+    open suspend fun updateSeriesMediaPriority(
+        seriesToUpdate: SeriesRegistration,
+        media: List<MediaSort>,
+        authentication: Authentication
+    ) {
+        val seriesMedia = seriesToUpdate.seriesData.media
+
+        val updatedMedia = mutableSetOf<MediaInfoDTO>()
+        media.forEach { mediaSort ->
+            val originalMedia =
+                seriesMedia.find { seriesMedia -> seriesMedia.uri === mediaSort.uri } ?: throw BadRequestException(
+                    message = "Media uri ${mediaSort.uri} not found",
+                    type = ErrorType.INVALID_VALUE
+                )
+            updatedMedia.add(originalMedia.copy(priority = mediaSort.priority))
+        }
+
+        saveAndCreateEventIfNotDraftAndApproved(
+            seriesToUpdate
+                .copy(
+                    seriesData = seriesToUpdate.seriesData.copy(media = updatedMedia),
+                    updated = LocalDateTime.now(),
+                    updatedByUser = authentication.name
+                ),
+            true,
+        )
+    }
 }
+
+data class MediaSort(val uri: String, val priority: Int)

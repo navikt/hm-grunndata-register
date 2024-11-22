@@ -216,6 +216,24 @@ class SeriesRegistrationController(
         return HttpResponse.ok()
     }
 
+    @Put("/update-media-priority/{seriesUUID}")
+    suspend fun updateMedia(
+        seriesUUID: UUID,
+        @Body mediaSort: List<MediaSort>,
+        authentication: Authentication
+    ): HttpResponse<Any> {
+        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
+
+        if (seriesToUpdate.supplierId != authentication.supplierId()) {
+            LOG.warn("SupplierId in request does not match authenticated supplierId")
+            return HttpResponse.unauthorized()
+        }
+
+        seriesRegistrationService.updateSeriesMediaPriority(seriesToUpdate, mediaSort, authentication)
+
+        return HttpResponse.ok()
+    }
+
     @Put("/request-approval/{seriesUUID}")
     suspend fun requestApproval(
         @PathVariable seriesUUID: UUID,
