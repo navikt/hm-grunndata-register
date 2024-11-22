@@ -579,21 +579,21 @@ open class SeriesRegistrationService(
         authentication: Authentication
     ) {
         val seriesMedia = seriesToUpdate.seriesData.media
-
-        val updatedMedia = mutableSetOf<MediaInfoDTO>()
-        media.forEach { mediaSort ->
-            val originalMedia =
-                seriesMedia.find { seriesMedia -> seriesMedia.uri === mediaSort.uri } ?: throw BadRequestException(
+        val updatedMedia = media.map { mediaSort ->
+            seriesMedia.find { series -> series.uri == mediaSort.uri }?.copy(priority = mediaSort.priority)
+                ?: throw BadRequestException(
                     message = "Media uri ${mediaSort.uri} not found",
                     type = ErrorType.INVALID_VALUE
                 )
-            updatedMedia.add(originalMedia.copy(priority = mediaSort.priority))
         }
+        val mergedMedia =
+            seriesMedia.filter { series -> !media.any { mediaSort -> mediaSort.uri == series.uri } }.plus(updatedMedia)
+                .toSet()
 
         saveAndCreateEventIfNotDraftAndApproved(
             seriesToUpdate
                 .copy(
-                    seriesData = seriesToUpdate.seriesData.copy(media = updatedMedia),
+                    seriesData = seriesToUpdate.seriesData.copy(media = mergedMedia),
                     updated = LocalDateTime.now(),
                     updatedByUser = authentication.name
                 ),
