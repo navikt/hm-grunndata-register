@@ -569,7 +569,7 @@ open class SeriesRegistrationService(
         val newData = seriesToUpdate.seriesData.copy(media = newMedia)
         val newUpdate = seriesToUpdate.copy(seriesData = newData)
 
-        seriesRegistrationRepository.update(newUpdate)
+        saveAndCreateEventIfNotDraftAndApproved(newUpdate, isUpdate = true)
     }
 
     @Transactional
