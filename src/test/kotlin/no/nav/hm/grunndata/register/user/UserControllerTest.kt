@@ -152,7 +152,8 @@ class UserControllerTest(private val userRepository: UserRepository,
                 name = "New user",
                 email = "newuser1@email.com",
                 password = "aVeryStrongPassword",
-                attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, user.attributes[UserAttribute.SUPPLIER_ID]!!))
+                attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, user.attributes[UserAttribute.SUPPLIER_ID]!!),
+                    Pair(UserAttribute.PHONE, "+47 12345678"))
             )).accept(MediaType.APPLICATION_JSON)
                 .cookie(jwt), UserDTO::class.java
         )
@@ -161,16 +162,19 @@ class UserControllerTest(private val userRepository: UserRepository,
         dto.roles shouldBe listOf(Roles.ROLE_SUPPLIER)
         dto.name shouldBe "New user"
         dto.email shouldBe "newuser1@email.com"
+        dto.attributes[UserAttribute.PHONE] shouldBe "+47 12345678"
         dto.attributes[UserAttribute.SUPPLIER_ID] shouldBe user.attributes[UserAttribute.SUPPLIER_ID]
         val response2 = client.toBlocking().exchange(
-            HttpRequest.PUT(UserController.API_V1_USER_REGISTRATIONS, dto.copy(name = "New name 2"))
+            HttpRequest.PUT(UserController.API_V1_USER_REGISTRATIONS,
+                dto.copy(name = "New name 2", attributes = dto.attributes + Pair(UserAttribute.PHONE, "+47 87654321")))
                 .accept(MediaType.APPLICATION_JSON)
                 .cookie(jwt), UserDTO::class.java
         )
         response2.status().code shouldBe 200
         val dto2 = response2.body()
         dto2.name shouldBe "New name 2"
-        dto.email shouldBe "newuser1@email.com"
-        dto.attributes[UserAttribute.SUPPLIER_ID] shouldBe user.attributes[UserAttribute.SUPPLIER_ID]
+        dto2.email shouldBe "newuser1@email.com"
+        dto2.attributes[UserAttribute.SUPPLIER_ID] shouldBe user.attributes[UserAttribute.SUPPLIER_ID]
+        dto2.attributes[UserAttribute.PHONE] shouldBe "+47 87654321"
     }
 }

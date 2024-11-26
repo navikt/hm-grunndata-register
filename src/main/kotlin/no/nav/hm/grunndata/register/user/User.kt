@@ -31,5 +31,6 @@ object UserAttribute {
     const val USER_ID = "userId"
     const val USER_NAME = "userName"
     const val SUPPLIER_NAME = "supplierName"
+    const val PHONE = "phone"
 }
 
