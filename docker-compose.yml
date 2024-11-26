@@ -87,7 +87,7 @@ services:
       MEDIA_STORAGE_CDNURL: "http://media:8080/local"
       REDIS_HOST: "redis"
   register:
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-register:24.302.100541
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-register:24.331.130753
     platform: linux/amd64
     hostname: register
     depends_on:
@@ -106,5 +106,8 @@ services:
       KAFKA_BROKERS: "kafka:9092"
       MICRONAUT_SERVER_CORS_ENABLED: true
       SERVER_PORT: 8080
+      AZURE_APP_TENANT_ID: "OTY2YWM1NzItZjViNy00YmJlLWFhODgtYzc2NDE5YzBmODUx"
+      AZURE_APP_CLIENT_ID: "ZjRkZmNmZDAtODUyZC00ZWNjLWI4ZGEtZTIwYThmNjg5MTRi"
+      AZURE_APP_CLIENT_SECRET": "U3RQOFF+d19qei54RzZ5akN6NTk5eDZSUDRmZkQyZllmNHkwc2NPZA=="
 networks:
   register-net:
