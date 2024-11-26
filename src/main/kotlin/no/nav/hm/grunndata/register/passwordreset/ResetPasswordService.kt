@@ -17,6 +17,10 @@ open class ResetPasswordService(
     @Transactional
     open suspend fun requestOtp(email: String) {
         userRepository.findByEmail(email)?.let {
+            val existingOtp = otpRepository.findByEmailAndUsed(email, false)
+            if (existingOtp != null && existingOtp.created.plusMinutes(30).isAfter(LocalDateTime.now())) {
+                return
+            }
             // create and send OTP
             val otp = generateOTP()
             otpRepository.save(Otp(id = UUID.randomUUID(), email = email, otp = otp, used = false))
@@ -44,13 +48,13 @@ open class ResetPasswordService(
         email: String,
         newPassword: String,
     ) {
-        val otp = otpRepository.findByOtpAndEmail(otp, email) ?: throw IllegalArgumentException("Invalid OTP")
-        if (otp.used) throw IllegalArgumentException("OTP already used")
-        if (otp.created.plusMinutes(30).isBefore(LocalDateTime.now())) throw IllegalArgumentException("OTP expired")
+        val otpFromDb = otpRepository.findByOtpAndEmail(otp, email) ?: throw IllegalArgumentException("Invalid OTP" )
+        if (otpFromDb.used) throw IllegalArgumentException("OTP already used")
+        if (otpFromDb.created.plusMinutes(30).isBefore(LocalDateTime.now())) throw IllegalArgumentException("OTP expired")
         userRepository.findByEmail(email)?.let {
             userRepository.updatePassword(it.id, newPassword)
         }
-        otpRepository.update(otp.copy(used = true))
+        otpRepository.update(otpFromDb.copy(used = true))
     }
 }
 

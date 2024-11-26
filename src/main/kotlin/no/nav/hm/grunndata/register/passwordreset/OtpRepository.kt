@@ -12,4 +12,10 @@ interface OtpRepository : CoroutineCrudRepository<Otp, UUID>, CoroutineJpaSpecif
         otp: String,
         email: String,
     ): Otp?
+
+
+    suspend fun findByEmailAndUsed(
+        email: String,
+        used: Boolean,
+    ): Otp?
 }

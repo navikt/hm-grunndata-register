@@ -4,10 +4,8 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
-import io.micronaut.security.annotation.Secured
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.annotation.security.PermitAll
-import no.nav.hm.grunndata.register.user.UserController
 import org.slf4j.LoggerFactory
 
 @Controller(ResetPasswordController.API_V1_RESET_PASSWORD)

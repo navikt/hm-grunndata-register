@@ -10,7 +10,7 @@ data class VerifyOTPRequest(
 )
 
 data class ResetPasswordRequest(
-    val otp: String,
     val email: String,
     val newPassword: String,
+    val otp: String,
 )
