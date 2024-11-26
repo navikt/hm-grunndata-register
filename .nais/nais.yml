@@ -35,6 +35,7 @@ spec:
   {{/each}}
   envFrom:
     - secret: hm-grunndata-register
+    - secret: azure-hm-email-service
   env:
     - name: DB_DRIVER
       value: "org.postgresql.Driver"
