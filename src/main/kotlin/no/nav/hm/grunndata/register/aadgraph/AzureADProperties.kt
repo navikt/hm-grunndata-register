@@ -7,5 +7,4 @@ class AzureADProperties(
     var tenantId: String? = null,
     var clientId: String? = null,
     var clientSecret: String? = null,
-    var userPrincipal: String? = "ikke.svar.finnhjelpemiddel@nav.no",
 )

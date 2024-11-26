@@ -15,7 +15,6 @@ import java.util.LinkedList
 
 @Singleton
 open class EmailServiceAzure(private val aadProperties: AzureADProperties) : EmailService {
-
     val scopes = listOf("https://graph.microsoft.com/.default")
 
     companion object {
@@ -30,13 +29,15 @@ open class EmailServiceAzure(private val aadProperties: AzureADProperties) : Ema
             .clientSecret(aadProperties.clientSecret)
             .build()
 
-    val authProvider = TokenCredentialAuthProvider(
-        scopes,
-        credential,
-    )
+    val authProvider =
+        TokenCredentialAuthProvider(
+            scopes,
+            credential,
+        )
 
-    val graphClient: GraphServiceClient<okhttp3.Request> = GraphServiceClient.builder()
-        .authenticationProvider(authProvider).buildClient()
+    val graphClient: GraphServiceClient<okhttp3.Request> =
+        GraphServiceClient.builder()
+            .authenticationProvider(authProvider).buildClient()
 
     override fun sendSimpleMessage(
         to: String,
@@ -62,7 +63,7 @@ open class EmailServiceAzure(private val aadProperties: AzureADProperties) : Ema
         message.body = body
 
         kotlin.runCatching {
-            graphClient.users(aadProperties.userPrincipal!!).sendMail(
+            graphClient.users("ikke.svar.finnhjelpemiddel@nav.no").sendMail(
                 UserSendMailParameterSet
                     .newBuilder()
                     .withMessage(message)
