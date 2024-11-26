@@ -23,6 +23,9 @@ interface UserRepository: CoroutineCrudRepository<User, UUID>, CoroutineJpaSpeci
     @Query("""UPDATE $USER_V1 SET token = crypt(:token,gen_salt('bf', 8)) WHERE id = :id  AND token = crypt(:oldToken, token)""")
     suspend fun changePassword(id: UUID,  oldToken: String, token: String)
 
+    @Query("""UPDATE $USER_V1 SET token = crypt(:token,gen_salt('bf', 8)) WHERE id = :id """)
+    suspend fun updatePassword(id: UUID, token: String)
+
     @Query("""SELECT * FROM $USER_V1 WHERE jsonb_extract_path_text(attributes,'supplierId') = :supplierId """)
     suspend fun getUsersBySupplierId(supplierId: String): List<User>
 

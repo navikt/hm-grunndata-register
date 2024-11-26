@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory
 import java.util.LinkedList
 
 @Singleton
-class EmailServiceAzure(private val aadProperties: AzureADProperties) {
+open class EmailServiceAzure(private val aadProperties: AzureADProperties) : EmailService {
 
     val scopes = listOf("https://graph.microsoft.com/.default")
 
@@ -38,7 +38,7 @@ class EmailServiceAzure(private val aadProperties: AzureADProperties) {
     val graphClient: GraphServiceClient<okhttp3.Request> = GraphServiceClient.builder()
         .authenticationProvider(authProvider).buildClient()
 
-    fun sendSimpleMessage(
+    override fun sendSimpleMessage(
         to: String,
         subject: String,
         contentType: BodyType,
