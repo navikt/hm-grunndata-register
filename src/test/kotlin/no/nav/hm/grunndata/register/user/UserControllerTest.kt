@@ -146,5 +146,31 @@ class UserControllerTest(private val userRepository: UserRepository,
                 UserDTO::class.java
             )
         }
+
+        val response = client.toBlocking().exchange(
+            HttpRequest.POST(UserController.API_V1_USER_REGISTRATIONS, UserRegistrationDTO(
+                name = "New user",
+                email = "newuser1@email.com",
+                password = "aVeryStrongPassword",
+                attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, user.attributes[UserAttribute.SUPPLIER_ID]!!))
+            )).accept(MediaType.APPLICATION_JSON)
+                .cookie(jwt), UserDTO::class.java
+        )
+        response.status().code shouldBe 201
+        val dto = response.body()
+        dto.roles shouldBe listOf(Roles.ROLE_SUPPLIER)
+        dto.name shouldBe "New user"
+        dto.email shouldBe "newuser1@email.com"
+        dto.attributes[UserAttribute.SUPPLIER_ID] shouldBe user.attributes[UserAttribute.SUPPLIER_ID]
+        val response2 = client.toBlocking().exchange(
+            HttpRequest.PUT(UserController.API_V1_USER_REGISTRATIONS, dto.copy(name = "New name 2"))
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(jwt), UserDTO::class.java
+        )
+        response2.status().code shouldBe 200
+        val dto2 = response2.body()
+        dto2.name shouldBe "New name 2"
+        dto.email shouldBe "newuser1@email.com"
+        dto.attributes[UserAttribute.SUPPLIER_ID] shouldBe user.attributes[UserAttribute.SUPPLIER_ID]
     }
 }
