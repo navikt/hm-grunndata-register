@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test
 @MicronautTest
 class SeriesRegistrationServiceTest(
     private val service: SeriesRegistrationService,
-    private val repository: SeriesRegistrationRepository
 ) {
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -33,37 +32,7 @@ class SeriesRegistrationServiceTest(
         val seriesId = UUID.randomUUID()
         val supplierId = UUID.randomUUID()
 
-        val originalSeries = SeriesRegistration(
-            id = seriesId,
-            supplierId = supplierId,
-            identifier = "identifier",
-            title = "title",
-            text = "text",
-            isoCategory = "12345678",
-            draftStatus = DraftStatus.DRAFT,
-            status = SeriesStatus.ACTIVE,
-            adminStatus = AdminStatus.PENDING,
-            seriesData = SeriesDataDTO(
-                media = setOf(
-                    MediaInfoDTO(
-                        sourceUri = "sourceUri",
-                        filename = "filename",
-                        uri = "uri",
-                        priority = 1,
-                        type = MediaType.IMAGE,
-                        text = "text",
-                        source = MediaSourceType.REGISTER,
-                        updated = LocalDateTime.now(),
-                    )
-                ),
-                attributes = SeriesAttributesDTO(
-                    keywords = listOf("keyword1", "keyword2"),
-                    url = "url",
-                )
-            )
-        )
-
-        val originalSeriesDTO = originalSeries.toDTO()
+        val originalSeries = newSeries(seriesId, supplierId)
 
         val patchUpdateDTO = UpdateSeriesRegistrationDTO(
             title = "new title",
@@ -82,7 +51,7 @@ class SeriesRegistrationServiceTest(
         val authentication = Authentication.build("marte", mapOf("supplierId" to supplierId.toString()))
 
         runBlocking {
-            service.save(originalSeriesDTO)
+            service.save(originalSeries)
 
             var patchedSeries = service.patchSeries(seriesId, patchUpdateDTO, authentication)
 
@@ -99,7 +68,6 @@ class SeriesRegistrationServiceTest(
             patchedSeries.text shouldBe patchUpdateDTO.text
             patchedSeries.seriesData.attributes.keywords shouldBe patchUpdateDTO2.keywords
             patchedSeries.seriesData.attributes.url shouldBe patchUpdateDTO2.url
-
         }
     }
 
@@ -108,79 +76,76 @@ class SeriesRegistrationServiceTest(
         val seriesId = UUID.randomUUID()
         val supplierId = UUID.randomUUID()
         val mediaUri = "mediaUri"
-
-        val originalSeries = SeriesRegistration(
-            id = seriesId,
-            supplierId = supplierId,
-            identifier = "identifier",
-            title = "title",
-            text = "text",
-            isoCategory = "12345678",
-            draftStatus = DraftStatus.DRAFT,
-            status = SeriesStatus.ACTIVE,
-            adminStatus = AdminStatus.PENDING,
-            seriesData = SeriesDataDTO(
-                media = setOf(
-                    MediaInfoDTO(
-                        sourceUri = "sourceUri",
-                        filename = "filename",
-                        uri = mediaUri,
-                        priority = 1,
-                        type = MediaType.IMAGE,
-                        text = "text",
-                        source = MediaSourceType.REGISTER,
-                        updated = LocalDateTime.now(),
-                    ),
-                    MediaInfoDTO(
-                        sourceUri = "sourceUri2",
-                        filename = "filename2",
-                        uri = "uri2",
-                        priority = 2,
-                        type = MediaType.IMAGE,
-                        text = "text2",
-                        source = MediaSourceType.REGISTER,
-                        updated = LocalDateTime.now(),
-                    ),
-                    MediaInfoDTO(
-                        sourceUri = "sourceUri3",
-                        filename = "filename2",
-                        uri = "uri3",
-                        priority = 3,
-                        type = MediaType.IMAGE,
-                        text = "text3",
-                        source = MediaSourceType.REGISTER,
-                        updated = LocalDateTime.now(),
-                    )
-                ),
-                attributes = SeriesAttributesDTO(
-                    keywords = listOf("keyword1", "keyword2"),
-                    url = "url",
-                )
-            )
-        )
-
         val authentication = Authentication.build("marte", mapOf("supplierId" to supplierId.toString()))
+        val originalSeries = newSeries(
+            seriesId = seriesId,
+            supplierId = supplierId,
+            mediaUri = mediaUri
+        )
 
         val newMediaPriority = listOf(MediaSort(uri = mediaUri, priority = 2))
 
         runBlocking {
             service.save(originalSeries)
-
             service.updateSeriesMediaPriority(originalSeries, newMediaPriority, authentication)
 
-            val series = service.findById(seriesId)
-            series.shouldNotBeNull()
-            val seriesMedia = series.seriesData.media
+            val seriesMedia = service.findById(seriesId)?.seriesData?.media
             seriesMedia.shouldNotBeNull()
-            seriesMedia shouldHaveSize 1
+            seriesMedia shouldHaveSize 3
 
-            val media = seriesMedia.first()
-            media.uri shouldBe mediaUri
+            val media = seriesMedia.find { it.uri == mediaUri }
+            media.shouldNotBeNull()
             media.priority shouldBe 2
-
-
-            println(seriesMedia)
         }
-
     }
+
+    private fun newSeries(seriesId: UUID, supplierId: UUID, mediaUri: String = "uri") = SeriesRegistration(
+        id = seriesId,
+        supplierId = supplierId,
+        identifier = "identifier",
+        title = "title",
+        text = "text",
+        isoCategory = "12345678",
+        draftStatus = DraftStatus.DRAFT,
+        status = SeriesStatus.ACTIVE,
+        adminStatus = AdminStatus.PENDING,
+        seriesData = SeriesDataDTO(
+            media = setOf(
+                MediaInfoDTO(
+                    sourceUri = "sourceUri",
+                    filename = "filename",
+                    uri = mediaUri,
+                    priority = 1,
+                    type = MediaType.IMAGE,
+                    text = "text",
+                    source = MediaSourceType.REGISTER,
+                    updated = LocalDateTime.now(),
+                ),
+                MediaInfoDTO(
+                    sourceUri = "sourceUri2",
+                    filename = "filename2",
+                    uri = "uri2",
+                    priority = 2,
+                    type = MediaType.IMAGE,
+                    text = "text2",
+                    source = MediaSourceType.REGISTER,
+                    updated = LocalDateTime.now(),
+                ),
+                MediaInfoDTO(
+                    sourceUri = "sourceUri3",
+                    filename = "filename2",
+                    uri = "uri3",
+                    priority = 3,
+                    type = MediaType.IMAGE,
+                    text = "text3",
+                    source = MediaSourceType.REGISTER,
+                    updated = LocalDateTime.now(),
+                )
+            ),
+            attributes = SeriesAttributesDTO(
+                keywords = listOf("keyword1", "keyword2"),
+                url = "url",
+            )
+        )
+    )
 }

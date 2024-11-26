@@ -1,5 +1,7 @@
 package no.nav.hm.grunndata.register.user
 
+import com.microsoft.graph.models.AuthorizationInfo
+import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
@@ -29,4 +31,6 @@ object UserAttribute {
     const val USER_ID = "userId"
     const val USER_NAME = "userName"
     const val SUPPLIER_NAME = "supplierName"
+    const val PHONE = "phone"
 }
+
