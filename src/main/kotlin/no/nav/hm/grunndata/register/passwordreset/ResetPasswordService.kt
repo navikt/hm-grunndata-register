@@ -17,7 +17,7 @@ open class ResetPasswordService(
     @Transactional
     open suspend fun requestOtp(email: String) {
         userRepository.findByEmail(email)?.let {
-            val existingOtp = otpRepository.findByEmailAndUsed(email, false)
+            val existingOtp = otpRepository.findByEmailAndUsedOrderByCreatedDesc(email, false)
             if (existingOtp != null && existingOtp.created.plusMinutes(30).isAfter(LocalDateTime.now())) {
                 return
             }
