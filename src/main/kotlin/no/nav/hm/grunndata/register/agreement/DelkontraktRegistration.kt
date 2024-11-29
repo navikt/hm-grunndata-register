@@ -6,7 +6,10 @@ import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.model.DataType
 import java.time.LocalDateTime
 import java.util.UUID
+import no.nav.hm.grunndata.rapid.dto.AgreementDTO
+import no.nav.hm.grunndata.rapid.dto.AgreementPost
 import no.nav.hm.grunndata.rapid.dto.DelkontraktType
+import no.nav.hm.grunndata.register.HMDB
 import no.nav.hm.grunndata.register.REGISTER
 
 @MappedEntity("delkontrakt_reg_v1")
@@ -62,3 +65,8 @@ fun DelkontraktRegistrationDTO.toEntity() = DelkontraktRegistration(
     updatedBy = updatedBy,
     updated = updated
 )
+
+fun extractDelkontraktNrFromTitle(title: String): String? {
+    val regex = """(\d+)([A-Z]*)([.|:])""".toRegex()
+    return regex.find(title)?.groupValues?.get(0)?.dropLast(1)
+}
