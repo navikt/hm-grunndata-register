@@ -68,11 +68,10 @@ class UserController(private val userRepository: UserRepository,
         @Body dto: UserRegistrationDTO,
     ): HttpResponse<UserDTO> {
         if (authentication.isAdmin()) throw BadRequestException("Only vendors can create users here")
-        LOG.info("Creating user ${dto.id} by vendor ${authentication.supplierId()}")
         val supplierId = authentication.supplierId()
-        if (supplierId != UUID.fromString(dto.attributes[SUPPLIER_ID])) throw BadRequestException("User must be connected to a same vendor")
+        LOG.info("Creating user ${dto.id} by vendor ${supplierId}")
         if (supplierRegistrationService.findById(supplierId) == null) throw BadRequestException("Unknown vendor id $supplierId")
-
+        if (userRepository.getUsersBySupplierId(supplierId.toString()).size >= 10) throw BadRequestException("Vendor can only have 10 users")
         val entity =
             User(
                 id = dto.id,
@@ -80,7 +79,7 @@ class UserController(private val userRepository: UserRepository,
                 email = dto.email,
                 token = dto.password,
                 roles = listOf(Roles.ROLE_SUPPLIER),
-                attributes = dto.attributes
+                attributes = dto.attributes + mapOf(SUPPLIER_ID to supplierId.toString()),
             )
         userRepository.createUser(entity)
         return HttpResponse.created(entity.toDTO())
