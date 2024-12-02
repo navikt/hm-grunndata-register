@@ -1,7 +1,6 @@
 package no.nav.hm.grunndata.register.series
 
 import jakarta.inject.Singleton
-import java.time.LocalDateTime
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.HMDB
 import no.nav.hm.grunndata.register.iso.IsoCategoryService
@@ -9,6 +8,7 @@ import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
+import java.time.LocalDateTime
 
 @Singleton
 class SeriesDTOMapper(
@@ -25,6 +25,7 @@ class SeriesDTOMapper(
                 ?: throw IllegalArgumentException("cannot find series ${seriesRegistration.id} supplier")
         val isoCategoryDTO = isoCategoryService.lookUpCode(seriesRegistration.isoCategory)
         val productRegistrationDTOs = productRegistrationService.findAllBySeriesUuid(seriesRegistration.id)
+            .filter { it.registrationStatus != RegistrationStatus.DELETED }
             .map { product -> productDTOMapper.toDTOV2(product) }
         val inAgreement = productAgreementRegistrationService.findAllByProductIds(
             productRegistrationService.findAllBySeriesUuid(seriesRegistration.id)
