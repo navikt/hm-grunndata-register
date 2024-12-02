@@ -10,6 +10,7 @@ data class SeriesSearchDTO(
     val status: EditStatus,
     val thumbnail: MediaInfoDTO? = null,
     val isExpired: Boolean,
+    val isPublished: Boolean,
     val variantCount: Int,
     val updated: LocalDateTime,
     val updatedByUser: String

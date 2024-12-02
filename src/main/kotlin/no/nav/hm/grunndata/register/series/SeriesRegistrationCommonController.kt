@@ -66,19 +66,20 @@ class SeriesRegistrationComonController(
         val variant = productRegistrationService.findByHmsArtNr(variantIdentifier, authentication)
             ?: productRegistrationService.findBySupplierRef(variantIdentifier, authentication)
 
-        return variant?.let { seriesRegistrationService.findById(it.id)?.toSearchDTO() }
+        return variant?.let { seriesRegistrationService.findById(it.seriesUUID)?.toSearchDTO() }
     }
 
-    private fun SeriesRegistration.toSearchDTO() = SeriesSearchDTO(id = id,
+    private fun SeriesRegistration.toSearchDTO() = SeriesSearchDTO(
+        id = id,
         title = title,
         status = EditStatus.from(this),
         updated = updated,
         updatedByUser = updatedByUser,
         thumbnail = seriesData.media.sortedBy { it.priority }.firstOrNull { it.type == MediaType.IMAGE },
         isExpired = expired < LocalDateTime.now(),
+        isPublished = published?.isBefore(LocalDateTime.now()) ?: false,
         variantCount = count
     )
-
 
     @Get("/{id}")
     suspend fun readSeries(
