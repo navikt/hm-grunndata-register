@@ -30,6 +30,7 @@ import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.isAdmin
+import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.security.supplierId
@@ -90,6 +91,20 @@ open class SeriesRegistrationService(
             listOf(SeriesStatus.ACTIVE, SeriesStatus.INACTIVE),
         )
     }
+
+    suspend fun findById(id: UUID, authentication: Authentication): SeriesRegistration? =
+        if(authentication.isSupplier()) {
+            seriesRegistrationRepository.findByIdAndSupplierIdAndStatusIn(
+                id,
+                authentication.supplierId(),
+                listOf(SeriesStatus.ACTIVE, SeriesStatus.INACTIVE),
+            )
+        } else {
+            seriesRegistrationRepository.findByIdAndStatusIn(
+                id,
+                listOf(SeriesStatus.ACTIVE, SeriesStatus.INACTIVE),
+            )
+        }
 
     open suspend fun findByIdIn(ids: List<UUID>) = seriesRegistrationRepository.findByIdIn(ids)
 

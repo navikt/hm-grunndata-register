@@ -64,6 +64,20 @@ open class ProductRegistrationService(
             listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
         )
 
+    open suspend fun findByHmsArtNr(hmsArtNr: String, authentication: Authentication): ProductRegistration? =
+        if(authentication.isSupplier()) {
+            productRegistrationRepository.findByHmsArtNrAndRegistrationStatusInAndSupplierId(
+                hmsArtNr,
+                listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
+                authentication.supplierId(),
+            )
+        } else {
+            productRegistrationRepository.findByHmsArtNrAndRegistrationStatusIn(
+                hmsArtNr,
+                listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
+            )
+        }
+
     open suspend fun findByHmsArtNrAndSupplierId(
         hmsArtNr: String,
         supplierId: UUID,
@@ -78,6 +92,18 @@ open class ProductRegistrationService(
             supplierRef,
             listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
         )
+
+    open suspend fun findBySupplierRef(supplierRef: String, authentication: Authentication) =
+        if (authentication.isSupplier()) {
+            productRegistrationRepository.findBySupplierRefAndRegistrationStatusInAndSupplierId(
+                supplierRef, listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE), authentication.supplierId()
+            )
+        } else {
+            productRegistrationRepository.findBySupplierRefAndRegistrationStatusIn(
+                supplierRef,
+                listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
+            )
+        }
 
     open suspend fun findBySupplierRefAndSupplierIdAndStatusNotDeleted(
         supplierRef: String,
