@@ -1,0 +1,1 @@
+CREATE INDEX product_agreement_status_index ON product_agreement_reg_v1(status);

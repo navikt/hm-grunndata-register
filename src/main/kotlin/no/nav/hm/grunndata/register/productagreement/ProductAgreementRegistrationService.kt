@@ -298,6 +298,23 @@ open class ProductAgreementRegistrationService(
         status: ProductAgreementStatus,
     ): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findByAgreementIdAndStatus(id, status).map { it.toDTO() }
+
+    suspend fun findByStatusAndExpiredBefore(status: ProductAgreementStatus, expired: LocalDateTime) =
+        productAgreementRegistrationRepository.findByStatusAndExpiredBefore(status, expired).map { it.toDTO() }
+
+    suspend fun deactivateExpiredProductAgreements() {
+        val products = findByStatusAndExpiredBefore(
+            ProductAgreementStatus.ACTIVE, LocalDateTime.now())
+        LOG.info("Found ${products.size} products to deactivate")
+        products.forEach {
+            saveAndCreateEvent(
+                it.copy(status = ProductAgreementStatus.INACTIVE, updated = LocalDateTime.now(),
+                    updatedByUser = "system"), true
+            )
+        }
+    }
+
+
 }
 
 data class ProductVariantsForDelkontraktDto(
