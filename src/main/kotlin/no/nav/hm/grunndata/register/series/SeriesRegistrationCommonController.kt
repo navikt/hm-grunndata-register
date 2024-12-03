@@ -180,7 +180,7 @@ class SeriesRegistrationComonController(
     @Delete("/delete-media/{seriesUUID}")
     suspend fun deleteMedia(
         seriesUUID: UUID,
-        mediaUris: List<String>,
+        @Body mediaUris: List<String>,
         authentication: Authentication
     ): HttpResponse<Any> {
         seriesRegistrationService.deleteSeriesMedia(seriesUUID, mediaUris, authentication)
