@@ -176,6 +176,17 @@ class SeriesRegistrationComonController(
         return HttpResponse.ok()
     }
 
+
+    @Delete("/delete-media/{seriesUUID}")
+    suspend fun deleteMedia(
+        seriesUUID: UUID,
+        mediaUris: List<String>,
+        authentication: Authentication
+    ): HttpResponse<Any> {
+        seriesRegistrationService.deleteSeriesMedia(seriesUUID, mediaUris, authentication)
+        return HttpResponse.ok()
+    }
+
     private fun buildCriteriaSpec(
         criteria: SeriesCommonCriteria, authentication: Authentication
     ): PredicateSpecification<SeriesRegistration>? = if (criteria.isNotEmpty()) {

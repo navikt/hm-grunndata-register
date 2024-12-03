@@ -5,6 +5,7 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
@@ -34,6 +35,7 @@ import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.series.SeriesRegistrationComonController.Companion
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
@@ -93,7 +95,7 @@ open class SeriesRegistrationService(
     }
 
     suspend fun findById(id: UUID, authentication: Authentication): SeriesRegistration? =
-        if(authentication.isSupplier()) {
+        if (authentication.isSupplier()) {
             seriesRegistrationRepository.findByIdAndSupplierIdAndStatusIn(
                 id,
                 authentication.supplierId(),
@@ -609,6 +611,36 @@ open class SeriesRegistrationService(
             seriesToUpdate
                 .copy(
                     seriesData = seriesToUpdate.seriesData.copy(media = mergedMedia),
+                    updated = LocalDateTime.now(),
+                    updatedByUser = authentication.name
+                ),
+            true,
+        )
+    }
+
+    @Transactional
+    open suspend fun deleteSeriesMedia(
+        seriesUUID: UUID,
+        mediaUris: List<String>,
+        authentication: Authentication
+    ) {
+        val seriesToUpdate = seriesRegistrationRepository.findById(seriesUUID)
+            ?: throw BadRequestException("Series $seriesUUID not found", ErrorType.NOT_FOUND)
+
+        if (!authentication.isAdmin() && seriesToUpdate.supplierId != authentication.supplierId()) {
+            throw BadRequestException(
+                "SupplierId in request does not match authenticated supplierId",
+                ErrorType.UNAUTHORIZED
+            )
+        }
+        
+        val seriesMedia = seriesToUpdate.seriesData.media
+        val updatedMedia = seriesMedia.filter { !mediaUris.contains(it.uri) }.toSet()
+
+        saveAndCreateEventIfNotDraftAndApproved(
+            seriesToUpdate
+                .copy(
+                    seriesData = seriesToUpdate.seriesData.copy(media = updatedMedia),
                     updated = LocalDateTime.now(),
                     updatedByUser = authentication.name
                 ),

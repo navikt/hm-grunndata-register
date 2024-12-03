@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.series
 
 import io.kotest.common.runBlocking
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.security.authentication.Authentication
@@ -96,6 +97,32 @@ class SeriesRegistrationServiceTest(
             val media = seriesMedia.find { it.uri == mediaUri }
             media.shouldNotBeNull()
             media.priority shouldBe 2
+        }
+    }
+
+    @Test
+    fun `Delete media from series`() {
+        val seriesId = UUID.randomUUID()
+        val supplierId = UUID.randomUUID()
+        val mediaUri = "mediaUri"
+        val authentication = Authentication.build("marte", mapOf("supplierId" to supplierId.toString()))
+        val originalSeries = newSeries(
+            seriesId = seriesId,
+            supplierId = supplierId,
+            mediaUri = mediaUri
+        )
+
+        val mediaToBeDeleted = listOf(mediaUri)
+
+        runBlocking {
+            service.save(originalSeries)
+            service.deleteSeriesMedia(seriesId, mediaToBeDeleted, authentication)
+
+            val seriesMedia = service.findById(seriesId)?.seriesData?.media
+            seriesMedia.shouldNotBeNull()
+            seriesMedia shouldHaveSize 2
+
+            seriesMedia.find { it.uri == mediaUri } shouldBe null
         }
     }
 
