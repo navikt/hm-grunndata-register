@@ -25,7 +25,6 @@ import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
-import no.nav.hm.grunndata.register.product.isAdmin
 import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.security.Roles
@@ -108,7 +107,6 @@ class SeriesRegistrationComonController(
         return HttpResponse.ok()
     }
 
-
     @Put("/series_to-draft/{id}")
     suspend fun setSeriesToDraft(
         @PathVariable id: UUID,
@@ -163,15 +161,12 @@ class SeriesRegistrationComonController(
     ): HttpResponse<Any> {
         val seriesToUpdate = seriesRegistrationService.findById(id, authentication) ?: return HttpResponse.notFound()
 
-        if (authentication.isAdmin()) {
-            seriesRegistrationService.deleteSeries(seriesToUpdate, authentication)
-        } else {
+        if (authentication.isSupplier()) {
             if (seriesToUpdate.draftStatus != DraftStatus.DRAFT) throw BadRequestException("series is not a draft")
             if (seriesToUpdate.published != null) throw BadRequestException("can not delete a published series")
-
-            seriesRegistrationService.deleteSeries(seriesToUpdate, authentication)
         }
 
+        seriesRegistrationService.deleteSeries(seriesToUpdate, authentication)
         LOG.info("set series to deleted: $id")
         return HttpResponse.ok()
     }
