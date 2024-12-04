@@ -633,8 +633,9 @@ open class SeriesRegistrationService(
                 ErrorType.UNAUTHORIZED
             )
         }
-        
+
         val seriesMedia = seriesToUpdate.seriesData.media
+        deleteFiles(seriesUUID, seriesMedia, mediaUris)
         val updatedMedia = seriesMedia.filter { !mediaUris.contains(it.uri) }.toSet()
 
         saveAndCreateEventIfNotDraftAndApproved(
@@ -646,6 +647,11 @@ open class SeriesRegistrationService(
                 ),
             true,
         )
+    }
+
+    open suspend fun deleteFiles(seriesUUID: UUID, seriesMedia: Set<MediaInfoDTO>, mediaUris: List<String>) {
+        seriesMedia.filter { mediaUris.contains(it.uri) && (it.type == MediaType.IMAGE || it.type == MediaType.PDF) }
+            .forEach { mediaUploadService.deleteByOidAndUri(seriesUUID, it.uri) }
     }
 }
 
