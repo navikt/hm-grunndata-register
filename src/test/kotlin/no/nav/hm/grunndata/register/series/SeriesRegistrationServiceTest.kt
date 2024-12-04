@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.series
 
 import io.kotest.common.runBlocking
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.security.authentication.Authentication
@@ -15,7 +16,6 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
-import no.nav.hm.grunndata.register.media.MediaUploadClient
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
@@ -26,9 +26,6 @@ class SeriesRegistrationServiceTest(
 ) {
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
-
-    @MockBean(MediaUploadClient::class)
-    fun mediaUploadClient(): MediaUploadClient = mockk(relaxed = true)
 
 
     @Test
