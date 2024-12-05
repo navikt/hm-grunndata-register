@@ -5,7 +5,6 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
-import io.micronaut.http.HttpResponse
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
@@ -17,6 +16,7 @@ import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactive.asFlow
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
@@ -35,7 +35,6 @@ import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.security.supplierId
-import no.nav.hm.grunndata.register.series.SeriesRegistrationComonController.Companion
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
@@ -635,7 +634,7 @@ open class SeriesRegistrationService(
                 ErrorType.UNAUTHORIZED
             )
         }
-        
+
         val seriesMedia = seriesToUpdate.seriesData.media
         val updatedMedia = seriesMedia.filter { !mediaUris.contains(it.uri) }.toSet()
 
@@ -649,6 +648,47 @@ open class SeriesRegistrationService(
             true,
         )
     }
+
+    @Transactional
+    open suspend fun addVideos(
+        seriesUUID: UUID,
+        videos: List<NewVideo>,
+        authentication: Authentication
+    ) {
+        val seriesToUpdate = seriesRegistrationRepository.findById(seriesUUID)
+            ?: throw BadRequestException("Series $seriesUUID not found", ErrorType.NOT_FOUND)
+
+        if (!authentication.isAdmin() && seriesToUpdate.supplierId != authentication.supplierId()) {
+            throw BadRequestException(
+                "SupplierId in request does not match authenticated supplierId",
+                ErrorType.UNAUTHORIZED
+            )
+        }
+
+        val mappedVideos = videos.map {
+            MediaInfoDTO(
+                sourceUri = "",
+                uri = it.uri,
+                type = MediaType.VIDEO,
+                text = it.title,
+                source = MediaSourceType.EXTERNALURL,
+                priority = 0
+            )
+        }.toSet()
+
+        val mergedMedia = seriesToUpdate.seriesData.media.plus(mappedVideos)
+
+        saveAndCreateEventIfNotDraftAndApproved(
+            seriesToUpdate
+                .copy(
+                    seriesData = seriesToUpdate.seriesData.copy(media = mergedMedia),
+                    updated = LocalDateTime.now(),
+                    updatedByUser = authentication.name
+                ),
+            true,
+        )
+    }
 }
 
 data class MediaSort(val uri: String, val priority: Int)
+data class NewVideo(val uri: String, val title: String)

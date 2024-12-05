@@ -2,7 +2,6 @@ package no.nav.hm.grunndata.register.series
 
 import io.kotest.common.runBlocking
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.security.authentication.Authentication
@@ -123,6 +122,34 @@ class SeriesRegistrationServiceTest(
             seriesMedia shouldHaveSize 2
 
             seriesMedia.find { it.uri == mediaUri } shouldBe null
+        }
+    }
+
+    @Test
+    fun `Add videos to series`() {
+        val seriesId = UUID.randomUUID()
+        val supplierId = UUID.randomUUID()
+        val mediaUri = "mediaUri"
+        val authentication = Authentication.build("marte", mapOf("supplierId" to supplierId.toString()))
+        val originalSeries = newSeries(
+            seriesId = seriesId,
+            supplierId = supplierId,
+        )
+
+        val videoTitle = "tittel"
+        val videos = listOf(NewVideo(mediaUri, videoTitle))
+
+        runBlocking {
+            service.save(originalSeries)
+            service.addVideos(seriesId, videos, authentication)
+
+            val seriesMedia = service.findById(seriesId)?.seriesData?.media
+            seriesMedia.shouldNotBeNull()
+            seriesMedia shouldHaveSize 4
+
+            val savedVideo = seriesMedia.find { it.uri == mediaUri }
+            savedVideo.shouldNotBeNull()
+            savedVideo.text shouldBe videoTitle
         }
     }
 

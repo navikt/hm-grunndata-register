@@ -19,6 +19,9 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.persistence.criteria.Predicate
+import java.time.LocalDateTime
+import java.util.Locale
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaType
@@ -30,9 +33,6 @@ import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
-import java.util.Locale
-import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN, Roles.ROLE_SUPPLIER)
 @Controller(SeriesRegistrationComonController.API_V1_SERIES)
@@ -182,6 +182,16 @@ class SeriesRegistrationComonController(
         return HttpResponse.ok()
     }
 
+    @Put("/add-videos/{seriesUUID}")
+    suspend fun addVideoToSeries(
+        seriesUUID: UUID,
+        @Body videos: List<NewVideo>,
+        authentication: Authentication
+    ): HttpResponse<Any> {
+        seriesRegistrationService.addVideos(seriesUUID, videos, authentication)
+        return HttpResponse.ok()
+    }
+    
     private fun buildCriteriaSpec(
         criteria: SeriesCommonCriteria, authentication: Authentication
     ): PredicateSpecification<SeriesRegistration>? = if (criteria.isNotEmpty()) {
