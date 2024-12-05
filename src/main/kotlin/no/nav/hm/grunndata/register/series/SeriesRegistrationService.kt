@@ -502,6 +502,7 @@ open class SeriesRegistrationService(
         return updatedSeries
     }
 
+    @Transactional
     open suspend fun patchSeries(
         id: UUID,
         patch: UpdateSeriesRegistrationDTO,
@@ -558,6 +559,7 @@ open class SeriesRegistrationService(
             },
         )
 
+    @Transactional
     open suspend fun uploadMediaAndUpdateSeries(
         seriesToUpdate: SeriesRegistration,
         files: Publisher<CompletedFileUpload>,
