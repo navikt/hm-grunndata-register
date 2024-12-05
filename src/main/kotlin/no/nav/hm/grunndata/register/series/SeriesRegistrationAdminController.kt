@@ -36,8 +36,6 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.Locale
 import java.util.UUID
-import no.nav.hm.grunndata.register.security.supplierId
-import no.nav.hm.grunndata.register.series.SeriesRegistrationController.Companion
 
 
 @Secured(Roles.ROLE_ADMIN)
@@ -84,6 +82,23 @@ class SeriesRegistrationAdminController(
         if (criteria.isNotEmpty()) {
             PredicateSpecification<SeriesRegistration> { root, criteriaBuilder ->
                 val predicates = mutableListOf<Predicate>()
+
+                if (criteria.isPublished != null) {
+                    if (criteria.isPublished) {
+                        predicates.add(
+                            criteriaBuilder.isNotNull(
+                                root[SeriesRegistration::published]
+                            )
+                        )
+                    } else {
+                        predicates.add(
+                            criteriaBuilder.isNull(
+                                root[SeriesRegistration::published]
+                            )
+                        )
+                    }
+                }
+
                 if (criteria.mainProduct != null) {
                     predicates.add(
                         criteriaBuilder.equal(
@@ -109,7 +124,7 @@ class SeriesRegistrationAdminController(
                         ),
                     )
                 }
-                if (criteria.excludeExpired != null  && criteria.excludeExpired ) {
+                if (criteria.excludeExpired != null && criteria.excludeExpired) {
                     predicates.add(
                         criteriaBuilder.greaterThan(
                             root[SeriesRegistration::expired],
@@ -125,14 +140,16 @@ class SeriesRegistrationAdminController(
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::supplierId],
-                            criteria.supplierId)
+                            criteria.supplierId
+                        )
                     )
                 }
-                if (criteria.draft != null ) {
+                if (criteria.draft != null) {
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::draftStatus],
-                            criteria.draft)
+                            criteria.draft
+                        )
                     )
                 }
                 if (criteria.createdByUser != null) {
@@ -557,6 +574,7 @@ class SeriesRegistrationAdminController(
         )
     }
 }
+
 @Introspected
 data class SeriesAdminCriteria(
     val mainProduct: Boolean? = null,
@@ -572,12 +590,13 @@ data class SeriesAdminCriteria(
     val supplierFilter: List<UUID>? = null,
     val editStatus: List<EditStatus>? = null,
     val title: String? = null,
+    val isPublished: Boolean? = null
 ) {
     fun isNotEmpty(): Boolean =
         mainProduct != null || adminStatus != null || excludedStatus != null || excludeExpired != null
                 || status != null || supplierId != null || draft != null || createdByUser != null
                 || updatedByUser != null || createdByAdmin != null || supplierFilter != null || editStatus != null
-                || title != null
+                || title != null || isPublished != null
 }
 
 data class RejectSeriesDTO(val message: String?)
