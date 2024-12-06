@@ -24,6 +24,7 @@ import no.nav.hm.grunndata.register.user.UserAdminApiController.Companion.API_V1
 import no.nav.hm.grunndata.register.user.UserAttribute.SUPPLIER_ID
 import org.slf4j.LoggerFactory
 import java.util.*
+import no.nav.hm.grunndata.register.error.ErrorType
 import no.nav.hm.grunndata.register.runtime.where
 
 @Secured(Roles.ROLE_ADMIN)
@@ -68,6 +69,7 @@ class UserAdminApiController(
             supplierRegistrationService.findById(supplierId)
                 ?: throw BadRequestException("Unknown supplier id $supplierId")
         }
+        if (userRepository.findByEmailIgnoreCase(dto.email) != null) throw BadRequestException("User with email already exists")
         val entity =
             User(
                 id = dto.id,
@@ -96,8 +98,9 @@ class UserAdminApiController(
     suspend fun updateUser(
         id: UUID,
         @Body userDTO: UserDTO,
-    ): HttpResponse<UserDTO> =
-        userRepository.findById(id)?.let {
+    ): HttpResponse<UserDTO> {
+        if (userRepository.findByEmailIgnoreCase(userDTO.email)?.id != id) throw BadRequestException("User with email already exists")
+        return userRepository.findById(id)?.let {
             HttpResponse.ok(
                 userRepository.update(
                     it.copy(
@@ -109,7 +112,8 @@ class UserAdminApiController(
                 ).toDTO(),
             )
         } ?: HttpResponse.notFound()
-
+    }
+    
     @Delete("/{id}")
     suspend fun deleteUser(id: UUID): HttpResponse<String> {
         userRepository.deleteById(id)

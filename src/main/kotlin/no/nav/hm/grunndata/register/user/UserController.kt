@@ -48,8 +48,9 @@ class UserController(private val userRepository: UserRepository,
             } ?: HttpResponse.notFound()
 
     @Put("/")
-    suspend fun updateUser(authentication: Authentication, @Body userDTO: UserDTO): HttpResponse<UserDTO> =
-        userRepository.findById(userDTO.id)
+    suspend fun updateUser(authentication: Authentication, @Body userDTO: UserDTO): HttpResponse<UserDTO> {
+        if (userRepository.findByEmailIgnoreCase(userDTO.email)?.id != userDTO.id) throw BadRequestException("User with email already exists")
+        return userRepository.findById(userDTO.id)
             ?.let {
                 HttpResponse.ok(
                     userRepository.update(
@@ -61,6 +62,7 @@ class UserController(private val userRepository: UserRepository,
                     ).toDTO()
                 )
             } ?: HttpResponse.notFound()
+    }
 
     @Post("/")
     suspend fun createUser(
@@ -72,6 +74,7 @@ class UserController(private val userRepository: UserRepository,
         LOG.info("Creating user ${dto.id} by vendor ${supplierId}")
         if (supplierRegistrationService.findById(supplierId) == null) throw BadRequestException("Unknown vendor id $supplierId")
         if (userRepository.getUsersBySupplierId(supplierId.toString()).size >= 10) throw BadRequestException("Vendor can only have 10 users")
+        if (userRepository.findByEmailIgnoreCase(dto.email) != null) throw BadRequestException("User with email already exists")
         val entity =
             User(
                 id = dto.id,
