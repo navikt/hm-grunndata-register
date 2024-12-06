@@ -101,4 +101,9 @@ interface ProductRegistrationRepository :
 
     @Query("SELECT a.* from product_reg_v1 a where a.series_uuid = :seriesUUID order by a.created desc limit 1")
     suspend fun findLastProductInSeries(seriesUUID: UUID): ProductRegistration?
+
+    @Query("select distinct on (id) * from product_reg_v1 WHERE (product_data->'techData') @> CAST(:jsonQuery as jsonb)", nativeQuery = true)
+    suspend fun findDistinctByProductTechDataJsonQuery(jsonQuery: String): List<ProductRegistration>
+
+
 }

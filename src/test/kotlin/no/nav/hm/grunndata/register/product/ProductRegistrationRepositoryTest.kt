@@ -10,7 +10,6 @@ import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.Attributes
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
@@ -33,33 +32,33 @@ class ProductRegistrationRepositoryTest(
 ) {
     @Test
     fun crudRepositoryTest() {
-        val productData =
+        val productData1 =
             ProductData(
                 attributes =
                     Attributes(
                         shortdescription = "En kort beskrivelse av produktet",
                         text = "En lang beskrivelse av produktet",
                     ),
-                techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
-                media =
-                    setOf(
-                        MediaInfoDTO(
-                            uri = "123.jpg",
-                            text = "bilde av produktet",
-                            source = MediaSourceType.EXTERNALURL,
-                            sourceUri = "https://ekstern.url/123.jpg",
-                        ),
-                        MediaInfoDTO(
-                            uri = "124.jpg",
-                            text = "bilde av produktet 2",
-                            source = MediaSourceType.EXTERNALURL,
-                            sourceUri = "https://ekstern.url/124.jpg",
-                        ),
-                    ),
+                techData = listOf(
+                    TechData(key = "maksvekt", unit = "kg", value = "120"),
+                    TechData(key = "bredde", unit = "cm", value = "120"),
+                    TechData(key = "Brukerhøyde maks", unit = "kg", value = "120")
+                )
+            )
+        val productData2 =
+            ProductData(
+                attributes =
+                Attributes(
+                    shortdescription = "En kort beskrivelse av produktet",
+                    text = "En lang beskrivelse av produktet",
+                ),
+                techData = listOf(
+                    TechData(key = "maksvekt", unit = "kg", value = "120"),
+                    TechData(key = "bredde", unit = "cm", value = "120"))
             )
         val supplierId = UUID.randomUUID()
         val seriesUUID = UUID.randomUUID()
-        val registration =
+        val registration1 =
             ProductRegistration(
                 id = UUID.randomUUID(),
                 seriesId = "series-123",
@@ -75,7 +74,30 @@ class ProductRegistrationRepositoryTest(
                 registrationStatus = RegistrationStatus.ACTIVE,
                 message = "Melding til leverandør",
                 adminInfo = null,
-                productData = productData,
+                productData = productData1,
+                updatedByUser = "user",
+                createdByUser = "user",
+                version = 1,
+                accessory = true,
+                sparePart = false
+            )
+        val registration2 =
+            ProductRegistration(
+                id = UUID.randomUUID(),
+                seriesId = "series-123",
+                seriesUUID = seriesUUID,
+                isoCategory = "12001314",
+                supplierId = supplierId,
+                title = "Dette er produkt title",
+                articleName = "Dette er produkt 1 med og med",
+                hmsArtNr = "123",
+                supplierRef = "eksternref-124",
+                draftStatus = DraftStatus.DRAFT,
+                adminStatus = AdminStatus.PENDING,
+                registrationStatus = RegistrationStatus.ACTIVE,
+                message = "Melding til leverandør",
+                adminInfo = null,
+                productData = productData2,
                 updatedByUser = "user",
                 createdByUser = "user",
                 version = 1,
@@ -103,10 +125,10 @@ class ProductRegistrationRepositoryTest(
                 rank = 1,
                 postId = postId,
                 reference = "20-1423",
-                productId = registration.id,
-                seriesUuid = registration.seriesUUID,
+                productId = registration1.id,
+                seriesUuid = registration1.seriesUUID,
                 supplierId = supplierId,
-                supplierRef = registration.supplierRef,
+                supplierRef = registration1.supplierRef,
                 createdBy = "user",
                 title = "Test product agreement",
                 articleName = "Test article",
@@ -120,10 +142,10 @@ class ProductRegistrationRepositoryTest(
                 rank = 2,
                 postId = postId,
                 reference = "20-1423",
-                productId = registration.id,
-                seriesUuid = registration.seriesUUID,
+                productId = registration1.id,
+                seriesUuid = registration1.seriesUUID,
                 supplierId = supplierId,
-                supplierRef = registration.supplierRef,
+                supplierRef = registration1.supplierRef,
                 createdBy = "user",
                 title = "Test product agreement",
                 articleName = "Test article",
@@ -147,8 +169,9 @@ class ProductRegistrationRepositoryTest(
                 status = ProductAgreementStatus.ACTIVE,
             )
         runBlocking {
-            val saved = productRegistrationRepository.save(registration)
-            saved.shouldNotBeNull()
+            val saved1 = productRegistrationRepository.save(registration1)
+            val saved2 = productRegistrationRepository.save(registration2)
+            saved1.shouldNotBeNull()
             val savedDelkontrakt = delkontraktRegistrationRepository.save(delkontraktToSave.toEntity())
             val savedAgreement = productAgreementRegistrationRepository.save(agreement)
             val savedAgreement2 = productAgreementRegistrationRepository.save(agreement2)
@@ -162,28 +185,30 @@ class ProductRegistrationRepositoryTest(
                     agreement.rank,
                 )
             foundAgreement.shouldNotBeNull()
-            val inDb = productRegistrationRepository.findById(saved.id)
+            val inDb = productRegistrationRepository.findById(saved1.id)
             inDb.shouldNotBeNull()
             inDb.accessory shouldBe true
             inDb.sparePart shouldBe false
-            saved.hmsArtNr shouldBe inDb.hmsArtNr
+            saved1.hmsArtNr shouldBe inDb.hmsArtNr
             val approve = inDb.approve("NAVN1")
             val updated = productRegistrationRepository.update(approve)
-            updated.id shouldBe saved.id
+            updated.id shouldBe saved1.id
             updated.isApproved() shouldBe true
             updated.isDraft() shouldBe false
             updated.published.shouldNotBeNull()
-            updated.productData.media.size shouldBe 2
             updated.seriesUUID shouldBe seriesUUID
             val byHMSArtNr =
-                productRegistrationRepository.findByHmsArtNrAndSupplierId(saved.hmsArtNr!!, saved.supplierId)
+                productRegistrationRepository.findByHmsArtNrAndSupplierId(saved1.hmsArtNr!!, saved1.supplierId)
             byHMSArtNr.shouldNotBeNull()
             val seriesGroup = seriesGroupRepository.findSeriesGroup(Pageable.from(0, 10))
             val seriesGroupSupplier = seriesGroupRepository.findSeriesGroup(supplierId, Pageable.UNPAGED)
             println(objectMapper.writeValueAsString(seriesGroupSupplier))
-
             val lastProductInSeries = productRegistrationRepository.findLastProductInSeries(seriesUUID)
             lastProductInSeries.shouldNotBeNull()
+            updated.productData.techData.size shouldBe 3
+            val distinct = productRegistrationRepository.findDistinctByProductTechDataJsonQuery("""[{"key":"Brukerhøyde maks","unit":"kg"}]""")
+            distinct.size shouldBe 1
+            distinct[0].id shouldBe updated.id
         }
     }
 }
