@@ -204,6 +204,7 @@ class ProductAccessorySparePartAgreementHandler(
             withSeriesId.map {
                 if (it.productId == null) {
                         productRegistrationRepository.findBySupplierRefAndSupplierId(it.supplierRef, it.supplierId)?.let { p ->
+                            LOG.info("found product with supplierRef: ${p.supplierRef} and articleName: ${p.articleName}")
                             it.copy(productId = p.id)
                         } ?: run {
                             val product = createNewProduct(it, authentication, dryRun)
@@ -211,6 +212,7 @@ class ProductAccessorySparePartAgreementHandler(
                             it.copy(productId = product.id)
                         }
                 } else {
+                    LOG.info("Found product with productId: ${it.productId} ${it.supplierRef} ${it.accessory} ${it.sparePart}")
                     it
                 }
             }
