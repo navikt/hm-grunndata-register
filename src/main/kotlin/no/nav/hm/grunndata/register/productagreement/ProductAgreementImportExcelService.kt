@@ -224,7 +224,9 @@ open class ProductAgreementImportExcelService(
 
 fun parsedelkontraktNr(subContractNr: String): List<Pair<String, Int>> {
     try {
-        var matchResult = delKontraktRegex.find(subContractNr)
+        val cleanSubContractNr = subContractNr.replace("\\s".toRegex(), "")
+
+        var matchResult = delKontraktRegex.find(cleanSubContractNr)
         val mutableList: MutableList<Pair<String, Int>> = mutableListOf()
         if (matchResult != null) {
             while (matchResult != null) {
@@ -314,4 +316,4 @@ data class ProductAgreementMappedResultLists(
 )
 
 val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-val delKontraktRegex = Regex("d(\\d+)([A-Q-STU-Z]*)r*(\\d*)")
+val delKontraktRegex = Regex("d(\\d+)([A-Q-STU-Z]*)r*(\\d*),*")
