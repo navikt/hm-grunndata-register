@@ -5,7 +5,6 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
-import io.micronaut.http.HttpResponse
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
@@ -25,16 +24,13 @@ import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.error.ErrorType
-import no.nav.hm.grunndata.register.iso.IsoCategoryService
 import no.nav.hm.grunndata.register.media.MediaUploadService
 import no.nav.hm.grunndata.register.media.ObjectType
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
-import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.isAdmin
 import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.product.mapSuspend
-import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.reactivestreams.Publisher
@@ -46,10 +42,7 @@ open class SeriesRegistrationService(
     private val productRegistrationService: ProductRegistrationService,
     private val seriesRegistrationEventHandler: SeriesRegistrationEventHandler,
     private val supplierService: SupplierRegistrationService,
-    private val isoCategoryService: IsoCategoryService,
-    private val productAgreementRegistrationService: ProductAgreementRegistrationService,
     private val mediaUploadService: MediaUploadService,
-    private val productDTOMapper: ProductDTOMapper,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationService::class.java)
@@ -508,20 +501,7 @@ open class SeriesRegistrationService(
         patch: UpdateSeriesRegistrationDTO,
         authentication: Authentication
     ): SeriesRegistration {
-        val inDbSeries = if (authentication.isAdmin()) findById(id) ?: throw BadRequestException(
-            "Series not found",
-            ErrorType.NOT_FOUND
-        ) else findByIdAndSupplierId(id, authentication.supplierId()) ?: throw BadRequestException(
-            "Series not found",
-            ErrorType.NOT_FOUND
-        )
-        if (!authentication.isAdmin() && inDbSeries.supplierId != authentication.supplierId()) {
-            LOG.warn("SupplierId in request does not match authenticated supplierId")
-            throw BadRequestException(
-                "SupplierId in request does not match authenticated supplierId",
-                ErrorType.UNAUTHORIZED
-            )
-        }
+        val inDbSeries = getSeriesValidate(id, authentication)
 
         val inDbSeriesData = inDbSeries.seriesData
         val inDbSeriesAttributes = inDbSeries.seriesData.attributes
@@ -565,17 +545,7 @@ open class SeriesRegistrationService(
         files: Publisher<CompletedFileUpload>,
         authentication: Authentication
     ) {
-        val seriesToUpdate = seriesRegistrationRepository.findById(seriesUUID) ?: throw BadRequestException(
-            "Series not found",
-            ErrorType.NOT_FOUND
-        )
-        if (!authentication.isAdmin() && seriesToUpdate.supplierId != authentication.supplierId()) {
-            LOG.warn("SupplierId in request does not match authenticated supplierId")
-            throw BadRequestException(
-                "SupplierId in request does not match authenticated supplierId",
-                ErrorType.UNAUTHORIZED
-            )
-        }
+        val seriesToUpdate = getSeriesValidate(seriesUUID, authentication)
 
         val mediaDtos =
             files.asFlow().map { mediaUploadService.uploadMedia(it, seriesToUpdate.id, ObjectType.SERIES) }.toSet()
@@ -610,19 +580,8 @@ open class SeriesRegistrationService(
         media: List<MediaSort>,
         authentication: Authentication
     ) {
-        val seriesToUpdate = seriesRegistrationRepository.findById(seriesUUID) ?: throw BadRequestException(
-            "Series not found",
-            ErrorType.NOT_FOUND
-        )
+        val seriesToUpdate = getSeriesValidate(seriesUUID, authentication)
 
-        if (!authentication.isAdmin() && seriesToUpdate.supplierId != authentication.supplierId()) {
-            LOG.warn("SupplierId in request does not match authenticated supplierId")
-            throw BadRequestException(
-                "SupplierId in request does not match authenticated supplierId",
-                ErrorType.UNAUTHORIZED
-            )
-        }
-        
         val seriesMedia = seriesToUpdate.seriesData.media
         val updatedMedia = media.map { mediaSort ->
             seriesMedia.find { series -> series.uri == mediaSort.uri }?.copy(priority = mediaSort.priority)
@@ -652,15 +611,7 @@ open class SeriesRegistrationService(
         mediaUris: List<String>,
         authentication: Authentication
     ) {
-        val seriesToUpdate = seriesRegistrationRepository.findById(seriesUUID)
-            ?: throw BadRequestException("Series $seriesUUID not found", ErrorType.NOT_FOUND)
-
-        if (!authentication.isAdmin() && seriesToUpdate.supplierId != authentication.supplierId()) {
-            throw BadRequestException(
-                "SupplierId in request does not match authenticated supplierId",
-                ErrorType.UNAUTHORIZED
-            )
-        }
+        val seriesToUpdate = getSeriesValidate(seriesUUID, authentication)
 
         val seriesMedia = seriesToUpdate.seriesData.media
         val updatedMedia = seriesMedia.filter { !mediaUris.contains(it.uri) }.toSet()
@@ -682,15 +633,7 @@ open class SeriesRegistrationService(
         videos: List<NewVideo>,
         authentication: Authentication
     ) {
-        val seriesToUpdate = seriesRegistrationRepository.findById(seriesUUID)
-            ?: throw BadRequestException("Series $seriesUUID not found", ErrorType.NOT_FOUND)
-
-        if (!authentication.isAdmin() && seriesToUpdate.supplierId != authentication.supplierId()) {
-            throw BadRequestException(
-                "SupplierId in request does not match authenticated supplierId",
-                ErrorType.UNAUTHORIZED
-            )
-        }
+        val seriesToUpdate = getSeriesValidate(seriesUUID, authentication)
 
         val mappedVideos = videos.map {
             MediaInfoDTO(
@@ -714,6 +657,20 @@ open class SeriesRegistrationService(
                 ),
             true,
         )
+    }
+
+    private suspend fun getSeriesValidate(seriesUUID: UUID, authentication: Authentication): SeriesRegistration {
+        val seriesToUpdate = seriesRegistrationRepository.findById(seriesUUID)
+            ?: throw BadRequestException("Series $seriesUUID not found", ErrorType.NOT_FOUND)
+
+        if (!authentication.isAdmin() && seriesToUpdate.supplierId != authentication.supplierId()) {
+            throw BadRequestException(
+                "SupplierId in request does not match authenticated supplierId",
+                ErrorType.UNAUTHORIZED
+            )
+        }
+
+        return seriesToUpdate
     }
 }
 
