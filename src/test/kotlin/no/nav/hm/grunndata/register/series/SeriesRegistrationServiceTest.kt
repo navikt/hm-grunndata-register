@@ -87,7 +87,7 @@ class SeriesRegistrationServiceTest(
 
         runBlocking {
             service.save(originalSeries)
-            service.updateSeriesMediaPriority(originalSeries, newMediaPriority, authentication)
+            service.updateSeriesMediaPriority(seriesId, newMediaPriority, authentication)
 
             val seriesMedia = service.findById(seriesId)?.seriesData?.media
             seriesMedia.shouldNotBeNull()

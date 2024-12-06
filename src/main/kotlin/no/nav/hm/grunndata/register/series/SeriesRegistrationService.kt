@@ -5,6 +5,7 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
@@ -605,10 +606,23 @@ open class SeriesRegistrationService(
 
     @Transactional
     open suspend fun updateSeriesMediaPriority(
-        seriesToUpdate: SeriesRegistration,
+        seriesUUID: UUID,
         media: List<MediaSort>,
         authentication: Authentication
     ) {
+        val seriesToUpdate = seriesRegistrationRepository.findById(seriesUUID) ?: throw BadRequestException(
+            "Series not found",
+            ErrorType.NOT_FOUND
+        )
+
+        if (!authentication.isAdmin() && seriesToUpdate.supplierId != authentication.supplierId()) {
+            LOG.warn("SupplierId in request does not match authenticated supplierId")
+            throw BadRequestException(
+                "SupplierId in request does not match authenticated supplierId",
+                ErrorType.UNAUTHORIZED
+            )
+        }
+        
         val seriesMedia = seriesToUpdate.seriesData.media
         val updatedMedia = media.map { mediaSort ->
             seriesMedia.find { series -> series.uri == mediaSort.uri }?.copy(priority = mediaSort.priority)

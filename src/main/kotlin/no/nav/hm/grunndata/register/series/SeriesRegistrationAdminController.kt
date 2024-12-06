@@ -551,8 +551,7 @@ class SeriesRegistrationAdminController(
         @Body mediaSort: List<MediaSort>,
         authentication: Authentication
     ): HttpResponse<Any> {
-        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
-        seriesRegistrationService.updateSeriesMediaPriority(seriesToUpdate, mediaSort, authentication)
+        seriesRegistrationService.updateSeriesMediaPriority(seriesUUID, mediaSort, authentication)
 
         return HttpResponse.ok()
     }

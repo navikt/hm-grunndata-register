@@ -34,6 +34,7 @@ import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.series.SeriesRegistrationController.Companion
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 
@@ -198,6 +199,17 @@ class SeriesRegistrationComonController(
         authentication: Authentication
     ): HttpResponse<Any> {
         seriesRegistrationService.deleteSeriesMedia(seriesUUID, mediaUris, authentication)
+        return HttpResponse.ok()
+    }
+
+    @Put("/update-media-priority/{seriesUUID}")
+    suspend fun updateMedia(
+        seriesUUID: UUID,
+        @Body mediaSort: List<MediaSort>,
+        authentication: Authentication
+    ): HttpResponse<Any> {
+        seriesRegistrationService.updateSeriesMediaPriority(seriesUUID, mediaSort, authentication)
+
         return HttpResponse.ok()
     }
 
