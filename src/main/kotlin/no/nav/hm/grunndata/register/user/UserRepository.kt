@@ -10,13 +10,15 @@ import java.util.UUID
 @JdbcRepository(dialect = Dialect.POSTGRES)
 interface UserRepository: CoroutineCrudRepository<User, UUID>, CoroutineJpaSpecificationExecutor<User> {
 
-    suspend fun findByEmail(email:String): User?
+    suspend fun findByEmailIgnoreCase(email: String): User?
 
     @Query("""INSERT INTO $USER_V1(id, name, email, token, roles, attributes, created, updated) 
-        VALUES (:id, :name, :email, crypt(:token, gen_salt('bf', 8)), :roles::json, :attributes::json, :created, :updated)""")
+        VALUES (:id, :name, lower(:email), crypt(:token, gen_salt('bf', 8)), :roles::json, :attributes::json, :created, :updated)"""
+    )
     suspend fun createUser(user: User)
 
-    @Query("""SELECT * FROM $USER_V1 WHERE email = :email AND
+    @Query(
+        """SELECT * FROM $USER_V1 WHERE lower(email) = lower(:email) AND
                           token = crypt(:token, token)""")
     suspend fun loginUser(email:String, token:String): User?
 

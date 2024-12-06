@@ -24,6 +24,7 @@ import no.nav.hm.grunndata.register.user.UserAdminApiController.Companion.API_V1
 import no.nav.hm.grunndata.register.user.UserAttribute.SUPPLIER_ID
 import org.slf4j.LoggerFactory
 import java.util.*
+import no.nav.hm.grunndata.register.error.ErrorType
 import no.nav.hm.grunndata.register.runtime.where
 
 @Secured(Roles.ROLE_ADMIN)
@@ -47,7 +48,7 @@ class UserAdminApiController(
     private fun buildCriteriaSpec(criteria: UserAdminCriteria): PredicateSpecification<User>? =
         if (criteria.isNotEmpty()) {
             where {
-                criteria.email?.let { root[User::email] eq it }
+                criteria.emailLower()?.let { root[User::email] eq it.lowercase() }
                 criteria.name?.let { root[User::name] like LiteralExpression("%$it%") }
             }
         } else null
@@ -68,6 +69,7 @@ class UserAdminApiController(
             supplierRegistrationService.findById(supplierId)
                 ?: throw BadRequestException("Unknown supplier id $supplierId")
         }
+        if (userRepository.findByEmailIgnoreCase(dto.email) != null) throw BadRequestException("User with email already exists")
         val entity =
             User(
                 id = dto.id,
@@ -90,14 +92,15 @@ class UserAdminApiController(
 
     @Get("/email/{email}")
     suspend fun getUserByEmail(email: String): HttpResponse<UserDTO> =
-        userRepository.findByEmail(email)?.let { HttpResponse.ok(it.toDTO()) } ?: HttpResponse.notFound()
+        userRepository.findByEmailIgnoreCase(email)?.let { HttpResponse.ok(it.toDTO()) } ?: HttpResponse.notFound()
 
     @Put("/{id}")
     suspend fun updateUser(
         id: UUID,
         @Body userDTO: UserDTO,
-    ): HttpResponse<UserDTO> =
-        userRepository.findById(id)?.let {
+    ): HttpResponse<UserDTO> {
+        if (userRepository.findByEmailIgnoreCase(userDTO.email)?.id != id) throw BadRequestException("User with email already exists")
+        return userRepository.findById(id)?.let {
             HttpResponse.ok(
                 userRepository.update(
                     it.copy(
@@ -109,7 +112,8 @@ class UserAdminApiController(
                 ).toDTO(),
             )
         } ?: HttpResponse.notFound()
-
+    }
+    
     @Delete("/{id}")
     suspend fun deleteUser(id: UUID): HttpResponse<String> {
         userRepository.deleteById(id)
@@ -133,4 +137,5 @@ class UserAdminApiController(
 @Introspected
 data class UserAdminCriteria(val email: String?=null, val name: String?=null) {
     fun isNotEmpty() = email != null || name != null
+    fun emailLower() = email?.lowercase() 
 }
