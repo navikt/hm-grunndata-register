@@ -47,7 +47,7 @@ class UserAdminApiController(
     private fun buildCriteriaSpec(criteria: UserAdminCriteria): PredicateSpecification<User>? =
         if (criteria.isNotEmpty()) {
             where {
-                criteria.email?.let { root[User::email] eq it }
+                criteria.emailLower()?.let { root[User::email] eq it.lowercase() }
                 criteria.name?.let { root[User::name] like LiteralExpression("%$it%") }
             }
         } else null
@@ -90,7 +90,7 @@ class UserAdminApiController(
 
     @Get("/email/{email}")
     suspend fun getUserByEmail(email: String): HttpResponse<UserDTO> =
-        userRepository.findByEmail(email)?.let { HttpResponse.ok(it.toDTO()) } ?: HttpResponse.notFound()
+        userRepository.findByEmailIgnoreCase(email)?.let { HttpResponse.ok(it.toDTO()) } ?: HttpResponse.notFound()
 
     @Put("/{id}")
     suspend fun updateUser(
@@ -133,4 +133,5 @@ class UserAdminApiController(
 @Introspected
 data class UserAdminCriteria(val email: String?=null, val name: String?=null) {
     fun isNotEmpty() = email != null || name != null
+    fun emailLower() = email?.lowercase() 
 }

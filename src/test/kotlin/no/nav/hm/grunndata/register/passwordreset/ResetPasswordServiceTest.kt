@@ -63,7 +63,7 @@ class ResetPasswordServiceTest(
                 ),
             )
 
-            val userBeforeUpdate = userRepository.findByEmail(email)!!
+            val userBeforeUpdate = userRepository.findByEmailIgnoreCase(email)!!
 
             resetPasswordService.requestOtp(email)
 
@@ -74,7 +74,7 @@ class ResetPasswordServiceTest(
             resetPasswordService.verifyOtp(otp.otp, email)
 
             resetPasswordService.resetPassword(otp.otp, email, "newPassword123")
-            val userAfterUpdate = userRepository.findByEmail(email)!!
+            val userAfterUpdate = userRepository.findByEmailIgnoreCase(email)!!
 
             userBeforeUpdate.token shouldNotBe userAfterUpdate.token
 
