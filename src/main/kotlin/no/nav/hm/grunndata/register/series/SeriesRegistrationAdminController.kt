@@ -7,7 +7,6 @@ import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
@@ -18,11 +17,13 @@ import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.annotation.RequestBean
-import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.persistence.criteria.Predicate
+import java.time.LocalDateTime
+import java.util.Locale
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
@@ -31,11 +32,7 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.security.Roles
-import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
-import java.util.Locale
-import java.util.UUID
 
 
 @Secured(Roles.ROLE_ADMIN)
@@ -527,33 +524,6 @@ class SeriesRegistrationAdminController(
     ) {
         LOG.info("Moving products to series $seriesId")
         seriesRegistrationService.moveVariantsToSeries(seriesId, productIds, authentication)
-    }
-
-    @Post(
-        value = "/uploadMedia/{seriesUUID}",
-        consumes = [MediaType.MULTIPART_FORM_DATA],
-        produces = [MediaType.APPLICATION_JSON],
-    )
-    suspend fun uploadMedia(
-        seriesUUID: UUID,
-        files: Publisher<CompletedFileUpload>, // FileUpload-struktur, fra front
-        authentication: Authentication,
-    ): HttpResponse<Any> {
-        LOG.info("admin uploading files for series $seriesUUID")
-        seriesRegistrationService.uploadMediaAndUpdateSeries(seriesUUID, files, authentication)
-
-        return HttpResponse.ok()
-    }
-
-    @Put("/update-media-priority/{seriesUUID}")
-    suspend fun updateMedia(
-        seriesUUID: UUID,
-        @Body mediaSort: List<MediaSort>,
-        authentication: Authentication
-    ): HttpResponse<Any> {
-        seriesRegistrationService.updateSeriesMediaPriority(seriesUUID, mediaSort, authentication)
-
-        return HttpResponse.ok()
     }
 
     @Post("/supplier/{supplierId}/draftWith")

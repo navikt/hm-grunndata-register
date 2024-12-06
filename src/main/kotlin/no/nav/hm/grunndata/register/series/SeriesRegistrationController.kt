@@ -7,7 +7,6 @@ import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
@@ -17,11 +16,13 @@ import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.RequestBean
-import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.persistence.criteria.Predicate
+import java.time.LocalDateTime
+import java.util.Locale
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
@@ -31,11 +32,7 @@ import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
-import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
-import java.util.Locale
-import java.util.UUID
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SeriesRegistrationController.API_V1_SERIES)
@@ -77,7 +74,10 @@ class SeriesRegistrationController(
         pageable: Pageable,
         authentication: Authentication,
     ): Page<SeriesRegistrationDTO> {
-        return seriesRegistrationService.findAll(buildCriteriaSpec(seriesCriteria, authentication.supplierId()), pageable).mapSuspend { it.toDTO() }
+        return seriesRegistrationService.findAll(
+            buildCriteriaSpec(seriesCriteria, authentication.supplierId()),
+            pageable
+        ).mapSuspend { it.toDTO() }
     }
 
     @Post("/")
@@ -104,7 +104,9 @@ class SeriesRegistrationController(
 
     @Post("/draft")
     suspend fun createDraftSeries(authentication: Authentication): HttpResponse<SeriesRegistrationDTO> {
-        return HttpResponse.ok(seriesRegistrationService.createDraft(authentication.supplierId(), authentication).toDTO())
+        return HttpResponse.ok(
+            seriesRegistrationService.createDraft(authentication.supplierId(), authentication).toDTO()
+        )
     }
 
     @Post("/draftWith")
@@ -192,33 +194,6 @@ class SeriesRegistrationController(
                 ),
             ),
         )
-
-    @Post(
-        value = "/uploadMedia/{seriesUUID}",
-        consumes = [MediaType.MULTIPART_FORM_DATA],
-        produces = [MediaType.APPLICATION_JSON],
-    )
-    suspend fun uploadMedia(
-        seriesUUID: UUID,
-        files: Publisher<CompletedFileUpload>, // FileUpload-struktur, fra front
-        authentication: Authentication,
-    ): HttpResponse<Any> {
-        LOG.info("supplier: ${authentication.supplierId()} uploading files for series $seriesUUID")
-        seriesRegistrationService.uploadMediaAndUpdateSeries(seriesUUID, files, authentication)
-
-        return HttpResponse.ok()
-    }
-
-    @Put("/update-media-priority/{seriesUUID}")
-    suspend fun updateMedia(
-        seriesUUID: UUID,
-        @Body mediaSort: List<MediaSort>,
-        authentication: Authentication
-    ): HttpResponse<Any> {
-        seriesRegistrationService.updateSeriesMediaPriority(seriesUUID, mediaSort, authentication)
-
-        return HttpResponse.ok()
-    }
 
     @Put("/request-approval/{seriesUUID}")
     suspend fun requestApproval(
@@ -383,7 +358,7 @@ class SeriesRegistrationController(
                     predicates.add(root[SeriesRegistration::adminStatus].`in`(criteria.adminStatus))
                 }
 
-                if (criteria.excludeExpired != null  && criteria.excludeExpired) {
+                if (criteria.excludeExpired != null && criteria.excludeExpired) {
                     predicates.add(
                         criteriaBuilder.greaterThan(
                             root[SeriesRegistration::expired],
@@ -409,7 +384,8 @@ class SeriesRegistrationController(
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::supplierId],
-                            criteria.supplierId)
+                            criteria.supplierId
+                        )
                     )
                 }
 
@@ -417,7 +393,8 @@ class SeriesRegistrationController(
                     predicates.add(
                         criteriaBuilder.equal(
                             root[SeriesRegistration::draftStatus],
-                            criteria.draft)
+                            criteria.draft
+                        )
                     )
                 }
                 if (criteria.createdByUser != null) {
@@ -438,32 +415,32 @@ class SeriesRegistrationController(
                 }
                 if (!criteria.editStatus.isNullOrEmpty()) {
                     val statusPredicates = criteria.editStatus.map { status ->
-                            when (status) {
-                                EditStatus.REJECTED ->
-                                    criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.REJECTED)
+                        when (status) {
+                            EditStatus.REJECTED ->
+                                criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.REJECTED)
 
-                                EditStatus.PENDING_APPROVAL ->
-                                    criteriaBuilder.and(
-                                        criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DONE),
-                                        criteriaBuilder.equal(
-                                            root[SeriesRegistration::adminStatus],
-                                            AdminStatus.PENDING,
-                                        ),
-                                    )
+                            EditStatus.PENDING_APPROVAL ->
+                                criteriaBuilder.and(
+                                    criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DONE),
+                                    criteriaBuilder.equal(
+                                        root[SeriesRegistration::adminStatus],
+                                        AdminStatus.PENDING,
+                                    ),
+                                )
 
-                                EditStatus.EDITABLE ->
-                                    criteriaBuilder.and(
-                                        criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DRAFT),
-                                        criteriaBuilder.equal(
-                                            root[SeriesRegistration::adminStatus],
-                                            AdminStatus.PENDING,
-                                        ),
-                                    )
+                            EditStatus.EDITABLE ->
+                                criteriaBuilder.and(
+                                    criteriaBuilder.equal(root[SeriesRegistration::draftStatus], DraftStatus.DRAFT),
+                                    criteriaBuilder.equal(
+                                        root[SeriesRegistration::adminStatus],
+                                        AdminStatus.PENDING,
+                                    ),
+                                )
 
-                                EditStatus.DONE ->
-                                    criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.APPROVED)
-                            }
+                            EditStatus.DONE ->
+                                criteriaBuilder.equal(root[SeriesRegistration::adminStatus], AdminStatus.APPROVED)
                         }
+                    }
                     if (statusPredicates.isNotEmpty()) {
                         predicates.add(criteriaBuilder.or(*statusPredicates.toTypedArray()))
                     }
@@ -490,7 +467,7 @@ class SeriesRegistrationController(
 }
 
 @Introspected
-data class SeriesCriteria (
+data class SeriesCriteria(
     val mainProduct: Boolean? = null,
     val adminStatus: List<AdminStatus>? = null,
     val excludeExpired: Boolean? = null,
@@ -501,7 +478,8 @@ data class SeriesCriteria (
     val createdByUser: String? = null,
     val updatedByUser: String? = null,
     val editStatus: List<EditStatus>? = null,
-    val title: String? = null) {
+    val title: String? = null
+) {
     fun isNotEmpty(): Boolean = mainProduct != null || adminStatus != null || excludeExpired != null ||
             excludedStatus != null || status != null || supplierId != null || draft != null || createdByUser != null
             || updatedByUser != null || editStatus != null || title != null
