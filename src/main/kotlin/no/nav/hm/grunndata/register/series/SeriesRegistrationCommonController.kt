@@ -13,8 +13,10 @@ import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Patch
 import io.micronaut.http.annotation.PathVariable
+import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.RequestBean
+import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -32,6 +34,7 @@ import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
+import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 
 @Secured(Roles.ROLE_ADMIN, Roles.ROLE_SUPPLIER)
@@ -171,6 +174,22 @@ class SeriesRegistrationComonController(
         return HttpResponse.ok()
     }
 
+    @Post(
+        value = "/upload-media/{seriesUUID}",
+        consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON],
+    )
+    suspend fun uploadMedia(
+        seriesUUID: UUID,
+        files: Publisher<CompletedFileUpload>, // FileUpload-struktur, fra front
+        authentication: Authentication,
+    ): HttpResponse<Any> {
+
+        LOG.info("Uploading files for series $seriesUUID")
+        seriesRegistrationService.uploadMediaAndUpdateSeries(seriesUUID, files, authentication)
+
+        return HttpResponse.ok()
+    }
 
     @Delete("/delete-media/{seriesUUID}")
     suspend fun deleteMedia(
@@ -191,7 +210,7 @@ class SeriesRegistrationComonController(
         seriesRegistrationService.addVideos(seriesUUID, videos, authentication)
         return HttpResponse.ok()
     }
-    
+
     private fun buildCriteriaSpec(
         criteria: SeriesCommonCriteria, authentication: Authentication
     ): PredicateSpecification<SeriesRegistration>? = if (criteria.isNotEmpty()) {

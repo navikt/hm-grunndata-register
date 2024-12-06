@@ -203,15 +203,8 @@ class SeriesRegistrationController(
         files: Publisher<CompletedFileUpload>, // FileUpload-struktur, fra front
         authentication: Authentication,
     ): HttpResponse<Any> {
-        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
-
-        if (seriesToUpdate.supplierId != authentication.supplierId()) {
-            LOG.warn("SupplierId in request does not match authenticated supplierId")
-            return HttpResponse.unauthorized()
-        }
-
         LOG.info("supplier: ${authentication.supplierId()} uploading files for series $seriesUUID")
-        seriesRegistrationService.uploadMediaAndUpdateSeries(seriesToUpdate, files)
+        seriesRegistrationService.uploadMediaAndUpdateSeries(seriesUUID, files, authentication)
 
         return HttpResponse.ok()
     }

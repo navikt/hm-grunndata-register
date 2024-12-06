@@ -539,10 +539,8 @@ class SeriesRegistrationAdminController(
         files: Publisher<CompletedFileUpload>, // FileUpload-struktur, fra front
         authentication: Authentication,
     ): HttpResponse<Any> {
-        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
-
         LOG.info("admin uploading files for series $seriesUUID")
-        seriesRegistrationService.uploadMediaAndUpdateSeries(seriesToUpdate, files)
+        seriesRegistrationService.uploadMediaAndUpdateSeries(seriesUUID, files, authentication)
 
         return HttpResponse.ok()
     }

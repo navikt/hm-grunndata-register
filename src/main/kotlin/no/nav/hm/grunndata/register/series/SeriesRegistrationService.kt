@@ -560,9 +560,22 @@ open class SeriesRegistrationService(
 
     @Transactional
     open suspend fun uploadMediaAndUpdateSeries(
-        seriesToUpdate: SeriesRegistration,
+        seriesUUID: UUID,
         files: Publisher<CompletedFileUpload>,
+        authentication: Authentication
     ) {
+        val seriesToUpdate = seriesRegistrationRepository.findById(seriesUUID) ?: throw BadRequestException(
+            "Series not found",
+            ErrorType.NOT_FOUND
+        )
+        if (!authentication.isAdmin() && seriesToUpdate.supplierId != authentication.supplierId()) {
+            LOG.warn("SupplierId in request does not match authenticated supplierId")
+            throw BadRequestException(
+                "SupplierId in request does not match authenticated supplierId",
+                ErrorType.UNAUTHORIZED
+            )
+        }
+
         val mediaDtos =
             files.asFlow().map { mediaUploadService.uploadMedia(it, seriesToUpdate.id, ObjectType.SERIES) }.toSet()
 
