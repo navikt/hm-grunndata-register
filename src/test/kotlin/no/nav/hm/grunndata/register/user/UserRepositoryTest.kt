@@ -46,7 +46,7 @@ class UserRepositoryTest(private val userRepository: UserRepository, private val
                     attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplierRegistration.id.toString()))
                 )
             )
-            val db = userRepository.findByEmail("user@name.com")
+            val db = userRepository.findByEmailIgnoreCase("user@name.com")
             val login = userRepository.loginUser("user@name.com", "token123")
             db.shouldNotBeNull()
             login.shouldNotBeNull()
