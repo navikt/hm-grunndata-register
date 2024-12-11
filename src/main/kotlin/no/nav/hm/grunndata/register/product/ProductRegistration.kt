@@ -285,7 +285,15 @@ data class ExtendedTechDataDTO(
     val definition: String?,
     val options: List<String>?
 ) {
-    fun toEntity(): TechData = TechData(key = key, value = value, unit = unit)
+    fun toEntity(): TechData = TechData(
+        key = key,
+        value = when (
+            value.lowercase()) {
+            "ja" -> "JA"
+            "nei" -> "NEI"
+            else -> value
+        }, unit = unit
+    )
 }
 
 fun TechData.toExtendedDTO(techLabels: List<TechLabelDTO>): ExtendedTechDataDTO {
