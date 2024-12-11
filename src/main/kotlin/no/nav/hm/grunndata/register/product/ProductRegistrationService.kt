@@ -619,6 +619,21 @@ open class ProductRegistrationService(
 
         deleteAll(products)
     }
+
+    suspend fun findByTechLabelValues(key: String?=null, unit: String?=null, value: String?=null): List<ProductRegistration> {
+        if (key.isNullOrBlank() && unit.isNullOrBlank() && value.isNullOrBlank()) {
+            throw BadRequestException("At least one of key, unit or value must be provided")
+        }
+        val jsonQuery = StringBuilder("[{")
+        if (!key.isNullOrBlank()) { jsonQuery.append("\"key\": \"$key\",") }
+        if (!unit.isNullOrBlank()) { jsonQuery.append("\"unit\": \"$unit\",") }
+        if (!value.isNullOrBlank()){ jsonQuery.append("\"value\": \"$value\",") }
+        if (jsonQuery.endsWith(",")) jsonQuery.setLength(jsonQuery.length - 1) // Remove trailing comma
+        jsonQuery.append("}]")
+        LOG.info("Executing jsonQuery ${jsonQuery.toString()}")
+        return productRegistrationRepository.findDistinctByProductTechDataJsonQuery(jsonQuery.toString())
+    }
+
 }
 
 suspend fun <T : Any, R : Any> Page<T>.mapSuspend(transform: suspend (T) -> R): Page<R> {
