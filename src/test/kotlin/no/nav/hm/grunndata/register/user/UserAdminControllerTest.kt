@@ -26,11 +26,11 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
                               private val userAdminApiClient: UserAdminApiClient,
                               private val supplierRegistrationService: SupplierRegistrationService) {
 
-    val adminEmail = "randomAdmin@test.test"
+    val adminEmail = "randomadmin@test.test"
     val password = "test123"
 
     val userId = UUID.randomUUID()
-    val userEmail = "randomUser@test.test"
+    val userEmail = "randomuser@test.test"
 
     val supplierId = UUID.randomUUID()
 
