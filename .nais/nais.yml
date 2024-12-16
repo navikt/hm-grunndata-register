@@ -5,9 +5,9 @@ metadata:
   namespace: teamdigihot
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "30m"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: '600'
-    nginx.ingress.kubernetes.io/proxy-send-timeout: '600'
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: '600'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '500'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '500'
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: '500'
   labels:
     team: teamdigihot
 spec:
