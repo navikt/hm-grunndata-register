@@ -84,8 +84,8 @@ open class ProductAgreementImportExcelService(
 
 
     private suspend fun updateProductAndProductAgreement(pa: ProductAgreementRegistrationDTO) {
-        productAgreementService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
-            pa.supplierId, pa.supplierRef, pa.agreementId, pa.postId, pa.rank
+        productAgreementService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
+            pa.supplierId, pa.supplierRef, pa.agreementId, pa.post, pa.rank
         )?.let { existing ->
             LOG.info("Excel import updating product agreement for agreement ${pa.agreementId}, " +
                     "post ${pa.postId} and productId: ${pa.productId}")
