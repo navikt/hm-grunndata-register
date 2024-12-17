@@ -171,6 +171,7 @@ fun SeriesRegistration.toDTO() =
         countPending = countPending,
         countDeclined = countDeclined,
         expired = expired,
+        mainProduct = mainProduct,
     )
 
 fun SeriesRegistrationDTO.toEntity() =
