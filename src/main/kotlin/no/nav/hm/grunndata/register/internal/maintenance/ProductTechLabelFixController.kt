@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.internal
+package no.nav.hm.grunndata.register.internal.maintenance
 
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
@@ -9,11 +9,11 @@ import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import org.slf4j.LoggerFactory
 
 @Secured(SecurityRule.IS_ANONYMOUS)
-@Controller("/internal/techlabel")
+@Controller("/internal/fix/techlabel")
 @Hidden
 class ProductTechLabelFixController(private val productRegistrationService: ProductRegistrationService) {
 
-    @Get("/fix")
+    @Get("/")
     suspend fun fixProductTechlabel() {
         val products = productRegistrationService.findByTechLabelValues("Brukerhøyde maks", "kg")
         LOG.info("Found ${products.size} products with tech label 'Brukerhøyde maks' and unit 'kg'")
