@@ -18,7 +18,7 @@ interface CatalogFileRepository: CoroutineCrudRepository<CatalogFile, UUID>, Cor
     suspend fun findOne(id: UUID): CatalogFileDTO?
 
     @Query(
-        value = "SELECT id, name, size, supplier_id, created_by, created, updated, status FROM catalog_file_v1",
+        value = "SELECT id, file_name, file_size, supplier_id, created_by, created, updated, status FROM catalog_file_v1",
         readOnly = true,
         nativeQuery = true
     )

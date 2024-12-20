@@ -25,8 +25,12 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
 import no.nav.hm.grunndata.register.catalog.CatalogExcelFileImport
+import no.nav.hm.grunndata.register.catalog.CatalogFile
+import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
+import no.nav.hm.grunndata.register.catalog.CatalogFileStatus
 import no.nav.hm.grunndata.register.catalog.CatalogImportResult
 import no.nav.hm.grunndata.register.catalog.CatalogImportService
+import no.nav.hm.grunndata.register.catalog.toEntity
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 
 @Secured(Roles.ROLE_ADMIN)
@@ -40,7 +44,8 @@ open class ProductAgreementAdminController(
     private val productAgreementRegistrationService: ProductAgreementRegistrationService,
     private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler,
     private val catalogImportService: CatalogImportService,
-    private val supplierRegistrationService: SupplierRegistrationService
+    private val supplierRegistrationService: SupplierRegistrationService,
+    private val catalogFileRepository: CatalogFileRepository
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementAdminController::class.java)
@@ -65,12 +70,11 @@ open class ProductAgreementAdminController(
             file.inputStream.use { input -> catalogExcelFileImport.importExcelFile(input) }
         val catalogImportResult = catalogImportService.prepareCatalogImportResult(importedExcelCatalog.map { it.toEntity() })
         val mappedCatalogImportResult = productAgreementImportExcelService.mapCatalogImport(catalogImportResult, authentication, supplierId)
-
         val productAgreementsImportResult =
             productAccessorySparePartAgreementHandler.handleNewProductsInExcelImport(
                 mappedCatalogImportResult,
                 authentication,
-                dryRun,
+                true,
             )
         LOG.info("New product agreements found: ${productAgreementsImportResult.insertList.size}")
         LOG.info("New series found: ${productAgreementsImportResult.newSeries.size}")
@@ -80,7 +84,19 @@ open class ProductAgreementAdminController(
         val productAgreements = productAgreementsImportResult.insertList
         val newCount = productAgreementsImportResult.insertList.size
         if (!dryRun) {
-            persistCatalogResult(catalogImportResult, file, productAgreementsImportResult)
+            LOG.info("Save the catalog file ${file.filename}, for downstream processing")
+            catalogFileRepository.save(
+                CatalogFile(
+                    fileName = file.filename,
+                    fileSize =  file.size,
+                    catalogList = importedExcelCatalog,
+                    supplierId = supplierId,
+                    created = LocalDateTime.now(),
+                    createdBy = authentication.name,
+                    updated = LocalDateTime.now(),
+                    status = CatalogFileStatus.PENDING
+                )
+            )
         }
 
         return ProductAgreementImportDTO(

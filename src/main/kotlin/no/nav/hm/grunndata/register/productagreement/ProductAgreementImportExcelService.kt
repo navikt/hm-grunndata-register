@@ -265,49 +265,7 @@ enum class ColumnNames(val column: String) {
     leverandorsted("Leverandørsted"),
 }
 
-data class CatalogImportExcelDTO(
-    val rammeavtaleHandling:String, // oebs operation for rammeavtale
-    val bestillingsNr: String,
-    val hmsArtNr: String,
-    val iso: String,
-    val title: String,
-    val supplierRef: String,
-    val reference: String,
-    val delkontraktNr: String?,
-    val dateFrom: String,
-    val dateTo: String,
-    val artikkelHandling: String, // oebs operation for artikkel
-    val articleType: String,
-    val funksjonsendring: String,
-    val forChildren: String,
-    val supplierName: String,
-    val supplierCity: String,
-    val mainProduct: Boolean,
-    val sparePart: Boolean,
-    val accessory: Boolean,
-)
 
-fun CatalogImportExcelDTO.toEntity() = CatalogImport(
-    agreementAction = rammeavtaleHandling,
-    orderRef = bestillingsNr,
-    hmsArtNr = hmsArtNr,
-    iso = iso,
-    title = title,
-    supplierRef = supplierRef,
-    reference = reference,
-    postNr = delkontraktNr,
-    dateFrom = LocalDate.parse(dateFrom, dateTimeFormatter),
-    dateTo = LocalDate.parse(dateTo, dateTimeFormatter),
-    articleAction = artikkelHandling,
-    articleType = articleType,
-    functionalChange = funksjonsendring,
-    forChildren = forChildren,
-    supplierName = supplierName,
-    supplierCity = supplierCity,
-    mainProduct = mainProduct,
-    sparePart = sparePart,
-    accessory = accessory,
-)
 
 data class ProductAgreementMappedResultLists(
     val updateList: List<ProductAgreementRegistrationDTO>,
@@ -315,5 +273,4 @@ data class ProductAgreementMappedResultLists(
     val deactivateList: List<ProductAgreementRegistrationDTO>,
 )
 
-val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 val delKontraktRegex = Regex("d(\\d+)([A-Q-STU-Z]*)r*(\\d*),*")

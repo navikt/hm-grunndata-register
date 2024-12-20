@@ -3,7 +3,6 @@ package no.nav.hm.grunndata.register.catalog
 import jakarta.inject.Singleton
 import java.io.InputStream
 import no.nav.hm.grunndata.register.error.BadRequestException
-import no.nav.hm.grunndata.register.productagreement.CatalogImportExcelDTO
 import no.nav.hm.grunndata.register.productagreement.ColumnNames
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.anbudsnr
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.beskrivelse

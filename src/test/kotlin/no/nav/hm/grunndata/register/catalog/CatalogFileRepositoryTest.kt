@@ -15,7 +15,8 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 
 @MicronautTest
-class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRepository) {
+class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRepository,
+                                private val catalogExcelFileImport: CatalogExcelFileImport) {
 
     @Test
     fun testRepository() {
@@ -25,16 +26,19 @@ class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRe
             filename = "katalog-test.xls",
             size = resourceStream.available().toLong()
         )
+        val catalogList = catalogExcelFileImport.importExcelFile(resourceStream)
+
         val testCatalogFile = CatalogFile(
-            name = "katalog-test.xls",
-            size = completedFileUpload.size,
-            file = completedFileUpload.bytes,
+            fileName = "katalog-test.xls",
+            fileSize = completedFileUpload.size,
+            catalogList = catalogList,
             supplierId = UUID.randomUUID(),
             createdBy = "test",
             created = LocalDateTime.now(),
             updated = LocalDateTime.now(),
             status = CatalogFileStatus.PENDING
         )
+
         runBlocking {
             val saved = catalogFileRepository.save(testCatalogFile)
             saved.shouldNotBeNull()
@@ -43,8 +47,8 @@ class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRe
             val foundDTO = catalogFileRepository.findOne(id)
             found.shouldNotBeNull()
             foundDTO.shouldNotBeNull()
-            found.size shouldBe foundDTO.size
-            found.name shouldBe foundDTO.name
+            found.fileSize shouldBe foundDTO.fileSize
+            found.fileName shouldBe foundDTO.fileName
             catalogFileRepository.findMany(Pageable.from(0, 10)).content.size shouldBe 1
         }
     }

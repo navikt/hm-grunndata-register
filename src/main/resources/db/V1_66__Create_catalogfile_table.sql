@@ -1,9 +1,9 @@
 CREATE table catalog_file_v1
 (
     id UUID PRIMARY KEY,
-    name VARCHAR (255) NOT NULL,
-    size BIGINT NOT NULL,
-    file BYTEA NOT NULL,
+    file_name VARCHAR (255) NOT NULL,
+    file_size BIGINT NOT NULL,
+    catalog_list JSONB NOT NULL,
     supplier_id UUID NOT NULL,
     created_by VARCHAR (255) NOT NULL,
     created TIMESTAMP NOT NULL,
