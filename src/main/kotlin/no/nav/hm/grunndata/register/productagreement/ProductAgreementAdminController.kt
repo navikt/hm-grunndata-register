@@ -60,6 +60,7 @@ open class ProductAgreementAdminController(
     ): ProductAgreementImportDTO {
         val supplier = supplierRegistrationService.findById(supplierId) ?: throw BadRequestException("Supplier $supplierId not found")
         LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()} for supplier ${supplier.name}")
+
         val importedExcelCatalog =
             file.inputStream.use { input -> catalogExcelFileImport.importExcelFile(input) }
         val catalogImportResult = catalogImportService.prepareCatalogImportResult(importedExcelCatalog.map { it.toEntity() })
