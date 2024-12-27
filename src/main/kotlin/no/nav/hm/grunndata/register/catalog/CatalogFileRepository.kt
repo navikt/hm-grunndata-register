@@ -9,6 +9,7 @@ import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.criteria.QuerySpecification
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
+import java.time.LocalDateTime
 import java.util.UUID
 
 
@@ -25,5 +26,9 @@ interface CatalogFileRepository: CoroutineCrudRepository<CatalogFile, UUID>, Cor
     suspend fun findMany(pageable: Pageable): Slice<CatalogFileDTO>
 
     suspend fun findOneByStatus(status: CatalogFileStatus): CatalogFile?
+
+    suspend fun findByStatus(status: CatalogFileStatus): List<CatalogFile>
+
+    suspend fun deleteByStatusAndCreatedBefore(status: CatalogFileStatus = CatalogFileStatus.DONE, created: LocalDateTime): Int
 
 }

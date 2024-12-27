@@ -1,23 +1,17 @@
 package no.nav.hm.grunndata.register.productagreement
 
-import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.scheduling.annotation.Scheduled
 import io.micronaut.security.authentication.ClientAuthentication
-import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
+import java.time.LocalDateTime
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
 import no.nav.hm.grunndata.register.catalog.CatalogFileStatus
-import no.nav.hm.grunndata.register.catalog.CatalogImportResult
-import no.nav.hm.grunndata.register.catalog.CatalogImportService
-import no.nav.hm.grunndata.register.product.isAdmin
 import no.nav.hm.grunndata.register.security.Roles
 
 @Singleton
 class CatalogFileToProductAgreementScheduler(private val catalogFileRepository: CatalogFileRepository,
-                                             private val catalogImportService: CatalogImportService,
-                                             private val productAgreementImportExcelService: ProductAgreementImportExcelService,
-    private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler) {
+                                             private val productAgreementImportExcelService: ProductAgreementImportExcelService) {
 
     @Scheduled(cron = "0 * * * * *")
     fun scheduleCatalogFileToProductAgreement() {
@@ -42,6 +36,14 @@ class CatalogFileToProductAgreementScheduler(private val catalogFileRepository: 
                     catalogFileRepository.update(catalogFile.copy(status = CatalogFileStatus.ERROR))
                 }
             }
+        }
+    }
+
+    @Scheduled(cron = "0 0 3 * * *")
+    fun deleteOldCatalogFiles() {
+        runBlocking {
+            LOG.info("Deleting old catalog files")
+            catalogFileRepository.deleteByStatusAndCreatedBefore(CatalogFileStatus.DONE, LocalDateTime.now().minusDays(30))
         }
     }
 
