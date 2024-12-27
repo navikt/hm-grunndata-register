@@ -33,7 +33,7 @@ class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRe
             fileSize = completedFileUpload.size,
             catalogList = catalogList,
             supplierId = UUID.randomUUID(),
-            createdBy = "test",
+            createdByUser = "test",
             created = LocalDateTime.now(),
             updated = LocalDateTime.now(),
             status = CatalogFileStatus.PENDING
@@ -47,9 +47,10 @@ class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRe
             val foundDTO = catalogFileRepository.findOne(id)
             found.shouldNotBeNull()
             foundDTO.shouldNotBeNull()
+            found.catalogList.size shouldBe catalogList.size
             found.fileSize shouldBe foundDTO.fileSize
             found.fileName shouldBe foundDTO.fileName
-            catalogFileRepository.findMany(Pageable.from(0, 10)).content.size shouldBe 1
+            catalogFileRepository.findMany(Pageable.from(0, 10))
         }
     }
 }

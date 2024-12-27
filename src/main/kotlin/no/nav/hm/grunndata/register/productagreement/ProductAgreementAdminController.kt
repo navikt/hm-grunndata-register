@@ -11,7 +11,6 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import io.micronaut.transaction.annotation.Transactional
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
@@ -28,9 +27,6 @@ import no.nav.hm.grunndata.register.catalog.CatalogExcelFileImport
 import no.nav.hm.grunndata.register.catalog.CatalogFile
 import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
 import no.nav.hm.grunndata.register.catalog.CatalogFileStatus
-import no.nav.hm.grunndata.register.catalog.CatalogImportResult
-import no.nav.hm.grunndata.register.catalog.CatalogImportService
-import no.nav.hm.grunndata.register.catalog.toEntity
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 
 @Secured(Roles.ROLE_ADMIN)
@@ -42,8 +38,6 @@ open class ProductAgreementAdminController(
     private val productRegistrationService: ProductRegistrationService,
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productAgreementRegistrationService: ProductAgreementRegistrationService,
-    private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler,
-    private val catalogImportService: CatalogImportService,
     private val supplierRegistrationService: SupplierRegistrationService,
     private val catalogFileRepository: CatalogFileRepository
 ) {
@@ -68,21 +62,19 @@ open class ProductAgreementAdminController(
 
         val importedExcelCatalog =
             file.inputStream.use { input -> catalogExcelFileImport.importExcelFile(input) }
-        val catalogImportResult = catalogImportService.prepareCatalogImportResult(importedExcelCatalog.map { it.toEntity() })
-        val mappedCatalogImportResult = productAgreementImportExcelService.mapCatalogImport(catalogImportResult, authentication, supplierId)
-        val productAgreementsImportResult =
-            productAccessorySparePartAgreementHandler.handleNewProductsInExcelImport(
-                mappedCatalogImportResult,
-                authentication,
-                true,
-            )
+
+        val productAgreementsImportResult = productAgreementImportExcelService.mapToProductAgreementImportResult(
+            importedExcelCatalog,
+            authentication,
+            supplierId,
+            dryRun,
+        )
+
         LOG.info("New product agreements found: ${productAgreementsImportResult.insertList.size}")
         LOG.info("New series found: ${productAgreementsImportResult.newSeries.size}")
         LOG.info("New accessory parts found: ${productAgreementsImportResult.newAccessoryParts.size}")
         LOG.info("New main products found: ${productAgreementsImportResult.newProducts.size}")
 
-        val productAgreements = productAgreementsImportResult.insertList
-        val newCount = productAgreementsImportResult.insertList.size
         if (!dryRun) {
             LOG.info("Save the catalog file ${file.filename}, for downstream processing")
             catalogFileRepository.save(
@@ -92,13 +84,14 @@ open class ProductAgreementAdminController(
                     catalogList = importedExcelCatalog,
                     supplierId = supplierId,
                     created = LocalDateTime.now(),
-                    createdBy = authentication.name,
+                    createdByUser = authentication.name,
                     updated = LocalDateTime.now(),
                     status = CatalogFileStatus.PENDING
                 )
             )
         }
-
+        val productAgreements = productAgreementsImportResult.insertList
+        val newCount = productAgreementsImportResult.insertList.size
         return ProductAgreementImportDTO(
             dryRun = dryRun,
             count = productAgreements.size,
@@ -109,8 +102,8 @@ open class ProductAgreementAdminController(
             createdAccessoryParts = productAgreementsImportResult.newAccessoryParts,
             createdMainProducts = productAgreementsImportResult.newProducts,
             newProductAgreements = productAgreementsImportResult.insertList,
-            updatedAgreements = mappedCatalogImportResult.updateList,
-            deactivatedAgreements = mappedCatalogImportResult.deactivateList,
+            updatedAgreements = productAgreementsImportResult.updateList,
+            deactivatedAgreements = productAgreementsImportResult.deactivateList,
         )
     }
 
@@ -372,13 +365,7 @@ open class ProductAgreementAdminController(
         return HttpResponse.ok(ProductAgreementsDeletedResponse(ids))
     }
 
-    @Transactional
-    open suspend fun persistCatalogResult(catalogImportResult: CatalogImportResult, file: CompletedFileUpload,
-                             productAgreementResult: ProductAgreementImportResult) {
-        LOG.info("Persisting products from excel imported file: ${file.name}")
-        catalogImportService.persistCatalogImportResult(catalogImportResult)
-        productAgreementImportExcelService.persistProductAgreementFromCatalogImport(productAgreementResult)
-    }
+
 }
 
 data class ProductAgreementsDeletedResponse(

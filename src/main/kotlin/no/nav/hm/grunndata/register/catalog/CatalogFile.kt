@@ -20,7 +20,7 @@ data class CatalogFile(
     @field:TypeDef(type = DataType.JSON)
     val catalogList: List<CatalogImportExcelDTO> = emptyList(),
     val supplierId: UUID,
-    val createdBy: String,
+    val createdByUser: String,
     val created: LocalDateTime,
     val updated: LocalDateTime,
     val status: CatalogFileStatus = CatalogFileStatus.PENDING,
@@ -32,7 +32,7 @@ data class CatalogFileDTO(
     val fileName: String,
     val fileSize: Long,
     val supplierId: UUID,
-    val createdBy: String,
+    val createdByUser: String,
     val created: LocalDateTime,
     val updated: LocalDateTime,
     val status: CatalogFileStatus,
