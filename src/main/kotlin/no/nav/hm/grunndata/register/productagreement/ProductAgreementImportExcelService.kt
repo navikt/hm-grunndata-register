@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.productagreement
 
+import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
@@ -21,18 +22,23 @@ import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.catalog.CatalogImport
+import no.nav.hm.grunndata.register.catalog.CatalogImportExcelDTO
 import no.nav.hm.grunndata.register.catalog.CatalogImportResult
+import no.nav.hm.grunndata.register.catalog.CatalogImportService
+import no.nav.hm.grunndata.register.catalog.toEntity
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
+import no.nav.hm.grunndata.register.productagreement.CatalogFileToProductAgreementScheduler.Companion
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService.Companion.LOG
 import no.nav.hm.grunndata.register.supplier.SupplierRegistration
 
 @Singleton
 open class ProductAgreementImportExcelService(
-    private val supplierRegistrationService: SupplierRegistrationService,
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productRegistrationService: ProductRegistrationService,
     private val productAgreementService: ProductAgreementRegistrationService,
     private val noDelKontraktHandler: NoDelKontraktHandler,
+    private val catalogImportService: CatalogImportService,
+    private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementImportExcelService::class.java)
@@ -113,6 +119,29 @@ open class ProductAgreementImportExcelService(
                 }
             }
         }
+    }
+
+    suspend fun mapToProductAgreementImportResult(
+        importedExcelCatalog:  List<CatalogImportExcelDTO>,
+        authentication: Authentication?,
+        supplierId: UUID,
+        dryRun: Boolean
+    ): ProductAgreementImportResult {
+        val catalogImportResult = catalogImportService.prepareCatalogImportResult(importedExcelCatalog.map { it.toEntity() })
+        val mappedLists = mapCatalogImport(catalogImportResult, authentication, supplierId)
+        val productAgreementImportResult = productAccessorySparePartAgreementHandler.handleNewProductsInExcelImport(mappedLists, authentication, dryRun)
+        if (!dryRun) {
+            LOG.info("Persisting products and agreements from excel import")
+            persistCatalogResult(catalogImportResult, productAgreementImportResult)
+        }
+        return productAgreementImportResult
+    }
+
+    @Transactional
+    open suspend fun persistCatalogResult(catalogImportResult: CatalogImportResult,
+                                          productAgreementResult: ProductAgreementImportResult) {
+        catalogImportService.persistCatalogImportResult(catalogImportResult)
+        persistProductAgreementFromCatalogImport(productAgreementResult)
     }
 
     suspend fun mapCatalogImport(catalogImportResult: CatalogImportResult, authentication: Authentication?,  supplierId: UUID):
@@ -210,13 +239,6 @@ open class ProductAgreementImportExcelService(
             ?: throw BadRequestException("Avtale $reference finnes ikke, må den opprettes?")
 
 
-    private fun parseSupplierName(supplierName: String): UUID =
-        runBlocking {
-            supplierRegistrationService.findNameAndId().find {
-                (it.name.lowercase().indexOf(supplierName.lowercase()) > -1)
-            }?.id
-                ?: throw BadRequestException("Leverandør $supplierName finnes ikke i registeret, sjekk om navnet er riktig skrevet.")
-        }
 
     private fun parseHMSNr(hmsArtNr: String): String = hmsArtNr.substringBefore(".").toInt().toString()
 
@@ -265,49 +287,7 @@ enum class ColumnNames(val column: String) {
     leverandorsted("Leverandørsted"),
 }
 
-data class CatalogImportExcelDTO(
-    val rammeavtaleHandling:String, // oebs operation for rammeavtale
-    val bestillingsNr: String,
-    val hmsArtNr: String,
-    val iso: String,
-    val title: String,
-    val supplierRef: String,
-    val reference: String,
-    val delkontraktNr: String?,
-    val dateFrom: String,
-    val dateTo: String,
-    val artikkelHandling: String, // oebs operation for artikkel
-    val articleType: String,
-    val funksjonsendring: String,
-    val forChildren: String,
-    val supplierName: String,
-    val supplierCity: String,
-    val mainProduct: Boolean,
-    val sparePart: Boolean,
-    val accessory: Boolean,
-)
 
-fun CatalogImportExcelDTO.toEntity() = CatalogImport(
-    agreementAction = rammeavtaleHandling,
-    orderRef = bestillingsNr,
-    hmsArtNr = hmsArtNr,
-    iso = iso,
-    title = title,
-    supplierRef = supplierRef,
-    reference = reference,
-    postNr = delkontraktNr,
-    dateFrom = LocalDate.parse(dateFrom, dateTimeFormatter),
-    dateTo = LocalDate.parse(dateTo, dateTimeFormatter),
-    articleAction = artikkelHandling,
-    articleType = articleType,
-    functionalChange = funksjonsendring,
-    forChildren = forChildren,
-    supplierName = supplierName,
-    supplierCity = supplierCity,
-    mainProduct = mainProduct,
-    sparePart = sparePart,
-    accessory = accessory,
-)
 
 data class ProductAgreementMappedResultLists(
     val updateList: List<ProductAgreementRegistrationDTO>,
@@ -315,5 +295,4 @@ data class ProductAgreementMappedResultLists(
     val deactivateList: List<ProductAgreementRegistrationDTO>,
 )
 
-val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 val delKontraktRegex = Regex("d(\\d+)([A-Q-STU-Z]*)r*(\\d*),*")

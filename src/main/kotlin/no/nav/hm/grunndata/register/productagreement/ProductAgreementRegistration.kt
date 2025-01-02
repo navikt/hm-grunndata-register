@@ -69,6 +69,7 @@ data class ProductAgreementRegistrationDTO(
     override fun toRapidDTO(): RapidDTO =
         ProductAgreementRegistrationRapidDTO(
             id = id,
+            // SeriesUUID, can be null so have to use agreementId
             partitionKey = agreementId.toString(),
             productId = productId,
             agreementId = agreementId,
