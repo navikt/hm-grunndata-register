@@ -9,9 +9,7 @@ import io.micronaut.data.runtime.criteria.get
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
-import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
-import io.micronaut.http.annotation.Patch
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
@@ -20,53 +18,30 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.persistence.criteria.Predicate
-import java.time.LocalDateTime
-import java.util.Locale
-import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
-import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
+import java.util.Locale
+import java.util.UUID
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SeriesRegistrationController.API_V1_SERIES)
 @Tag(name = "Vendor Series")
 class SeriesRegistrationController(
     private val seriesRegistrationService: SeriesRegistrationService,
-    private val productRegistrationService: ProductRegistrationService,
     private val seriesDTOMapper: SeriesDTOMapper,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationController::class.java)
         const val API_V1_SERIES = "/vendor/api/v1/series"
     }
-
-    @Get("/hmsNr/{hmsNr}")
-    suspend fun findSeriesForHmsNr(
-        @PathVariable hmsNr: String,
-        authentication: Authentication,
-    ): SeriesRegistrationDTO? =
-        productRegistrationService.findByHmsArtNrAndSupplierId(hmsNr, authentication.supplierId())?.let {
-            seriesRegistrationService.findById(it.seriesUUID)?.toDTO()
-        }
-
-    @Get("/supplierRef/{supplierRef}")
-    suspend fun findSeriesForSupplierRef(
-        @PathVariable supplierRef: String,
-        authentication: Authentication,
-    ): SeriesRegistrationDTO? =
-        productRegistrationService.findBySupplierRefAndSupplierIdAndStatusNotDeleted(
-            supplierRef,
-            authentication.supplierId(),
-        )?.let {
-            seriesRegistrationService.findById(it.seriesUUID)?.toDTO()
-        }
 
     @Get("/")
     suspend fun getSeries(
@@ -179,22 +154,6 @@ class SeriesRegistrationController(
             }
         }
 
-    @Patch("/v2/{id}")
-    suspend fun patchSeriesV2(
-        @PathVariable id: UUID,
-        @Body updateSeriesRegistrationDTO: UpdateSeriesRegistrationDTO,
-        authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTOV2> =
-        HttpResponse.ok(
-            seriesDTOMapper.toDTOV2(
-                seriesRegistrationService.patchSeries(
-                    id,
-                    updateSeriesRegistrationDTO,
-                    authentication,
-                ),
-            ),
-        )
-
     @Put("/request-approval/{seriesUUID}")
     suspend fun requestApproval(
         @PathVariable seriesUUID: UUID,
@@ -252,86 +211,6 @@ class SeriesRegistrationController(
 
         val updated = seriesRegistrationService.setSeriesToDraftStatus(seriesToUpdate, authentication)
 
-        return HttpResponse.ok(updated.toDTO())
-    }
-
-    @Put("/series_to-draft/{seriesUUID}")
-    suspend fun setSeriesToDraft(
-        @PathVariable seriesUUID: UUID,
-        authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO> {
-        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
-        if (seriesToUpdate.supplierId != authentication.supplierId()) {
-            LOG.warn("SupplierId in request does not match authenticated supplierId")
-            return HttpResponse.unauthorized()
-        }
-
-        val updated = seriesRegistrationService.setSeriesToDraftStatus(seriesToUpdate, authentication)
-
-        LOG.info("set series to draft: $seriesUUID")
-        return HttpResponse.ok(updated.toDTO())
-    }
-
-    @Put("/series-to-inactive/{seriesUUID}")
-    suspend fun setPublishedSeriesToInactive(
-        @PathVariable seriesUUID: UUID,
-        authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO> {
-        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
-        if (seriesToUpdate.supplierId != authentication.supplierId()) {
-            LOG.warn("SupplierId in request does not match authenticated supplierId")
-            return HttpResponse.unauthorized()
-        }
-        val updated =
-            seriesRegistrationService.setPublishedSeriesRegistrationStatus(
-                seriesToUpdate,
-                authentication,
-                SeriesStatus.INACTIVE,
-            )
-
-        LOG.info("set series to expired: $seriesUUID")
-        return HttpResponse.ok(updated.toDTO())
-    }
-
-    @Put("/series-to-active/{seriesUUID}")
-    suspend fun setPublishedSeriesToActive(
-        @PathVariable seriesUUID: UUID,
-        authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO> {
-        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
-        if (seriesToUpdate.supplierId != authentication.supplierId()) {
-            LOG.warn("SupplierId in request does not match authenticated supplierId")
-            return HttpResponse.unauthorized()
-        }
-        val updated =
-            seriesRegistrationService.setPublishedSeriesRegistrationStatus(
-                seriesToUpdate,
-                authentication,
-                SeriesStatus.ACTIVE,
-            )
-
-        LOG.info("set series to active: $seriesUUID")
-        return HttpResponse.ok(updated.toDTO())
-    }
-
-    @Delete("/{seriesUUID}")
-    suspend fun deleteSeries(
-        @PathVariable seriesUUID: UUID,
-        authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO> {
-        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
-
-        if (seriesToUpdate.supplierId != authentication.supplierId()) {
-            LOG.warn("SupplierId in request does not match authenticated supplierId")
-            return HttpResponse.unauthorized()
-        }
-
-        if (seriesToUpdate.draftStatus != DraftStatus.DRAFT) throw BadRequestException("series is not a draft")
-        if (seriesToUpdate.published != null) throw BadRequestException("can not delete a published series")
-
-        val updated = seriesRegistrationService.deleteSeries(seriesToUpdate, authentication)
-
-        LOG.info("set series to deleted: $seriesUUID")
         return HttpResponse.ok(updated.toDTO())
     }
 

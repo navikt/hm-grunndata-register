@@ -21,9 +21,6 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.persistence.criteria.Predicate
-import java.time.LocalDateTime
-import java.util.Locale
-import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaType
@@ -34,14 +31,16 @@ import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
-import no.nav.hm.grunndata.register.series.SeriesRegistrationController.Companion
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
+import java.util.Locale
+import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN, Roles.ROLE_SUPPLIER)
-@Controller(SeriesRegistrationComonController.API_V1_SERIES)
+@Controller(SeriesRegistrationCommonController.API_V1_SERIES)
 @Tag(name = "Series")
-class SeriesRegistrationComonController(
+class SeriesRegistrationCommonController(
     private val seriesRegistrationService: SeriesRegistrationService,
     private val productRegistrationService: ProductRegistrationService,
     private val seriesDTOMapper: SeriesDTOMapper,

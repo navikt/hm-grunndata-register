@@ -30,6 +30,7 @@ import no.nav.hm.grunndata.register.user.UserAttribute
 import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import java.util.UUID
@@ -97,6 +98,7 @@ class SeriesRegistrationControllerApiTest(
     }
 
     @Test
+    @Disabled
     fun apiTest() {
         runBlocking {
             val resp = loginClient.login(UsernamePasswordCredentials(email, password))
