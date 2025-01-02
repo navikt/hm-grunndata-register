@@ -222,6 +222,17 @@ class SeriesRegistrationCommonController(
         return HttpResponse.ok()
     }
 
+    @Put("/change-file-title/{seriesUUID}")
+    suspend fun changeFileTitle(
+        seriesUUID: UUID,
+        @Body file: FileTitleDto,
+        authentication: Authentication
+    ): HttpResponse<Any> {
+        LOG.info("endre filtittel")
+        seriesRegistrationService.changeFileTitle(seriesUUID, file, authentication)
+        return HttpResponse.ok()
+    }
+    
     private fun buildCriteriaSpec(
         criteria: SeriesCommonCriteria, authentication: Authentication
     ): PredicateSpecification<SeriesRegistration>? = if (criteria.isNotEmpty()) {

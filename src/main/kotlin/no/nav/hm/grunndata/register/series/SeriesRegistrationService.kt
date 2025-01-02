@@ -659,6 +659,36 @@ open class SeriesRegistrationService(
         )
     }
 
+    @Transactional
+    open suspend fun changeFileTitle(
+        seriesUUID: UUID,
+        file: FileTitleDto,
+        authentication: Authentication
+    ) {
+        val seriesToUpdate = getSeriesValidate(seriesUUID, authentication)
+
+        val seriesMedia = seriesToUpdate.seriesData.media
+        val updatedMedia =
+            seriesMedia.find { media -> media.uri == file.uri }?.copy(text = file.newFileTitle)
+                ?: throw BadRequestException(
+                    message = "Media uri ${file.uri} not found",
+                    type = ErrorType.INVALID_VALUE
+                )
+        val mergedMedia =
+            seriesMedia.filter { media -> media.uri != file.uri }.plus(updatedMedia)
+                .toSet()
+
+        saveAndCreateEventIfNotDraftAndApproved(
+            seriesToUpdate
+                .copy(
+                    seriesData = seriesToUpdate.seriesData.copy(media = mergedMedia),
+                    updated = LocalDateTime.now(),
+                    updatedByUser = authentication.name
+                ),
+            true,
+        )
+    }
+
     private suspend fun getSeriesValidate(seriesUUID: UUID, authentication: Authentication): SeriesRegistration {
         val seriesToUpdate = seriesRegistrationRepository.findById(seriesUUID)
             ?: throw BadRequestException("Series $seriesUUID not found", ErrorType.NOT_FOUND)
@@ -676,3 +706,4 @@ open class SeriesRegistrationService(
 
 data class MediaSort(val uri: String, val priority: Int)
 data class NewVideo(val uri: String, val title: String)
+data class FileTitleDto(val uri: String, val newFileTitle: String)
