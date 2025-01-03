@@ -73,7 +73,7 @@ micronaut:
         descriptions: true
   data:
     pageable:
-      max-page-size: 1000
+      max-page-size: 5000
   caches:
     suppliers:
       charset: 'UTF-8'
