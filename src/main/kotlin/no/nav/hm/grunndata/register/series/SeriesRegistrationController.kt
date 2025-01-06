@@ -175,47 +175,6 @@ class SeriesRegistrationController(
         return HttpResponse.ok(updated.toDTO())
     }
 
-    //Slettes?
-    @Put("/serie-til-godkjenning/{seriesUUID}")
-    suspend fun setSeriesToBeApproved(
-        @PathVariable seriesUUID: UUID,
-        authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO> {
-        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID)
-
-        if (seriesToUpdate?.draftStatus != DraftStatus.DRAFT) throw BadRequestException("series is marked as done")
-
-        val updatedSeries =
-            seriesToUpdate.copy(
-                draftStatus = DraftStatus.DONE,
-                adminStatus = AdminStatus.PENDING,
-                updated = LocalDateTime.now(),
-                updatedBy = REGISTER,
-            )
-
-        val updated =
-            seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedSeries, isUpdate = true)
-
-        return HttpResponse.ok(updated.toDTO())
-    }
-
-    //Slettes?
-    @Put("/series_ready-for-approval/{seriesUUID}")
-    suspend fun setSeriesReadyForApproval(
-        @PathVariable seriesUUID: UUID,
-        authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO> {
-        val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
-        if (seriesToUpdate.supplierId != authentication.supplierId()) {
-            LOG.warn("SupplierId in request does not match authenticated supplierId")
-            return HttpResponse.unauthorized()
-        }
-
-        val updated = seriesRegistrationService.setSeriesToDraftStatus(seriesToUpdate, authentication)
-
-        return HttpResponse.ok(updated.toDTO())
-    }
-
     private fun buildCriteriaSpec(
         criteria: SeriesCriteria,
         supplierId: UUID,
