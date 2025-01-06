@@ -175,6 +175,7 @@ class SeriesRegistrationController(
         return HttpResponse.ok(updated.toDTO())
     }
 
+    //Slettes?
     @Put("/serie-til-godkjenning/{seriesUUID}")
     suspend fun setSeriesToBeApproved(
         @PathVariable seriesUUID: UUID,
@@ -198,6 +199,7 @@ class SeriesRegistrationController(
         return HttpResponse.ok(updated.toDTO())
     }
 
+    //Slettes?
     @Put("/series_ready-for-approval/{seriesUUID}")
     suspend fun setSeriesReadyForApproval(
         @PathVariable seriesUUID: UUID,
