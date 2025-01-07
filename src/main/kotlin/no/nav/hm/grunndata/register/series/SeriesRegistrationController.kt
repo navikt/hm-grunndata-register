@@ -158,7 +158,7 @@ class SeriesRegistrationController(
     suspend fun requestApproval(
         @PathVariable seriesUUID: UUID,
         authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO> {
+    ): HttpResponse<Any> {
         val seriesToUpdate = seriesRegistrationService.findById(seriesUUID) ?: return HttpResponse.notFound()
 
         if (seriesToUpdate.supplierId != authentication.supplierId()) {
@@ -168,11 +168,10 @@ class SeriesRegistrationController(
 
         if (seriesToUpdate.draftStatus != DraftStatus.DRAFT) throw BadRequestException("series is marked as done")
 
-        val updated =
-            seriesRegistrationService.requestApprovalForSeriesAndVariants(seriesToUpdate)
+        seriesRegistrationService.requestApprovalForSeriesAndVariants(seriesToUpdate)
 
         LOG.info("set series to pending approval: $seriesUUID")
-        return HttpResponse.ok(updated.toDTO())
+        return HttpResponse.ok()
     }
 
     private fun buildCriteriaSpec(

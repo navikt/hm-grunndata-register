@@ -26,7 +26,7 @@ interface SeriesAdminControllerApiClient {
     fun approveSeries(
         @CookieValue("JWT") jwt: String,
         @PathVariable id: UUID,
-    ): SeriesRegistrationDTO
+    )
 
     @Put(uri = "/approve-multiple", processes = [APPLICATION_JSON])
     fun approveMultipleSeries(
@@ -39,7 +39,7 @@ interface SeriesAdminControllerApiClient {
         @CookieValue("JWT") jwt: String,
         @PathVariable id: UUID,
         @Body rejectSeriesDTO: RejectSeriesDTO
-    ): SeriesRegistrationDTO
+    )
 
     @Get(uri = "/to-approve", processes = [APPLICATION_JSON])
     fun findSeriesPendingApproval(

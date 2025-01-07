@@ -283,16 +283,16 @@ class SeriesRegistrationAdminController(
     suspend fun approveSeriesAndVariants(
         id: UUID,
         authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO> {
+    ): HttpResponse<Any> {
         val seriesToUpdate = seriesRegistrationService.findById(id) ?: return HttpResponse.notFound()
 
         if (seriesToUpdate.adminStatus == AdminStatus.APPROVED) throw BadRequestException("$id is already approved")
         if (seriesToUpdate.status == SeriesStatus.DELETED) throw BadRequestException("SeriesStatus should not be Deleted")
 
-        val updatedSeries = seriesRegistrationService.approveSeriesAndVariants(seriesToUpdate, authentication)
+        seriesRegistrationService.approveSeriesAndVariants(seriesToUpdate, authentication)
 
         LOG.info("set series to approved: $id")
-        return HttpResponse.ok(updatedSeries.toDTO())
+        return HttpResponse.ok()
     }
 
     @Put("/approve-multiple")
@@ -345,16 +345,15 @@ class SeriesRegistrationAdminController(
         id: UUID,
         @Body rejectSeriesDTO: RejectSeriesDTO,
         authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO> {
+    ): HttpResponse<Any> {
         val seriesToUpdate = seriesRegistrationService.findById(id) ?: return HttpResponse.notFound()
         if (seriesToUpdate.adminStatus != AdminStatus.PENDING) throw BadRequestException("series is not pending approval")
         if (seriesToUpdate.draftStatus != DraftStatus.DONE) throw BadRequestException("series is not done")
 
-        val updatedSeries =
-            seriesRegistrationService.rejectSeriesAndVariants(seriesToUpdate, rejectSeriesDTO.message, authentication)
+        seriesRegistrationService.rejectSeriesAndVariants(seriesToUpdate, rejectSeriesDTO.message, authentication)
 
         LOG.info("set series to rejected: $id")
-        return HttpResponse.ok(updatedSeries.toDTO())
+        return HttpResponse.ok()
     }
 
     @Get("/supplier-inventory/{id}")
