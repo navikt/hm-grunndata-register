@@ -569,7 +569,12 @@ open class SeriesRegistrationService(
 
         val newMedia = seriesToUpdate.seriesData.media.plus(mediaInfos)
         val newData = seriesToUpdate.seriesData.copy(media = newMedia)
-        val newUpdate = seriesToUpdate.copy(seriesData = newData)
+        val newUpdate = seriesToUpdate.copy(
+            seriesData = newData,
+            updated = LocalDateTime.now(),
+            updatedByUser = authentication.name,
+            updatedBy = REGISTER,
+        )
 
         saveAndCreateEventIfNotDraftAndApproved(newUpdate, isUpdate = true)
     }
