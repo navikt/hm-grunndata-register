@@ -44,6 +44,18 @@ fun <K, V> Map<K, V>.mapDifference(
                 entriesDiffering.putAll(nestedDiff.entriesDiffering)
                 entriesOnlyOnLeft.putAll(nestedDiff.entriesOnlyOnLeft)
                 entriesOnlyOnRight.putAll(nestedDiff.entriesOnlyOnRight)
+            } else if (key == "techData") {
+                val thisList = valueThis as List<Map<String, String>>
+                val otherList = valueOther as List<Map<String, String>>
+                val caseInsensitiveDiff = thisList.zip(otherList).any { (thisMap, otherMap) ->
+                    thisMap.any { (k, v) ->
+                        otherMap[k]?.equals(v, ignoreCase = true) == false
+                    }
+                }
+                if (caseInsensitiveDiff) {
+                    entriesDiffering[if (parentKey != null) "$parentKey.$key" as K else key] =
+                        Pair(valueThis as V, valueOther as V)
+                }
             } else if (valueThis != valueOther) {
                 entriesDiffering[if (parentKey != null) "$parentKey.$key" as K else key] =
                     Pair(valueThis as V, valueOther as V)
@@ -80,8 +92,8 @@ fun <K, V> Map<K, V>.difference(other: Map<K, V>): Difference<K, V> {
         status =
             when {
                 difference.entriesDiffering.isNotEmpty() ||
-                    difference.entriesOnlyOnLeft.isNotEmpty() ||
-                    difference.entriesOnlyOnRight.isNotEmpty() -> DiffStatus.DIFF
+                        difference.entriesOnlyOnLeft.isNotEmpty() ||
+                        difference.entriesOnlyOnRight.isNotEmpty() -> DiffStatus.DIFF
 
                 else -> DiffStatus.NO_DIFF
             },
