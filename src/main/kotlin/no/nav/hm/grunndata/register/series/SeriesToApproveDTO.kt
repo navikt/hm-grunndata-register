@@ -1,6 +1,6 @@
 package no.nav.hm.grunndata.register.series
 
-import no.nav.hm.grunndata.register.product.MediaInfoDTO
+import java.time.LocalDateTime
 import java.util.UUID
 
 data class SeriesToApproveDTO(
@@ -8,6 +8,8 @@ data class SeriesToApproveDTO(
     val seriesUUID: UUID,
     val status: String,
     val supplierName: String,
-    val thumbnail: MediaInfoDTO? = null,
-    val isExpired: Boolean
+    val firstImgUri: String? = null,
+    val isExpired: Boolean,
+    val updated: LocalDateTime,
+    val mainProduct: Boolean
 )

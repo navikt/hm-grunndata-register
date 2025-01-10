@@ -2,14 +2,17 @@ package no.nav.hm.grunndata.register.series
 
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
+import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
+import jakarta.persistence.criteria.Predicate
 import jakarta.transaction.Transactional
 import java.time.LocalDateTime
+import java.util.Locale
 import java.util.UUID
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toSet
@@ -236,18 +239,95 @@ open class SeriesRegistrationService(
         pageable: Pageable,
         params: java.util.HashMap<String, String>?,
     ): Page<SeriesToApproveDTO> {
-        return seriesRegistrationRepository.findAll(buildCriteriaSpecPendingProducts(params), pageable)
+        println("hei")
+        return seriesRegistrationRepository
+            .findAll(buildCriteriaSpecPendingProducts(params), pageable)
             .mapSuspend { it.toSeriesToApproveDTO() }
     }
 
-    private fun buildCriteriaSpecPendingProducts(params: java.util.HashMap<String, String>?): PredicateSpecification<SeriesRegistration> =
-        where {
-            root[SeriesRegistration::adminStatus] eq AdminStatus.PENDING
-            root[SeriesRegistration::status] ne SeriesStatus.DELETED
-            root[SeriesRegistration::draftStatus] eq DraftStatus.DONE
+    private fun buildCriteriaSpecPendingProducts(
+        params: java.util.HashMap<String, String>?
+    ): PredicateSpecification<SeriesRegistration> =
+        PredicateSpecification<SeriesRegistration> { root, criteriaBuilder ->
+            val predicates = mutableListOf<Predicate>()
+            predicates.add(
+                criteriaBuilder.equal(
+                    root[SeriesRegistration::adminStatus],
+                    AdminStatus.PENDING
+                )
+
+            )
+            predicates.add(
+                criteriaBuilder.equal(
+                    root[SeriesRegistration::draftStatus],
+                    DraftStatus.DONE
+                )
+            )
+            predicates.add(
+                criteriaBuilder.notEqual(
+                    root[SeriesRegistration::status],
+                    SeriesStatus.DELETED
+                )
+            )
             params?.let {
+
+                if (it.containsKey("supplierFilter")) {
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::supplierId],
+                            UUID.fromString(it["supplierFilter"])
+                        )
+                    )
+                }
+
+                if (it.containsKey("mainProduct")) {
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::mainProduct],
+                            it["mainProduct"].toBoolean()
+                        ),
+                    )
+                }
+
+                if (it.containsKey("isPublished")) {
+                    if (it["isPublished"].toBoolean()) {
+                        predicates.add(
+                            criteriaBuilder.isNotNull(
+                                root[SeriesRegistration::published]
+                            )
+                        )
+                    } else {
+                        predicates.add(
+                            criteriaBuilder.isNull(
+                                root[SeriesRegistration::published]
+                            )
+                        )
+                    }
+                }
+
                 if (it.containsKey("createdByAdmin")) {
-                    root[SeriesRegistration::createdByAdmin] eq (it["createdByAdmin"].toBoolean())
+                    predicates.add(
+                        criteriaBuilder.equal(
+                            root[SeriesRegistration::createdByAdmin],
+                            it["createdByAdmin"].toBoolean()
+                        )
+                    )
+                }
+
+                if (it.containsKey("title")) {
+                    val term = it["title"]?.lowercase(Locale.getDefault())
+                    predicates.add(
+                        criteriaBuilder.like(
+                            criteriaBuilder.lower(root[SeriesRegistration::title]),
+                            LiteralExpression("%$term%"),
+                        ),
+                    )
+                }
+                // Return the combined predicates
+                if (predicates.isNotEmpty()) {
+                    criteriaBuilder.and(*predicates.toTypedArray())
+                } else {
+                    null
                 }
             }
         }
@@ -255,14 +335,17 @@ open class SeriesRegistrationService(
     private suspend fun SeriesRegistration.toSeriesToApproveDTO(): SeriesToApproveDTO {
         val status = published?.let { "CHANGE" } ?: "NEW"
         val supplier = supplierService.findById(supplierId)
+        val imageUri = seriesData.media.firstOrNull { it.type == MediaType.IMAGE && it.priority == 1 }?.uri
 
         return SeriesToApproveDTO(
             title = title,
             supplierName = supplier?.name ?: "",
             seriesUUID = id,
             status = status,
-            thumbnail = seriesData.media.firstOrNull { it.type == MediaType.IMAGE },
-            isExpired = expired < LocalDateTime.now(),
+            firstImgUri = imageUri,
+            isExpired = expired <= LocalDateTime.now(),
+            updated = updated,
+            mainProduct = mainProduct
         )
     }
 
