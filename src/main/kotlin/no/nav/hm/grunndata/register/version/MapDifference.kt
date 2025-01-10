@@ -44,7 +44,7 @@ fun <K, V> Map<K, V>.mapDifference(
                 entriesDiffering.putAll(nestedDiff.entriesDiffering)
                 entriesOnlyOnLeft.putAll(nestedDiff.entriesOnlyOnLeft)
                 entriesOnlyOnRight.putAll(nestedDiff.entriesOnlyOnRight)
-            } else if (key == "techData") {
+            } else if (key == "techData" || key == "productData.techData") {
                 val thisList = valueThis as List<Map<String, String>>
                 val otherList = valueOther as List<Map<String, String>>
                 val caseInsensitiveDiff = thisList.zip(otherList).any { (thisMap, otherMap) ->
