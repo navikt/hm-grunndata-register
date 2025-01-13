@@ -88,13 +88,13 @@ class SeriesRegistrationController(
     suspend fun draftSeriesWith(
         @Body draftWith: SeriesDraftWithDTO,
         authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO> {
+    ): HttpResponse<SeriesDraftResponse> {
         return HttpResponse.ok(
-            seriesRegistrationService.createDraftWith(
+            SeriesDraftResponse(seriesRegistrationService.createDraftWith(
                 authentication.supplierId(),
                 authentication,
                 draftWith,
-            ).toDTO(),
+            ).id),
         )
     }
 
@@ -323,5 +323,7 @@ data class SeriesCriteria(
             excludedStatus != null || status != null || supplierId != null || draft != null || createdByUser != null
             || updatedByUser != null || editStatus != null || title != null
 }
+
+data class SeriesDraftResponse(val id: UUID)
 
 data class SeriesDraftWithDTO(val title: String, val isoCategory: String)

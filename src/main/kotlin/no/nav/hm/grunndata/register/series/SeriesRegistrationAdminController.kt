@@ -435,13 +435,13 @@ class SeriesRegistrationAdminController(
         supplierId: UUID,
         @Body draftWith: SeriesDraftWithDTO,
         authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTO> {
+    ): HttpResponse<SeriesDraftResponse> {
         return HttpResponse.ok(
-            seriesRegistrationService.createDraftWith(
+            SeriesDraftResponse(seriesRegistrationService.createDraftWith(
                 supplierId,
                 authentication,
                 draftWith,
-            ).toDTO(),
+            ).id),
         )
     }
 }

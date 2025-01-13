@@ -20,7 +20,7 @@ interface SeriesAdminControllerApiClient {
         @CookieValue("JWT") jwt: String,
         @PathVariable supplierId: UUID,
         @Body seriesRegistrationDTO: SeriesDraftWithDTO,
-    ): SeriesRegistrationDTO
+    ): SeriesDraftResponse
 
     @Put(uri = "/approve-v2/{id}", processes = [APPLICATION_JSON])
     fun approveSeries(

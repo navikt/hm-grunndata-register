@@ -16,7 +16,7 @@ interface SeriesControllerApiClient {
     fun createDraft(
         @CookieValue("JWT") jwt: String,
         @Body seriesRegistrationDTO: SeriesDraftWithDTO,
-    ): SeriesRegistrationDTO
+    ): SeriesDraftResponse
 
     @Put(uri = "/request-approval/{id}")
     fun setSeriesToPendingApproval(
