@@ -32,7 +32,7 @@ import java.util.UUID
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SeriesRegistrationCommonControllerApiTest {
     companion object {
-        private val LOG = LoggerFactory.getLogger(SeriesRegistrationControllerTest::class.java)
+        private val LOG = LoggerFactory.getLogger(SeriesRegistrationCommonControllerApiTest::class.java)
     }
 
     @Inject
