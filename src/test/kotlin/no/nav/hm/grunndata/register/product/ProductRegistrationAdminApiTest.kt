@@ -11,9 +11,6 @@ import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.every
 import io.mockk.mockk
-import jakarta.inject.Inject
-import java.time.LocalDateTime
-import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.AgreementDTO
@@ -34,7 +31,7 @@ import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistratio
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
-import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
+import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
@@ -46,6 +43,8 @@ import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
+import java.util.UUID
 
 @MicronautTest
 class ProductRegistrationAdminApiTest(
@@ -249,7 +248,7 @@ class ProductRegistrationAdminApiTest(
             )
 
             seriesRegistrationService.save(
-                SeriesRegistrationDTO(
+                SeriesRegistration(
                     id = seriesUUID,
                     supplierId = supplierId,
                     isoCategory = "04360901",

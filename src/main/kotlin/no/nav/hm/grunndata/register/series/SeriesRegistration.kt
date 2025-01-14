@@ -132,13 +132,6 @@ data class SeriesRegistrationDTO(
             seriesData = seriesData.toRapidDTO(),
             version = version,
         )
-
-    fun isPublishedProduct(): Boolean {
-        return draftStatus == DraftStatus.DONE &&
-            adminStatus == AdminStatus.APPROVED &&
-            status != SeriesStatus.DELETED &&
-            published != null
-    }
 }
 
 fun SeriesRegistration.toDTO() =
@@ -215,11 +208,7 @@ fun SeriesDataDTO.toRapidDTO() =
     )
 
 enum class EditStatus {
-    EDITABLE,
-    PENDING_APPROVAL,
-    REJECTED,
-    DONE,
-    ;
+    EDITABLE, PENDING_APPROVAL, REJECTED, DONE, ;
 
     companion object {
         fun from(seriesRegistration: SeriesRegistration): EditStatus {
@@ -235,20 +224,6 @@ enum class EditStatus {
                 throw IllegalArgumentException("Ukjent EditStatus for serie ${seriesRegistration.id}")
             }
         }
-
-        fun from(seriesRegistrationDTO: SeriesRegistrationDTO): EditStatus {
-            return if (seriesRegistrationDTO.adminStatus == AdminStatus.REJECTED) {
-                REJECTED
-            } else if (seriesRegistrationDTO.draftStatus == DraftStatus.DRAFT && seriesRegistrationDTO.adminStatus == AdminStatus.PENDING) {
-                EDITABLE
-            } else if (seriesRegistrationDTO.draftStatus == DraftStatus.DONE && seriesRegistrationDTO.adminStatus == AdminStatus.PENDING) {
-                PENDING_APPROVAL
-            } else if (seriesRegistrationDTO.adminStatus == AdminStatus.APPROVED) {
-                DONE
-            } else {
-                throw IllegalArgumentException("Ukjent EditStatus for serie ${seriesRegistrationDTO.id}")
-            }
-        }
     }
 }
 
@@ -257,7 +232,6 @@ data class UpdateSeriesRegistrationDTO(
     val text: String? = null,
     val keywords: List<String>? = null,
     val url: String? = null,
-    // val seriesData: SeriesDataDTO?,
 )
 
 data class SeriesRegistrationDTOV2(

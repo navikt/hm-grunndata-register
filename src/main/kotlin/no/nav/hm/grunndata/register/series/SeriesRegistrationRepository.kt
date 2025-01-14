@@ -97,11 +97,6 @@ interface SeriesRegistrationRepository :
     suspend fun findByIsoCategory(isoCategory: String): List<SeriesRegistration>
 
     @Query(
-        "UPDATE series_reg_v1 SET status = 'INACTIVE' WHERE id = :id AND NOT EXISTS( SELECT 1 FROM product_reg_v1 WHERE series_uuid = :id AND registration_status = 'ACTIVE')",
-    )
-    suspend fun updateStatusForSeries(id: UUID)
-
-    @Query(
         "UPDATE series_reg_v1 SET status = :newStatus WHERE id = :id AND NOT EXISTS( SELECT 1 FROM product_reg_v1 WHERE series_uuid = :id AND registration_status = 'ACTIVE')",
     )
     suspend fun updateStatusForSeries(

@@ -83,13 +83,6 @@ open class SeriesRegistrationService(
 
     suspend fun findById(id: UUID): SeriesRegistration? = seriesRegistrationRepository.findById(id)
 
-    suspend fun findByIdV2(id: UUID): SeriesRegistration? {
-        return seriesRegistrationRepository.findByIdAndStatusIn(
-            id,
-            listOf(SeriesStatus.ACTIVE, SeriesStatus.INACTIVE),
-        )
-    }
-
     suspend fun findById(id: UUID, authentication: Authentication): SeriesRegistration? =
         if (authentication.isSupplier()) {
             seriesRegistrationRepository.findByIdAndSupplierIdAndStatusIn(
@@ -107,37 +100,12 @@ open class SeriesRegistrationService(
     open suspend fun findByIdIn(ids: List<UUID>) = seriesRegistrationRepository.findByIdIn(ids)
 
     suspend fun update(
-        dto: SeriesRegistrationDTO,
-        id: UUID = dto.id,
-    ) = seriesRegistrationRepository.update(dto.toEntity()).toDTO()
-
-    suspend fun update(
         dto: SeriesRegistration,
-        id: UUID = dto.id,
     ) = seriesRegistrationRepository.update(dto)
 
     suspend fun save(
-        dto: SeriesRegistrationDTO,
-        id: UUID = dto.id,
-    ) = seriesRegistrationRepository.save(dto.toEntity()).toDTO()
-
-    suspend fun save(
         dto: SeriesRegistration,
-        id: UUID = dto.id,
     ) = seriesRegistrationRepository.save(dto)
-
-    @Transactional
-    open suspend fun saveAndCreateEventIfNotDraftAndApproved(
-        dto: SeriesRegistrationDTO,
-        isUpdate: Boolean,
-        eventName: String = EventName.registeredSeriesV1,
-    ): SeriesRegistrationDTO {
-        val saved = if (isUpdate) update(dto) else save(dto)
-        if (saved.draftStatus == DraftStatus.DONE && saved.adminStatus == AdminStatus.APPROVED) {
-            seriesRegistrationEventHandler.queueDTORapidEvent(saved, eventName = eventName)
-        }
-        return saved
-    }
 
     @Transactional
     open suspend fun saveAndCreateEventIfNotDraftAndApproved(
@@ -161,17 +129,6 @@ open class SeriesRegistrationService(
         id: UUID,
         supplierId: UUID,
     ): SeriesRegistration? = seriesRegistrationRepository.findByIdAndSupplierId(id, supplierId)
-
-    suspend fun findByIdAndSupplierIdV2(
-        id: UUID,
-        supplierId: UUID,
-    ): SeriesRegistration? {
-        return seriesRegistrationRepository.findByIdAndSupplierIdAndStatusIn(
-            id,
-            supplierId,
-            listOf(SeriesStatus.ACTIVE, SeriesStatus.INACTIVE),
-        )
-    }
 
     suspend fun findBySupplierId(supplierId: UUID): List<SeriesRegistration> =
         seriesRegistrationRepository.findBySupplierId(supplierId)
@@ -205,44 +162,6 @@ open class SeriesRegistrationService(
         val draft = save(series)
         LOG.info("Created draft series with id $id for supplier $supplierId")
         return draft
-    }
-
-    suspend fun createDraft(
-        supplierId: UUID,
-        authentication: Authentication,
-    ): SeriesRegistration {
-        val id = UUID.randomUUID()
-        val series =
-            SeriesRegistration(
-                id = id,
-                supplierId = supplierId,
-                isoCategory = "0",
-                title = "",
-                text = "",
-                identifier = id.toString(),
-                draftStatus = DraftStatus.DRAFT,
-                adminStatus = AdminStatus.PENDING,
-                status = SeriesStatus.ACTIVE,
-                createdBy = REGISTER,
-                updatedBy = REGISTER,
-                created = LocalDateTime.now(),
-                updated = LocalDateTime.now(),
-                seriesData = SeriesDataDTO(media = emptySet()),
-                version = 0,
-            )
-        val draft = save(series)
-        LOG.info("Created draft series with id $id for supplier $supplierId")
-        return draft
-    }
-
-    open suspend fun findSeriesToApprove(
-        pageable: Pageable,
-        params: java.util.HashMap<String, String>?,
-    ): Page<SeriesToApproveDTO> {
-        println("hei")
-        return seriesRegistrationRepository
-            .findAll(buildCriteriaSpecPendingProducts(params), pageable)
-            .mapSuspend { it.toSeriesToApproveDTO() }
     }
 
     private fun buildCriteriaSpecPendingProducts(
@@ -435,6 +354,16 @@ open class SeriesRegistrationService(
         productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(variantsToDelete, isUpdate = true)
 
         return deleted
+    }
+
+    open suspend fun findSeriesToApprove(
+        pageable: Pageable,
+        params: java.util.HashMap<String, String>?,
+    ): Page<SeriesToApproveDTO> {
+        println("hei")
+        return seriesRegistrationRepository
+            .findAll(buildCriteriaSpecPendingProducts(params), pageable)
+            .mapSuspend { it.toSeriesToApproveDTO() }
     }
 
     @Transactional

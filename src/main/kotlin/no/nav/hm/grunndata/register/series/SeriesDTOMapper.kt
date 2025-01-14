@@ -63,45 +63,4 @@ class SeriesDTOMapper(
         )
     }
 
-    suspend fun toDTOV2(seriesRegistrationDTO: SeriesRegistrationDTO): SeriesRegistrationDTOV2 {
-        val supplierName = supplierRegistrationService.findById(seriesRegistrationDTO.supplierId)?.name
-            ?: throw IllegalArgumentException("cannot find series ${seriesRegistrationDTO.id} supplier")
-        val isoCategoryDTO = isoCategoryService.lookUpCode(seriesRegistrationDTO.isoCategory)
-        val productRegistrationDTOs = productRegistrationService.findAllBySeriesUuid(seriesRegistrationDTO.id)
-            .map { product -> productDTOMapper.toDTOV2(product) }
-        val inAgreement = productAgreementRegistrationService.findAllByProductIds(
-            productRegistrationService.findAllBySeriesUuid(seriesRegistrationDTO.id)
-                .filter { it.registrationStatus == RegistrationStatus.ACTIVE }
-                .map { it.id },
-        ).isNotEmpty()
-
-        return SeriesRegistrationDTOV2(
-            id = seriesRegistrationDTO.id,
-            supplierName = supplierName,
-            title = seriesRegistrationDTO.title,
-            text = seriesRegistrationDTO.text,
-            isoCategory = isoCategoryDTO,
-            message = seriesRegistrationDTO.message,
-            status = EditStatus.from(seriesRegistrationDTO),
-            seriesData = seriesRegistrationDTO.seriesData,
-            created = seriesRegistrationDTO.created,
-            updated = seriesRegistrationDTO.updated,
-            published = seriesRegistrationDTO.published,
-            expired = seriesRegistrationDTO.expired,
-            updatedByUser = seriesRegistrationDTO.updatedByUser,
-            createdByUser = seriesRegistrationDTO.createdByUser,
-            variants = productRegistrationDTOs,
-            version = seriesRegistrationDTO.version,
-            isExpired = seriesRegistrationDTO.expired < LocalDateTime.now(),
-            isPublished = seriesRegistrationDTO.published?.let { it < LocalDateTime.now() } ?: false,
-            inAgreement = inAgreement,
-            hmdbId = if (seriesRegistrationDTO.identifier != seriesRegistrationDTO.id.toString() &&
-                seriesRegistrationDTO.createdBy == HMDB
-            ) {
-                seriesRegistrationDTO.identifier
-            } else {
-                null
-            },
-        )
-    }
 }
