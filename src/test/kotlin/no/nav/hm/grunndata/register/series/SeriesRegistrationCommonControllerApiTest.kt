@@ -1,9 +1,11 @@
 package no.nav.hm.grunndata.register.series
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.common.runBlocking
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
@@ -36,9 +38,6 @@ class SeriesRegistrationCommonControllerApiTest {
     }
 
     @Inject
-    private lateinit var supplierApiClient: SeriesControllerApiClient
-
-    @Inject
     private lateinit var commonApiClient: SeriesCommonControllerApiClient
 
     @Inject
@@ -64,6 +63,7 @@ class SeriesRegistrationCommonControllerApiTest {
     private val emailAdmin = "series-admin@test.test11"
     private val password = "api-123"
     private var testSupplier: SupplierRegistration? = null
+    private var testSupplier2: SupplierRegistration? = null
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -73,6 +73,20 @@ class SeriesRegistrationCommonControllerApiTest {
         runBlocking {
             LOG.info("Creating user and supplier")
             testSupplier = supplierRegistrationRepository.save(
+                SupplierRegistration(
+                    id = UUID.randomUUID(),
+                    supplierData = SupplierData(
+                        address = "address 3",
+                        homepage = "https://www.hompage.no",
+                        phone = "+47 12345678",
+                        email = "supplier3@test.test",
+                    ),
+                    identifier = UUID.randomUUID().toString(),
+                    name = UUID.randomUUID().toString(),
+                ),
+            )
+
+            testSupplier2 = supplierRegistrationRepository.save(
                 SupplierRegistration(
                     id = UUID.randomUUID(),
                     supplierData = SupplierData(
@@ -102,7 +116,7 @@ class SeriesRegistrationCommonControllerApiTest {
                     token = password,
                     name = "User tester",
                     roles = listOf(Roles.ROLE_SUPPLIER),
-                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, UUID.randomUUID().toString())),
+                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplier2!!.id.toString())),
                 ),
             )
 
@@ -126,7 +140,7 @@ class SeriesRegistrationCommonControllerApiTest {
             val jwtAdmin =
                 loginClient.login(UsernamePasswordCredentials(emailAdmin, password)).getCookie("JWT").get().value
 
-            val series = supplierApiClient.createDraft(jwtSupplier, SeriesDraftWithDTO("titleFindByVar", "30090002"))
+            val series = commonApiClient.createDraft(jwtSupplier, testSupplier!!.id, SeriesDraftWithDTO("titleFindByVar", "30090002"))
             val variant =
                 productApiClient.createDraft(jwtSupplier, series.id, DraftVariantDTO("variantFindByVar", "supplierId1"))
 
@@ -152,8 +166,8 @@ class SeriesRegistrationCommonControllerApiTest {
         runBlocking {
             val jwt = loginClient.login(UsernamePasswordCredentials(email, password)).getCookie("JWT").get().value
 
-            supplierApiClient.createDraft(jwt, SeriesDraftWithDTO("titleSearch", "30090002"))
-            supplierApiClient.createDraft(jwt, SeriesDraftWithDTO("titleSearch2", "30090002"))
+            commonApiClient.createDraft(jwt, testSupplier!!.id, SeriesDraftWithDTO("titleSearch", "30090002"))
+            commonApiClient.createDraft(jwt, testSupplier!!.id, SeriesDraftWithDTO("titleSearch2", "30090002"))
 
             val pagedSeriesSingle = commonApiClient.findSeriesByTitle(jwt, "titleSearch2")
             pagedSeriesSingle.totalSize shouldBe 1
@@ -173,10 +187,22 @@ class SeriesRegistrationCommonControllerApiTest {
             val jwtOtherSupplier =
                 loginClient.login(UsernamePasswordCredentials(email2, password)).getCookie("JWT").get().value
 
-            val series = supplierApiClient.createDraft(jwtOtherSupplier, SeriesDraftWithDTO("titleOtherSupplier", "30090002"))
+            val series = commonApiClient.createDraft(jwtOtherSupplier, testSupplier2!!.id, SeriesDraftWithDTO("titleOtherSupplier", "30090002"))
 
             val seriesOtherSupplier = commonApiClient.readSeries(jwtSupplier, series.id)
             seriesOtherSupplier.shouldBeNull()
+        }
+    }
+
+    @Test
+    fun `supplier cant create series for other suppliers`() {
+        runBlocking {
+            val jwtSupplier =
+                loginClient.login(UsernamePasswordCredentials(email, password)).getCookie("JWT").get().value
+
+            shouldThrow<HttpClientResponseException> {
+                commonApiClient.createDraft(jwtSupplier, testSupplier2!!.id, SeriesDraftWithDTO("cantCreateTitle", "30090002"))
+            }
         }
     }
 
@@ -185,7 +211,7 @@ class SeriesRegistrationCommonControllerApiTest {
         runBlocking {
             val jwt = loginClient.login(UsernamePasswordCredentials(email, password)).getCookie("JWT").get().value
 
-            val series = supplierApiClient.createDraft(jwt, SeriesDraftWithDTO("titleUpdateSeries", "30090002"))
+            val series = commonApiClient.createDraft(jwt, testSupplier!!.id, SeriesDraftWithDTO("titleUpdateSeries", "30090002"))
 
             commonApiClient.updateSeries(jwt, series.id, UpdateSeriesRegistrationDTO(text = "en tekst"))
 
@@ -205,7 +231,7 @@ class SeriesRegistrationCommonControllerApiTest {
             val jwtAdmin =
                 loginClient.login(UsernamePasswordCredentials(emailAdmin, password)).getCookie("JWT").get().value
 
-            val series = supplierApiClient.createDraft(jwtSupplier, SeriesDraftWithDTO("titleActiveStatus", "30090002"))
+            val series = commonApiClient.createDraft(jwtSupplier, testSupplier!!.id, SeriesDraftWithDTO("titleActiveStatus", "30090002"))
             adminApiClient.approveSeries(jwtAdmin, series.id)
             commonApiClient.setSeriesToDraft(jwtSupplier, series.id)
 
@@ -226,7 +252,7 @@ class SeriesRegistrationCommonControllerApiTest {
         runBlocking {
             val jwt = loginClient.login(UsernamePasswordCredentials(email, password)).getCookie("JWT").get().value
 
-            val series = supplierApiClient.createDraft(jwt, SeriesDraftWithDTO("titleDeletedStatus", "30090002"))
+            val series = commonApiClient.createDraft(jwt, testSupplier!!.id, SeriesDraftWithDTO("titleDeletedStatus", "30090002"))
 
             commonApiClient.setSeriesToDeleted(jwt, series.id)
             val deletedSeries = commonApiClient.readSeries(jwt, series.id)
@@ -243,7 +269,7 @@ class SeriesRegistrationCommonControllerApiTest {
             val jwtAdmin =
                 loginClient.login(UsernamePasswordCredentials(emailAdmin, password)).getCookie("JWT").get().value
 
-            val series = supplierApiClient.createDraft(jwtSupplier, SeriesDraftWithDTO("titleDraftStatus", "30090002"))
+            val series = commonApiClient.createDraft(jwtSupplier, testSupplier!!.id, SeriesDraftWithDTO("titleDraftStatus", "30090002"))
             adminApiClient.approveSeries(jwtAdmin, series.id)
             commonApiClient.setSeriesToDraft(jwtSupplier, series.id)
 

@@ -94,7 +94,7 @@ class SeriesRegistrationAdminControllerApiTest {
             val jwtAdmin =
                 loginClient.login(UsernamePasswordCredentials(emailAdmin, password)).getCookie("JWT").get().value
 
-            val series = adminApiClient.createDraft(
+            val series = commonApiClient.createDraft(
                 jwt = jwtAdmin,
                 supplierId = testSupplier!!.id,
                 seriesRegistrationDTO = SeriesDraftWithDTO("titlePublished", "30090002")
@@ -113,7 +113,7 @@ class SeriesRegistrationAdminControllerApiTest {
             val jwtAdmin =
                 loginClient.login(UsernamePasswordCredentials(emailAdmin, password)).getCookie("JWT").get().value
 
-            val series = adminApiClient.createDraft(
+            val series = commonApiClient.createDraft(
                 jwt = jwtAdmin,
                 supplierId = testSupplier!!.id,
                 seriesRegistrationDTO = SeriesDraftWithDTO("titlePublished", "30090002")
@@ -137,12 +137,12 @@ class SeriesRegistrationAdminControllerApiTest {
             val jwtAdmin =
                 loginClient.login(UsernamePasswordCredentials(emailAdmin, password)).getCookie("JWT").get().value
 
-            val series1 = adminApiClient.createDraft(
+            val series1 = commonApiClient.createDraft(
                 jwt = jwtAdmin,
                 supplierId = testSupplier!!.id,
                 seriesRegistrationDTO = SeriesDraftWithDTO("titlePublishedMult1", "30090002")
             )
-            val series2 = adminApiClient.createDraft(
+            val series2 = commonApiClient.createDraft(
                 jwt = jwtAdmin,
                 supplierId = testSupplier!!.id,
                 seriesRegistrationDTO = SeriesDraftWithDTO("titlePublishedMult2", "30090002")
@@ -171,7 +171,7 @@ class SeriesRegistrationAdminControllerApiTest {
             val jwtAdmin =
                 loginClient.login(UsernamePasswordCredentials(emailAdmin, password)).getCookie("JWT").get().value
 
-            val series = supplierApiClient.createDraft(jwtSupplier, SeriesDraftWithDTO("titleRejected", "30090002"))
+            val series = commonApiClient.createDraft(jwtSupplier, testSupplier!!.id, SeriesDraftWithDTO("titleRejected", "30090002"))
             supplierApiClient.setSeriesToPendingApproval(jwtSupplier, series.id)
             adminApiClient.rejectSeries(jwtAdmin, series.id, RejectSeriesDTO("rejected message"))
 
@@ -191,8 +191,8 @@ class SeriesRegistrationAdminControllerApiTest {
             val jwtAdmin =
                 loginClient.login(UsernamePasswordCredentials(emailAdmin, password)).getCookie("JWT").get().value
 
-            val series = supplierApiClient.createDraft(jwtSupplier, SeriesDraftWithDTO("titlePending", "30090002"))
-            supplierApiClient.createDraft(jwtSupplier, SeriesDraftWithDTO("titlePending2", "30090002"))
+            val series = commonApiClient.createDraft(jwtSupplier, testSupplier!!.id, SeriesDraftWithDTO("titlePending", "30090002"))
+            commonApiClient.createDraft(jwtSupplier, testSupplier!!.id, SeriesDraftWithDTO("titlePending2", "30090002"))
             supplierApiClient.setSeriesToPendingApproval(jwtSupplier, series.id)
 
             val pending = adminApiClient.findSeriesPendingApproval(jwtAdmin).content.filter { it.title.startsWith("titlePending") }
@@ -209,12 +209,12 @@ class SeriesRegistrationAdminControllerApiTest {
 
             val supplier = createTestSupplier()
 
-            adminApiClient.createDraft(
+            commonApiClient.createDraft(
                 jwt = jwtAdmin,
                 supplierId = supplier.id,
                 seriesRegistrationDTO = SeriesDraftWithDTO("titleInventory", "30090002")
             )
-            adminApiClient.createDraft(
+            commonApiClient.createDraft(
                 jwt = jwtAdmin,
                 supplierId = supplier.id,
                 seriesRegistrationDTO = SeriesDraftWithDTO("titleInventory2", "30090002")
@@ -231,12 +231,12 @@ class SeriesRegistrationAdminControllerApiTest {
             val jwtAdmin =
                 loginClient.login(UsernamePasswordCredentials(emailAdmin, password)).getCookie("JWT").get().value
 
-            val series1 = adminApiClient.createDraft(
+            val series1 = commonApiClient.createDraft(
                 jwt = jwtAdmin,
                 supplierId = testSupplier!!.id,
                 seriesRegistrationDTO = SeriesDraftWithDTO("titleMove1", "30090002")
             )
-            val series2 = adminApiClient.createDraft(
+            val series2 = commonApiClient.createDraft(
                 jwt = jwtAdmin,
                 supplierId = testSupplier!!.id,
                 seriesRegistrationDTO = SeriesDraftWithDTO("titleMove2", "30090002")

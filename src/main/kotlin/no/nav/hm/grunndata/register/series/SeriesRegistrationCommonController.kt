@@ -50,6 +50,26 @@ class SeriesRegistrationCommonController(
         const val API_V1_SERIES = "/api/v1/series"
     }
 
+    @Post("/supplier/{supplierId}/draftWith")
+    suspend fun draftSeriesWith(
+        supplierId: UUID,
+        @Body draftWith: SeriesDraftWithDTO,
+        authentication: Authentication,
+    ): HttpResponse<SeriesDraftResponse> {
+        if(authentication.isSupplier() && authentication.supplierId() != supplierId) {
+            LOG.warn("SupplierId in request does not match authenticated supplierId")
+            return HttpResponse.unauthorized()
+        }
+
+        return HttpResponse.ok(
+            SeriesDraftResponse(seriesRegistrationService.createDraftWith(
+                supplierId,
+                authentication,
+                draftWith,
+            ).id),
+        )
+    }
+
     @Get("/")
     suspend fun findSeries(
         @RequestBean seriesCriteria: SeriesCommonCriteria,

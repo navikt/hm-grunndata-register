@@ -8,6 +8,7 @@ import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Patch
 import io.micronaut.http.annotation.PathVariable
+import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.client.annotation.Client
 import no.nav.hm.grunndata.register.CONTEXT_PATH
@@ -15,6 +16,13 @@ import java.util.UUID
 
 @Client("$CONTEXT_PATH/${SeriesRegistrationCommonController.API_V1_SERIES}")
 interface SeriesCommonControllerApiClient {
+
+    @Post(uri = "/supplier/{supplierId}/draftWith", processes = [APPLICATION_JSON])
+    fun createDraft(
+        @CookieValue("JWT") jwt: String,
+        @PathVariable supplierId: UUID,
+        @Body seriesRegistrationDTO: SeriesDraftWithDTO,
+    ): SeriesDraftResponse
 
     @Patch(uri = "/{id}", processes = [APPLICATION_JSON])
     fun updateSeries(

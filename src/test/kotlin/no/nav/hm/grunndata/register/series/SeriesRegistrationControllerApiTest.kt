@@ -100,7 +100,7 @@ class SeriesRegistrationControllerApiTest {
             val jwt =
                 loginClient.login(UsernamePasswordCredentials(email, password)).getCookie("JWT").get().value
 
-            val series = supplierApiClient.createDraft(jwt, SeriesDraftWithDTO("titleDraftStatus", "30090002"))
+            val series = commonApiClient.createDraft(jwt, testSupplier!!.id, SeriesDraftWithDTO("titleDraftStatus", "30090002"))
             supplierApiClient.setSeriesToPendingApproval(jwt, series.id)
 
             val seriesSetToDraft = commonApiClient.readSeries(jwt, series.id)

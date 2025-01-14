@@ -6,7 +6,6 @@ import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.CookieValue
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
-import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.client.annotation.Client
 import no.nav.hm.grunndata.register.CONTEXT_PATH
@@ -14,13 +13,6 @@ import java.util.UUID
 
 @Client("$CONTEXT_PATH/${SeriesRegistrationAdminController.API_V1_SERIES}")
 interface SeriesAdminControllerApiClient {
-
-    @Post(uri = "/supplier/{supplierId}/draftWith", processes = [APPLICATION_JSON])
-    fun createDraft(
-        @CookieValue("JWT") jwt: String,
-        @PathVariable supplierId: UUID,
-        @Body seriesRegistrationDTO: SeriesDraftWithDTO,
-    ): SeriesDraftResponse
 
     @Put(uri = "/approve-v2/{id}", processes = [APPLICATION_JSON])
     fun approveSeries(
