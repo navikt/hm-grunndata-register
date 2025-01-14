@@ -6,6 +6,7 @@ import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.annotation.RequestBean
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
@@ -19,26 +20,11 @@ import no.nav.hm.grunndata.register.runtime.where
 class CatalogImportController(private val catalogImportRepository: CatalogImportRepository) {
 
     @Get("/")
-    suspend fun fetchCatalogImport(
-        @RequestBean criteria: CatalogImportCriteria,
+    suspend fun fetchCatalogSeriesInfo(
+        @QueryValue orderRef: String,
         pageable: Pageable
-    ): Page<CatalogImport> {
-        return catalogImportRepository.findAll(buildCriteriaSpec(criteria), pageable)
+    ): List<CatalogSeriesInfo> {
+        return catalogImportRepository.findCatalogSeriesInfoByOrderRef(orderRef)
     }
 
-    private fun buildCriteriaSpec(criteria: CatalogImportCriteria): PredicateSpecification<CatalogImport>? =
-        if (criteria.isNotEmpty()) {
-            where {
-                criteria.orderRef?.let { root[CatalogImport::orderRef] eq it}
-            }
-        } else null
-
-
-}
-
-@Introspected
-data class CatalogImportCriteria(
-    val orderRef: String? = null
-) {
-    fun isNotEmpty() = orderRef != null
 }
