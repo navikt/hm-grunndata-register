@@ -167,14 +167,14 @@ class SeriesRegistrationCommonController(
     ): HttpResponse<Any> {
         val seriesToUpdate = seriesRegistrationService.findById(id, authentication) ?: return HttpResponse.notFound()
 
-        val updated = seriesRegistrationService.setPublishedSeriesRegistrationStatus(
+        seriesRegistrationService.setPublishedSeriesRegistrationStatus(
             seriesToUpdate,
             authentication,
             SeriesStatus.ACTIVE,
         )
 
         LOG.info("set series to active: $id")
-        return HttpResponse.ok(updated.toDTO())
+        return HttpResponse.ok()
     }
 
     @Delete("/{id}")

@@ -167,35 +167,6 @@ fun SeriesRegistration.toDTO() =
         mainProduct = mainProduct,
     )
 
-fun SeriesRegistrationDTO.toEntity() =
-    SeriesRegistration(
-        id = id,
-        supplierId = supplierId,
-        identifier = identifier,
-        title = title,
-        text = text,
-        formattedText = formattedText,
-        isoCategory = isoCategory,
-        message = message,
-        draftStatus = draftStatus,
-        status = status,
-        adminStatus = adminStatus,
-        created = created,
-        updated = updated,
-        published = published,
-        createdBy = createdBy,
-        seriesData = seriesData,
-        updatedBy = updatedBy,
-        updatedByUser = updatedByUser,
-        version = version,
-        count = count,
-        countDrafts = countDrafts,
-        countPublished = countPublished,
-        countPending = countPending,
-        countDeclined = countDeclined,
-        expired = expired,
-    )
-
 fun SeriesDataDTO.toRapidDTO() =
     SeriesData(
         media = media.map { it.toRapidMediaInfo() }.toSet(),

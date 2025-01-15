@@ -60,20 +60,19 @@ class SeriesRegistrationAdminController(
         @Body ids: List<UUID>,
         authentication: Authentication,
     ): HttpResponse<Any> {
-        val seriesToUpdate =
-            seriesRegistrationService.findByIdIn(ids).onEach {
-                if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("product is not done")
-                if (it.adminStatus == AdminStatus.APPROVED) throw BadRequestException("${it.id} is already approved")
-                if (it.status == SeriesStatus.DELETED) {
-                    throw BadRequestException(
-                        "RegistrationStatus should not be Deleted",
-                    )
-                }
+        val seriesToUpdate = seriesRegistrationService.findByIdIn(ids).onEach {
+            if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("product is not done")
+            if (it.adminStatus == AdminStatus.APPROVED) throw BadRequestException("${it.id} is already approved")
+            if (it.status == SeriesStatus.DELETED) {
+                throw BadRequestException(
+                    "RegistrationStatus should not be Deleted",
+                )
             }
+        }
 
-        val updatedSeries = seriesRegistrationService.approveManySeriesAndVariants(seriesToUpdate, authentication)
+        seriesRegistrationService.approveManySeriesAndVariants(seriesToUpdate, authentication)
 
-        return HttpResponse.ok(updatedSeries.map { it.toDTO() })
+        return HttpResponse.ok()
     }
 
     @Put("/reject-v2/{id}")
