@@ -59,7 +59,7 @@ class SeriesRegistrationAdminController(
     suspend fun approveSeriesAndVariants(
         @Body ids: List<UUID>,
         authentication: Authentication,
-    ): HttpResponse<List<SeriesRegistrationDTO>> {
+    ): HttpResponse<Any> {
         val seriesToUpdate =
             seriesRegistrationService.findByIdIn(ids).onEach {
                 if (it.draftStatus != DraftStatus.DONE) throw BadRequestException("product is not done")

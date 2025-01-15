@@ -24,7 +24,7 @@ interface SeriesAdminControllerApiClient {
     fun approveMultipleSeries(
         @CookieValue("JWT") jwt: String,
         @Body ids: List<UUID>,
-    ): List<SeriesRegistrationDTO>
+    )
 
     @Put(uri = "/reject-v2/{id}", processes = [APPLICATION_JSON])
     fun rejectSeries(
