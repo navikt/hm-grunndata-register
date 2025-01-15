@@ -6,7 +6,6 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
-import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
@@ -117,21 +116,6 @@ class SeriesRegistrationAdminController(
     ) {
         LOG.info("Moving products to series $seriesId")
         seriesRegistrationService.moveVariantsToSeries(seriesId, productIds, authentication)
-    }
-
-    @Post("/supplier/{supplierId}/draftWith")
-    suspend fun draftSeriesWith(
-        supplierId: UUID,
-        @Body draftWith: SeriesDraftWithDTO,
-        authentication: Authentication,
-    ): HttpResponse<SeriesDraftResponse> {
-        return HttpResponse.ok(
-            SeriesDraftResponse(seriesRegistrationService.createDraftWith(
-                supplierId,
-                authentication,
-                draftWith,
-            ).id),
-        )
     }
 }
 

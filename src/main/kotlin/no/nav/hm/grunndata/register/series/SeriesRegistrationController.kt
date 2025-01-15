@@ -1,10 +1,8 @@
 package no.nav.hm.grunndata.register.series
 
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.PathVariable
-import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
@@ -25,20 +23,6 @@ class SeriesRegistrationController(
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationController::class.java)
         const val API_V1_SERIES = "/vendor/api/v1/series"
-    }
-
-    @Post("/draftWith")
-    suspend fun draftSeriesWith(
-        @Body draftWith: SeriesDraftWithDTO,
-        authentication: Authentication,
-    ): HttpResponse<SeriesDraftResponse> {
-        return HttpResponse.ok(
-            SeriesDraftResponse(seriesRegistrationService.createDraftWith(
-                authentication.supplierId(),
-                authentication,
-                draftWith,
-            ).id),
-        )
     }
 
     @Put("/request-approval/{seriesUUID}")
