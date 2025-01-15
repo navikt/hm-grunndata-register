@@ -81,6 +81,7 @@ open class ProductAgreementAdminController(
                 CatalogFile(
                     fileName = file.filename,
                     fileSize =  file.size,
+                    orderRef =  importedExcelCatalog[0].bestillingsNr,
                     catalogList = importedExcelCatalog,
                     supplierId = supplierId,
                     created = LocalDateTime.now(),

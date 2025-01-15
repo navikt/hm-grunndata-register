@@ -31,6 +31,7 @@ class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRe
         val testCatalogFile = CatalogFile(
             fileName = "katalog-test.xls",
             fileSize = completedFileUpload.size,
+            orderRef = "orderRef",
             catalogList = catalogList,
             supplierId = UUID.randomUUID(),
             createdByUser = "test",

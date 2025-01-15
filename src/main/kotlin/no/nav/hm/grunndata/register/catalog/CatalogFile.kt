@@ -17,6 +17,7 @@ data class CatalogFile(
     val id: UUID = UUID.randomUUID(),
     val fileName: String,
     val fileSize: Long,
+    val orderRef: String,
     @field:TypeDef(type = DataType.JSON)
     val catalogList: List<CatalogImportExcelDTO> = emptyList(),
     val supplierId: UUID,
@@ -31,6 +32,7 @@ data class CatalogFileDTO(
     val id: UUID,
     val fileName: String,
     val fileSize: Long,
+    val orderRef: String,
     val supplierId: UUID,
     val createdByUser: String,
     val created: LocalDateTime,
