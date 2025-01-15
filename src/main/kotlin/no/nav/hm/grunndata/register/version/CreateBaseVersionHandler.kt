@@ -9,12 +9,10 @@ import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersion
 import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersionService
-import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
+import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
-import no.nav.hm.grunndata.register.series.toDTO
 import no.nav.hm.grunndata.register.series.version.SeriesRegistrationVersion
 import no.nav.hm.grunndata.register.series.version.SeriesRegistrationVersionService
-import no.nav.hm.grunndata.register.series.toEntity
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.slf4j.LoggerFactory
 
@@ -55,7 +53,7 @@ open class CreateBaseVersionHandler(
                 val seriesVersion =
                     seriesRegistrationVersionService.findBySeriesIdAndVersion(series.id, series.version ?: 0)
                 if (seriesVersion == null) {
-                    seriesRegistrationVersionService.save(series.toDTO().toVersion())
+                    seriesRegistrationVersionService.save(series.toVersion())
                     countSeriesBaseVersionsCreated++
                 }
             }
@@ -81,7 +79,7 @@ open class CreateBaseVersionHandler(
         }
     }
 
-    private fun SeriesRegistrationDTO.toVersion(): SeriesRegistrationVersion =
+    private fun SeriesRegistration.toVersion(): SeriesRegistrationVersion =
         SeriesRegistrationVersion(
             seriesId = this.id,
             version = this.version,
@@ -89,7 +87,7 @@ open class CreateBaseVersionHandler(
             adminStatus = this.adminStatus,
             status = this.status,
             updated = this.updated,
-            seriesRegistration = this.toEntity(),
+            seriesRegistration = this,
             updatedBy = this.updatedBy,
         )
 
