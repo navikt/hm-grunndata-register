@@ -59,20 +59,20 @@ open class ProductRegistrationService(
     open suspend fun update(dto: ProductRegistration) = productRegistrationRepository.update(dto)
 
     open suspend fun findByHmsArtNr(hmsArtNr: String) =
-        productRegistrationRepository.findByHmsArtNrAndRegistrationStatusIn(
+        productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusIn(
             hmsArtNr,
             listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
         )
 
     open suspend fun findByHmsArtNr(hmsArtNr: String, authentication: Authentication): ProductRegistration? =
         if(authentication.isSupplier()) {
-            productRegistrationRepository.findByHmsArtNrAndRegistrationStatusInAndSupplierId(
+            productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierId(
                 hmsArtNr,
                 listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
                 authentication.supplierId(),
             )
         } else {
-            productRegistrationRepository.findByHmsArtNrAndRegistrationStatusIn(
+            productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusIn(
                 hmsArtNr,
                 listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
             )
@@ -81,7 +81,7 @@ open class ProductRegistrationService(
     open suspend fun findByHmsArtNrAndSupplierId(
         hmsArtNr: String,
         supplierId: UUID,
-    ) = productRegistrationRepository.findByHmsArtNrAndRegistrationStatusInAndSupplierId(
+    ) = productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierId(
         hmsArtNr,
         listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
         supplierId,
@@ -95,7 +95,7 @@ open class ProductRegistrationService(
 
     open suspend fun findBySupplierRef(supplierRef: String, authentication: Authentication) =
         if (authentication.isSupplier()) {
-            productRegistrationRepository.findBySupplierRefAndRegistrationStatusInAndSupplierId(
+            productRegistrationRepository.findBySupplierRefStartingWithAndRegistrationStatusInAndSupplierId(
                 supplierRef, listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE), authentication.supplierId()
             )
         } else {
@@ -108,7 +108,7 @@ open class ProductRegistrationService(
     open suspend fun findBySupplierRefAndSupplierIdAndStatusNotDeleted(
         supplierRef: String,
         supplierId: UUID,
-    ) = productRegistrationRepository.findBySupplierRefAndRegistrationStatusInAndSupplierId(
+    ) = productRegistrationRepository.findBySupplierRefStartingWithAndRegistrationStatusInAndSupplierId(
         supplierRef,
         listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
         supplierId

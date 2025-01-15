@@ -31,12 +31,12 @@ interface ProductRegistrationRepository :
         supplierId: UUID,
     ): ProductRegistration?
 
-    suspend fun findByHmsArtNrAndRegistrationStatusIn(
+    suspend fun findByHmsArtNrStartingWithAndRegistrationStatusIn(
         hmsArtNr: String,
         registrationStatus: List<RegistrationStatus>,
     ): ProductRegistration?
 
-    suspend fun findByHmsArtNrAndRegistrationStatusInAndSupplierId(
+    suspend fun findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierId(
         hmsArtNr: String,
         registrationStatus: List<RegistrationStatus>,
         supplierId: UUID,
@@ -47,7 +47,7 @@ interface ProductRegistrationRepository :
         registrationStatus: List<RegistrationStatus>,
     ): ProductRegistration?
 
-    suspend fun findBySupplierRefAndRegistrationStatusInAndSupplierId(
+    suspend fun findBySupplierRefStartingWithAndRegistrationStatusInAndSupplierId(
         supplierRef: String,
         registrationStatus: List<RegistrationStatus>,
         supplierId: UUID

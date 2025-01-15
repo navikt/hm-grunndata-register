@@ -61,14 +61,14 @@ class ProductRegistrationRepositoryTest(
         val registration1 =
             ProductRegistration(
                 id = UUID.randomUUID(),
-                seriesId = "series-123",
+                seriesId = "series-321",
                 seriesUUID = seriesUUID,
                 isoCategory = "12001314",
                 supplierId = supplierId,
                 title = "Dette er produkt title",
                 articleName = "Dette er produkt 1 med og med",
-                hmsArtNr = "123",
-                supplierRef = "eksternref-123",
+                hmsArtNr = "321 ",
+                supplierRef = "eksternref-321 ",
                 draftStatus = DraftStatus.DRAFT,
                 adminStatus = AdminStatus.PENDING,
                 registrationStatus = RegistrationStatus.ACTIVE,
@@ -209,6 +209,22 @@ class ProductRegistrationRepositoryTest(
             val distinct = productRegistrationRepository.findDistinctByProductTechDataJsonQuery("""[{"key":"Brukerhøyde maks","unit":"kg"}]""")
             distinct.size shouldBe 1
             distinct[0].id shouldBe updated.id
+
+            val productByHmsArtNr = productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierId(
+                "321",
+                listOf(RegistrationStatus.ACTIVE),
+                supplierId
+            )
+            productByHmsArtNr.shouldNotBeNull()
+
+
+            val productBySupplierRef = productRegistrationRepository.findBySupplierRefStartingWithAndRegistrationStatusInAndSupplierId(
+                "eksternref-321",
+                listOf(RegistrationStatus.ACTIVE),
+                supplierId
+            )
+
+            productBySupplierRef.shouldNotBeNull()
         }
     }
 }
