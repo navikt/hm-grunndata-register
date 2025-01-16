@@ -20,7 +20,7 @@ class CatalogFileToProductAgreementScheduler(private val catalogFileRepository: 
 
     @LeaderOnly
     @Scheduled(cron = "0 * * * * *")
-    fun scheduleCatalogFileToProductAgreement() {
+    open fun scheduleCatalogFileToProductAgreement() {
         runBlocking {
         val catalogFile = catalogFileRepository.findOneByStatus(CatalogFileStatus.PENDING)
             if (catalogFile != null) {
@@ -60,7 +60,7 @@ class CatalogFileToProductAgreementScheduler(private val catalogFileRepository: 
 
     @LeaderOnly
     @Scheduled(cron = "0 0 3 * * *")
-    fun deleteOldCatalogFiles() {
+    open fun deleteOldCatalogFiles() {
         runBlocking {
             LOG.info("Deleting old catalog files")
             catalogFileRepository.deleteByStatusAndCreatedBefore(CatalogFileStatus.DONE, LocalDateTime.now().minusDays(30))
