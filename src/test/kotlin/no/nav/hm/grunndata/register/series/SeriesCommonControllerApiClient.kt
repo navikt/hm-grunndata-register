@@ -35,7 +35,7 @@ interface SeriesCommonControllerApiClient {
     fun readSeries(
         @CookieValue("JWT") jwt: String,
         @PathVariable id: UUID,
-    ): SeriesRegistrationDTOV2?
+    ): SeriesDTO?
 
     @Get(uri = "/?title={title}", processes = [APPLICATION_JSON])
     fun findSeriesByTitle(

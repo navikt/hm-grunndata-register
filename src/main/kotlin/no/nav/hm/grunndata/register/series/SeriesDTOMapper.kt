@@ -19,7 +19,7 @@ class SeriesDTOMapper(
     private val productDTOMapper: ProductDTOMapper
 ) {
 
-    suspend fun toDTOV2(seriesRegistration: SeriesRegistration): SeriesRegistrationDTOV2 {
+    suspend fun toDTOV2(seriesRegistration: SeriesRegistration): SeriesDTO {
         val supplierName =
             supplierRegistrationService.findById(seriesRegistration.supplierId)?.name
                 ?: throw IllegalArgumentException("cannot find series ${seriesRegistration.id} supplier")
@@ -33,7 +33,7 @@ class SeriesDTOMapper(
                 .map { it.id },
         ).isNotEmpty()
 
-        return SeriesRegistrationDTOV2(
+        return SeriesDTO(
             id = seriesRegistration.id,
             supplierName = supplierName,
             title = seriesRegistration.title,

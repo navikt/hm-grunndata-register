@@ -205,7 +205,7 @@ data class UpdateSeriesRegistrationDTO(
     val url: String? = null,
 )
 
-data class SeriesRegistrationDTOV2(
+data class SeriesDTO(
     val id: UUID,
     val supplierName: String,
     val title: String,

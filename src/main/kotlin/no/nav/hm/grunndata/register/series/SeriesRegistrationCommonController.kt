@@ -107,7 +107,7 @@ class SeriesRegistrationCommonController(
     suspend fun readSeries(
         @PathVariable id: UUID,
         authentication: Authentication,
-    ): HttpResponse<SeriesRegistrationDTOV2> {
+    ): HttpResponse<SeriesDTO> {
         return seriesRegistrationService.findById(id, authentication)?.let {
             HttpResponse.ok(seriesDTOMapper.toDTOV2(it))
         } ?: run {
