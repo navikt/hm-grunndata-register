@@ -14,7 +14,7 @@ import no.nav.hm.grunndata.register.leaderelection.LeaderOnly
 import no.nav.hm.grunndata.register.security.Roles
 
 @Singleton
-class CatalogFileToProductAgreementScheduler(private val catalogFileRepository: CatalogFileRepository,
+open class CatalogFileToProductAgreementScheduler(private val catalogFileRepository: CatalogFileRepository,
                                              private val catalogFileEventHandler: CatalogFileEventHandler,
                                              private val productAgreementImportExcelService: ProductAgreementImportExcelService) {
 
