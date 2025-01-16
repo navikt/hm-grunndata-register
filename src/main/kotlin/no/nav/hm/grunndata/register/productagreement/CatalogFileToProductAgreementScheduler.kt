@@ -10,6 +10,7 @@ import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.catalog.CatalogFileDTO
 import no.nav.hm.grunndata.register.catalog.CatalogFileEventHandler
 import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
+import no.nav.hm.grunndata.register.leaderelection.LeaderOnly
 import no.nav.hm.grunndata.register.security.Roles
 
 @Singleton
@@ -17,6 +18,7 @@ class CatalogFileToProductAgreementScheduler(private val catalogFileRepository: 
                                              private val catalogFileEventHandler: CatalogFileEventHandler,
                                              private val productAgreementImportExcelService: ProductAgreementImportExcelService) {
 
+    @LeaderOnly
     @Scheduled(cron = "0 * * * * *")
     fun scheduleCatalogFileToProductAgreement() {
         runBlocking {
@@ -56,6 +58,7 @@ class CatalogFileToProductAgreementScheduler(private val catalogFileRepository: 
         }
     }
 
+    @LeaderOnly
     @Scheduled(cron = "0 0 3 * * *")
     fun deleteOldCatalogFiles() {
         runBlocking {
