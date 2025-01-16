@@ -6,11 +6,15 @@ import jakarta.inject.Singleton
 import java.time.LocalDateTime
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
+import no.nav.hm.grunndata.rapid.event.EventName
+import no.nav.hm.grunndata.register.catalog.CatalogFileDTO
+import no.nav.hm.grunndata.register.catalog.CatalogFileEventHandler
 import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
 import no.nav.hm.grunndata.register.security.Roles
 
 @Singleton
 class CatalogFileToProductAgreementScheduler(private val catalogFileRepository: CatalogFileRepository,
+                                             private val catalogFileEventHandler: CatalogFileEventHandler,
                                              private val productAgreementImportExcelService: ProductAgreementImportExcelService) {
 
     @Scheduled(cron = "0 * * * * *")
@@ -29,8 +33,21 @@ class CatalogFileToProductAgreementScheduler(private val catalogFileRepository: 
                         false
                     )
                     LOG.info("Finished, saving result")
-                    catalogFileRepository.update(catalogFile.copy(status = CatalogFileStatus.DONE))
+                    val catalogFile = catalogFileRepository.update(catalogFile.copy(status = CatalogFileStatus.DONE))
+                    val dto = CatalogFileDTO(
+                        id = catalogFile.id,
+                        fileName = catalogFile.fileName,
+                        fileSize = catalogFile.fileSize,
+                        orderRef = catalogFile.orderRef,
+                        supplierId = catalogFile.supplierId,
+                        updatedByUser = catalogFile.updatedByUser,
+                        created = catalogFile.created,
+                        updated = catalogFile.updated,
+                        status = catalogFile.status
+                    )
+                    catalogFileEventHandler.queueDTORapidEvent(dto, eventName = EventName.registeredCatalogfileV1)
                 }
+
                 catch (e: Exception) {
                     LOG.error("Error while processing catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName}", e)
                     catalogFileRepository.update(catalogFile.copy(status = CatalogFileStatus.ERROR))

@@ -9,7 +9,10 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import no.nav.hm.grunndata.rapid.dto.CatalogFileRapidDTO
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
+import no.nav.hm.grunndata.rapid.dto.RapidDTO
+import no.nav.hm.grunndata.register.event.EventPayload
 
 
 @MappedEntity("catalog_file_v1")
@@ -30,16 +33,29 @@ data class CatalogFile(
 
 @Introspected
 data class CatalogFileDTO(
-    val id: UUID,
+    override val id: UUID,
     val fileName: String,
     val fileSize: Long,
     val orderRef: String,
     val supplierId: UUID,
-    val updatedByUser: String,
+    override val updatedByUser: String,
     val created: LocalDateTime,
     val updated: LocalDateTime,
     val status: CatalogFileStatus,
-)
+): EventPayload {
+    override fun toRapidDTO(): RapidDTO = CatalogFileRapidDTO(
+        id = id,
+        partitionKey = orderRef,
+        fileName = fileName,
+        fileSize = fileSize,
+        orderRef = orderRef,
+        supplierId = supplierId,
+        updatedByUser = updatedByUser,
+        created = created,
+        updated = updated,
+        status = status,
+    )
+}
 
 
 data class CatalogImportExcelDTO(
