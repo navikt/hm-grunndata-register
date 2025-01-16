@@ -1,0 +1,1 @@
+ALTER TABLE catalog_file_v1 RENAME COLUMN created_by_user TO updated_by_user;

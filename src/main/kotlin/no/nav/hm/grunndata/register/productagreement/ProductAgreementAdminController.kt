@@ -23,10 +23,10 @@ import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
+import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.register.catalog.CatalogExcelFileImport
 import no.nav.hm.grunndata.register.catalog.CatalogFile
 import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
-import no.nav.hm.grunndata.register.catalog.CatalogFileStatus
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 
 @Secured(Roles.ROLE_ADMIN)
@@ -85,7 +85,7 @@ open class ProductAgreementAdminController(
                     catalogList = importedExcelCatalog,
                     supplierId = supplierId,
                     created = LocalDateTime.now(),
-                    createdByUser = authentication.name,
+                    updatedByUser = authentication.name,
                     updated = LocalDateTime.now(),
                     status = CatalogFileStatus.PENDING
                 )

@@ -9,6 +9,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 
 
 @MappedEntity("catalog_file_v1")
@@ -21,7 +22,7 @@ data class CatalogFile(
     @field:TypeDef(type = DataType.JSON)
     val catalogList: List<CatalogImportExcelDTO> = emptyList(),
     val supplierId: UUID,
-    val createdByUser: String,
+    val updatedByUser: String,
     val created: LocalDateTime,
     val updated: LocalDateTime,
     val status: CatalogFileStatus = CatalogFileStatus.PENDING,
@@ -34,11 +35,12 @@ data class CatalogFileDTO(
     val fileSize: Long,
     val orderRef: String,
     val supplierId: UUID,
-    val createdByUser: String,
+    val updatedByUser: String,
     val created: LocalDateTime,
     val updated: LocalDateTime,
     val status: CatalogFileStatus,
 )
+
 
 data class CatalogImportExcelDTO(
     val rammeavtaleHandling:String, // oebs operation for rammeavtale
@@ -88,6 +90,3 @@ fun CatalogImportExcelDTO.toEntity() = CatalogImport(
 
 val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
-enum class CatalogFileStatus {
-    PENDING, DONE, ERROR
-}

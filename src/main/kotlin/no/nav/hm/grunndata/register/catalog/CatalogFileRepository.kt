@@ -11,6 +11,7 @@ import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
 import java.time.LocalDateTime
 import java.util.UUID
+import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
@@ -19,7 +20,7 @@ interface CatalogFileRepository: CoroutineCrudRepository<CatalogFile, UUID>, Cor
     suspend fun findOne(id: UUID): CatalogFileDTO?
 
     @Query(
-        value = "SELECT id, file_name, file_size, order_ref, supplier_id, created_by_user, created, updated, status FROM catalog_file_v1",
+        value = "SELECT id, file_name, file_size, order_ref, supplier_id, updated_by_user, created, updated, status FROM catalog_file_v1",
         readOnly = true,
         nativeQuery = true
     )

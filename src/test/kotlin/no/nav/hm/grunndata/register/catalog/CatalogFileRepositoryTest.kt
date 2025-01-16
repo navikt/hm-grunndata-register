@@ -12,6 +12,7 @@ import java.time.LocalDateTime
 import java.util.Optional
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import org.junit.jupiter.api.Test
 
 @MicronautTest
@@ -34,7 +35,7 @@ class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRe
             orderRef = "orderRef",
             catalogList = catalogList,
             supplierId = UUID.randomUUID(),
-            createdByUser = "test",
+            updatedByUser = "test",
             created = LocalDateTime.now(),
             updated = LocalDateTime.now(),
             status = CatalogFileStatus.PENDING

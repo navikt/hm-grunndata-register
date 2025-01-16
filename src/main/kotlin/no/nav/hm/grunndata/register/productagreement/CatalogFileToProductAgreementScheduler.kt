@@ -5,8 +5,8 @@ import io.micronaut.security.authentication.ClientAuthentication
 import jakarta.inject.Singleton
 import java.time.LocalDateTime
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
-import no.nav.hm.grunndata.register.catalog.CatalogFileStatus
 import no.nav.hm.grunndata.register.security.Roles
 
 @Singleton
@@ -21,7 +21,7 @@ class CatalogFileToProductAgreementScheduler(private val catalogFileRepository: 
                 try {
                     LOG.info("Got catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName}")
                     val adminAuthentication =
-                        ClientAuthentication(catalogFile.createdByUser, mapOf("roles" to listOf(Roles.ROLE_ADMIN)))
+                        ClientAuthentication(catalogFile.updatedByUser, mapOf("roles" to listOf(Roles.ROLE_ADMIN)))
                     val productAgreementResult = productAgreementImportExcelService.mapToProductAgreementImportResult(
                         catalogFile.catalogList,
                         adminAuthentication,
