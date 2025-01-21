@@ -12,7 +12,16 @@ interface CompatiClient  {
 
     @Get(uri="/catalog/products/compatibleWith", consumes = [APPLICATION_JSON])
     suspend fun findCompatibleWidth(@QueryValue("hmsNr") hmsNr: String,
-                             @QueryValue("variant") boolean: Boolean? = false): JsonNode
+                                    @QueryValue("variant") boolean: Boolean? = false): List<CompatibleProductResult>
+
 
 
 }
+
+data class CompatibleProductResult(
+    val score: Double,
+    val seriesTitle: String,
+    val seriesId: String,
+    val productId: String,
+    val hmsArtNr: String,
+)
