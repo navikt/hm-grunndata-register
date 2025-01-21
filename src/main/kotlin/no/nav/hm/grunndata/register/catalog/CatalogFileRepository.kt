@@ -26,10 +26,17 @@ interface CatalogFileRepository: CoroutineCrudRepository<CatalogFile, UUID>, Cor
     )
     suspend fun findMany(pageable: Pageable): Slice<CatalogFileDTO>
 
+    @Query(
+        value = "SELECT id, file_name, file_size, order_ref, supplier_id, updated_by_user, created, updated, status FROM catalog_file_v1 where status = :status",
+        readOnly = true,
+        nativeQuery = true
+    )
+    suspend fun findManyByStatus(status: CatalogFileStatus, pageable: Pageable): Slice<CatalogFileDTO>
+
     suspend fun findOneByStatus(status: CatalogFileStatus): CatalogFile?
 
     suspend fun findByStatus(status: CatalogFileStatus): List<CatalogFile>
 
-    suspend fun deleteByStatusAndCreatedBefore(status: CatalogFileStatus = CatalogFileStatus.DONE, created: LocalDateTime): Int
+    suspend fun updateStatusById(id: UUID, status: CatalogFileStatus)
 
 }

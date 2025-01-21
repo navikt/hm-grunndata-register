@@ -3,7 +3,6 @@ package no.nav.hm.grunndata.register.productagreement
 import io.micronaut.scheduling.annotation.Scheduled
 import io.micronaut.security.authentication.ClientAuthentication
 import jakarta.inject.Singleton
-import java.time.LocalDateTime
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.rapid.event.EventName
@@ -35,17 +34,17 @@ open class CatalogFileToProductAgreementScheduler(private val catalogFileReposit
                         false
                     )
                     LOG.info("Finished, saving result")
-                    val catalogFile = catalogFileRepository.update(catalogFile.copy(status = CatalogFileStatus.DONE))
+                    val updatedCatalogFile = catalogFileRepository.update(catalogFile.copy(status = CatalogFileStatus.DONE))
                     val dto = CatalogFileDTO(
-                        id = catalogFile.id,
-                        fileName = catalogFile.fileName,
-                        fileSize = catalogFile.fileSize,
-                        orderRef = catalogFile.orderRef,
-                        supplierId = catalogFile.supplierId,
-                        updatedByUser = catalogFile.updatedByUser,
-                        created = catalogFile.created,
-                        updated = catalogFile.updated,
-                        status = catalogFile.status
+                        id = updatedCatalogFile.id,
+                        fileName = updatedCatalogFile.fileName,
+                        fileSize = updatedCatalogFile.fileSize,
+                        orderRef = updatedCatalogFile.orderRef,
+                        supplierId = updatedCatalogFile.supplierId,
+                        updatedByUser = updatedCatalogFile.updatedByUser,
+                        created = updatedCatalogFile.created,
+                        updated = updatedCatalogFile.updated,
+                        status = updatedCatalogFile.status
                     )
                     catalogFileEventHandler.queueDTORapidEvent(dto, eventName = EventName.registeredCatalogfileV1)
                 }
@@ -55,15 +54,6 @@ open class CatalogFileToProductAgreementScheduler(private val catalogFileReposit
                     catalogFileRepository.update(catalogFile.copy(status = CatalogFileStatus.ERROR))
                 }
             }
-        }
-    }
-
-    @LeaderOnly
-    @Scheduled(cron = "0 0 3 * * *")
-    open fun deleteOldCatalogFiles() {
-        runBlocking {
-            LOG.info("Deleting old catalog files")
-            catalogFileRepository.deleteByStatusAndCreatedBefore(CatalogFileStatus.DONE, LocalDateTime.now().minusDays(30))
         }
     }
 

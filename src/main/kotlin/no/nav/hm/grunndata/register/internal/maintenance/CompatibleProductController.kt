@@ -15,17 +15,11 @@ import org.slf4j.LoggerFactory
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller("/internal/compatible/products")
 @Hidden
-class CompatibleProductController(private val compatibleWithFinder: CompatibleWithFinder,
-                                  private val catalogImportRepository: CatalogImportRepository,
-                                  private val productRegistrationService: ProductRegistrationService) {
+class CompatibleProductController(private val compatibleWithFinder: CompatibleWithFinder) {
 
     @Post("/connect/{hmsNr}")
     suspend fun connect(hmsNr: String) {
-        productRegistrationService.findByHmsArtNr(hmsNr)?.let { product ->
-            compatibleWithFinder.addCompatibleWithAttributeLink(product).let { updatedProduct ->
-                productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
-            }
-        } ?: LOG.info("No product found for hmsNr: $hmsNr")
+        compatibleWithFinder.connectWithHmsNr(hmsNr)
     }
 
     companion object {
@@ -34,12 +28,6 @@ class CompatibleProductController(private val compatibleWithFinder: CompatibleWi
 
     @Post("/connect/orderref/{orderRef}")
     suspend fun connectWithOrderRef(orderRef: String) {
-        catalogImportRepository.findCatalogSeriesInfoByOrderRef(orderRef).filter { !it.mainProduct && it.productId != null }.forEach {
-            productRegistrationService.findById(it.productId!!)?.let { product ->
-                compatibleWithFinder.addCompatibleWithAttributeLink(product).let { updatedProduct ->
-                    productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
-                }
-            }
-        }
+        compatibleWithFinder.connectWithOrderRef(orderRef)
     }
 }

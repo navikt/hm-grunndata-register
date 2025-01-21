@@ -18,6 +18,8 @@ interface CatalogImportRepository:  CoroutineCrudRepository<CatalogImport, UUID>
         @Query("""SELECT DISTINCT on (a.hms_art_nr) a.*, c.title as series_title, c.id as series_id, b.product_id from catalog_import_v1 a, product_agreement_reg_v1 b,  series_reg_v1 c  where a.reference=b.reference and a.order_ref=:orderRef and a.hms_art_nr=b.hms_artnr and b.series_uuid=c.id""", nativeQuery = true)
         suspend fun findCatalogSeriesInfoByOrderRef(orderRef: String): List<CatalogSeriesInfo>
 
+
+
 }
 
 @Introspected
