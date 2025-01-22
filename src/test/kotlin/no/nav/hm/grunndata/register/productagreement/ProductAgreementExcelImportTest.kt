@@ -40,6 +40,7 @@ class ProductAgreementExcelImportTest(
     private val userRepository: UserRepository,
     private val client: ProductAgreementImportExcelClient,
     private val loginClient: LoginClient,
+    private val catalogFileToProductAgreementScheduler: CatalogFileToProductAgreementScheduler
 
 
     ) {
@@ -187,11 +188,14 @@ class ProductAgreementExcelImportTest(
             response.status shouldBe HttpStatus.OK
             val body = response.body()
             body.shouldNotBeNull()
-            body.newCount shouldBe 8
             body.createdSeries.size shouldBe 4
             body.createdAccessoryParts.size shouldBe 5
             body.createdMainProducts.size shouldBe 2
             body.newProductAgreements.size shouldBe 8
+            val result = catalogFileToProductAgreementScheduler.scheduleCatalogFileToProductAgreement()
+            result.shouldNotBeNull()
+            result.newProducts.size shouldBe 2
+            result.newSeries.size shouldBe 4
             val bytes2 = ProductAgreementExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test-2.xls").readAllBytes()
             val multipartBody2 = MultipartBody
                 .builder()
@@ -204,10 +208,11 @@ class ProductAgreementExcelImportTest(
             response.status shouldBe HttpStatus.OK
             val body2 = response2.body()
             body2.shouldNotBeNull()
-            body2.newProductAgreements.size shouldBe 2
-            body2.deactivatedAgreements.size shouldBe 2
-            body2.createdAccessoryParts.size shouldBe 1
-            body2.updatedAgreements.size shouldBe 6
+            val result2 = catalogFileToProductAgreementScheduler.scheduleCatalogFileToProductAgreement()
+            result2.shouldNotBeNull()
+            result2.newProducts.size shouldBe 0
+            result2.deactivateList.size shouldBe 2
+
         }
     }
 }

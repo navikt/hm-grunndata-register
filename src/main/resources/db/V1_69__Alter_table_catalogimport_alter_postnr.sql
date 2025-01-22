@@ -1,0 +1,1 @@
+ALTER TABLE catalog_import_v1 ALTER COLUMN post_nr TYPE varchar(255);

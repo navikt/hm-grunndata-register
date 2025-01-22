@@ -13,28 +13,29 @@ import no.nav.hm.grunndata.register.leaderelection.LeaderOnly
 import no.nav.hm.grunndata.register.security.Roles
 
 @Singleton
-open class CatalogFileToProductAgreementScheduler(private val catalogFileRepository: CatalogFileRepository,
-                                             private val catalogFileEventHandler: CatalogFileEventHandler,
-                                             private val productAgreementImportExcelService: ProductAgreementImportExcelService) {
+open class CatalogFileToProductAgreementScheduler(
+    private val catalogFileRepository: CatalogFileRepository,
+    private val catalogFileEventHandler: CatalogFileEventHandler,
+    private val productAgreementImportExcelService: ProductAgreementImportExcelService
+) {
 
     @LeaderOnly
     @Scheduled(cron = "0 * * * * *")
-    open fun scheduleCatalogFileToProductAgreement() {
-        runBlocking {
-        val catalogFile = catalogFileRepository.findOneByStatus(CatalogFileStatus.PENDING)
-            if (catalogFile != null) {
+    open fun scheduleCatalogFileToProductAgreement(): ProductAgreementImportResult? = runBlocking {
+            catalogFileRepository.findOneByStatus(CatalogFileStatus.PENDING)?.let { catalogFile ->
                 try {
                     LOG.info("Got catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName}")
                     val adminAuthentication =
                         ClientAuthentication(catalogFile.updatedByUser, mapOf("roles" to listOf(Roles.ROLE_ADMIN)))
-                    val productAgreementResult = productAgreementImportExcelService.mapToProductAgreementImportResult(
+                    val result = productAgreementImportExcelService.mapToProductAgreementImportResult(
                         catalogFile.catalogList,
                         adminAuthentication,
                         catalogFile.supplierId,
                         false
                     )
                     LOG.info("Finished, saving result")
-                    val updatedCatalogFile = catalogFileRepository.update(catalogFile.copy(status = CatalogFileStatus.DONE))
+                    val updatedCatalogFile =
+                        catalogFileRepository.update(catalogFile.copy(status = CatalogFileStatus.DONE))
                     val dto = CatalogFileDTO(
                         id = updatedCatalogFile.id,
                         fileName = updatedCatalogFile.fileName,
@@ -47,15 +48,18 @@ open class CatalogFileToProductAgreementScheduler(private val catalogFileReposit
                         status = updatedCatalogFile.status
                     )
                     catalogFileEventHandler.queueDTORapidEvent(dto, eventName = EventName.registeredCatalogfileV1)
-                }
-
-                catch (e: Exception) {
-                    LOG.error("Error while processing catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName}", e)
+                    result
+                } catch (e: Exception) {
+                    LOG.error(
+                        "Error while processing catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName}",
+                        e
+                    )
                     catalogFileRepository.update(catalogFile.copy(status = CatalogFileStatus.ERROR))
+                    null
                 }
             }
         }
-    }
+
 
     companion object {
         private val LOG = org.slf4j.LoggerFactory.getLogger(CatalogFileToProductAgreementScheduler::class.java)
