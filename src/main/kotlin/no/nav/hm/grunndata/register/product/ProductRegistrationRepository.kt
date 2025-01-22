@@ -75,6 +75,8 @@ interface ProductRegistrationRepository :
 
     suspend fun findAllBySeriesUUID(seriesUUID: UUID): List<ProductRegistration>
 
+    suspend fun findAllBySeriesUUIDOrderByCreatedAsc(seriesUUID: UUID): List<ProductRegistration>
+
     suspend fun findAllBySeriesUUIDAndRegistrationStatusAndPublishedIsNotNull(
         seriesUUID: UUID,
         registrationStatus: RegistrationStatus,

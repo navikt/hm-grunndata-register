@@ -142,7 +142,7 @@ open class ProductRegistrationService(
         supplierId: UUID,
     ) = productRegistrationRepository.findByIdAndSupplierId(id, supplierId)
 
-    suspend fun findAllBySeriesUuid(seriesUUID: UUID) = productRegistrationRepository.findAllBySeriesUUID(seriesUUID)
+    suspend fun findAllBySeriesUuid(seriesUUID: UUID) = productRegistrationRepository.findAllBySeriesUUIDOrderByCreatedAsc(seriesUUID)
 
     suspend fun findBySeriesUUIDAndSupplierId(
         seriesId: UUID,
