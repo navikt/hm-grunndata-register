@@ -9,12 +9,13 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.swagger.v3.oas.annotations.Hidden
+import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 
 
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller("/internal/catalog/import")
 @Hidden
-class CatalogImportController(
+class CatalogController(
     private val catalogImportRepository: CatalogImportRepository,
     private val catalogFileRepository: CatalogFileRepository
 ) {
@@ -26,9 +27,15 @@ class CatalogImportController(
         return catalogImportRepository.findCatalogSeriesInfoByOrderRef(orderRef)
     }
 
-    @Get("/files")
+    @Get("/files/all")
     suspend fun fetchAllCatalogFiles(
         pageable: Pageable,
     ): Slice<CatalogFileDTO> = catalogFileRepository.findMany(pageable)
+
+    @Get("/files/status/{status}")
+    suspend fun fetchCatalogFilesByStatus(
+        status: CatalogFileStatus,
+        pageable: Pageable,
+    ): Slice<CatalogFileDTO> = catalogFileRepository.findManyByStatus(status, pageable)
 
 }
