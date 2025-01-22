@@ -240,8 +240,14 @@ open class ProductAgreementImportExcelService(
 
 
 
-    private fun parseHMSNr(hmsArtNr: String): String = hmsArtNr.substringBefore(".").toInt().toString()
 
+
+
+}
+
+fun parseHMSNr(hmsArtNr: String): String {
+    val parsedNumber = hmsArtNr.substringBefore(".").toInt().toString()
+    return parsedNumber.padStart(6, '0')
 }
 
 fun parsedelkontraktNr(subContractNr: String): List<Pair<String, Int>> {

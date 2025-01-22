@@ -26,4 +26,17 @@ class DelkontraktParserTest {
         parsedelkontraktNr(del7) shouldBe listOf(Pair("21", 99), Pair("22", 99), Pair("23", 99))
 
     }
+
+    @Test
+    fun testParseHMSNR() {
+        val nr1 = "123.0"
+        val nr2 = "12345"
+        val nr3 = "066666"
+        val nr4 = "123456"
+
+        parseHMSNr(nr1) shouldBe "000123"
+        parseHMSNr(nr2) shouldBe "012345"
+        parseHMSNr(nr3) shouldBe "066666"
+        parseHMSNr(nr4) shouldBe "123456"
+    }
 }
