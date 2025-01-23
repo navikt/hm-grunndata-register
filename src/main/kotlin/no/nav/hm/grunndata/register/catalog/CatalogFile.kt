@@ -29,6 +29,7 @@ data class CatalogFile(
     val created: LocalDateTime,
     val updated: LocalDateTime,
     val status: CatalogFileStatus = CatalogFileStatus.PENDING,
+    val connected: Boolean = false,
 )
 
 @Introspected
@@ -42,6 +43,7 @@ data class CatalogFileDTO(
     val created: LocalDateTime,
     val updated: LocalDateTime,
     val status: CatalogFileStatus,
+    val connected: Boolean = false,
 ): EventPayload {
     override fun toRapidDTO(): RapidDTO = CatalogFileRapidDTO(
         id = id,

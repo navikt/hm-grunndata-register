@@ -11,7 +11,7 @@ import io.micronaut.http.client.annotation.Client
 interface CompatiClient  {
 
     @Get(uri="/catalog/products/compatibleWith", consumes = [APPLICATION_JSON])
-    suspend fun findCompatibleWidth(@QueryValue("hmsNr") hmsNr: String,
+    suspend fun findCompatibleWith(@QueryValue("hmsNr") hmsNr: String,
                                     @QueryValue("variant") boolean: Boolean? = false): List<CompatibleProductResult>
 
 

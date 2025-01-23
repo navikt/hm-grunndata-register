@@ -4,8 +4,6 @@ import jakarta.inject.Singleton
 import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.rapid.dto.CompatibleWith
 import no.nav.hm.grunndata.register.catalog.CatalogImportRepository
-import no.nav.hm.grunndata.register.internal.maintenance.CompatibleProductController
-import no.nav.hm.grunndata.register.internal.maintenance.CompatibleProductController.Companion
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import org.slf4j.LoggerFactory
@@ -19,7 +17,9 @@ class CompatibleWithFinder(private val compatiClient: CompatiClient,
     suspend fun connectWithHmsNr(hmsNr: String) {
         productRegistrationService.findByHmsArtNr(hmsNr)?.let { product ->
             addCompatibleWithAttributeLink(product).let { updatedProduct ->
-                productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+                if(updatedProduct != null) {
+                    productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+                }
             }
         } ?: LOG.info("No product found for hmsNr: $hmsNr")
     }
@@ -28,26 +28,32 @@ class CompatibleWithFinder(private val compatiClient: CompatiClient,
         catalogImportRepository.findCatalogSeriesInfoByOrderRef(orderRef).filter { !it.mainProduct && it.productId != null }.forEach {
             productRegistrationService.findById(it.productId!!)?.let { product ->
                 addCompatibleWithAttributeLink(product).let { updatedProduct ->
-                    productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+                    if (updatedProduct != null) {
+                        productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                            updatedProduct,
+                            isUpdate = true
+                        )
+                    }
                 }
             }
         }
     }
 
     private suspend fun findCompatibleWith(hmsNr: String, variant: Boolean? = false): List<CompatibleProductResult> {
-        return compatiClient.findCompatibleWidth(hmsNr, variant)
+        return compatiClient.findCompatibleWith(hmsNr, variant)
     }
 
-    private suspend fun addCompatibleWithAttributeLink(product: ProductRegistration): ProductRegistration {
+    private suspend fun addCompatibleWithAttributeLink(product: ProductRegistration): ProductRegistration? {
+        LOG.info("Adding compatibleWith attribute to product with id ${product.id} and hmsNr: ${product.hmsArtNr}")
         val compatibleWiths = findCompatibleWith(product.hmsArtNr!!)
         val seriesIds = compatibleWiths.map { it.seriesId.toUUID() }.toSet()
         // we keep the variants, for manual by admin and supplier
-        val productIds = product.productData.attributes.compatibleWidth?.productIds ?: emptySet()
+        val productIds = product.productData.attributes.compatibleWith?.productIds ?: emptySet()
         return if (seriesIds.isNotEmpty()) {
             product.copy(
                 productData = product.productData.copy(
                     attributes = product.productData.attributes.copy(
-                        compatibleWidth = CompatibleWith(
+                        compatibleWith = CompatibleWith(
                             seriesIds = seriesIds,
                             productIds = productIds
                         )
@@ -56,7 +62,7 @@ class CompatibleWithFinder(private val compatiClient: CompatiClient,
             )
         } else {
             LOG.info("No compatible products found for hmsNr: ${product.hmsArtNr}")
-            product
+            null
         }
     }
 

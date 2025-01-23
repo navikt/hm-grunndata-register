@@ -52,6 +52,7 @@ class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRe
             found.catalogList.size shouldBe catalogList.size
             found.fileSize shouldBe foundDTO.fileSize
             found.fileName shouldBe foundDTO.fileName
+            found.connected shouldBe foundDTO.connected
             catalogFileRepository.findMany(Pageable.from(0, 10))
         }
     }

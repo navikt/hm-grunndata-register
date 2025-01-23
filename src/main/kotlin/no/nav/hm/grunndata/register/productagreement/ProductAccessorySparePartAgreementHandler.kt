@@ -102,7 +102,7 @@ class ProductAccessorySparePartAgreementHandler(
                                 it.productData.copy(
                                     attributes =
                                         it.productData.attributes.copy(
-                                            compatibleWidth =
+                                            compatibleWith =
                                                 CompatibleWith(
                                                     seriesIds = setOf(mostCompatibleMainProduct!!.seriesUuid!!),
                                                     productIds = setOf(mostCompatibleMainProduct!!.productId!!),
@@ -117,7 +117,7 @@ class ProductAccessorySparePartAgreementHandler(
                                     it.productData.copy(
                                         attributes =
                                             it.productData.attributes.copy(
-                                                compatibleWidth =
+                                                compatibleWith =
                                                     CompatibleWith(
                                                         seriesIds = setOf(mostCompatibleMainProduct!!.seriesUuid!!),
                                                         productIds = setOf(mostCompatibleMainProduct!!.productId!!),
