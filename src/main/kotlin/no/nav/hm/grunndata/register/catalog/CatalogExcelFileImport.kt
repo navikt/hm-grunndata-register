@@ -117,7 +117,7 @@ class CatalogExcelFileImport {
         articleType: String,
         funksjonsendring: String,
     ): ArticleType {
-        val mainProduct = articleType.lowercase().indexOf("hms hj.middel") > -1
+        val mainProduct = articleType.lowercase().indexOf("hj.middel") > -1
         val accessory =
             articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("ja") > -1
         val sparePart =
