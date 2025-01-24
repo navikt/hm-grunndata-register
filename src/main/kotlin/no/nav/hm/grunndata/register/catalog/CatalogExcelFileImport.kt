@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.catalog
 
 import jakarta.inject.Singleton
 import java.io.InputStream
+import no.nav.hm.grunndata.register.catalog.CatalogExcelFileImport.Companion.LOG
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.productagreement.ColumnNames
 import no.nav.hm.grunndata.register.productagreement.ColumnNames.anbudsnr
@@ -113,20 +114,18 @@ class CatalogExcelFileImport {
             null
         }
 
-    private fun mapArticleType(
-        articleType: String,
-        funksjonsendring: String,
-    ): ArticleType {
-        val mainProduct = articleType.lowercase().indexOf("hj.middel") > -1
-        val accessory =
-            articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("ja") > -1
-        val sparePart =
-            articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("nei") > -1
-        if (!mainProduct && !accessory && !sparePart) {
-            LOG.error("Ugyldig artikkeltype: $articleType")
-        }
-        return ArticleType(mainProduct, sparePart, accessory)
-    }
+}
+
+fun mapArticleType(
+    articleType: String,
+    funksjonsendring: String,
+): ArticleType {
+    val mainProduct = articleType.lowercase().indexOf("hj.middel") > -1
+    val accessory =
+        articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("ja") > -1
+    val sparePart =
+        articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("nei") > -1
+    return ArticleType(mainProduct, sparePart, accessory)
 }
 
 data class ArticleType(val mainProduct: Boolean, val sparePart: Boolean, val accessory: Boolean)

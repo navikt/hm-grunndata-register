@@ -83,27 +83,30 @@ data class CatalogImportExcelDTO(
 )
 
 
-fun CatalogImportExcelDTO.toEntity() = CatalogImport(
-    agreementAction = rammeavtaleHandling,
-    orderRef = bestillingsNr,
-    hmsArtNr = hmsArtNr,
-    iso = iso,
-    title = title,
-    supplierRef = supplierRef,
-    reference = reference,
-    postNr = delkontraktNr,
-    dateFrom = LocalDate.parse(dateFrom, dateTimeFormatter),
-    dateTo = LocalDate.parse(dateTo, dateTimeFormatter),
-    articleAction = artikkelHandling,
-    articleType = articleType,
-    functionalChange = funksjonsendring,
-    forChildren = forChildren,
-    supplierName = supplierName,
-    supplierCity = supplierCity,
-    mainProduct = mainProduct,
-    sparePart = sparePart,
-    accessory = accessory,
-)
+fun CatalogImportExcelDTO.toEntity():CatalogImport  {
+    val remapped = mapArticleType(articleType,funksjonsendring) // ensure articletype
+    return CatalogImport(
+        agreementAction = rammeavtaleHandling,
+        orderRef = bestillingsNr,
+        hmsArtNr = hmsArtNr,
+        iso = iso,
+        title = title,
+        supplierRef = supplierRef,
+        reference = reference,
+        postNr = delkontraktNr,
+        dateFrom = LocalDate.parse(dateFrom, dateTimeFormatter),
+        dateTo = LocalDate.parse(dateTo, dateTimeFormatter),
+        articleAction = artikkelHandling,
+        articleType = articleType,
+        functionalChange = funksjonsendring,
+        forChildren = forChildren,
+        supplierName = supplierName,
+        supplierCity = supplierCity,
+        mainProduct = remapped.mainProduct,
+        sparePart = remapped.sparePart,
+        accessory = remapped.accessory,
+    )
+}
 
 
 val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
