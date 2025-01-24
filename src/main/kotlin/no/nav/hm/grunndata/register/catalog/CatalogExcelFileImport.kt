@@ -122,6 +122,9 @@ class CatalogExcelFileImport {
             articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("ja") > -1
         val sparePart =
             articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("nei") > -1
+        if (!mainProduct && !accessory && !sparePart) {
+            LOG.error("Ugyldig artikkeltype: $articleType")
+        }
         return ArticleType(mainProduct, sparePart, accessory)
     }
 }
