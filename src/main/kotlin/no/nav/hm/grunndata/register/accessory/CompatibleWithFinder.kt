@@ -2,7 +2,9 @@ package no.nav.hm.grunndata.register.accessory
 
 import jakarta.inject.Singleton
 import no.nav.helse.rapids_rivers.toUUID
+import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.rapid.dto.CompatibleWith
+import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
 import no.nav.hm.grunndata.register.catalog.CatalogImportRepository
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
@@ -11,6 +13,7 @@ import org.slf4j.LoggerFactory
 @Singleton
 class CompatibleWithFinder(private val compatiClient: CompatiClient,
                            private val productRegistrationService: ProductRegistrationService,
+                           private val catalogFileRepository: CatalogFileRepository,
                            private val catalogImportRepository: CatalogImportRepository) {
 
 
@@ -37,6 +40,19 @@ class CompatibleWithFinder(private val compatiClient: CompatiClient,
                 }
             }
         }
+    }
+
+    suspend fun connectAllNotConnected() {
+        val catalogList = catalogFileRepository.findByConnectedAndStatus(connected = false, status = CatalogFileStatus.DONE)
+        val orderRefGroup = catalogList.groupBy { it.orderRef }
+        catalogList.distinctBy { it.orderRef }
+            .forEach { catalogFile ->
+                LOG.info("Connecting catalog file with orderRef: ${catalogFile.orderRef} with name: ${catalogFile.fileName}")
+                connectWithOrderRef(catalogFile.orderRef)
+                orderRefGroup[catalogFile.orderRef]?.forEach { toUpdate ->
+                    catalogFileRepository.updateConnectedById(toUpdate.id, connected = true)
+                }
+            }
     }
 
     private suspend fun findCompatibleWith(hmsNr: String, variant: Boolean? = false): List<CompatibleProductResult> {
