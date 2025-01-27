@@ -11,7 +11,6 @@ import io.micronaut.security.rules.SecurityRule
 import io.swagger.v3.oas.annotations.Hidden
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 
-
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller("/internal/catalog/import")
 @Hidden
@@ -31,7 +30,6 @@ class CatalogController(
     suspend fun fetchCatalogSeriesInfoByHmsNr(
         hmsNr: String
     ): CatalogSeriesInfo? {
-        println("Fetching catalog series info by hmsNr: $hmsNr")
         return catalogImportRepository.findCatalogSeriesInfoByHmsNr(hmsNr)
     }
 
@@ -45,5 +43,4 @@ class CatalogController(
         status: CatalogFileStatus,
         pageable: Pageable,
     ): Slice<CatalogFileDTO> = catalogFileRepository.findManyByStatus(status, pageable)
-
 }
