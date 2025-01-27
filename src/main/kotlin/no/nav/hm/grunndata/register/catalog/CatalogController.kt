@@ -27,6 +27,14 @@ class CatalogController(
         return catalogImportRepository.findCatalogSeriesInfoByOrderRef(orderRef)
     }
 
+    @Get("/hmsnr/{hmsNr}")
+    suspend fun fetchCatalogSeriesInfoByHmsNr(
+        hmsNr: String
+    ): CatalogSeriesInfo? {
+        println("Fetching catalog series info by hmsNr: $hmsNr")
+        return catalogImportRepository.findCatalogSeriesInfoByHmsNr(hmsNr)
+    }
+
     @Get("/files/all")
     suspend fun fetchAllCatalogFiles(
         pageable: Pageable,
