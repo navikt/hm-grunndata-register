@@ -15,10 +15,10 @@ interface CatalogImportRepository:  CoroutineCrudRepository<CatalogImport, UUID>
 
         suspend fun findByOrderRef(orderRef: String): List<CatalogImport>
 
-        @Query("""SELECT DISTINCT on (a.hms_art_nr) a.*, c.title as series_title, c.id as series_id, b.product_id from catalog_import_v1 a, product_agreement_reg_v1 b,  series_reg_v1 c  where a.reference=b.reference and a.order_ref=:orderRef and a.hms_art_nr=b.hms_artnr and b.series_uuid=c.id""", nativeQuery = true)
+        @Query("""SELECT DISTINCT on (a.hms_art_nr) a.*, c.title as series_title, c.id as series_id, b.product_id from catalog_import_v1 a, product_agreement_reg_v1 b,  series_reg_v1 c  where a.agreement_id=b.agreement_id and a.order_ref=:orderRef and a.hms_art_nr=b.hms_artnr and b.series_uuid=c.id""", nativeQuery = true)
         suspend fun findCatalogSeriesInfoByOrderRef(orderRef: String): List<CatalogSeriesInfo>
 
-        @Query("""SELECT DISTINCT on (a.hms_art_nr) a.*, c.title as series_title, c.id as series_id, b.product_id from catalog_import_v1 a, product_agreement_reg_v1 b,  series_reg_v1 c  where a.reference=b.reference and a.hms_art_nr=:hmsArtNr and b.series_uuid=c.id""", nativeQuery = true)
+        @Query("""SELECT DISTINCT on (a.hms_art_nr) a.*, c.title as series_title, c.id as series_id, b.product_id from catalog_import_v1 a, product_agreement_reg_v1 b,  series_reg_v1 c  where a.agreement_id=b.agreement_id and a.hms_art_nr=:hmsArtNr and b.series_uuid=c.id""", nativeQuery = true)
         suspend fun findCatalogSeriesInfoByHmsNr(hmsArtNr: String): CatalogSeriesInfo?
 
 
@@ -40,6 +40,7 @@ data class CatalogSeriesInfo(
     val seriesTitle: String,
     val seriesId: UUID,
     val productId: UUID?,
+    val agreementId: UUID,
     val created: LocalDateTime,
     val updated: LocalDateTime
 )

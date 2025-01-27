@@ -12,6 +12,7 @@ import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.CatalogFileRapidDTO
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import no.nav.hm.grunndata.register.event.EventPayload
 
 
@@ -83,7 +84,7 @@ data class CatalogImportExcelDTO(
 )
 
 
-fun CatalogImportExcelDTO.toEntity():CatalogImport  {
+fun CatalogImportExcelDTO.toEntity(agreementRegistration: AgreementRegistrationDTO):CatalogImport  {
     val remapped = mapArticleType(articleType,funksjonsendring) // ensure articletype
     return CatalogImport(
         agreementAction = rammeavtaleHandling,
@@ -105,6 +106,7 @@ fun CatalogImportExcelDTO.toEntity():CatalogImport  {
         mainProduct = remapped.mainProduct,
         sparePart = remapped.sparePart,
         accessory = remapped.accessory,
+        agreementId = agreementRegistration.id
     )
 }
 

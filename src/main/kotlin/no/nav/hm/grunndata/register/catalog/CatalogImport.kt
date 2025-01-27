@@ -29,6 +29,7 @@ data class CatalogImport(
     val mainProduct: Boolean,
     val sparePart: Boolean,
     val accessory: Boolean,
+    val agreementId: UUID,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
 )

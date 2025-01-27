@@ -72,7 +72,8 @@ class CatalogImportRepositoryTest(
                 supplierCity = "supplierCity",
                 mainProduct = false,
                 sparePart = true,
-                accessory = false
+                accessory = false,
+                agreementId = agreementId
             ))
             val testCatalog2 = catalogImportRepository.save(CatalogImport(
                 agreementAction = "agreementAction",
@@ -93,7 +94,8 @@ class CatalogImportRepositoryTest(
                 supplierCity = "supplierCity",
                 mainProduct = false,
                 sparePart = false,
-                accessory = true
+                accessory = true,
+                agreementId = agreementId
             ))
             val supplierId = UUID.randomUUID()
             val seriesId = UUID.randomUUID()
@@ -113,7 +115,7 @@ class CatalogImportRepositoryTest(
                 seriesUuid = seriesId
             ))
             val productAgreement2 = productAgreementRegistrationRepository.save(ProductAgreementRegistration(
-                agreementId = UUID.randomUUID(),
+                agreementId = agreementId,
                 hmsArtNr = "432101",
                 post = 2,
                 rank = 1,
@@ -153,6 +155,9 @@ class CatalogImportRepositoryTest(
             catalogSeriesInfo[0].seriesId shouldBe seriesId
             catalogSeriesInfo[0].seriesTitle shouldBe "Series 1"
             catalogSeriesInfo[0].mainProduct shouldBe false
+            catalogSeriesInfo[0].sparePart shouldBe true
+            catalogSeriesInfo[0].agreementId shouldBe agreementId
+
         }
     }
 }

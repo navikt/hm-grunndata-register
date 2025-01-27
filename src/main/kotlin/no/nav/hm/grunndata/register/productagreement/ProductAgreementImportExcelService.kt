@@ -27,9 +27,6 @@ import no.nav.hm.grunndata.register.catalog.CatalogImportResult
 import no.nav.hm.grunndata.register.catalog.CatalogImportService
 import no.nav.hm.grunndata.register.catalog.toEntity
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
-import no.nav.hm.grunndata.register.productagreement.CatalogFileToProductAgreementScheduler.Companion
-import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService.Companion.LOG
-import no.nav.hm.grunndata.register.supplier.SupplierRegistration
 
 @Singleton
 open class ProductAgreementImportExcelService(
@@ -127,7 +124,14 @@ open class ProductAgreementImportExcelService(
         supplierId: UUID,
         dryRun: Boolean
     ): ProductAgreementImportResult {
-        val catalogImportResult = catalogImportService.prepareCatalogImportResult(importedExcelCatalog.map { it.toEntity() })
+        verifyCatalogImportList(importedExcelCatalog)
+        val agreementRef = importedExcelCatalog.first().reference
+        val cleanRef = agreementRef.lowercase().replace("/", "-")
+        val agreement = agreementRegistrationService.findByReferenceLike(cleanRef) ?: throw IllegalArgumentException("Agreement reference: $agreementRef not found!")
+        if (agreement.agreementStatus === AgreementStatus.DELETED) {
+            throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er slettet, må den opprettes?")
+        }
+        val catalogImportResult = catalogImportService.prepareCatalogImportResult(importedExcelCatalog.map { it.toEntity(agreement) })
         val mappedLists = mapCatalogImport(catalogImportResult, authentication, supplierId)
         val productAgreementImportResult = productAccessorySparePartAgreementHandler.handleNewProductsInExcelImport(mappedLists, authentication, dryRun)
         if (!dryRun) {
@@ -135,6 +139,22 @@ open class ProductAgreementImportExcelService(
             persistCatalogResult(catalogImportResult, productAgreementImportResult)
         }
         return productAgreementImportResult
+    }
+
+
+    private fun verifyCatalogImportList(catalogImportList: List<CatalogImportExcelDTO>) {
+        if (catalogImportList.isEmpty()) {
+            throw IllegalArgumentException("Catalog import list is empty")
+        }
+        if (catalogImportList.map { it.bestillingsNr }.distinct().size > 1) {
+            throw IllegalArgumentException("Ugyldig katalog, inneholder flere bestillingsnr")
+        }
+        if (catalogImportList.map { it.supplierName }.distinct().size > 1) {
+            throw IllegalArgumentException("Ugyldig katalog, inneholder flere leverandører")
+        }
+        if (catalogImportList.map { it.reference }.distinct().size > 1) {
+            throw IllegalArgumentException("Ugylding katalog, inneholder flere rammeavtale referansenr")
+        }
     }
 
     @Transactional
@@ -155,21 +175,17 @@ open class ProductAgreementImportExcelService(
     private suspend fun CatalogImport.toProductAgreementDTO(
         authentication: Authentication?, supplierId: UUID
     ): List<ProductAgreementRegistrationDTO> {
-        val cleanRef = reference.lowercase().replace("/", "-")
-        val agreement = findAgreementByReferenceLike(cleanRef)
-        if (agreement.agreementStatus === AgreementStatus.DELETED) {
-            throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er slettet, må den opprettes?")
-        }
-
+        val agreement = agreementRegistrationService.findById(agreementId)
+            ?: throw BadRequestException("Avtale med id $agreementId finnes ikke, må den opprettes?")
         val product = productRegistrationService.findBySupplierRefAndSupplierId(supplierRef, supplierId)
         if (!postNr.isNullOrBlank()) {
             val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(postNr)
 
             return postRanks.map { postRank ->
-                LOG.info("Mapping to product agreement for agreement $cleanRef, post ${postRank.first}, rank ${postRank.second}")
+                LOG.info("Mapping to product agreement for agreement ${agreement.reference}, post ${postRank.first}, rank ${postRank.second}")
                 val delkontrakt: DelkontraktRegistrationDTO =
                     agreement.delkontraktList.find { it.delkontraktData.refNr == postRank.first }
-                        ?: throw BadRequestException("Delkontrakt ${postRank.first} finnes ikke i avtale $cleanRef, må den opprettes?")
+                        ?: throw BadRequestException("Delkontrakt ${postRank.first} finnes ikke i avtale ${agreement.reference}, må den opprettes?")
                 ProductAgreementRegistrationDTO(
                     hmsArtNr = parseHMSNr(hmsArtNr),
                     agreementId = agreement.id,
