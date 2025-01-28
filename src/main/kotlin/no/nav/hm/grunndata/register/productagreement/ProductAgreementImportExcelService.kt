@@ -127,7 +127,7 @@ open class ProductAgreementImportExcelService(
         verifyCatalogImportList(importedExcelCatalog)
         val agreementRef = importedExcelCatalog.first().reference
         val cleanRef = agreementRef.lowercase().replace("/", "-")
-        val agreement = agreementRegistrationService.findByReferenceLike(cleanRef) ?: throw IllegalArgumentException("Agreement reference: $agreementRef not found!")
+        val agreement = agreementRegistrationService.findByReferenceLike("%$cleanRef%") ?: throw IllegalArgumentException("Agreement reference: $cleanRef not found!")
         if (agreement.agreementStatus === AgreementStatus.DELETED) {
             throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er slettet, må den opprettes?")
         }
