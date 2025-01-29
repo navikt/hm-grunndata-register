@@ -24,6 +24,7 @@ class CompatibleProductController(private val compatibleWithFinder: CompatibleWi
 
     @Post("/connect/orderref/{orderRef}")
     suspend fun connectWithOrderRef(orderRef: String) {
+        LOG.info("connectWithOrderRef: $orderRef")
         compatibleWithFinder.connectWithOrderRef(orderRef)
     }
 
