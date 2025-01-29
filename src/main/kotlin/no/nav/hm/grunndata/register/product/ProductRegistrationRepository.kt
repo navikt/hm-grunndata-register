@@ -110,5 +110,8 @@ interface ProductRegistrationRepository :
     @Query("SELECT distinct on (a.id) a.* from product_reg_v1 a, product_agreement_reg_v1 b where a.id=b.product_id and (a.spare_part != b.spare_part or a.accessory != b.accessory) and b.status='ACTIVE'")
     suspend fun findProductThatDoesNotMatchAgreementSparePartAccessory(): List<ProductRegistration>
 
+    @Query("SELECT distinct on(a.id) a.* from product_reg_v1 a, product_agreement_reg_v1 b where a.id=b.product_id and b.status='ACTIVE' and a.hms_art_nr != b.hms_art_nr")
+    suspend fun findProductThatDoesNotMatchAgreementHmsNr(): List<ProductRegistration>
+
 
 }
