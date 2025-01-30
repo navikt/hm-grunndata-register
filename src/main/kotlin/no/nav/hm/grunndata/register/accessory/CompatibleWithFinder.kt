@@ -60,7 +60,6 @@ class CompatibleWithFinder(private val compatiClient: CompatiClient,
     }
 
     private suspend fun addCompatibleWithAttributeLink(product: ProductRegistration): ProductRegistration? {
-        LOG.info("Adding compatibleWith attribute to product with id ${product.id} and hmsNr: ${product.hmsArtNr}")
         val compatibleWiths = findCompatibleWith(product.hmsArtNr!!)
         val seriesIds = compatibleWiths.map { it.seriesId.toUUID() }.toSet()
         // we keep the variants, for manual by admin and supplier
@@ -77,7 +76,6 @@ class CompatibleWithFinder(private val compatiClient: CompatiClient,
                 )
             )
         } else {
-            LOG.info("No compatible products found for hmsNr: ${product.hmsArtNr}")
             null
         }
     }
