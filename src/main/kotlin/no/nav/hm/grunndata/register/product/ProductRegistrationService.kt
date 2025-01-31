@@ -58,6 +58,8 @@ open class ProductRegistrationService(
 
     open suspend fun update(dto: ProductRegistration) = productRegistrationRepository.update(dto)
 
+    open suspend fun findAccessoryOrSparePartButNoCompatibleWith() = productRegistrationRepository.findAccessoryOrSparePartButNoCompatibleWith()
+
     open suspend fun findByHmsArtNr(hmsArtNr: String) =
         productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusIn(
             hmsArtNr,

@@ -113,5 +113,7 @@ interface ProductRegistrationRepository :
     @Query("SELECT distinct on(a.id) a.* from product_reg_v1 a, product_agreement_reg_v1 b where a.id=b.product_id and b.status='ACTIVE' and a.hms_art_nr != b.hms_art_nr")
     suspend fun findProductThatDoesNotMatchAgreementHmsNr(): List<ProductRegistration>
 
+    @Query("SELECT * from product_reg_v1 where (accessory = true or spare_part = true) and product_data->'attributes'->'compatibleWith' is null")
+    suspend fun findAccessoryOrSparePartButNoCompatibleWith(): List<ProductRegistration>
 
 }

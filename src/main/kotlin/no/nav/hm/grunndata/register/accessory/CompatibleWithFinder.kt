@@ -42,7 +42,7 @@ class CompatibleWithFinder(private val compatiClient: CompatiClient,
         }
     }
 
-    suspend fun connectAllNotConnected() {
+    suspend fun connectAllOrdersNotConnected() {
         val catalogList = catalogFileRepository.findByConnectedAndStatus(connected = false, status = CatalogFileStatus.DONE)
         val orderRefGroup = catalogList.groupBy { it.orderRef }
         catalogList.distinctBy { it.orderRef }
@@ -53,6 +53,18 @@ class CompatibleWithFinder(private val compatiClient: CompatiClient,
                     catalogFileRepository.updateConnectedById(toUpdate.id, connected = true)
                 }
             }
+    }
+
+    suspend fun connectAllProductsNotConnected() {
+        val products = productRegistrationService.findAccessoryOrSparePartButNoCompatibleWith()
+        LOG.info("Connecting ${products.size} products")
+        products.forEach { product ->
+            addCompatibleWithAttributeLink(product).let { updatedProduct ->
+                if (updatedProduct != null) {
+                    productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+                }
+            }
+        }
     }
 
     private suspend fun findCompatibleWith(hmsNr: String, variant: Boolean? = false): List<CompatibleProductResult> {

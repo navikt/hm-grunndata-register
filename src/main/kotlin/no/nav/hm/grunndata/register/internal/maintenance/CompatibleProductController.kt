@@ -11,7 +11,8 @@ import org.slf4j.LoggerFactory
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller("/internal/compatible/products")
 @Hidden
-class CompatibleProductController(private val compatibleWithFinder: CompatibleWithFinder) {
+class CompatibleProductController(
+    private val compatibleWithFinder: CompatibleWithFinder) {
 
     @Post("/connect/{hmsNr}")
     suspend fun connect(hmsNr: String) {
@@ -28,9 +29,14 @@ class CompatibleProductController(private val compatibleWithFinder: CompatibleWi
         compatibleWithFinder.connectWithOrderRef(orderRef)
     }
 
-    @Post("/connect/all/notconnected")
+    @Post("/connect/orders/notconnected")
     suspend fun connectAllNotConnected() {
-        compatibleWithFinder.connectAllNotConnected()
+        compatibleWithFinder.connectAllOrdersNotConnected()
+    }
+
+    @Post("/connect/products/notconnected")
+    suspend fun connectAllProductsNotConnected() {
+        compatibleWithFinder.connectAllProductsNotConnected()
     }
 
 }

@@ -16,7 +16,7 @@ open class CompatibleWithConnectScheduler(
     @LeaderOnly
     open fun connectCompatibleWith() {
         runBlocking {
-            compatibleWithFinder.connectAllNotConnected()
+            compatibleWithFinder.connectAllOrdersNotConnected()
         }
     }
 
