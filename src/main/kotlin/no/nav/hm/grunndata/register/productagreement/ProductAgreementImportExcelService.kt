@@ -66,7 +66,8 @@ open class ProductAgreementImportExcelService(
                 existing.copy(
                     expired = LocalDateTime.now(),
                     updatedBy = EXCEL,
-                    status = ProductAgreementStatus.INACTIVE
+                    status = ProductAgreementStatus.INACTIVE,
+                    updated = LocalDateTime.now()
                 )
             )
             if (pa.productId != null && (pa.accessory || pa.sparePart)) {
@@ -102,7 +103,9 @@ open class ProductAgreementImportExcelService(
                     sparePart = pa.sparePart,
                     accessory = pa.accessory,
                     updatedBy = EXCEL,
-                    expired = pa.expired
+                    expired = pa.expired,
+                    updated = LocalDateTime.now(),
+                    status = pa.status
                 )
             )
             if (pa.accessory || pa.sparePart && pa.productId != null) {
