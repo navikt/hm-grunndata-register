@@ -29,12 +29,12 @@ class CompatibleProductController(
         compatibleWithFinder.connectWithOrderRef(orderRef)
     }
 
-    @Post("/connect/orders/notconnected")
+    @Post("/connect/orders")
     suspend fun connectAllNotConnected() {
         compatibleWithFinder.connectAllOrdersNotConnected()
     }
 
-    @Post("/connect/products/notconnected")
+    @Post("/connect/products")
     suspend fun connectAllProductsNotConnected() {
         compatibleWithFinder.connectAllProductsNotConnected()
     }
