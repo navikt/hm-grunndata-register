@@ -20,6 +20,7 @@ interface CompatiClient  {
 
 data class CompatibleProductResult(
     val score: Double,
+    val title: String,
     val seriesTitle: String,
     val seriesId: String,
     val productId: String,
