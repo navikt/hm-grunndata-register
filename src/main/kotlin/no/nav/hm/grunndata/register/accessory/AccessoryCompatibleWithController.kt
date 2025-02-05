@@ -14,11 +14,11 @@ import org.slf4j.LoggerFactory
 import io.swagger.v3.oas.annotations.tags.Tag
 
 @Secured(Roles.ROLE_ADMIN, Roles.ROLE_HMS)
-@Controller(AccessoryConnectController.API_V1_ACCESSORY)
+@Controller(AccessoryCompatibleWithController.API_V1_ACCESSORY)
 @Tag(name = "Accessory CompatibleWith")
-class AccessoryConnectController(private val compatibleWithFinder: CompatibleWithFinder,
-                                 private val productRegistrationService: ProductRegistrationService,
-                                 private val productDTOMapper: ProductDTOMapper) {
+class AccessoryCompatibleWithController(private val compatibleWithFinder: CompatibleWithFinder,
+                                        private val productRegistrationService: ProductRegistrationService,
+                                        private val productDTOMapper: ProductDTOMapper) {
 
     @Get("/variants/{hmsNr}")
     suspend fun findCompatibleWithProductsVariants(hmsNr: String) = compatibleWithFinder.findCompatibleWith(hmsNr, true)
@@ -36,7 +36,7 @@ class AccessoryConnectController(private val compatibleWithFinder: CompatibleWit
 
     companion object {
         const val API_V1_ACCESSORY = "/api/v1/accessory"
-        private val LOG = LoggerFactory.getLogger(AccessoryConnectController::class.java)
+        private val LOG = LoggerFactory.getLogger(AccessoryCompatibleWithController::class.java)
     }
 
 }

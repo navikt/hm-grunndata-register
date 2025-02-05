@@ -41,7 +41,7 @@ class UserPasswordAuthenticationProvider(
                      val attributes = userIdMap + userNameMap + supplierNameMap + it.attributes
                      Publishers.just(AuthenticationResponse.success(it.email, it.roles, attributes)) }
                  ?: run {
-                     LOG.error("User login failed")
+                     LOG.error("User login failed $identity")
                      Publishers.just(AuthenticationResponse.failure("Login failed"))
                  }
          }

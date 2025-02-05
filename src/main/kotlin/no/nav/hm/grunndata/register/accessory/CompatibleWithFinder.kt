@@ -11,13 +11,13 @@ import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import org.slf4j.LoggerFactory
 
 @Singleton
-class CompatibleWithFinder(private val compatiClient: CompatiClient,
+open class CompatibleWithFinder(private val compatiClient: CompatiClient,
                            private val productRegistrationService: ProductRegistrationService,
                            private val catalogFileRepository: CatalogFileRepository,
                            private val catalogImportRepository: CatalogImportRepository) {
 
 
-    suspend fun connectWithHmsNr(hmsNr: String) {
+    open suspend fun connectWithHmsNr(hmsNr: String) {
         productRegistrationService.findByHmsArtNr(hmsNr)?.let { product ->
             addCompatibleWithAttributeSeriesLink(product).let { updatedProduct ->
                 if(updatedProduct != null) {
@@ -27,7 +27,7 @@ class CompatibleWithFinder(private val compatiClient: CompatiClient,
         } ?: LOG.info("No product found for hmsNr: $hmsNr")
     }
 
-    suspend fun connectWithOrderRef(orderRef: String) {
+    open suspend fun connectWithOrderRef(orderRef: String) {
         catalogImportRepository.findCatalogSeriesInfoByOrderRef(orderRef).filter { !it.mainProduct && it.productId != null }.forEach {
             productRegistrationService.findById(it.productId!!)?.let { product ->
                 addCompatibleWithAttributeSeriesLink(product).let { updatedProduct ->
@@ -42,7 +42,7 @@ class CompatibleWithFinder(private val compatiClient: CompatiClient,
         }
     }
 
-    suspend fun connectAllOrdersNotConnected() {
+    open suspend fun connectAllOrdersNotConnected() {
         val catalogList = catalogFileRepository.findByConnectedAndStatus(connected = false, status = CatalogFileStatus.DONE)
         val orderRefGroup = catalogList.groupBy { it.orderRef }
         catalogList.distinctBy { it.orderRef }
@@ -55,7 +55,7 @@ class CompatibleWithFinder(private val compatiClient: CompatiClient,
             }
     }
 
-    suspend fun connectAllProductsNotConnected() {
+    open suspend fun connectAllProductsNotConnected() {
         val products = productRegistrationService.findAccessoryOrSparePartButNoCompatibleWith()
         LOG.info("Connecting ${products.size} products")
         products.forEach { product ->
@@ -67,7 +67,7 @@ class CompatibleWithFinder(private val compatiClient: CompatiClient,
         }
     }
 
-    suspend fun findCompatibleWith(hmsNr: String, variant: Boolean? = false): List<CompatibleProductResult> {
+    open suspend fun findCompatibleWith(hmsNr: String, variant: Boolean? = false): List<CompatibleProductResult> {
         return compatiClient.findCompatibleWith(hmsNr, variant)
     }
 
@@ -92,7 +92,7 @@ class CompatibleWithFinder(private val compatiClient: CompatiClient,
         }
     }
 
-    suspend fun connectWith(compatibleWithDTO: CompatibleWithDTO, product: ProductRegistration): ProductRegistration {
+    open suspend fun connectWith(compatibleWithDTO: CompatibleWithDTO, product: ProductRegistration): ProductRegistration {
         val connected = product.copy(
             productData = product.productData.copy(
                 attributes = product.productData.attributes.copy(
