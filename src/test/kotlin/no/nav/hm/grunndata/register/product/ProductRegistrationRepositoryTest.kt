@@ -105,16 +105,27 @@ class ProductRegistrationRepositoryTest(
                 sparePart = false
             )
         val agreementId = UUID.randomUUID()
-        val postId = UUID.randomUUID()
+        val postId1 = UUID.randomUUID()
+        val postId2 = UUID.randomUUID()
 
-        val delkontraktToSave =
+        val delkontraktToSave1 =
             DelkontraktRegistrationDTO(
-                id = postId,
+                id = postId1,
                 agreementId = agreementId,
                 delkontraktData = DelkontraktData(title = "delkontrakt 1", description = "beskrivelse", sortNr = 1),
                 createdBy = "tester",
                 updatedBy = "tester",
-                identifier = postId.toString()
+                identifier = postId1.toString()
+            )
+
+        val delkontraktToSave2 =
+            DelkontraktRegistrationDTO(
+                id = postId2,
+                agreementId = agreementId,
+                delkontraktData = DelkontraktData(title = "delkontrakt 2", description = "beskrivelse", sortNr = 2),
+                createdBy = "tester",
+                updatedBy = "tester",
+                identifier = postId2.toString()
             )
 
         val agreement =
@@ -123,7 +134,7 @@ class ProductRegistrationRepositoryTest(
                 hmsArtNr = "123",
                 post = 1,
                 rank = 1,
-                postId = postId,
+                postId = postId1,
                 reference = "20-1423",
                 productId = registration1.id,
                 seriesUuid = registration1.seriesUUID,
@@ -140,7 +151,7 @@ class ProductRegistrationRepositoryTest(
                 hmsArtNr = "1234",
                 post = 2,
                 rank = 2,
-                postId = postId,
+                postId = postId2,
                 reference = "20-1423",
                 productId = registration1.id,
                 seriesUuid = registration1.seriesUUID,
@@ -151,31 +162,15 @@ class ProductRegistrationRepositoryTest(
                 articleName = "Test article",
                 status = ProductAgreementStatus.ACTIVE,
             )
-        val agreement3 =
-            ProductAgreementRegistration(
-                agreementId = agreementId,
-                hmsArtNr = "12345",
-                post = 3,
-                rank = 3,
-                postId = postId,
-                reference = "20-1423",
-                productId = null,
-                seriesUuid = UUID.randomUUID(),
-                supplierId = supplierId,
-                supplierRef = "eksternref-1234",
-                createdBy = "user",
-                title = "Test product agreement",
-                articleName = "Test article",
-                status = ProductAgreementStatus.ACTIVE,
-            )
+
         runBlocking {
             val saved1 = productRegistrationRepository.save(registration1)
             val saved2 = productRegistrationRepository.save(registration2)
             saved1.shouldNotBeNull()
-            val savedDelkontrakt = delkontraktRegistrationRepository.save(delkontraktToSave.toEntity())
+            val savedDelkontrakt1 = delkontraktRegistrationRepository.save(delkontraktToSave1.toEntity())
+            val savedDelkontrakt2 = delkontraktRegistrationRepository.save(delkontraktToSave2.toEntity())
             val savedAgreement = productAgreementRegistrationRepository.save(agreement)
             val savedAgreement2 = productAgreementRegistrationRepository.save(agreement2)
-            val savedAgreement3 = productAgreementRegistrationRepository.save(agreement3)
             val foundAgreement =
                 productAgreementRegistrationRepository.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
                     agreement.supplierId,
