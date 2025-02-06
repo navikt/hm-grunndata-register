@@ -28,23 +28,13 @@ open class ProductAgreementRegistrationService(
     open suspend fun saveIfNotExists(productAgreement: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO {
         LOG.info("Saving product agreement: ${productAgreement.agreementId} for supplier: ${productAgreement.supplierId} " +
                 "and for product: ${productAgreement.productId} supplierRef: ${productAgreement.supplierRef}")
-        return if (productAgreement.postId != null) {
-            findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
+        return findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
                 productAgreement.supplierId,
                 productAgreement.supplierRef,
                 productAgreement.agreementId,
                 productAgreement.postId,
                 productAgreement.rank,
             ) ?: saveAndCreateEvent(productAgreement, false)
-        } else {
-            findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
-                productAgreement.supplierId,
-                productAgreement.supplierRef,
-                productAgreement.agreementId,
-                productAgreement.post,
-                productAgreement.rank,
-            ) ?: saveAndCreateEvent(productAgreement, false)
-        }
     }
 
     @Transactional
@@ -54,7 +44,7 @@ open class ProductAgreementRegistrationService(
                 productAgreement.supplierId,
                 productAgreement.supplierRef,
                 productAgreement.agreementId,
-                productAgreement.postId!!,
+                productAgreement.postId,
                 productAgreement.rank,
             )?.let { inDb ->
                 saveAndCreateEvent(
@@ -276,22 +266,6 @@ open class ProductAgreementRegistrationService(
         return productAgreementRegistrationRepository.deleteById(id)
     }
 
-    open suspend fun connectProductAgreementToProduct() {
-        val productAgreementList = productAgreementRegistrationRepository.findByProductIdIsNull()
-        LOG.info("Found product agreements with no connection: ${productAgreementList.size}")
-        productAgreementList.forEach {
-            productRegistrationRepository.findBySupplierRefAndSupplierId(it.supplierRef, it.supplierId)
-                ?.let { product ->
-                    LOG.info("Found product ${product.id} with supplierRef: ${it.supplierRef} and supplierId: ${it.supplierId}")
-                    productAgreementRegistrationRepository.update(
-                        it.copy(
-                            productId = product.id,
-                            updated = LocalDateTime.now(),
-                        ),
-                    )
-                }
-        }
-    }
 
     suspend fun findByAgreementIdAndStatus(
         id: UUID,

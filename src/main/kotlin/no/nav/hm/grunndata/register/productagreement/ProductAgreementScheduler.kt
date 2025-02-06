@@ -18,16 +18,6 @@ open class ProductAgreementScheduler(private val productAgreementRegistrationSer
     }
 
     @LeaderOnly
-    @Scheduled(cron = "0 1 2 * * *")
-    open fun connectProductAgreement() {
-
-        LOG.info("Running product agreement connect scheduler")
-        runBlocking {
-            productAgreementRegistrationService.connectProductAgreementToProduct()
-        }
-    }
-
-    @LeaderOnly
     @Scheduled(cron = "0 1 3 * * *")
     open fun deactivateProductAgreementsThatAreExpired() {
         LOG.info("Running product agreement deactivation scheduler")

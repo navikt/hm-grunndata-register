@@ -80,9 +80,4 @@ class DelkontraktRegistrationAdminController(
     suspend fun createNoDelkontraktPostForAgreement(agreementId: UUID): HttpResponse<DelkontraktRegistrationDTO> =
         HttpResponse.ok(noDelKontraktHandler.findAndCreateWithNoDelkonktraktTypeIfNotExists(agreementId).toDTO())
 
-    @Put("/agreement/{agreementId}/fix-no-delkontrakt")
-    suspend fun fixNoDelkontraktForAgreement(agreementId: UUID) {
-        LOG.info("Calling fix no delkontrakt product agreements for agreement $agreementId")
-        noDelKontraktHandler.findAndCreateWithNoDelKonktraktTypeIfProductAgreementsWithNoDelkontrakt()
-    }
 }

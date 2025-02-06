@@ -36,15 +36,4 @@ class NoDelKontraktHandler(private val agreementRegistrationService: AgreementRe
             }
     }
 
-    suspend fun findAndCreateWithNoDelKonktraktTypeIfProductAgreementsWithNoDelkontrakt() {
-        val productAgreements = productAgreementRegistrationRepository.findByPostIdIsNull()
-        LOG.info("Found ${productAgreements.size} product agreements with no delkontrakt")
-        productAgreements.groupBy { it.agreementId }.forEach { (agreementId, products) ->
-           val delKontrakt = findAndCreateWithNoDelkonktraktTypeIfNotExists(agreementId)
-            products.forEach { product ->
-                LOG.info("fixing product agreement ${product.id} with no delkontrakt")
-                productAgreementRegistrationRepository.update(product.copy(postId = delKontrakt.id))
-            }
-        }
-    }
 }
