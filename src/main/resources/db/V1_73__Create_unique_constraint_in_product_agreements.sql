@@ -1,0 +1,2 @@
+ALTER TABLE product_agreement_reg_v1 ADD CONSTRAINT product_agreement_reg_v1_supplierid_supplierref_agreementid_postid UNIQUE (supplier_id, supplier_ref, agreement_id, post_id);
+ALTER TABLE product_agreement_reg_v1 DROP CONSTRAINT product_agreement_reg_v1_supplier_id_supplier_ref_agreement_key;
