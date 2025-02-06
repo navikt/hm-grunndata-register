@@ -23,6 +23,17 @@ class AccessoryCompatibleWithController(private val compatibleWithFinder: Compat
     @Get("/variants/{hmsNr}")
     suspend fun findCompatibleWithProductsVariants(hmsNr: String) = compatibleWithFinder.findCompatibleWith(hmsNr, true)
 
+    @Get("/{hmsNr}")
+    suspend fun findByHmsNr(hmsNr: String): ProductRegistrationDTOV2? {
+        val product = productRegistrationService.findByHmsArtNr(hmsNr)
+        return product?.let { productDTOMapper.toDTOV2(it) }
+    }
+
+    @Get("/{id}")
+    suspend fun findById(id: UUID): ProductRegistrationDTOV2? {
+        val product = productRegistrationService.findById(id)
+        return product?.let { productDTOMapper.toDTOV2(it) }
+    }
 
     @Put("/{id}/compatibleWith")
     suspend fun connectProductAndVariants(@Body compatibleWithDTO: CompatibleWithDTO, id: UUID): ProductRegistrationDTOV2 {
@@ -33,6 +44,7 @@ class AccessoryCompatibleWithController(private val compatibleWithFinder: Compat
         val connected = compatibleWithFinder.connectWith(compatibleWithDTO, product)
         return productDTOMapper.toDTOV2(connected)
     }
+
 
     companion object {
         const val API_V1_ACCESSORY = "/api/v1/accessory"
