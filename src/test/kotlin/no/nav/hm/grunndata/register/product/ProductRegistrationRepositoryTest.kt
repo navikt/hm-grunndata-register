@@ -172,12 +172,12 @@ class ProductRegistrationRepositoryTest(
             val savedAgreement = productAgreementRegistrationRepository.save(agreement)
             val savedAgreement2 = productAgreementRegistrationRepository.save(agreement2)
             val foundAgreement =
-                productAgreementRegistrationRepository.findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
+                productAgreementRegistrationRepository.findBySupplierIdAndSupplierRefAndAgreementIdAndPostId(
                     agreement.supplierId,
                     agreement.supplierRef,
                     agreement.agreementId,
-                    agreement.post,
-                    agreement.rank,
+                    agreement.postId,
+
                 )
             foundAgreement.shouldNotBeNull()
             val inDb = productRegistrationRepository.findById(saved1.id)

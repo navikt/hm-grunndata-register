@@ -172,12 +172,11 @@ open class ProductAgreementAdminController(
         LOG.info(
             "Creating product agreement: ${regDTO.agreementId} ${regDTO.supplierId} ${regDTO.supplierRef} by ${authentication.userId()}",
         )
-        productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
+        productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostId(
             regDTO.supplierId,
             regDTO.supplierRef,
             regDTO.agreementId,
-            regDTO.postId!!,
-            regDTO.rank,
+            regDTO.postId!!
         )?.let {
             throw BadRequestException("Product agreement already exists")
         }
@@ -238,12 +237,11 @@ open class ProductAgreementAdminController(
 
         val validated =
             regDTOs.map { regDTO ->
-                productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
+                productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostId(
                     regDTO.supplierId,
                     regDTO.supplierRef,
                     regDTO.agreementId,
-                    regDTO.postId!!,
-                    regDTO.rank,
+                    regDTO.postId!!
                 )?.let {
                     throw BadRequestException("Product agreement already exists")
                 }

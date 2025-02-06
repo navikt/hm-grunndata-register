@@ -12,13 +12,6 @@ import java.util.UUID
 interface ProductAgreementRegistrationRepository :
     CoroutineCrudRepository<ProductAgreementRegistration, UUID>,
     CoroutineJpaSpecificationExecutor<ProductAgreementRegistration> {
-    suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostAndRank(
-        supplierId: UUID,
-        supplierRef: String,
-        agreementId: UUID,
-        post: Int,
-        rank: Int,
-    ): ProductAgreementRegistration?
 
 
     suspend fun findBySupplierIdAndSupplierRef(
@@ -60,12 +53,11 @@ interface ProductAgreementRegistrationRepository :
         status: ProductAgreementStatus,
     ): List<ProductAgreementRegistration>
 
-    suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
+    suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostId(
         supplierId: UUID,
         supplierRef: String,
         agreementId: UUID,
-        postId: UUID?,
-        rank: Int,
+        postId: UUID?
     ): ProductAgreementRegistration?
 
 }

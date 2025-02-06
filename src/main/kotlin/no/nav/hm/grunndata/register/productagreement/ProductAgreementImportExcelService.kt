@@ -58,8 +58,8 @@ open class ProductAgreementImportExcelService(
     private suspend fun deactivateProductAgreement(pa: ProductAgreementRegistrationDTO) {
         LOG.info("Excel import deactivating product agreement for agreement ${pa.agreementId}, " +
                 "post ${pa.postId} and productId: ${pa.productId}")
-        productAgreementService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
-            pa.supplierId, pa.supplierRef, pa.agreementId, pa.postId, pa.rank
+        productAgreementService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostId(
+            pa.supplierId, pa.supplierRef, pa.agreementId, pa.postId
         )?.let { existing ->
 
             productAgreementService.update(
@@ -88,8 +88,8 @@ open class ProductAgreementImportExcelService(
 
 
     private suspend fun updateProductAndProductAgreement(pa: ProductAgreementRegistrationDTO) {
-        productAgreementService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostIdAndRank(
-            pa.supplierId, pa.supplierRef, pa.agreementId, pa.postId, pa.rank
+        productAgreementService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostId(
+            pa.supplierId, pa.supplierRef, pa.agreementId, pa.postId
         )?.let { existing ->
             LOG.info("Excel import updating product agreement for agreement ${pa.agreementId}, " +
                     "post ${pa.postId} and productId: ${pa.productId}")
