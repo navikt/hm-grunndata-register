@@ -6,7 +6,7 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import no.nav.hm.grunndata.register.security.Roles
 
-@Secured(value = [Roles.ROLE_SUPPLIER, Roles.ROLE_ADMIN])
+@Secured(value = [Roles.ROLE_SUPPLIER, Roles.ROLE_ADMIN, Roles.ROLE_HMS])
 @Controller("/loggedInUser")
 class LoggedInUserController {
 
