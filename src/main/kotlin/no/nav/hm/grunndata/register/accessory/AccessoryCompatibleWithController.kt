@@ -23,7 +23,7 @@ class AccessoryCompatibleWithController(private val compatibleWithFinder: Compat
     @Get("/variants/{hmsNr}")
     suspend fun findCompatibleWithProductsVariants(hmsNr: String) = compatibleWithFinder.findCompatibleWith(hmsNr, true)
 
-    @Get("/{hmsNr}")
+    @Get("/hmsNr/{hmsNr}")
     suspend fun findByHmsNr(hmsNr: String): ProductRegistrationDTOV2? {
         val product = productRegistrationService.findByHmsArtNr(hmsNr)
         return product?.let { productDTOMapper.toDTOV2(it) }
