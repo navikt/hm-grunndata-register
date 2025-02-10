@@ -10,7 +10,6 @@ import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.user.UserAttribute.USER_ID
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
@@ -32,6 +31,25 @@ class UserHmsController(private val userRepository: UserRepository) {
                 HttpResponse.ok(it.toDTO())
             } ?: HttpResponse.notFound()
 
+    @Put("/{id}")
+    suspend fun updateUser(
+        id: UUID,
+        @Body userDTO: UserDTO,
+    ): HttpResponse<UserDTO> {
+        if (userRepository.findByEmailIgnoreCase(userDTO.email)?.id != id) throw BadRequestException("User with email already exists")
+        return userRepository.findById(id)?.let {
+            HttpResponse.ok(
+                userRepository.update(
+                    it.copy(
+                        name = userDTO.name,
+                        email = userDTO.email,
+                        roles = userDTO.roles,
+                        attributes = userDTO.attributes,
+                    ),
+                ).toDTO(),
+            )
+        } ?: HttpResponse.notFound()
+    }
 
     @Put("/password")
     suspend fun changePassword(
