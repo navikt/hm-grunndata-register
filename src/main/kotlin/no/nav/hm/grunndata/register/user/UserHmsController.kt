@@ -24,7 +24,7 @@ class UserHmsController(private val userRepository: UserRepository) {
     @Get("/{userId}")
     suspend fun getUserId(userId: UUID, authentication: Authentication): HttpResponse<UserDTO> =
         userRepository.findById(userId)
-            ?.takeIf { it.attributes[USER_ID] == authentication.attributes[USER_ID] }
+            ?.takeIf { userId == authentication.attributes[USER_ID] }
             ?.let {
                 HttpResponse.ok(it.toDTO())
             } ?: HttpResponse.notFound()
