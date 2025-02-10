@@ -36,9 +36,12 @@ class UserHmsController(private val userRepository: UserRepository) {
     suspend fun updateUser(
         id: UUID,
         @Body userDTO: UserDTO,
+        authentication: Authentication
     ): HttpResponse<UserDTO> {
         if (userRepository.findByEmailIgnoreCase(userDTO.email)?.id != id) throw BadRequestException("User with email already exists")
-        return userRepository.findById(id)?.let {
+        return userRepository.findById(id)
+            ?.takeIf { it.id== UUID.fromString(authentication.attributes["userId"].toString())}
+            ?.let {
             HttpResponse.ok(
                 userRepository.update(
                     it.copy(
