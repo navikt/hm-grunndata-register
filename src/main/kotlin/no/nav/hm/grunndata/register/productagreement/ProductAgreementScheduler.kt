@@ -26,4 +26,13 @@ open class ProductAgreementScheduler(private val productAgreementRegistrationSer
         }
     }
 
+    @LeaderOnly
+    @Scheduled(cron = "27 * * * *")
+    open fun deactivateProductExpiredActiveAgreements() {
+        LOG.info("Running product agreement deactivate scheduler for products that are expired")
+        runBlocking {
+            productAgreementRegistrationService.deactivateProductExpiredActiveAgreements()
+        }
+    }
+
 }

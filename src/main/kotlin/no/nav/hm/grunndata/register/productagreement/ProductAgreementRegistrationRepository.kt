@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.productagreement
 
+import io.micronaut.data.annotation.Query
 import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
@@ -38,6 +39,14 @@ interface ProductAgreementRegistrationRepository :
         status: ProductAgreementStatus,
         expired: LocalDateTime,
     ): List<ProductAgreementRegistration>
+
+    @Query(
+        """
+        SELECT b.* FROM product_reg_v1 a, product_agreement_reg_v1 b WHERE a.expired<now() AND a.draft_status='DONE' 
+        AND a.registration_status='INACTIVE' AND b.status='ACTIVE' AND b.product_id=a.id
+        """
+    )
+    suspend fun findProductExpiredButActiveAgreements(): List<ProductAgreementRegistration>
 
     suspend fun findByPostIdAndStatusIn(
         postId: UUID,

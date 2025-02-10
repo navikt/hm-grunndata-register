@@ -264,12 +264,28 @@ open class ProductAgreementRegistrationService(
         LOG.info("Found ${products.size} products to deactivate")
         products.forEach {
             saveAndCreateEvent(
-                it.copy(status = ProductAgreementStatus.INACTIVE, updated = LocalDateTime.now(),
+                it.copy(status = ProductAgreementStatus.INACTIVE,
+                    updated = LocalDateTime.now(),
                     updatedByUser = "system"), true
             )
         }
     }
 
+    suspend fun deactivateProductExpiredActiveAgreements() {
+        val products = findProductExpiredButActiveAgreements()
+        LOG.info("Found ${products.size} products to deactivate")
+        products.forEach {
+            saveAndCreateEvent(
+                it.copy(status = ProductAgreementStatus.INACTIVE,
+                    expired = LocalDateTime.now(),
+                    updated = LocalDateTime.now(),
+                    updatedByUser = "system"), true
+            )
+        }
+    }
+
+    suspend fun findProductExpiredButActiveAgreements(): List<ProductAgreementRegistrationDTO> =
+        productAgreementRegistrationRepository.findProductExpiredButActiveAgreements().map { it.toDTO() }
 
 }
 
