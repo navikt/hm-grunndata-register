@@ -21,9 +21,10 @@ class UserHmsController(private val userRepository: UserRepository) {
         const val API_V1_USER_REGISTRATIONS = "/hms-user/api/v1/users"
     }
 
+    // todo check that logged in user is the same as the user being fetched
     @Get("/{userId}")
     suspend fun getUserId(userId: UUID, authentication: Authentication): HttpResponse<UserDTO> =
-        userRepository.findById(authentication.attributes[USER_ID] as UUID)
+        userRepository.findById(userId)
             ?.let {
                 HttpResponse.ok(it.toDTO())
             } ?: HttpResponse.notFound()
