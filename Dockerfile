@@ -1,5 +1,6 @@
-FROM gcr.io/distroless/java21-debian12:nonroot
-COPY build/libs/hm-grunndata-register-all.jar ./app.jar
+FROM gcr.io/distroless/java17-debian12:nonroot
+WORKDIR /app
 ENV TZ="Europe/Oslo"
 EXPOSE 8080
-CMD ["-jar", "./app.jar"]
+COPY build/libs/hm-grunndata-register-all.jar ./app.jar
+CMD ["-jar", "app.jar"]
