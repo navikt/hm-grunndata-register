@@ -27,7 +27,7 @@ class PartRegistrationApiController(
     private val productDTOMapper: ProductDTOMapper,
 ) {
     companion object {
-        const val API_V1_PART_REGISTRATIONS = "/api/v1/part/registrations"
+        const val API_V1_PART_REGISTRATIONS = "/api/v1/part"
         private val LOG = LoggerFactory.getLogger(ProductRegistrationAdminApiController::class.java)
     }
 
