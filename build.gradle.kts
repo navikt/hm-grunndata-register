@@ -3,7 +3,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jvmTarget = "17"
-val micronautVersion = "4.7.5"
+val micronautVersion = "4.7.6"
 val junitJupiterVersion = "5.9.0"
 val logbackEncoderVersion = "7.3"
 val postgresqlVersion = "42.7.2"
