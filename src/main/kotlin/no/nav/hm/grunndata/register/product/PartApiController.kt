@@ -63,6 +63,19 @@ class PartRegistrationApiController(
         return variant?.let { productDTOMapper.toDTOV2(it) }
     }
 
+
+    @Get("/old/series/{seriesUUID}")
+    suspend fun findBySeriesUUIDAndSupplierIdOld(seriesUUID: UUID) =
+        productRegistrationService.findAllBySeriesUuid(seriesUUID).sortedBy { it.created }
+
+    @Get("/{id}")
+    suspend fun findPartById(
+        id: UUID,
+    ): ProductRegistrationDTOV2? {
+        val part = productRegistrationService.findById(id)
+        return part?.let { productDTOMapper.toDTOV2(it) }
+    }
+
 }
 
 @Introspected
