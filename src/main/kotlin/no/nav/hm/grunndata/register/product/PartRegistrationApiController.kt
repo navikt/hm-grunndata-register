@@ -8,8 +8,10 @@ import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.RequestBean
 import io.micronaut.security.annotation.Secured
+import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
@@ -49,6 +51,17 @@ class PartRegistrationApiController(
                 root[ProductRegistration::sparePart] eq true
             }
         }
+
+    @Get("/variant-id/{variantIdentifier}")
+    suspend fun findPartByVariantIdentifier(
+        @PathVariable variantIdentifier: String,
+        authentication: Authentication,
+    ): ProductRegistrationDTOV2? {
+        val variant = productRegistrationService.findPartByHmsArtNr(variantIdentifier, authentication)
+            ?: productRegistrationService.findPartBySupplierRef(variantIdentifier, authentication)
+
+        return variant?.let { productDTOMapper.toDTOV2(it) }
+    }
 
 }
 

@@ -36,7 +36,20 @@ interface ProductRegistrationRepository :
         registrationStatus: List<RegistrationStatus>,
     ): ProductRegistration?
 
+    @Query("SELECT * FROM product_reg_v1 WHERE product_reg_v1.hms_artnr LIKE :hmsArtNr AND registration_status IN (:registrationStatus) AND (accessory = true OR spare_part = true)")
+    suspend fun findPartByHmsArtNrStartingWithAndRegistrationStatusIn(
+        hmsArtNr: String,
+        registrationStatus: List<RegistrationStatus>,
+    ): ProductRegistration?
+
     suspend fun findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierId(
+        hmsArtNr: String,
+        registrationStatus: List<RegistrationStatus>,
+        supplierId: UUID,
+    ): ProductRegistration?
+
+    @Query("SELECT * FROM product_reg_v1 WHERE product_reg_v1.hms_artnr LIKE :hmsArtNr AND registration_status IN (:registrationStatus) AND supplier_id = :supplierId AND (accessory = true OR spare_part = true)")
+    suspend fun findPartByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierId(
         hmsArtNr: String,
         registrationStatus: List<RegistrationStatus>,
         supplierId: UUID,
@@ -47,7 +60,20 @@ interface ProductRegistrationRepository :
         registrationStatus: List<RegistrationStatus>,
     ): ProductRegistration?
 
+    @Query("SELECT * FROM product_reg_v1 WHERE product_reg_v1.supplier_ref LIKE :supplierRef AND registration_status IN (:registrationStatus) AND (accessory = true OR spare_part = true)")
+    suspend fun findPartBySupplierRefAndRegistrationStatusIn(
+        supplierRef: String,
+        registrationStatus: List<RegistrationStatus>,
+    ): ProductRegistration?
+
     suspend fun findBySupplierRefStartingWithAndRegistrationStatusInAndSupplierId(
+        supplierRef: String,
+        registrationStatus: List<RegistrationStatus>,
+        supplierId: UUID
+    ): ProductRegistration?
+
+    @Query("SELECT * FROM product_reg_v1 WHERE product_reg_v1.supplier_ref LIKE :supplierRef AND registration_status IN (:registrationStatus) AND supplier_id = :supplierId AND (accessory = true OR spare_part = true)")
+    suspend fun findPartBySupplierRefStartingWithAndRegistrationStatusInAndSupplierId(
         supplierRef: String,
         registrationStatus: List<RegistrationStatus>,
         supplierId: UUID

@@ -58,7 +58,8 @@ open class ProductRegistrationService(
 
     open suspend fun update(dto: ProductRegistration) = productRegistrationRepository.update(dto)
 
-    open suspend fun findAccessoryOrSparePartButNoCompatibleWith() = productRegistrationRepository.findAccessoryOrSparePartButNoCompatibleWith()
+    open suspend fun findAccessoryOrSparePartButNoCompatibleWith() =
+        productRegistrationRepository.findAccessoryOrSparePartButNoCompatibleWith()
 
     open suspend fun findByHmsArtNr(hmsArtNr: String) =
         productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusIn(
@@ -67,7 +68,7 @@ open class ProductRegistrationService(
         )
 
     open suspend fun findByHmsArtNr(hmsArtNr: String, authentication: Authentication): ProductRegistration? =
-        if(authentication.isSupplier()) {
+        if (authentication.isSupplier()) {
             productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierId(
                 hmsArtNr,
                 listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
@@ -80,20 +81,19 @@ open class ProductRegistrationService(
             )
         }
 
-    open suspend fun findByHmsArtNrAndSupplierId(
-        hmsArtNr: String,
-        supplierId: UUID,
-    ) = productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierId(
-        hmsArtNr,
-        listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
-        supplierId,
-    )
-
-    open suspend fun findBySupplierRef(supplierRef: String) =
-        productRegistrationRepository.findBySupplierRefAndRegistrationStatusIn(
-            supplierRef,
-            listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
-        )
+    open suspend fun findPartByHmsArtNr(hmsArtNr: String, authentication: Authentication): ProductRegistration? =
+        if (authentication.isSupplier()) {
+            productRegistrationRepository.findPartByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierId(
+                hmsArtNr,
+                listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
+                authentication.supplierId(),
+            )
+        } else {
+            productRegistrationRepository.findPartByHmsArtNrStartingWithAndRegistrationStatusIn(
+                hmsArtNr,
+                listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
+            )
+        }
 
     open suspend fun findBySupplierRef(supplierRef: String, authentication: Authentication) =
         if (authentication.isSupplier()) {
@@ -107,14 +107,17 @@ open class ProductRegistrationService(
             )
         }
 
-    open suspend fun findBySupplierRefAndSupplierIdAndStatusNotDeleted(
-        supplierRef: String,
-        supplierId: UUID,
-    ) = productRegistrationRepository.findBySupplierRefStartingWithAndRegistrationStatusInAndSupplierId(
-        supplierRef,
-        listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
-        supplierId
-    )
+    open suspend fun findPartBySupplierRef(supplierRef: String, authentication: Authentication) =
+        if (authentication.isSupplier()) {
+            productRegistrationRepository.findPartBySupplierRefStartingWithAndRegistrationStatusInAndSupplierId(
+                supplierRef, listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE), authentication.supplierId()
+            )
+        } else {
+            productRegistrationRepository.findPartBySupplierRefAndRegistrationStatusIn(
+                supplierRef,
+                listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
+            )
+        }
 
     open suspend fun findAll(
         spec: PredicateSpecification<ProductRegistration>?,
@@ -144,7 +147,8 @@ open class ProductRegistrationService(
         supplierId: UUID,
     ) = productRegistrationRepository.findByIdAndSupplierId(id, supplierId)
 
-    suspend fun findAllBySeriesUuid(seriesUUID: UUID) = productRegistrationRepository.findAllBySeriesUUIDOrderByCreatedAsc(seriesUUID)
+    suspend fun findAllBySeriesUuid(seriesUUID: UUID) =
+        productRegistrationRepository.findAllBySeriesUUIDOrderByCreatedAsc(seriesUUID)
 
     suspend fun findBySeriesUUIDAndSupplierId(
         seriesId: UUID,
@@ -533,7 +537,8 @@ open class ProductRegistrationService(
         supplierId,
     )
 
-    private suspend fun deleteAll(products: List<ProductRegistration>) = productRegistrationRepository.deleteAll(products)
+    private suspend fun deleteAll(products: List<ProductRegistration>) =
+        productRegistrationRepository.deleteAll(products)
 
     suspend fun countBySupplier(supplierId: UUID): Long =
         productRegistrationRepository.count(
@@ -617,14 +622,24 @@ open class ProductRegistrationService(
         deleteAll(products)
     }
 
-    suspend fun findByTechLabelValues(key: String?=null, unit: String?=null, value: String?=null): List<ProductRegistration> {
+    suspend fun findByTechLabelValues(
+        key: String? = null,
+        unit: String? = null,
+        value: String? = null
+    ): List<ProductRegistration> {
         if (key.isNullOrBlank() && unit.isNullOrBlank() && value.isNullOrBlank()) {
             throw BadRequestException("At least one of key, unit or value must be provided")
         }
         val jsonQuery = StringBuilder("[{")
-        if (!key.isNullOrBlank()) { jsonQuery.append("\"key\": \"$key\",") }
-        if (!unit.isNullOrBlank()) { jsonQuery.append("\"unit\": \"$unit\",") }
-        if (!value.isNullOrBlank()){ jsonQuery.append("\"value\": \"$value\",") }
+        if (!key.isNullOrBlank()) {
+            jsonQuery.append("\"key\": \"$key\",")
+        }
+        if (!unit.isNullOrBlank()) {
+            jsonQuery.append("\"unit\": \"$unit\",")
+        }
+        if (!value.isNullOrBlank()) {
+            jsonQuery.append("\"value\": \"$value\",")
+        }
         if (jsonQuery.endsWith(",")) jsonQuery.setLength(jsonQuery.length - 1) // Remove trailing comma
         jsonQuery.append("}]")
         LOG.info("Executing jsonQuery ${jsonQuery.toString()}")
