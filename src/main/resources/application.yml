@@ -153,8 +153,6 @@ media:
     url: ${MEDIA_UPLOAD_URL:`http://localhost:8081`}
 
 grunndata:
-  db:
-    url: ${GRUNNDATA_DB_URL:`http://hm-grunndata-db`}
   import:
     url: ${GRUNNDATA_IMPORT_URL:`http://localhost:3333/import`}
     token: ${GRUNNDATA_IMPORT_TOKEN:`bearer token123`}
