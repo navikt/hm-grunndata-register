@@ -1,0 +1,1 @@
+ALTER TABLE isocategory_reg_v1 ADD COLUMN search_words jsonb NOT NULL DEFAULT '[]'::jsonb;

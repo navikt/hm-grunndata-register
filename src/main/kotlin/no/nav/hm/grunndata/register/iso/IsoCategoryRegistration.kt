@@ -23,6 +23,8 @@ data class IsoCategoryRegistration(
     val isActive: Boolean = true,
     val showTech: Boolean = true,
     val allowMulti: Boolean = true,
+    @field:TypeDef(type = DataType.JSON)
+    val searchWords: List<String> = emptyList(),
     val createdByUser: String,
     val updatedByUser: String,
     val createdBy: String = REGISTER,
@@ -46,8 +48,9 @@ data class IsoCategoryRegistrationDTO(
     val isActive: Boolean = true,
     val showTech: Boolean = true,
     val allowMulti: Boolean = true,
-    val createdByUser: String,
-    val updatedByUser: String,
+    val searchWords: List<String> = emptyList(),
+    val createdByUser: String=REGISTER,
+    val updatedByUser: String=REGISTER,
     val createdBy: String = REGISTER,
     val updatedBy: String = REGISTER,
     val created: LocalDateTime = LocalDateTime.now(),
@@ -81,7 +84,8 @@ fun IsoCategoryRegistration.toDTO(): IsoCategoryRegistrationDTO = IsoCategoryReg
     createdBy = createdBy,
     updatedBy = updatedBy,
     created = created,
-    updated = updated
+    updated = updated,
+    searchWords = searchWords
 )
 
 fun IsoCategoryRegistrationDTO.toEntity(): IsoCategoryRegistration = IsoCategoryRegistration(
@@ -99,5 +103,6 @@ fun IsoCategoryRegistrationDTO.toEntity(): IsoCategoryRegistration = IsoCategory
     createdBy = createdBy,
     updatedBy = updatedBy,
     created = created,
-    updated = updated
+    updated = updated,
+    searchWords = searchWords
 )

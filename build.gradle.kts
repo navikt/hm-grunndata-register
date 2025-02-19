@@ -99,6 +99,8 @@ dependencies {
     implementation("com.github.navikt:hm-micronaut-leaderelection:202405140823")
 
     implementation("org.apache.commons:commons-compress:1.26.2")
+
+    implementation("com.opencsv:opencsv:5.5.2")
 }
 
 micronaut {

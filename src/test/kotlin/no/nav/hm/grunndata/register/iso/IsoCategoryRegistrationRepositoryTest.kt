@@ -22,6 +22,7 @@ class IsoCategoryRegistrationRepositoryTest(private val isoCategoryRepository: I
             isActive = true,
             showTech = true,
             allowMulti = true,
+            searchWords = listOf("Hjelpemidler", "røyking"),
             createdByUser = "tester",
             updatedByUser = "tester",
         )
@@ -40,6 +41,7 @@ class IsoCategoryRegistrationRepositoryTest(private val isoCategoryRepository: I
             read.isoTranslations.textEn shouldBe testCategory.isoTranslations.textEn
             read.updated.shouldNotBeNull()
             read.created.shouldNotBeNull()
+            read.searchWords.size shouldBe 2
             read.updatedBy shouldBe REGISTER
             read.createdBy shouldBe REGISTER
             read.updatedByUser shouldBe "tester"
