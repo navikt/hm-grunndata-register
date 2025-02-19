@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 
 
-@Secured(Roles.ROLE_ADMIN)
+@Secured(Roles.ROLE_HMS)
 @Controller(SeriesRegistrationHmsUserController.API_V1_SERIES)
 @Tag(name = "Hms Series")
 class SeriesRegistrationHmsUserController(
