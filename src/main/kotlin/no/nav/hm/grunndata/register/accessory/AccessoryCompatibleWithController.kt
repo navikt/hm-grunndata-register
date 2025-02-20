@@ -3,8 +3,10 @@ package no.nav.hm.grunndata.register.accessory
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
+import io.micronaut.security.authentication.Authentication
 import java.util.UUID
 import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTOV2
@@ -27,6 +29,17 @@ class AccessoryCompatibleWithController(private val compatibleWithFinder: Compat
     suspend fun findByHmsNr(hmsNr: String): ProductRegistrationDTOV2? {
         val product = productRegistrationService.findByHmsArtNr(hmsNr)
         return product?.let { productDTOMapper.toDTOV2(it) }
+    }
+
+    @Get("/variant-id/{variantIdentifier}")
+    suspend fun findProdyctByVariantIdentifier(
+        @PathVariable variantIdentifier: String,
+        authentication: Authentication,
+    ): ProductRegistrationDTOV2? {
+        val variant = productRegistrationService.findByHmsArtNr(variantIdentifier, authentication)
+            ?: productRegistrationService.findBySupplierRef(variantIdentifier, authentication)
+
+        return variant?.let { productDTOMapper.toDTOV2(it) }
     }
 
     @Get("/{id}")
