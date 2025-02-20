@@ -66,7 +66,8 @@ fun IsoCategoryRegistration.toRapidDTO(): IsoCategoryDTO = IsoCategoryDTO(
     isoLevel = isoLevel,
     isActive = isActive,
     showTech = showTech,
-    allowMulti = allowMulti
+    allowMulti = allowMulti,
+    searchWords = searchWords
 )
 
 fun IsoCategoryRegistration.toDTO(): IsoCategoryRegistrationDTO = IsoCategoryRegistrationDTO(
