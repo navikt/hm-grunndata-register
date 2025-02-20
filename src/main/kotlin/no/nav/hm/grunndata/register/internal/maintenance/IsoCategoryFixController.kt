@@ -9,13 +9,15 @@ import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.swagger.v3.oas.annotations.Hidden
-import java.io.FileReader
+import java.io.InputStreamReader
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no.nav.hm.grunndata.register.iso.IsoCategoryRegistrationDTO
 import no.nav.hm.grunndata.register.iso.IsoCategoryRegistrationService
 import no.nav.hm.grunndata.register.iso.IsoTranslations
 import org.slf4j.LoggerFactory
+import org.yaml.snakeyaml.reader.StreamReader
 
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller("/internal/fix/category")
@@ -26,10 +28,10 @@ class IsoCategoryFixController(private val isoCategoryRegistrationService: IsoCa
 
     @Put("/add-missing-category")
     suspend fun addMissingCategory() {
-        val filePath = IsoCategoryFixController::class.java.getResource("/missing_categories.csv")?.path
+        val csvStream = IsoCategoryFixController::class.java.getResourceAsStream("/missing_categories.csv")
         val cvsParser = CSVParserBuilder().withSeparator(';').build()
         val reader = withContext(Dispatchers.IO) {
-            CSVReaderBuilder(filePath?.let { FileReader(it) }).withCSVParser(cvsParser)
+            CSVReaderBuilder(InputStreamReader(csvStream)).withCSVParser(cvsParser)
         }.build()
 
         var line: Array<String>?
