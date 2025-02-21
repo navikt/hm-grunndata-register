@@ -22,7 +22,7 @@ class AccessoryCompatibleWithController(private val compatibleWithFinder: Compat
                                         private val productRegistrationService: ProductRegistrationService,
                                         private val productDTOMapper: ProductDTOMapper) {
 
-    @Get("/series-variants/{seriedUUID}")
+    @Get("/series-variants/{seriesUUID}")
     suspend fun findVariantsBySeriesUUID(
         @PathVariable seriesUUID: UUID,
         authentication: Authentication,
