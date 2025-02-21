@@ -22,6 +22,15 @@ class AccessoryCompatibleWithController(private val compatibleWithFinder: Compat
                                         private val productRegistrationService: ProductRegistrationService,
                                         private val productDTOMapper: ProductDTOMapper) {
 
+    @Get("/series-variants/{seriedUUID}")
+    suspend fun findVariantsBySeriesUUID(
+        @PathVariable seriesUUID: UUID,
+        authentication: Authentication,
+    ): List<ProductRegistrationDTOV2> {
+        val variants = productRegistrationService.findAllBySeriesUuid(seriesUUID)
+        return variants.map { productDTOMapper.toDTOV2(it) }
+    }
+
     @Get("/variants/{hmsNr}")
     suspend fun findCompatibleWithProductsVariants(hmsNr: String) = compatibleWithFinder.findCompatibleWith(hmsNr, true)
 
