@@ -7,10 +7,10 @@ val micronautVersion = "4.7.6"
 val junitJupiterVersion = "5.9.0"
 val logbackEncoderVersion = "7.3"
 val postgresqlVersion = "42.7.2"
-val tcVersion = "1.17.6"
+val tcVersion = "1.20.4"
 val mockkVersion = "1.13.4"
 val kotestVersion = "5.5.5"
-val poiVersion = "5.2.5"
+val poiVersion = "5.4.0"
 val rapidsRiversVersion = "202410290928"
 val grunndataDtoVersion = "202502200842"
 val microsoftGrapVersion = "5.77.0"
@@ -100,7 +100,7 @@ dependencies {
 
     implementation("org.apache.commons:commons-compress:1.26.2")
 
-    implementation("com.opencsv:opencsv:5.5.2")
+    implementation("com.opencsv:opencsv:5.10")
 }
 
 micronaut {
