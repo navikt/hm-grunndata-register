@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.catalog
 
 import jakarta.inject.Singleton
 import java.io.InputStream
+import javax.lang.model.type.UnknownTypeException
 import no.nav.hm.grunndata.register.catalog.CatalogExcelFileImport.Companion.LOG
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.productagreement.ColumnNames
@@ -122,9 +123,13 @@ fun mapArticleType(
 ): ArticleType {
     val mainProduct = articleType.lowercase().indexOf("hj.middel") > -1
     val accessory =
-        articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("ja") > -1
+        (articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("ja") > -1) ||
+                mainProduct && funksjonsendring.lowercase().indexOf("ja") > -1
     val sparePart =
         articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("nei") > -1
+    if (!mainProduct && !accessory && !sparePart) {
+        throw BadRequestException("Unknown article type: $articleType")
+    }
     return ArticleType(mainProduct, sparePart, accessory)
 }
 
