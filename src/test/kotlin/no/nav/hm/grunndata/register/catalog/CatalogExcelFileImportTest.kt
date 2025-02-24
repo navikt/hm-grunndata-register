@@ -26,6 +26,11 @@ class CatalogExcelFileImportTest {
         type3.accessory shouldBe false
         type3.sparePart shouldBe true
 
+        val type4 = mapArticleType("hj.middel", "nei")
+        type4.mainProduct shouldBe true
+        type4.accessory shouldBe false
+        type4.sparePart shouldBe false
+
         assertThrows<BadRequestException> {
             mapArticleType("unknown type", "ja")
         }
