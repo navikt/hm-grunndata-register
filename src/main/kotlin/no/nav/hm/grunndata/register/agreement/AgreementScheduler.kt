@@ -4,7 +4,7 @@ import io.micronaut.context.annotation.Requires
 import io.micronaut.scheduling.annotation.Scheduled
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.register.leaderelection.LeaderOnly
+import no.nav.hm.micronaut.leaderelection.LeaderOnly
 import org.slf4j.LoggerFactory
 
 @Singleton
@@ -28,7 +28,7 @@ open class AgreementScheduler(
     }
 
     @LeaderOnly
-   @Scheduled(cron = "0 45 * * * *")
+    @Scheduled(cron = "0 45 * * * *")
     open fun handlePublishAgreements() {
         LOG.info("Running publish agreement scheduler")
         runBlocking {

@@ -5,7 +5,7 @@ import io.micronaut.scheduling.annotation.Scheduled
 import jakarta.inject.Singleton
 import java.time.LocalDateTime
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.register.leaderelection.LeaderOnly
+import no.nav.hm.micronaut.leaderelection.LeaderOnly
 import org.slf4j.LoggerFactory
 
 @Singleton

@@ -4,7 +4,7 @@ import io.micronaut.context.annotation.Requires
 import io.micronaut.scheduling.annotation.Scheduled
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.register.leaderelection.LeaderOnly
+import no.nav.hm.micronaut.leaderelection.LeaderOnly
 import org.slf4j.LoggerFactory
 
 @Singleton
@@ -14,6 +14,7 @@ open class ProductExpirePublishScheduler(private val productExpirePublishHandler
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductExpirePublishScheduler::class.java)
     }
+
     @LeaderOnly
     @Scheduled(fixedDelay = "15m")
     open fun scheduleProductExpirePublish() = runBlocking {

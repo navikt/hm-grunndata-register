@@ -4,7 +4,7 @@ import io.micronaut.context.annotation.Requires
 import io.micronaut.scheduling.annotation.Scheduled
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.register.leaderelection.LeaderOnly
+import no.nav.hm.micronaut.leaderelection.LeaderOnly
 import org.slf4j.LoggerFactory
 
 @Singleton
@@ -18,7 +18,7 @@ open class CreateBaseVersionScheduler(private val createBaseVersionHandler: Crea
     @Scheduled(fixedDelay = "4m")
     open fun scheduleProductExpirePublish() =
         runBlocking {
-            LOG.info("Running ProductExpirePublishScheduler")
+            LOG.info("Running createVersionsWhereMissingForMigratedSuppliers scheduler")
             createBaseVersionHandler.createVersionsWhereMissingForMigratedSuppliers()
         }
 }

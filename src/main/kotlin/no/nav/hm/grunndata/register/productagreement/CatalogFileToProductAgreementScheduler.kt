@@ -9,9 +9,9 @@ import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.catalog.CatalogFileDTO
 import no.nav.hm.grunndata.register.catalog.CatalogFileEventHandler
 import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
-import no.nav.hm.grunndata.register.leaderelection.LeaderOnly
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.micronaut.leaderelection.LeaderOnly
 
 @Singleton
 open class CatalogFileToProductAgreementScheduler(

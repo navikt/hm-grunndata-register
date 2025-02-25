@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val jvmTarget = "17"
 val micronautVersion = "4.7.6"
 val junitJupiterVersion = "5.9.0"
-val logbackEncoderVersion = "7.3"
+val logbackEncoderVersion = "8.0"
 val postgresqlVersion = "42.7.2"
 val tcVersion = "1.20.4"
 val mockkVersion = "1.13.4"
@@ -14,6 +14,7 @@ val poiVersion = "5.4.0"
 val rapidsRiversVersion = "202410290928"
 val grunndataDtoVersion = "202502200842"
 val microsoftGrapVersion = "5.77.0"
+val leaderElectionVersion = "202405291312"
 
 group = "no.nav.hm"
 version = properties["version"] ?: "local-build"
@@ -24,6 +25,8 @@ plugins {
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("io.micronaut.application") version "4.4.5"
+    id("com.github.ben-manes.versions") version "0.47.0"
+
 }
 
 configurations.all {
@@ -96,7 +99,7 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql:10.6.0")
 
     // micronaut-leaderelection
-    implementation("com.github.navikt:hm-micronaut-leaderelection:202405140823")
+    implementation("com.github.navikt:hm-micronaut-leaderelection:$leaderElectionVersion")
 
     implementation("org.apache.commons:commons-compress:1.26.2")
 

@@ -6,9 +6,9 @@ import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.NewsStatus
-import no.nav.hm.grunndata.register.leaderelection.LeaderOnly
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
+import no.nav.hm.micronaut.leaderelection.LeaderOnly
 
 @Singleton
 @Requires(property = "schedulers.enabled", value = "true")
