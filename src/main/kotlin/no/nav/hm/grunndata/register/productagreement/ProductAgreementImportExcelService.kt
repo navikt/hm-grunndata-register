@@ -103,6 +103,7 @@ open class ProductAgreementImportExcelService(
                     sparePart = pa.sparePart,
                     accessory = pa.accessory,
                     updatedBy = EXCEL,
+                    published = pa.published,
                     expired = pa.expired,
                     updated = LocalDateTime.now(),
                     status = pa.status
