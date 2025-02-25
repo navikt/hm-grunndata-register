@@ -3,10 +3,11 @@ package no.nav.hm.grunndata.register.productagreement
 import io.micronaut.context.annotation.Requires
 import io.micronaut.scheduling.annotation.Scheduled
 import jakarta.inject.Singleton
-
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.micronaut.leaderelection.LeaderOnly
-
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
+import java.time.LocalDateTime
+import no.nav.hm.grunndata.register.REGISTER
 
 import org.slf4j.LoggerFactory
 
@@ -24,6 +25,31 @@ open class ProductAgreementScheduler(private val productAgreementRegistrationSer
         LOG.info("Running product agreement deactivation scheduler")
         runBlocking {
             productAgreementRegistrationService.deactivateExpiredProductAgreements()
+        }
+    }
+
+    @LeaderOnly
+    @Scheduled(cron = "0 30 3 * * *")
+    open fun activateProductAgreements() {
+        LOG.info("Running product agreement activation scheduler")
+        runBlocking {
+            val toBePublished = productAgreementRegistrationService.findByStatusAndPublishedBeforeAndExpiredAfter(
+                ProductAgreementStatus.INACTIVE,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+            )
+            LOG.info("Found ${toBePublished.size} product agreements to be published")
+            toBePublished.forEach {
+                productAgreementRegistrationService.saveAndCreateEvent(
+                    it.copy(
+                        status = ProductAgreementStatus.ACTIVE,
+                        updated = LocalDateTime.now(),
+                        updatedByUser = "system-publish",
+                        updatedBy = REGISTER
+                    ),
+                    isUpdate = true
+                )
+            }
         }
     }
 

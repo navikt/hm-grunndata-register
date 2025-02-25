@@ -258,6 +258,9 @@ open class ProductAgreementRegistrationService(
     suspend fun findByStatusAndExpiredBefore(status: ProductAgreementStatus, expired: LocalDateTime) =
         productAgreementRegistrationRepository.findByStatusAndExpiredBefore(status, expired).map { it.toDTO() }
 
+    suspend fun findByStatusAndPublishedBeforeAndExpiredAfter(status: ProductAgreementStatus, published: LocalDateTime, expired: LocalDateTime) =
+        productAgreementRegistrationRepository.findByStatusAndPublishedBeforeAndExpiredAfter(status, published, expired).map { it.toDTO() }
+
     suspend fun deactivateExpiredProductAgreements() {
         val products = findByStatusAndExpiredBefore(
             ProductAgreementStatus.ACTIVE, LocalDateTime.now())
@@ -266,7 +269,7 @@ open class ProductAgreementRegistrationService(
             saveAndCreateEvent(
                 it.copy(status = ProductAgreementStatus.INACTIVE,
                     updated = LocalDateTime.now(),
-                    updatedByUser = "system"), true
+                    updatedByUser = "system-expired"), true
             )
         }
     }

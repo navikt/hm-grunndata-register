@@ -40,6 +40,12 @@ interface ProductAgreementRegistrationRepository :
         expired: LocalDateTime,
     ): List<ProductAgreementRegistration>
 
+    suspend fun findByStatusAndPublishedBeforeAndExpiredAfter(
+        status: ProductAgreementStatus,
+        published: LocalDateTime,
+        expired: LocalDateTime,
+    ): List<ProductAgreementRegistration>
+
     @Query(
         """
         SELECT b.* FROM product_reg_v1 a, product_agreement_reg_v1 b WHERE a.expired<now() AND a.draft_status='DONE' 

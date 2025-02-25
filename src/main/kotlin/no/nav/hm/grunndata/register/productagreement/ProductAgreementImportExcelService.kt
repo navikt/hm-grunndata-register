@@ -246,8 +246,7 @@ open class ProductAgreementImportExcelService(
         val nowDate = LocalDate.now()
         val now = LocalDateTime.now()
         return if (agreement.draftStatus == DraftStatus.DONE
-                    && agreement.published < now
-                    && agreement.expired > now
+                    && dateFrom < nowDate
                     && dateTo > nowDate)
              ProductAgreementStatus.ACTIVE
         else ProductAgreementStatus.INACTIVE
