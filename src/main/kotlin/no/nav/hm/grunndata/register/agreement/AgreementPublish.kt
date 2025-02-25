@@ -57,9 +57,7 @@ open class AgreementPublish(
                     status = ProductAgreementStatus.ACTIVE,
                     updated = LocalDateTime.now(),
                     updatedBy = REGISTER,
-                    updatedByUser = "system-publish",
-                    published = agreementRegistrationDTO.published,
-                    expired = agreementRegistrationDTO.expired,
+                    updatedByUser = "system-publish"
                 ),
                 isUpdate = true,
             )
