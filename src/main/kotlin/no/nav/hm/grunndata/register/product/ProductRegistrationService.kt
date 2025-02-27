@@ -443,6 +443,7 @@ open class ProductRegistrationService(
                 version = 0,
                 accessory = false,
                 sparePart = false,
+                mainProduct  = true,
             )
         val draft = save(registration)
         LOG.info("Draft was created ${draft.id}")
@@ -507,6 +508,7 @@ open class ProductRegistrationService(
             productData = productData,
             sparePart = sparePart,
             accessory = accessory,
+            mainProduct = mainProduct,
             isoCategory = isoCategory,
             agreements = agreeements.map { it.toAgreementInfo() },
             version = version,

@@ -22,6 +22,7 @@ data class ProductAgreementRegistration(
     val articleName: String?,
     val sparePart: Boolean = false,
     val accessory: Boolean = false,
+    val mainProduct: Boolean = (sparePart || accessory).not(),
     val supplierId: UUID,
     val supplierRef: String,
     @field:Column(name = "hms_artnr")
@@ -48,6 +49,7 @@ data class ProductAgreementRegistrationDTO(
     val articleName: String?,
     val accessory: Boolean = false,
     val sparePart: Boolean = false,
+    val mainProduct: Boolean = (sparePart || accessory).not(),
     val isoCategory: String? = null,
     val supplierId: UUID,
     val supplierRef: String,
@@ -114,6 +116,7 @@ fun ProductAgreementRegistrationDTO.toEntity(): ProductAgreementRegistration {
         updatedBy = updatedBy,
         sparePart = sparePart,
         accessory = accessory,
+        mainProduct = mainProduct
     )
 }
 
@@ -143,6 +146,7 @@ fun ProductAgreementRegistration.toDTO(): ProductAgreementRegistrationDTO {
         updatedBy = updatedBy,
         accessory = accessory,
         sparePart = sparePart,
+        mainProduct = mainProduct,
         isoCategory = null,
     )
 }

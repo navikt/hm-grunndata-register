@@ -45,6 +45,7 @@ data class ProductRegistration(
     val articleName: String,
     val accessory: Boolean = false,
     val sparePart: Boolean = false,
+    val mainProduct: Boolean = (sparePart || accessory).not(),
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val adminStatus: AdminStatus = AdminStatus.PENDING,
     val registrationStatus: RegistrationStatus = RegistrationStatus.ACTIVE,
@@ -101,6 +102,7 @@ data class ProductRegistrationDTO(
     val articleName: String,
     val accessory: Boolean = false,
     val sparePart: Boolean = false,
+    val mainProduct: Boolean = (sparePart || accessory).not(),
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val adminStatus: AdminStatus = AdminStatus.PENDING,
     val registrationStatus: RegistrationStatus = RegistrationStatus.ACTIVE,
@@ -215,7 +217,8 @@ fun ProductRegistrationDTO.toEntity(): ProductRegistration =
         isoCategory = isoCategory,
         version = version,
         sparePart = sparePart,
-        accessory = accessory
+        accessory = accessory,
+        mainProduct = mainProduct
     )
 
 
