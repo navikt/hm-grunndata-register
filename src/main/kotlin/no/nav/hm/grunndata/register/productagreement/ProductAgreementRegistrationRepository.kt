@@ -75,4 +75,6 @@ interface ProductAgreementRegistrationRepository :
         postId: UUID?
     ): ProductAgreementRegistration?
 
+    abstract fun findByStatusAndPublishedAfter(status: ProductAgreementStatus, published: LocalDateTime): List<ProductAgreementRegistration>
+
 }
