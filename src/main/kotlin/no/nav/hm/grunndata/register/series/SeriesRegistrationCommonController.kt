@@ -100,7 +100,8 @@ class SeriesRegistrationCommonController(
         thumbnail = seriesData.media.sortedBy { it.priority }.firstOrNull { it.type == MediaType.IMAGE },
         isExpired = expired < LocalDateTime.now(),
         isPublished = published?.isBefore(LocalDateTime.now()) ?: false,
-        variantCount = count
+        variantCount = count,
+        mainProduct = mainProduct,
     )
 
     @Get("/{id}")

@@ -13,5 +13,6 @@ data class SeriesSearchDTO(
     val isPublished: Boolean,
     val variantCount: Int,
     val updated: LocalDateTime,
-    val updatedByUser: String
+    val updatedByUser: String,
+    val mainProduct: Boolean,
 )
