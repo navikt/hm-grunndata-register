@@ -2,7 +2,7 @@ package no.nav.hm.grunndata.register.product
 
 import java.util.UUID
 
-data class PartDTO (
+data class PartDTO(
     val id: UUID,
     val seriesUUID: UUID?,
     val hmsArtNr: String?,
@@ -12,4 +12,6 @@ data class PartDTO (
     val accessory: Boolean,
     val sparePart: Boolean,
     val productData: ProductDataDTO,
+    val isPublished: Boolean,
+    val isExpired: Boolean
 )

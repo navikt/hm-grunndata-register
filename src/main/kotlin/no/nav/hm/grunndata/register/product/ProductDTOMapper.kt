@@ -92,6 +92,8 @@ class ProductDTOMapper(
             sparePart = productRegistration.sparePart,
             productData = productRegistration.productData.toProductDataDTO(techLabels),
             supplierName = supplier?.name ?: "",
+            isExpired = productRegistration.expired?.let { it < LocalDateTime.now() } ?: false,
+            isPublished = productRegistration.published?.let { it < LocalDateTime.now() } ?: false,
         )
     }
 
