@@ -4,7 +4,7 @@ micronaut:
       max-file-size: 30000000
     port: ${SERVER_PORT:1337}
     context-path: /admreg
-    max-request-size: 30000000
+    max-request-size: 100000000
   application:
     name: hm-grunndata-register
     thread-selection: auto
