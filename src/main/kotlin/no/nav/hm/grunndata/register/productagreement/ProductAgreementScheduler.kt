@@ -29,7 +29,7 @@ open class ProductAgreementScheduler(private val productAgreementRegistrationSer
     }
 
     @LeaderOnly
-    @Scheduled(cron = "0 30 3 * * *")
+    @Scheduled(cron = "0 20 9 * * *")
     open fun activateProductAgreements() {
         LOG.info("Running product agreement activation scheduler")
         runBlocking {
