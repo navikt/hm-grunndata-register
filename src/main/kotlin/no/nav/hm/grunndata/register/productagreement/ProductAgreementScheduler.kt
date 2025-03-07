@@ -3,12 +3,11 @@ package no.nav.hm.grunndata.register.productagreement
 import io.micronaut.context.annotation.Requires
 import io.micronaut.scheduling.annotation.Scheduled
 import jakarta.inject.Singleton
-import kotlinx.coroutines.runBlocking
-import no.nav.hm.micronaut.leaderelection.LeaderOnly
-import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import java.time.LocalDateTime
+import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.register.REGISTER
-
+import no.nav.hm.micronaut.leaderelection.LeaderOnly
 import org.slf4j.LoggerFactory
 
 @Singleton
@@ -29,7 +28,7 @@ open class ProductAgreementScheduler(private val productAgreementRegistrationSer
     }
 
     @LeaderOnly
-    @Scheduled(cron = "0 20 9 * * *")
+    @Scheduled(cron = "0 30 3 * * *")
     open fun activateProductAgreements() {
         LOG.info("Running product agreement activation scheduler")
         runBlocking {
