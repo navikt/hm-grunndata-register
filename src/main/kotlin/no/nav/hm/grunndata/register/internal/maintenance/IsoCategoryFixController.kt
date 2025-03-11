@@ -61,6 +61,7 @@ class IsoCategoryFixController(private val isoCategoryRegistrationService: IsoCa
         return IsoCategoryRegistrationDTO(
             isoCode = isocode,
             isoTitle = isoTitle,
+            isoTitleShort = isoTitle,
             isoText = isoTitle,
             isoTextShort = isoTitle,
             isoTranslations = IsoTranslations(),

@@ -15,6 +15,7 @@ data class IsoCategoryRegistration(
     @field:Id
     val isoCode: String,
     val isoTitle: String,
+    val isoTitleShort: String?=null,
     val isoText: String,
     val isoTextShort: String,
     @field:TypeDef(type = DataType.JSON)
@@ -41,6 +42,7 @@ data class IsoTranslations(
 data class IsoCategoryRegistrationDTO(
     val isoCode: String,
     val isoTitle: String,
+    val isoTitleShort: String?,
     val isoText: String,
     val isoTextShort: String,
     val isoTranslations: IsoTranslations = IsoTranslations(),
@@ -60,6 +62,7 @@ data class IsoCategoryRegistrationDTO(
 fun IsoCategoryRegistration.toRapidDTO(): IsoCategoryDTO = IsoCategoryDTO(
     isoCode = isoCode,
     isoTitle = isoTitle,
+    isoTitleShort = isoTitleShort,
     isoText = isoText,
     isoTextShort = isoTextShort,
     isoTranslations = IsoTranslationsDTO(titleEn = isoTranslations.titleEn, textEn = isoTranslations.textEn),
@@ -73,6 +76,7 @@ fun IsoCategoryRegistration.toRapidDTO(): IsoCategoryDTO = IsoCategoryDTO(
 fun IsoCategoryRegistration.toDTO(): IsoCategoryRegistrationDTO = IsoCategoryRegistrationDTO(
     isoCode = isoCode,
     isoTitle = isoTitle,
+    isoTitleShort = isoTitleShort,
     isoText = isoText,
     isoTextShort = isoTextShort,
     isoTranslations = isoTranslations,
@@ -92,6 +96,7 @@ fun IsoCategoryRegistration.toDTO(): IsoCategoryRegistrationDTO = IsoCategoryReg
 fun IsoCategoryRegistrationDTO.toEntity(): IsoCategoryRegistration = IsoCategoryRegistration(
     isoCode = isoCode,
     isoTitle = isoTitle,
+    isoTitleShort = isoTitleShort,
     isoText = isoText,
     isoTextShort = isoTextShort,
     isoTranslations = isoTranslations,
