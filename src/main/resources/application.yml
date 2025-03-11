@@ -160,6 +160,8 @@ grunndata:
     token: ${GRUNNDATA_IMPORT_TOKEN:`bearer token123`}
   compati:
     url: ${GRUNNDATA_COMPATI_URL:`http://localhost:8989`}
+  db:
+    url: ${GRUNNDATA_DB_URL:`http://localhost:8888`}
 
 schedulers:
   enabled: ${SCHEDULERS_ENABLED:false}

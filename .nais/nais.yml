@@ -66,6 +66,8 @@ spec:
       value: "{{ baseversion_scheduler_enabled }}"
     - name: GRUNNDATA_COMPATI_URL
       value: "http://hm-grunndata-compati"
+    - name: GRUNNDATA_DB_URL
+      value: "http://hm-grunndata-db"
   {{#each env}}
     - name: {{@key}}
       value: "{{this}}"
