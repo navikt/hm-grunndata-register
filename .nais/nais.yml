@@ -94,6 +94,7 @@ spec:
       rules:
         - application: hm-grunndata-media
         - application: hm-grunndata-compati
+        - application: hm-grunndata-db
       external:
         - host: login.microsoftonline.com
         - host: graph.microsoft.com
