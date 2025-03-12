@@ -7,20 +7,22 @@ import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import java.util.UUID
+import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTOV2
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
-import io.swagger.v3.oas.annotations.tags.Tag
+import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN, Roles.ROLE_HMS)
 @Controller(AccessoryCompatibleWithController.API_V1_ACCESSORY)
 @Tag(name = "Accessory CompatibleWith")
-class AccessoryCompatibleWithController(private val compatibleWithFinder: CompatibleWithFinder,
-                                        private val productRegistrationService: ProductRegistrationService,
-                                        private val productDTOMapper: ProductDTOMapper) {
+class AccessoryCompatibleWithController(
+    private val compatibleWithFinder: CompatibleWithFinder,
+    private val productRegistrationService: ProductRegistrationService,
+    private val productDTOMapper: ProductDTOMapper
+) {
 
     @Get("/series-variants/{seriesUUID}")
     suspend fun findVariantsBySeriesUUID(
@@ -58,13 +60,55 @@ class AccessoryCompatibleWithController(private val compatibleWithFinder: Compat
     }
 
     @Put("/{id}/compatibleWith")
-    suspend fun connectProductAndVariants(@Body compatibleWithDTO: CompatibleWithDTO, id: UUID): ProductRegistrationDTOV2 {
+    suspend fun connectProductAndVariants(
+        @Body compatibleWithDTO: CompatibleWithDTO,
+        id: UUID
+    ): ProductRegistrationDTOV2 {
         val product = productRegistrationService.findById(id) ?: throw IllegalArgumentException("Product $id not found")
         if (!(product.accessory or product.sparePart))
             throw IllegalArgumentException("Product $id is not an accessory or spare part")
         LOG.info("Connect product $id with $compatibleWithDTO")
         val connected = compatibleWithFinder.connectWith(compatibleWithDTO, product)
         return productDTOMapper.toDTOV2(connected)
+    }
+
+
+    @Put("/{id}/suitableForKommunalTekniker")
+    suspend fun updateSuitableForKommunalTekniker(
+        @Body suitableForKommunalTeknikerDTO: SuitableForKommunalTeknikerDTO,
+        id: UUID
+    ): ProductRegistrationDTOV2 {
+        val product = productRegistrationService.findById(id) ?: throw IllegalArgumentException("Product $id not found")
+        if (!(product.accessory or product.sparePart))
+            throw IllegalArgumentException("Product $id is not an accessory or spare part")
+        val updated = product.copy(
+            productData = product.productData.copy(
+                attributes = product.productData.attributes.copy(
+                    egnetForKommunalTekniker = suitableForKommunalTeknikerDTO.suitableForKommunalTekniker
+                )
+            )
+        )
+        productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updated, isUpdate = true)
+        return productDTOMapper.toDTOV2(updated)
+    }
+
+    @Put("/{id}/suitableForBrukerpassbruker")
+    suspend fun updateSuitableForBrukerpassbruker(
+        @Body suitableForBrukerpassbruker: SuitableForBrukerpassbrukerDTO,
+        id: UUID
+    ): ProductRegistrationDTOV2 {
+        val product = productRegistrationService.findById(id) ?: throw IllegalArgumentException("Product $id not found")
+        if (!(product.accessory or product.sparePart))
+            throw IllegalArgumentException("Product $id is not an accessory or spare part")
+        val updated = product.copy(
+            productData = product.productData.copy(
+                attributes = product.productData.attributes.copy(
+                    egnetForBrukerpass = suitableForBrukerpassbruker.suitableForBrukerpassbruker
+                )
+            )
+        )
+        productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updated, isUpdate = true)
+        return productDTOMapper.toDTOV2(updated)
     }
 
 
@@ -78,4 +122,12 @@ class AccessoryCompatibleWithController(private val compatibleWithFinder: Compat
 data class CompatibleWithDTO(
     val seriesIds: Set<UUID> = emptySet(),
     val productIds: Set<UUID> = emptySet()
+)
+
+data class SuitableForKommunalTeknikerDTO(
+    val suitableForKommunalTekniker: Boolean,
+)
+
+data class SuitableForBrukerpassbrukerDTO(
+    val suitableForBrukerpassbruker: Boolean,
 )
