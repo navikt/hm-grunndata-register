@@ -67,7 +67,7 @@ class DelkontraktRegistrationAdminController(
         LOG.info("deleting delkontrakt $id by user ${authentication.userId()}")
         return delkontraktRegistrationService.findById(id)?.let { inDb ->
             val agreement = agreementService.findById(inDb.agreementId)
-            if (agreement != null && agreement.draftStatus == DraftStatus.DRAFT) {
+            if (agreement != null ) {
                 delkontraktRegistrationService.deleteById(id, agreement.id)
                 HttpResponse.noContent()
             } else {
