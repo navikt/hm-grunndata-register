@@ -628,6 +628,9 @@ open class ProductRegistrationService(
         deleteAll(products)
     }
 
+    suspend fun findAccessoryOrSparePartCombatibleWithSeriesId(seriesUUID: UUID) =
+        productRegistrationRepository.findAccessoryOrSparePartCombatibleWithSeriesId(seriesUUID)
+
     suspend fun findByTechLabelValues(
         key: String? = null,
         unit: String? = null,

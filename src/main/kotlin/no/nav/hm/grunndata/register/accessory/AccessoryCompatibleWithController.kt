@@ -111,6 +111,11 @@ class AccessoryCompatibleWithController(
         return productDTOMapper.toDTOV2(updated)
     }
 
+    @Get("/series/{id}")
+    suspend fun getPartsForSeriesId(id: UUID): List<ProductRegistrationDTOV2> =
+        productRegistrationService.findAccessoryOrSparePartCombatibleWithSeriesId(id)
+            .map { productDTOMapper.toDTOV2(it) }
+
 
     companion object {
         const val API_V1_ACCESSORY = "/api/v1/accessory"
