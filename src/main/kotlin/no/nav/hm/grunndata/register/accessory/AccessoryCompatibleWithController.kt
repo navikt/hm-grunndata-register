@@ -42,6 +42,16 @@ class AccessoryCompatibleWithController(
         return product?.let { productDTOMapper.toDTOV2(it) }
     }
 
+    @Get("/hmsNr/part/{hmsNr}")
+    suspend fun findPartByHmsNr(
+        @PathVariable hmsNr: String,
+        authentication: Authentication
+    ): ProductRegistrationDTOV2? {
+        val product = productRegistrationService.findPartByHmsArtNr(hmsNr, authentication)
+        return product?.let { productDTOMapper.toDTOV2(it) }
+    }
+
+
     @Get("/variant-id/{variantIdentifier}")
     suspend fun findProdyctByVariantIdentifier(
         @PathVariable variantIdentifier: String,
