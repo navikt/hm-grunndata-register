@@ -207,3 +207,5 @@ data class ProductRegistrationAdminCriteria(
 }
 
 fun Authentication.isAdmin(): Boolean = roles.contains(Roles.ROLE_ADMIN)
+
+fun Authentication.isHms(): Boolean = roles.contains(Roles.ROLE_HMS)
