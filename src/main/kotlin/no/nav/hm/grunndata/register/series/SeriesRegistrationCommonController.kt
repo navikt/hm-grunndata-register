@@ -37,7 +37,7 @@ import java.time.LocalDateTime
 import java.util.Locale
 import java.util.UUID
 
-@Secured(Roles.ROLE_ADMIN, Roles.ROLE_SUPPLIER)
+@Secured(Roles.ROLE_ADMIN, Roles.ROLE_SUPPLIER, Roles.ROLE_HMS)
 @Controller(SeriesRegistrationCommonController.API_V1_SERIES)
 @Tag(name = "Series")
 class SeriesRegistrationCommonController(
@@ -56,17 +56,19 @@ class SeriesRegistrationCommonController(
         @Body draftWith: SeriesDraftWithDTO,
         authentication: Authentication,
     ): HttpResponse<SeriesDraftResponse> {
-        if(authentication.isSupplier() && authentication.supplierId() != supplierId) {
+        if (authentication.isSupplier() && authentication.supplierId() != supplierId) {
             LOG.warn("SupplierId in request does not match authenticated supplierId")
             return HttpResponse.unauthorized()
         }
 
         return HttpResponse.ok(
-            SeriesDraftResponse(seriesRegistrationService.createDraftWith(
-                supplierId,
-                authentication,
-                draftWith,
-            ).id),
+            SeriesDraftResponse(
+                seriesRegistrationService.createDraftWith(
+                    supplierId,
+                    authentication,
+                    draftWith,
+                ).id
+            ),
         )
     }
 
@@ -100,7 +102,8 @@ class SeriesRegistrationCommonController(
         thumbnail = seriesData.media.sortedBy { it.priority }.firstOrNull { it.type == MediaType.IMAGE },
         isExpired = expired < LocalDateTime.now(),
         isPublished = published?.isBefore(LocalDateTime.now()) ?: false,
-        variantCount = count
+        variantCount = count,
+        mainProduct = mainProduct,
     )
 
     @Get("/{id}")
@@ -252,7 +255,7 @@ class SeriesRegistrationCommonController(
         seriesRegistrationService.changeFileTitle(seriesUUID, file, authentication)
         return HttpResponse.ok()
     }
-    
+
     private fun buildCriteriaSpec(
         criteria: SeriesCommonCriteria, authentication: Authentication
     ): PredicateSpecification<SeriesRegistration>? = if (criteria.isNotEmpty()) {

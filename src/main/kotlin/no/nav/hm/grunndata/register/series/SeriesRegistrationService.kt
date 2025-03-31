@@ -11,9 +11,6 @@ import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.persistence.criteria.Predicate
 import jakarta.transaction.Transactional
-import java.time.LocalDateTime
-import java.util.Locale
-import java.util.UUID
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactive.asFlow
@@ -31,13 +28,16 @@ import no.nav.hm.grunndata.register.media.MediaUploadService
 import no.nav.hm.grunndata.register.media.ObjectType
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
-import no.nav.hm.grunndata.register.product.isAdmin
+import no.nav.hm.grunndata.register.product.isHms
 import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
+import java.util.Locale
+import java.util.UUID
 
 @Singleton
 open class SeriesRegistrationService(
@@ -710,9 +710,16 @@ open class SeriesRegistrationService(
         val seriesToUpdate = seriesRegistrationRepository.findById(seriesUUID)
             ?: throw BadRequestException("Series $seriesUUID not found", ErrorType.NOT_FOUND)
 
-        if (!authentication.isAdmin() && seriesToUpdate.supplierId != authentication.supplierId()) {
+        if (authentication.isSupplier() && seriesToUpdate.supplierId != authentication.supplierId()) {
             throw BadRequestException(
                 "SupplierId in request does not match authenticated supplierId",
+                ErrorType.UNAUTHORIZED
+            )
+        }
+
+        if (authentication.isHms() && seriesToUpdate.mainProduct) {
+            throw BadRequestException(
+                "HMS user can not update main product",
                 ErrorType.UNAUTHORIZED
             )
         }

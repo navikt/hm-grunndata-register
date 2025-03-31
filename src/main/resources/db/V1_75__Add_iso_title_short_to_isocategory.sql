@@ -1,0 +1,1 @@
+ALTER TABLE isocategory_reg_v1 ADD COLUMN iso_title_short TEXT;

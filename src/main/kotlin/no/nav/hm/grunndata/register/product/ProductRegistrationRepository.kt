@@ -147,4 +147,7 @@ interface ProductRegistrationRepository :
     @Query("SELECT * from product_reg_v1 where (accessory = true or spare_part = true) and product_data->'attributes'->'compatibleWith' is null")
     suspend fun findAccessoryOrSparePartButNoCompatibleWith(): List<ProductRegistration>
 
+    @Query("SELECT * FROM product_reg_v1 WHERE (accessory = true OR spare_part = true) AND product_data->'attributes'->'compatibleWith'->'seriesIds' @> to_jsonb(:seriesUUID::text) ORDER BY hms_artnr")
+    suspend fun findAccessoryOrSparePartCombatibleWithSeriesId(seriesUUID: UUID): List<ProductRegistration>
+
 }

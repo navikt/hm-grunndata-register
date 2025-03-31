@@ -2,13 +2,13 @@ package no.nav.hm.grunndata.register.productagreement
 
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import java.time.LocalDateTime
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
-import java.time.LocalDateTime
-import java.util.UUID
 
 @Singleton
 open class ProductAgreementRegistrationService(
@@ -257,6 +257,9 @@ open class ProductAgreementRegistrationService(
 
     suspend fun findByStatusAndExpiredBefore(status: ProductAgreementStatus, expired: LocalDateTime) =
         productAgreementRegistrationRepository.findByStatusAndExpiredBefore(status, expired).map { it.toDTO() }
+
+    suspend fun findBystatusAndPublishedAfter(status: ProductAgreementStatus, published: LocalDateTime) =
+        productAgreementRegistrationRepository.findByStatusAndPublishedAfter(status, published).map { it.toDTO() }
 
     suspend fun findByStatusAndPublishedBeforeAndExpiredAfter(status: ProductAgreementStatus, published: LocalDateTime, expired: LocalDateTime) =
         productAgreementRegistrationRepository.findByStatusAndPublishedBeforeAndExpiredAfter(status, published, expired).map { it.toDTO() }

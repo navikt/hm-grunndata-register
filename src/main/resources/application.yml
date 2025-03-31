@@ -5,6 +5,8 @@ micronaut:
     port: ${SERVER_PORT:1337}
     context-path: /admreg
     max-request-size: 30000000
+    netty:
+      max-zstd-encode-size: 100000000
   application:
     name: hm-grunndata-register
     thread-selection: auto
@@ -158,6 +160,8 @@ grunndata:
     token: ${GRUNNDATA_IMPORT_TOKEN:`bearer token123`}
   compati:
     url: ${GRUNNDATA_COMPATI_URL:`http://localhost:8989`}
+  db:
+    url: ${GRUNNDATA_DB_URL:`http://localhost:8888`}
 
 schedulers:
   enabled: ${SCHEDULERS_ENABLED:false}

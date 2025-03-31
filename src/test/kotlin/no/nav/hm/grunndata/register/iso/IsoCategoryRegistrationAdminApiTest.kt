@@ -48,6 +48,7 @@ class IsoCategoryRegistrationAdminApiTest(private val client: IsoCategoryRegistr
             isoCode ="30500001",
             isoLevel = 4,
             isoTitle = "Hjelpemidler for røyking",
+            isoTitleShort = "Hjelpemidler for røyking",
             isoTextShort = "Hjelpemidler for røyking",
             isoText = "Hjelpemidler som gjør det mulig for en person å røyke. Omfatter f.eks tilpassede askebegre, lightere og sigarettholdere. Smekker og forklær, se 09 03 39",
             isoTranslations = IsoTranslations(titleEn = "English title", textEn = "English text"),

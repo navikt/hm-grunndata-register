@@ -66,6 +66,8 @@ spec:
       value: "{{ baseversion_scheduler_enabled }}"
     - name: GRUNNDATA_COMPATI_URL
       value: "http://hm-grunndata-compati"
+    - name: GRUNNDATA_DB_URL
+      value: "http://hm-grunndata-db"
   {{#each env}}
     - name: {{@key}}
       value: "{{this}}"
@@ -92,6 +94,7 @@ spec:
       rules:
         - application: hm-grunndata-media
         - application: hm-grunndata-compati
+        - application: hm-grunndata-db
       external:
         - host: login.microsoftonline.com
         - host: graph.microsoft.com

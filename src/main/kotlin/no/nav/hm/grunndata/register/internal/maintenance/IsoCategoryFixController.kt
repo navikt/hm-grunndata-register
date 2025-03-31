@@ -13,6 +13,7 @@ import java.io.InputStreamReader
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import no.nav.hm.grunndata.register.iso.GdbApiClient
 import no.nav.hm.grunndata.register.iso.IsoCategoryRegistrationDTO
 import no.nav.hm.grunndata.register.iso.IsoCategoryRegistrationService
 import no.nav.hm.grunndata.register.iso.IsoTranslations
@@ -23,6 +24,7 @@ import org.yaml.snakeyaml.reader.StreamReader
 @Controller("/internal/fix/category")
 @Hidden
 class IsoCategoryFixController(private val isoCategoryRegistrationService: IsoCategoryRegistrationService,
+                               private val gdbApiClient: GdbApiClient,
                                private val objectMapper: ObjectMapper ) {
 
 
@@ -44,6 +46,18 @@ class IsoCategoryFixController(private val isoCategoryRegistrationService: IsoCa
         reader.close()
     }
 
+    @Put("/add-missing-short-title")
+    suspend fun addMissingShortTitle() {
+        val isos = gdbApiClient.retrieveIsoCategories()
+        isos.forEach { iso ->
+            if (iso.isoTitleShort != null) {
+                isoCategoryRegistrationService.findByCode(iso.isoCode)?.let { inDb ->
+                    isoCategoryRegistrationService.update(inDb.copy(isoTitleShort = iso.isoTitleShort))
+                }
+            }
+        }
+    }
+
     @Put("/fix-missing-searchwords")
     suspend fun fixMissingSearchWords() {
         val isos = objectMapper.readValue(IsoCategoryFixController::class.java.getResourceAsStream("/isos.json"),
@@ -61,6 +75,7 @@ class IsoCategoryFixController(private val isoCategoryRegistrationService: IsoCa
         return IsoCategoryRegistrationDTO(
             isoCode = isocode,
             isoTitle = isoTitle,
+            isoTitleShort = isoTitle,
             isoText = isoTitle,
             isoTextShort = isoTitle,
             isoTranslations = IsoTranslations(),

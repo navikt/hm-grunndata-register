@@ -76,6 +76,14 @@ class PartRegistrationApiController(
         return part?.let { productDTOMapper.toDTOV2(it) }
     }
 
+    @Get("/v2/{id}")
+    suspend fun findPartByIdV2(
+        id: UUID,
+    ): PartDTO? {
+        val part = productRegistrationService.findById(id)
+        return part?.let { productDTOMapper.toPartDTO(it) }
+    }
+
 }
 
 @Introspected

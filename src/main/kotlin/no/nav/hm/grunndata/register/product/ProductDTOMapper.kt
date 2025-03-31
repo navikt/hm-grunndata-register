@@ -1,24 +1,28 @@
 package no.nav.hm.grunndata.register.product
 
 import jakarta.inject.Singleton
-import java.time.LocalDateTime
 import no.nav.hm.grunndata.rapid.dto.AgreementInfo
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.techlabel.LabelService
 import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
+import java.time.LocalDateTime
 
 @Singleton
 class ProductDTOMapper(
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
     private val techLabelService: LabelService,
     private val agreementRegistrationService: AgreementRegistrationService,
-    )
-{
+    private val supplierRegistrationService: SupplierRegistrationService,
+) {
     suspend fun toDTO(productRegistration: ProductRegistration): ProductRegistrationDTO {
         // TODO cache agreements
-        val agreements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(productRegistration.supplierId, productRegistration.supplierRef)
+        val agreements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(
+            productRegistration.supplierId,
+            productRegistration.supplierRef
+        )
         return ProductRegistrationDTO(
             id = productRegistration.id,
             supplierId = productRegistration.supplierId,
@@ -53,7 +57,10 @@ class ProductDTOMapper(
     }
 
     suspend fun toDTOV2(productRegistration: ProductRegistration): ProductRegistrationDTOV2 {
-        val agreements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(productRegistration.supplierId, productRegistration.supplierRef)
+        val agreements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(
+            productRegistration.supplierId,
+            productRegistration.supplierRef
+        )
         val techLabels = techLabelService.fetchLabelsByIsoCode(productRegistration.isoCategory)
 
         return ProductRegistrationDTOV2(
@@ -72,6 +79,25 @@ class ProductDTOMapper(
             isPublished = productRegistration.published?.let { it < LocalDateTime.now() } ?: false,
         )
     }
+
+    suspend fun toPartDTO(productRegistration: ProductRegistration): PartDTO {
+        val techLabels = techLabelService.fetchLabelsByIsoCode(productRegistration.isoCategory)
+        val supplier = supplierRegistrationService.findById(productRegistration.supplierId)
+        return PartDTO(
+            id = productRegistration.id,
+            seriesUUID = productRegistration.seriesUUID,
+            hmsArtNr = productRegistration.hmsArtNr,
+            supplierRef = productRegistration.supplierRef,
+            articleName = productRegistration.articleName,
+            accessory = productRegistration.accessory,
+            sparePart = productRegistration.sparePart,
+            productData = productRegistration.productData.toProductDataDTO(techLabels),
+            supplierName = supplier?.name ?: "",
+            isExpired = productRegistration.expired?.let { it < LocalDateTime.now() } ?: false,
+            isPublished = productRegistration.published?.let { it < LocalDateTime.now() } ?: false,
+        )
+    }
+
 
     private fun ProductData.toProductDataDTO(techLabels: List<TechLabelDTO>): ProductDataDTO {
         val extendedTechdataDTOs = techLabels.map { techLabel ->
