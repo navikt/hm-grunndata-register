@@ -49,7 +49,7 @@ data class ProductAgreementRegistrationDTO(
     val articleName: String?,
     val accessory: Boolean = false,
     val sparePart: Boolean = false,
-    val mainProduct: Boolean = (sparePart || accessory).not(),
+    val mainProduct: Boolean = true,
     val isoCategory: String? = null,
     val supplierId: UUID,
     val supplierRef: String,

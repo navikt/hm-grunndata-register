@@ -102,7 +102,7 @@ data class ProductRegistrationDTO(
     val articleName: String,
     val accessory: Boolean = false,
     val sparePart: Boolean = false,
-    val mainProduct: Boolean = (sparePart || accessory).not(),
+    val mainProduct: Boolean = true,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val adminStatus: AdminStatus = AdminStatus.PENDING,
     val registrationStatus: RegistrationStatus = RegistrationStatus.ACTIVE,
