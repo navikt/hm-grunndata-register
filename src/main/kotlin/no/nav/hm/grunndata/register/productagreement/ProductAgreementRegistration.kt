@@ -22,7 +22,7 @@ data class ProductAgreementRegistration(
     val articleName: String?,
     val sparePart: Boolean = false,
     val accessory: Boolean = false,
-    val mainProduct: Boolean = (sparePart || accessory).not(),
+    val mainProduct: Boolean = true,
     val supplierId: UUID,
     val supplierRef: String,
     @field:Column(name = "hms_artnr")
