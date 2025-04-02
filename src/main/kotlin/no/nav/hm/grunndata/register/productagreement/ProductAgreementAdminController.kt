@@ -217,6 +217,7 @@ open class ProductAgreementAdminController(
                 updatedBy = REGISTER,
                 accessory = product.accessory,
                 sparePart = product.sparePart,
+                mainProduct = product.mainProduct,
                 isoCategory = product.isoCategory,
                 status = status,
             ),

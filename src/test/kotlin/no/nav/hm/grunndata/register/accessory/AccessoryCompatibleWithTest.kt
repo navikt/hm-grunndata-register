@@ -70,6 +70,7 @@ class AccessoryCompatibleWithTest(
                     supplierRef = "Supplier ref1",
                     productData = ProductData(),
                     accessory = true,
+                    mainProduct = false,
                     created = LocalDateTime.now()
                 )
             )

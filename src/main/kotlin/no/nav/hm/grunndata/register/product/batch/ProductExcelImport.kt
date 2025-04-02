@@ -160,6 +160,7 @@ fun ProductRegistrationExcelDTO.toProductRegistration(): ProductRegistration {
         isoCategory = isoCategory,
         sparePart = false,
         accessory = false,
+        mainProduct = true,
         expired = LocalDateTime.now().plusYears(3),
         productData =
             ProductData(

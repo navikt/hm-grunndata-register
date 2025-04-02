@@ -55,6 +55,9 @@ class ProductAgreementRegistrationRepositoryTest(
                         title = "Test product agreement",
                         status = ProductAgreementStatus.ACTIVE,
                         articleName = "Test article",
+                        accessory = false,
+                        sparePart = false,
+                        mainProduct = true,
                     ),
                 )
 
@@ -67,6 +70,7 @@ class ProductAgreementRegistrationRepositoryTest(
             found.title shouldBe "Test product agreement"
             found.status shouldBe ProductAgreementStatus.ACTIVE
             found.postId shouldBe postId
+            found.mainProduct shouldBe true
 
             // should throw Duplicate key exception
             assertThrows<DataAccessException> {

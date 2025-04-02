@@ -244,6 +244,7 @@ class ProductAccessorySparePartAgreementHandler(
                 supplierRef = productAgreement.supplierRef,
                 accessory = productAgreement.accessory,
                 sparePart = productAgreement.sparePart,
+                mainProduct = productAgreement.mainProduct,
                 createdByUser = authentication?.name ?: "system",
                 updatedByUser = authentication?.name ?: "system",
                 createdByAdmin = authentication?.isAdmin() ?: true,

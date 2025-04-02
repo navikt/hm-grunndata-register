@@ -99,6 +99,7 @@ class ProductImportSyncRiver(
                         published = importDTO.productDTO.published,
                         sparePart = importDTO.productDTO.sparePart,
                         accessory = importDTO.productDTO.accessory,
+                        mainProduct = importDTO.productDTO.main,
                         productData = importDTO.productDTO.toProductData()
                     )
                 )

@@ -79,7 +79,8 @@ class ProductRegistrationRepositoryTest(
                 createdByUser = "user",
                 version = 1,
                 accessory = true,
-                sparePart = false
+                sparePart = false,
+                mainProduct = false
             )
         val registration2 =
             ProductRegistration(
@@ -102,7 +103,8 @@ class ProductRegistrationRepositoryTest(
                 createdByUser = "user",
                 version = 1,
                 accessory = true,
-                sparePart = false
+                sparePart = false,
+                mainProduct = false
             )
         val agreementId = UUID.randomUUID()
         val postId1 = UUID.randomUUID()
@@ -183,6 +185,7 @@ class ProductRegistrationRepositoryTest(
             val inDb = productRegistrationRepository.findById(saved1.id)
             inDb.shouldNotBeNull()
             inDb.accessory shouldBe true
+            inDb.mainProduct shouldBe false
             inDb.sparePart shouldBe false
             saved1.hmsArtNr shouldBe inDb.hmsArtNr
             val approve = inDb.approve("NAVN1")

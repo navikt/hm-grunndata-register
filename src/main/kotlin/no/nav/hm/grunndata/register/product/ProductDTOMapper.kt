@@ -49,6 +49,7 @@ class ProductDTOMapper(
             productData = productRegistration.productData,
             sparePart = productRegistration.sparePart,
             accessory = productRegistration.accessory,
+            mainProduct = productRegistration.mainProduct,
             isoCategory = productRegistration.isoCategory,
             agreements = agreements.map { it.toAgreementInfo() },
             version = productRegistration.version,
