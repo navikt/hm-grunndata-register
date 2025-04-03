@@ -42,10 +42,10 @@ class PartRegistrationApiController(
         .mapSuspend { productDTOMapper.toDTOV2(it) }
 
     private fun buildCriteriaSpec(criteria: ProductRegistrationHmsUserCriteria): PredicateSpecification<ProductRegistration>? =
-        where {
+        where<ProductRegistration> {
             criteria.supplierRef?.let { root[ProductRegistration::supplierRef] eq it }
             criteria.hmsArtNr?.let { root[ProductRegistration::hmsArtNr] eq it }
-            criteria.title?.let { root[ProductRegistration::title] like LiteralExpression("%${it}%") }
+            criteria.title?.let {   criteriaBuilder.lower(root[ProductRegistration::articleName]) like LiteralExpression("%${it.lowercase()}%") }
             or {
                 root[ProductRegistration::accessory] eq true
                 root[ProductRegistration::sparePart] eq true
