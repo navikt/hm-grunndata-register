@@ -49,8 +49,7 @@ class ProductAccessorySparePartAgreementHandler(
                 newProducts = emptyList(),
             )
         }
-        val mainProductAgreements = newProductAgreements.filter { !it.accessory && !it.sparePart }
-        val accessoryOrSpareParts = newProductAgreements.filter { it.accessory || it.sparePart }
+        val (mainProductAgreements, accessoryOrSpareParts) = newProductAgreements.partition { it.mainProduct }
         val supplierId = accessoryOrSpareParts.first().supplierId
         val groupedAccessoryOrSpareParts = groupInSeriesBasedOnTitle(accessoryOrSpareParts)
         val groupedMainProducts = groupInSeriesBasedOnTitle(mainProductAgreements)

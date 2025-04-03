@@ -136,7 +136,7 @@ open class ProductAgreementImportExcelService(
             throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er slettet, må den opprettes?")
         }
         val catalogImportResult = catalogImportService.prepareCatalogImportResult(importedExcelCatalog.map { it.toEntity(agreement) })
-        val mappedLists = mapCatalogImport(catalogImportResult, authentication, supplierId)
+        val mappedLists = mapCatalogImport(catalogImportResult, authentication, supplierId, dryRun)
         val productAgreementImportResult = productAccessorySparePartAgreementHandler.handleNewProductsInExcelImport(mappedLists, authentication, dryRun)
         if (!dryRun) {
             LOG.info("Persisting products and agreements from excel import")
@@ -168,20 +168,24 @@ open class ProductAgreementImportExcelService(
         persistProductAgreementFromCatalogImport(productAgreementResult)
     }
 
-    suspend fun mapCatalogImport(catalogImportResult: CatalogImportResult, authentication: Authentication?,  supplierId: UUID):
+    suspend fun mapCatalogImport(catalogImportResult: CatalogImportResult, authentication: Authentication?,  supplierId: UUID, dryRun: Boolean):
             ProductAgreementMappedResultLists {
-        val updatedList = catalogImportResult.updatedList.flatMap { it.toProductAgreementDTO(authentication, supplierId) }
-        val insertedList = catalogImportResult.insertedList.flatMap { it.toProductAgreementDTO(authentication, supplierId) }
-        val deactivatedList = catalogImportResult.deactivatedList.flatMap { it.toProductAgreementDTO(authentication, supplierId) }
+        val updatedList = catalogImportResult.updatedList.flatMap { it.toProductAgreementDTO(authentication, supplierId, dryRun) }
+        val insertedList = catalogImportResult.insertedList.flatMap { it.toProductAgreementDTO(authentication, supplierId, dryRun) }
+        val deactivatedList = catalogImportResult.deactivatedList.flatMap { it.toProductAgreementDTO(authentication, supplierId, dryRun) }
         return ProductAgreementMappedResultLists(updatedList, insertedList, deactivatedList)
     }
 
     private suspend fun CatalogImport.toProductAgreementDTO(
-        authentication: Authentication?, supplierId: UUID
+        authentication: Authentication?, supplierId: UUID, dryRun: Boolean
     ): List<ProductAgreementRegistrationDTO> {
         val agreement = agreementRegistrationService.findById(agreementId)
             ?: throw BadRequestException("Avtale med id $agreementId finnes ikke, må den opprettes?")
         val product = productRegistrationService.findBySupplierRefAndSupplierId(supplierRef, supplierId)
+        if (product != null && mainProduct && !product.mainProduct ) {
+            LOG.warn("Catalog import has main product set to true, but product inDb ${product.id} is not main product")
+            if (!dryRun) productRegistrationService.update(product.copy(mainProduct = true))
+        }
         if (!postNr.isNullOrBlank()) {
             val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(postNr)
 
