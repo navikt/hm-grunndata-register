@@ -25,7 +25,7 @@ plugins {
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("io.micronaut.application") version "4.4.5"
-    id("com.github.ben-manes.versions") version "0.47.0"
+    id("com.github.ben-manes.versions") version "0.51.0"
 
 }
 
@@ -94,6 +94,7 @@ dependencies {
     // Microsoft Graph
     implementation("com.microsoft.graph:microsoft-graph:$microsoftGrapVersion")
     implementation("com.azure:azure-identity:1.12.2")
+    implementation("net.minidev:json-smart:2.5.2")
 
     // flyway-postgresql
     implementation("org.flywaydb:flyway-database-postgresql:10.6.0")
