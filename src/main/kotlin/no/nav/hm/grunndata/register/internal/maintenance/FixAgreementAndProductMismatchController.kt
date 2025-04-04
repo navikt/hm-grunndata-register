@@ -6,6 +6,7 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.swagger.v3.oas.annotations.Hidden
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
+import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
@@ -33,6 +34,26 @@ class FixAgreementAndProductMismatchController(private val productRegistrationRe
                         hmsArtNr = pag.hmsArtNr,
                         accessory = pag.accessory,
                         sparePart = pag.sparePart
+                    ), isUpdate = true
+                )
+            }
+        }
+    }
+
+    @Post("/")
+    suspend fun fixAgreementAndProductMisMatchForStatus() {
+        val products =  productRegistrationRepository.findProductThatDoesNotMatchAgreementStatus()
+        LOG.info("Got ${products.size} products that does not match agreement status")
+        products.forEach { product ->
+            LOG.info("Fixing product ${product.id} for supplier ${product.supplierId}")
+            val pag =
+                productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(product.supplierId, product.supplierRef)
+                    .firstOrNull { it.status == ProductAgreementStatus.ACTIVE }
+            pag?.let {
+                productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                    product.copy(
+                        registrationStatus = RegistrationStatus.ACTIVE,
+                        expired = pag.expired
                     ), isUpdate = true
                 )
             }
