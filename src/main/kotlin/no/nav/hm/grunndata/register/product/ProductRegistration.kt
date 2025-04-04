@@ -159,6 +159,7 @@ data class ProductRegistrationDTO(
             isoCategory = registration.isoCategory,
             accessory = registration.accessory,
             sparePart = registration.sparePart,
+            mainProduct = registration.mainProduct,
             seriesUUID = registration.seriesUUID,
             seriesId = registration.seriesId,
             techData = techData,
