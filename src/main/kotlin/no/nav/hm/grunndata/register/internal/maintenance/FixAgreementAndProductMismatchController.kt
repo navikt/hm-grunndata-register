@@ -19,7 +19,7 @@ class FixAgreementAndProductMismatchController(private val productRegistrationRe
                                                private val productRegistrationService: ProductRegistrationService,
                                                private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository) {
 
-    @Post("/")
+    @Post("/category")
     suspend fun fixAgreementAndProductMisMatchForSparePartAndAccessory() {
         val products =  productRegistrationRepository.findProductThatDoesNotMatchAgreementSparePartAccessory()
         LOG.info("Got ${products.size} products that does not match agreement and spare part/accessory")
@@ -40,7 +40,7 @@ class FixAgreementAndProductMismatchController(private val productRegistrationRe
         }
     }
 
-    @Post("/")
+    @Post("/status")
     suspend fun fixAgreementAndProductMisMatchForStatus() {
         val products =  productRegistrationRepository.findProductThatDoesNotMatchAgreementStatus()
         LOG.info("Got ${products.size} products that does not match agreement status")
