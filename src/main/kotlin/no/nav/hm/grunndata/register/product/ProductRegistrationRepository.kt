@@ -138,7 +138,7 @@ interface ProductRegistrationRepository :
     @Query("select distinct on (id) * from product_reg_v1 WHERE (product_data->'techData') @> CAST(:jsonQuery as jsonb)", nativeQuery = true)
     suspend fun findDistinctByProductTechDataJsonQuery(jsonQuery: String): List<ProductRegistration>
 
-    @Query("SELECT distinct on (a.id) a.* from product_reg_v1 a, product_agreement_reg_v1 b where a.id=b.product_id and (a.spare_part != b.spare_part or a.accessory != b.accessory) and b.status='ACTIVE'")
+    @Query("SELECT distinct on (a.id) a.* from product_reg_v1 a, product_agreement_reg_v1 b where a.id=b.product_id and (a.main_product != b.main_product or a.spare_part != b.spare_part or a.accessory != b.accessory) and b.status='ACTIVE'")
     suspend fun findProductThatDoesNotMatchAgreementSparePartAccessory(): List<ProductRegistration>
 
     @Query("SELECT distinct on(a.id) a.* from product_reg_v1 a, product_agreement_reg_v1 b where a.id=b.product_id and b.status='ACTIVE' and a.hms_art_nr != b.hms_art_nr")

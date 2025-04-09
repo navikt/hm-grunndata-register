@@ -32,6 +32,7 @@ class FixAgreementAndProductMismatchController(private val productRegistrationRe
                 productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                     product.copy(
                         hmsArtNr = pag.hmsArtNr,
+                        mainProduct = pag.mainProduct,
                         accessory = pag.accessory,
                         sparePart = pag.sparePart
                     ), isUpdate = true
