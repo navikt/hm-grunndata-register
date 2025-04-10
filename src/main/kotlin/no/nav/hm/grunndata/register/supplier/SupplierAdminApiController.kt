@@ -26,7 +26,7 @@ import java.time.LocalDateTime
 import java.util.*
 import no.nav.hm.grunndata.register.runtime.where
 
-@Secured(Roles.ROLE_ADMIN)
+@Secured(Roles.ROLE_HMS, Roles.ROLE_ADMIN)
 @Controller(API_V1_ADMIN_SUPPLIER_REGISTRATIONS)
 @Tag(name = "Admin Supplier")
 class SupplierAdminApiController(private val supplierRegistrationService: SupplierRegistrationService) {
