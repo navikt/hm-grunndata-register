@@ -42,5 +42,31 @@ open class PartService(
 
     }
 
+    @Transactional
+    open suspend fun createDraftWithAndApprove(
+        authentication: Authentication,
+        draftWith: PartDraftWithDTO,
+    ): ProductRegistration {
+
+        val series = draftWith.toSeriesRegistration(authentication).also { seriesRegistration ->
+            seriesRegistrationService.save(
+                seriesRegistration,
+            )
+        }
+
+        val product = draftWith.toProductRegistration(series.id).also { productRegistration ->
+            productRegistrationService.save(
+                productRegistration,
+            )
+        }
+
+        seriesRegistrationService.approveSeriesAndVariants(series, authentication)
+
+        LOG.info("created and published part draft for new series: ${series.id} and product: ${product.id}")
+
+        return product
+
+    }
+
 
 }

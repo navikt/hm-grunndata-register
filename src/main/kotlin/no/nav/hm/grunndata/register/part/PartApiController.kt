@@ -49,6 +49,31 @@ class PartRegistrationApiController(
         private val LOG = LoggerFactory.getLogger(PartRegistrationApiController::class.java)
     }
 
+
+    @Post("/supplier/{supplierId}/draftWithAndPublish")
+    suspend fun draftSeriesWithAndPublish(
+        supplierId: UUID,
+        @Body draftWith: PartDraftWithDTO,
+        authentication: Authentication,
+    ): HttpResponse<PartDraftResponse> {
+        if (authentication.isSupplier() && authentication.supplierId() != supplierId) {
+            LOG.warn("SupplierId in request does not match authenticated supplierId")
+            return HttpResponse.unauthorized()
+        }
+
+        val product = partService.createDraftWithAndApprove(
+            authentication,
+            draftWith,
+        )
+
+        return HttpResponse.ok(
+            PartDraftResponse(
+                product.id
+            ),
+        )
+    }
+
+
     @Put("/approve/{seriesId}")
     suspend fun approvePart(
         seriesUUID: UUID,
