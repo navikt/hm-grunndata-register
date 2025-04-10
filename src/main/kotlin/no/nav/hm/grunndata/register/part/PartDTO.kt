@@ -44,7 +44,10 @@ data class PartDraftWithDTO(
         if (isoCategory.isBlank()) throw BadRequestException("isoCategory is required")
         if (hmsArtNr.isBlank()) throw BadRequestException("hmsArtNr is required")
         if (levArtNr.isBlank()) throw BadRequestException("levArtNr is required")
-        if (sparePart == null && accessory == null) throw BadRequestException("sparePart or accessory is required")
+        if ((sparePart == null && accessory == null) || (sparePart == false && accessory == false)) throw BadRequestException(
+            "sparePart or accessory is required"
+        )
+
     }
 }
 
@@ -89,9 +92,9 @@ fun PartDraftWithDTO.toProductRegistration(seriesUUID: UUID): ProductRegistratio
         title = title,
         articleName = title,
         isoCategory = isoCategory,
-        sparePart = false,
-        accessory = false,
-        mainProduct = true,
+        sparePart = sparePart ?: false,
+        accessory = accessory ?: false,
+        mainProduct = false,
         expired = LocalDateTime.now().plusYears(3),
         productData =
             ProductData(),
