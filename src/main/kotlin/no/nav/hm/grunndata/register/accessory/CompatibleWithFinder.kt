@@ -82,7 +82,8 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
                     attributes = product.productData.attributes.copy(
                         compatibleWith = CompatibleWith(
                             seriesIds = seriesIds,
-                            productIds = productIds
+                            productIds = productIds,
+                            connectedBy = "compati"
                         )
                     )
                 )
