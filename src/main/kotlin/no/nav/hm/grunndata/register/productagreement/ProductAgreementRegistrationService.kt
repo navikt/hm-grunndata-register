@@ -2,18 +2,17 @@ package no.nav.hm.grunndata.register.productagreement
 
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
-import java.time.LocalDateTime
-import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
+import java.time.LocalDateTime
+import java.util.UUID
 
 @Singleton
 open class ProductAgreementRegistrationService(
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
-    private val productRegistrationRepository: ProductRegistrationRepository,
     private val seriesRegistrationRepository: SeriesRegistrationRepository,
     private val productAgreementRegistrationHandler: ProductAgreementRegistrationEventHandler,
 ) {
@@ -26,14 +25,16 @@ open class ProductAgreementRegistrationService(
         dtos.map { productAgreement -> saveIfNotExists(productAgreement) }
 
     open suspend fun saveIfNotExists(productAgreement: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO {
-        LOG.info("Saving product agreement: ${productAgreement.agreementId} for supplier: ${productAgreement.supplierId} " +
-                "and for product: ${productAgreement.productId} supplierRef: ${productAgreement.supplierRef}")
+        LOG.info(
+            "Saving product agreement: ${productAgreement.agreementId} for supplier: ${productAgreement.supplierId} " +
+                    "and for product: ${productAgreement.productId} supplierRef: ${productAgreement.supplierRef}"
+        )
         return findBySupplierIdAndSupplierRefAndAgreementIdAndPostId(
-                productAgreement.supplierId,
-                productAgreement.supplierRef,
-                productAgreement.agreementId,
-                productAgreement.postId
-            ) ?: saveAndCreateEvent(productAgreement, false)
+            productAgreement.supplierId,
+            productAgreement.supplierRef,
+            productAgreement.agreementId,
+            productAgreement.postId
+        ) ?: saveAndCreateEvent(productAgreement, false)
     }
 
     @Transactional
@@ -115,7 +116,8 @@ open class ProductAgreementRegistrationService(
         productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)
             .map { it.toDTO() }
 
-    suspend fun findById(id: UUID): ProductAgreementRegistrationDTO? = productAgreementRegistrationRepository.findById(id)?.toDTO()
+    suspend fun findById(id: UUID): ProductAgreementRegistrationDTO? =
+        productAgreementRegistrationRepository.findById(id)?.toDTO()
 
     suspend fun findAllByIds(ids: List<UUID>): List<ProductAgreementRegistrationDTO> =
         productAgreementRegistrationRepository.findAllByIdIn(ids).toDTO()
@@ -172,6 +174,8 @@ open class ProductAgreementRegistrationService(
                     productVariants = varianter,
                     accessory = varianter.first().accessory,
                     sparePart = varianter.first().sparePart,
+                    published = varianter.first().published,
+                    expired = varianter.first().expired,
                 ),
             )
         }
@@ -187,6 +191,8 @@ open class ProductAgreementRegistrationService(
                     productVariants = listOf(variant),
                     accessory = variant.accessory,
                     sparePart = variant.sparePart,
+                    published = variant.published,
+                    expired = variant.expired,
                 ),
             )
         }
@@ -261,18 +267,26 @@ open class ProductAgreementRegistrationService(
     suspend fun findBystatusAndPublishedAfter(status: ProductAgreementStatus, published: LocalDateTime) =
         productAgreementRegistrationRepository.findByStatusAndPublishedAfter(status, published).map { it.toDTO() }
 
-    suspend fun findByStatusAndPublishedBeforeAndExpiredAfter(status: ProductAgreementStatus, published: LocalDateTime, expired: LocalDateTime) =
-        productAgreementRegistrationRepository.findByStatusAndPublishedBeforeAndExpiredAfter(status, published, expired).map { it.toDTO() }
+    suspend fun findByStatusAndPublishedBeforeAndExpiredAfter(
+        status: ProductAgreementStatus,
+        published: LocalDateTime,
+        expired: LocalDateTime
+    ) =
+        productAgreementRegistrationRepository.findByStatusAndPublishedBeforeAndExpiredAfter(status, published, expired)
+            .map { it.toDTO() }
 
     suspend fun deactivateExpiredProductAgreements() {
         val products = findByStatusAndExpiredBefore(
-            ProductAgreementStatus.ACTIVE, LocalDateTime.now())
+            ProductAgreementStatus.ACTIVE, LocalDateTime.now()
+        )
         LOG.info("Found ${products.size} products to deactivate")
         products.forEach {
             saveAndCreateEvent(
-                it.copy(status = ProductAgreementStatus.INACTIVE,
+                it.copy(
+                    status = ProductAgreementStatus.INACTIVE,
                     updated = LocalDateTime.now(),
-                    updatedByUser = "system-expired"), true
+                    updatedByUser = "system-expired"
+                ), true
             )
         }
     }
@@ -282,10 +296,12 @@ open class ProductAgreementRegistrationService(
         LOG.info("Found ${products.size} products to deactivate")
         products.forEach {
             saveAndCreateEvent(
-                it.copy(status = ProductAgreementStatus.INACTIVE,
+                it.copy(
+                    status = ProductAgreementStatus.INACTIVE,
                     expired = LocalDateTime.now(),
                     updated = LocalDateTime.now(),
-                    updatedByUser = "system"), true
+                    updatedByUser = "system"
+                ), true
             )
         }
     }
@@ -304,6 +320,8 @@ data class ProductVariantsForDelkontraktDto(
     val productVariants: List<ProductAgreementRegistrationDTO>,
     val accessory: Boolean,
     val sparePart: Boolean,
+    val published: LocalDateTime,
+    val expired: LocalDateTime,
 )
 
 data class ProduktvarianterForDelkontrakterDTO(
