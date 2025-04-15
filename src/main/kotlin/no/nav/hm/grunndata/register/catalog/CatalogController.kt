@@ -19,7 +19,7 @@ class CatalogController(
     private val catalogFileRepository: CatalogFileRepository
 ) {
 
-    @Get("/")
+    @Get("/orderRef/{orderRef}")
     suspend fun fetchCatalogSeriesInfo(
         @QueryValue orderRef: String
     ): List<CatalogSeriesInfo> {
@@ -29,8 +29,8 @@ class CatalogController(
     @Get("/hmsnr/{hmsNr}")
     suspend fun fetchCatalogSeriesInfoByHmsNr(
         hmsNr: String
-    ): CatalogSeriesInfo? {
-        return catalogImportRepository.findCatalogSeriesInfoByHmsNr(hmsNr)
+    ): List<CatalogSeriesInfo> {
+        return catalogImportRepository.findCatalogSeriesInfosByHmsArtNr(hmsNr)
     }
 
     @Get("/files/all")
