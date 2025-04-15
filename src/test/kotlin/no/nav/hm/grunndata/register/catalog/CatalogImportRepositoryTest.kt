@@ -37,6 +37,8 @@ class CatalogImportRepositoryTest(
             val postId1 = UUID.randomUUID()
             val postId2 = UUID.randomUUID()
             val agreementId = UUID.randomUUID()
+            val supplierId = UUID.randomUUID()
+
             val delkontraktRegistration1 = delkontraktRegistrationRepository.save(DelkontraktRegistration(
                 id = postId1,
                 agreementId = agreementId,
@@ -73,7 +75,9 @@ class CatalogImportRepositoryTest(
                 mainProduct = false,
                 sparePart = true,
                 accessory = false,
-                agreementId = agreementId
+                agreementId = agreementId,
+                supplierId = supplierId
+
             ))
             val testCatalog2 = catalogImportRepository.save(CatalogImport(
                 agreementAction = "agreementAction",
@@ -95,9 +99,10 @@ class CatalogImportRepositoryTest(
                 mainProduct = false,
                 sparePart = false,
                 accessory = true,
-                agreementId = agreementId
+                agreementId = agreementId,
+                supplierId = supplierId
             ))
-            val supplierId = UUID.randomUUID()
+
             val seriesId = UUID.randomUUID()
             val productAgreement1 = productAgreementRegistrationRepository.save(ProductAgreementRegistration(
                 agreementId = agreementId,

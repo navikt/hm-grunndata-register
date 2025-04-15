@@ -135,7 +135,7 @@ open class ProductAgreementImportExcelService(
         if (agreement.agreementStatus === AgreementStatus.DELETED) {
             throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er slettet, må den opprettes?")
         }
-        val catalogImportResult = catalogImportService.prepareCatalogImportResult(importedExcelCatalog.map { it.toEntity(agreement) })
+        val catalogImportResult = catalogImportService.prepareCatalogImportResult(importedExcelCatalog.map { it.toEntity(agreement,supplierId) })
         val mappedLists = mapCatalogImport(catalogImportResult, authentication, supplierId, dryRun)
         val productAgreementImportResult = productAccessorySparePartAgreementHandler.handleNewProductsInExcelImport(mappedLists, authentication, dryRun)
         if (!dryRun) {

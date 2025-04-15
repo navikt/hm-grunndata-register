@@ -14,7 +14,8 @@ data class CatalogImport(
     val orderRef: String, // oebs unique order reference for agreement
     val hmsArtNr: String,
     val iso: String, // oebs iso category
-    val title: String, // oebs article description
+    val title: String, // oebs article description,
+    val supplierId: UUID,
     val supplierRef: String,
     val reference: String, // agreement reference
     val postNr: String?,

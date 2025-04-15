@@ -84,7 +84,7 @@ data class CatalogImportExcelDTO(
 )
 
 
-fun CatalogImportExcelDTO.toEntity(agreementRegistration: AgreementRegistrationDTO):CatalogImport  {
+fun CatalogImportExcelDTO.toEntity(agreementRegistration: AgreementRegistrationDTO, supplierId: UUID):CatalogImport  {
     val remapped = mapArticleType(articleType,funksjonsendring) // ensure articletype
     return CatalogImport(
         agreementAction = rammeavtaleHandling,
@@ -106,7 +106,8 @@ fun CatalogImportExcelDTO.toEntity(agreementRegistration: AgreementRegistrationD
         mainProduct = remapped.mainProduct,
         sparePart = remapped.sparePart,
         accessory = remapped.accessory,
-        agreementId = agreementRegistration.id
+        agreementId = agreementRegistration.id,
+        supplierId =  supplierId
     )
 }
 
