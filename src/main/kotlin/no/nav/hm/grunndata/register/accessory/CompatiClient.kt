@@ -14,7 +14,8 @@ interface CompatiClient  {
     suspend fun findCompatibleWith(@QueryValue("hmsNr") hmsNr: String,
                                     @QueryValue("variant") boolean: Boolean? = false): List<CompatibleProductResult>
 
-
+    @Get(uri="/catalog/products/compatibleWith/ai/series", consumes = [APPLICATION_JSON])
+    suspend fun findCompatibleWithAi(@QueryValue("hmsNr") hmsNr: String): List<CompatibleProductResult>
 
 }
 
