@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.accessory
 
 import jakarta.inject.Singleton
+import kotlinx.coroutines.delay
 import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.rapid.dto.CompatibleWith
@@ -39,6 +40,7 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
                     }
                 }
             }
+            delay(5000)
         }
     }
 
