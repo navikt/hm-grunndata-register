@@ -87,7 +87,7 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
                         compatibleWith = CompatibleWith(
                             seriesIds = seriesIds,
                             productIds = productIds,
-                            connectedBy = "compati"
+                            connectedBy = CompatibleWith.COMPATI
                         )
                     )
                 )
@@ -104,7 +104,7 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
                     compatibleWith = CompatibleWith(
                         seriesIds = compatibleWithDTO.seriesIds,
                         productIds = compatibleWithDTO.productIds,
-                        connectedBy = "manual"
+                        connectedBy = CompatibleWith.MANUAL
                     )
                 )
             )
