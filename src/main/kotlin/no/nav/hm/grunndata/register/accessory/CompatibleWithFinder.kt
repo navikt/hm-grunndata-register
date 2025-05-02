@@ -29,7 +29,9 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
     }
 
     open suspend fun connectWithOrderRef(orderRef: String) {
-        catalogImportRepository.findCatalogSeriesInfoByOrderRef(orderRef).filter { !it.mainProduct && it.productId != null }.forEach {
+        val parts = catalogImportRepository.findCatalogSeriesInfoByOrderRef(orderRef).filter { !it.mainProduct && it.productId != null }
+        LOG.info("Found ${parts.size} parts for orderRef: $orderRef to connect")
+        parts.forEach {
             productRegistrationService.findById(it.productId!!)?.let { product ->
                 addCompatibleWithAttributeSeriesLink(product).let { updatedProduct ->
                     if (updatedProduct != null) {
