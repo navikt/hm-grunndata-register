@@ -50,7 +50,7 @@ class ProductAccessorySparePartAgreementHandler(
             )
         }
         val (mainProductAgreements, accessoryOrSpareParts) = newProductAgreements.partition { it.mainProduct }
-        val supplierId = accessoryOrSpareParts.first().supplierId
+        val supplierId = newProductAgreements.first().supplierId
         val groupedAccessoryOrSpareParts = groupInSeriesBasedOnTitle(accessoryOrSpareParts)
         val groupedMainProducts = groupInSeriesBasedOnTitle(mainProductAgreements)
         val createdAccessorSpareParts =
