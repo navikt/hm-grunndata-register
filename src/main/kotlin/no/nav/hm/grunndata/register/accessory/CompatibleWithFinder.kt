@@ -40,7 +40,7 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
                     }
                 }
             }
-            delay(5000)
+            delay(1000)
         }
     }
 
