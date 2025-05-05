@@ -16,7 +16,8 @@ open class CompatibleWithConnectScheduler(
     @LeaderOnly
     open fun connectCompatibleWith() {
         runBlocking {
-            compatibleWithFinder.connectAllOrdersNotConnected()
+            LOG.info("Disabled this job while testing AI")
+            //compatibleWithFinder.connectAllOrdersNotConnected()
         }
     }
 
