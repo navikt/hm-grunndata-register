@@ -155,11 +155,11 @@ open class ProductAgreementAdminController(
     )
     suspend fun getProductVariantsByDelkontraktId(
         id: UUID,
-        @QueryValue mainProductsOnly: Boolean = true,
+        @QueryValue mainProductsOnly: Boolean? = true,
         authentication: Authentication,
     ): List<ProductVariantsForDelkontraktDto> {
         LOG.info("Getting product variants for delkontrakt {$id} by ${authentication.userId()}")
-        return productAgreementRegistrationService.findGroupedProductVariantsByDelkontraktId(id, mainProductsOnly)
+        return productAgreementRegistrationService.findGroupedProductVariantsByDelkontraktId(id, mainProductsOnly ?: true)
     }
 
     @Post(
