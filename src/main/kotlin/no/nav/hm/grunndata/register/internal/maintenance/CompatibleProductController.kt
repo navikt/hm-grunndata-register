@@ -29,6 +29,12 @@ class CompatibleProductController(
         compatibleWithFinder.connectWithOrderRef(orderRef)
     }
 
+    @Post("/catalog/connect/orderref/{orderRef}")
+    suspend fun connectWithCatalog(orderRef: String) {
+        LOG.info("connectWithCatalog: $orderRef")
+        compatibleWithFinder.connectCatalogOrderRef(orderRef)
+    }
+
     @Post("/connect/orders")
     suspend fun connectAllNotConnected() {
         compatibleWithFinder.connectAllOrdersNotConnected()

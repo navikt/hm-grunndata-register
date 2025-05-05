@@ -41,4 +41,6 @@ interface CatalogFileRepository: CoroutineCrudRepository<CatalogFile, UUID>, Cor
 
     suspend fun updateConnectedById(id: UUID, connected: Boolean)
 
+    suspend fun findByOrderRef(orderRef: String): List<CatalogFile>
+
 }

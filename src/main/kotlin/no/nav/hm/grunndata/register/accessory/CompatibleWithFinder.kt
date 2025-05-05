@@ -29,7 +29,8 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
     }
 
     open suspend fun connectWithOrderRef(orderRef: String) {
-        val parts = catalogImportRepository.findCatalogSeriesInfoByOrderRef(orderRef).filter { !it.mainProduct && it.productId != null }
+        val orderRefs =  catalogImportRepository.findCatalogSeriesInfoByOrderRef(orderRef)
+        val parts = orderRefs.filter { !it.mainProduct && it.productId != null }
         LOG.info("Found ${parts.size} parts for orderRef: $orderRef to connect")
         parts.forEach {
             productRegistrationService.findById(it.productId!!)?.let { product ->
@@ -44,6 +45,12 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
             }
             delay(1000)
         }
+    }
+
+    open suspend fun connectCatalogOrderRef(orderRef: String)   {
+        val catalogList = catalogFileRepository.findByOrderRef(orderRef)
+        connectWithOrderRef(orderRef)
+        catalogList.forEach { catalogFileRepository.updateConnectedById(it.id, connected = true) }
     }
 
     open suspend fun connectAllOrdersNotConnected() {
