@@ -14,7 +14,7 @@ open class PaakrevdGodkjenningskursScheduler(private val paakrevdGodkjenningskur
     }
 
     @LeaderOnly
-    @Scheduled(cron = "0 1 1 * * *")
+    @Scheduled(cron = "0 30 4 * * *")
     open fun importAndUpdatePaakrevdGodkjenningskurs() {
         LOG.info("Running paakrevd godkjenningskurs scheduler")
         runBlocking {

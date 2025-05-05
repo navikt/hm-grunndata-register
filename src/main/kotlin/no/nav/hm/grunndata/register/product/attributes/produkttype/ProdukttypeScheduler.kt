@@ -14,7 +14,7 @@ open class ProdukttypeScheduler(private val produkttypeService: ProdukttypeServi
     }
 
     @LeaderOnly
-    @Scheduled(cron = "0 1 1 * * *")
+    @Scheduled(cron = "0 30 4 * * *")
     open fun importAndUpdateProdukttype() {
         LOG.info("Running produkttype scheduler")
         runBlocking {

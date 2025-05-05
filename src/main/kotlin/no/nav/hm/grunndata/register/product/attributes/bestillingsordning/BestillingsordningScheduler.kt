@@ -14,7 +14,7 @@ open class BestillingsordningScheduler(private val bestillingsordningService: Be
     }
 
     @LeaderOnly
-    @Scheduled(cron = "0 1 1 * * *")
+    @Scheduled(cron = "0 30 4 * * *")
     open fun importAndUpdateBestillingsOrdning() {
         LOG.info("Running bestillingsordning scheduler")
         runBlocking {
