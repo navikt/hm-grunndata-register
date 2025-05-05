@@ -87,6 +87,12 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
     }
 
     private suspend fun addCompatibleWithAttributeSeriesLink(product: ProductRegistration): ProductRegistration? {
+        if (product.productData.attributes.compatibleWith!= null
+            && product.productData.attributes.compatibleWith?.connectedBy == CompatibleWith.COMPATI
+            || product.productData.attributes.compatibleWith?.connectedBy == CompatibleWith.MANUAL) {
+            LOG.info("Skip connecting product ${product.hmsArtNr} with compatibleWith ${product.productData.attributes.compatibleWith?.connectedBy}")
+            return null
+        }
         val compatibleWiths = findCompatibleWithAi(product.hmsArtNr!!)
         val seriesIds = compatibleWiths.map { it.seriesId.toUUID() }.toSet()
         // we keep the variants, for manual by admin and supplier
