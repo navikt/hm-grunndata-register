@@ -5,7 +5,6 @@ import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
-import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import java.time.LocalDateTime
 import java.util.UUID
@@ -152,12 +151,24 @@ open class ProductAgreementRegistrationService(
             expired,
         ).map { it.toDTO() }
 
-    suspend fun findGroupedProductVariantsByDelkontraktId(delkontraktId: UUID): List<ProductVariantsForDelkontraktDto> {
-        val allVariants =
+    suspend fun findGroupedProductVariantsByDelkontraktId(
+        delkontraktId: UUID,
+        mainProductsOnly: Boolean
+    ): List<ProductVariantsForDelkontraktDto> {
+
+        val allVariants = if (mainProductsOnly) {
+            productAgreementRegistrationRepository.findByPostIdAndStatusInAndMainProduct(
+                delkontraktId,
+                listOf(ProductAgreementStatus.ACTIVE, ProductAgreementStatus.INACTIVE),
+                true,
+            ).map { it.toDTO() }
+        } else {
             productAgreementRegistrationRepository.findByPostIdAndStatusIn(
                 delkontraktId,
                 listOf(ProductAgreementStatus.ACTIVE, ProductAgreementStatus.INACTIVE),
             ).map { it.toDTO() }
+        }
+
 
         val groupedList = mutableListOf<ProductVariantsForDelkontraktDto>()
 

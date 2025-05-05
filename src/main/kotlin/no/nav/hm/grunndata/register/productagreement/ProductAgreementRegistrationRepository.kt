@@ -59,6 +59,12 @@ interface ProductAgreementRegistrationRepository :
         statuses: List<ProductAgreementStatus>,
     ): List<ProductAgreementRegistration>
 
+    suspend fun findByPostIdAndStatusInAndMainProduct(
+        postId: UUID,
+        statuses: List<ProductAgreementStatus>,
+        mainProduct: Boolean,
+    ): List<ProductAgreementRegistration>
+
     suspend fun findAllByIdIn(ids: List<UUID>): List<ProductAgreementRegistration>
 
     suspend fun findAllByProductIdIn(ids: List<UUID>): List<ProductAgreementRegistration>

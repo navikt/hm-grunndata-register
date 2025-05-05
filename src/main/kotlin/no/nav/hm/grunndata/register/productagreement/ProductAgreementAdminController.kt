@@ -57,7 +57,8 @@ open class ProductAgreementAdminController(
         @QueryValue supplierId: UUID,
         authentication: Authentication,
     ): ProductAgreementImportDTO {
-        val supplier = supplierRegistrationService.findById(supplierId) ?: throw BadRequestException("Supplier $supplierId not found")
+        val supplier = supplierRegistrationService.findById(supplierId)
+            ?: throw BadRequestException("Supplier $supplierId not found")
         LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()} for supplier ${supplier.name}")
 
         val importedExcelCatalog =
@@ -80,8 +81,8 @@ open class ProductAgreementAdminController(
             catalogFileRepository.save(
                 CatalogFile(
                     fileName = file.filename,
-                    fileSize =  file.size,
-                    orderRef =  importedExcelCatalog[0].bestillingsNr,
+                    fileSize = file.size,
+                    orderRef = importedExcelCatalog[0].bestillingsNr,
                     catalogList = importedExcelCatalog,
                     supplierId = supplierId,
                     created = LocalDateTime.now(),
@@ -154,10 +155,11 @@ open class ProductAgreementAdminController(
     )
     suspend fun getProductVariantsByDelkontraktId(
         id: UUID,
+        @QueryValue mainProductsOnly: Boolean = true,
         authentication: Authentication,
     ): List<ProductVariantsForDelkontraktDto> {
         LOG.info("Getting product variants for delkontrakt {$id} by ${authentication.userId()}")
-        return productAgreementRegistrationService.findGroupedProductVariantsByDelkontraktId(id)
+        return productAgreementRegistrationService.findGroupedProductVariantsByDelkontraktId(id, mainProductsOnly)
     }
 
     @Post(
