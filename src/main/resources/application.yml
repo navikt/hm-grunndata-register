@@ -175,7 +175,7 @@ import:
 
 digihotSortiment:
   bestillingsordning: ${BESTILLINGSORDNING_URL:`https://navikt.github.io/digihot-sortiment/bestillingsordning_sortiment.json`}
-  digitalSoknadSortiment: ${DIGITAL_SOKNAD_SORTIMENT_URL:`https://navikt.github.io/digihot-sortiment/sortiment_av_apostid_per_kategori_local2.json`}
+  digitalSoknadSortiment: ${DIGITAL_SOKNAD_SORTIMENT_URL:`https://navikt.github.io/digihot-sortiment/sortiment_av_apostid_per_kategori2.json`}
   paakrevdGodkjenningskurs: ${PAAKREVD_GODKJENNINGSKURS_URL:`https://navikt.github.io/digihot-sortiment/paakrevde_godkjenningskurs.json`}
   produkttype: ${PRODUKTTYPE_URL:`https://navikt.github.io/digihot-sortiment/produkttype.json`}
 
