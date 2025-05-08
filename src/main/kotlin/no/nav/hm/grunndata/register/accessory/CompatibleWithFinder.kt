@@ -104,7 +104,7 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
                         compatibleWith = CompatibleWith(
                             seriesIds = seriesIds,
                             productIds = productIds,
-                            connectedBy = CompatibleWith.COMPATI
+                            connectedBy = CompatibleWith.COMPATIAI
                         )
                     )
                 )
