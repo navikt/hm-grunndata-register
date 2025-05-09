@@ -12,7 +12,7 @@ open class CompatibleWithConnectScheduler(
     private val compatibleWithFinder: CompatibleWithFinder
 ) {
 
-    @Scheduled(cron = "0 45 6 * * *")
+    @Scheduled(cron = "0 45 0 * * *")
     @LeaderOnly
     open fun connectCompatibleWith() {
         runBlocking {
