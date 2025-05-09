@@ -12,11 +12,11 @@ open class CompatibleWithConnectScheduler(
     private val compatibleWithFinder: CompatibleWithFinder
 ) {
 
-    @Scheduled(cron = "0 35 00 * * ?")
+    @Scheduled(cron = "0 45 6 * * *")
     @LeaderOnly
     open fun connectCompatibleWith() {
         runBlocking {
-            LOG.info("Disabled this job while testing AI")
+            LOG.info("Running compatibleWith connect scheduler")
             compatibleWithFinder.connectAllOrdersNotConnected()
         }
     }
