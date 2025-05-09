@@ -93,6 +93,10 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
             LOG.info("Skip connecting product ${product.hmsArtNr} with compatibleWith ${product.productData.attributes.compatibleWith?.connectedBy}")
             return null
         }
+        if (product.hmsArtNr == null) {
+            LOG.error("No hmsArtNr for product ${product.id}, skip connecting with compatibleWith")
+            return null
+        }
         val compatibleWiths = findCompatibleWithAi(product.hmsArtNr!!)
         val seriesIds = compatibleWiths.map { it.seriesId.toUUID() }.toSet()
         // we keep the variants, for manual by admin and supplier
