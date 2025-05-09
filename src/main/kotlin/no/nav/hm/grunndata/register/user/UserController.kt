@@ -1,9 +1,9 @@
 package no.nav.hm.grunndata.register.user
 
-import io.micronaut.http.HttpAttributes
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
@@ -11,14 +11,13 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.register.error.BadRequestException
-import no.nav.hm.grunndata.register.security.Roles
-import no.nav.hm.grunndata.register.user.UserAttribute.SUPPLIER_ID
-import org.slf4j.LoggerFactory
-import java.util.*
 import no.nav.hm.grunndata.register.product.isAdmin
+import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
-import no.nav.hm.grunndata.register.user.UserAdminApiController.Companion
+import no.nav.hm.grunndata.register.user.UserAttribute.SUPPLIER_ID
+import org.slf4j.LoggerFactory
+import java.util.UUID
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(UserController.API_V1_USER_REGISTRATIONS)
@@ -87,6 +86,17 @@ class UserController(private val userRepository: UserRepository,
         userRepository.createUser(entity)
         return HttpResponse.created(entity.toDTO())
     }
+
+    @Delete("/{id}")
+    suspend fun deleteUser(id: UUID, authentication: Authentication): HttpResponse<String> {
+        val user = userRepository.findById(id) ?: return HttpResponse.notFound()
+        val userSupplier = user.attributes[SUPPLIER_ID] ?: throw BadRequestException("User missing supplier")
+        if(userSupplier != authentication.supplierId().toString()) return HttpResponse.notFound()
+        userRepository.deleteById(id)
+        LOG.info("User $id has been deleted by supplier")
+        return HttpResponse.ok("User $id has been deleted")
+    }
+
 
     private fun mergeUserAttributes(
         inDbAttributes: Map<String, String>,

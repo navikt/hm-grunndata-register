@@ -147,6 +147,7 @@ class UserControllerTest(private val userRepository: UserRepository,
             )
         }
 
+        //create user
         val response = client.toBlocking().exchange(
             HttpRequest.POST(UserController.API_V1_USER_REGISTRATIONS, UserRegistrationDTO(
                 name = "New user",
@@ -164,6 +165,8 @@ class UserControllerTest(private val userRepository: UserRepository,
         dto.email shouldBe "newuser1@email.com"
         dto.attributes[UserAttribute.PHONE] shouldBe "+47 12345678"
         dto.attributes[UserAttribute.SUPPLIER_ID] shouldBe user.attributes[UserAttribute.SUPPLIER_ID]
+
+        //update user
         val response2 = client.toBlocking().exchange(
             HttpRequest.PUT(UserController.API_V1_USER_REGISTRATIONS,
                 dto.copy(name = "New name 2", attributes = dto.attributes + Pair(UserAttribute.PHONE, "+47 87654321")))
@@ -176,5 +179,22 @@ class UserControllerTest(private val userRepository: UserRepository,
         dto2.email shouldBe "newuser1@email.com"
         dto2.attributes[UserAttribute.SUPPLIER_ID] shouldBe user.attributes[UserAttribute.SUPPLIER_ID]
         dto2.attributes[UserAttribute.PHONE] shouldBe "+47 87654321"
+
+        //delete user
+        val deleteResponse = client.toBlocking().exchange(
+            HttpRequest.DELETE<String>("${UserController.API_V1_USER_REGISTRATIONS}/${dto2.id}")
+                .accept(MediaType.APPLICATION_JSON)
+                .cookie(jwt), String::class.java
+        )
+        deleteResponse.status().code shouldBe 200
+
+        shouldThrow<HttpClientResponseException> {
+            client.toBlocking().exchange(
+                HttpRequest.GET<UserDTO>("${UserController.API_V1_USER_REGISTRATIONS}/${dto2.id}")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .cookie(jwt),
+                UserDTO::class.java
+            )
+        }
     }
 }
