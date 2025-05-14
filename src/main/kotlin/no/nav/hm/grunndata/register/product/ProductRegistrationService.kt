@@ -556,10 +556,10 @@ open class ProductRegistrationService(
             },
         )
 
-    suspend fun updateRegistrationStatus(
+    suspend fun updateExpiredStatus(
         @PathVariable id: UUID,
         authentication: Authentication,
-        newStatus: RegistrationStatus,
+        isExpired: Boolean
     ): ProductRegistration {
         val productToUpdate = findById(id) ?: throw BadRequestException("Product not found", type = ErrorType.NOT_FOUND)
 
@@ -567,16 +567,13 @@ open class ProductRegistrationService(
             throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
         }
 
+        val newRegistrationStatus = if(isExpired) RegistrationStatus.INACTIVE else RegistrationStatus.ACTIVE
+        val newExpiredDate = if (isExpired) { LocalDateTime.now() } else { LocalDateTime.now().plusYears(10) }
+
         val updatedProduct =
             productToUpdate.copy(
-                registrationStatus = newStatus,
-                expired =
-                    if (newStatus == RegistrationStatus.ACTIVE) {
-                        LocalDateTime.now()
-                            .plusYears(10)
-                    } else {
-                        LocalDateTime.now()
-                    },
+                registrationStatus = newRegistrationStatus,
+                expired = newExpiredDate,
                 updated = LocalDateTime.now(),
                 updatedBy = REGISTER,
                 updatedByUser = authentication.name,

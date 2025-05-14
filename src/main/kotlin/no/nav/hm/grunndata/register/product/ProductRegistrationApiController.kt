@@ -127,7 +127,7 @@ class ProductRegistrationApiController(
         @PathVariable id: UUID,
         authentication: Authentication,
     ): HttpResponse<Any> {
-        productRegistrationService.updateRegistrationStatus(id, authentication, RegistrationStatus.INACTIVE)
+        productRegistrationService.updateExpiredStatus(id, authentication, true)
         return HttpResponse.ok()
     }
 
@@ -136,7 +136,7 @@ class ProductRegistrationApiController(
         @PathVariable id: UUID,
         authentication: Authentication,
     ): HttpResponse<Any> {
-        productRegistrationService.updateRegistrationStatus(id, authentication, RegistrationStatus.ACTIVE)
+        productRegistrationService.updateExpiredStatus(id, authentication, false)
         return HttpResponse.ok()
     }
 
