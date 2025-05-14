@@ -8,11 +8,12 @@ import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.HMDB
-import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
-import org.slf4j.LoggerFactory
-import java.util.UUID
 import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersion
 import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersionService
+import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
+import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
+import java.util.UUID
 
 @Factory
 class ProductPersistListener(
@@ -43,6 +44,9 @@ class ProductPersistListener(
                 if (product.registrationStatus != RegistrationStatus.ACTIVE) {
                     LOG.info("Product status is ${product.registrationStatus}, update series status")
                     updateStatusForSeries(product.seriesUUID, product.registrationStatus)
+                }
+                if (product.expired?.let { it < LocalDateTime.now() } == true) {
+                    seriesRegistrationRepository.setSeriesToExpiredIfAllVariantsAreExpired(product.seriesUUID)
                 }
                 updateSeriesCounts(product.seriesUUID)
             }

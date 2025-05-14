@@ -103,6 +103,13 @@ interface SeriesRegistrationRepository :
         id: UUID,
         newStatus: String,
     )
+
+    @Query(
+        "UPDATE series_reg_v1 SET status = 'INACTIVE', expired = current_timestamp WHERE id = :id AND NOT EXISTS( SELECT 1 FROM product_reg_v1 WHERE series_uuid = :id AND expired > current_timestamp)",
+    )
+    suspend fun setSeriesToExpiredIfAllVariantsAreExpired(
+        id: UUID,
+    )
 }
 
 @Introspected
