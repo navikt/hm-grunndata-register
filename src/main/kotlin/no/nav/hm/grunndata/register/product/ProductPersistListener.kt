@@ -41,7 +41,7 @@ class ProductPersistListener(
             runBlocking {
                 LOG.debug("ProductRegistration ${product.id} updated for series: ${product.seriesUUID}")
                 insertProductVersion(product)
-                if (product.registrationStatus != RegistrationStatus.ACTIVE) {
+                if (product.registrationStatus == RegistrationStatus.INACTIVE) {
                     LOG.info("Product status is ${product.registrationStatus}, update series status")
                     updateStatusForSeries(product.seriesUUID, product.registrationStatus)
                 }
