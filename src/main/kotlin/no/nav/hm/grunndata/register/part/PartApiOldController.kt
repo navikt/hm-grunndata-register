@@ -1,6 +1,11 @@
 package no.nav.hm.grunndata.register.part
 
 import io.micronaut.core.annotation.Introspected
+import io.micronaut.data.model.Page
+import io.micronaut.data.model.Pageable
+import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
+import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
+import io.micronaut.data.runtime.criteria.get
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
@@ -8,6 +13,7 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
+import io.micronaut.http.annotation.RequestBean
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -17,9 +23,12 @@ import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductDTOMapper
+import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTOV2
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.isSupplier
+import no.nav.hm.grunndata.register.product.mapSuspend
+import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
@@ -137,6 +146,35 @@ class PartApiOldController(
         val part = productRegistrationService.findById(id)
         return part?.let { productDTOMapper.toPartDTO(it) }
     }
+
+    @Get("/")
+    suspend fun findParts(
+        @RequestBean criteria: ProductRegistrationHmsUserCriteria,
+        pageable: Pageable,
+        authentication: Authentication,
+    ): Page<ProductRegistrationDTOV2> = productRegistrationService
+        .findAll(buildCriteriaSpec(criteria, authentication), pageable)
+        .mapSuspend { productDTOMapper.toDTOV2(it) }
+
+    private fun buildCriteriaSpec(
+        criteria: ProductRegistrationHmsUserCriteria,
+        authentication: Authentication
+    ): PredicateSpecification<ProductRegistration> =
+        where<ProductRegistration> {
+
+            if (authentication.isSupplier()) {
+                root[ProductRegistration::supplierRef] eq authentication.supplierId()
+            } else {
+                criteria.supplierRef?.let { root[ProductRegistration::supplierRef] eq it }
+            }
+
+            criteria.hmsArtNr?.let { root[ProductRegistration::hmsArtNr] eq it }
+            criteria.title?.let { criteriaBuilder.lower(root[ProductRegistration::articleName]) like LiteralExpression("%${it.lowercase()}%") }
+            or {
+                root[ProductRegistration::accessory] eq true
+                root[ProductRegistration::sparePart] eq true
+            }
+        }
 
 }
 
