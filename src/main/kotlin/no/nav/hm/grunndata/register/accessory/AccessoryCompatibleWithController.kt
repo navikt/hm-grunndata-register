@@ -24,6 +24,11 @@ class AccessoryCompatibleWithController(
     private val productDTOMapper: ProductDTOMapper
 ) {
 
+    companion object {
+        const val API_V1_ACCESSORY = "/api/v1/accessory"
+        private val LOG = LoggerFactory.getLogger(AccessoryCompatibleWithController::class.java)
+    }
+
     @Get("/series-variants/{seriesUUID}")
     suspend fun findVariantsBySeriesUUID(
         @PathVariable seriesUUID: UUID,
@@ -36,6 +41,7 @@ class AccessoryCompatibleWithController(
     @Get("/variants/{hmsNr}")
     suspend fun findCompatibleWithProductsVariants(hmsNr: String) = compatibleWithFinder.findCompatibleWith(hmsNr, true)
 
+    @Deprecated("Use similar method in PartApiCommonController instead")
     @Get("/hmsNr/{hmsNr}")
     suspend fun findByHmsNr(hmsNr: String): ProductRegistrationDTOV2? {
         val product = productRegistrationService.findByExactHmsArtNr(hmsNr)
@@ -83,6 +89,7 @@ class AccessoryCompatibleWithController(
     }
 
 
+    @Deprecated("Use similar method in PartApiAdminController instead")
     @Put("/{id}/suitableForKommunalTekniker")
     suspend fun updateSuitableForKommunalTekniker(
         @Body suitableForKommunalTeknikerDTO: SuitableForKommunalTeknikerDTO,
@@ -102,6 +109,7 @@ class AccessoryCompatibleWithController(
         return productDTOMapper.toDTOV2(updated)
     }
 
+    @Deprecated("Use similar method in PartApiAdminController instead")
     @Put("/{id}/suitableForBrukerpassbruker")
     suspend fun updateSuitableForBrukerpassbruker(
         @Body suitableForBrukerpassbruker: SuitableForBrukerpassbrukerDTO,
@@ -121,16 +129,13 @@ class AccessoryCompatibleWithController(
         return productDTOMapper.toDTOV2(updated)
     }
 
+    @Deprecated("Use similar method in PartApiCommonController instead")
     @Get("/series/{id}")
     suspend fun getPartsForSeriesId(id: UUID): List<ProductRegistrationDTOV2> =
         productRegistrationService.findAccessoryOrSparePartCombatibleWithSeriesId(id)
             .map { productDTOMapper.toDTOV2(it) }
 
 
-    companion object {
-        const val API_V1_ACCESSORY = "/api/v1/accessory"
-        private val LOG = LoggerFactory.getLogger(AccessoryCompatibleWithController::class.java)
-    }
 
 }
 

@@ -15,6 +15,8 @@ import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.register.accessory.SuitableForBrukerpassbrukerDTO
+import no.nav.hm.grunndata.register.accessory.SuitableForKommunalTeknikerDTO
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTOV2
@@ -38,6 +40,44 @@ class PartApiAdminController(
     companion object {
         const val API_V1_PART_REGISTRATIONS = "/admin/api/v1/part"
         private val LOG = LoggerFactory.getLogger(PartApiAdminController::class.java)
+    }
+
+    @Put("/{id}/suitableForKommunalTekniker")
+    suspend fun updateSuitableForKommunalTekniker(
+        @Body suitableForKommunalTeknikerDTO: SuitableForKommunalTeknikerDTO,
+        id: UUID
+    ): ProductRegistrationDTOV2 {
+        val product = productRegistrationService.findById(id) ?: throw IllegalArgumentException("Product $id not found")
+        if (!(product.accessory or product.sparePart))
+            throw IllegalArgumentException("Product $id is not an accessory or spare part")
+        val updated = product.copy(
+            productData = product.productData.copy(
+                attributes = product.productData.attributes.copy(
+                    egnetForKommunalTekniker = suitableForKommunalTeknikerDTO.suitableForKommunalTekniker
+                )
+            )
+        )
+        productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updated, isUpdate = true)
+        return productDTOMapper.toDTOV2(updated)
+    }
+
+    @Put("/{id}/suitableForBrukerpassbruker")
+    suspend fun updateSuitableForBrukerpassbruker(
+        @Body suitableForBrukerpassbruker: SuitableForBrukerpassbrukerDTO,
+        id: UUID
+    ): ProductRegistrationDTOV2 {
+        val product = productRegistrationService.findById(id) ?: throw IllegalArgumentException("Product $id not found")
+        if (!(product.accessory or product.sparePart))
+            throw IllegalArgumentException("Product $id is not an accessory or spare part")
+        val updated = product.copy(
+            productData = product.productData.copy(
+                attributes = product.productData.attributes.copy(
+                    egnetForBrukerpass = suitableForBrukerpassbruker.suitableForBrukerpassbruker
+                )
+            )
+        )
+        productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updated, isUpdate = true)
+        return productDTOMapper.toDTOV2(updated)
     }
 
 

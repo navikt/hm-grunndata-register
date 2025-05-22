@@ -73,6 +73,13 @@ open class ProductRegistrationService(
             listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
         )
 
+    open suspend fun findByExactHmsArtNrAndSupplierId(hmsArtNr: String, supplierId: UUID) =
+        productRegistrationRepository.findByHmsArtNrAndRegistrationStatusInAndSupplierId(
+            hmsArtNr,
+            listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
+            supplierId
+        )
+
     open suspend fun findByHmsArtNr(hmsArtNr: String, authentication: Authentication): ProductRegistration? =
         if (authentication.isSupplier()) {
             productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierId(
@@ -443,7 +450,7 @@ open class ProductRegistrationService(
                 version = 0,
                 accessory = false,
                 sparePart = false,
-                mainProduct  = true,
+                mainProduct = true,
             )
         val draft = save(registration)
         LOG.info("Draft was created ${draft.id}")
@@ -567,8 +574,12 @@ open class ProductRegistrationService(
             throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
         }
 
-        val newRegistrationStatus = if(isExpired) RegistrationStatus.INACTIVE else RegistrationStatus.ACTIVE
-        val newExpiredDate = if (isExpired) { LocalDateTime.now() } else { LocalDateTime.now().plusYears(10) }
+        val newRegistrationStatus = if (isExpired) RegistrationStatus.INACTIVE else RegistrationStatus.ACTIVE
+        val newExpiredDate = if (isExpired) {
+            LocalDateTime.now()
+        } else {
+            LocalDateTime.now().plusYears(10)
+        }
 
         val updatedProduct =
             productToUpdate.copy(

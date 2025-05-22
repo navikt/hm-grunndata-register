@@ -21,6 +21,7 @@ import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
+import java.util.UUID
 
 @Secured(Roles.ROLE_HMS, Roles.ROLE_ADMIN, Roles.ROLE_SUPPLIER)
 @Controller(PartApiCommonController.API_V1_PART_REGISTRATIONS)
@@ -62,6 +63,29 @@ class PartApiCommonController(
                 root[ProductRegistration::sparePart] eq true
             }
         }
+
+    @Get("/series/{id}")
+    suspend fun getPartsForSeriesId(id: UUID): List<ProductRegistrationDTOV2> =
+        productRegistrationService.findAccessoryOrSparePartCombatibleWithSeriesId(id)
+            .map { productDTOMapper.toDTOV2(it) }
+
+    @Get("/hmsNr/{hmsNr}")
+    suspend fun findByHmsNr(
+        hmsNr: String,
+        authentication: Authentication
+    ): ProductRegistrationDTOV2? {
+
+        if (authentication.isSupplier()) {
+            val product =
+                productRegistrationService.findByExactHmsArtNrAndSupplierId(hmsNr, authentication.supplierId())
+            return product?.let { productDTOMapper.toDTOV2(it) }
+        } else {
+            val product = productRegistrationService.findByExactHmsArtNr(hmsNr)
+            return product?.let { productDTOMapper.toDTOV2(it) }
+        }
+
+
+    }
 
 
 }
