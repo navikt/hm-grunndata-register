@@ -49,6 +49,7 @@ class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRe
             val foundDTO = catalogFileRepository.findOne(id)
             found.shouldNotBeNull()
             foundDTO.shouldNotBeNull()
+            catalogFileRepository.updatedConnectedUpdatedById(foundDTO.id, true, LocalDateTime.now())
             found.catalogList.size shouldBe catalogList.size
             found.fileSize shouldBe foundDTO.fileSize
             found.fileName shouldBe foundDTO.fileName

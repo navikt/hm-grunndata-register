@@ -10,6 +10,7 @@ import no.nav.hm.grunndata.register.catalog.CatalogImportRepository
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 
 @Singleton
 open class CompatibleWithFinder(private val compatiClient: CompatiClient,
@@ -50,7 +51,7 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
     open suspend fun connectCatalogOrderRef(orderRef: String)   {
         val catalogList = catalogFileRepository.findByOrderRef(orderRef)
         connectWithOrderRef(orderRef)
-        catalogList.forEach { catalogFileRepository.updateConnectedById(it.id, connected = true) }
+        catalogList.forEach { catalogFileRepository.updatedConnectedUpdatedById(it.id, connected = true, updated = LocalDateTime.now()) }
     }
 
     open suspend fun connectAllOrdersNotConnected() {
@@ -61,7 +62,7 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
                 LOG.info("Connecting catalog file with orderRef: ${catalogFile.orderRef} with name: ${catalogFile.fileName}")
                 connectWithOrderRef(catalogFile.orderRef)
                 orderRefGroup[catalogFile.orderRef]?.forEach { toUpdate ->
-                    catalogFileRepository.updateConnectedById(toUpdate.id, connected = true)
+                    catalogFileRepository.updatedConnectedUpdatedById(toUpdate.id, connected = true, updated = LocalDateTime.now())
                 }
             }
     }

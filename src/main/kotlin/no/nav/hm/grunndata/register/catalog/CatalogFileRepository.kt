@@ -39,7 +39,7 @@ interface CatalogFileRepository: CoroutineCrudRepository<CatalogFile, UUID>, Cor
 
     suspend fun findByConnectedAndStatus(connected: Boolean, status: CatalogFileStatus): List<CatalogFileDTO>
 
-    suspend fun updateConnectedById(id: UUID, connected: Boolean)
+    suspend fun updatedConnectedUpdatedById(id: UUID, connected: Boolean, updated: LocalDateTime)
 
     suspend fun findByOrderRef(orderRef: String): List<CatalogFile>
 
