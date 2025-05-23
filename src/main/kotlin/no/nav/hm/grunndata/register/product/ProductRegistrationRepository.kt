@@ -41,6 +41,13 @@ interface ProductRegistrationRepository :
         registrationStatus: List<RegistrationStatus>,
     ): ProductRegistration?
 
+
+    suspend fun findByHmsArtNrAndRegistrationStatusInAndSupplierId(
+        hmsArtNr: String,
+        registrationStatus: List<RegistrationStatus>,
+        supplierId: UUID,
+    ): ProductRegistration?
+
     @Query("SELECT * FROM product_reg_v1 WHERE product_reg_v1.hms_artnr LIKE :hmsArtNr AND registration_status IN (:registrationStatus) AND (accessory = true OR spare_part = true)")
     suspend fun findPartByHmsArtNrStartingWithAndRegistrationStatusIn(
         hmsArtNr: String,
