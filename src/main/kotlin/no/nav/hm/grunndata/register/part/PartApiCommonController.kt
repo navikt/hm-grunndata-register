@@ -106,11 +106,12 @@ class PartApiCommonController(
     suspend fun findPartByVariantIdentifier(
         @PathVariable variantIdentifier: String,
         authentication: Authentication,
-    ): ProductRegistrationDTOV2? {
+    ): HttpResponse<ProductRegistrationDTOV2> {
         val variant = productRegistrationService.findPartByHmsArtNr(variantIdentifier, authentication)
             ?: productRegistrationService.findPartBySupplierRef(variantIdentifier, authentication)
 
-        return variant?.let { productDTOMapper.toDTOV2(it) }
+        return variant?.let { HttpResponse.ok(productDTOMapper.toDTOV2(it)) }
+            ?: HttpResponse.notFound()
     }
 
 }
