@@ -7,6 +7,7 @@ import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.RequestBean
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
@@ -99,8 +100,17 @@ class PartApiCommonController(
             return product?.let { productDTOMapper.toDTOV2(it) }
         }
 
-
     }
 
+    @Get("/variant-id/{variantIdentifier}")
+    suspend fun findPartByVariantIdentifier(
+        @PathVariable variantIdentifier: String,
+        authentication: Authentication,
+    ): ProductRegistrationDTOV2? {
+        val variant = productRegistrationService.findPartByHmsArtNr(variantIdentifier, authentication)
+            ?: productRegistrationService.findPartBySupplierRef(variantIdentifier, authentication)
+
+        return variant?.let { productDTOMapper.toDTOV2(it) }
+    }
 
 }
