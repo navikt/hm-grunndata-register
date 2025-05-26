@@ -65,9 +65,24 @@ class PartApiCommonController(
         }
 
     @Get("/series/{id}")
-    suspend fun getPartsForSeriesId(id: UUID): List<ProductRegistrationDTOV2> =
-        productRegistrationService.findAccessoryOrSparePartCombatibleWithSeriesId(id)
-            .map { productDTOMapper.toDTOV2(it) }
+    suspend fun getPartsForSeriesId(
+        id: UUID,
+        authentication: Authentication
+    ): List<ProductRegistrationDTOV2> {
+
+        if (authentication.isSupplier()) {
+            return productRegistrationService.findAccessoryOrSparePartCombatibleWithSeriesIdAndSupplierId(
+                id,
+                authentication.supplierId()
+            )
+                .map { productDTOMapper.toDTOV2(it) }
+        } else {
+            return productRegistrationService.findAccessoryOrSparePartCombatibleWithSeriesId(id)
+                .map { productDTOMapper.toDTOV2(it) }
+        }
+
+    }
+
 
     @Get("/hmsNr/{hmsNr}")
     suspend fun findByHmsNr(

@@ -641,6 +641,9 @@ open class ProductRegistrationService(
     suspend fun findAccessoryOrSparePartCombatibleWithSeriesId(seriesUUID: UUID) =
         productRegistrationRepository.findAccessoryOrSparePartCombatibleWithSeriesId(seriesUUID)
 
+    suspend fun findAccessoryOrSparePartCombatibleWithSeriesIdAndSupplierId(seriesUUID: UUID, supplierId: UUID) =
+        productRegistrationRepository.findAccessoryOrSparePartCombatibleWithSeriesIdAndSupplierId(seriesUUID, supplierId)
+
     suspend fun findByTechLabelValues(
         key: String? = null,
         unit: String? = null,
