@@ -157,6 +157,9 @@ interface ProductRegistrationRepository :
     @Query("SELECT * FROM product_reg_v1 WHERE (accessory = true OR spare_part = true) AND product_data->'attributes'->'compatibleWith'->'seriesIds' @> to_jsonb(:seriesUUID::text) ORDER BY hms_artnr")
     suspend fun findAccessoryOrSparePartCombatibleWithSeriesId(seriesUUID: UUID): List<ProductRegistration>
 
+    @Query("SELECT * FROM product_reg_v1 WHERE (accessory = true OR spare_part = true) AND supplier_id = :supplierId AND product_data->'attributes'->'compatibleWith'->'seriesIds' @> to_jsonb(:seriesUUID::text) ORDER BY hms_artnr")
+    suspend fun findAccessoryOrSparePartCombatibleWithSeriesIdAndSupplierId(seriesUUID: UUID, supplierId: UUID): List<ProductRegistration>
+
     @Query("SELECT distinct on(a.id) a.* from product_reg_v1 a, product_agreement_reg_v1 b where a.id=b.product_id and b.status='ACTIVE' and a.registration_status='INACTIVE'")
     suspend fun findProductThatDoesNotMatchAgreementStatus(): List<ProductRegistration>
 
