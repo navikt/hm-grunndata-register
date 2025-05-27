@@ -158,6 +158,7 @@ class PartApiAdminController(
     }
 
 
+    @Deprecated("Use findVariantsBySeriesUUID instead")
     @Get("/old/series/{seriesUUID}")
     suspend fun findBySeriesUUIDAndSupplierIdOld(seriesUUID: UUID) =
         productRegistrationService.findAllBySeriesUuid(seriesUUID).sortedBy { it.created }
