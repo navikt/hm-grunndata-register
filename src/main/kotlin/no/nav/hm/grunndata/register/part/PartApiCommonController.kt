@@ -6,13 +6,16 @@ import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.http.HttpResponse
+import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
+import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.RequestBean
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import no.nav.hm.grunndata.register.part.PartApiOldController.Companion
 import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTOV2
@@ -30,6 +33,7 @@ import java.util.UUID
 @Tag(name = "Common API for Parts")
 class PartApiCommonController(
     private val productRegistrationService: ProductRegistrationService,
+    private val partService: PartService,
     private val productDTOMapper: ProductDTOMapper,
 ) {
     companion object {
@@ -113,6 +117,29 @@ class PartApiCommonController(
 
         return variant?.let { HttpResponse.ok(productDTOMapper.toDTOV2(it)) }
             ?: HttpResponse.notFound()
+    }
+
+    @Post("/supplier/{supplierId}/draftWithAndPublish")
+    suspend fun draftSeriesWithAndPublish(
+        supplierId: UUID,
+        @Body draftWith: PartDraftWithDTO,
+        authentication: Authentication,
+    ): HttpResponse<PartDraftResponse> {
+        if (authentication.isSupplier() && authentication.supplierId() != supplierId) {
+            LOG.warn("SupplierId in request does not match authenticated supplierId")
+            return HttpResponse.unauthorized()
+        }
+
+        val product = partService.createDraftWithAndApprove(
+            authentication,
+            draftWith,
+        )
+
+        return HttpResponse.ok(
+            PartDraftResponse(
+                product.id
+            ),
+        )
     }
 
 }

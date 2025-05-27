@@ -360,7 +360,6 @@ open class SeriesRegistrationService(
         pageable: Pageable,
         params: java.util.HashMap<String, String>?,
     ): Page<SeriesToApproveDTO> {
-        println("hei")
         return seriesRegistrationRepository
             .findAll(buildCriteriaSpecPendingProducts(params), pageable)
             .mapSuspend { it.toSeriesToApproveDTO() }
