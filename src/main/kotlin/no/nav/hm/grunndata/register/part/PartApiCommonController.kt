@@ -126,6 +126,25 @@ class PartApiCommonController(
             ?: HttpResponse.notFound()
     }
 
+    @Get("/series-variants/{seriesUUID}")
+    suspend fun findVariantsBySeriesUUID(
+        seriesUUID: UUID,
+        authentication: Authentication
+    ): List<ProductRegistrationDTOV2> {
+
+        return if (authentication.isSupplier()) {
+            productRegistrationService.findBySeriesUUIDAndSupplierId(
+                seriesUUID,
+                authentication.supplierId()
+            ).sortedBy { it.created }.map { productDTOMapper.toDTOV2(it) }
+
+        } else {
+            productRegistrationService.findAllBySeriesUuid(seriesUUID).sortedBy { it.created }
+                .map { productDTOMapper.toDTOV2(it) }
+        }
+    }
+
+
     @Post("/supplier/{supplierId}/draftWithAndPublish")
     suspend fun draftSeriesWithAndPublish(
         supplierId: UUID,
