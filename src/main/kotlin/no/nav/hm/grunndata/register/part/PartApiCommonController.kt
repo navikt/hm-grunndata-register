@@ -69,6 +69,14 @@ class PartApiCommonController(
             }
         }
 
+    @Get("/{id}")
+    suspend fun findPartById(
+        id: UUID,
+    ): PartDTO? {
+        val part = productRegistrationService.findById(id)
+        return part?.let { productDTOMapper.toPartDTO(it) }
+    }
+
     @Get("/series/{id}")
     suspend fun getPartsForSeriesId(
         id: UUID,

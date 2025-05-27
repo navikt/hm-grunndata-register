@@ -139,6 +139,7 @@ class PartApiOldController(
         return part?.let { productDTOMapper.toDTOV2(it) }
     }
 
+    @Deprecated("Use getProductById instead")
     @Get("/v2/{id}")
     suspend fun findPartByIdV2(
         id: UUID,
