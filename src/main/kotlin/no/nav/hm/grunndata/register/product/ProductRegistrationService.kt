@@ -279,7 +279,7 @@ open class ProductRegistrationService(
         isUpdate: Boolean,
     ): ProductRegistration {
         val saved = if (isUpdate) update(dto) else save(dto)
-        if (saved.draftStatus == DraftStatus.DONE && saved.adminStatus == AdminStatus.APPROVED) {
+        if (saved.draftStatus == DraftStatus.DONE && (saved.adminStatus == AdminStatus.APPROVED || saved.registrationStatus == RegistrationStatus.DELETED)) {
             productRegistrationEventHandler.queueDTORapidEvent(saved.toDTO(), eventName = EventName.registeredProductV1)
         }
         return saved
