@@ -11,10 +11,13 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.RequestBean
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import no.nav.hm.grunndata.register.accessory.CompatibleWithDTO
+import no.nav.hm.grunndata.register.accessory.CompatibleWithFinder
 import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTOV2
@@ -34,6 +37,7 @@ class PartApiCommonController(
     private val productRegistrationService: ProductRegistrationService,
     private val partService: PartService,
     private val productDTOMapper: ProductDTOMapper,
+    private val compatibleWithFinder: CompatibleWithFinder,
 ) {
     companion object {
         const val API_V1_PART_REGISTRATIONS = "/common/api/v1/part"
@@ -165,6 +169,31 @@ class PartApiCommonController(
                 product.id
             ),
         )
+    }
+
+    @Put("/{id}/compatibleWith")
+    suspend fun connectProductAndVariants(
+        @Body compatibleWithDTO: CompatibleWithDTO,
+        id: UUID,
+        authentication: Authentication
+    ): ProductRegistrationDTOV2 {
+        if (authentication.isSupplier()) {
+            val product = productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
+                ?: throw IllegalArgumentException("Product $id not found for supplier ${authentication.supplierId()}")
+            if (!(product.accessory or product.sparePart))
+                throw IllegalArgumentException("Product $id is not an accessory or spare part")
+            LOG.info("Connect product $id with $compatibleWithDTO")
+            val connected = compatibleWithFinder.connectWith(compatibleWithDTO, product)
+            return productDTOMapper.toDTOV2(connected)
+        } else {
+            val product = productRegistrationService.findById(id)
+                ?: throw IllegalArgumentException("Product $id not found")
+            if (!(product.accessory or product.sparePart))
+                throw IllegalArgumentException("Product $id is not an accessory or spare part")
+            LOG.info("Connect product $id with $compatibleWithDTO")
+            val connected = compatibleWithFinder.connectWith(compatibleWithDTO, product)
+            return productDTOMapper.toDTOV2(connected)
+        }
     }
 
 }
