@@ -56,11 +56,10 @@ class PartApiCommonController(
         where<ProductRegistration> {
 
             if (authentication.isSupplier()) {
-                root[ProductRegistration::supplierRef] eq authentication.supplierId()
-            } else {
-                criteria.supplierRef?.let { root[ProductRegistration::supplierRef] eq it }
+                root[ProductRegistration::supplierId] eq authentication.supplierId()
             }
 
+            criteria.supplierRef?.let { root[ProductRegistration::supplierRef] eq it }
             criteria.hmsArtNr?.let { root[ProductRegistration::hmsArtNr] eq it }
             criteria.title?.let { criteriaBuilder.lower(root[ProductRegistration::articleName]) like LiteralExpression("%${it.lowercase()}%") }
             or {
