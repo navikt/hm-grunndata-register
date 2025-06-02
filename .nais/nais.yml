@@ -11,6 +11,11 @@ metadata:
   labels:
     team: teamdigihot
 spec:
+  observability:
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
   image: {{ image }}
   port: 8080
   liveness:
