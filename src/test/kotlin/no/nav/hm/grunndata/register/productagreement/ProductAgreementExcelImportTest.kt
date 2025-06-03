@@ -188,14 +188,14 @@ class ProductAgreementExcelImportTest(
             response.status shouldBe HttpStatus.OK
             val body = response.body()
             body.shouldNotBeNull()
-            body.createdSeries.size shouldBe 4
+            body.createdSeries.size shouldBe 7
             body.createdAccessoryParts.size shouldBe 5
             body.createdMainProducts.size shouldBe 2
             body.newProductAgreements.size shouldBe 8
             val result = catalogFileToProductAgreementScheduler.scheduleCatalogFileToProductAgreement()
             result.shouldNotBeNull()
             result.newProducts.size shouldBe 2
-            result.newSeries.size shouldBe 4
+            result.newSeries.size shouldBe 7
             val bytes2 = ProductAgreementExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test-2.xls").readAllBytes()
             val multipartBody2 = MultipartBody
                 .builder()
