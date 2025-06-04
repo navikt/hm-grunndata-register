@@ -72,13 +72,6 @@ class PartApiCommonController(
             }
         }
 
-    @Get("/{id}")
-    suspend fun findPartById(
-        id: UUID,
-    ): PartDTO? {
-        val part = productRegistrationService.findById(id)
-        return part?.let { productDTOMapper.toPartDTO(it) }
-    }
 
     @Get("/series/{id}")
     suspend fun getPartsForSeriesId(
@@ -193,6 +186,22 @@ class PartApiCommonController(
             LOG.info("Connect product $id with $compatibleWithDTO")
             val connected = compatibleWithFinder.connectWith(compatibleWithDTO, product)
             return productDTOMapper.toDTOV2(connected)
+        }
+    }
+
+    @Get("/{id}")
+    suspend fun findPartById(
+        id: UUID,
+        authentication: Authentication
+    ): PartDTO? {
+
+        if (authentication.isSupplier()) {
+            val product = productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
+                ?: throw IllegalArgumentException("Product $id not found for supplier ${authentication.supplierId()}")
+            return product?.let { productDTOMapper.toPartDTO(it) }
+        } else {
+            val product = productRegistrationService.findById(id)
+            return product?.let { productDTOMapper.toPartDTO(it) }
         }
     }
 

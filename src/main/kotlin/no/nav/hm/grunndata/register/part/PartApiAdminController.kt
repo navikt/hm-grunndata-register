@@ -146,6 +146,7 @@ class PartApiAdminController(
     }
 
 
+    @Deprecated("Use method in common endpoint instead")
     @Get("/variant-id/{variantIdentifier}")
     suspend fun findPartByVariantIdentifier(
         @PathVariable variantIdentifier: String,
@@ -163,6 +164,7 @@ class PartApiAdminController(
     suspend fun findBySeriesUUIDAndSupplierIdOld(seriesUUID: UUID) =
         productRegistrationService.findAllBySeriesUuid(seriesUUID).sortedBy { it.created }
 
+    @Deprecated("Use method in common endpoint instead")
     @Get("/{id}")
     suspend fun findPartById(
         id: UUID,
@@ -171,6 +173,7 @@ class PartApiAdminController(
         return part?.let { productDTOMapper.toDTOV2(it) }
     }
 
+    @Deprecated("Not in use, use findPartById instead")
     @Get("/v2/{id}")
     suspend fun findPartByIdV2(
         id: UUID,

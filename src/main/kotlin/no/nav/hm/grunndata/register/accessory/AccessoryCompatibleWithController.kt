@@ -29,6 +29,7 @@ class AccessoryCompatibleWithController(
         private val LOG = LoggerFactory.getLogger(AccessoryCompatibleWithController::class.java)
     }
 
+    @Deprecated("Use similar method in PartApiCommonController instead")
     @Get("/series-variants/{seriesUUID}")
     suspend fun findVariantsBySeriesUUID(
         @PathVariable seriesUUID: UUID,
@@ -38,6 +39,7 @@ class AccessoryCompatibleWithController(
         return variants.map { productDTOMapper.toDTOV2(it) }
     }
 
+    @Deprecated("Use similar method in PartApiCommonController instead")
     @Get("/variants/{hmsNr}")
     suspend fun findCompatibleWithProductsVariants(hmsNr: String) = compatibleWithFinder.findCompatibleWith(hmsNr, true)
 
@@ -48,6 +50,7 @@ class AccessoryCompatibleWithController(
         return product?.let { productDTOMapper.toDTOV2(it) }
     }
 
+    @Deprecated("Use similar method in PartApiCommonController instead")
     @Get("/hmsNr/part/{hmsNr}")
     suspend fun findPartByHmsNr(
         @PathVariable hmsNr: String,
@@ -57,7 +60,7 @@ class AccessoryCompatibleWithController(
         return product?.let { productDTOMapper.toDTOV2(it) }
     }
 
-
+@Deprecated("Use similar method in PartApiCommonController instead")
     @Get("/variant-id/{variantIdentifier}")
     suspend fun findProdyctByVariantIdentifier(
         @PathVariable variantIdentifier: String,
@@ -69,12 +72,14 @@ class AccessoryCompatibleWithController(
         return variant?.let { productDTOMapper.toDTOV2(it) }
     }
 
+    @Deprecated("Use similar method in PartApiCommonController instead")
     @Get("/{id}")
     suspend fun findById(id: UUID): ProductRegistrationDTOV2? {
         val product = productRegistrationService.findById(id)
         return product?.let { productDTOMapper.toDTOV2(it) }
     }
 
+    @Deprecated("Use similar method in PartApiAdminController instead")
     @Put("/{id}/compatibleWith")
     suspend fun connectProductAndVariants(
         @Body compatibleWithDTO: CompatibleWithDTO,
