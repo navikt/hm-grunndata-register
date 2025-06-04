@@ -133,6 +133,14 @@ open class SeriesRegistrationService(
     suspend fun findBySupplierId(supplierId: UUID): List<SeriesRegistration> =
         seriesRegistrationRepository.findBySupplierId(supplierId)
 
+    @Transactional
+    open suspend fun moveOwnerForSeries(series: SeriesRegistration, toSupplierId: UUID): SeriesRegistration {
+        productRegistrationService.findAllBySeriesUuid(series.id).forEach { product ->
+            productRegistrationService.update(product.copy(supplierId = toSupplierId, updated = LocalDateTime.now()))
+        }
+        return saveAndCreateEventIfNotDraftAndApproved(series.copy(supplierId = toSupplierId), true)
+    }
+
     suspend fun createDraftWith(
         supplierId: UUID,
         authentication: Authentication,
