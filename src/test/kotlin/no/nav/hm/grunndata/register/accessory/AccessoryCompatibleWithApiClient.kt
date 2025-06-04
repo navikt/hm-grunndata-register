@@ -7,9 +7,11 @@ import io.micronaut.http.annotation.Put
 import io.micronaut.http.client.annotation.Client
 import java.util.UUID
 import no.nav.hm.grunndata.register.CONTEXT_PATH
+import no.nav.hm.grunndata.register.part.CompatibleWithDTO
+import no.nav.hm.grunndata.register.part.PartApiCommonController
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTOV2
 
-@Client("$CONTEXT_PATH${AccessoryCompatibleWithController.API_V1_ACCESSORY}")
+@Client("$CONTEXT_PATH${PartApiCommonController.API_V1_PART_REGISTRATIONS}")
 interface AccessoryCompatibleWithApiClient {
 
     @Get("/variants/{hmsNr}")

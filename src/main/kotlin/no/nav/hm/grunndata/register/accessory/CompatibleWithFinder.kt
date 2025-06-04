@@ -7,6 +7,7 @@ import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.rapid.dto.CompatibleWith
 import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
 import no.nav.hm.grunndata.register.catalog.CatalogImportRepository
+import no.nav.hm.grunndata.register.part.CompatibleWithDTO
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import org.slf4j.LoggerFactory

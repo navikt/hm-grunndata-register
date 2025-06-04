@@ -15,8 +15,6 @@ import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
-import no.nav.hm.grunndata.register.accessory.SuitableForBrukerpassbrukerDTO
-import no.nav.hm.grunndata.register.accessory.SuitableForKommunalTeknikerDTO
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTOV2

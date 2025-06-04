@@ -8,9 +8,8 @@ import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.coEvery
 import io.mockk.mockk
-import java.time.LocalDateTime
-import java.util.UUID
 import no.nav.helse.rapids_rivers.toUUID
+import no.nav.hm.grunndata.register.part.CompatibleWithDTO
 import no.nav.hm.grunndata.register.product.ProductData
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
@@ -19,6 +18,8 @@ import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
+import java.util.UUID
 
 @MicronautTest
 class AccessoryCompatibleWithTest(

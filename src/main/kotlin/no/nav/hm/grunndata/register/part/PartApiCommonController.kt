@@ -16,7 +16,6 @@ import io.micronaut.http.annotation.RequestBean
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
-import no.nav.hm.grunndata.register.accessory.CompatibleWithDTO
 import no.nav.hm.grunndata.register.accessory.CompatibleWithFinder
 import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistration
@@ -205,4 +204,20 @@ class PartApiCommonController(
         }
     }
 
+    @Get("/variants/{hmsNr}")
+    suspend fun findCompatibleWithProductsVariants(hmsNr: String) = compatibleWithFinder.findCompatibleWith(hmsNr, true)
+
 }
+
+data class CompatibleWithDTO(
+    val seriesIds: Set<UUID> = emptySet(),
+    val productIds: Set<UUID> = emptySet()
+)
+
+data class SuitableForKommunalTeknikerDTO(
+    val suitableForKommunalTekniker: Boolean,
+)
+
+data class SuitableForBrukerpassbrukerDTO(
+    val suitableForBrukerpassbruker: Boolean,
+)

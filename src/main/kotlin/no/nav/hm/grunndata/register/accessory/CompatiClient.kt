@@ -1,6 +1,5 @@
 package no.nav.hm.grunndata.register.accessory
 
-import com.fasterxml.jackson.databind.JsonNode
 import io.micronaut.http.MediaType.APPLICATION_JSON
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.QueryValue
