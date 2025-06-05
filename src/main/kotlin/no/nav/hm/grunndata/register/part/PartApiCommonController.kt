@@ -212,7 +212,11 @@ class PartApiCommonController(
         seriesId: UUID,
         @Body updatePartDto: UpdatePartDto,
         authentication: Authentication
-    ) = partService.updatePart(authentication, updatePartDto, seriesId)
+    ): HttpResponse<String> {
+        partService.updatePart(authentication, updatePartDto, seriesId)
+        return HttpResponse.ok("Part updated successfully")
+    }
+
 }
 
 data class CompatibleWithDTO(
