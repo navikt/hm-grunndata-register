@@ -52,12 +52,16 @@ open class PartService(
 
         seriesService.update(series.copy(title = updateDto.title ?: series.title))
         val product = productService.findAllBySeriesUuid(seriesId).first()
-        productService.update(
-            product.copy(
-                hmsArtNr = if (!auth.isSupplier()) updateDto.hmsArtNr else product.hmsArtNr,
-                supplierRef = updateDto.supplierRef ?: product.supplierRef,
-                articleName = updateDto.title ?: product.articleName
+
+        product.let {
+            productService.update(
+                product.copy(
+                    hmsArtNr = if (!auth.isSupplier()) updateDto.hmsArtNr else product.hmsArtNr,
+                    supplierRef = updateDto.supplierRef ?: product.supplierRef,
+                    articleName = updateDto.title ?: product.articleName
+                )
             )
-        )
+        }
+
     }
 }
