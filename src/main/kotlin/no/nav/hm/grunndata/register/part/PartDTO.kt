@@ -32,7 +32,7 @@ data class PartDTO(
 data class PartDraftWithDTO(
     val title: String,
     val isoCategory: String,
-    val hmsArtNr: String,
+    val hmsArtNr: String? = null,
     val levArtNr: String,
     val sparePart: Boolean? = false,
     val accessory: Boolean? = false,
@@ -42,7 +42,6 @@ data class PartDraftWithDTO(
     init {
         if (title.isBlank()) throw BadRequestException("title is required")
         if (isoCategory.isBlank()) throw BadRequestException("isoCategory is required")
-        if (hmsArtNr.isBlank()) throw BadRequestException("hmsArtNr is required")
         if (levArtNr.isBlank()) throw BadRequestException("levArtNr is required")
         if ((sparePart == null && accessory == null) || (sparePart == false && accessory == false)) throw BadRequestException(
             "sparePart or accessory is required"
