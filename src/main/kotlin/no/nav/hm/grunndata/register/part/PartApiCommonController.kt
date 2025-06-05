@@ -212,9 +212,9 @@ class PartApiCommonController(
         seriesId: UUID,
         @Body updatePartDto: UpdatePartDto,
         authentication: Authentication
-    ): HttpResponse<String> {
+    ): HttpResponse<Map<String, String>> {
         partService.updatePart(authentication, updatePartDto, seriesId)
-        return HttpResponse.ok("Part updated successfully")
+        return HttpResponse.ok(mapOf("message" to "Part updated successfully"))
     }
 
 }
