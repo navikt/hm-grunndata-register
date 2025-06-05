@@ -207,6 +207,12 @@ class PartApiCommonController(
     @Get("/variants/{hmsNr}")
     suspend fun findCompatibleWithProductsVariants(hmsNr: String) = compatibleWithFinder.findCompatibleWith(hmsNr, true)
 
+    @Put("/{seriesId}")
+    suspend fun updatePart(
+        seriesId: UUID,
+        @Body updatePartDto: UpdatePartDto,
+        authentication: Authentication
+    ) = partService.updatePart(authentication, updatePartDto, seriesId)
 }
 
 data class CompatibleWithDTO(

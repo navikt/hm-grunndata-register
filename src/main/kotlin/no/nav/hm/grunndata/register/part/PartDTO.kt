@@ -99,3 +99,9 @@ fun PartDraftWithDTO.toProductRegistration(seriesUUID: UUID): ProductRegistratio
             ProductData(),
     )
 }
+
+data class UpdatePartDto(
+    val hmsArtNr: String? = null,
+    val supplierRef: String? = null,
+    val title: String? = null,
+)
