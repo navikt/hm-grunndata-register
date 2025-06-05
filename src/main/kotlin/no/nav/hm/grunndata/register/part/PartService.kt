@@ -54,7 +54,7 @@ open class PartService(
         val product = productService.findAllBySeriesUuid(seriesId).first()
         productService.update(
             product.copy(
-                hmsArtNr = updateDto.hmsArtNr ?: product.hmsArtNr,
+                hmsArtNr = if (!auth.isSupplier()) updateDto.hmsArtNr else product.hmsArtNr,
                 supplierRef = updateDto.supplierRef ?: product.supplierRef,
                 articleName = updateDto.title ?: product.articleName
             )
