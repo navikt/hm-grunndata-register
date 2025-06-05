@@ -30,7 +30,7 @@ import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.series.SeriesGroupDTO
 import org.slf4j.LoggerFactory
 
-@Secured(Roles.ROLE_ADMIN)
+@Secured(Roles.ROLE_ADMIN, Roles.ROLE_HMS)
 @Controller(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
 @Tag(name = "Admin Product")
 class ProductRegistrationAdminApiController(
