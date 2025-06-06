@@ -3,6 +3,9 @@ package no.nav.hm.grunndata.register.part
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.isSupplier
@@ -62,6 +65,25 @@ open class PartService(
                 )
             )
         }
+    }
 
+    open suspend fun approvePart(auth: Authentication, seriesId: UUID) {
+
+        val seriesToUpdate = if (auth.isSupplier()) {
+            seriesService.findByIdAndSupplierId(seriesId, auth.supplierId())
+                ?: throw IllegalArgumentException("Series $seriesId not found for supplier ${auth.supplierId()}")
+        } else {
+            seriesService.findById(seriesId)
+                ?: throw IllegalArgumentException("Series $seriesId not found")
+        }
+
+        if (seriesToUpdate.mainProduct) throw BadRequestException("Series $seriesId is a main product and cannot be approved as a part")
+
+        if (seriesToUpdate.adminStatus == AdminStatus.APPROVED) throw BadRequestException("$seriesId is already approved")
+        if (seriesToUpdate.status == SeriesStatus.DELETED) throw BadRequestException("SeriesStatus should not be Deleted")
+
+        seriesService.approveSeriesAndVariants(seriesToUpdate, auth)
+
+        LOG.info("set series to approved: $seriesId")
     }
 }

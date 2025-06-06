@@ -26,6 +26,7 @@ import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
@@ -34,6 +35,7 @@ import java.util.UUID
 @Tag(name = "Common API for Parts")
 class PartApiCommonController(
     private val productRegistrationService: ProductRegistrationService,
+    private val seriesRegistrationService: SeriesRegistrationService,
     private val partService: PartService,
     private val productDTOMapper: ProductDTOMapper,
     private val compatibleWithFinder: CompatibleWithFinder,
@@ -215,6 +217,16 @@ class PartApiCommonController(
     ): HttpResponse<Map<String, String>> {
         partService.updatePart(authentication, updatePartDto, seriesId)
         return HttpResponse.ok(mapOf("message" to "Part updated successfully"))
+    }
+
+    @Put("/approve/{id}")
+    suspend fun approvePart(
+        id: UUID,
+        authentication: Authentication,
+    ): HttpResponse<Any> {
+
+        partService.approvePart(authentication, id)
+        return HttpResponse.ok()
     }
 
 }
