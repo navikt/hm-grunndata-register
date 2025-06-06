@@ -81,10 +81,11 @@ interface ProductRegistrationRepository :
         registrationStatus: List<RegistrationStatus>,
     ): ProductRegistration?
 
-    suspend fun findBySupplierRefStartingWithAndRegistrationStatusInAndSupplierId(
+    suspend fun findBySupplierRefStartingWithAndRegistrationStatusInAndSupplierIdAndMainProduct(
         supplierRef: String,
         registrationStatus: List<RegistrationStatus>,
-        supplierId: UUID
+        supplierId: UUID,
+        mainProduct: Boolean = true,
     ): ProductRegistration?
 
     @Query("SELECT * FROM product_reg_v1 WHERE product_reg_v1.supplier_ref LIKE :supplierRef AND registration_status IN (:registrationStatus) AND supplier_id = :supplierId AND (accessory = true OR spare_part = true)")

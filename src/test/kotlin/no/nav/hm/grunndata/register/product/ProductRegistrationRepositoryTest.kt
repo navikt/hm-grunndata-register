@@ -216,7 +216,7 @@ class ProductRegistrationRepositoryTest(
             productByHmsArtNr.shouldNotBeNull()
 
 
-            val productBySupplierRef = productRegistrationRepository.findBySupplierRefStartingWithAndRegistrationStatusInAndSupplierId(
+            val productBySupplierRef = productRegistrationRepository.findBySupplierRefStartingWithAndRegistrationStatusInAndSupplierIdAndMainProduct(
                 "eksternref-321",
                 listOf(RegistrationStatus.ACTIVE),
                 supplierId

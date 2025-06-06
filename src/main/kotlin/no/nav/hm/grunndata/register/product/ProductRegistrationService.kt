@@ -110,7 +110,7 @@ open class ProductRegistrationService(
 
     open suspend fun findBySupplierRef(supplierRef: String, authentication: Authentication) =
         if (authentication.isSupplier()) {
-            productRegistrationRepository.findBySupplierRefStartingWithAndRegistrationStatusInAndSupplierId(
+            productRegistrationRepository.findBySupplierRefStartingWithAndRegistrationStatusInAndSupplierIdAndMainProduct(
                 supplierRef, listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE), authentication.supplierId()
             )
         } else {
