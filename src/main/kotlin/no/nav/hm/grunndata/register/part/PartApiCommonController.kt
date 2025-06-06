@@ -143,7 +143,7 @@ class PartApiCommonController(
 
 
     @Post("/supplier/{supplierId}/draftWithAndPublish")
-    suspend fun draftSeriesWithAndPublish(
+    suspend fun draftPartWithAndPublish(
         supplierId: UUID,
         @Body draftWith: PartDraftWithDTO,
         authentication: Authentication,
@@ -154,6 +154,29 @@ class PartApiCommonController(
         }
 
         val product = partService.createDraftWithAndApprove(
+            authentication,
+            draftWith,
+        )
+
+        return HttpResponse.ok(
+            PartDraftResponse(
+                product.id
+            ),
+        )
+    }
+
+    @Post("/supplier/{supplierId}/draftWith")
+    suspend fun draftPartWith(
+        supplierId: UUID,
+        @Body draftWith: PartDraftWithDTO,
+        authentication: Authentication,
+    ): HttpResponse<PartDraftResponse> {
+        if (authentication.isSupplier() && authentication.supplierId() != supplierId) {
+            LOG.warn("SupplierId in request does not match authenticated supplierId")
+            return HttpResponse.unauthorized()
+        }
+
+        val product = partService.createDraftWith(
             authentication,
             draftWith,
         )
