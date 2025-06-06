@@ -195,7 +195,6 @@ class PartApiCommonController(
         id: UUID,
         authentication: Authentication
     ): PartDTO? {
-
         if (authentication.isSupplier()) {
             val product = productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
                 ?: throw IllegalArgumentException("Product $id not found for supplier ${authentication.supplierId()}")
@@ -226,7 +225,7 @@ class PartApiCommonController(
     ): HttpResponse<Any> {
 
         partService.approvePart(authentication, id)
-        return HttpResponse.ok()
+        return HttpResponse.ok(mapOf("message" to "Part approved successfully"))
     }
 
 }
