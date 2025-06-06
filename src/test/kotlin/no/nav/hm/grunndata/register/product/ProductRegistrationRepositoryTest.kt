@@ -78,9 +78,9 @@ class ProductRegistrationRepositoryTest(
                 updatedByUser = "user",
                 createdByUser = "user",
                 version = 1,
-                accessory = true,
+                accessory = false,
                 sparePart = false,
-                mainProduct = false
+                mainProduct = true
             )
         val registration2 =
             ProductRegistration(
@@ -184,8 +184,8 @@ class ProductRegistrationRepositoryTest(
             foundAgreement.shouldNotBeNull()
             val inDb = productRegistrationRepository.findById(saved1.id)
             inDb.shouldNotBeNull()
-            inDb.accessory shouldBe true
-            inDb.mainProduct shouldBe false
+            inDb.accessory shouldBe false
+            inDb.mainProduct shouldBe true
             inDb.sparePart shouldBe false
             saved1.hmsArtNr shouldBe inDb.hmsArtNr
             val approve = inDb.approve("NAVN1")
@@ -208,7 +208,7 @@ class ProductRegistrationRepositoryTest(
             distinct.size shouldBe 1
             distinct[0].id shouldBe updated.id
 
-            val productByHmsArtNr = productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierId(
+            val productByHmsArtNr = productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierIdAndMainProduct(
                 "321",
                 listOf(RegistrationStatus.ACTIVE),
                 supplierId

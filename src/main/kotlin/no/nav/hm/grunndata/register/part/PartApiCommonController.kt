@@ -35,7 +35,6 @@ import java.util.UUID
 @Tag(name = "Common API for Parts")
 class PartApiCommonController(
     private val productRegistrationService: ProductRegistrationService,
-    private val seriesRegistrationService: SeriesRegistrationService,
     private val partService: PartService,
     private val productDTOMapper: ProductDTOMapper,
     private val compatibleWithFinder: CompatibleWithFinder,

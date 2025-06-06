@@ -62,7 +62,7 @@ open class ProductRegistrationService(
         productRegistrationRepository.findAccessoryOrSparePartButNoCompatibleWith()
 
     open suspend fun findByHmsArtNr(hmsArtNr: String) =
-        productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusIn(
+        productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndMainProduct(
             hmsArtNr,
             listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
         )
@@ -82,13 +82,13 @@ open class ProductRegistrationService(
 
     open suspend fun findByHmsArtNr(hmsArtNr: String, authentication: Authentication): ProductRegistration? =
         if (authentication.isSupplier()) {
-            productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierId(
+            productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierIdAndMainProduct(
                 hmsArtNr,
                 listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
                 authentication.supplierId(),
             )
         } else {
-            productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusIn(
+            productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndMainProduct(
                 hmsArtNr,
                 listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
             )
@@ -642,7 +642,10 @@ open class ProductRegistrationService(
         productRegistrationRepository.findAccessoryOrSparePartCombatibleWithSeriesId(seriesUUID)
 
     suspend fun findAccessoryOrSparePartCombatibleWithSeriesIdAndSupplierId(seriesUUID: UUID, supplierId: UUID) =
-        productRegistrationRepository.findAccessoryOrSparePartCombatibleWithSeriesIdAndSupplierId(seriesUUID, supplierId)
+        productRegistrationRepository.findAccessoryOrSparePartCombatibleWithSeriesIdAndSupplierId(
+            seriesUUID,
+            supplierId
+        )
 
     suspend fun findByTechLabelValues(
         key: String? = null,

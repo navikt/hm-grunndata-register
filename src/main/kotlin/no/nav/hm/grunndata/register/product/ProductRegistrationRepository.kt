@@ -8,6 +8,7 @@ import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import java.time.LocalDateTime
+import java.util.PriorityQueue
 import java.util.UUID
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
@@ -31,9 +32,10 @@ interface ProductRegistrationRepository :
         supplierId: UUID,
     ): ProductRegistration?
 
-    suspend fun findByHmsArtNrStartingWithAndRegistrationStatusIn(
+    suspend fun findByHmsArtNrStartingWithAndRegistrationStatusInAndMainProduct(
         hmsArtNr: String,
         registrationStatus: List<RegistrationStatus>,
+        mainProduct: Boolean = true,
     ): ProductRegistration?
 
     suspend fun findByHmsArtNrAndRegistrationStatusIn(
@@ -54,10 +56,11 @@ interface ProductRegistrationRepository :
         registrationStatus: List<RegistrationStatus>,
     ): ProductRegistration?
 
-    suspend fun findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierId(
+    suspend fun findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierIdAndMainProduct(
         hmsArtNr: String,
         registrationStatus: List<RegistrationStatus>,
         supplierId: UUID,
+        mainProduct: Boolean = true,
     ): ProductRegistration?
 
     @Query("SELECT * FROM product_reg_v1 WHERE product_reg_v1.hms_artnr LIKE :hmsArtNr AND registration_status IN (:registrationStatus) AND supplier_id = :supplierId AND (accessory = true OR spare_part = true)")
