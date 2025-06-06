@@ -12,6 +12,7 @@ import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Singleton
@@ -53,7 +54,13 @@ open class PartService(
 
         require(!series.mainProduct) { "Series $seriesId is a main product and cannot be updated as a part" }
 
-        seriesService.update(series.copy(title = updateDto.title ?: series.title))
+        seriesService.update(
+            series.copy(
+                title = updateDto.title ?: series.title,
+                updatedByUser = auth.name,
+                updated = LocalDateTime.now(),
+            )
+        )
         val product = productService.findAllBySeriesUuid(seriesId).first()
 
         product.let {
@@ -61,7 +68,9 @@ open class PartService(
                 product.copy(
                     hmsArtNr = if (!auth.isSupplier()) updateDto.hmsArtNr else product.hmsArtNr,
                     supplierRef = updateDto.supplierRef ?: product.supplierRef,
-                    articleName = updateDto.title ?: product.articleName
+                    articleName = updateDto.title ?: product.articleName,
+                    updatedByUser = auth.name,
+                    updated = LocalDateTime.now(),
                 )
             )
         }
