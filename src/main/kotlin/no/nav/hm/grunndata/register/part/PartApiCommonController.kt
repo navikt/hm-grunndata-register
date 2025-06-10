@@ -47,7 +47,7 @@ class PartApiCommonController(
 
     @Error
     fun handleDuplicateLevartNummerException(exception: DuplicateLevartNummerException): HttpResponse<Map<String, String>> {
-        return HttpResponse.badRequest(mapOf("error" to (exception.message ?: "Unknown error")))
+        return HttpResponse.badRequest(mapOf("message" to (exception.message ?: "Unknown error")))
     }
 
     @Get("/")
