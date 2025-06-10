@@ -1,0 +1,1 @@
+ALTER TABLE series_reg_v1 ALTER COLUMN title_lowercase TYPE VARCHAR(1024);
