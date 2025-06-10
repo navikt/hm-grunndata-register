@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.part
 
+import io.micronaut.data.exceptions.DataAccessException
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
@@ -8,6 +9,7 @@ import io.micronaut.data.runtime.criteria.get
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Error
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
@@ -26,7 +28,6 @@ import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
-import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
@@ -42,6 +43,11 @@ class PartApiCommonController(
     companion object {
         const val API_V1_PART_REGISTRATIONS = "/common/api/v1/part"
         private val LOG = LoggerFactory.getLogger(PartApiCommonController::class.java)
+    }
+
+    @Error
+    fun handleDuplicateLevartNummerException(exception: DuplicateLevartNummerException): HttpResponse<Map<String, String>> {
+        return HttpResponse.badRequest(mapOf("error" to (exception.message ?: "Unknown error")))
     }
 
     @Get("/")
@@ -236,7 +242,15 @@ class PartApiCommonController(
         @Body updatePartDto: UpdatePartDto,
         authentication: Authentication
     ): HttpResponse<Map<String, String>> {
-        partService.updatePart(authentication, updatePartDto, seriesId)
+        try {
+            partService.updatePart(authentication, updatePartDto, seriesId)
+        } catch (dataAccessException: DataAccessException) {
+            throw DuplicateLevartNummerException(
+                "Det finnes allerede en del med det samme levart-nummeret",
+                dataAccessException
+            )
+        }
+
         return HttpResponse.ok(mapOf("message" to "Part updated successfully"))
     }
 
