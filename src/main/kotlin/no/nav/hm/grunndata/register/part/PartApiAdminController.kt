@@ -184,6 +184,7 @@ class PartApiAdminController(
 
 @Introspected
 data class ProductRegistrationHmsUserCriteria(
+    val excludedStatus: RegistrationStatus? = null,
     val supplierRef: String? = null,
     val hmsArtNr: String? = null,
     val adminStatus: AdminStatus? = null,
@@ -195,7 +196,7 @@ data class ProductRegistrationHmsUserCriteria(
     val title: String? = null,
 ) {
     fun isNotEmpty(): Boolean = listOfNotNull(
-        supplierRef, hmsArtNr, adminStatus, registrationStatus, supplierId, draft, createdByUser, updatedByUser, title
+        supplierRef, hmsArtNr, adminStatus, registrationStatus, supplierId, draft, createdByUser, updatedByUser, title, excludedStatus
     ).isNotEmpty()
 }
 

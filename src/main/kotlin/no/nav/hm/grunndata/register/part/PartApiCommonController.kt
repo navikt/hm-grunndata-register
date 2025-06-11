@@ -69,6 +69,8 @@ class PartApiCommonController(
                 root[ProductRegistration::supplierId] eq authentication.supplierId()
             }
 
+            criteria.excludedStatus?.let { root[ProductRegistration::registrationStatus] ne it }
+
             criteria.supplierRef?.let { root[ProductRegistration::supplierRef] eq it }
             criteria.hmsArtNr?.let { root[ProductRegistration::hmsArtNr] eq it }
             criteria.title?.let { criteriaBuilder.lower(root[ProductRegistration::articleName]) like LiteralExpression("%${it.lowercase()}%") }
