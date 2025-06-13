@@ -23,12 +23,6 @@ class CompatibleProductController(
         private val LOG = LoggerFactory.getLogger(CompatibleProductController::class.java)
     }
 
-    @Post("/connect/orderref/{orderRef}")
-    suspend fun connectWithOrderRef(orderRef: String) {
-        LOG.info("connectWithOrderRef: $orderRef")
-        compatibleWithFinder.connectWithOrderRef(orderRef)
-    }
-
     @Post("/catalog/connect/orderref/{orderRef}")
     suspend fun connectWithCatalog(orderRef: String) {
         LOG.info("connectWithCatalog: $orderRef")
