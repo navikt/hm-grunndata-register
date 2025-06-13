@@ -21,7 +21,7 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
 
 
     open suspend fun connectWithHmsNr(hmsNr: String) {
-        productRegistrationService.findByHmsArtNr(hmsNr)?.let { product ->
+        productRegistrationService.findByExactHmsArtNr(hmsNr)?.let { product ->
             addCompatibleWithAttributeSeriesLink(product).let { updatedProduct ->
                 if(updatedProduct != null) {
                     productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
