@@ -8,18 +8,18 @@ import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.product.ProductData
 import no.nav.hm.grunndata.register.product.ProductRegistration
-import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
+import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.isAdmin
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistration
-import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
+import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import org.slf4j.LoggerFactory
-import java.util.UUID
+import java.util.*
 
 @Singleton
 class ProductAccessorySparePartAgreementHandler(
-    private val productRegistrationRepository: ProductRegistrationRepository,
-    private val seriesRegistrationRepository: SeriesRegistrationRepository,
+    private val productRegistrationService: ProductRegistrationService,
+    private val seriesRegistrationService: SeriesRegistrationService,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAccessorySparePartAgreementHandler::class.java)
@@ -85,7 +85,7 @@ class ProductAccessorySparePartAgreementHandler(
                             SeriesRegistration(
                                 id = seriesId,
                                 draftStatus = DraftStatus.DONE,
-                                adminStatus = AdminStatus.PENDING,
+                                adminStatus = if (first.mainProduct) AdminStatus.PENDING else AdminStatus.APPROVED,
                                 supplierId = supplierId,
                                 title = first.title,
                                 identifier = seriesId.toString(),
@@ -101,7 +101,10 @@ class ProductAccessorySparePartAgreementHandler(
                         newSeries.add(series)
                         if (!dryRun) {
                             LOG.info("creating new series: ${series.title}")
-                            seriesRegistrationRepository.save(series)
+                            seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                                series,
+                                isUpdate = false,
+                            )
                         }
                         value.map {
                             it.copy(seriesUuid = series.id)
@@ -119,7 +122,7 @@ class ProductAccessorySparePartAgreementHandler(
         val withProductsId =
             withSeriesId.map {
                 if (it.productId == null) {
-                        productRegistrationRepository.findBySupplierRefAndSupplierId(it.supplierRef, it.supplierId)?.let { p ->
+                        productRegistrationService.findBySupplierRefAndSupplierId(it.supplierRef, it.supplierId)?.let { p ->
                             LOG.info("found product with supplierRef: ${p.supplierRef} and articleName: ${p.articleName}")
                             it.copy(productId = p.id)
                         } ?: run {
@@ -149,7 +152,7 @@ class ProductAccessorySparePartAgreementHandler(
             ProductRegistration(
                 seriesUUID = productAgreement.seriesUuid!!,
                 draftStatus = DraftStatus.DONE,
-                adminStatus = AdminStatus.PENDING,
+                adminStatus = if (productAgreement.mainProduct) AdminStatus.PENDING else AdminStatus.APPROVED,
                 registrationStatus = RegistrationStatus.ACTIVE,
                 articleName = productAgreement.articleName ?: productAgreement.title,
                 productData = ProductData(),
@@ -167,7 +170,7 @@ class ProductAccessorySparePartAgreementHandler(
             )
         if (!dryRun) {
             LOG.info("creating new product: ${product.articleName}")
-            productRegistrationRepository.save(product)
+            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(product, isUpdate = false)
         }
         return product
     }

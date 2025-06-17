@@ -122,7 +122,7 @@ data class SeriesRegistrationDTO(
             status = status,
             created = created,
             updated = updated,
-            published = published!!,
+            published = published ?: LocalDateTime.now(),
             expired = expired,
             createdBy = createdBy,
             updatedBy = updatedBy,
