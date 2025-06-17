@@ -10,6 +10,8 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductData
 import no.nav.hm.grunndata.register.product.ProductDataDTO
 import no.nav.hm.grunndata.register.product.ProductRegistration
+import no.nav.hm.grunndata.register.product.isAdmin
+import no.nav.hm.grunndata.register.product.isHms
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import java.time.LocalDateTime
@@ -68,6 +70,7 @@ fun PartDraftWithDTO.toSeriesRegistration(authentication: Authentication): Serie
         updatedBy = REGISTER,
         createdByUser = authentication.name,
         updatedByUser = authentication.name,
+        createdByAdmin = authentication.isAdmin() || authentication.isHms(),
         created = LocalDateTime.now(),
         updated = LocalDateTime.now(),
         seriesData = SeriesDataDTO(media = emptySet()),
@@ -76,7 +79,7 @@ fun PartDraftWithDTO.toSeriesRegistration(authentication: Authentication): Serie
 }
 
 
-fun PartDraftWithDTO.toProductRegistration(seriesUUID: UUID): ProductRegistration {
+fun PartDraftWithDTO.toProductRegistration(seriesUUID: UUID, authentication: Authentication): ProductRegistration {
     val productId = UUID.randomUUID()
     return ProductRegistration(
         id = productId,
@@ -97,6 +100,7 @@ fun PartDraftWithDTO.toProductRegistration(seriesUUID: UUID): ProductRegistratio
         expired = LocalDateTime.now().plusYears(3),
         productData =
             ProductData(),
+        createdByAdmin = authentication.isAdmin() || authentication.isHms(),
     )
 }
 

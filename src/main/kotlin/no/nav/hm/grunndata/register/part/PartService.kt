@@ -28,7 +28,7 @@ open class PartService(
     @Transactional
     open suspend fun createDraftWith(auth: Authentication, draft: PartDraftWithDTO): ProductRegistration {
         val series = draft.toSeriesRegistration(auth).also { seriesService.save(it) }
-        val product = draft.toProductRegistration(series.id).also { productService.save(it) }
+        val product = draft.toProductRegistration(series.id, auth).also { productService.save(it) }
         LOG.info("Created part draft for series: ${series.id}, product: ${product.id}")
         return product
     }
@@ -36,7 +36,7 @@ open class PartService(
     @Transactional
     open suspend fun createDraftWithAndApprove(auth: Authentication, draft: PartDraftWithDTO): ProductRegistration {
         val series = draft.toSeriesRegistration(auth).also { seriesService.save(it) }
-        val product = draft.toProductRegistration(series.id).also { productService.save(it) }
+        val product = draft.toProductRegistration(series.id, auth).also { productService.save(it) }
         seriesService.approveSeriesAndVariants(series, auth)
         LOG.info("Created and published part draft for series: ${series.id}, product: ${product.id}")
         return product
