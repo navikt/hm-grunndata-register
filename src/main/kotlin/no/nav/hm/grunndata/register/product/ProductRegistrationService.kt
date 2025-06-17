@@ -541,6 +541,10 @@ open class ProductRegistrationService(
             reference = reference,
             postTitle = delKontrakt?.delkontraktData?.title ?: "",
             status = status,
+            mainProduct = mainProduct,
+            accessory = accessory,
+            sparePart = sparePart,
+            articleName = articleName ?: title
         )
     }
 

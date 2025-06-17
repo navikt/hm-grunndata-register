@@ -82,6 +82,7 @@ data class ProductAgreementRegistrationDTO(
             reference = reference,
             status = status,
             title = title,
+            articleName = articleName?: title,
             supplierId = supplierId,
             supplierRef = supplierRef,
             created = created,
