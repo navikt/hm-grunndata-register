@@ -65,12 +65,14 @@ class CatalogExcelFileImport {
         val leveartNr = readCellAsString(row, columnMap[leverandørensartnr.column]!!)
         val typeArtikkel = readCellAsString(row, columnMap[malTypeartikkel.column]!!)
         if ("" != leveartNr && "HMS Servicetjeneste" != typeArtikkel) {
+            val hmsNr = readCellAsString(row, columnMap[hms_ArtNr.column]!!)
             val funksjonsendring = row.getCell(columnMap[funksjonsendring.column]!!).toString().trim()
             val type = mapArticleType(typeArtikkel, funksjonsendring)
+            LOG.info("Mapping row to CatalogImportExcelDTO with hmsArtNr: $hmsNr, type: $type, funksjonsendring: $funksjonsendring")
             return CatalogImportExcelDTO(
                 rammeavtaleHandling = readCellAsString(row, columnMap[ColumnNames.rammeavtaleHandling.column]!!),
                 bestillingsNr = readCellAsString(row, columnMap[ColumnNames.bestillingsnr.column]!!),
-                hmsArtNr = readCellAsString(row, columnMap[hms_ArtNr.column]!!),
+                hmsArtNr = hmsNr,
                 iso = readCellAsString(row, columnMap[kategori.column]!!),
                 title = readCellAsString(row, columnMap[beskrivelse.column]!!),
                 supplierRef = leveartNr,

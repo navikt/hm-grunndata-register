@@ -201,7 +201,7 @@ open class ProductAgreementImportExcelService(
                     productId = product?.id,
                     seriesUuid = product?.seriesUUID,
                     title = title,
-                    articleName = product?.articleName ?: title,
+                    articleName = title,
                     reference = reference,
                     post = delkontrakt.delkontraktData.sortNr,
                     rank = postRank.second,
@@ -251,7 +251,6 @@ open class ProductAgreementImportExcelService(
 
     private fun CatalogImport.mapProductAgreementStatus(agreement: AgreementRegistrationDTO): ProductAgreementStatus {
         val nowDate = LocalDate.now()
-        val now = LocalDateTime.now()
         return if (agreement.draftStatus == DraftStatus.DONE
                     && dateFrom < nowDate
                     && dateTo > nowDate)
