@@ -5,6 +5,7 @@ import io.micronaut.security.authentication.Authentication
 import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
@@ -26,6 +27,7 @@ import no.nav.hm.grunndata.register.catalog.CatalogImportExcelDTO
 import no.nav.hm.grunndata.register.catalog.CatalogImportResult
 import no.nav.hm.grunndata.register.catalog.CatalogImportService
 import no.nav.hm.grunndata.register.catalog.toEntity
+import no.nav.hm.grunndata.register.event.RegisterRapidPushService
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 
 @Singleton
@@ -35,7 +37,8 @@ open class ProductAgreementImportExcelService(
     private val productAgreementService: ProductAgreementRegistrationService,
     private val noDelKontraktHandler: NoDelKontraktHandler,
     private val catalogImportService: CatalogImportService,
-    private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler
+    private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler,
+    private val registerRapidPushService: RegisterRapidPushService
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementImportExcelService::class.java)
@@ -110,11 +113,15 @@ open class ProductAgreementImportExcelService(
                 )
             )
             if ((pa.accessory || pa.sparePart) && pa.productId != null) {
-                productRegistrationService.findById(pa.productId!!)?.let { product ->
+                productRegistrationService.findById(pa.productId)?.let { product ->
                     productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                         product.copy(
                             title = pa.title,
-                            articleName = pa.articleName ?: ""
+                            articleName = pa.articleName ?: "",
+                            updated = LocalDateTime.now(),
+                            draftStatus = DraftStatus.DONE,
+                            adminStatus = AdminStatus.APPROVED,
+                            registrationStatus = if (pa.status == ProductAgreementStatus.ACTIVE) RegistrationStatus.ACTIVE else RegistrationStatus.INACTIVE,
                         ), true
                     )
                 }
