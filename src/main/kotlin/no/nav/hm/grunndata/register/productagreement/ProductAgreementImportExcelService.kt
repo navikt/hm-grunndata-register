@@ -259,7 +259,7 @@ open class ProductAgreementImportExcelService(
     private fun CatalogImport.mapProductAgreementStatus(agreement: AgreementRegistrationDTO): ProductAgreementStatus {
         val nowDate = LocalDate.now()
         return if (agreement.draftStatus == DraftStatus.DONE
-                    && dateFrom < nowDate
+                    && dateFrom <= nowDate
                     && dateTo > nowDate)
              ProductAgreementStatus.ACTIVE
         else ProductAgreementStatus.INACTIVE
