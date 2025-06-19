@@ -12,6 +12,7 @@ import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.micronaut.leaderelection.LeaderOnly
+import java.time.LocalDateTime
 
 @Singleton
 open class CatalogFileToProductAgreementScheduler(
@@ -37,7 +38,7 @@ open class CatalogFileToProductAgreementScheduler(
                     )
                     LOG.info("Finished, saving result")
                     val updatedCatalogFile =
-                        catalogFileRepository.update(catalogFile.copy(status = CatalogFileStatus.DONE))
+                        catalogFileRepository.update(catalogFile.copy(status = CatalogFileStatus.DONE, updated = LocalDateTime.now()))
                     val dto = CatalogFileDTO(
                         id = updatedCatalogFile.id,
                         fileName = updatedCatalogFile.fileName,
@@ -56,7 +57,7 @@ open class CatalogFileToProductAgreementScheduler(
                         "Error while processing catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName}",
                         e
                     )
-                    catalogFileRepository.update(catalogFile.copy(status = CatalogFileStatus.ERROR))
+                    catalogFileRepository.update(catalogFile.copy(status = CatalogFileStatus.ERROR, updated = LocalDateTime.now()))
                     null
                 }
             }
