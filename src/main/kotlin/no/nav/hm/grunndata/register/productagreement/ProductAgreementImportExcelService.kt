@@ -109,7 +109,7 @@ open class ProductAgreementImportExcelService(
                     status = pa.status
                 )
             )
-            if (pa.accessory || pa.sparePart && pa.productId != null) {
+            if ((pa.accessory || pa.sparePart) && pa.productId != null) {
                 productRegistrationService.findById(pa.productId!!)?.let { product ->
                     productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                         product.copy(
