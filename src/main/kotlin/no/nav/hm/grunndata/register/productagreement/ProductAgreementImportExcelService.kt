@@ -121,6 +121,9 @@ open class ProductAgreementImportExcelService(
                             updated = LocalDateTime.now(),
                             draftStatus = DraftStatus.DONE,
                             adminStatus = AdminStatus.APPROVED,
+                            mainProduct = pa.mainProduct,
+                            accessory = pa.accessory,
+                            sparePart = pa.sparePart,
                             registrationStatus = if (pa.status == ProductAgreementStatus.ACTIVE) RegistrationStatus.ACTIVE else RegistrationStatus.INACTIVE,
                         ), true
                     )
