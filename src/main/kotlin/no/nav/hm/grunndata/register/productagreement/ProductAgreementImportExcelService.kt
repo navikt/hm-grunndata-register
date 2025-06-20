@@ -124,6 +124,8 @@ open class ProductAgreementImportExcelService(
                             mainProduct = pa.mainProduct,
                             accessory = pa.accessory,
                             sparePart = pa.sparePart,
+                            published = pa.published,
+                            expired = pa.expired,
                             registrationStatus = if (pa.status == ProductAgreementStatus.ACTIVE) RegistrationStatus.ACTIVE else RegistrationStatus.INACTIVE,
                         ), true
                     )
