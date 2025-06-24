@@ -5,6 +5,7 @@ import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
+import io.micronaut.serde.annotation.Serdeable
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import java.time.LocalDateTime
@@ -167,4 +168,13 @@ interface ProductRegistrationRepository :
     @Query("SELECT distinct on(a.id) a.* from product_reg_v1 a, product_agreement_reg_v1 b where a.id=b.product_id and b.status='ACTIVE' and a.registration_status='INACTIVE'")
     suspend fun findProductThatDoesNotMatchAgreementStatus(): List<ProductRegistration>
 
+    @Query("SELECT array_agg(id) as ids, series_uuid, count(*) FROM product_reg_v1 WHERE main_product = false group by series_uuid having count(*) > 1")
+    suspend fun findNotMainProductsThatIsInSeries():List<ProductIdSeriesUUID>
 }
+
+@Serdeable
+data class ProductIdSeriesUUID (
+    val ids: List<UUID>,
+    val seriesUUID: UUID,
+    val count: Int,
+)

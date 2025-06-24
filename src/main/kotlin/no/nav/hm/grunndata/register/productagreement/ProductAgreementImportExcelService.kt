@@ -29,6 +29,7 @@ import no.nav.hm.grunndata.register.catalog.CatalogImportService
 import no.nav.hm.grunndata.register.catalog.toEntity
 import no.nav.hm.grunndata.register.event.RegisterRapidPushService
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
+import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 
 @Singleton
 open class ProductAgreementImportExcelService(
@@ -38,7 +39,8 @@ open class ProductAgreementImportExcelService(
     private val noDelKontraktHandler: NoDelKontraktHandler,
     private val catalogImportService: CatalogImportService,
     private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler,
-    private val registerRapidPushService: RegisterRapidPushService
+    private val registerRapidPushService: RegisterRapidPushService,
+    private val seriesRegistrationService: SeriesRegistrationService
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementImportExcelService::class.java)
@@ -112,8 +114,10 @@ open class ProductAgreementImportExcelService(
                     status = pa.status
                 )
             )
-            if ((pa.accessory || pa.sparePart) && pa.productId != null) {
+            if (!pa.mainProduct && pa.productId != null) {
                 productRegistrationService.findById(pa.productId)?.let { product ->
+                    val series = seriesRegistrationService.findById(product.seriesUUID)
+                    seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(series!!.copy(title = pa.articleName ?: pa.title), true)
                     productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                         product.copy(
                             title = pa.title,
