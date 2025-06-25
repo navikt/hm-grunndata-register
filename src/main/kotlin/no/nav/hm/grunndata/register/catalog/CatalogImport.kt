@@ -5,6 +5,7 @@ import io.micronaut.data.annotation.MappedEntity
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.hashCode
 
 @MappedEntity("catalog_import_v1")
 data class CatalogImport(
@@ -33,4 +34,34 @@ data class CatalogImport(
     val agreementId: UUID,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
-)
+) {
+
+
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CatalogImport) return false
+        return agreementAction == other.agreementAction &&
+                orderRef == other.orderRef &&
+                hmsArtNr == other.hmsArtNr &&
+                iso == other.iso &&
+                title == other.title &&
+                supplierRef == other.supplierRef &&
+                reference == other.reference &&
+                postNr == other.postNr &&
+                dateFrom == other.dateFrom &&
+                dateTo == other.dateTo &&
+                articleAction == other.articleAction &&
+                articleType == other.articleType &&
+                functionalChange == other.functionalChange &&
+                forChildren == other.forChildren &&
+                supplierName == other.supplierName &&
+                supplierCity == other.supplierCity &&
+                mainProduct == other.mainProduct &&
+                sparePart == other.sparePart &&
+                accessory == other.accessory &&
+                agreementId == other.agreementId &&
+                supplierId == other.supplierId
+
+    }
+}
