@@ -31,7 +31,7 @@ open class CatalogImportService(private val catalogImportRepository: CatalogImpo
                 if (existing == null) {
                     insertedList.add(catalogImport)
                 } else if (existing != catalogImport) {
-                    updatedList.add(catalogImport.copy(id = existing.id))
+                    updatedList.add(catalogImport.copy(id = existing.id, created = existing.created))
                 }
             }
         }
