@@ -1,5 +1,7 @@
 package no.nav.hm.grunndata.register.catalog
 
+import io.kotest.matchers.equals.shouldBeEqual
+import io.kotest.matchers.equals.shouldNotBeEqual
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import java.time.LocalDate
@@ -102,6 +104,31 @@ class CatalogImportRepositoryTest(
                 agreementId = agreementId,
                 supplierId = supplierId
             ))
+            val testCatalog3 = CatalogImport(
+                agreementAction = "agreementAction",
+                orderRef = "1234",
+                hmsArtNr = "432101",
+                iso = "iso",
+                title = "title",
+                supplierRef = "supplierRef2",
+                reference = "20-1424",
+                postNr = "d2",
+                dateFrom = LocalDate.now(),
+                dateTo = LocalDate.now(),
+                articleAction = "articleAction",
+                articleType = "articleType",
+                functionalChange = "functionalChange",
+                forChildren = "forChildren",
+                supplierName = "supplierName",
+                supplierCity = "supplierCity",
+                mainProduct = false,
+                sparePart = false,
+                accessory = true,
+                agreementId = agreementId,
+                supplierId = supplierId
+            )
+            testCatalog1 shouldNotBeEqual testCatalog2
+            testCatalog2 shouldBeEqual  testCatalog3
 
             val seriesId = UUID.randomUUID()
             val productAgreement1 = productAgreementRegistrationRepository.save(ProductAgreementRegistration(

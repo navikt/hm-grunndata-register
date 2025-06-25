@@ -158,6 +158,9 @@ open class ProductAgreementImportExcelService(
             LOG.info("Persisting products and agreements from excel import")
             persistCatalogResult(catalogImportResult, productAgreementImportResult)
         }
+        LOG.info("Excel import for orderRef: ${importedExcelCatalog.first().bestillingsNr} with supplier ${importedExcelCatalog.first().supplierName} " +
+                "resulted in ${productAgreementImportResult.insertList.size} inserted, " +
+                "${productAgreementImportResult.updateList.size} updated and ${productAgreementImportResult.deactivateList.size} deactivated product agreements")
         return productAgreementImportResult
     }
 
