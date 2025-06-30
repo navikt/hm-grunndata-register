@@ -170,7 +170,18 @@ interface ProductRegistrationRepository :
 
     @Query("SELECT array_agg(id) as ids, series_uuid, count(*) FROM product_reg_v1 WHERE main_product = false group by series_uuid having count(*) > 1")
     suspend fun findNotMainProductsThatIsInSeries():List<ProductIdSeriesUUID>
+
+    @Query("""SELECT id, hms_artnr, created FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY hms_artnr ORDER BY created ASC) AS rn, COUNT(*) OVER (PARTITION BY hms_artnr) AS cnt FROM product_reg_v1 WHERE hms_artnr IS NOT NULL) p WHERE cnt > 1 AND rn = 1""")
+    suspend fun findAllDuplicateHmsArtnr(
+    ): List<ProductIdHmsArtNr>
 }
+
+@Serdeable
+data class ProductIdHmsArtNr (
+    val id: UUID,
+    val hmsArtNr: String,
+    val created: LocalDateTime,
+)
 
 @Serdeable
 data class ProductIdSeriesUUID (
