@@ -18,27 +18,32 @@ class ProductArchiveHandler(
 
     override fun getArchivePayloadClass(): Class<out ProductRegistration> = ProductRegistration::class.java
 
-    override suspend fun archive(toArchive: ProductRegistration): List<Archive> {
-        val pags = productAgreementRegistrationRepository.findByProductId(toArchive.id)
-        val agreementArchives = pags.map {
-            Archive(
-                oid = it.productId!!,
-                type = ArchiveType.PRODUCTAGREEMENT,
-                keywords = "${it.hmsArtNr}",
-                payload = objectMapper.writeValueAsString(it),
+    override suspend fun archive(): List<Archive> {
+        val toBeDeleted = productRegistrationRepository.findByRegistrationStatus(RegistrationStatus.DELETED)
+        LOG.info("${toBeDeleted.size} to be archived with status DELETED")
+        val archives = toBeDeleted.flatMap { toArchive ->
+            val pags = productAgreementRegistrationRepository.findByProductId(toArchive.id)
+            val agreementArchives = pags.map {
+                Archive(
+                    oid = it.productId!!,
+                    type = ArchiveType.PRODUCTAGREEMENT,
+                    keywords = "${it.hmsArtNr}",
+                    payload = objectMapper.writeValueAsString(it),
+                    archivedByUser = toArchive.updatedByUser
+                )
+            }
+            val productArchive = Archive(
+                oid = toArchive.id,
+                type = ArchiveType.PRODUCT,
+                keywords = "${toArchive.hmsArtNr}",
+                payload = objectMapper.writeValueAsString(toArchive),
                 archivedByUser = toArchive.updatedByUser
             )
+            pags.forEach { productAgreementRegistrationRepository.deleteById(it.id) }
+            productRegistrationRepository.deleteById(toArchive.id)
+            agreementArchives + productArchive
         }
-        val productArchive = Archive(
-            oid = toArchive.id,
-            type = ArchiveType.PRODUCT,
-            keywords = "${toArchive.hmsArtNr}",
-            payload = objectMapper.writeValueAsString(toArchive),
-            archivedByUser = toArchive.updatedByUser
-        )
-        pags.forEach { productAgreementRegistrationRepository.deleteById(it.id) }
-        productRegistrationRepository.deleteById(toArchive.id)
-        return agreementArchives + productArchive
+        return archives
     }
 
     override suspend fun unArchive(archive: Archive): ProductRegistration {
@@ -52,12 +57,6 @@ class ProductArchiveHandler(
             it
         } ?: productRegistrationRepository.save(productRegistration)
         return unarchived
-    }
-
-    override suspend fun toBeArchived(): List<ProductRegistration> {
-        LOG.info("Fetching ProductRegistrations to be archived")
-        return productRegistrationRepository.findByRegistrationStatus(RegistrationStatus.DELETED)
-            .onEach { LOG.info("Found ProductRegistration to archive: ${it.id} with hmsNr: ${it.hmsArtNr}") }
     }
 
     companion object {
