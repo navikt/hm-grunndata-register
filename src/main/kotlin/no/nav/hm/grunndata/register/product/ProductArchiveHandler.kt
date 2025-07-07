@@ -1,6 +1,8 @@
 package no.nav.hm.grunndata.register.product
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.micronaut.context.annotation.Context
+import io.micronaut.core.annotation.Order
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.archive.Archive
@@ -8,7 +10,8 @@ import no.nav.hm.grunndata.register.archive.ArchiveHandler
 import no.nav.hm.grunndata.register.archive.ArchiveType
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 
-@Singleton
+@Context
+@Order(1)
 class ProductArchiveHandler(
     private val objectMapper: ObjectMapper,
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
