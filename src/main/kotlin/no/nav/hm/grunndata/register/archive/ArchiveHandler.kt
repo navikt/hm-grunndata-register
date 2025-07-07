@@ -4,8 +4,9 @@ interface ArchiveHandler<T> {
 
     fun getArchivePayloadClass(): Class<out T>
 
-    fun toArchive(toArchive: T): Archive
+    suspend fun archive(toArchive: T): List<Archive>
 
-    fun unArchive(archive: Archive): T
+    suspend fun unArchive(archive: Archive): T
 
+    suspend fun toBeArchived(): List<T>
 }

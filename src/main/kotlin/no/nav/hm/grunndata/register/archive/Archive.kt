@@ -15,6 +15,7 @@ data class Archive(
     val payload: String,
     val type: ArchiveType,
     val created: LocalDateTime = LocalDateTime.now(),
+    val disposeTime: LocalDateTime = LocalDateTime.now().plusDays(30),
     val archivedByUser: String,
 )
 

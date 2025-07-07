@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.archive
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
@@ -31,6 +32,8 @@ class ArchiveRepositoryTest(private val archiveRepository: ArchiveRepository, pr
             found.shouldNotBeNull()
             found.type shouldBe ArchiveType.PRODUCT
             found.keywords shouldBe "test-keyword"
+            found.disposeTime.shouldNotBeNull()
+            found.disposeTime shouldBeAfter LocalDateTime.now()
         }
     }
 
