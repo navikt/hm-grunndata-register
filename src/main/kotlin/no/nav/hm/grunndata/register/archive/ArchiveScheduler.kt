@@ -8,8 +8,8 @@ import no.nav.hm.micronaut.leaderelection.LeaderOnly
 @Singleton
 open class ArchiveScheduler(private val archiveService: ArchiveService) {
 
-    @LeaderOnly
-    @Scheduled(cron = "30 * * * * *")
+    //@LeaderOnly
+    //@Scheduled(cron = "30 * * * * *")
     open fun archiveAll() {
         runBlocking {
             archiveService.archiveAll()

@@ -11,7 +11,7 @@ data class Archive(
     @field:Id
     val id: UUID = UUID.randomUUID(),
     val oid: UUID,
-    val keywords: String? = null,
+    val keywords: String,
     val payload: String,
     val type: ArchiveType,
     val status: ArchiveStatus = ArchiveStatus.ARCHIVED,
