@@ -12,3 +12,4 @@ CREATE TABLE IF NOT EXISTS archive_v1 (
 
 CREATE INDEX IF NOT EXISTS idx_archive_v1_oid ON archive_v1 (oid);
 CREATE INDEX IF NOT EXISTS idx_archive_v1_status ON archive_v1 (status);
+CREATE INDEX IF NOT EXISTS idx_archive_v1_keywords ON archive_v1 (keywords);
