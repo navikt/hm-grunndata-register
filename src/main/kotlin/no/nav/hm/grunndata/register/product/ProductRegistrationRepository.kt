@@ -174,6 +174,9 @@ interface ProductRegistrationRepository :
     @Query("""SELECT id, hms_artnr, created FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY hms_artnr ORDER BY created ASC) AS rn, COUNT(*) OVER (PARTITION BY hms_artnr) AS cnt FROM product_reg_v1 WHERE hms_artnr IS NOT NULL) p WHERE cnt > 1 AND rn = 1""")
     suspend fun findAllDuplicateHmsArtnr(
     ): List<ProductIdHmsArtNr>
+
+    suspend fun findByRegistrationStatus(status: RegistrationStatus): List<ProductRegistration>
+
 }
 
 @Serdeable

@@ -277,14 +277,6 @@ open class ProductAgreementImportExcelService(
         else ProductAgreementStatus.INACTIVE
     }
 
-    suspend fun findAgreementByReferenceLike(reference: String): AgreementRegistrationDTO =
-        agreementRegistrationService.findByReferenceLike("%$reference%")
-            ?: throw BadRequestException("Avtale $reference finnes ikke, må den opprettes?")
-
-
-
-
-
 
 }
 

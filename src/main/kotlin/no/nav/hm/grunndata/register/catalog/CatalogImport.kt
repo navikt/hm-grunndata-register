@@ -36,8 +36,6 @@ data class CatalogImport(
     val updated: LocalDateTime = LocalDateTime.now(),
 ) {
 
-
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is CatalogImport) return false

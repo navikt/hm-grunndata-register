@@ -86,4 +86,8 @@ interface ProductAgreementRegistrationRepository :
     suspend fun findByProductId(
         productId: UUID,
     ): List<ProductAgreementRegistration>
+
+    suspend fun findByStatus(
+        status: ProductAgreementStatus,
+    ): List<ProductAgreementRegistration>
 }

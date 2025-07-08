@@ -10,7 +10,7 @@ import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 @Factory
 class MockFactory {
 
-
     @Singleton
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
+
 }

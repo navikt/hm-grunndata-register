@@ -35,7 +35,7 @@ data class ProductRegistration(
     val supplierRef: String,
     val seriesUUID: UUID,
     @Deprecated("Use seriesUUID instead")
-    val seriesId: String,
+    val seriesId: String = seriesUUID.toString(),
     @field:Column(name = "hms_artnr")
     val hmsArtNr: String?,
     @Deprecated("Use series isoCategory instead")
