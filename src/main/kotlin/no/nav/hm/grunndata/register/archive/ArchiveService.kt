@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.archive
 
 import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
+import kotlinx.coroutines.flow.collect
 import org.slf4j.LoggerFactory
 
 @Singleton
@@ -33,9 +34,10 @@ open class ArchiveService(private val archiveRepository: ArchiveRepository) {
         try {
             val archives = handler.archive()
             if (archives.isNotEmpty()) {
-                archiveRepository.saveAll(archives)
+                archiveRepository.saveAll(archives).collect()
                 LOG.info("Archived ${archives.size} items for handler: ${handler::class.simpleName}")
-            } else {
+            }
+            else {
                 LOG.info("No items to archive for handler: ${handler::class.simpleName}")
             }
         } catch (e: Exception) {

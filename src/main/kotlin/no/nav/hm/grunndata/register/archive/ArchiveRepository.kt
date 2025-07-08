@@ -8,5 +8,5 @@ import java.util.UUID
 @JdbcRepository(dialect = Dialect.POSTGRES)
 interface ArchiveRepository: CoroutineCrudRepository<Archive, UUID> {
 
-
+    suspend fun findByOid(oid: UUID): List<Archive>
 }
