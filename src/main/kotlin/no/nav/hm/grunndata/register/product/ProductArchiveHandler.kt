@@ -16,10 +16,10 @@ class ProductArchiveHandler(
     private val objectMapper: ObjectMapper,
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
     private val productRegistrationRepository: ProductRegistrationRepository,
-) : ArchiveHandler<ProductRegistration> {
+) : ArchiveHandler {
 
 
-    override fun getArchivePayloadClass(): Class<out ProductRegistration> = ProductRegistration::class.java
+    override fun getArchiveType(): ArchiveType = ArchiveType.PRODUCT
 
     override suspend fun archive(): List<Archive> {
         val toBeDeleted = productRegistrationRepository.findByRegistrationStatus(RegistrationStatus.DELETED)
@@ -49,7 +49,7 @@ class ProductArchiveHandler(
         return archives
     }
 
-    override suspend fun unArchive(archive: Archive): ProductRegistration {
+    override suspend fun unArchive(archive: Archive) {
         LOG.info("Unarchiving ProductRegistration with oid: ${archive.oid} and keywords: ${archive.keywords}")
         val productRegistration = objectMapper.readValue(archive.payload, ProductRegistration::class.java)
         val unarchived = productRegistrationRepository.findBySupplierRefAndSupplierId(
@@ -59,7 +59,7 @@ class ProductArchiveHandler(
             LOG.info("Found existing ProductRegistration with id: ${it.supplierRef} and supplierId: ${it.supplierId}, skipping it")
             it
         } ?: productRegistrationRepository.save(productRegistration)
-        return unarchived
+
     }
 
     companion object {

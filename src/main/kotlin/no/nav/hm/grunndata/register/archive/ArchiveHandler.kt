@@ -1,11 +1,11 @@
 package no.nav.hm.grunndata.register.archive
 
-interface ArchiveHandler<T> {
+interface ArchiveHandler {
 
-    fun getArchivePayloadClass(): Class<out T>
+    fun getArchiveType(): ArchiveType
 
     suspend fun archive(): List<Archive>
 
-    suspend fun unArchive(archive: Archive): T
+    suspend fun unArchive(unarchive: Archive)
 
 }

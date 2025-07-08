@@ -14,6 +14,7 @@ data class Archive(
     val keywords: String? = null,
     val payload: String,
     val type: ArchiveType,
+    val status: ArchiveStatus = ArchiveStatus.ARCHIVED,
     val created: LocalDateTime = LocalDateTime.now(),
     val disposeTime: LocalDateTime = LocalDateTime.now().plusDays(30),
     val archivedByUser: String,
@@ -21,6 +22,10 @@ data class Archive(
 
 enum class ArchiveType {
     PRODUCT,
-    PRODUCTAGREEMENT,
-    SERIES,
- }
+    PRODUCTAGREEMENT
+}
+
+enum class ArchiveStatus {
+    ARCHIVED,
+    UNARCHIVE,
+}

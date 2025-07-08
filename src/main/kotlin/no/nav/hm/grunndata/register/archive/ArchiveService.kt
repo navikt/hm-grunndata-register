@@ -12,17 +12,15 @@ open class ArchiveService(private val archiveRepository: ArchiveRepository) {
         private val LOG = LoggerFactory.getLogger(ArchiveService::class.java)
     }
 
-    private val archiveHandlers = mutableMapOf<Class<*>, ArchiveHandler<*>>()
+    private val archiveHandlers = mutableMapOf<ArchiveType, ArchiveHandler>()
 
-    fun addArchiveHandler(handler: ArchiveHandler<*>) {
-        val clazz = handler.getArchivePayloadClass()
-        archiveHandlers[clazz] = handler
-        LOG.info("Registered ArchiveHandler for payload class: ${clazz.simpleName}")
+    fun addArchiveHandler(handler: ArchiveHandler) {
+        val type = handler.getArchiveType()
+        archiveHandlers[type] = handler
+        LOG.info("Registered ArchiveHandler for type: ${type.name} with class: ${handler::class.simpleName}")
     }
 
-    fun getArchiveHandler(clazz: Class<*>): ArchiveHandler<*>? = archiveHandlers[clazz]
-
-    fun getAllHandlers(): Collection<ArchiveHandler<*>> = archiveHandlers.values
+    fun getAllHandlers(): Collection<ArchiveHandler> = archiveHandlers.values
 
     suspend fun archiveAll() {
         LOG.info("Starting archiving process for all handlers")
@@ -30,7 +28,7 @@ open class ArchiveService(private val archiveRepository: ArchiveRepository) {
     }
 
     @Transactional
-    open suspend fun handleArchive(handler: ArchiveHandler<*>) {
+    open suspend fun handleArchive(handler: ArchiveHandler) {
         try {
             val archives = handler.archive()
             if (archives.isNotEmpty()) {
