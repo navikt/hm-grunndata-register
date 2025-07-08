@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS archive (
+CREATE TABLE IF NOT EXISTS archive_v1 (
     id UUID PRIMARY KEY,
     oid UUID NOT NULL,
     keywords TEXT NOT NULL DEFAULT '',
@@ -10,5 +10,5 @@ CREATE TABLE IF NOT EXISTS archive (
     archived_by_user VARCHAR(255) NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_archive_oid ON archive (oid);
-CREATE INDEX IF NOT EXISTS idx_archive_status ON archive (status);
+CREATE INDEX IF NOT EXISTS idx_archive_v1_oid ON archive_v1 (oid);
+CREATE INDEX IF NOT EXISTS idx_archive_v1_status ON archive_v1 (status);

@@ -6,7 +6,7 @@ import io.micronaut.data.annotation.MappedEntity
 import java.time.LocalDateTime
 import java.util.UUID
 
-@MappedEntity
+@MappedEntity("archive_v1")
 data class Archive(
     @field:Id
     val id: UUID = UUID.randomUUID(),

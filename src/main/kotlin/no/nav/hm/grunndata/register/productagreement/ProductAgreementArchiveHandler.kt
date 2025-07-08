@@ -21,7 +21,7 @@ class ProductAgreementArchiveHandler(private val productAgreementRegistrationRep
             val archive = Archive (
                 oid = pag.productId!!,
                 type = getArchiveType(),
-                keywords = "${pag.hmsArtNr}",
+                keywords = "${pag.supplierRef}, ${pag.hmsArtNr}",
                 payload = objectMapper.writeValueAsString(pag),
                 archivedByUser = pag.updatedBy
             )

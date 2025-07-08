@@ -26,7 +26,7 @@ class ProductArchiveHandler(
             Archive(
                 oid = toArchive.id,
                 type = ArchiveType.PRODUCT,
-                keywords = "${toArchive.hmsArtNr}",
+                keywords = "${toArchive.supplierRef}, ${toArchive.hmsArtNr}",
                 payload = objectMapper.writeValueAsString(toArchive),
                 archivedByUser = toArchive.updatedByUser
             )
