@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.agreement.DelkontraktData
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistration
@@ -26,16 +27,17 @@ class ArchiveServiceTest(
     private val archiveRepository: ArchiveRepository,
 ) {
 
-    @Test
-    fun archiveServiceTest() {
+    val productId1 = UUID.randomUUID()
+    val productId2 = UUID.randomUUID()
+
+    init {
         val supplierId = UUID.randomUUID()
         val hmsArtNr1 = "1111"
         val hmsArtNr2 = "2222"
         val supplierRef1 = "supplierRef-1"
         val supplierRef2 = "supplierRef-2"
         val agreementId = UUID.randomUUID()
-        val productId1 = UUID.randomUUID()
-        val productId2 = UUID.randomUUID()
+
         val product1 = ProductRegistration(
             id = productId1,
             seriesUUID = UUID.randomUUID(),
@@ -89,6 +91,7 @@ class ArchiveServiceTest(
         val productAgreement2 = ProductAgreementRegistration(
             title = "Test Agreement 2",
             articleName = "Test Agreement Product 2",
+            status = ProductAgreementStatus.DELETED,
             supplierId = supplierId,
             supplierRef = supplierRef2,
             productId = productId2,
@@ -101,15 +104,25 @@ class ArchiveServiceTest(
             createdBy = "testUser",
         )
         runBlocking {
-            productRegistrationRepository.save(product1)
-            productRegistrationRepository.save(product2)
-            delkontraktRegistrationRepository.save(delKontrakt)
-            productAgreementRegistrationRepository.save(productAgreement)
-            productAgreementRegistrationRepository.save(productAgreement2)
-            archiveService.getAllHandlers().size shouldBe 1
+        productRegistrationRepository.save(product1)
+        productRegistrationRepository.save(product2)
+        delkontraktRegistrationRepository.save(delKontrakt)
+        productAgreementRegistrationRepository.save(productAgreement)
+        productAgreementRegistrationRepository.save(productAgreement2)
+        }
+    }
+
+    @Test
+    fun archiveServiceTest() {
+        runBlocking {
+            archiveService.getAllHandlers().size shouldBe 2
             archiveService.archiveAll()
             archiveRepository.findByOid(productId1).size shouldBe 0
-            archiveRepository.findByOid(productId2).size shouldBe 2
+            val archived = archiveRepository.findByOid(productId2)
+            archived.size shouldBe 1
+            archiveRepository.update(archived[0].copy(status = ArchiveStatus.UNARCHIVE))
+            archiveService.unarchiveAll()
+            archiveRepository.findByOid(productId2).size shouldBe 1
         }
     }
 }

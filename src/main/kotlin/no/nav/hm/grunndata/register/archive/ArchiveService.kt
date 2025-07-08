@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.archive
 
+import io.micronaut.transaction.TransactionDefinition
 import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.collect
@@ -23,23 +24,54 @@ open class ArchiveService(private val archiveRepository: ArchiveRepository) {
     fun getAllHandlers(): Collection<ArchiveHandler> = archiveHandlers.values
 
     suspend fun archiveAll() {
-        LOG.info("Starting archiving process for all handlers")
-        archiveHandlers.values.forEach { handler -> handleArchive(handler) }
+        LOG.info("Starting archiving process for all ${archiveHandlers.size} handlers")
+        for (handler in archiveHandlers.values) {
+            try {
+                handleArchive(handler)
+            } catch (e: Exception) {
+                LOG.warn("Error during archiving with handler: ${handler::class.simpleName} ${e.message}")
+            }
+        }
     }
 
-    @Transactional
-    open suspend fun handleArchive(handler: ArchiveHandler) {
-        try {
-            val archives = handler.archive()
-            if (archives.isNotEmpty()) {
-                archiveRepository.saveAll(archives).collect()
-                LOG.info("Archived ${archives.size} items for handler: ${handler::class.simpleName}")
+    suspend fun unarchiveAll() {
+        LOG.info("Starting unarchiving process for all ${archiveHandlers.size} handlers")
+        for (handler in archiveHandlers.values) {
+            try {
+                handleUnarchive(handler)
+            } catch (e: Exception) {
+                LOG.error("Error during unarchiving with handler: ${handler::class.simpleName}", e)
             }
-            else {
-                LOG.info("No items to archive for handler: ${handler::class.simpleName}")
+        }
+    }
+
+    @Transactional(propagation = TransactionDefinition.Propagation.REQUIRES_NEW)
+    open suspend fun handleArchive(handler: ArchiveHandler) {
+
+        val archives = handler.archive()
+        if (archives.isNotEmpty()) {
+            archiveRepository.saveAll(archives).collect()
+            LOG.info("Archived ${archives.size} items for handler: ${handler::class.simpleName}")
+        } else {
+            LOG.info("No items to archive for handler: ${handler::class.simpleName}")
+        }
+    }
+
+    @Transactional(propagation = TransactionDefinition.Propagation.REQUIRES_NEW)
+    open suspend fun handleUnarchive(handler: ArchiveHandler) {
+        try {
+            LOG.info("Starting unarchiving process for handler: ${handler::class.simpleName}")
+            val unarchives = archiveRepository.findByStatusAndType(
+                ArchiveStatus.UNARCHIVE, handler.getArchiveType()
+            )
+            if (unarchives.isNotEmpty()) {
+                unarchives.forEach { unarchive ->
+                    handler.unArchive(unarchive)
+                    archiveRepository.deleteById(unarchive.id)
+                }
             }
         } catch (e: Exception) {
-            LOG.error("Error during archiving with handler: ${handler::class.simpleName}", e)
+            LOG.error("Error during unarchiving with handler: ${handler::class.simpleName}", e)
         }
     }
 }

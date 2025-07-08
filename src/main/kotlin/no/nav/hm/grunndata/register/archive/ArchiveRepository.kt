@@ -9,4 +9,6 @@ import java.util.UUID
 interface ArchiveRepository: CoroutineCrudRepository<Archive, UUID> {
 
     suspend fun findByOid(oid: UUID): List<Archive>
+
+    suspend fun findByStatusAndType(status: ArchiveStatus, type: ArchiveType): List<Archive>
 }
