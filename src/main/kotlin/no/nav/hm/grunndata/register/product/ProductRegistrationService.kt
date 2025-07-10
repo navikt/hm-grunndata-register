@@ -234,7 +234,7 @@ open class ProductRegistrationService(
                     inDb.supplierRef,
                 ).forEach { change ->
                     productAgreementRegistrationRepository.update(
-                        change.copy(hmsArtNr = updateDTO.hmsArtNr, supplierRef = updateDTO.supplierRef),
+                        change.copy(hmsArtNr = updateDTO.hmsArtNr!!, supplierRef = updateDTO.supplierRef),
                     )
                 }
             }
