@@ -90,4 +90,7 @@ interface ProductAgreementRegistrationRepository :
     suspend fun findByStatus(
         status: ProductAgreementStatus,
     ): List<ProductAgreementRegistration>
+
+    @Query("""SELECT * FROM product_agreement_reg_v1 WHERE hms_artnr IN (SELECT hms_artnr FROM product_agreement_reg_v1 GROUP BY hms_artnr HAVING COUNT(DISTINCT supplier_ref) > 1)""")
+    suspend fun findSupplierRefChangedSameHmsArtNr(): List<ProductAgreementRegistration>
 }
