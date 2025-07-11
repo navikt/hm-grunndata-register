@@ -57,7 +57,13 @@ open class ProductAgreementImportExcelService(
         // ssave and create events for all products
         distinct.forEach {
             if (it.mainProduct) {
-                productRegistrationService.findById(it.productId!!)?.let { product ->
+                if (it.productId == null) {
+                    throw BadRequestException(
+                        "Product agreement with hmsnr: ${it.hmsArtNr} with main product ${it.title} has no productId, cannot save, " +
+                                "check catalog import table, product probably deleted!"
+                    )
+                }
+                productRegistrationService.findById(it.productId)?.let { product ->
                     productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(product, isUpdate = true)
                 }
             } else {
