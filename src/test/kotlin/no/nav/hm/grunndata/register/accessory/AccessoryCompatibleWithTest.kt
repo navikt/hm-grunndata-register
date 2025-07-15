@@ -1,6 +1,6 @@
 package no.nav.hm.grunndata.register.accessory
 
-import io.kotest.common.runBlocking
+
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.security.authentication.UsernamePasswordCredentials
@@ -8,6 +8,7 @@ import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.register.part.CompatibleWithDTO
 import no.nav.hm.grunndata.register.product.ProductData

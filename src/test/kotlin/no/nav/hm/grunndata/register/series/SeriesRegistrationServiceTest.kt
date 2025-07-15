@@ -1,6 +1,5 @@
 package no.nav.hm.grunndata.register.series
 
-import io.kotest.common.runBlocking
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -8,6 +7,7 @@ import io.micronaut.security.authentication.Authentication
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
 import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus

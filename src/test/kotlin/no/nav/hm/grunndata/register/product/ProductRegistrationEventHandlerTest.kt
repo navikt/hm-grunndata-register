@@ -1,10 +1,10 @@
 package no.nav.hm.grunndata.register.product
 
-import io.kotest.common.runBlocking
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
 import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus

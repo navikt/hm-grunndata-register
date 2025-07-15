@@ -1,12 +1,12 @@
 package no.nav.hm.grunndata.register.part
 
-import io.kotest.common.runBlocking
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService

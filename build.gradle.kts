@@ -3,8 +3,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jvmTarget = "17"
-val micronautVersion = "4.8.2"
-val junitJupiterVersion = "5.9.0"
+val micronautVersion = "4.9.1"
 val logbackEncoderVersion = "8.0"
 val postgresqlVersion = "42.7.2"
 val tcVersion = "1.20.4"
@@ -24,7 +23,7 @@ plugins {
     kotlin("kapt") version "1.9.25"
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("io.micronaut.application") version "4.5.3"
+    id("io.micronaut.application") version "4.5.4"
     id("com.github.ben-manes.versions") version "0.51.0"
 
 }
@@ -69,8 +68,6 @@ dependencies {
     implementation("io.micronaut.micrometer:micronaut-micrometer-registry-prometheus")
     implementation("io.micronaut:micronaut-management")
     testImplementation("io.mockk:mockk:$mockkVersion")
-    testImplementation("io.micronaut.test:micronaut-test-kotest5")
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
     testImplementation("org.testcontainers:postgresql:$tcVersion")

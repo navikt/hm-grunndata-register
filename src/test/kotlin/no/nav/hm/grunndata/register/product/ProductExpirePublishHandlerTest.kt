@@ -1,10 +1,10 @@
 package no.nav.hm.grunndata.register.product
 
-import io.kotest.common.runBlocking
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.Attributes
 import no.nav.hm.grunndata.rapid.dto.DraftStatus

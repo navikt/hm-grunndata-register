@@ -1,11 +1,11 @@
 package no.nav.hm.grunndata.register.event
 
-import io.kotest.common.runBlocking
 import io.kotest.matchers.Matcher
 import io.kotest.matchers.MatcherResult
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
 import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AgreementPost

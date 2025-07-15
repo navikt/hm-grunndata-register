@@ -1,9 +1,10 @@
 package no.nav.hm.grunndata.register.iso
 
-import io.kotest.common.runBlocking
+
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.REGISTER
 import org.junit.jupiter.api.Test
 

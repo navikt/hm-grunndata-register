@@ -1,12 +1,12 @@
 package no.nav.hm.grunndata.register.agreement
 
-import io.kotest.common.runBlocking
 import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.date.shouldBeBefore
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
 import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus

@@ -1,7 +1,6 @@
 package no.nav.hm.grunndata.register.series
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.common.runBlocking
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -11,6 +10,7 @@ import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import jakarta.inject.Inject
+import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.product.DraftVariantDTO
 import no.nav.hm.grunndata.register.product.ProductRegistrationAdminApiClient
 import no.nav.hm.grunndata.register.product.ProductRegistrationApiClient
