@@ -13,7 +13,7 @@ class FlywayCheckSumCalcTest {
 
     @Test
     fun `test checksums`() {
-        val file = FileSystemResource(null,"src/main/resources/db/V1_10__Add_product_agreement_table.sql", Charset.forName("UTF-8"), false)
+        val file = FileSystemResource(null,"src/main/resources/db/V2_0__baseline.sql", Charset.forName("UTF-8"), false)
         val checksums = ChecksumCalculator.calculate(file)
         println(checksums)
     }

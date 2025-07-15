@@ -137,6 +137,11 @@ flyway:
   datasources:
     default:
       locations: classpath:db
+      enabled: true
+      baseline-on-migrate: true
+      baseline-version: 2
+      table: flyway_schema_history_v2
+      baseline-description: "V2_0__baseline.sql"
 
 rapidsandrivers:
   enabled: ${RAPIDSANDRIVERS_ENABLED:false}
