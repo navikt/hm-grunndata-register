@@ -125,7 +125,7 @@ jackson:
 
 datasources:
   default:
-    url: ${DB_JDBC_URL:`jdbc:tc:postgresql:14:///register?TC_TMPFS=/testtmpfs:rw&TC_INITSCRIPT=file:src/test/resources/postgres/postgres-init.sql&TC_REUSABLE=true`}
+    url: ${DB_JDBC_URL:`jdbc:tc:postgresql:15.2:///register?TC_TMPFS=/testtmpfs:rw&TC_INITSCRIPT=file:src/test/resources/postgres/postgres-init.sql&TC_REUSABLE=true`}
     driverClassName: ${DB_DRIVER:org.testcontainers.jdbc.ContainerDatabaseDriver}
     username: ${DB_USERNAME:register}
     password: ${DB_PASSWORD:register}
@@ -137,6 +137,11 @@ flyway:
   datasources:
     default:
       locations: classpath:db
+      enabled: true
+      baseline-on-migrate: true
+      baseline-version: 2
+      table: flyway_schema_history_v2
+      baseline-description: "V2_0__baseline.sql"
 
 rapidsandrivers:
   enabled: ${RAPIDSANDRIVERS_ENABLED:false}
