@@ -16,6 +16,7 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.random.Random
 
 @MappedEntity("agreement_reg_v1")
 data class AgreementRegistration(
@@ -25,6 +26,7 @@ data class AgreementRegistration(
     val agreementStatus: AgreementStatus = AgreementStatus.INACTIVE,
     val title: String,
     val reference: String,
+    val agreementKey: String = "$reference-${Random(reference.hashCode()+42L).nextInt(Int.MAX_VALUE)}",
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime = LocalDateTime.now(),
