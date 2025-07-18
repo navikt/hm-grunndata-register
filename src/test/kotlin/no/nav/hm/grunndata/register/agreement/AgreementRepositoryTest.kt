@@ -47,7 +47,7 @@ class AgreementRepositoryTest(private val agreementRegistrationRepository: Agree
         )
         runBlocking {
             val saved = agreementRegistrationRepository.save(agreementRegistration)
-            saved.agreementKey shouldBe "unik-ref1-693477703"
+            saved.agreementKey shouldBe "693477703"
             saved.shouldNotBeNull()
             val read = agreementRegistrationRepository.findById(saved.id)
             read.shouldNotBeNull()
@@ -57,7 +57,7 @@ class AgreementRepositoryTest(private val agreementRegistrationRepository: Agree
             updated.shouldNotBeNull()
             updated.title shouldBe "ny title"
             updated.reference shouldBe "unik-ref1/unik-ref2"
-            updated.agreementKey shouldBe "unik-ref1-693477703"
+            updated.agreementKey shouldBe "693477703"
             updated.previousAgreement shouldBe pastAgreementId
 
         }

@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.agreement
 
+import io.micronaut.core.annotation.Generated
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
@@ -26,7 +27,8 @@ data class AgreementRegistration(
     val agreementStatus: AgreementStatus = AgreementStatus.INACTIVE,
     val title: String,
     val reference: String,
-    val agreementKey: String = "$reference-${Random(reference.hashCode()+42L).nextInt(Int.MAX_VALUE)}",
+    @field:Generated
+    val agreementKey: String? = "${Random(reference.hashCode()+42L).nextInt(Int.MAX_VALUE)}",
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime = LocalDateTime.now(),
@@ -58,6 +60,7 @@ data class AgreementRegistrationDTO(
     val agreementStatus: AgreementStatus = AgreementStatus.INACTIVE,
     val title: String,
     val reference: String,
+    val agreementKey: String = "${Random(reference.hashCode()+42L).nextInt(Int.MAX_VALUE)}",
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime = LocalDateTime.now(),
@@ -153,6 +156,7 @@ fun AgreementRegistrationDTO.toEntity(): AgreementRegistration =
         agreementStatus = agreementStatus,
         title = title,
         reference = reference,
+        agreementKey = agreementKey,
         created = created,
         updated = updated,
         published = published,
