@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.agreement
 
+import io.micronaut.core.annotation.Generated
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
@@ -16,6 +17,7 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.random.Random
 
 @MappedEntity("agreement_reg_v1")
 data class AgreementRegistration(
@@ -25,6 +27,8 @@ data class AgreementRegistration(
     val agreementStatus: AgreementStatus = AgreementStatus.INACTIVE,
     val title: String,
     val reference: String,
+    @field:Generated
+    val agreementKey: String? = generateKey(reference),
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime = LocalDateTime.now(),
@@ -56,6 +60,7 @@ data class AgreementRegistrationDTO(
     val agreementStatus: AgreementStatus = AgreementStatus.INACTIVE,
     val title: String,
     val reference: String,
+    val agreementKey: String = generateKey(reference),
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime = LocalDateTime.now(),
@@ -107,6 +112,8 @@ data class AgreementRegistrationDTO(
         )
 }
 
+fun generateKey(seed: String): String = "${Random(seed.hashCode() + 42L).nextInt(Int.MAX_VALUE)}"
+
 fun DelkontraktRegistrationDTO.toAgreementPost(agreement: AgreementRegistrationDTO): AgreementPost =
     AgreementPost(
         id = id,
@@ -151,6 +158,7 @@ fun AgreementRegistrationDTO.toEntity(): AgreementRegistration =
         agreementStatus = agreementStatus,
         title = title,
         reference = reference,
+        agreementKey = agreementKey,
         created = created,
         updated = updated,
         published = published,

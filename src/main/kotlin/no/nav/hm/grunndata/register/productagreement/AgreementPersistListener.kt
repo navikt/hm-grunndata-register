@@ -21,30 +21,31 @@ class AgreementPersistListener(private val productAgreementRegistrationService: 
     fun afterAgreementUpdate(): PostUpdateEventListener<AgreementRegistration> {
         return PostUpdateEventListener { agreement: AgreementRegistration ->
             runBlocking {
-                if (agreement.draftStatus == DraftStatus.DONE) {
-                    val pagreements =
-                        productAgreementRegistrationService.findByAgreementIdAndStatusAndPublishedBeforeAndExpiredAfter(
-                            agreement.id,
-                            ProductAgreementStatus.ACTIVE,
-                            LocalDateTime.now(),
-                            LocalDateTime.now(),
-                        )
-                    LOG.info("Got ${pagreements.size} product agreements from agreement ${agreement.id} for update")
-                    pagreements.forEach {
-                        LOG.info("Publishing product agreement ${it.id} from agreement ${agreement.id} for update")
-                        if (agreement.published != it.published || agreement.expired != it.expired) {
-                            productAgreementRegistrationService.saveAndCreateEvent(
-                                it.copy(
-                                    status = if (agreement.agreementStatus == AgreementStatus.ACTIVE) ProductAgreementStatus.ACTIVE else ProductAgreementStatus.INACTIVE,
-                                    published = agreement.published,
-                                    expired = agreement.expired,
-                                    updated = LocalDateTime.now(),
-                                ),
-                                isUpdate = true,
-                            )
-                        }
-                    }
-                }
+                // disable, because product agreements sometimes does not follow agreements rules.
+//                if (agreement.draftStatus == DraftStatus.DONE) {
+//                    val pagreements =
+//                        productAgreementRegistrationService.findByAgreementIdAndStatusAndPublishedBeforeAndExpiredAfter(
+//                            agreement.id,
+//                            ProductAgreementStatus.ACTIVE,
+//                            LocalDateTime.now(),
+//                            LocalDateTime.now(),
+//                        )
+//                    LOG.info("Got ${pagreements.size} product agreements from agreement ${agreement.id} for update")
+//                    pagreements.forEach {
+//                        LOG.info("Publishing product agreement ${it.id} from agreement ${agreement.id} for update")
+//                        if (agreement.published != it.published || agreement.expired != it.expired) {
+//                            productAgreementRegistrationService.saveAndCreateEvent(
+//                                it.copy(
+//                                    status = if (agreement.agreementStatus == AgreementStatus.ACTIVE) ProductAgreementStatus.ACTIVE else ProductAgreementStatus.INACTIVE,
+//                                    published = agreement.published,
+//                                    expired = agreement.expired,
+//                                    updated = LocalDateTime.now(),
+//                                ),
+//                                isUpdate = true,
+//                            )
+//                        }
+//                    }
+//                }
             }
         }
     }
