@@ -21,6 +21,7 @@ class AgreementPersistListener(private val productAgreementRegistrationService: 
     fun afterAgreementUpdate(): PostUpdateEventListener<AgreementRegistration> {
         return PostUpdateEventListener { agreement: AgreementRegistration ->
             runBlocking {
+                // disable, because product agreements sometimes does not follow agreements rules.
 //                if (agreement.draftStatus == DraftStatus.DONE) {
 //                    val pagreements =
 //                        productAgreementRegistrationService.findByAgreementIdAndStatusAndPublishedBeforeAndExpiredAfter(
