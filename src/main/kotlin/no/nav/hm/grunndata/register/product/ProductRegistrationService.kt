@@ -487,7 +487,7 @@ open class ProductRegistrationService(
     private suspend fun ProductRegistration.toDTO(): ProductRegistrationDTO {
         // TODO cache agreements
         val agreeements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)
-        return ProductRegistrationDTO(
+        val productRegistration =  ProductRegistrationDTO(
             id = id,
             supplierId = supplierId,
             seriesId = seriesId,
@@ -519,6 +519,21 @@ open class ProductRegistrationService(
             isoCategory = isoCategory,
             agreements = agreeements.map { it.toAgreementInfo() },
             version = version,
+        )
+        // agreements does have something to say about mainProduct, sparePart and accessory
+        return mapCorrectMainProductAndSparePartAndAccessoryFromAgreements(productRegistration, agreeements)
+    }
+
+    private fun mapCorrectMainProductAndSparePartAndAccessoryFromAgreements(productRegistration: ProductRegistrationDTO, agreements: List<ProductAgreementRegistration>): ProductRegistrationDTO {
+        if (agreements.isEmpty()) return productRegistration
+        val mainProduct = agreements.any { it.mainProduct }
+        val accessory = agreements.any { it.accessory }
+        val sparePart = agreements.any { it.sparePart }
+
+        return productRegistration.copy(
+            mainProduct = mainProduct,
+            accessory = accessory,
+            sparePart = sparePart,
         )
     }
 
