@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.agreement
 
 import io.micronaut.core.annotation.Generated
+import io.micronaut.data.annotation.AutoPopulated
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
@@ -28,6 +29,7 @@ data class AgreementRegistration(
     val title: String,
     val reference: String,
     @field:Generated
+    @field:AutoPopulated(updateable = false)
     val agreementKey: String? = generateKey(reference),
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
