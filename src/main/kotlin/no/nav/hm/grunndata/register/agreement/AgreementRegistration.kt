@@ -28,7 +28,7 @@ data class AgreementRegistration(
     val title: String,
     val reference: String,
     @field:Generated
-    val agreementKey: String? = "${Random(reference.hashCode()+42L).nextInt(Int.MAX_VALUE)}",
+    val agreementKey: String? = generateKey(reference),
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime = LocalDateTime.now(),
@@ -60,7 +60,7 @@ data class AgreementRegistrationDTO(
     val agreementStatus: AgreementStatus = AgreementStatus.INACTIVE,
     val title: String,
     val reference: String,
-    val agreementKey: String = "${Random(reference.hashCode()+42L).nextInt(Int.MAX_VALUE)}",
+    val agreementKey: String = generateKey(reference),
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime = LocalDateTime.now(),
@@ -111,6 +111,8 @@ data class AgreementRegistrationDTO(
             previousAgreement = registration.previousAgreement,
         )
 }
+
+fun generateKey(seed: String): String = "${Random(seed.hashCode() + 42L).nextInt(Int.MAX_VALUE)}"
 
 fun DelkontraktRegistrationDTO.toAgreementPost(agreement: AgreementRegistrationDTO): AgreementPost =
     AgreementPost(

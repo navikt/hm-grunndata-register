@@ -6,6 +6,7 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.swagger.v3.oas.annotations.Hidden
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationRepository
+import no.nav.hm.grunndata.register.agreement.generateKey
 import kotlin.random.Random
 
 
@@ -20,7 +21,7 @@ class FixAgreementKeyController(private val agreementRegistrationRepository: Agr
         val agreements = agreementRegistrationRepository.findAll().collect { agreementRegistration ->
             LOG.info("updating agreement ${agreementRegistration.id} with agreementKey ${agreementRegistration.agreementKey}")
             if (agreementRegistration.agreementKey == null) {
-                val agreementKey = "${Random(agreementRegistration.reference.hashCode()+42L).nextInt(Int.MAX_VALUE)}"
+                val agreementKey = generateKey(agreementRegistration.reference)
                 agreementRegistrationRepository.update(agreementRegistration.copy(agreementKey = agreementKey))
             }
         }
