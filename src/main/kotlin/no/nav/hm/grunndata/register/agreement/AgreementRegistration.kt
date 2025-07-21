@@ -29,7 +29,7 @@ data class AgreementRegistration(
     val title: String,
     val reference: String,
     @field:Generated
-    @field:AutoPopulated(updateable = false)
+    @field:AutoPopulated(updatable = false)
     val agreementKey: String? = generateKey(reference),
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
@@ -97,6 +97,7 @@ data class AgreementRegistrationDTO(
             id = registration.id,
             identifier = identifier,
             title = registration.title,
+            agreementKey = registration.agreementKey,
             resume = resume,
             text = text,
             status = registration.agreementStatus,

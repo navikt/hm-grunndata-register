@@ -11,7 +11,7 @@ val mockkVersion = "1.13.4"
 val kotestVersion = "5.5.5"
 val poiVersion = "5.4.0"
 val rapidsRiversVersion = "202410290928"
-val grunndataDtoVersion = "202506171302"
+val grunndataDtoVersion = "202507211013"
 val microsoftGrapVersion = "5.77.0"
 val leaderElectionVersion = "202405291312"
 
