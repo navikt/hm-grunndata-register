@@ -14,6 +14,7 @@ val rapidsRiversVersion = "202410290928"
 val grunndataDtoVersion = "202507211013"
 val microsoftGrapVersion = "5.77.0"
 val leaderElectionVersion = "202405291312"
+val googleCloudPlatformVersion = "26.61.0"
 
 group = "no.nav.hm"
 version = properties["version"] ?: "local-build"
@@ -102,6 +103,9 @@ dependencies {
     implementation("org.apache.commons:commons-compress:1.26.2")
 
     implementation("com.opencsv:opencsv:5.10")
+
+    implementation(platform("com.google.cloud:libraries-bom:$googleCloudPlatformVersion"))
+    implementation("com.google.cloud:google-cloud-vertexai")
 }
 
 micronaut {
