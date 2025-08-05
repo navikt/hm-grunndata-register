@@ -12,22 +12,22 @@ import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
+import no.nav.hm.grunndata.register.catalog.CatalogExcelFileImport
+import no.nav.hm.grunndata.register.catalog.CatalogFile
+import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
-import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
-import no.nav.hm.grunndata.register.catalog.CatalogExcelFileImport
-import no.nav.hm.grunndata.register.catalog.CatalogFile
-import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
-import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
@@ -159,7 +159,10 @@ open class ProductAgreementAdminController(
         authentication: Authentication,
     ): List<ProductVariantsForDelkontraktDto> {
         LOG.info("Getting product variants for delkontrakt {$id} by ${authentication.userId()}")
-        return productAgreementRegistrationService.findGroupedProductVariantsByDelkontraktId(id, mainProductsOnly ?: true)
+        return productAgreementRegistrationService.findGroupedProductVariantsByDelkontraktId(
+            id,
+            mainProductsOnly ?: true
+        )
     }
 
     @Post(
@@ -367,10 +370,47 @@ open class ProductAgreementAdminController(
         return HttpResponse.ok(ProductAgreementsDeletedResponse(ids))
     }
 
+    @Put(
+        value = "/ids",
+        consumes = [io.micronaut.http.MediaType.APPLICATION_JSON],
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON],
+    )
+    suspend fun reactivateProductAgreementByIds(
+        @Body ids: List<UUID>,
+        authentication: Authentication,
+    ): HttpResponse<ProductAgreementsReactivatedResponse> {
+        LOG.info("reactivating product agreements: $ids by ${authentication.userId()}")
+
+
+        val agreement = agreementRegistrationService.findById(ids.first())
+            ?: throw BadRequestException("Agreement not found for product agreements: $ids")
+
+        ids.forEach { uuid ->
+            productAgreementRegistrationService.findById(uuid)?.let {
+                LOG.info("Product agreement $uuid is published, deqctivating")
+                productAgreementRegistrationService.saveAndCreateEvent(
+                    it.copy(
+                        status = ProductAgreementStatus.ACTIVE,
+                        updated = LocalDateTime.now(),
+                        expired = agreement.expired,
+                        updatedBy = REGISTER,
+                    ),
+                    isUpdate = true,
+                )
+
+            } ?: throw BadRequestException("Product agreement $uuid not found")
+        }
+        return HttpResponse.ok(ProductAgreementsReactivatedResponse(ids))
+    }
+
 
 }
 
 data class ProductAgreementsDeletedResponse(
+    val ids: List<UUID>,
+)
+
+data class ProductAgreementsReactivatedResponse(
     val ids: List<UUID>,
 )
 
