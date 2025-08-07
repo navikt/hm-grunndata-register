@@ -9,17 +9,17 @@ import io.micronaut.http.client.annotation.Client
 @Client("\${grunndata.compati.url}")
 interface CompatiClient  {
 
-    @Get(uri="/catalog/products/compatibleWith", consumes = [APPLICATION_JSON])
-    suspend fun findCompatibleWith(@QueryValue("hmsNr") hmsNr: String,
-                                    @QueryValue("variant") boolean: Boolean? = false): List<CompatibleProductResult>
+//    @Get(uri="/catalog/products/compatibleWith", consumes = [APPLICATION_JSON])
+//    suspend fun findCompatibleWith(@QueryValue("hmsNr") hmsNr: String,
+//                                    @QueryValue("variant") boolean: Boolean? = false): List<CompatibleProductResult>
 
-    @Get(uri="/catalog/products/compatibleWith/ai/series", consumes = [APPLICATION_JSON])
-    suspend fun findCompatibleWithAi(@QueryValue("hmsNr") hmsNr: String): List<CompatibleProductResult>
+//    @Get(uri="/catalog/products/compatibleWith/ai/series", consumes = [APPLICATION_JSON])
+//    suspend fun findCompatibleWithAi(@QueryValue("hmsNr") hmsNr: String): List<CompatibleProductResult>
 
 }
 
 data class CompatibleProductResult(
-    val score: Double,
+    val score: Double = 0.0,
     val title: String,
     val seriesTitle: String,
     val seriesId: String,

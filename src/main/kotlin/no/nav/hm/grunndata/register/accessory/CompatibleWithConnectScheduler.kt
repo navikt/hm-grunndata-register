@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory
 
 @Singleton
 open class CompatibleWithConnectScheduler(
-    private val compatibleWithFinder: CompatibleWithFinder
+    private val compatibleWithConnecter: CompatibleWithConnecter
 ) {
 
     @Scheduled(cron = "0 45 0 * * *")
@@ -17,7 +17,7 @@ open class CompatibleWithConnectScheduler(
     open fun connectCompatibleWith() {
         runBlocking {
             LOG.info("Running compatibleWith connect scheduler")
-            compatibleWithFinder.connectAllOrdersNotConnected()
+            compatibleWithConnecter.connectAllOrdersNotConnected()
         }
     }
 

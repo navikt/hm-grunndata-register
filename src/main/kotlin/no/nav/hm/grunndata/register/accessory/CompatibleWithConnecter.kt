@@ -14,10 +14,10 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
 @Singleton
-open class CompatibleWithFinder(private val compatiClient: CompatiClient,
-                           private val productRegistrationService: ProductRegistrationService,
-                           private val catalogFileRepository: CatalogFileRepository,
-                           private val catalogImportRepository: CatalogImportRepository) {
+open class CompatibleWithConnecter(private val compatibleAIFinder: CompatibleAIFinder,
+                                   private val productRegistrationService: ProductRegistrationService,
+                                   private val catalogFileRepository: CatalogFileRepository,
+                                   private val catalogImportRepository: CatalogImportRepository) {
 
 
     open suspend fun connectWithHmsNr(hmsNr: String) {
@@ -80,12 +80,37 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
         }
     }
 
-    open suspend fun findCompatibleWith(hmsNr: String, variant: Boolean? = false): List<CompatibleProductResult> {
-        return compatiClient.findCompatibleWith(hmsNr, variant)
-    }
-
     open suspend fun findCompatibleWithAi(hmsNr: String): List<CompatibleProductResult> {
-        return compatiClient.findCompatibleWithAi(hmsNr)
+        val catalogSeriesInfo = catalogImportRepository.findCatalogSeriesInfosByHmsArtNrOrderByCreatedDesc(hmsNr)
+        if (catalogSeriesInfo.isEmpty()) {
+            LOG.info("No catalog series info found for product ${hmsNr}, skip connecting with compatibleWith")
+            return emptyList()
+        }
+        val catProduct = catalogSeriesInfo.first()
+        val mainProducts = catalogImportRepository.findCatalogImportsByOrderRefAndMain(catProduct.orderRef, mainProduct = true)
+
+        if (mainProducts.isEmpty()) {
+            LOG.info("No main products found for orderRef ${catProduct.orderRef}, skip connecting with compatibleWith")
+            return emptyList()
+        }
+        val hmsNrTitlePairs = mainProducts.map { product -> HmsNrTitlePair(product.hmsArtNr ,  product.seriesTitle)}.distinct()
+        val compatibleWithSeries = compatibleAIFinder.findCompatibleProducts(catProduct.title, hmsNrTitlePairs)
+        if (compatibleWithSeries.isEmpty()) {
+            LOG.info("No compatible series found for product ${catProduct.hmsArtNr}, skip connecting with compatibleWith")
+            return emptyList()
+        }
+
+        return compatibleWithSeries.mapNotNull { series ->
+            mainProducts.find { it.hmsArtNr == series.hmsnr }?.let { mainProduct ->
+                CompatibleProductResult(
+                    title = mainProduct.title,
+                    seriesTitle = mainProduct.seriesTitle,
+                    seriesId = mainProduct.seriesId.toString(),
+                    productId = mainProduct.productId?.toString() ?: "",
+                    hmsArtNr = mainProduct.hmsArtNr
+                )
+            }
+        }
     }
 
     private suspend fun addCompatibleWithAttributeSeriesLink(product: ProductRegistration): ProductRegistration? {
@@ -100,14 +125,15 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
         }
         val compatibleWiths = findCompatibleWithAi(product.hmsArtNr!!)
         val seriesIds = compatibleWiths.map { it.seriesId.toUUID() }.toSet()
-        // we keep the variants, for manual by admin and supplier
+        // keep all previous connections.
+        val seriesIdToKeep = product.productData.attributes.compatibleWith?.seriesIds?: emptySet()
         val productIds = product.productData.attributes.compatibleWith?.productIds ?: emptySet()
         return if (seriesIds.isNotEmpty()) {
             product.copy(
                 productData = product.productData.copy(
                     attributes = product.productData.attributes.copy(
                         compatibleWith = CompatibleWith(
-                            seriesIds = seriesIds,
+                            seriesIds = seriesIdToKeep + seriesIds,
                             productIds = productIds,
                             connectedBy = CompatibleWith.COMPATIAI
                         )
@@ -135,7 +161,7 @@ open class CompatibleWithFinder(private val compatiClient: CompatiClient,
     }
 
     companion object {
-        private val LOG = LoggerFactory.getLogger(CompatibleWithFinder::class.java)
+        private val LOG = LoggerFactory.getLogger(CompatibleWithConnecter::class.java)
     }
 
 }

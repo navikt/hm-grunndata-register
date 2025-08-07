@@ -30,7 +30,7 @@ class CatalogController(
     suspend fun fetchCatalogSeriesInfoByHmsNr(
         hmsNr: String
     ): List<CatalogSeriesInfo> {
-        return catalogImportRepository.findCatalogSeriesInfosByHmsArtNr(hmsNr)
+        return catalogImportRepository.findCatalogSeriesInfosByHmsArtNrOrderByCreatedDesc(hmsNr)
     }
 
     @Get("/files/all")

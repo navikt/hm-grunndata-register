@@ -44,6 +44,9 @@ spec:
   envFrom:
     - secret: hm-grunndata-register
     - secret: azure-hm-email-service
+  filesFrom:
+    - secret: hm-grunndata-register-credentials
+      mountPath: /var/run/secrets/credentials/hm-grunndata-register
   env:
     - name: DB_DRIVER
       value: "org.postgresql.Driver"
@@ -73,6 +76,8 @@ spec:
       value: "http://hm-grunndata-compati"
     - name: GRUNNDATA_DB_URL
       value: "http://hm-grunndata-db"
+    - name: GOOGLE_APPLICATION_CREDENTIALS
+      value: "/var/run/secrets/credentials/hm-grunndata-register/secret"
   {{#each env}}
     - name: {{@key}}
       value: "{{this}}"

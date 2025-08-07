@@ -5,18 +5,18 @@ import io.micronaut.http.annotation.Post
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.swagger.v3.oas.annotations.Hidden
-import no.nav.hm.grunndata.register.accessory.CompatibleWithFinder
+import no.nav.hm.grunndata.register.accessory.CompatibleWithConnecter
 import org.slf4j.LoggerFactory
 
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller("/internal/compatible/products")
 @Hidden
 class CompatibleProductController(
-    private val compatibleWithFinder: CompatibleWithFinder) {
+    private val compatibleWithConnecter: CompatibleWithConnecter) {
 
     @Post("/connect/{hmsNr}")
     suspend fun connect(hmsNr: String) {
-        compatibleWithFinder.connectWithHmsNr(hmsNr)
+        compatibleWithConnecter.connectWithHmsNr(hmsNr)
     }
 
     companion object {
@@ -26,17 +26,17 @@ class CompatibleProductController(
     @Post("/catalog/connect/orderref/{orderRef}")
     suspend fun connectWithCatalog(orderRef: String) {
         LOG.info("connectWithCatalog: $orderRef")
-        compatibleWithFinder.connectCatalogOrderRef(orderRef)
+        compatibleWithConnecter.connectCatalogOrderRef(orderRef)
     }
 
     @Post("/connect/orders")
     suspend fun connectAllNotConnected() {
-        compatibleWithFinder.connectAllOrdersNotConnected()
+        compatibleWithConnecter.connectAllOrdersNotConnected()
     }
 
     @Post("/connect/products")
     suspend fun connectAllProductsNotConnected() {
-        compatibleWithFinder.connectAllProductsNotConnected()
+        compatibleWithConnecter.connectAllProductsNotConnected()
     }
 
 }

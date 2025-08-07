@@ -22,19 +22,19 @@ import kotlin.text.trimIndent
 import kotlin.use
 
 @Singleton
-class CompatibleAIFinder(private val config: VertexAIConfig, private val objectMapper: ObjectMapper ) {
+open class CompatibleAIFinder(private val config: VertexAIConfig, private val objectMapper: ObjectMapper ) {
     val instruction: String = """
         Du jobber i en NAV hjelpemiddelsentral, og bruker finnhjelpemiddel.no for informasjon.
     """.trimIndent()
 
 
-    fun findCompatibleProducts(partsTitle: String, mainTitles: List<HmsNrTitlePair>): List<HmsNr> {
+    open fun findCompatibleProducts(partsTitle: String, mainTitles: List<HmsNrTitlePair>): List<HmsNr> {
         val prompt = generatePrompt(partsTitle, mainTitles)
         LOG.info("Generated prompt: $prompt")
         return modelGenerateContent(prompt)
     }
 
-    fun generatePrompt(accessory: String, mainProducts: List<HmsNrTitlePair>): String {
+    open fun generatePrompt(accessory: String, mainProducts: List<HmsNrTitlePair>): String {
         val mainProductsString = mainProducts.joinToString(",") { "hmsnr=${it.hmsNr}: '${it.title.replace("'"," ")}'" }
         return "For følgende tilbehør: '${accessory.replace("'", " ").replace(",", " ")}' Finn ut hvilket hjelpemiddel som passer best blant disse: $mainProductsString \n svar med hmsnr"
             .trimIndent().trim()
