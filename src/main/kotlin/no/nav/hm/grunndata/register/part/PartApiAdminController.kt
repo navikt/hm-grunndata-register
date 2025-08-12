@@ -119,6 +119,21 @@ class PartApiAdminController(
         return HttpResponse.ok()
     }
 
+    @Put("/mainProduct/{seriesId}")
+    suspend fun changeToMainProduct(
+        seriesUUID: UUID,
+    ): HttpResponse<Any> {
+        return when (partService.changeToMainProduct(seriesUUID)) {
+            is PartService.ChangeToMainProductResult.Ok -> HttpResponse.ok()
+            is PartService.ChangeToMainProductResult.AlreadyMain -> {
+                LOG.warn("Series $seriesUUID is already set as main product")
+                HttpResponse.badRequest("Series $seriesUUID is already set as main product")
+            }
+
+            is PartService.ChangeToMainProductResult.NotFound -> HttpResponse.notFound()
+        }
+    }
+
 
     @Post("/supplier/{supplierId}/draftWith")
     suspend fun draftSeriesWith(
@@ -196,7 +211,16 @@ data class ProductRegistrationHmsUserCriteria(
     val title: String? = null,
 ) {
     fun isNotEmpty(): Boolean = listOfNotNull(
-        supplierRef, hmsArtNr, adminStatus, registrationStatus, supplierId, draft, createdByUser, updatedByUser, title, excludedStatus
+        supplierRef,
+        hmsArtNr,
+        adminStatus,
+        registrationStatus,
+        supplierId,
+        draft,
+        createdByUser,
+        updatedByUser,
+        title,
+        excludedStatus
     ).isNotEmpty()
 }
 
