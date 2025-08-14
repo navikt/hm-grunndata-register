@@ -121,13 +121,13 @@ class PartApiAdminController(
 
     @Put("/mainProduct/{seriesId}")
     suspend fun changeToMainProduct(
-        seriesUUID: UUID,
+        seriesId: UUID,
     ): HttpResponse<Any> {
-        return when (partService.changeToMainProduct(seriesUUID)) {
+        return when (partService.changeToMainProduct(seriesId)) {
             is PartService.ChangeToMainProductResult.Ok -> HttpResponse.ok()
             is PartService.ChangeToMainProductResult.AlreadyMain -> {
-                LOG.warn("Series $seriesUUID is already set as main product")
-                HttpResponse.badRequest("Series $seriesUUID is already set as main product")
+                LOG.warn("Series $seriesId is already set as main product")
+                HttpResponse.badRequest("Series $seriesId is already set as main product")
             }
 
             is PartService.ChangeToMainProductResult.NotFound -> HttpResponse.notFound()
