@@ -36,6 +36,20 @@ class SeriesRegistrationAdminController(
         const val API_V1_SERIES = "/admin/api/v1/series"
     }
 
+    @Put("/toPart/{seriesId}")
+    suspend fun changeMainProductToPart(
+        seriesId: UUID,
+    ): HttpResponse<Any> {
+        return when (seriesRegistrationService.changeToPartProduct(seriesId)) {
+            is SeriesRegistrationService.ChangeToPartProductResult.Ok -> HttpResponse.ok()
+            is SeriesRegistrationService.ChangeToPartProductResult.AlreadyPart -> {
+                LOG.warn("Series $seriesId is already set as part product")
+                HttpResponse.badRequest("Series $seriesId is already set as part product")
+            }
+            is SeriesRegistrationService.ChangeToPartProductResult.NotFound -> HttpResponse.notFound()
+        }
+    }
+
     @Get("/to-approve{?params*}")
     suspend fun findSeriesPendingApprove(
         @QueryValue params: java.util.HashMap<String, String>?,

@@ -51,6 +51,26 @@ open class SeriesRegistrationService(
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationService::class.java)
     }
 
+    sealed class ChangeToPartProductResult {
+        object Ok : ChangeToPartProductResult()
+        object AlreadyPart : ChangeToPartProductResult()
+        object NotFound : ChangeToPartProductResult()
+    }
+
+    open suspend fun changeToPartProduct(seriesUUID: UUID): ChangeToPartProductResult {
+        val series = findById(seriesUUID) ?: return ChangeToPartProductResult.NotFound
+        if (!series.mainProduct) return ChangeToPartProductResult.AlreadyPart
+
+        val updatedSeries = series.copy(mainProduct = false)
+        val products = productRegistrationService.findAllBySeriesUuid(seriesUUID)
+        products.forEach { product ->
+            val updatedProduct = product.copy(mainProduct = false, accessory = true) // or sparePart = true as needed
+            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+        }
+        saveAndCreateEventIfNotDraftAndApproved(updatedSeries, isUpdate = true)
+        return ChangeToPartProductResult.Ok
+    }
+
     @Transactional
     open suspend fun moveVariantsToSeries(
         seriesId: UUID,
