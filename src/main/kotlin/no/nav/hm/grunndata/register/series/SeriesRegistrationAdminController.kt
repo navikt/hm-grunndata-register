@@ -36,9 +36,9 @@ class SeriesRegistrationAdminController(
     @Put("/toPart/{seriesId}")
     suspend fun changeMainProductToPart(
         seriesId: UUID,
-        @Body accessory: Boolean,
+        @Body accessoryDTO: AccessoryDTO,
     ): HttpResponse<Any> {
-        return when (seriesRegistrationService.changeMainProductToPart(seriesId, accessory)) {
+        return when (seriesRegistrationService.changeMainProductToPart(seriesId, accessoryDTO.accessory)) {
             is SeriesRegistrationService.ChangeToPartResult.Ok -> HttpResponse.ok()
             is SeriesRegistrationService.ChangeToPartResult.AlreadyPart -> {
                 LOG.warn("Series $seriesId is already set as part")
@@ -142,6 +142,8 @@ class SeriesRegistrationAdminController(
         LOG.info("All series and products from supplier $fromSupplierId moved to supplier $toSupplierId")
     }
 }
+
+data class AccessoryDTO(val accessory: Boolean)
 
 data class RejectSeriesDTO(val message: String?)
 
