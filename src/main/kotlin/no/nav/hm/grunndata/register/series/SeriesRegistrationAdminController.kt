@@ -11,16 +11,13 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
-import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.error.BadRequestException
-import no.nav.hm.grunndata.register.product.ProductRegistrationAdminApiController
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
 import java.util.UUID
 
 
@@ -39,14 +36,15 @@ class SeriesRegistrationAdminController(
     @Put("/toPart/{seriesId}")
     suspend fun changeMainProductToPart(
         seriesId: UUID,
+        @Body accessory: Boolean,
     ): HttpResponse<Any> {
-        return when (seriesRegistrationService.changeToPartProduct(seriesId)) {
-            is SeriesRegistrationService.ChangeToPartProductResult.Ok -> HttpResponse.ok()
-            is SeriesRegistrationService.ChangeToPartProductResult.AlreadyPart -> {
-                LOG.warn("Series $seriesId is already set as part product")
-                HttpResponse.badRequest("Series $seriesId is already set as part product")
+        return when (seriesRegistrationService.changeMainProductToPart(seriesId, accessory)) {
+            is SeriesRegistrationService.ChangeToPartResult.Ok -> HttpResponse.ok()
+            is SeriesRegistrationService.ChangeToPartResult.AlreadyPart -> {
+                LOG.warn("Series $seriesId is already set as part")
+                HttpResponse.badRequest("Series $seriesId is already set as part")
             }
-            is SeriesRegistrationService.ChangeToPartProductResult.NotFound -> HttpResponse.notFound()
+            is SeriesRegistrationService.ChangeToPartResult.NotFound -> HttpResponse.notFound()
         }
     }
 

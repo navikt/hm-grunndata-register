@@ -51,24 +51,28 @@ open class SeriesRegistrationService(
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationService::class.java)
     }
 
-    sealed class ChangeToPartProductResult {
-        object Ok : ChangeToPartProductResult()
-        object AlreadyPart : ChangeToPartProductResult()
-        object NotFound : ChangeToPartProductResult()
+    sealed class ChangeToPartResult {
+        object Ok : ChangeToPartResult()
+        object AlreadyPart : ChangeToPartResult()
+        object NotFound : ChangeToPartResult()
     }
 
-    open suspend fun changeToPartProduct(seriesUUID: UUID): ChangeToPartProductResult {
-        val series = findById(seriesUUID) ?: return ChangeToPartProductResult.NotFound
-        if (!series.mainProduct) return ChangeToPartProductResult.AlreadyPart
+    open suspend fun changeMainProductToPart(seriesUUID: UUID, accessory: Boolean): ChangeToPartResult {
+        val series = findById(seriesUUID) ?: return ChangeToPartResult.NotFound
+        if (!series.mainProduct) return ChangeToPartResult.AlreadyPart
 
         val updatedSeries = series.copy(mainProduct = false)
         val products = productRegistrationService.findAllBySeriesUuid(seriesUUID)
         products.forEach { product ->
-            val updatedProduct = product.copy(mainProduct = false, accessory = true) // or sparePart = true as needed
+            val updatedProduct = product.copy(
+                mainProduct = false,
+                accessory = accessory,
+                sparePart = !accessory
+            )
             productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
         }
         saveAndCreateEventIfNotDraftAndApproved(updatedSeries, isUpdate = true)
-        return ChangeToPartProductResult.Ok
+        return ChangeToPartResult.Ok
     }
 
     @Transactional
