@@ -57,17 +57,22 @@ open class SeriesRegistrationService(
         object NotFound : ChangeToPartResult()
     }
 
-    open suspend fun changeMainProductToPart(seriesUUID: UUID, accessory: Boolean): ChangeToPartResult {
+    open suspend fun changeMainProductToPart(
+        seriesUUID: UUID,
+        accessory: Boolean,
+        newIsoCode: String
+    ): ChangeToPartResult {
         val series = findById(seriesUUID) ?: return ChangeToPartResult.NotFound
         if (!series.mainProduct) return ChangeToPartResult.AlreadyPart
 
-        val updatedSeries = series.copy(mainProduct = false)
+        val updatedSeries = series.copy(mainProduct = false, isoCategory = newIsoCode)
         val products = productRegistrationService.findAllBySeriesUuid(seriesUUID)
         products.forEach { product ->
             val updatedProduct = product.copy(
                 mainProduct = false,
                 accessory = accessory,
-                sparePart = !accessory
+                sparePart = !accessory,
+                isoCategory = newIsoCode
             )
             productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
         }

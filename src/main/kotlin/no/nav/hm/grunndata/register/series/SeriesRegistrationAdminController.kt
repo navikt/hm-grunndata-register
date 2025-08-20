@@ -38,12 +38,17 @@ class SeriesRegistrationAdminController(
         seriesId: UUID,
         @Body accessoryDTO: AccessoryDTO,
     ): HttpResponse<Any> {
-        return when (seriesRegistrationService.changeMainProductToPart(seriesId, accessoryDTO.accessory)) {
+        return when (seriesRegistrationService.changeMainProductToPart(
+            seriesId,
+            accessoryDTO.accessory,
+            accessoryDTO.newIsoCode
+        )) {
             is SeriesRegistrationService.ChangeToPartResult.Ok -> HttpResponse.ok()
             is SeriesRegistrationService.ChangeToPartResult.AlreadyPart -> {
                 LOG.warn("Series $seriesId is already set as part")
                 HttpResponse.badRequest("Series $seriesId is already set as part")
             }
+
             is SeriesRegistrationService.ChangeToPartResult.NotFound -> HttpResponse.notFound()
         }
     }
@@ -143,7 +148,7 @@ class SeriesRegistrationAdminController(
     }
 }
 
-data class AccessoryDTO(val accessory: Boolean)
+data class AccessoryDTO(val accessory: Boolean, val newIsoCode: String)
 
 data class RejectSeriesDTO(val message: String?)
 
