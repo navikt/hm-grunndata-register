@@ -122,8 +122,9 @@ class PartApiAdminController(
     @Put("/mainProduct/{seriesId}")
     suspend fun changeToMainProduct(
         seriesId: UUID,
+        @Body partToMainProductDto: PartToMainProductDto,
     ): HttpResponse<Any> {
-        return when (partService.changeToMainProduct(seriesId)) {
+        return when (partService.changeToMainProduct(seriesId, newIsoCode = partToMainProductDto.newIsoCode)) {
             is PartService.ChangeToMainProductResult.Ok -> HttpResponse.ok()
             is PartService.ChangeToMainProductResult.AlreadyMain -> {
                 LOG.warn("Series $seriesId is already set as main product")
@@ -225,3 +226,7 @@ data class ProductRegistrationHmsUserCriteria(
 }
 
 data class PartDraftResponse(val id: UUID)
+
+data class PartToMainProductDto(
+    val newIsoCode: String,
+)
