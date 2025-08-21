@@ -557,7 +557,7 @@ open class SeriesRegistrationService(
         val seriesDataAttributes = inDbSeries.seriesData.attributes.copy(
             keywords = patch.keywords ?: inDbSeriesAttributes.keywords,
             url = patch.url ?: inDbSeriesAttributes.url,
-            compatibleWith = inDbSeriesAttributes.compatibleWith
+            compatibleWith = inDbSeriesAttributes.compatibleWith,
         )
 
         val seriesData = inDbSeries.seriesData.copy(
@@ -570,6 +570,7 @@ open class SeriesRegistrationService(
                 .copy(
                     title = patch.title ?: inDbSeries.title,
                     text = patch.text ?: inDbSeries.text,
+                    isoCategory = patch.isoCategory ?: inDbSeries.isoCategory,
                     seriesData = seriesData,
                     updated = LocalDateTime.now(),
                     updatedByUser = authentication.name
