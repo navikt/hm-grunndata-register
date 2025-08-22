@@ -570,7 +570,7 @@ open class SeriesRegistrationService(
 
         val seriesData = inDbSeries.seriesData.copy(
             media = inDbSeriesData.media,
-            attributes = seriesDataAttributes
+            attributes = seriesDataAttributes,
         )
 
         val saved = saveAndCreateEventIfNotDraftAndApproved(
@@ -582,9 +582,21 @@ open class SeriesRegistrationService(
                     seriesData = seriesData,
                     updated = LocalDateTime.now(),
                     updatedByUser = authentication.name
+
                 ),
             true,
         )
+
+        if (patch.resetTechnicalData && patch.isoCategory != null) {
+            val products = productRegistrationService.findAllBySeriesUuid(id)
+            products.forEach { product ->
+                val updatedProduct = product.copy(
+                    productData =
+                        product.productData.copy(techData = createTechDataDraft(patch.isoCategory)),
+                )
+                productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+            }
+        }
         return saved
     }
 
