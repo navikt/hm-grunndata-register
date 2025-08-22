@@ -587,6 +587,20 @@ open class SeriesRegistrationService(
             true,
         )
 
+        if (patch.isoCategory != null) {
+            val products = productRegistrationService.findAllBySeriesUuid(id)
+            products.forEach { product ->
+                val updatedProduct = product.copy(
+                    isoCategory = patch.isoCategory,
+                    productData = if (patch.resetTechnicalData == true)
+                        product.productData.copy(techData = createTechDataDraft(patch.isoCategory))
+                    else
+                        product.productData
+                )
+                productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+            }
+        }
+
         if (patch.resetTechnicalData == true && patch.isoCategory != null) {
             LOG.info("Resetting technical data for series $id with isoCategory ${patch.isoCategory}")
             val products = productRegistrationService.findAllBySeriesUuid(id)
