@@ -587,7 +587,7 @@ open class SeriesRegistrationService(
             true,
         )
 
-        if (patch.resetTechnicalData && patch.isoCategory != null) {
+        if (patch.resetTechnicalData == true && patch.isoCategory != null) {
             val products = productRegistrationService.findAllBySeriesUuid(id)
             products.forEach { product ->
                 val updatedProduct = product.copy(
