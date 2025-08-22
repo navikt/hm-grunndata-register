@@ -14,9 +14,11 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
@@ -41,7 +43,8 @@ class SeriesRegistrationAdminController(
         return when (seriesRegistrationService.changeMainProductToPart(
             seriesId,
             accessoryDTO.accessory,
-            accessoryDTO.newIsoCode
+            accessoryDTO.newIsoCode,
+            accessoryDTO.resetTechnicalData,
         )) {
             is SeriesRegistrationService.ChangeToPartResult.Ok -> HttpResponse.ok()
             is SeriesRegistrationService.ChangeToPartResult.AlreadyPart -> {
@@ -148,7 +151,8 @@ class SeriesRegistrationAdminController(
     }
 }
 
-data class AccessoryDTO(val accessory: Boolean, val newIsoCode: String)
+
+data class AccessoryDTO(val accessory: Boolean, val newIsoCode: String, val resetTechnicalData: Boolean = false)
 
 data class RejectSeriesDTO(val message: String?)
 
