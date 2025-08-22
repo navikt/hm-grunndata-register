@@ -590,6 +590,7 @@ open class SeriesRegistrationService(
         if (patch.resetTechnicalData == true && patch.isoCategory != null) {
             LOG.info("Resetting technical data for series $id with isoCategory ${patch.isoCategory}")
             val products = productRegistrationService.findAllBySeriesUuid(id)
+            LOG.info("FOUND ${products.size} products for series $id to reset technical data")
             products.forEach { product ->
                 val updatedProduct = product.copy(
                     productData =
