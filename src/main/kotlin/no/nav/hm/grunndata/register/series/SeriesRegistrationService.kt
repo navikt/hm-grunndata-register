@@ -595,7 +595,7 @@ open class SeriesRegistrationService(
                     productData = if (patch.resetTechnicalData == true)
                         product.productData.copy(techData = createTechDataDraft(patch.isoCategory))
                     else
-                        product.productData
+                        product.productData.copy(techData = createTechDataDraftWithCopy(product.productData.techData, patch.isoCategory))
                 )
                 productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
             }
@@ -792,6 +792,18 @@ open class SeriesRegistrationService(
         techLabelService.fetchLabelsByIsoCode(isoCode).map {
             TechData(key = it.label, value = "", unit = it.unit ?: "")
         }
+
+    private fun createTechDataDraftWithCopy(oldTechData: List<TechData>, isoCode: String): List<TechData> {
+        val draftLabels = techLabelService.fetchLabelsByIsoCode(isoCode)
+        return draftLabels.map { label ->
+            val existing = oldTechData.find { it.key == label.label }
+            TechData(
+                key = label.label,
+                value = existing?.value ?: "",
+                unit = label.unit ?: existing?.unit ?: ""
+            )
+        }
+    }
 }
 
 data class MediaSort(val uri: String, val priority: Int)
