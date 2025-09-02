@@ -51,7 +51,7 @@ open class ProductAgreementImportExcelService(
         }
 
         val inserted = productAgreementResult.insertList.map {
-            productAgreementService.save(it)
+            updateProductAndProductAgreement(it)
         }
         val distinct = (updated + deactivated + inserted).distinctBy { it.productId }
         // ssave and create events for all products
@@ -117,7 +117,7 @@ open class ProductAgreementImportExcelService(
                     status = pa.status
                 )
             )
-        } ?: pa
+        } ?: productAgreementService.save(pa)
 
     open suspend fun updateAccessoryAndSparePart(
         pa: ProductAgreementRegistrationDTO,
