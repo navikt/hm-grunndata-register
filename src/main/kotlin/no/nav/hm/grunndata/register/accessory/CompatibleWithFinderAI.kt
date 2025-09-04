@@ -89,3 +89,13 @@ data class HmsNr(
 
 @Introspected
 data class HmsNrTitlePair(val hmsNr: String, val title: String)
+
+@Introspected
+data class CompatibleProductResult(
+    val score: Double = 0.0,
+    val title: String,
+    val seriesTitle: String,
+    val seriesId: String,
+    val productId: String,
+    val hmsArtNr: String,
+)
