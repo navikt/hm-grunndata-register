@@ -203,6 +203,8 @@ data class UpdateSeriesRegistrationDTO(
     val text: String? = null,
     val keywords: List<String>? = null,
     val url: String? = null,
+    val isoCategory: String? = null,
+    val resetTechnicalData: Boolean? = null,
 )
 
 data class SeriesDTO(

@@ -381,13 +381,14 @@ open class ProductAgreementAdminController(
     ): HttpResponse<ProductAgreementsReactivatedResponse> {
         LOG.info("reactivating product agreements: $ids by ${authentication.userId()}")
 
-
-        val agreement = agreementRegistrationService.findById(ids.first())
-            ?: throw BadRequestException("Agreement not found for product agreements: $ids")
+        val firstProductAgreement = productAgreementRegistrationService.findById(ids.first())
+            ?: throw BadRequestException("Product agreement not found")
+        val agreement = agreementRegistrationService.findById(firstProductAgreement.agreementId)
+            ?: throw BadRequestException("Agreement not found for product agreement: ${firstProductAgreement.agreementId}")
 
         ids.forEach { uuid ->
             productAgreementRegistrationService.findById(uuid)?.let {
-                LOG.info("Product agreement $uuid is published, deqctivating")
+                LOG.info("Reactivating product agreement wit id $uuid")
                 productAgreementRegistrationService.saveAndCreateEvent(
                     it.copy(
                         status = ProductAgreementStatus.ACTIVE,

@@ -20,6 +20,7 @@ import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
@@ -33,6 +34,7 @@ import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
+import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -46,9 +48,44 @@ open class SeriesRegistrationService(
     private val seriesRegistrationEventHandler: SeriesRegistrationEventHandler,
     private val supplierService: SupplierRegistrationService,
     private val mediaUploadService: MediaUploadService,
+    private val techLabelService: TechLabelService,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationService::class.java)
+    }
+
+    sealed class ChangeToPartResult {
+        object Ok : ChangeToPartResult()
+        object AlreadyPart : ChangeToPartResult()
+        object NotFound : ChangeToPartResult()
+    }
+
+    open suspend fun changeMainProductToPart(
+        seriesUUID: UUID,
+        accessory: Boolean,
+        newIsoCode: String,
+        resetTechnicalData: Boolean,
+    ): ChangeToPartResult {
+        val series = findById(seriesUUID) ?: return ChangeToPartResult.NotFound
+        if (!series.mainProduct) return ChangeToPartResult.AlreadyPart
+
+        val updatedSeries = series.copy(mainProduct = false, isoCategory = newIsoCode)
+        val products = productRegistrationService.findAllBySeriesUuid(seriesUUID)
+        products.forEach { product ->
+            val updatedProduct = product.copy(
+                mainProduct = false,
+                accessory = accessory,
+                sparePart = !accessory,
+                isoCategory = newIsoCode,
+                productData = if (resetTechnicalData)
+                    product.productData.copy(techData = createTechDataDraft(newIsoCode))
+                else
+                    product.productData
+            )
+            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+        }
+        saveAndCreateEventIfNotDraftAndApproved(updatedSeries, isUpdate = true)
+        return ChangeToPartResult.Ok
     }
 
     @Transactional
@@ -528,12 +565,12 @@ open class SeriesRegistrationService(
         val seriesDataAttributes = inDbSeries.seriesData.attributes.copy(
             keywords = patch.keywords ?: inDbSeriesAttributes.keywords,
             url = patch.url ?: inDbSeriesAttributes.url,
-            compatibleWith = inDbSeriesAttributes.compatibleWith
+            compatibleWith = inDbSeriesAttributes.compatibleWith,
         )
 
         val seriesData = inDbSeries.seriesData.copy(
             media = inDbSeriesData.media,
-            attributes = seriesDataAttributes
+            attributes = seriesDataAttributes,
         )
 
         val saved = saveAndCreateEventIfNotDraftAndApproved(
@@ -541,12 +578,29 @@ open class SeriesRegistrationService(
                 .copy(
                     title = patch.title ?: inDbSeries.title,
                     text = patch.text ?: inDbSeries.text,
+                    isoCategory = patch.isoCategory ?: inDbSeries.isoCategory,
                     seriesData = seriesData,
                     updated = LocalDateTime.now(),
                     updatedByUser = authentication.name
+
                 ),
             true,
         )
+
+        if (patch.isoCategory != null) {
+            val products = productRegistrationService.findAllBySeriesUuid(id)
+            products.forEach { product ->
+                val updatedProduct = product.copy(
+                    isoCategory = patch.isoCategory,
+                    productData = if (patch.resetTechnicalData == true)
+                        product.productData.copy(techData = createTechDataDraft(patch.isoCategory))
+                    else
+                        product.productData.copy(techData = createTechDataDraftWithCopy(product.productData.techData, patch.isoCategory))
+                )
+                productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+            }
+        }
+
         return saved
     }
 
@@ -732,6 +786,23 @@ open class SeriesRegistrationService(
         }
 
         return seriesToUpdate
+    }
+
+    private fun createTechDataDraft(isoCode: String): List<TechData> =
+        techLabelService.fetchLabelsByIsoCode(isoCode).map {
+            TechData(key = it.label, value = "", unit = it.unit ?: "")
+        }
+
+    private fun createTechDataDraftWithCopy(oldTechData: List<TechData>, isoCode: String): List<TechData> {
+        val draftLabels = techLabelService.fetchLabelsByIsoCode(isoCode)
+        return draftLabels.map { label ->
+            val existing = oldTechData.find { it.key == label.label }
+            TechData(
+                key = label.label,
+                value = existing?.value ?: "",
+                unit = label.unit ?: existing?.unit ?: ""
+            )
+        }
     }
 }
 

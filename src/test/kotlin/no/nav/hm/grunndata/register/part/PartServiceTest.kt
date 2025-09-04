@@ -41,13 +41,17 @@ class PartServiceTest(
                 )
             )
 
-
             val product = productRegistrationService.findById(part.id)
             val series = seriesRegistrationService.findById(part.seriesUUID)
             product.shouldNotBeNull()
             series.shouldNotBeNull()
 
             series.mainProduct shouldBe false
+
+            partService.changeToMainProduct(part.seriesUUID, newIsoCode = "12345")
+            val seriesAsMainProduct = seriesRegistrationService.findById(part.seriesUUID)
+
+            seriesAsMainProduct?.mainProduct shouldBe true
 
 
         }

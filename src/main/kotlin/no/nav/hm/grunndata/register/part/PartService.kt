@@ -25,6 +25,27 @@ open class PartService(
         private val LOG = LoggerFactory.getLogger(PartService::class.java)
     }
 
+    sealed class ChangeToMainProductResult {
+        object Ok : ChangeToMainProductResult()
+        object AlreadyMain : ChangeToMainProductResult()
+        object NotFound : ChangeToMainProductResult()
+    }
+
+    open suspend fun changeToMainProduct(seriesUUID: UUID, newIsoCode: String): ChangeToMainProductResult {
+        val series = seriesService.findById(seriesUUID) ?: return ChangeToMainProductResult.NotFound
+        if (series.mainProduct) return ChangeToMainProductResult.AlreadyMain
+
+        val updatedSeries = series.copy(mainProduct = true, isoCategory = newIsoCode)
+        val products = productService.findAllBySeriesUuid(seriesUUID)
+        products.forEach { product ->
+            val updatedProduct =
+                product.copy(mainProduct = true, accessory = false, sparePart = false, isoCategory = newIsoCode)
+            productService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+        }
+        seriesService.saveAndCreateEventIfNotDraftAndApproved(updatedSeries, isUpdate = true)
+        return ChangeToMainProductResult.Ok
+    }
+
     @Transactional
     open suspend fun createDraftWith(auth: Authentication, draft: PartDraftWithDTO): ProductRegistration {
         val series = draft.toSeriesRegistration(auth).also { seriesService.save(it) }
