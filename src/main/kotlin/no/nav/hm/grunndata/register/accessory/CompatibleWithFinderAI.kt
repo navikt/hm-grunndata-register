@@ -43,6 +43,7 @@ open class CompatibleAIFinder(private val config: VertexAIConfig, private val ob
     @Throws(Exception::class)
     private fun modelGenerateContent(prompt: String): List<HmsNr> {
         VertexAI(config.project, config.location).use { vertexAI ->
+            LOG.debug("Creating model for project ${config.project} in location ${config.location} with model ${config.model} and temperature ${config.temperature}")
             val generationConfig: GenerationConfig = GenerationConfig.newBuilder()
                 .setResponseMimeType("application/json")
                 .setTemperature(config.temperature)

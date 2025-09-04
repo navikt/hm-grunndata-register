@@ -72,8 +72,6 @@ spec:
       value: "{{ java_opts }}"
     - name: BASEVERSION_SCHEDULER_ENABLED
       value: "{{ baseversion_scheduler_enabled }}"
-    - name: GRUNNDATA_COMPATI_URL
-      value: "http://hm-grunndata-compati"
     - name: GRUNNDATA_DB_URL
       value: "http://hm-grunndata-db"
     - name: GOOGLE_APPLICATION_CREDENTIALS
@@ -103,7 +101,6 @@ spec:
     outbound:
       rules:
         - application: hm-grunndata-media
-        - application: hm-grunndata-compati
         - application: hm-grunndata-db
       external:
         - host: login.microsoftonline.com
@@ -112,5 +109,4 @@ spec:
     inbound:
       rules:
         - application: hm-grunndata-index
-        - application: hm-grunndata-compati
         - application: hm-grunndata-db

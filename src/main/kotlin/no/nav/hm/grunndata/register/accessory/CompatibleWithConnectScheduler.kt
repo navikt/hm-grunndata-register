@@ -12,7 +12,7 @@ open class CompatibleWithConnectScheduler(
     private val compatibleWithConnecter: CompatibleWithConnecter
 ) {
 
-    @Scheduled(cron = "0 45 0 * * *")
+    @Scheduled(cron = "0 30 * * * *")
     @LeaderOnly
     open fun connectCompatibleWith() {
         runBlocking {
