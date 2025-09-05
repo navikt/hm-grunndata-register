@@ -123,7 +123,11 @@ open class CompatibleWithConnecter(private val compatibleAIFinder: CompatibleAIF
             LOG.error("No hmsArtNr for product ${product.id}, skip connecting with compatibleWith")
             return null
         }
-        val compatibleWiths = findCompatibleWithAi(product.hmsArtNr!!)
+        val compatibleWiths = findCompatibleWithAi(product.hmsArtNr)
+        if (compatibleWiths.isEmpty()) {
+            LOG.info("No compatibleWith found for product ${product.hmsArtNr}, skip connecting with compatibleWith")
+            return null
+        }
         val seriesIds = compatibleWiths.map { it.seriesId.toUUID() }.toSet()
         // keep all previous connections.
         val seriesIdToKeep = product.productData.attributes.compatibleWith?.seriesIds?: emptySet()
