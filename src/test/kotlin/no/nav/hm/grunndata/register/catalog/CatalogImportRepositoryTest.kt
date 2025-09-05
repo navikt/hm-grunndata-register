@@ -17,46 +17,31 @@ import no.nav.hm.grunndata.register.agreement.DelkontraktRegistration
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationRepository
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
+import no.nav.hm.grunndata.register.product.ProductData
+import no.nav.hm.grunndata.register.product.ProductRegistration
+import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService.Companion.EXCEL
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
+import org.apache.commons.math3.stat.descriptive.summary.Product
 import org.junit.jupiter.api.Test
 
 @MicronautTest
 class CatalogImportRepositoryTest(
     private val catalogImportRepository: CatalogImportRepository,
-    private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository,
     private val seriesRegistrationRepository: SeriesRegistrationRepository,
-    private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository
+    private val productRegistrationRepository: ProductRegistrationRepository,
 ) {
 
     @Test
     fun testRepository() {
         runBlocking {
-            val postId1 = UUID.randomUUID()
-            val postId2 = UUID.randomUUID()
             val agreementId = UUID.randomUUID()
             val supplierId = UUID.randomUUID()
 
-            val delkontraktRegistration1 = delkontraktRegistrationRepository.save(DelkontraktRegistration(
-                id = postId1,
-                agreementId = agreementId,
-                delkontraktData = DelkontraktData(title = "delkontrakt 1", description = "beskrivelse", sortNr = 1),
-                createdBy = "tester",
-                updatedBy = "tester",
-                identifier = postId1.toString()
-            ))
-            val delkontraktRegistration2 = delkontraktRegistrationRepository.save(DelkontraktRegistration(
-                id = postId2,
-                agreementId = agreementId,
-                delkontraktData = DelkontraktData(title = "delkontrakt 2", description = "beskrivelse", sortNr = 1),
-                createdBy = "tester",
-                updatedBy = "tester",
-                identifier = postId2.toString()
-            ))
             val testCatalog1 = catalogImportRepository.save(CatalogImport(
                 agreementAction = "agreementAction",
                 orderRef = "1234",
@@ -131,36 +116,31 @@ class CatalogImportRepositoryTest(
             testCatalog2 shouldBeEqual  testCatalog3
 
             val seriesId = UUID.randomUUID()
-            val productAgreement1 = productAgreementRegistrationRepository.save(ProductAgreementRegistration(
-                agreementId = agreementId,
-                hmsArtNr = "432100",
-                post = 1,
-                rank = 1,
-                postId = postId1,
-                reference = "20-1424",
-                supplierId = supplierId,
-                supplierRef = "TK1235-213",
-                createdBy = EXCEL,
-                title = "Test product agreement",
-                status = ProductAgreementStatus.ACTIVE,
-                articleName = "Test article",
-                seriesUuid = seriesId
-            ))
-            val productAgreement2 = productAgreementRegistrationRepository.save(ProductAgreementRegistration(
-                agreementId = agreementId,
+            val product1 = productRegistrationRepository.save(
+                ProductRegistration(
+                    hmsArtNr = "432100",
+                    supplierId = supplierId,
+                    supplierRef = "supplierRef1",
+                    createdBy = EXCEL,
+                    title = "Test product agreement",
+                    articleName = "Test article",
+                    id = UUID.randomUUID(),
+                    seriesUUID = seriesId,
+                    productData = ProductData(),
+                )
+            )
+            val product2 = productRegistrationRepository.save(ProductRegistration(
                 hmsArtNr = "432101",
-                post = 2,
-                rank = 1,
-                postId = postId2,
-                reference = "20-1424",
                 supplierId = supplierId,
-                supplierRef = "TK1235-214",
+                supplierRef = "supplierRef2",
                 createdBy = EXCEL,
                 title = "Test product agreement 2",
-                status = ProductAgreementStatus.ACTIVE,
-                articleName = "Test article 2",
-                seriesUuid = seriesId
+                articleName = "supplierRef2",
+                id = UUID.randomUUID(),
+                seriesUUID = seriesId,
+                productData = ProductData(),
             ))
+
             val seriesRegistration = seriesRegistrationRepository.save(SeriesRegistration(
                 id = seriesId,
                 supplierId = supplierId,

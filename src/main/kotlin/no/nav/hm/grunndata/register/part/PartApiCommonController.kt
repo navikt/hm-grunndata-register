@@ -18,7 +18,7 @@ import io.micronaut.http.annotation.RequestBean
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
-import no.nav.hm.grunndata.register.accessory.CompatibleWithFinder
+import no.nav.hm.grunndata.register.accessory.CompatibleWithConnecter
 import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTOV2
@@ -38,7 +38,7 @@ class PartApiCommonController(
     private val productRegistrationService: ProductRegistrationService,
     private val partService: PartService,
     private val productDTOMapper: ProductDTOMapper,
-    private val compatibleWithFinder: CompatibleWithFinder,
+    private val compatibleWithConnecter: CompatibleWithConnecter,
 ) {
     companion object {
         const val API_V1_PART_REGISTRATIONS = "/common/api/v1/part"
@@ -207,7 +207,7 @@ class PartApiCommonController(
             if (!(product.accessory or product.sparePart))
                 throw IllegalArgumentException("Product $id is not an accessory or spare part")
             LOG.info("Connect product $id with $compatibleWithDTO")
-            val connected = compatibleWithFinder.connectWith(compatibleWithDTO, product)
+            val connected = compatibleWithConnecter.connectWith(compatibleWithDTO, product)
             return productDTOMapper.toDTOV2(connected)
         } else {
             val product = productRegistrationService.findById(id)
@@ -215,7 +215,8 @@ class PartApiCommonController(
             if (!(product.accessory or product.sparePart))
                 throw IllegalArgumentException("Product $id is not an accessory or spare part")
             LOG.info("Connect product $id with $compatibleWithDTO")
-            val connected = compatibleWithFinder.connectWith(compatibleWithDTO, product)
+            LOG.info("THIS IS THE $product")
+            val connected = compatibleWithConnecter.connectWith(compatibleWithDTO, product)
             return productDTOMapper.toDTOV2(connected)
         }
     }
@@ -236,7 +237,7 @@ class PartApiCommonController(
     }
 
     @Get("/variants/{hmsNr}")
-    suspend fun findCompatibleWithProductsVariants(hmsNr: String) = compatibleWithFinder.findCompatibleWith(hmsNr, true)
+    suspend fun findCompatibleWithProductsVariants(hmsNr: String) = compatibleWithConnecter.findCompatibleWithAi(hmsNr)
 
     @Put("/{seriesId}")
     suspend fun updatePart(
