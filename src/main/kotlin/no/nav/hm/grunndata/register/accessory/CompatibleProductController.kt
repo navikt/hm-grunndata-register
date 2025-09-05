@@ -1,11 +1,10 @@
-package no.nav.hm.grunndata.register.internal.maintenance
+package no.nav.hm.grunndata.register.accessory
 
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.swagger.v3.oas.annotations.Hidden
-import no.nav.hm.grunndata.register.accessory.CompatibleWithConnecter
 import org.slf4j.LoggerFactory
 
 @Secured(SecurityRule.IS_ANONYMOUS)
