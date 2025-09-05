@@ -115,8 +115,9 @@ open class CompatibleWithConnecter(private val compatibleAIFinder: CompatibleAIF
 
     private suspend fun addCompatibleWithAttributeSeriesLink(product: ProductRegistration): ProductRegistration? {
         if (product.productData.attributes.compatibleWith!= null
-            && product.productData.attributes.compatibleWith?.connectedBy == CompatibleWith.MANUAL ) {
-            LOG.info("Skip connecting product ${product.hmsArtNr} with compatibleWith ${product.productData.attributes.compatibleWith?.connectedBy}")
+            && (product.productData.attributes.compatibleWith!!.connectedBy == CompatibleWith.MANUAL
+                    || product.productData.attributes.compatibleWith!!.seriesIds.isNotEmpty())) {
+            LOG.debug("Skip connecting product ${product.hmsArtNr} already connected with compatibleWith by ${product.productData.attributes.compatibleWith?.connectedBy}")
             return null
         }
         if (product.hmsArtNr == null) {
