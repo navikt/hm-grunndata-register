@@ -76,6 +76,10 @@ spec:
       value: "http://hm-grunndata-db"
     - name: GOOGLE_APPLICATION_CREDENTIALS
       value: "/var/run/secrets/credentials/hm-grunndata-register/secret"
+    - name: VERTEXAI_MODEL_NAME
+      value: "{{ vertexai_model_name }}"
+    - name: VERTEXAI_PROJECT_ID
+      value: "{{ vertexai_project_id }}"
   {{#each env}}
     - name: {{@key}}
       value: "{{this}}"

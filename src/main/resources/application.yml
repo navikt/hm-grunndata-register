@@ -195,3 +195,4 @@ vertexai:
   location: ${VERTEXAI_LOCATION:europe-north1}
   project: ${VERTEXAI_PROJECT_ID:teamdigihot-dev-9705}
   temperature: ${VERTEXAI_TEMPERATURE:0.0f}
+  

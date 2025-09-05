@@ -11,6 +11,8 @@
   "schedulers_enabled": true,
   "import_autoapprove": true,
   "java_opts": "-Xms128m -Xmx1500m -XX:+UseG1GC",
+  "vertexai_project_id": "teamdigihot-dev-9705",
+  "vertexai_model_name": "gemini-2.5-flash",
   "baseversion_scheduler_enabled": false,
   "env": {
     "DIGITAL_SOKNAD_SORTIMENT_URL": "https://navikt.github.io/digihot-sortiment/sortiment_av_apostid_per_kategori_dev2.json"
