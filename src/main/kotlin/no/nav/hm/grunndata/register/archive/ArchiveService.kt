@@ -24,7 +24,7 @@ open class ArchiveService(private val archiveRepository: ArchiveRepository) {
     fun getAllHandlers(): Collection<ArchiveHandler> = archiveHandlers.values
 
     suspend fun archiveAll() {
-        LOG.info("Starting archiving process for all ${archiveHandlers.size} handlers")
+        LOG.debug("Starting archiving process for all ${archiveHandlers.size} handlers")
         for (handler in archiveHandlers.values) {
             try {
                 handleArchive(handler)
@@ -35,7 +35,7 @@ open class ArchiveService(private val archiveRepository: ArchiveRepository) {
     }
 
     suspend fun unarchiveAll() {
-        LOG.info("Starting unarchiving process for all ${archiveHandlers.size} handlers")
+        LOG.debug("Starting unarchiving process for all ${archiveHandlers.size} handlers")
         for (handler in archiveHandlers.values) {
             try {
                 handleUnarchive(handler)
