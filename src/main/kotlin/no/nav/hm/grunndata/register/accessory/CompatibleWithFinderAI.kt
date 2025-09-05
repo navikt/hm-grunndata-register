@@ -30,7 +30,7 @@ open class CompatibleAIFinder(private val config: VertexAIConfig, private val ob
 
     open fun findCompatibleProducts(partsTitle: String, mainTitles: List<HmsNrTitlePair>): List<HmsNr> {
         val prompt = generatePrompt(partsTitle, mainTitles)
-        LOG.info("Generated prompt: $prompt")
+        LOG.debug("Generated prompt: $prompt")
         return modelGenerateContent(prompt)
     }
 
