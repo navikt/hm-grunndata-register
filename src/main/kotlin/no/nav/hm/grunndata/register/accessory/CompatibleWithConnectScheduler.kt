@@ -12,8 +12,8 @@ open class CompatibleWithConnectScheduler(
     private val compatibleWithConnecter: CompatibleWithConnecter
 ) {
 
-    //@Scheduled(cron = "0 30 * * * *")
-    //@LeaderOnly
+    @Scheduled(cron = "0 30 0 * * *")
+    @LeaderOnly
     open fun connectCompatibleWith() {
         runBlocking {
             LOG.info("Running compatibleWith connect scheduler")
