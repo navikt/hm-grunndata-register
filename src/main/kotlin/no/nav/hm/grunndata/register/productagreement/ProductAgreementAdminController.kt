@@ -354,7 +354,7 @@ open class ProductAgreementAdminController(
                     LOG.info("Product agreement $uuid is not published yet, performing physical delete")
                     productAgreementRegistrationService.physicalDeleteById(uuid)
                 } else {
-                    LOG.info("Product agreement $uuid is published, deqctivating")
+                    LOG.info("Product agreement $uuid is published, deactivating")
                     productAgreementRegistrationService.saveAndCreateEvent(
                         it.copy(
                             status = ProductAgreementStatus.INACTIVE,

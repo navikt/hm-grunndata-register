@@ -215,7 +215,6 @@ class PartApiCommonController(
             if (!(product.accessory or product.sparePart))
                 throw IllegalArgumentException("Product $id is not an accessory or spare part")
             LOG.info("Connect product $id with $compatibleWithDTO")
-            LOG.info("THIS IS THE $product")
             val connected = compatibleWithConnecter.connectWith(compatibleWithDTO, product)
             return productDTOMapper.toDTOV2(connected)
         }
