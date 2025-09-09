@@ -27,7 +27,7 @@ spec:
   replicas:
     min: {{ min_replicas }}
     max: {{ max_replicas }}
-    cpuThresholdPercentage: 50
+    cpuThresholdPercentage: 80
   resources:
     limits:
       memory: 4096Mi
