@@ -26,7 +26,7 @@ data class ProductAgreementRegistration(
     val supplierId: UUID,
     val supplierRef: String,
     @field:Column(name = "hms_artnr")
-    val hmsArtNr: String,
+    val hmsArtNr: String? = null,
     val agreementId: UUID,
     val reference: String,
     val post: Int,
@@ -53,7 +53,7 @@ data class ProductAgreementRegistrationDTO(
     val isoCategory: String? = null,
     val supplierId: UUID,
     val supplierRef: String,
-    val hmsArtNr: String,
+    val hmsArtNr: String?,
     val agreementId: UUID,
     val reference: String,
     val post: Int,
