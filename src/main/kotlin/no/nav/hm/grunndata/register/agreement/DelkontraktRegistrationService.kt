@@ -1,7 +1,6 @@
 package no.nav.hm.grunndata.register.agreement
 
 import jakarta.inject.Singleton
-import no.nav.hm.grunndata.rapid.dto.DelkontraktType
 import java.util.UUID
 
 @Singleton

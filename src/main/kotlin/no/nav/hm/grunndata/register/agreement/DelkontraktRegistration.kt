@@ -4,13 +4,10 @@ import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.model.DataType
+import no.nav.hm.grunndata.rapid.dto.DelkontraktType
+import no.nav.hm.grunndata.register.REGISTER
 import java.time.LocalDateTime
 import java.util.UUID
-import no.nav.hm.grunndata.rapid.dto.AgreementDTO
-import no.nav.hm.grunndata.rapid.dto.AgreementPost
-import no.nav.hm.grunndata.rapid.dto.DelkontraktType
-import no.nav.hm.grunndata.register.HMDB
-import no.nav.hm.grunndata.register.REGISTER
 
 @MappedEntity("delkontrakt_reg_v1")
 data class DelkontraktRegistration(
@@ -27,11 +24,15 @@ data class DelkontraktRegistration(
 )
 
 data class DelkontraktData(
-    val title: String?=null,
-    val description: String?=null,
-    val sortNr: Int=0,
-    val refNr: String? = extractDelkontraktNrFromTitle(title?:"") // "1" eller "1A"
-)
+    val title: String? = null,
+    val description: String? = null,
+    val sortNr: Int = 0,
+    var refNr: String? = null
+) {
+    init {
+        refNr = extractDelkontraktNrFromTitle(title ?: "")
+    }
+}
 
 data class DelkontraktRegistrationDTO(
     val id: UUID,

@@ -24,7 +24,7 @@ class DelkontraktRegistrationRepositoryTest(
             identifier = "qwerty",
             createdBy = "HMDB",
             updatedBy = "HMDB",
-            delkontraktData =  DelkontraktData(title = "1. Delkontrakt tittel",
+            delkontraktData =  DelkontraktData(title = "1A. Delkontrakt tittel",
                 description = "Description of delkontrakt 1", sortNr = 1, refNr = "1A"),
         )
 
@@ -34,7 +34,7 @@ class DelkontraktRegistrationRepositoryTest(
             val found = delkontraktRegistrationRepository.findById(saved.id)
             found.shouldNotBeNull()
             found.identifier shouldBe "qwerty"
-            found.delkontraktData.title shouldBe "1. Delkontrakt tittel"
+            found.delkontraktData.title shouldBe "1A. Delkontrakt tittel"
             found.delkontraktData.description shouldBe "Description of delkontrakt 1"
             found.delkontraktData.sortNr shouldBe 1
             found.delkontraktData.refNr shouldBe "1A"
