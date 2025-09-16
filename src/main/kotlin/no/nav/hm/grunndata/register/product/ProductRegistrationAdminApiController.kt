@@ -20,7 +20,6 @@ import io.micronaut.http.annotation.RequestBean
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
-import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
@@ -29,6 +28,7 @@ import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.series.SeriesGroupDTO
 import org.slf4j.LoggerFactory
+import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN, Roles.ROLE_HMS)
 @Controller(ProductRegistrationAdminApiController.API_V1_ADMIN_PRODUCT_REGISTRATIONS)
@@ -94,6 +94,18 @@ class ProductRegistrationAdminApiController(
     suspend fun getProductByHmsArtNr(hmsArtNr: String): HttpResponse<ProductRegistrationDTO> =
         productRegistrationService.findByHmsArtNr(hmsArtNr)
             ?.let { HttpResponse.ok(productDTOMapper.toDTO(it)) } ?: HttpResponse.notFound()
+
+    @Get("/variant-id/{variantIdentifier}")
+    suspend fun getProductByVariantIdentifier(
+        @PathVariable variantIdentifier: String,
+        authentication: Authentication,
+    ): HttpResponse<ProductRegistrationDTO> {
+        val variant = productRegistrationService.findByHmsArtNr(variantIdentifier, authentication)
+            ?: productRegistrationService.findBySupplierRef(variantIdentifier, authentication)
+
+        return variant
+            ?.let { HttpResponse.ok(productDTOMapper.toDTO(it)) } ?: HttpResponse.notFound()
+    }
 
     @Post("/draftWithV3/{seriesUUID}")
     suspend fun createDraft(
