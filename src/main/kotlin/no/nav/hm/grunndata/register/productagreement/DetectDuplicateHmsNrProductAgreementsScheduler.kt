@@ -9,14 +9,13 @@ import no.nav.hm.micronaut.leaderelection.LeaderOnly
 open class DetectDuplicateHmsNrProductAgreementsScheduler(private val productAgreementRepository: ProductAgreementRegistrationRepository) {
 
     @LeaderOnly
-    @Scheduled(cron = "* 55 2 * * *")
+    @Scheduled(cron = "0 55 2 * * *")
     open fun detectDuplicateHmsNrWithDifferentSupplierRef() {
         runBlocking {
             val productAgreements = productAgreementRepository.findSupplierRefChangedSameHmsArtNr()
             if (productAgreements.size > 1) {
-                LOG.error("Found ${productAgreements.size} product agreements with the same HMS art nr but different supplier references. This is not allowed.")
                 productAgreements.forEach { pa ->
-                    LOG.error("Product Agreement ID: ${pa.id}, HMS Art Nr: ${pa.hmsArtNr}, Supplier Ref: ${pa.supplierRef}, Agreement ID: ${pa.agreementId}")
+                    LOG.error("Same HmsNr but different supplierRef ERROR! Product Agreement ID: ${pa.id}, has same HMS Art Nr: ${pa.hmsArtNr}, Supplier Ref: ${pa.supplierRef}, Agreement ID: ${pa.agreementId}")
                 }
             }
         }
