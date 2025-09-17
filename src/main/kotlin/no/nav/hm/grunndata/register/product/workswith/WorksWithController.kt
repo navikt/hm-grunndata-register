@@ -24,7 +24,7 @@ class WorksWithController(
 ) {
 
     companion object {
-        const val API_V1_WORKSWITH_REGISTRATIONS = "/api/v1/products/workswith"
+        const val API_V1_WORKSWITH_REGISTRATIONS = "/vendor/api/v1/works-with"
         private val LOG = LoggerFactory.getLogger(WorksWithController::class.java)
     }
 
