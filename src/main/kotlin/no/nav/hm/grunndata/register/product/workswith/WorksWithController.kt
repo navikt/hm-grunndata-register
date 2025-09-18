@@ -34,9 +34,8 @@ class WorksWithController(
         authentication: Authentication
     ): ProductRegistration {
         val sourceProductId = worksWithMapping.sourceProductId
-        val targetProductId = worksWithMapping.targetProductId
         if (authentication.isSupplier()) {
-            val sourceProduct = productRegistrationService.findByIdAndSupplierId(
+            productRegistrationService.findByIdAndSupplierId(
                 sourceProductId,
                 authentication.supplierId()
             ) ?: throw IllegalArgumentException("Product not found for id: ${sourceProductId}")
@@ -49,9 +48,8 @@ class WorksWithController(
         @Body worksWithMapping: WorksWithMapping,
         authentication: Authentication): ProductRegistration {
         val sourceProductId = worksWithMapping.sourceProductId
-        val targetProductId = worksWithMapping.targetProductId
         if (authentication.isSupplier()) {
-            val sourceProduct = productRegistrationService.findByIdAndSupplierId(sourceProductId, authentication.supplierId()) ?:
+            productRegistrationService.findByIdAndSupplierId(sourceProductId, authentication.supplierId()) ?:
                 throw IllegalArgumentException("Product not found for id: ${sourceProductId}")
         }
         return worksWithConnector.removeConnection(worksWithMapping)

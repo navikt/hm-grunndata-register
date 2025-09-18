@@ -14,7 +14,7 @@ class WorksWithConnector(private val productRegistrationService: ProductRegistra
             throw IllegalArgumentException("Source Product ${worksWithMapping.sourceProductId} not found")
         if (!sourceProduct.mainProduct) throw IllegalArgumentException("Source Product ${worksWithMapping.sourceProductId} should be a main product")
         val targetProduct = productRegistrationService.findById(worksWithMapping.targetProductId) ?:
-            throw IllegalArgumentException("Traget Product ${worksWithMapping.targetProductId} not found")
+            throw IllegalArgumentException("Target Product ${worksWithMapping.targetProductId} not found")
         if (!targetProduct.mainProduct) throw IllegalArgumentException("Target Product ${worksWithMapping.targetProductId} should be a main product")
         val connected = saveWorksWithConnection(sourceProduct, targetProduct)
         // save reverse connection if not already connected
@@ -50,7 +50,7 @@ class WorksWithConnector(private val productRegistrationService: ProductRegistra
         val targetProduct = productRegistrationService.findById(worksWithMapping.targetProductId) ?:
             throw IllegalArgumentException("Target Product ${worksWithMapping.targetProductId} not found")
         val deleted = deleteWorksWithConnection(sourceProduct, targetProduct)
-        if (targetProduct.productData.attributes.worksWith?.productIds?.contains(sourceProduct.id) != true) {
+        if (targetProduct.productData.attributes.worksWith?.productIds?.contains(sourceProduct.id) == true) {
             deleteWorksWithConnection(targetProduct, sourceProduct)
         }
         return deleted
