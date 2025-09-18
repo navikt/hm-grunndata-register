@@ -68,10 +68,10 @@ class WorksWithConnector(private val productRegistrationService: ProductRegistra
         val removed = sourceProduct.copy(
             productData = sourceProduct.productData.copy(
                 attributes = sourceProduct.productData.attributes.copy(
-                    worksWith = WorksWith(
+                    worksWith = if (afterRemovedSeriesIds.isNotEmpty() || afterRemovedProductIds.isNotEmpty()) WorksWith(
                         seriesIds = afterRemovedSeriesIds,
                         productIds = afterRemovedProductIds
-                    )
+                    ) else null
                 )
             )
         )
