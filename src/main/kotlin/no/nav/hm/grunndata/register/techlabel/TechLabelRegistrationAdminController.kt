@@ -38,10 +38,18 @@ class TechLabelRegistrationAdminController(private val techLabelRegistrationServ
 
     @Post("/")
     suspend fun createTechLabel(dto: TechLabelRegistrationDTO, authentication: Authentication): HttpResponse<TechLabelRegistrationDTO> =
-        techLabelRegistrationService.findById(dto.id)?.let {
-            throw BadRequestException("TechLabel ${dto.id} already exists")
-        } ?: HttpResponse.created(techLabelRegistrationService.save(dto.copy(createdByUser = authentication.name,
-            updatedByUser = authentication.name)))
+        if (techLabelRegistrationService.findById(dto.id)!=null) throw BadRequestException("TechLabel ${dto.id} already exists")
+        else  HttpResponse.created(
+            techLabelRegistrationService.save(
+                dto.copy(
+                    created = LocalDateTime.now(),
+                    createdBy = authentication.name,
+                    createdByUser = authentication.name,
+                    updated = LocalDateTime.now(),
+                    updatedByUser = authentication.name
+                )
+            )
+        )
 
     @Put("/{id}")
     suspend fun updateTechLabel(id: UUID, dto: TechLabelRegistrationDTO): HttpResponse<TechLabelRegistrationDTO> =
