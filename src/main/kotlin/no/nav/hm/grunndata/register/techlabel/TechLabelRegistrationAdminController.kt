@@ -17,7 +17,6 @@ import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.let
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(TechLabelRegistrationAdminController.API_V1_ADMIN_TECHLABEL_REGISTRATIONS)
@@ -83,7 +82,7 @@ class TechLabelRegistrationAdminController(private val techLabelRegistrationServ
 @Introspected
 data class TechLabelCriteria(
     val label: String? = null,
-    val type: String? = null,
+    val type: TechLabelType? = null,
     val unit: String? = null,
     val isoCode: String? = null) {
 
