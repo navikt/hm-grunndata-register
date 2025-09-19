@@ -690,6 +690,28 @@ open class ProductRegistrationService(
         return productRegistrationRepository.findDistinctByProductTechDataJsonQuery(jsonQuery.toString())
     }
 
+    suspend fun findByIsoCategoryAndTechLabelKeyUnit(
+        isoCategory: String,
+        key: String? = null,
+        unit: String? = null,
+    ): List<ProductRegistration> {
+        if (key.isNullOrBlank() && unit.isNullOrBlank()) {
+            throw BadRequestException("At least one of key, unit or value must be provided")
+        }
+        val jsonQuery = StringBuilder("[{")
+        if (!key.isNullOrBlank()) {
+            jsonQuery.append("\"key\": \"$key\",")
+        }
+        if (!unit.isNullOrBlank()) {
+            jsonQuery.append("\"unit\": \"$unit\",")
+        }
+        if (jsonQuery.endsWith(",")) jsonQuery.setLength(jsonQuery.length - 1) // Remove trailing comma
+        jsonQuery.append("}]")
+        LOG.info("Executing jsonQuery ${jsonQuery}")
+        return productRegistrationRepository.findDistinctByProductIsoCategoryAndTechDataJsonQuery(isoCategory, jsonQuery.toString())
+    }
+
+
 }
 
 suspend fun <T : Any, R : Any> Page<T>.mapSuspend(transform: suspend (T) -> R): Page<R> {

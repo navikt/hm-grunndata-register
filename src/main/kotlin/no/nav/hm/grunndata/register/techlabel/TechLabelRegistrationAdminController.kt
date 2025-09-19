@@ -10,6 +10,9 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.runtime.where
@@ -27,6 +30,8 @@ class TechLabelRegistrationAdminController(private val techLabelRegistrationServ
         private val LOG = LoggerFactory.getLogger(TechLabelRegistrationAdminController::class.java)
         const val API_V1_ADMIN_TECHLABEL_REGISTRATIONS = "/admin/api/v1/techlabel/registrations"
     }
+
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     @Get("/")
     suspend fun findTechLabels(@RequestBean criteria: TechLabelCriteria, pageable: Pageable, authentication: Authentication):
@@ -49,7 +54,7 @@ class TechLabelRegistrationAdminController(private val techLabelRegistrationServ
     suspend fun getTechLabelById(id: UUID): HttpResponse<TechLabelRegistrationDTO> =
         techLabelRegistrationService.findById(id)
             ?.let {
-                HttpResponse.ok(it)
+                HttpResponse.ok(it.toDTO())
             }
             ?: HttpResponse.notFound()
 
@@ -65,15 +70,24 @@ class TechLabelRegistrationAdminController(private val techLabelRegistrationServ
                     updated = LocalDateTime.now(),
                     updatedByUser = authentication.name
                 )
-            )
+            ).toDTO()
         )
 
     @Put("/{id}")
     suspend fun updateTechLabel(id: UUID, dto: TechLabelRegistrationDTO): HttpResponse<TechLabelRegistrationDTO> =
         techLabelRegistrationService.findById(id)?.let { inDb ->
-            HttpResponse.ok(techLabelRegistrationService.update(dto.copy(created = inDb.created,
+            val updated = techLabelRegistrationService.update(dto.copy(created = inDb.created,
                 createdBy = inDb.createdBy, createdByUser = inDb.createdByUser, updated = LocalDateTime.now(),
-                updatedByUser = inDb.updatedByUser)))
+                updatedByUser = inDb.updatedByUser)
+            )
+            if (inDb.label != dto.label || inDb.unit != dto.unit) {
+                LOG.info("Updated TechLabel with id=$id, changed label or unit, update products using this label")
+                // Trigger update on a new thread to not block the user response using kotlin coroutine
+                coroutineScope.launch {
+                    techLabelRegistrationService.changeProductsTechDataWithTechLabel(inDb.label, inDb.unit, inDb.isoCode, updated)
+                }
+            }
+            HttpResponse.ok(updated.toDTO())
         } ?: HttpResponse.notFound()
 
 
