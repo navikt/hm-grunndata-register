@@ -4,6 +4,7 @@ import jakarta.inject.Singleton
 import java.io.OutputStream
 import no.nav.hm.grunndata.register.techlabel.LabelService
 import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
+import no.nav.hm.grunndata.register.techlabel.TechLabelType
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 
@@ -47,7 +48,7 @@ class ProductExcelExport(private val labelService: LabelService) {
             headerCell.setCellValue(techLabelDTO.label)
             if (!techLabelDTO.unit.isNullOrEmpty())
                 commentCell.setCellValue(techLabelDTO.unit)
-            else if (techLabelDTO.type == "L") commentCell.setCellValue("JA/NEI")
+            else if (techLabelDTO.type == TechLabelType.L) commentCell.setCellValue("JA/NEI")
             else commentCell.setCellValue(techLabelDTO.definition ?: "")
             index++
         }
