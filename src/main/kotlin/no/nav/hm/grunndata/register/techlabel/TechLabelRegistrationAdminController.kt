@@ -11,7 +11,6 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.mapSuspend
@@ -24,14 +23,13 @@ import java.util.*
 @Secured(Roles.ROLE_ADMIN)
 @Controller(TechLabelRegistrationAdminController.API_V1_ADMIN_TECHLABEL_REGISTRATIONS)
 @Tag(name="Admin TechLabel")
-class TechLabelRegistrationAdminController(private val techLabelRegistrationService: TechLabelRegistrationService) {
+class TechLabelRegistrationAdminController(private val techLabelRegistrationService: TechLabelRegistrationService,
+                                           private val coroutineScope: CoroutineScope) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(TechLabelRegistrationAdminController::class.java)
         const val API_V1_ADMIN_TECHLABEL_REGISTRATIONS = "/admin/api/v1/techlabel/registrations"
     }
-
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     @Get("/")
     suspend fun findTechLabels(@RequestBean criteria: TechLabelCriteria, pageable: Pageable, authentication: Authentication):

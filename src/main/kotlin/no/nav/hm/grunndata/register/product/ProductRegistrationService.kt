@@ -686,7 +686,7 @@ open class ProductRegistrationService(
         }
         if (jsonQuery.endsWith(",")) jsonQuery.setLength(jsonQuery.length - 1) // Remove trailing comma
         jsonQuery.append("}]")
-        LOG.info("Executing jsonQuery ${jsonQuery.toString()}")
+        LOG.info("Executing jsonQuery ${jsonQuery}")
         return productRegistrationRepository.findDistinctByProductTechDataJsonQuery(jsonQuery.toString())
     }
 
@@ -696,7 +696,7 @@ open class ProductRegistrationService(
         unit: String? = null,
     ): List<ProductRegistration> {
         if (key.isNullOrBlank() && unit.isNullOrBlank()) {
-            throw BadRequestException("At least one of key, unit or value must be provided")
+            throw BadRequestException("At least one of key or unit must be provided")
         }
         val jsonQuery = StringBuilder("[{")
         if (!key.isNullOrBlank()) {
