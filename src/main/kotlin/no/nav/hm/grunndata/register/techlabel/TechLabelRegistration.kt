@@ -18,7 +18,7 @@ data class TechLabelRegistration(
     val guide: String,
     val definition: String?,
     val isoCode: String,
-    val type: String,
+    val type: TechLabelType,
     val unit: String?,
     val sort: Int,
     @field:TypeDef(type = DataType.JSON)
@@ -40,7 +40,7 @@ data class TechLabelRegistrationDTO(
     val guide: String,
     val definition: String?,
     val isoCode: String,
-    val type: String,
+    val type: TechLabelType,
     val unit: String? = null,
     val sort: Int,
     val options: List<String> = emptyList(),
@@ -105,7 +105,7 @@ data class TechLabelDTO(
     val guide: String,
     val definition: String?,
     val isocode: String,
-    val type: String,
+    val type: TechLabelType,
     val unit: String?,
     val sort: Int,
     val isKeyLabel: Boolean = false,
@@ -135,10 +135,14 @@ fun TechLabelRegistration.toTechLabelDTO(): TechLabelDTO = TechLabelDTO(
     created = created,
     updated = updated
 )
-fun String.systemLabel(type: String): String {
+fun String.systemLabel(type: TechLabelType): String {
     val replaced = this.replace("æ", "ae")
         .replace("ø", "o")
         .replace("å", "a")
         .replace("[^A-Za-z]".toRegex(), "")+type
     return replaced.lowercase()
+}
+
+enum class TechLabelType {
+    N, L, C
 }

@@ -26,6 +26,7 @@ import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
+import no.nav.hm.grunndata.register.techlabel.TechLabelType
 
 @MappedEntity("product_reg_v1")
 data class ProductRegistration(
@@ -325,9 +326,9 @@ enum class TechDataType {
     companion object {
         fun from(techLabel: TechLabelDTO): TechDataType {
             return when (techLabel.type) {
-                "N" -> NUMBER
-                "L" -> BOOLEAN
-                "C" -> if (techLabel.options.isEmpty()) TEXT else OPTIONS
+                TechLabelType.N -> NUMBER
+                TechLabelType.L -> BOOLEAN
+                TechLabelType.C -> if (techLabel.options.isEmpty()) TEXT else OPTIONS
                 else -> throw IllegalArgumentException("Ukjent TechDataType for techlabel $techLabel")
             }
         }

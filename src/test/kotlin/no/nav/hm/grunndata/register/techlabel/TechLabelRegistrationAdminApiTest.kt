@@ -48,7 +48,7 @@ class TechLabelRegistrationAdminApiTest(private val client: TechLabelRegistratio
             guide = "Lengde",
             definition = "Lengde",
             isoCode = "09070601",
-            type = "N",
+            type = TechLabelType.N,
             unit = "cm",
             sort = 1,
             createdByUser = "tester",
