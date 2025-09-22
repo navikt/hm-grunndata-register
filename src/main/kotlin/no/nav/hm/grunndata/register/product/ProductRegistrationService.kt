@@ -1,5 +1,7 @@
 package no.nav.hm.grunndata.register.product
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
@@ -45,6 +47,7 @@ open class ProductRegistrationService(
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
     private val supplierService: SupplierRegistrationService,
+    private val objectMapper: ObjectMapper
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductRegistration::class.java)
@@ -686,8 +689,24 @@ open class ProductRegistrationService(
         }
         if (jsonQuery.endsWith(",")) jsonQuery.setLength(jsonQuery.length - 1) // Remove trailing comma
         jsonQuery.append("}]")
-        LOG.info("Executing jsonQuery ${jsonQuery.toString()}")
+        LOG.info("Executing jsonQuery ${jsonQuery}")
         return productRegistrationRepository.findDistinctByProductTechDataJsonQuery(jsonQuery.toString())
+    }
+
+    suspend fun findByIsoCategoryAndTechLabelKeyUnit(
+        isoCategory: String,
+        key: String? = null,
+        unit: String? = null,
+    ): List<ProductRegistration> {
+        if (key.isNullOrBlank() && unit.isNullOrBlank()) {
+            throw BadRequestException("At least one of key or unit must be provided")
+        }
+        val queryMap = mutableMapOf<String, String>()
+        if (!key.isNullOrBlank()) queryMap["key"] = key
+        if (!unit.isNullOrBlank()) queryMap["unit"] = unit
+        val jsonQuery = objectMapper.writeValueAsString(listOf(queryMap))
+        LOG.info("Executing jsonQuery ${jsonQuery}")
+        return productRegistrationRepository.findDistinctByProductIsoCategoryAndTechDataJsonQuery(isoCategory, jsonQuery.toString())
     }
 
 }
