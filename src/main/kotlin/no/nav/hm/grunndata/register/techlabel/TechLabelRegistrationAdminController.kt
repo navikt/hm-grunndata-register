@@ -80,9 +80,18 @@ class TechLabelRegistrationAdminController(private val techLabelRegistrationServ
             )
             if (inDb.label != dto.label || inDb.unit != dto.unit) {
                 LOG.info("Updated TechLabel with id=$id, changed label or unit, update products using this label")
-                // Trigger update on a new thread to not block the user response using kotlin coroutine
-                coroutineScope.launch {
-                    techLabelRegistrationService.changeProductsTechDataWithTechLabel(inDb.label, inDb.unit, inDb.isoCode, updated)
+                try {
+                    coroutineScope.launch {
+                        techLabelRegistrationService.changeProductsTechDataWithTechLabel(
+                            inDb.label,
+                            inDb.unit,
+                            inDb.isoCode,
+                            updated
+                        )
+                    }
+                }
+                catch (e: Exception) {
+                    LOG.error("Error updating products with new techLabel ${e.message}", e)
                 }
             }
             HttpResponse.ok(updated.toDTO())
