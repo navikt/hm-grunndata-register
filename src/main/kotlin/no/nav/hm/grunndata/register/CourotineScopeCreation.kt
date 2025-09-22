@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 @Factory
-class CourotineScopeCreation {
+class CoroutineScopeCreation {
 
     @Bean
     fun createCoroutineScopeBean(): CoroutineScope {
