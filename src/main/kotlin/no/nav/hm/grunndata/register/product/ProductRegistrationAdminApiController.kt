@@ -107,6 +107,14 @@ class ProductRegistrationAdminApiController(
             ?.let { HttpResponse.ok(productDTOMapper.toDTO(it)) } ?: HttpResponse.notFound()
     }
 
+    @Post("/ids")
+    suspend fun getProductsByIds(
+        @Body ids: List<UUID>,
+    ): HttpResponse<List<ProductRegistrationDTOV2>> {
+        val products = productRegistrationService.findByIdIn(ids)
+        return HttpResponse.ok(products.map { productDTOMapper.toDTOV2(it) })
+    }
+
     @Post("/draftWithV3/{seriesUUID}")
     suspend fun createDraft(
         @PathVariable seriesUUID: UUID,
