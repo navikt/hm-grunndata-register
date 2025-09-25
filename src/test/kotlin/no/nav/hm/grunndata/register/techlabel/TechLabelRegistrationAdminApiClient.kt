@@ -17,8 +17,8 @@ interface TechLabelRegistrationAdminApiClient {
     fun getTechLabelById(@CookieValue("JWT") jwt: String, id: UUID): HttpResponse<TechLabelRegistrationDTO>
 
     @Post(uri= "/", consumes = [MediaType.APPLICATION_JSON])
-    fun createTechLabel(@CookieValue("JWT") jwt: String, dto: TechLabelRegistrationDTO): HttpResponse<TechLabelRegistrationDTO>
+    fun createTechLabel(@CookieValue("JWT") jwt: String, dto: TechLabelCreateUpdateDTO): HttpResponse<TechLabelRegistrationDTO>
 
     @Put(uri = "/{id}", consumes = [MediaType.APPLICATION_JSON])
-    fun updateTechLabel(@CookieValue("JWT") jwt: String, id: UUID, dto: TechLabelRegistrationDTO): HttpResponse<TechLabelRegistrationDTO>
+    fun updateTechLabel(@CookieValue("JWT") jwt: String, id: UUID, dto: TechLabelCreateUpdateDTO): HttpResponse<TechLabelRegistrationDTO>
 }

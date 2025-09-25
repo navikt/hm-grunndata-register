@@ -16,9 +16,9 @@ class TechLabelRegistrationService(private val techLabelRegistrationRepository: 
     suspend fun findAll(spec:  PredicateSpecification<TechLabelRegistration>? = null, pageable: Pageable) =
         techLabelRegistrationRepository.findAll(spec, pageable)
 
-    suspend fun save(dto: TechLabelRegistrationDTO) = techLabelRegistrationRepository.save(dto.toEntity())
+    suspend fun save(techlabel: TechLabelRegistration) = techLabelRegistrationRepository.save(techlabel)
 
-    suspend fun update(dto: TechLabelRegistrationDTO) = techLabelRegistrationRepository.update(dto.toEntity())
+    suspend fun update(techlabel: TechLabelRegistration) = techLabelRegistrationRepository.update(techlabel)
 
     suspend fun changeProductsTechDataWithTechLabel(oldKey: String, oldUnit: String?, isoCode: String, newTechLabel: TechLabelRegistration) {
         val products = productRegistrationService.findByIsoCategoryAndTechLabelKeyUnit(isoCode, key = oldKey, unit = oldUnit)
@@ -34,6 +34,9 @@ class TechLabelRegistrationService(private val techLabelRegistrationRepository: 
             productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(product.copy(productData = updatedProdData), true)
         }
     }
+
+    suspend fun findByLabelAndIsoCode(label: String, isoCode: String) =
+        techLabelRegistrationRepository.findByLabelAndIsoCode(label, isoCode)
 
     companion object {
         private val LOG = org.slf4j.LoggerFactory.getLogger(TechLabelRegistrationService::class.java)

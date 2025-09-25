@@ -22,9 +22,11 @@ import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(TechLabelRegistrationAdminController.API_V1_ADMIN_TECHLABEL_REGISTRATIONS)
-@Tag(name="Admin TechLabel")
-class TechLabelRegistrationAdminController(private val techLabelRegistrationService: TechLabelRegistrationService,
-                                           private val coroutineScope: CoroutineScope) {
+@Tag(name = "Admin TechLabel")
+class TechLabelRegistrationAdminController(
+    private val techLabelRegistrationService: TechLabelRegistrationService,
+    private val coroutineScope: CoroutineScope
+) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(TechLabelRegistrationAdminController::class.java)
@@ -32,10 +34,14 @@ class TechLabelRegistrationAdminController(private val techLabelRegistrationServ
     }
 
     @Get("/")
-    suspend fun findTechLabels(@RequestBean criteria: TechLabelCriteria, pageable: Pageable, authentication: Authentication):
-        Page<TechLabelRegistrationDTO> = techLabelRegistrationService
-            .findAll(buildCriteriaSpec(criteria), pageable)
-            .mapSuspend { it.toDTO() }
+    suspend fun findTechLabels(
+        @RequestBean criteria: TechLabelCriteria,
+        pageable: Pageable,
+        authentication: Authentication
+    ):
+            Page<TechLabelRegistrationDTO> = techLabelRegistrationService
+        .findAll(buildCriteriaSpec(criteria), pageable)
+        .mapSuspend { it.toDTO() }
 
     private fun buildCriteriaSpec(criteria: TechLabelCriteria): PredicateSpecification<TechLabelRegistration>? =
         if (criteria.isNotEmpty()) {
@@ -45,8 +51,7 @@ class TechLabelRegistrationAdminController(private val techLabelRegistrationServ
                 criteria.unit?.let { root[TechLabelRegistration::unit] eq it }
                 criteria.type?.let { root[TechLabelRegistration::type] eq it }
             }
-        }
-        else null
+        } else null
 
     @Get("/{id}")
     suspend fun getTechLabelById(id: UUID): HttpResponse<TechLabelRegistrationDTO> =
@@ -57,26 +62,48 @@ class TechLabelRegistrationAdminController(private val techLabelRegistrationServ
             ?: HttpResponse.notFound()
 
     @Post("/")
-    suspend fun createTechLabel(dto: TechLabelRegistrationDTO, authentication: Authentication): HttpResponse<TechLabelRegistrationDTO> =
-        if (techLabelRegistrationService.findById(dto.id)!=null) throw BadRequestException("TechLabel ${dto.id} already exists")
-        else  HttpResponse.created(
-            techLabelRegistrationService.save(
-                dto.copy(
-                    created = LocalDateTime.now(),
-                    createdBy = authentication.name,
-                    createdByUser = authentication.name,
+    suspend fun createTechLabel(
+        @Body dto: TechLabelCreateUpdateDTO,
+        authentication: Authentication
+    ): HttpResponse<TechLabelRegistrationDTO> =
+        if (techLabelRegistrationService.findByLabelAndIsoCode(dto.label, dto.isoCode) != null) {
+            throw BadRequestException("TechLabel with label='${dto.label}' and isocode='${dto.isoCode}' already exists")
+        } else
+            HttpResponse.created(
+                techLabelRegistrationService.save(
+                    TechLabelRegistration(
+                        label = dto.label,
+                        guide = dto.label,
+                        definition = null,
+                        isoCode = dto.isoCode,
+                        type = dto.type,
+                        unit = dto.unit,
+                        sort = 0,
+                        options = dto.options,
+                        createdByUser = authentication.name,
+                        updatedByUser = authentication.name
+                    )
+                ).toDTO()
+            )
+
+    @Put("/{id}")
+    suspend fun updateTechLabel(
+        id: UUID,
+        @Body dto: TechLabelCreateUpdateDTO,
+        authentication: Authentication
+    ): HttpResponse<TechLabelRegistrationDTO> =
+        techLabelRegistrationService.findById(id)?.let { inDb ->
+            val updated = techLabelRegistrationService.update(
+                inDb.copy(
+                    label = dto.label,
+                    guide = dto.label,
+                    isoCode = dto.isoCode,
+                    type = dto.type,
+                    unit = dto.unit,
+                    options = dto.options,
                     updated = LocalDateTime.now(),
                     updatedByUser = authentication.name
                 )
-            ).toDTO()
-        )
-
-    @Put("/{id}")
-    suspend fun updateTechLabel(id: UUID, dto: TechLabelRegistrationDTO): HttpResponse<TechLabelRegistrationDTO> =
-        techLabelRegistrationService.findById(id)?.let { inDb ->
-            val updated = techLabelRegistrationService.update(dto.copy(created = inDb.created,
-                createdBy = inDb.createdBy, createdByUser = inDb.createdByUser, updated = LocalDateTime.now(),
-                updatedByUser = inDb.updatedByUser)
             )
             if (inDb.label != dto.label || inDb.unit != dto.unit) {
                 LOG.info("Updated TechLabel with id=$id, changed label or unit, update products using this label")
@@ -89,8 +116,7 @@ class TechLabelRegistrationAdminController(private val techLabelRegistrationServ
                             updated
                         )
                     }
-                }
-                catch (e: Exception) {
+                } catch (e: Exception) {
                     LOG.error("Error updating products with new techLabel ${e.message}", e)
                 }
             }
@@ -105,7 +131,17 @@ data class TechLabelCriteria(
     val label: String? = null,
     val type: TechLabelType? = null,
     val unit: String? = null,
-    val isoCode: String? = null) {
+    val isoCode: String? = null
+) {
 
     fun isNotEmpty() = label != null || type != null || unit != null || isoCode != null
 }
+
+@Introspected
+data class TechLabelCreateUpdateDTO(
+    val label: String,
+    val isoCode: String,
+    val type: TechLabelType,
+    val unit: String?,
+    val options: List<String> = emptyList(),
+)

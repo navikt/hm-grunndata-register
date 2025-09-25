@@ -1,0 +1,1 @@
+ALTER TABLE techlabel_reg_v1 ADD CONSTRAINT unique_label_isocode UNIQUE (label, iso_code);

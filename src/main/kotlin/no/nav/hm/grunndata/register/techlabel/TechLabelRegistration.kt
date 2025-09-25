@@ -13,7 +13,7 @@ import java.util.*
 data class TechLabelRegistration(
     @field:Id
     val id: UUID = UUID.randomUUID(),
-    val identifier: String = UUID.randomUUID().toString(),
+    val identifier: String? = UUID.randomUUID().toString(),
     val label: String,
     val guide: String? = label,
     val definition: String?,
@@ -35,7 +35,7 @@ data class TechLabelRegistration(
 
 data class TechLabelRegistrationDTO(
     val id: UUID = UUID.randomUUID(),
-    val identifier: String = UUID.randomUUID().toString(),
+    val identifier: String? = UUID.randomUUID().toString(),
     val label: String,
     val guide: String ? = label,
     val definition: String?,
@@ -100,7 +100,7 @@ fun TechLabelRegistrationDTO.toEntity(): TechLabelRegistration = TechLabelRegist
 
 data class TechLabelDTO(
     val id: UUID,
-    val identifier: String,
+    val identifier: String?,
     val label: String,
     val guide: String ? = label,
     val definition: String?,

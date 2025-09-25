@@ -42,28 +42,22 @@ class TechLabelRegistrationAdminApiTest(private val client: TechLabelRegistratio
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
 
-        val dto = TechLabelRegistrationDTO(
-            identifier = "HMDB-20816",
+        val dto = TechLabelCreateUpdateDTO(
             label = "HøydeLængde maks",
-            guide = "Lengde",
-            definition = "Lengde",
-            isoCode = "09070601",
             type = TechLabelType.N,
             unit = "cm",
-            sort = 1,
-            createdByUser = "tester",
-            updatedByUser = "tester",
+            isoCode = "09070601",
         )
         var response = client.createTechLabel(jwt, dto)
         response.status() shouldBe HttpStatus.CREATED
-        var body = response.body
-        body.get().createdByUser shouldBe email
-        body.get().updatedByUser shouldBe email
-        response = client.updateTechLabel(jwt,dto.id, dto.copy(guide = "Høyde endret"))
+        var body = response.body.get()
+        body.createdByUser shouldBe email
+        body.updatedByUser shouldBe email
+        response = client.updateTechLabel(jwt,body.id, dto.copy(label = "Høyde endret"))
         response.status() shouldBe HttpStatus.OK
-        body = response.body
-        body.get().guide shouldBe "Høyde endret"
-        body.get().systemLabel shouldBe "hoydelaengdemaksn"
+        body = response.body.get()
+        body.label shouldBe "Høyde endret"
+        body.systemLabel shouldBe "hoydeendretn"
 
     }
 }
