@@ -21,6 +21,8 @@ interface CatalogImportRepository:  CoroutineCrudRepository<CatalogImport, UUID>
         @Query("""SELECT a.*, c.title as series_title, c.id as series_id, b.id as product_id from catalog_import_v1 a, product_reg_v1 b, series_reg_v1 c where a.supplier_id=b.supplier_id and a.supplier_ref=b.supplier_ref and a.hms_art_nr=:hmsArtNr and b.series_uuid=c.id order by a.created desc""", nativeQuery = true)
         suspend fun findCatalogSeriesInfosByHmsArtNrOrderByCreatedDesc(hmsArtNr: String): List<CatalogSeriesInfo>
 
+        suspend fun findOneByHmsArtNrOrderByCreatedDesc(hmsArtNr: String): CatalogImport?
+
         @Query("""SELECT DISTINCT on (a.hms_art_nr) a.*, c.title as series_title, c.id as series_id, b.id as product_id from catalog_import_v1 a, product_reg_v1 b, series_reg_v1 c where a.supplier_id=b.supplier_id and a.order_ref=:orderRef and a.main_product=:mainProduct and a.hms_art_nr=b.hms_artnr and b.series_uuid=c.id""", nativeQuery = true)
         suspend fun findCatalogImportsByOrderRefAndMain(orderRef: String, mainProduct: Boolean=true): List<CatalogSeriesInfo>
 

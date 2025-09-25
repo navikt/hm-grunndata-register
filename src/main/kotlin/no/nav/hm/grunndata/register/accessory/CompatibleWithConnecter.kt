@@ -81,14 +81,13 @@ open class CompatibleWithConnecter(private val compatibleAIFinder: CompatibleAIF
     }
 
     open suspend fun findCompatibleWithAi(hmsNr: String): List<CompatibleProductResult> {
-        val catalogSeriesInfo = catalogImportRepository.findCatalogSeriesInfosByHmsArtNrOrderByCreatedDesc(hmsNr)
-        if (catalogSeriesInfo.isEmpty()) {
-            LOG.info("No catalog series info found for product ${hmsNr}, skip connecting with compatibleWith")
+        // find latest catalog series info for hmsNr
+        val catProduct = catalogImportRepository.findOneByHmsArtNrOrderByCreatedDesc(hmsNr)
+        if (catProduct == null) {
+            LOG.info("No catalog product found for hmsArtNr $hmsNr, skip connecting with compatibleWith")
             return emptyList()
         }
-        val catProduct = catalogSeriesInfo.first()
         val mainProducts = catalogImportRepository.findCatalogImportsByOrderRefAndMain(catProduct.orderRef, mainProduct = true)
-
         if (mainProducts.isEmpty()) {
             LOG.info("No main products found for orderRef ${catProduct.orderRef}, skip connecting with compatibleWith")
             return emptyList()
@@ -114,14 +113,24 @@ open class CompatibleWithConnecter(private val compatibleAIFinder: CompatibleAIF
     }
 
     private suspend fun addCompatibleWithAttributeSeriesLink(product: ProductRegistration): ProductRegistration? {
+        if (!product.accessory && !product.sparePart) {
+            LOG.warn("Skip connecting product ${product.hmsArtNr} is not accessory or sparePart")
+            return null
+        }
         if (product.productData.attributes.compatibleWith!= null
-            && (product.productData.attributes.compatibleWith!!.connectedBy == CompatibleWith.MANUAL
-                    || product.productData.attributes.compatibleWith!!.seriesIds.isNotEmpty())) {
+            && product.productData.attributes.compatibleWith!!.connectedBy == CompatibleWith.MANUAL) {
             LOG.debug("Skip connecting product ${product.hmsArtNr} already connected with compatibleWith by ${product.productData.attributes.compatibleWith?.connectedBy}")
             return null
         }
         if (product.hmsArtNr == null) {
             LOG.error("No hmsArtNr for product ${product.id}, skip connecting with compatibleWith")
+            return null
+        }
+        // keep all previous connections.
+        val seriesIdToKeep = product.productData.attributes.compatibleWith?.seriesIds?: emptySet()
+        val productIds = product.productData.attributes.compatibleWith?.productIds ?: emptySet()
+        if (productIds.size>99 || seriesIdToKeep.size > 50) {
+            LOG.error("Too many compatibleWith connections for product hmsnr: ${product.hmsArtNr}, skip connecting with compatibleWith")
             return null
         }
         val compatibleWiths = findCompatibleWithAi(product.hmsArtNr)
@@ -130,9 +139,7 @@ open class CompatibleWithConnecter(private val compatibleAIFinder: CompatibleAIF
             return null
         }
         val seriesIds = compatibleWiths.map { it.seriesId.toUUID() }.toSet()
-        // keep all previous connections.
-        val seriesIdToKeep = product.productData.attributes.compatibleWith?.seriesIds?: emptySet()
-        val productIds = product.productData.attributes.compatibleWith?.productIds ?: emptySet()
+
         return if (seriesIds.isNotEmpty()) {
             product.copy(
                 productData = product.productData.copy(
