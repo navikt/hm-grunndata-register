@@ -150,7 +150,7 @@ interface ProductRegistrationRepository :
     @Query("select distinct on (id) * from product_reg_v1 WHERE (product_data->'techData') @> CAST(:jsonQuery as jsonb)", nativeQuery = true)
     suspend fun findDistinctByProductTechDataJsonQuery(jsonQuery: String): List<ProductRegistration>
 
-    @Query("select distinct on (id) * from product_reg_v1 WHERE iso_category = :isoCategory AND (product_data->'techData') @> CAST(:jsonQuery as jsonb)", nativeQuery = true)
+    @Query("select distinct on (a.id) a.* from product_reg_v1 a, series_reg_v1 b WHERE b.iso_category = :isoCategory AND b.id = a.series_uuid AND (a.product_data->'techData') @> CAST(:jsonQuery as jsonb)", nativeQuery = true)
     suspend fun findDistinctByProductIsoCategoryAndTechDataJsonQuery(isoCategory: String, jsonQuery: String): List<ProductRegistration>
 
     @Query("SELECT distinct on (a.id) a.* from product_reg_v1 a, product_agreement_reg_v1 b where a.id=b.product_id and (a.main_product != b.main_product or a.spare_part != b.spare_part or a.accessory != b.accessory) and b.status='ACTIVE'")
