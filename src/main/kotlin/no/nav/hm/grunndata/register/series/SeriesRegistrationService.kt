@@ -102,6 +102,7 @@ open class SeriesRegistrationService(
                 productRegistrationService.update(
                     it.copy(
                         seriesUUID = seriesId,
+                        seriesId = seriesId.toString(),
                         adminStatus = AdminStatus.PENDING,
                         updatedByUser = authentication.name,
                         updated = LocalDateTime.now(),
@@ -595,7 +596,12 @@ open class SeriesRegistrationService(
                     productData = if (patch.resetTechnicalData == true)
                         product.productData.copy(techData = createTechDataDraft(patch.isoCategory))
                     else
-                        product.productData.copy(techData = createTechDataDraftWithCopy(product.productData.techData, patch.isoCategory))
+                        product.productData.copy(
+                            techData = createTechDataDraftWithCopy(
+                                product.productData.techData,
+                                patch.isoCategory
+                            )
+                        )
                 )
                 productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
             }
