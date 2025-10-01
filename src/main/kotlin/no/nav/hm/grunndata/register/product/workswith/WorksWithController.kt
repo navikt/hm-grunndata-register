@@ -43,6 +43,23 @@ class WorksWithController(
         return worksWithConnector.addConnection(worksWithMapping)
     }
 
+    @Post("/batch")
+    suspend fun createWorksWithRelationsBatch(
+        @Body worksWithMappings: List<WorksWithMapping>,
+        authentication: Authentication
+    ): List<ProductRegistration> {
+        return worksWithMappings.map { mapping ->
+            val sourceProductId = mapping.sourceProductId
+            if (authentication.isSupplier()) {
+                productRegistrationService.findByIdAndSupplierId(
+                    sourceProductId,
+                    authentication.supplierId()
+                ) ?: throw IllegalArgumentException("Product not found for id: $sourceProductId")
+            }
+            worksWithConnector.addConnection(mapping)
+        }
+    }
+
     @Delete("/")
     suspend fun deleteWorksWithRelations(
         @Body worksWithMapping: WorksWithMapping,
