@@ -68,7 +68,12 @@ class TechLabelRegistrationAdminController(
     ): HttpResponse<TechLabelRegistrationDTO> =
         if (techLabelRegistrationService.findByLabelAndIsoCode(dto.label, dto.isoCode) != null) {
             throw BadRequestException("TechLabel with label='${dto.label}' and isocode='${dto.isoCode}' already exists")
-        } else
+        } else if (dto.type == TechLabelType.N && (dto.unit == null || dto.unit.isEmpty())) {
+            throw BadRequestException("TechLabel with type=NUMERIC must have a unit")
+        } else if (dto.isoCode.length<6 || dto.isoCode.length>8) {
+            throw BadRequestException("TechLabel must have a valid isoCode with length between 6 and 8 characters")
+        }
+        else
             HttpResponse.created(
                 techLabelRegistrationService.save(
                     TechLabelRegistration(

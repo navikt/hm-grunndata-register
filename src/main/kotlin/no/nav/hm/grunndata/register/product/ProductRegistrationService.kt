@@ -1,7 +1,6 @@
 package no.nav.hm.grunndata.register.product
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
@@ -693,7 +692,7 @@ open class ProductRegistrationService(
         return productRegistrationRepository.findDistinctByProductTechDataJsonQuery(jsonQuery.toString())
     }
 
-    suspend fun findByIsoCategoryAndTechLabelKeyUnit(
+    suspend fun findByStartsWithIsoCategoryAndTechLabelKeyUnit(
         isoCategory: String,
         key: String? = null,
         unit: String? = null,
@@ -705,8 +704,8 @@ open class ProductRegistrationService(
         if (!key.isNullOrBlank()) queryMap["key"] = key
         if (!unit.isNullOrBlank()) queryMap["unit"] = unit
         val jsonQuery = objectMapper.writeValueAsString(listOf(queryMap))
-        LOG.info("Executing jsonQuery ${jsonQuery}")
-        return productRegistrationRepository.findDistinctByProductIsoCategoryAndTechDataJsonQuery(isoCategory, jsonQuery.toString())
+        LOG.debug("Executing jsonQuery ${jsonQuery}")
+        return productRegistrationRepository.findDistinctByProductStartsWithIsoCategoryAndTechDataJsonQuery(isoCategory, jsonQuery.toString())
     }
 
 }

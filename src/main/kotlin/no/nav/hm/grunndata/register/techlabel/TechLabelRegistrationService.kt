@@ -21,7 +21,10 @@ class TechLabelRegistrationService(private val techLabelRegistrationRepository: 
     suspend fun update(techlabel: TechLabelRegistration) = techLabelRegistrationRepository.update(techlabel)
 
     suspend fun changeProductsTechDataWithTechLabel(oldKey: String, oldUnit: String?, isoCode: String, newTechLabel: TechLabelRegistration) {
-        val products = productRegistrationService.findByIsoCategoryAndTechLabelKeyUnit(isoCode, key = oldKey, unit = oldUnit)
+        if (isoCode.length<6) {
+            throw IllegalArgumentException("IsoCode must be at least 6 characters to avoid too broad search, was $isoCode")
+        }
+        val products = productRegistrationService.findByStartsWithIsoCategoryAndTechLabelKeyUnit(isoCode, key = oldKey, unit = oldUnit)
         LOG.info("Found ${products.size} products with techLabel key=$oldKey, unit=$oldUnit to update to new techLabel ${newTechLabel.label} (${newTechLabel.unit})")
         products.forEach { product ->
             val techData = product.productData.techData.toMutableList()
