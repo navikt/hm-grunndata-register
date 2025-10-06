@@ -16,16 +16,16 @@ import org.slf4j.LoggerFactory
 import java.lang.IllegalArgumentException
 
 @Secured(Roles.ROLE_HMS, Roles.ROLE_ADMIN, Roles.ROLE_SUPPLIER)
-@Controller(WorksWithController.API_V1_WORKSWITH_REGISTRATIONS)
+@Controller(WorksWithControllerOld.API_V1_WORKSWITH_REGISTRATIONS)
 @Tag(name = "WorksWith API")
-class WorksWithController(
+class WorksWithControllerOld(
     private val worksWithConnector: WorksWithConnector,
     private val productRegistrationService: ProductRegistrationService
 ) {
 
     companion object {
-        const val API_V1_WORKSWITH_REGISTRATIONS = "/api/v1/works-with"
-        private val LOG = LoggerFactory.getLogger(WorksWithController::class.java)
+        const val API_V1_WORKSWITH_REGISTRATIONS = "/vendor/api/v1/works-with"
+        private val LOG = LoggerFactory.getLogger(WorksWithControllerOld::class.java)
     }
 
     @Post("/")
@@ -63,11 +63,12 @@ class WorksWithController(
     @Delete("/")
     suspend fun deleteWorksWithRelations(
         @Body worksWithMapping: WorksWithMapping,
-        authentication: Authentication): ProductRegistration {
+        authentication: Authentication
+    ): ProductRegistration {
         val sourceProductId = worksWithMapping.sourceProductId
         if (authentication.isSupplier()) {
-            productRegistrationService.findByIdAndSupplierId(sourceProductId, authentication.supplierId()) ?:
-                throw IllegalArgumentException("Product not found for id: ${sourceProductId}")
+            productRegistrationService.findByIdAndSupplierId(sourceProductId, authentication.supplierId())
+                ?: throw IllegalArgumentException("Product not found for id: ${sourceProductId}")
         }
         return worksWithConnector.removeConnection(worksWithMapping)
     }
