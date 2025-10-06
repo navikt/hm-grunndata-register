@@ -704,8 +704,9 @@ open class ProductRegistrationService(
         if (!key.isNullOrBlank()) queryMap["key"] = key
         if (!unit.isNullOrBlank()) queryMap["unit"] = unit
         val jsonQuery = objectMapper.writeValueAsString(listOf(queryMap))
+        val isoCategoryPattern = "$isoCategory%"
         LOG.debug("Executing jsonQuery ${jsonQuery}")
-        return productRegistrationRepository.findDistinctByProductStartsWithIsoCategoryAndTechDataJsonQuery(isoCategory, jsonQuery.toString())
+        return productRegistrationRepository.findDistinctByProductStartsWithIsoCategoryAndTechDataJsonQuery(isoCategoryPattern, jsonQuery.toString())
     }
 
 }
