@@ -20,12 +20,13 @@ open class CatalogFileToProductAgreementScheduler(
     private val catalogFileRepository: CatalogFileRepository,
     private val catalogFileEventHandler: CatalogFileEventHandler,
     private val productRegistrationRepository: ProductRegistrationRepository,
-    private val productAgreementImportExcelService: ProductAgreementImportExcelService
+    private val productAgreementImportExcelService: ProductAgreementImportExcelService,
+    @Value("\${CATALOG_IMPORT_FORCE_UPDATE:false}") private val forceUpdate: Boolean = false
 ) {
 
     @LeaderOnly
     @Scheduled(cron = "0 * * * * *")
-    open fun scheduleCatalogFileToProductAgreement(@Value("\${CATALOG_IMPORT_FORCE_UPDATE:false}") forceUpdate: Boolean = false ): ProductAgreementImportResult? = runBlocking {
+    open fun scheduleCatalogFileToProductAgreement(): ProductAgreementImportResult? = runBlocking {
             catalogFileRepository.findOneByStatusOrderByCreatedAsc(CatalogFileStatus.PENDING)?.let { catalogFile ->
                 try {
                     LOG.info("Got catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName} to process with forceUpdate: $forceUpdate")
