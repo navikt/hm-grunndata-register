@@ -68,7 +68,8 @@ open class ProductAgreementAdminController(
             importedExcelCatalog,
             authentication,
             supplierId,
-            true // this has to be always set to true here, cause the persist function will be handled downstream
+            true, // this has to be always set to true here, cause the persist function will be handled downstream
+            false
         )
 
         LOG.info("New product agreements found: ${productAgreementsImportResult.insertList.size}")

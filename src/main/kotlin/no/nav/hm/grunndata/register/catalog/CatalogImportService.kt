@@ -18,7 +18,7 @@ open class CatalogImportService(private val catalogImportRepository: CatalogImpo
 
 
     @Transactional
-    open suspend fun prepareCatalogImportResult(catalogImportList: List<CatalogImport>): CatalogImportResult {
+    open suspend fun prepareCatalogImportResult(catalogImportList: List<CatalogImport>, forceUpdate: Boolean): CatalogImportResult {
         val updatedList = mutableListOf<CatalogImport>()
         val insertedList = mutableListOf<CatalogImport>()
         val orderRef = catalogImportList.first().orderRef
@@ -30,7 +30,7 @@ open class CatalogImportService(private val catalogImportRepository: CatalogImpo
                 val existing = existingCatalog.find { it.supplierRef == catalogImport.supplierRef }
                 if (existing == null) {
                     insertedList.add(catalogImport)
-                } else if (existing != catalogImport) {
+                } else if (forceUpdate || existing != catalogImport) {
                     updatedList.add(catalogImport.copy(id = existing.id, created = existing.created))
                 }
             }

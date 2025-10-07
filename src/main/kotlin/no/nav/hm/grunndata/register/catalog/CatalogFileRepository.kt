@@ -33,7 +33,7 @@ interface CatalogFileRepository: CoroutineCrudRepository<CatalogFile, UUID>, Cor
     )
     suspend fun findManyByStatus(status: CatalogFileStatus, pageable: Pageable): Slice<CatalogFileDTO>
 
-    suspend fun findOneByStatus(status: CatalogFileStatus): CatalogFile?
+    suspend fun findOneByStatusOrderByCreatedAsc(status: CatalogFileStatus): CatalogFile?
 
     suspend fun findByStatus(status: CatalogFileStatus): List<CatalogFile>
 

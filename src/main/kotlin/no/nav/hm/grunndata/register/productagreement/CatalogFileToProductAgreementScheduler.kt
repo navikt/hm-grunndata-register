@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.productagreement
 
+import io.micronaut.context.annotation.Value
 import io.micronaut.scheduling.annotation.Scheduled
 import io.micronaut.security.authentication.ClientAuthentication
 import jakarta.inject.Singleton
@@ -24,17 +25,18 @@ open class CatalogFileToProductAgreementScheduler(
 
     @LeaderOnly
     @Scheduled(cron = "0 * * * * *")
-    open fun scheduleCatalogFileToProductAgreement(): ProductAgreementImportResult? = runBlocking {
-            catalogFileRepository.findOneByStatus(CatalogFileStatus.PENDING)?.let { catalogFile ->
+    open fun scheduleCatalogFileToProductAgreement(@Value("\${CATALOG_IMPORT_FORCE_UPDATE:false}") forceUpdate: Boolean = false ): ProductAgreementImportResult? = runBlocking {
+            catalogFileRepository.findOneByStatusOrderByCreatedAsc(CatalogFileStatus.PENDING)?.let { catalogFile ->
                 try {
-                    LOG.info("Got catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName}")
+                    LOG.info("Got catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName} to process with forceUpdate: $forceUpdate")
                     val adminAuthentication =
                         ClientAuthentication(catalogFile.updatedByUser, mapOf("roles" to listOf(Roles.ROLE_ADMIN)))
                     val result = productAgreementImportExcelService.mapToProductAgreementImportResult(
                         catalogFile.catalogList,
                         adminAuthentication,
                         catalogFile.supplierId,
-                        false
+                        false,
+                        forceUpdate
                     )
                     LOG.info("Finished, saving result")
                     val updatedCatalogFile =

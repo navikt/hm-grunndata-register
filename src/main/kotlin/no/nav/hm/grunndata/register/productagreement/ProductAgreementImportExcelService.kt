@@ -151,7 +151,8 @@ open class ProductAgreementImportExcelService(
         importedExcelCatalog: List<CatalogImportExcelDTO>,
         authentication: Authentication?,
         supplierId: UUID,
-        dryRun: Boolean
+        dryRun: Boolean,
+        forceUpdate: Boolean,
     ): ProductAgreementImportResult {
         verifyCatalogImportList(importedExcelCatalog)
         val agreementRef = importedExcelCatalog.first().reference
@@ -166,7 +167,7 @@ open class ProductAgreementImportExcelService(
                 agreement,
                 supplierId
             )
-        })
+        }, forceUpdate)
         val mappedLists = mapCatalogImport(catalogImportResult, authentication, supplierId, dryRun)
         val productAgreementImportResult = productAccessorySparePartAgreementHandler.handleNewProductsInExcelImport(
             mappedLists,
