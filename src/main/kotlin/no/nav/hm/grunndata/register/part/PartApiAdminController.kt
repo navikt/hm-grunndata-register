@@ -126,11 +126,6 @@ class PartApiAdminController(
     ): HttpResponse<Any> {
         return when (partService.changeToMainProduct(seriesId, newIsoCode = partToMainProductDto.newIsoCode)) {
             is PartService.ChangeToMainProductResult.Ok -> HttpResponse.ok()
-            is PartService.ChangeToMainProductResult.AlreadyMain -> {
-                LOG.warn("Series $seriesId is already set as main product")
-                HttpResponse.badRequest("Series $seriesId is already set as main product")
-            }
-
             is PartService.ChangeToMainProductResult.NotFound -> HttpResponse.notFound()
         }
     }

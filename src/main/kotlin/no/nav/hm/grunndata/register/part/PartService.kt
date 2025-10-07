@@ -27,13 +27,11 @@ open class PartService(
 
     sealed class ChangeToMainProductResult {
         object Ok : ChangeToMainProductResult()
-        object AlreadyMain : ChangeToMainProductResult()
         object NotFound : ChangeToMainProductResult()
     }
 
     open suspend fun changeToMainProduct(seriesUUID: UUID, newIsoCode: String): ChangeToMainProductResult {
         val series = seriesService.findById(seriesUUID) ?: return ChangeToMainProductResult.NotFound
-        if (series.mainProduct) return ChangeToMainProductResult.AlreadyMain
 
         val updatedSeries = series.copy(mainProduct = true, isoCategory = newIsoCode)
         val products = productService.findAllBySeriesUuid(seriesUUID)
