@@ -16,7 +16,7 @@ interface SeriesRegistrationRepository :
     CoroutineCrudRepository<SeriesRegistration, UUID>,
     CoroutineJpaSpecificationExecutor<SeriesRegistration> {
     @Query(
-        value = "select title, series_id,count(*) from product_reg_v1 WHERE supplier_id = :supplierId group by (title, series_id) ORDER BY title asc",
+        value = "select title, series_uuid as series_id,count(*) from product_reg_v1 WHERE supplier_id = :supplierId group by (title, series_uuid) ORDER BY title asc",
         readOnly = true,
         nativeQuery = true,
     )
@@ -26,7 +26,7 @@ interface SeriesRegistrationRepository :
     ): Slice<SeriesGroupDTO>
 
     @Query(
-        value = "select title, series_id,count(*) from product_reg_v1 group by (title, series_id) ORDER BY title asc",
+        value = "select title, series_uuid as series_id,count(*) from product_reg_v1 group by (title, series_uuid) ORDER BY title asc",
         readOnly = true,
         nativeQuery = true,
     )

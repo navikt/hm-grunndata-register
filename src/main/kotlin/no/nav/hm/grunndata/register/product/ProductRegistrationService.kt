@@ -434,7 +434,6 @@ open class ProductRegistrationService(
             ProductRegistration(
                 id = productId,
                 seriesUUID = seriesUUID,
-                seriesId = seriesUUID.toString(),
                 isoCategory = series.isoCategory,
                 supplierId = series.supplierId,
                 supplierRef = draftWithDTO.supplierRef,
@@ -492,7 +491,7 @@ open class ProductRegistrationService(
         val productRegistration =  ProductRegistrationDTO(
             id = id,
             supplierId = supplierId,
-            seriesId = seriesId,
+            seriesId = seriesUUID.toString(),
             seriesUUID = seriesUUID,
             supplierRef = supplierRef,
             hmsArtNr = if (agreeements.isNotEmpty() && agreeements.first().hmsArtNr != null) {

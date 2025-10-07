@@ -42,7 +42,6 @@ class ProductRegistrationVersionServiceTest(private val productRegistrationVersi
                 )),
             ),
             supplierId = supplierId,
-            seriesId = seriesId.toString(),
             hmsArtNr = "hmsArtNr123",
             id = productId,
             supplierRef = "supplierRef",

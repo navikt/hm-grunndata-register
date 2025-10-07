@@ -54,7 +54,6 @@ class ProductExpirePublishHandlerTest(
         val registration1 =
             ProductRegistration(
                 id = UUID.randomUUID(),
-                seriesId = seriesUUID.toString(),
                 seriesUUID = seriesUUID,
                 isoCategory = "12001314",
                 supplierId = supplierId,
@@ -77,7 +76,6 @@ class ProductExpirePublishHandlerTest(
         val registration2 =
             ProductRegistration(
                 id = UUID.randomUUID(),
-                seriesId = seriesUUID.toString(),
                 seriesUUID = seriesUUID,
                 isoCategory = "12001314",
                 supplierId = supplierId,
@@ -100,7 +98,6 @@ class ProductExpirePublishHandlerTest(
         val registration3 =
             ProductRegistration(
                 id = UUID.randomUUID(),
-                seriesId = seriesUUID.toString(),
                 seriesUUID = seriesUUID,
                 isoCategory = "12001314",
                 supplierId = supplierId,

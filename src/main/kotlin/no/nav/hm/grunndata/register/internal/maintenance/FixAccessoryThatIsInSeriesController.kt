@@ -47,7 +47,6 @@ open class FixAccessoryThatIsInSeriesController(
                 adminStatus = AdminStatus.APPROVED
             )
             val productInNewSerie = product.copy(
-                seriesId = newsSeriesUUID.toString(),
                 seriesUUID = newsSeriesUUID,
                 adminStatus = AdminStatus.APPROVED,
                 updated = LocalDateTime.now(),

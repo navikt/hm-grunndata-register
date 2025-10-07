@@ -83,7 +83,6 @@ fun PartDraftWithDTO.toProductRegistration(seriesUUID: UUID, authentication: Aut
     val productId = UUID.randomUUID()
     return ProductRegistration(
         id = productId,
-        seriesId = seriesUUID.toString(),
         seriesUUID = seriesUUID,
         supplierId = supplierId,
         supplierRef = levArtNr,

@@ -61,7 +61,6 @@ class ProductRegistrationRepositoryTest(
         val registration1 =
             ProductRegistration(
                 id = UUID.randomUUID(),
-                seriesId = "series-321",
                 seriesUUID = seriesUUID,
                 isoCategory = "12001314",
                 supplierId = supplierId,
@@ -85,7 +84,6 @@ class ProductRegistrationRepositoryTest(
         val registration2 =
             ProductRegistration(
                 id = UUID.randomUUID(),
-                seriesId = "series-123",
                 seriesUUID = seriesUUID,
                 isoCategory = "12001314",
                 supplierId = supplierId,

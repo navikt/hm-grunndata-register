@@ -35,8 +35,6 @@ data class ProductRegistration(
     val supplierId: UUID,
     val supplierRef: String,
     val seriesUUID: UUID,
-    @Deprecated("Use seriesUUID instead")
-    val seriesId: String = seriesUUID.toString(),
     @field:Column(name = "hms_artnr")
     val hmsArtNr: String?,
     @Deprecated("Use series isoCategory instead")
@@ -195,7 +193,6 @@ fun ProductRegistrationDTO.toEntity(): ProductRegistration =
     ProductRegistration(
         id = id,
         supplierId = supplierId,
-        seriesId = seriesId,
         seriesUUID = seriesUUID,
         supplierRef = supplierRef,
         hmsArtNr = hmsArtNr,

@@ -147,7 +147,6 @@ fun ProductRegistrationExcelDTO.toProductRegistration(): ProductRegistration {
     val supplierId = leverandorid.toUUID()
     return ProductRegistration(
         id = productId,
-        seriesId = seriesUUID.toString(),
         seriesUUID = seriesUUID,
         supplierId = supplierId,
         supplierRef = levartnr,
