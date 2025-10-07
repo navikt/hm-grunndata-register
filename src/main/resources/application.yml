@@ -198,4 +198,4 @@ vertexai:
 
 catalog:
   import:
-    forceUpdate: ${CATALOG_IMPORT_FORCE_UPDATE:true}
+    force_update: ${CATALOG_IMPORT_FORCE_UPDATE:false}

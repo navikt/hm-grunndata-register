@@ -21,7 +21,7 @@ open class CatalogFileToProductAgreementScheduler(
     private val catalogFileEventHandler: CatalogFileEventHandler,
     private val productRegistrationRepository: ProductRegistrationRepository,
     private val productAgreementImportExcelService: ProductAgreementImportExcelService,
-    @Value("\${CATALOG_IMPORT_FORCE_UPDATE:false}") private val forceUpdate: Boolean = false
+    @Value("\${catalog.import.force_update}") private val forceUpdate: Boolean,
 ) {
 
     @LeaderOnly

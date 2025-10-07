@@ -15,6 +15,7 @@
   "vertexai_model_name": "gemini-2.5-flash",
   "baseversion_scheduler_enabled": false,
   "env": {
-    "DIGITAL_SOKNAD_SORTIMENT_URL": "https://navikt.github.io/digihot-sortiment/sortiment_av_apostid_per_kategori_dev2.json"
+    "DIGITAL_SOKNAD_SORTIMENT_URL": "https://navikt.github.io/digihot-sortiment/sortiment_av_apostid_per_kategori_dev2.json",
+    "CATALOG_IMPORT_FORCE_UPDATE": false
   }
 }
