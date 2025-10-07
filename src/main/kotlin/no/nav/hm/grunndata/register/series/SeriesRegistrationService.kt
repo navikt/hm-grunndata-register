@@ -102,7 +102,6 @@ open class SeriesRegistrationService(
                 productRegistrationService.update(
                     it.copy(
                         seriesUUID = seriesId,
-                        seriesId = seriesId.toString(),
                         adminStatus = AdminStatus.PENDING,
                         updatedByUser = authentication.name,
                         updated = LocalDateTime.now(),

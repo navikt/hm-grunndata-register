@@ -157,7 +157,6 @@ class ProductAccessorySparePartAgreementHandler(
                 articleName = productAgreement.articleName ?: productAgreement.title,
                 productData = ProductData(),
                 supplierId = productAgreement.supplierId,
-                seriesId = productAgreement.seriesUuid.toString(),
                 hmsArtNr = productAgreement.hmsArtNr,
                 id = UUID.randomUUID(),
                 supplierRef = productAgreement.supplierRef,

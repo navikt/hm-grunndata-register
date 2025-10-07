@@ -26,7 +26,6 @@ class ProductRegistrationVersionRepositoryTest(private val productRegistrationVe
         val product1 = ProductRegistration(
             id = productId,
             supplierId = supplierId,
-            seriesId = seriesId.toString(),
             seriesUUID = seriesId,
             articleName = "articleName",
             hmsArtNr = "hmsArtNr",

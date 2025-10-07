@@ -27,7 +27,7 @@ class ProductDTOMapper(
         return ProductRegistrationDTO(
             id = productRegistration.id,
             supplierId = productRegistration.supplierId,
-            seriesId = productRegistration.seriesId,
+            seriesId = productRegistration.seriesUUID.toString(),
             seriesUUID = productRegistration.seriesUUID,
             supplierRef = productRegistration.supplierRef,
             hmsArtNr = if (!productRegistration.hmsArtNr.isNullOrBlank()) productRegistration.hmsArtNr else if (agreements.isNotEmpty()) agreements.first().hmsArtNr else null,

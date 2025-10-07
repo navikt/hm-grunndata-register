@@ -45,7 +45,6 @@ open class ReActivateProductsFromGDbController(
                         isoCategory = dto.isoCategory,
                         supplierId = dto.supplier.id,
                         supplierRef = dto.supplierRef,
-                        seriesId = dto.seriesId!!,
                         seriesUUID = dto.seriesUUID ?: dto.id,
                         registrationStatus = mapStatus(dto.status),
                         adminStatus = mapAdminStatus(dto.status),

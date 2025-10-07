@@ -68,7 +68,6 @@ class ProductAgreementExpiredTest(private val productAgreementRegistrationServic
         val registration =
             ProductRegistration(
                 id = productId,
-                seriesId = "series-123",
                 seriesUUID = seriesUUID,
                 isoCategory = "12001314",
                 supplierId = supplierId,

@@ -144,7 +144,6 @@ class ExcelExportMapperTest(
             val testProduct1 = productDTOMapper.toDTO(
                 productRepository.save(
                     ProductRegistration(
-                        seriesId = seriesId1.toString(),
                         seriesUUID = seriesId1,
                         title = "Dette er produkt 1",
                         articleName = "artikkelnavn",
@@ -173,7 +172,6 @@ class ExcelExportMapperTest(
             val testProduct2 = productDTOMapper.toDTO(
                 productRepository.save(
                     ProductRegistration(
-                        seriesId = seriesId2.toString(),
                         seriesUUID = seriesId2,
                         title = "Dette er produkt 2",
                         articleName = "artikkelnavn",
