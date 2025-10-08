@@ -38,7 +38,8 @@ class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRe
             updatedByUser = "test",
             created = LocalDateTime.now(),
             updated = LocalDateTime.now(),
-            status = CatalogFileStatus.PENDING
+            status = CatalogFileStatus.PENDING,
+            errorMessage = "Got an error"
         )
 
         runBlocking {
@@ -54,6 +55,7 @@ class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRe
             found.fileSize shouldBe foundDTO.fileSize
             found.fileName shouldBe foundDTO.fileName
             found.connected shouldBe foundDTO.connected
+            found.errorMessage shouldBe "Got an error"
             catalogFileRepository.findMany(Pageable.from(0, 10))
         }
     }

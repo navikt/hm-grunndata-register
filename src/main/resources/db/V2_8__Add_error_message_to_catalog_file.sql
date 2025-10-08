@@ -1,0 +1,1 @@
+ALTER TABLE catalog_file_v1 ADD COLUMN error_message TEXT;

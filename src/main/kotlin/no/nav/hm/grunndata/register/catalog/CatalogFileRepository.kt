@@ -20,14 +20,14 @@ interface CatalogFileRepository: CoroutineCrudRepository<CatalogFile, UUID>, Cor
     suspend fun findOne(id: UUID): CatalogFileDTO?
 
     @Query(
-        value = "SELECT id, file_name, file_size, order_ref, supplier_id, updated_by_user, created, updated, status, connected FROM catalog_file_v1",
+        value = "SELECT id, file_name, file_size, order_ref, supplier_id, updated_by_user, created, updated, status, connected, error_message FROM catalog_file_v1",
         readOnly = true,
         nativeQuery = true
     )
     suspend fun findMany(pageable: Pageable): Slice<CatalogFileDTO>
 
     @Query(
-        value = "SELECT id, file_name, file_size, order_ref, supplier_id, updated_by_user, created, updated, status, connected FROM catalog_file_v1 where status = :status",
+        value = "SELECT id, file_name, file_size, order_ref, supplier_id, updated_by_user, created, updated, status, connected, error_message FROM catalog_file_v1 where status = :status",
         readOnly = true,
         nativeQuery = true
     )

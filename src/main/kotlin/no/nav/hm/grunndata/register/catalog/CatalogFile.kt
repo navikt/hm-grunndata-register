@@ -30,35 +30,24 @@ data class CatalogFile(
     val created: LocalDateTime,
     val updated: LocalDateTime,
     val status: CatalogFileStatus = CatalogFileStatus.PENDING,
+    val errorMessage: String? = null,
     val connected: Boolean = false,
 )
 
 @Introspected
 data class CatalogFileDTO(
-    override val id: UUID,
+    val id: UUID,
     val fileName: String,
     val fileSize: Long,
     val orderRef: String,
     val supplierId: UUID,
-    override val updatedByUser: String,
+    val updatedByUser: String,
     val created: LocalDateTime,
     val updated: LocalDateTime,
     val status: CatalogFileStatus,
     val connected: Boolean = false,
-): EventPayload {
-    override fun toRapidDTO(): RapidDTO = CatalogFileRapidDTO(
-        id = id,
-        partitionKey = orderRef,
-        fileName = fileName,
-        fileSize = fileSize,
-        orderRef = orderRef,
-        supplierId = supplierId,
-        updatedByUser = updatedByUser,
-        created = created,
-        updated = updated,
-        status = status,
-    )
-}
+    val errorMessage: String? = null,
+)
 
 
 data class CatalogImportExcelDTO(
