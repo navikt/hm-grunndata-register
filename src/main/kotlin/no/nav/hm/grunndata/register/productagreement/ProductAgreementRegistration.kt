@@ -60,7 +60,7 @@ data class ProductAgreementRegistrationDTO(
     val rank: Int,
     val postId: UUID,
     val status: ProductAgreementStatus = ProductAgreementStatus.INACTIVE,
-    val createdBy: String = ProductAgreementImportExcelService.EXCEL,
+    val createdBy: String = REGISTER,
     val updatedBy: String = REGISTER,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),

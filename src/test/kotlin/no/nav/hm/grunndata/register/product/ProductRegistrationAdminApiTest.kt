@@ -25,7 +25,7 @@ import no.nav.hm.grunndata.register.agreement.AgreementRegistrationRepository
 import no.nav.hm.grunndata.register.agreement.DelkontraktData
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationService
-import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService
+import no.nav.hm.grunndata.register.catalog.ProductAgreementImportExcelService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 import no.nav.hm.grunndata.register.security.LoginClient

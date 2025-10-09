@@ -2,6 +2,8 @@ package no.nav.hm.grunndata.register.productagreement
 
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import no.nav.hm.grunndata.register.catalog.parseHMSNr
+import no.nav.hm.grunndata.register.catalog.parsedelkontraktNr
 import org.junit.jupiter.api.Test
 
 @MicronautTest

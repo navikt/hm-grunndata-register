@@ -1,0 +1,165 @@
+package no.nav.hm.grunndata.register.catalog
+
+import io.micronaut.core.annotation.Introspected
+import io.micronaut.data.model.Page
+import io.micronaut.data.model.Pageable
+import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
+import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
+import io.micronaut.data.runtime.criteria.get
+import io.micronaut.http.annotation.*
+import io.micronaut.http.multipart.CompletedFileUpload
+import io.micronaut.security.annotation.Secured
+import io.micronaut.security.authentication.Authentication
+import io.swagger.v3.oas.annotations.tags.Tag
+import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
+import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportDTO
+import no.nav.hm.grunndata.register.runtime.where
+import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.security.userId
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
+import java.util.*
+
+
+@Secured(Roles.ROLE_ADMIN)
+@Controller
+@Tag(name = "Admin Catalog File")
+open class CatalogAdminController(private val supplierRegistrationService: SupplierRegistrationService,
+                                  private val catalogExcelFileImport: CatalogExcelFileImport,
+                                  private val productAgreementImportExcelService: ProductAgreementImportExcelService,
+                                  private val catalogFileRepository: CatalogFileRepository) {
+
+    companion object {
+        private val LOG: Logger = LoggerFactory.getLogger(CatalogAdminController::class.java)
+        const val ADMIN_API_V1_CATALOG_FILE = "/admin/api/v1/catalog-file"
+    }
+
+    @Post(
+        value = "/admin/api/v1/product-agreement/excel-import", // old path kept for backward compatibility
+        consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON],
+    )
+    suspend fun excelImportBackwardCompatibility(
+        file: CompletedFileUpload,
+        @QueryValue dryRun: Boolean = true,
+        @QueryValue supplierId: UUID,
+        authentication: Authentication,
+    ): ProductAgreementImportDTO {
+        return excelImport(file, dryRun, supplierId, authentication)
+    }
+
+    @Post(
+        value = "${ADMIN_API_V1_CATALOG_FILE}/excel-import",
+        consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
+        produces = [io.micronaut.http.MediaType.APPLICATION_JSON],
+    )
+    suspend fun excelImport(
+        file: CompletedFileUpload,
+        @QueryValue dryRun: Boolean = true,
+        @QueryValue supplierId: UUID,
+        authentication: Authentication,
+    ): ProductAgreementImportDTO {
+        val supplier = supplierRegistrationService.findById(supplierId)
+            ?: throw BadRequestException("Supplier $supplierId not found")
+        LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()} for supplier ${supplier.name}")
+
+        val importedExcelCatalog =
+            file.inputStream.use { input -> catalogExcelFileImport.importExcelFile(input) }
+
+        val productAgreementsImportResult = productAgreementImportExcelService.mapToProductAgreementImportResult(
+            importedExcelCatalog,
+            authentication,
+            supplierId,
+            true, // this has to be always set to true here, cause the persist function will be handled downstream
+            false
+        )
+
+        LOG.info("New product agreements found: ${productAgreementsImportResult.insertList.size}")
+        LOG.info("New series found: ${productAgreementsImportResult.newSeries.size}")
+        LOG.info("New accessory parts found: ${productAgreementsImportResult.newAccessoryParts.size}")
+        LOG.info("New main products found: ${productAgreementsImportResult.newProducts.size}")
+
+        if (!dryRun) {
+            LOG.info("Save the catalog file ${file.filename}, for downstream processing")
+            catalogFileRepository.save(
+                CatalogFile(
+                    fileName = file.filename,
+                    fileSize = file.size,
+                    orderRef = importedExcelCatalog[0].bestillingsNr,
+                    catalogList = importedExcelCatalog,
+                    supplierId = supplierId,
+                    created = LocalDateTime.now(),
+                    updatedByUser = authentication.name,
+                    updated = LocalDateTime.now(),
+                    status = CatalogFileStatus.PENDING
+                )
+            )
+        }
+        val productAgreements = productAgreementsImportResult.insertList
+        val newCount = productAgreementsImportResult.insertList.size
+        return ProductAgreementImportDTO(
+            dryRun = dryRun,
+            count = productAgreements.size,
+            newCount = newCount,
+            file = file.filename,
+            supplier = supplier.name,
+            createdSeries = productAgreementsImportResult.newSeries,
+            createdAccessoryParts = productAgreementsImportResult.newAccessoryParts,
+            createdMainProducts = productAgreementsImportResult.newProducts,
+            newProductAgreements = productAgreementsImportResult.insertList,
+            updatedAgreements = productAgreementsImportResult.updateList,
+            deactivatedAgreements = productAgreementsImportResult.deactivateList,
+        )
+    }
+
+    @Get("${ADMIN_API_V1_CATALOG_FILE}/")
+    suspend fun findCatalogFiles(@RequestBean criteria: CatalogFileCriteria, pageable: Pageable): Page<CatalogFile> =
+        catalogFileRepository.findAll(buildCriteriaSpec(criteria), pageable)
+
+
+    private fun buildCriteriaSpec(
+        criteria: CatalogFileCriteria,
+    ): PredicateSpecification<CatalogFile>? =
+        if (criteria.isNotEmpty()) {
+            where {
+                criteria.orderRef?.let { root[CatalogFile::orderRef] eq it }
+                criteria.supplierId?.let { root[CatalogFile::supplierId] eq it }
+                criteria.status?.let { root[CatalogFile::status] eq it }
+                criteria.fileName?.let { root[CatalogFile::fileName] like LiteralExpression("%${it}%") }
+            }
+        } else null
+
+    @Delete("${ADMIN_API_V1_CATALOG_FILE}/{id}")
+    suspend fun deleteCatalogFile(id: UUID): Boolean {
+        val existing = catalogFileRepository.findById(id) ?: return false
+        catalogFileRepository.delete(existing)
+        return true
+    }
+
+    @Put("${ADMIN_API_V1_CATALOG_FILE}/{id}/retry")
+    suspend fun retryCatalogFile(id: UUID, authentication: Authentication): CatalogFile? {
+        val existing = catalogFileRepository.findById(id) ?: return null
+        return if (existing.status == CatalogFileStatus.ERROR) {
+            val updated = existing.copy(
+                status = CatalogFileStatus.PENDING,
+                errorMessage = null,
+                updated = LocalDateTime.now(),
+                updatedByUser = authentication.name
+            )
+            catalogFileRepository.update(updated)
+        } else {
+            throw BadRequestException("Can only retry catalog files with status=ERROR")
+        }
+    }
+}
+
+@Introspected
+data class CatalogFileCriteria(val fileName: String? = null,
+                               val orderRef: String? = null,
+                               val supplierId: UUID? = null,
+                               val status: CatalogFileStatus? = null) {
+    fun isNotEmpty() = fileName != null || orderRef != null || supplierId != null || status != null
+}

@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.productagreement
+package no.nav.hm.grunndata.register.catalog
 
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.transaction.annotation.Transactional
@@ -17,12 +17,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
-import no.nav.hm.grunndata.register.catalog.CatalogImport
-import no.nav.hm.grunndata.register.catalog.CatalogImportExcelDTO
-import no.nav.hm.grunndata.register.catalog.CatalogImportResult
-import no.nav.hm.grunndata.register.catalog.CatalogImportService
-import no.nav.hm.grunndata.register.catalog.toEntity
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 
 @Singleton
