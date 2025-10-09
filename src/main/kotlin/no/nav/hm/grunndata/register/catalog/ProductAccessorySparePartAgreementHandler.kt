@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.productagreement
+package no.nav.hm.grunndata.register.catalog
 
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
@@ -10,6 +10,7 @@ import no.nav.hm.grunndata.register.product.ProductData
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.isAdmin
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService

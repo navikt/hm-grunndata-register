@@ -1,114 +1,35 @@
 package no.nav.hm.grunndata.register.productagreement
 
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.annotation.Body
-import io.micronaut.http.annotation.Controller
-import io.micronaut.http.annotation.Delete
-import io.micronaut.http.annotation.Get
-import io.micronaut.http.annotation.Post
-import io.micronaut.http.annotation.Put
-import io.micronaut.http.annotation.QueryValue
-import io.micronaut.http.multipart.CompletedFileUpload
+import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
-import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
-import no.nav.hm.grunndata.register.catalog.CatalogExcelFileImport
-import no.nav.hm.grunndata.register.catalog.CatalogFile
-import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
-import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(ProductAgreementAdminController.ADMIN_API_V1_PRODUCT_AGREEMENT)
 @Tag(name = "Admin Product Agreement")
 open class ProductAgreementAdminController(
-    private val catalogExcelFileImport: CatalogExcelFileImport,
-    private val productAgreementImportExcelService: ProductAgreementImportExcelService,
     private val productRegistrationService: ProductRegistrationService,
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productAgreementRegistrationService: ProductAgreementRegistrationService,
-    private val supplierRegistrationService: SupplierRegistrationService,
-    private val catalogFileRepository: CatalogFileRepository
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductAgreementAdminController::class.java)
         const val ADMIN_API_V1_PRODUCT_AGREEMENT = "/admin/api/v1/product-agreement"
     }
 
-    @Post(
-        value = "/excel-import",
-        consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
-        produces = [io.micronaut.http.MediaType.APPLICATION_JSON],
-    )
-    suspend fun excelImport(
-        file: CompletedFileUpload,
-        @QueryValue dryRun: Boolean = true,
-        @QueryValue supplierId: UUID,
-        authentication: Authentication,
-    ): ProductAgreementImportDTO {
-        val supplier = supplierRegistrationService.findById(supplierId)
-            ?: throw BadRequestException("Supplier $supplierId not found")
-        LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()} for supplier ${supplier.name}")
-
-        val importedExcelCatalog =
-            file.inputStream.use { input -> catalogExcelFileImport.importExcelFile(input) }
-
-        val productAgreementsImportResult = productAgreementImportExcelService.mapToProductAgreementImportResult(
-            importedExcelCatalog,
-            authentication,
-            supplierId,
-            true, // this has to be always set to true here, cause the persist function will be handled downstream
-            false
-        )
-
-        LOG.info("New product agreements found: ${productAgreementsImportResult.insertList.size}")
-        LOG.info("New series found: ${productAgreementsImportResult.newSeries.size}")
-        LOG.info("New accessory parts found: ${productAgreementsImportResult.newAccessoryParts.size}")
-        LOG.info("New main products found: ${productAgreementsImportResult.newProducts.size}")
-
-        if (!dryRun) {
-            LOG.info("Save the catalog file ${file.filename}, for downstream processing")
-            catalogFileRepository.save(
-                CatalogFile(
-                    fileName = file.filename,
-                    fileSize = file.size,
-                    orderRef = importedExcelCatalog[0].bestillingsNr,
-                    catalogList = importedExcelCatalog,
-                    supplierId = supplierId,
-                    created = LocalDateTime.now(),
-                    updatedByUser = authentication.name,
-                    updated = LocalDateTime.now(),
-                    status = CatalogFileStatus.PENDING
-                )
-            )
-        }
-        val productAgreements = productAgreementsImportResult.insertList
-        val newCount = productAgreementsImportResult.insertList.size
-        return ProductAgreementImportDTO(
-            dryRun = dryRun,
-            count = productAgreements.size,
-            newCount = newCount,
-            file = file.filename,
-            supplier = supplier.name,
-            createdSeries = productAgreementsImportResult.newSeries,
-            createdAccessoryParts = productAgreementsImportResult.newAccessoryParts,
-            createdMainProducts = productAgreementsImportResult.newProducts,
-            newProductAgreements = productAgreementsImportResult.insertList,
-            updatedAgreements = productAgreementsImportResult.updateList,
-            deactivatedAgreements = productAgreementsImportResult.deactivateList,
-        )
-    }
 
     @Get(
         value = "/{id}",

@@ -11,9 +11,7 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.DelkontraktData
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationRepository
-import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationService
 import no.nav.hm.grunndata.register.agreement.toEntity
-import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelService.Companion.EXCEL
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -51,7 +49,7 @@ class ProductAgreementRegistrationRepositoryTest(
                         reference = "20-1423",
                         supplierId = supplierId,
                         supplierRef = "TK1235-213",
-                        createdBy = EXCEL,
+                        createdBy = REGISTER,
                         title = "Test product agreement",
                         status = ProductAgreementStatus.ACTIVE,
                         articleName = "Test article",
@@ -65,7 +63,7 @@ class ProductAgreementRegistrationRepositoryTest(
             val found = productAgreementRegistrationRepository.findById(saved.id)
             found.shouldNotBeNull()
             found.agreementId shouldBe saved.agreementId
-            found.createdBy shouldBe EXCEL
+            found.createdBy shouldBe REGISTER
             found.updatedBy shouldBe REGISTER
             found.title shouldBe "Test product agreement"
             found.status shouldBe ProductAgreementStatus.ACTIVE
@@ -84,7 +82,7 @@ class ProductAgreementRegistrationRepositoryTest(
                         reference = "20-1423",
                         supplierId = supplierId,
                         supplierRef = "TK1235-213",
-                        createdBy = EXCEL,
+                        createdBy = REGISTER,
                         title = "Test product agreement",
                         status = ProductAgreementStatus.ACTIVE,
                         articleName = "Test article",

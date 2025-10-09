@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.productagreement
+package no.nav.hm.grunndata.register.catalog
 
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -9,8 +9,6 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
-import java.time.LocalDateTime
-import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AgreementDTO
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
@@ -21,6 +19,7 @@ import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.agreement.DelkontraktData
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistration
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationRepository
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelClient
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierData
@@ -31,6 +30,8 @@ import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
+import java.util.UUID
 
 @MicronautTest
 class ProductAgreementExcelImportTest(
@@ -176,7 +177,9 @@ class ProductAgreementExcelImportTest(
         runBlocking {
             val resp = loginClient.login(UsernamePasswordCredentials(email, password))
             val jwt = resp.getCookie("JWT").get().value
-            val bytes1 = ProductAgreementExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test.xls").readAllBytes()
+            val bytes1 =
+                ProductAgreementExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test.xls")
+                    .readAllBytes()
             val multipartBody1 = MultipartBody
                 .builder()
                 .addPart(
@@ -196,7 +199,9 @@ class ProductAgreementExcelImportTest(
             result.shouldNotBeNull()
             result.newProducts.size shouldBe 2
             result.newSeries.size shouldBe 7
-            val bytes2 = ProductAgreementExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test-2.xls").readAllBytes()
+            val bytes2 =
+                ProductAgreementExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test-2.xls")
+                    .readAllBytes()
             val multipartBody2 = MultipartBody
                 .builder()
                 .addPart(
@@ -216,4 +221,3 @@ class ProductAgreementExcelImportTest(
         }
     }
 }
-
