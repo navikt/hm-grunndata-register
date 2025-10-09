@@ -19,13 +19,14 @@ import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 
 @Singleton
 open class ProductAgreementImportExcelService(
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productRegistrationService: ProductRegistrationService,
-    private val productAgreementService: no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService,
+    private val productAgreementService: ProductAgreementRegistrationService,
     private val noDelKontraktHandler: NoDelKontraktHandler,
     private val catalogImportService: CatalogImportService,
     private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler,
@@ -68,7 +69,7 @@ open class ProductAgreementImportExcelService(
         }
     }
 
-    private suspend fun deactivateProductAgreement(pa: no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO): no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO {
+    private suspend fun deactivateProductAgreement(pa: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO {
         LOG.info(
             "Excel import deactivating product agreement for agreement ${pa.agreementId}, " +
                     "post ${pa.postId} and productId: ${pa.productId}"
@@ -89,7 +90,7 @@ open class ProductAgreementImportExcelService(
     }
 
 
-    private suspend fun updateProductAndProductAgreement(pa: no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO): no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO =
+    private suspend fun updateProductAndProductAgreement(pa: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO =
         productAgreementService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostId(
             pa.supplierId, pa.supplierRef, pa.agreementId, pa.postId
         )?.let { existing ->
@@ -116,7 +117,7 @@ open class ProductAgreementImportExcelService(
         } ?: productAgreementService.save(pa)
 
     open suspend fun updateAccessoryAndSparePart(
-        pa: no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO,
+        pa: ProductAgreementRegistrationDTO,
     ) {
         productRegistrationService.findById(pa.productId!!)?.let { product ->
             val series = seriesRegistrationService.findById(product.seriesUUID)
@@ -225,7 +226,7 @@ open class ProductAgreementImportExcelService(
 
     private suspend fun CatalogImport.toProductAgreementDTO(
         authentication: Authentication?, supplierId: UUID, dryRun: Boolean
-    ): List<no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO> {
+    ): List<ProductAgreementRegistrationDTO> {
         val agreement = agreementRegistrationService.findById(agreementId)
             ?: throw BadRequestException("Avtale med id $agreementId finnes ikke, må den opprettes?")
         val product = productRegistrationService.findBySupplierRefAndSupplierId(supplierRef, supplierId)
@@ -359,9 +360,9 @@ enum class ColumnNames(val column: String) {
 
 
 data class ProductAgreementMappedResultLists(
-    val updateList: List<no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO>,
-    val insertList: List<no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO>,
-    val deactivateList: List<no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO>,
+    val updateList: List<ProductAgreementRegistrationDTO>,
+    val insertList: List<ProductAgreementRegistrationDTO>,
+    val deactivateList: List<ProductAgreementRegistrationDTO>,
 )
 
 val delKontraktRegex = Regex("d(\\d+)([A-Q-STU-Z]*)r*(\\d*),*")
