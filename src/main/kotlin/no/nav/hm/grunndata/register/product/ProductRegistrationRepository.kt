@@ -177,6 +177,9 @@ interface ProductRegistrationRepository :
     suspend fun findAllDuplicateHmsArtnr(
     ): List<ProductIdHmsArtNr>
 
+    @Query("SELECT * FROM product_reg_v1 WHERE main_product = false AND (hms_artnr IS NULL OR hms_artnr = '') AND created_by_admin = false AND registration_status != 'DELETED'")
+    suspend fun findPartsMissingHmsArtNrCreatedBySupplier(): List<ProductRegistration>
+
     suspend fun findByRegistrationStatus(status: RegistrationStatus): List<ProductRegistration>
 
 }

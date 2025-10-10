@@ -191,6 +191,10 @@ class PartApiAdminController(
         return part?.let { productDTOMapper.toPartDTO(it) }
     }
 
+    @Get("/missing-hmsartnr/supplier-created")
+    suspend fun findPartsMissingHmsArtNrCreatedBySupplier(): List<ProductRegistrationDTOV2> =
+        productRegistrationService.findPartsMissingHmsArtNrCreatedBySupplier().map { productDTOMapper.toDTOV2(it) }
+
 }
 
 @Introspected

@@ -63,6 +63,9 @@ open class ProductRegistrationService(
     open suspend fun findAccessoryOrSparePartButNoCompatibleWith() =
         productRegistrationRepository.findAccessoryOrSparePartButNoCompatibleWith()
 
+    open suspend fun findPartsMissingHmsArtNrCreatedBySupplier() =
+        productRegistrationRepository.findPartsMissingHmsArtNrCreatedBySupplier()
+
     open suspend fun findByHmsArtNr(hmsArtNr: String) =
         productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndMainProduct(
             hmsArtNr,
