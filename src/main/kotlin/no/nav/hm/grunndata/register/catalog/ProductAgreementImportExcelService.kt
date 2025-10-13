@@ -64,6 +64,7 @@ open class ProductAgreementImportExcelService(
                     productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(product, isUpdate = true)
                 }
             } else {
+                LOG.info("updating product agreement for accessory/sparepart with hmsnr: ${it.hmsArtNr} with title ${it.title} and productId ${it.productId}")
                 updateAccessoryAndSparePart(it)
             }
         }
@@ -120,6 +121,7 @@ open class ProductAgreementImportExcelService(
         pa: ProductAgreementRegistrationDTO,
     ) {
         productRegistrationService.findById(pa.productId!!)?.let { product ->
+            LOG.info("Excel import updating accessory/sparepart product ${product.id} for product agreement ${pa.agreementId}, post ${pa.postId} and seriesId: ${product.seriesUUID}")
             val series = seriesRegistrationService.findById(product.seriesUUID)
             seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                 series!!.copy(

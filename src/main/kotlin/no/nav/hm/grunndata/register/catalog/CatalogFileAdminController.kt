@@ -27,13 +27,13 @@ import java.util.*
 @Secured(Roles.ROLE_ADMIN)
 @Controller
 @Tag(name = "Admin Catalog File")
-open class CatalogAdminController(private val supplierRegistrationService: SupplierRegistrationService,
-                                  private val catalogExcelFileImport: CatalogExcelFileImport,
-                                  private val productAgreementImportExcelService: ProductAgreementImportExcelService,
-                                  private val catalogFileRepository: CatalogFileRepository) {
+open class CatalogFileAdminController(private val supplierRegistrationService: SupplierRegistrationService,
+                                      private val catalogExcelFileImport: CatalogExcelFileImport,
+                                      private val productAgreementImportExcelService: ProductAgreementImportExcelService,
+                                      private val catalogFileRepository: CatalogFileRepository) {
 
     companion object {
-        private val LOG: Logger = LoggerFactory.getLogger(CatalogAdminController::class.java)
+        private val LOG: Logger = LoggerFactory.getLogger(CatalogFileAdminController::class.java)
         const val ADMIN_API_V1_CATALOG_FILE = "/admin/api/v1/catalog-file"
     }
 
@@ -133,8 +133,9 @@ open class CatalogAdminController(private val supplierRegistrationService: Suppl
         } else null
 
     @Delete("${ADMIN_API_V1_CATALOG_FILE}/{id}")
-    suspend fun deleteCatalogFile(id: UUID): Boolean {
+    suspend fun deleteCatalogFile(id: UUID, authentication: Authentication): Boolean {
         val existing = catalogFileRepository.findById(id) ?: return false
+        LOG.info("Deleting catalog file id: $id, name: ${existing.fileName} by user: ${authentication.userId()}")
         catalogFileRepository.delete(existing)
         return true
     }
