@@ -22,6 +22,6 @@ interface ProductAgreementImportExcelClient {
         @Body file: MultipartBody,
         @QueryValue dryRun: Boolean,
         @QueryValue supplierId: UUID
-    ): HttpResponse<ProductAgreementImportDTO>
+    ): HttpResponse<CatalogImportResultReport>
 
 }

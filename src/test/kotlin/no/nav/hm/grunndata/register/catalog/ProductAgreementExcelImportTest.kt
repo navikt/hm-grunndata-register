@@ -191,10 +191,6 @@ class ProductAgreementExcelImportTest(
             response.status shouldBe HttpStatus.OK
             val body = response.body()
             body.shouldNotBeNull()
-            body.createdSeries.size shouldBe 7
-            body.createdAccessoryParts.size shouldBe 5
-            body.createdMainProducts.size shouldBe 2
-            body.newProductAgreements.size shouldBe 8
             val result = catalogFileToProductAgreementScheduler.scheduleCatalogFileToProductAgreement()
             result.shouldNotBeNull()
             result.newProducts.size shouldBe 2

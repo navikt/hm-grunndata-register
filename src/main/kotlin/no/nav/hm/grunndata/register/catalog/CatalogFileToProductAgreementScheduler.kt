@@ -7,6 +7,7 @@ import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.micronaut.leaderelection.LeaderOnly
 import org.slf4j.LoggerFactory
@@ -16,8 +17,10 @@ import java.time.LocalDateTime
 open class CatalogFileToProductAgreementScheduler(
     private val catalogFileRepository: CatalogFileRepository,
     private val productRegistrationRepository: ProductRegistrationRepository,
+    private val catalogImportService: CatalogImportService,
     private val productAgreementImportExcelService: ProductAgreementImportExcelService,
     @Value("\${catalog.import.force_update}") private val forceUpdate: Boolean,
+    private val productAgreementRegistrationService: ProductAgreementRegistrationService,
 ) {
 
     @LeaderOnly
@@ -26,15 +29,12 @@ open class CatalogFileToProductAgreementScheduler(
         catalogFileRepository.findOneByStatusOrderByCreatedAsc(CatalogFileStatus.PENDING)?.let { catalogFile ->
             try {
                 LOG.info("Got catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName} to process with forceUpdate: $forceUpdate")
+                val supplierId = catalogFile.supplierId
                 val adminAuthentication =
                     ClientAuthentication(catalogFile.updatedByUser, mapOf("roles" to listOf(Roles.ROLE_ADMIN)))
-                val result = productAgreementImportExcelService.mapToProductAgreementImportResult(
-                    catalogFile.catalogList,
-                    adminAuthentication,
-                    catalogFile.supplierId,
-                    false,
-                    forceUpdate
-                )
+                val catalogImportResult = catalogImportService.mapExcelDTOToCatalogImportResult(catalogFile.catalogList, supplierId, forceUpdate)
+
+                val result = productAgreementImportExcelService.mapToProductAgreementImportResult(catalogImportResult, adminAuthentication, supplierId)
                 LOG.info("Finished, saving result")
                 val updatedCatalogFile =
                     catalogFileRepository.update(

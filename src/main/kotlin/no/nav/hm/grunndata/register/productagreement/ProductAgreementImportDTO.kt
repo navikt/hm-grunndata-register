@@ -1,35 +1,18 @@
 package no.nav.hm.grunndata.register.productagreement
 
-import no.nav.hm.grunndata.register.product.ProductRegistration
-import no.nav.hm.grunndata.register.series.SeriesRegistration
+import io.micronaut.core.annotation.Introspected
+import no.nav.hm.grunndata.register.catalog.CatalogImport
 
-data class ProductAgreementImportDTO(
-    val dryRun: Boolean,
-    @Deprecated("remove this later, confusing")
-    val count: Int,
-    @Deprecated("remove this later, confusing")
-    val newCount: Int,
+
+@Introspected
+data class CatalogImportResultReport(
     val file: String,
+    val rows: Int,
     val supplier: String,
-    val createdSeries: List<SeriesRegistration> = emptyList(),
-    val createdAccessoryParts: List<ProductRegistration> = emptyList(),
-    val createdMainProducts: List<ProductRegistration> = emptyList(),
-    val newProductAgreements: List<ProductAgreementRegistrationDTO> = emptyList(),
-    val updatedAgreements: List<ProductAgreementRegistrationDTO> = emptyList(),
-    val deactivatedAgreements: List<ProductAgreementRegistrationDTO> = emptyList(),
-    @Deprecated("No need for this field anymore")
-    val productAgreementsWithInformation: List<Pair<ProductAgreementRegistrationDTO, List<Information>>> = emptyList()
+    val insertedList: List<CatalogImport> = emptyList(),
+    val updatedList: List<CatalogImport> = emptyList(),
+    val deactivatedList: List<CatalogImport> = emptyList(),
 )
-
-data class Information(
-    val message: String,
-    val type: Type,
-)
-
-enum class Type {
-    INFO,
-    WARNING,
-}
 
 
 

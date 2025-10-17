@@ -9,11 +9,8 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
-import no.nav.hm.grunndata.rapid.dto.CatalogFileRapidDTO
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
-import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
-import no.nav.hm.grunndata.register.event.EventPayload
 
 
 @MappedEntity("catalog_file_v1")
@@ -73,7 +70,7 @@ data class CatalogImportExcelDTO(
 )
 
 
-fun CatalogImportExcelDTO.toEntity(agreementRegistration: AgreementRegistrationDTO, supplierId: UUID):CatalogImport  {
+fun CatalogImportExcelDTO.toCatalogImport(agreementRegistration: AgreementRegistrationDTO, supplierId: UUID): CatalogImport  {
     val remapped = mapArticleType(articleType,funksjonsendring) // ensure articletype
     return CatalogImport(
         agreementAction = rammeavtaleHandling,

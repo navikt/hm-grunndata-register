@@ -13,7 +13,7 @@ import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.register.error.BadRequestException
-import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportDTO
+import no.nav.hm.grunndata.register.productagreement.CatalogImportResultReport
 import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
@@ -29,7 +29,7 @@ import java.util.*
 @Tag(name = "Admin Catalog File")
 open class CatalogFileAdminController(private val supplierRegistrationService: SupplierRegistrationService,
                                       private val catalogExcelFileImport: CatalogExcelFileImport,
-                                      private val productAgreementImportExcelService: ProductAgreementImportExcelService,
+                                      private val catalogImportService: CatalogImportService,
                                       private val catalogFileRepository: CatalogFileRepository) {
 
     companion object {
@@ -47,7 +47,7 @@ open class CatalogFileAdminController(private val supplierRegistrationService: S
         @QueryValue dryRun: Boolean = true,
         @QueryValue supplierId: UUID,
         authentication: Authentication,
-    ): ProductAgreementImportDTO {
+    ): CatalogImportResultReport {
         return excelImport(file, dryRun, supplierId, authentication)
     }
 
@@ -61,7 +61,7 @@ open class CatalogFileAdminController(private val supplierRegistrationService: S
         @QueryValue dryRun: Boolean = true,
         @QueryValue supplierId: UUID,
         authentication: Authentication,
-    ): ProductAgreementImportDTO {
+    ): CatalogImportResultReport {
         val supplier = supplierRegistrationService.findById(supplierId)
             ?: throw BadRequestException("Supplier $supplierId not found")
         LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()} for supplier ${supplier.name}")
@@ -69,18 +69,15 @@ open class CatalogFileAdminController(private val supplierRegistrationService: S
         val importedExcelCatalog =
             file.inputStream.use { input -> catalogExcelFileImport.importExcelFile(input) }
 
-        val productAgreementsImportResult = productAgreementImportExcelService.mapToProductAgreementImportResult(
+        val catalogImportResult = catalogImportService.mapExcelDTOToCatalogImportResult(
             importedExcelCatalog,
-            authentication,
             supplierId,
-            true, // this has to be always set to true here, cause the persist function will be handled downstream
             false
         )
 
-        LOG.info("New product agreements found: ${productAgreementsImportResult.insertList.size}")
-        LOG.info("New series found: ${productAgreementsImportResult.newSeries.size}")
-        LOG.info("New accessory parts found: ${productAgreementsImportResult.newAccessoryParts.size}")
-        LOG.info("New main products found: ${productAgreementsImportResult.newProducts.size}")
+        LOG.info("inserted: ${catalogImportResult.insertedList.size}")
+        LOG.info("updated: ${catalogImportResult.updatedList.size}")
+        LOG.info("deactivated: ${catalogImportResult.deactivatedList.size}")
 
         if (!dryRun) {
             LOG.info("Save the catalog file ${file.filename}, for downstream processing")
@@ -98,20 +95,13 @@ open class CatalogFileAdminController(private val supplierRegistrationService: S
                 )
             )
         }
-        val productAgreements = productAgreementsImportResult.insertList
-        val newCount = productAgreementsImportResult.insertList.size
-        return ProductAgreementImportDTO(
-            dryRun = dryRun,
-            count = productAgreements.size,
-            newCount = newCount,
-            file = file.filename,
+        return CatalogImportResultReport(
             supplier = supplier.name,
-            createdSeries = productAgreementsImportResult.newSeries,
-            createdAccessoryParts = productAgreementsImportResult.newAccessoryParts,
-            createdMainProducts = productAgreementsImportResult.newProducts,
-            newProductAgreements = productAgreementsImportResult.insertList,
-            updatedAgreements = productAgreementsImportResult.updateList,
-            deactivatedAgreements = productAgreementsImportResult.deactivateList,
+            file = file.name,
+            rows = importedExcelCatalog.size,
+            insertedList = catalogImportResult.insertedList,
+            updatedList = catalogImportResult.updatedList,
+            deactivatedList = catalogImportResult.deactivatedList,
         )
     }
 

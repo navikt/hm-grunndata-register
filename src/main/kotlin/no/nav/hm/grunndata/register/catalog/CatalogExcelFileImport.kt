@@ -72,7 +72,7 @@ class CatalogExcelFileImport {
             return CatalogImportExcelDTO(
                 rammeavtaleHandling = readCellAsString(row, columnMap[ColumnNames.rammeavtaleHandling.column]!!),
                 bestillingsNr = readCellAsString(row, columnMap[ColumnNames.bestillingsnr.column]!!),
-                hmsArtNr = hmsNr,
+                hmsArtNr = parseHMSNr(hmsNr),
                 iso = readCellAsString(row, columnMap[kategori.column]!!),
                 title = readCellAsString(row, columnMap[beskrivelse.column]!!),
                 supplierRef = leveartNr,

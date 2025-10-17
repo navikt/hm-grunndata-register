@@ -114,7 +114,7 @@ class ProductAgreementExpiredTest(private val productAgreementRegistrationServic
                 title = "Test product agreement",
                 articleName = "Test article",
                 expired = LocalDateTime.now().minusDays(1),
-                productId = null,
+                productId = UUID.randomUUID(),
                 published = LocalDateTime.now(),
                 status = ProductAgreementStatus.ACTIVE,
                 updatedBy = REGISTER

@@ -56,6 +56,7 @@ class ProductAgreementRegistrationRepositoryTest(
                         accessory = false,
                         sparePart = false,
                         mainProduct = true,
+                        productId = UUID.randomUUID(),
                     ),
                 )
 
@@ -86,6 +87,7 @@ class ProductAgreementRegistrationRepositoryTest(
                         title = "Test product agreement",
                         status = ProductAgreementStatus.ACTIVE,
                         articleName = "Test article",
+                        productId = UUID.randomUUID(),
                     ),
                 )
             }

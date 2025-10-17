@@ -14,6 +14,9 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.product.ProductRegistration
+import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
+import no.nav.hm.grunndata.register.product.ProductRegistrationTestFactory
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierData
@@ -27,6 +30,7 @@ class AgreementExpirationTest(
     private val agreementExpiration: AgreementExpiration,
     private val agreementService: AgreementRegistrationService,
     private val supplierService: SupplierRegistrationService,
+    private val productRegistrationTestFactory: ProductRegistrationTestFactory,
     private val productAgreementService: ProductAgreementRegistrationService,
     private val delkontraktRegistrationService: DelkontraktRegistrationService,
 ) {
@@ -96,10 +100,13 @@ class AgreementExpirationTest(
             )
 
             val delkontrakt = delkontraktRegistrationService.save(delkontraktToSave)
-
+            val seriesUUID1 = UUID.randomUUID()
+            val supplierRef = "12345"
+            val hmsnr = "12345"
+            val product1 = productRegistrationTestFactory.createTestProduct(supplier.id, seriesUUID1, supplierRef, hmsnr )
             val productAgreement =
                 ProductAgreementRegistrationDTO(
-                    productId = null,
+                    productId = product1.id,
                     agreementId = agreement.id,
                     seriesUuid = UUID.randomUUID(),
                     reference = agreement.reference,
@@ -110,18 +117,19 @@ class AgreementExpirationTest(
                     title = agreement.title,
                     articleName = agreement.title,
                     createdBy = "tester",
-                    hmsArtNr = "12345",
+                    hmsArtNr = product1.hmsArtNr,
                     supplierId = supplier.id,
                     postId = delkontrakt.id,
-                    supplierRef = "12345",
+                    supplierRef = product1.supplierRef,
                     updatedBy = REGISTER,
                     status = ProductAgreementStatus.ACTIVE
                 )
 
+            val product2 = productRegistrationTestFactory.createTestProduct(supplier.id, seriesUUID1, "123456", "123456" )
             val productAgreement2 =
                 ProductAgreementRegistrationDTO(
                     agreementId = expired.id,
-                    productId = null,
+                    productId = product2.id,
                     seriesUuid = UUID.randomUUID(),
                     reference = expired.reference,
                     published = expired.published,

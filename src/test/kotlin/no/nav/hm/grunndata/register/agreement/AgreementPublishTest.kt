@@ -14,6 +14,7 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.dto.SupplierStatus
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.product.ProductRegistrationTestFactory
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierData
@@ -25,7 +26,8 @@ import org.junit.jupiter.api.Test
 class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                            private val agreementService: AgreementRegistrationService,
                            private val productAgreementService: ProductAgreementRegistrationService,
-                           private val delkontraktRegistrationService: DelkontraktRegistrationService
+                           private val delkontraktRegistrationService: DelkontraktRegistrationService,
+                           private val productRegistrationTestFactory: ProductRegistrationTestFactory
 ) {
 
 
@@ -82,11 +84,11 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                     updatedBy = "tester",
                     identifier = postId.toString()
                 )
-
+            val product = productRegistrationTestFactory.createTestProduct(supplier.id, supplierRef = "12345", hmsArtNr = "12345")
             val productAgreement = ProductAgreementRegistrationDTO(
                 agreementId = agreement.id,
-                productId = null,
-                seriesUuid = UUID.randomUUID(),
+                productId = product.id,
+                seriesUuid = product.seriesUUID,
                 reference = agreement.reference,
                 published = agreement.published,
                 expired = agreement.expired,
@@ -96,16 +98,16 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                 title = agreement.title,
                 articleName = agreement.title,
                 createdBy = "tester",
-                hmsArtNr = "12345",
+                hmsArtNr =  product.hmsArtNr,
                 supplierId = supplier.id,
-                supplierRef = "12345",
+                supplierRef = product.supplierRef,
                 updatedBy = REGISTER
             )
-
+            val product2 = productRegistrationTestFactory.createTestProduct(supplier.id, supplierRef = "123456", hmsArtNr = "123456")
             val productAgreement2 = ProductAgreementRegistrationDTO(
                 agreementId = publishing.id,
-                productId = null,
-                seriesUuid = UUID.randomUUID(),
+                productId = product2.id,
+                seriesUuid = product2.seriesUUID,
                 reference = publishing.reference,
                 published = publishing.published,
                 expired = publishing.expired,
@@ -115,16 +117,17 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                 title = publishing.title,
                 articleName = publishing.title,
                 createdBy = "tester",
-                hmsArtNr = "123456",
+                hmsArtNr = product2.hmsArtNr,
                 supplierId = supplier.id,
-                supplierRef = "123456",
+                supplierRef = product2.supplierRef,
                 updatedBy = REGISTER
             )
+            val product3 = productRegistrationTestFactory.createTestProduct(supplier.id, supplierRef = "1234567", hmsArtNr = "1234567")
 
             val expiredProductAgreement = ProductAgreementRegistrationDTO(
                 agreementId = publishing.id,
-                productId = null,
-                seriesUuid = UUID.randomUUID(),
+                productId = product3.id,
+                seriesUuid = product3.seriesUUID,
                 reference = publishing.reference,
                 published = publishing.published,
                 expired = LocalDateTime.now().minusDays(1),
@@ -135,9 +138,9 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                 title = publishing.title,
                 articleName = publishing.title,
                 createdBy = "tester",
-                hmsArtNr = "123456",
+                hmsArtNr = product3.hmsArtNr,
                 supplierId = supplier.id,
-                supplierRef = "1234567",
+                supplierRef = product3.supplierRef,
                 updatedBy = REGISTER
             )
 

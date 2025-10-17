@@ -243,7 +243,8 @@ class ProductRegistrationAdminApiTest(
                     createdBy = ProductAgreementImportExcelService.EXCEL,
                     title = "Test product agreement",
                     status = ProductAgreementStatus.ACTIVE,
-                    articleName = "Test article"
+                    articleName = "Test article",
+                    productId = UUID.randomUUID(),
                 )
             )
 
