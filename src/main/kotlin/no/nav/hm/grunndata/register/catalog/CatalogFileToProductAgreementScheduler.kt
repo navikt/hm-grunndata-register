@@ -25,7 +25,7 @@ open class CatalogFileToProductAgreementScheduler(
 
     @LeaderOnly
     @Scheduled(cron = "0 * * * * *")
-    open fun scheduleCatalogFileToProductAgreement(): ProductAgreementImportResult? = runBlocking {
+    open fun scheduleCatalogFileToProductAgreement(): ProductAgreementMappedResultLists? = runBlocking {
         catalogFileRepository.findOneByStatusOrderByCreatedAsc(CatalogFileStatus.PENDING)?.let { catalogFile ->
             try {
                 LOG.info("Got catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName} to process with forceUpdate: $forceUpdate")
@@ -33,6 +33,10 @@ open class CatalogFileToProductAgreementScheduler(
                 val adminAuthentication =
                     ClientAuthentication(catalogFile.updatedByUser, mapOf("roles" to listOf(Roles.ROLE_ADMIN)))
                 val catalogImportResult = catalogImportService.mapExcelDTOToCatalogImportResult(catalogFile.catalogList, supplierId, forceUpdate)
+                catalogImportService.createNewProductFromImport(
+                    catalogImportResult,
+                    adminAuthentication
+                )
 
                 val result = productAgreementImportExcelService.mapToProductAgreementImportResult(catalogImportResult, adminAuthentication, supplierId)
                 LOG.info("Finished, saving result")

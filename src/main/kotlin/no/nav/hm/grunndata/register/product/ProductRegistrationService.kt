@@ -85,6 +85,9 @@ open class ProductRegistrationService(
             supplierId
         )
 
+    open suspend fun findByHmsArtNrAndSupplierId(hmsArtNr: String, supplierId: UUID) =
+        productRegistrationRepository.findByHmsArtNrAndSupplierId(hmsArtNr, supplierId)
+
     open suspend fun findByHmsArtNr(hmsArtNr: String, authentication: Authentication): ProductRegistration? =
         if (authentication.isSupplier()) {
             productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierIdAndMainProduct(

@@ -193,8 +193,7 @@ class ProductAgreementExcelImportTest(
             body.shouldNotBeNull()
             val result = catalogFileToProductAgreementScheduler.scheduleCatalogFileToProductAgreement()
             result.shouldNotBeNull()
-            result.newProducts.size shouldBe 2
-            result.newSeries.size shouldBe 7
+            result.insertList.size shouldBe 2
             val bytes2 =
                 ProductAgreementExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test-2.xls")
                     .readAllBytes()
@@ -211,7 +210,7 @@ class ProductAgreementExcelImportTest(
             body2.shouldNotBeNull()
             val result2 = catalogFileToProductAgreementScheduler.scheduleCatalogFileToProductAgreement()
             result2.shouldNotBeNull()
-            result2.newProducts.size shouldBe 0
+            result2.insertList.size shouldBe 0
             result2.deactivateList.size shouldBe 2
 
         }
