@@ -21,7 +21,7 @@ class TechLabelService(
         val techLabels: MutableList<TechLabelDTO> = mutableListOf()
         for (i in levels downTo 0) {
             val iso = isocode.substring(0, i * 2)
-            techLabels.addAll(techLabelRegistrationRepository.findByIsocode(iso).map { it.toTechLabelDTO() })
+            techLabels.addAll(techLabelRegistrationRepository.findByIsoCode(iso).map { it.toTechLabelDTO() })
         }
         techLabels.distinctBy { it.id }
     }
