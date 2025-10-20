@@ -1,5 +1,7 @@
 package no.nav.hm.grunndata.register.techlabel
 
+import io.micronaut.cache.annotation.CacheConfig
+import io.micronaut.cache.annotation.Cacheable
 import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -7,7 +9,8 @@ import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 
 @Singleton
-class TechLabelService(
+@CacheConfig(cacheNames = ["techlabels"])
+open class TechLabelService(
     private val techLabelRegistrationRepository: TechLabelRegistrationRepository
 ) : LabelService {
 
@@ -15,6 +18,7 @@ class TechLabelService(
         private val LOG = LoggerFactory.getLogger(TechLabelService::class.java)
     }
 
+    @Cacheable
     override fun fetchLabelsByIsoCode(isocode: String): List<TechLabelDTO> = runBlocking {
         LOG.info("Fetching labels by isocode: $isocode")
         val levels = isocode.length / 2
@@ -26,12 +30,13 @@ class TechLabelService(
         techLabels.distinctBy { it.id }
     }
 
+    @Cacheable
     override fun fetchLabelsByName(name: String): List<TechLabelDTO> = runBlocking {
         LOG.info("Fetching labels by name: $name")
-        val techlabels = techLabelRegistrationRepository.findAll().map { it.toTechLabelDTO() }.toList()
-        techlabels.groupBy { it.label }[name] ?: emptyList()
+        techLabelRegistrationRepository.findByLabel(name).map { it.toTechLabelDTO() }.toList()
     }
 
+    @Cacheable
     override fun fetchAllLabels(): Map<String, List<TechLabelDTO>> = runBlocking {
         LOG.info("Fetching labels list")
         val techLabels = techLabelRegistrationRepository.findAll().map { it.toTechLabelDTO()}.toList()

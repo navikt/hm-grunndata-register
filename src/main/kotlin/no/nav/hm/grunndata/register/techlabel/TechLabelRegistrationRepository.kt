@@ -11,4 +11,5 @@ import java.util.*
 interface TechLabelRegistrationRepository: CoroutineCrudRepository<TechLabelRegistration, UUID>, CoroutineJpaSpecificationExecutor<TechLabelRegistration> {
     suspend fun findByLabelAndIsoCode(label: String, isoCode: String): TechLabelRegistration?
     suspend fun findByIsoCode(isoCode: String):  List<TechLabelRegistration>
+    suspend fun findByLabel(label: String):  List<TechLabelRegistration>
 }
