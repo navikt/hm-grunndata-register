@@ -51,16 +51,16 @@ open class ArchiveService(private val archiveRepository: ArchiveRepository) {
         val archives = handler.archive()
         if (archives.isNotEmpty()) {
             archiveRepository.saveAll(archives).collect()
-            LOG.info("Archived ${archives.size} items for handler: ${handler::class.simpleName}")
+            LOG.debug("Archived ${archives.size} items for handler: ${handler::class.simpleName}")
         } else {
-            LOG.info("No items to archive for handler: ${handler::class.simpleName}")
+            LOG.debug("No items to archive for handler: ${handler::class.simpleName}")
         }
     }
 
     @Transactional(propagation = TransactionDefinition.Propagation.REQUIRES_NEW)
     open suspend fun handleUnarchive(handler: ArchiveHandler) {
         try {
-            LOG.info("Starting unarchiving process for handler: ${handler::class.simpleName}")
+            LOG.debug("Starting unarchiving process for handler: ${handler::class.simpleName}")
             val unarchives = archiveRepository.findByStatusAndType(
                 ArchiveStatus.UNARCHIVE, handler.getArchiveType()
             )

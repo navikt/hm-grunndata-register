@@ -20,7 +20,7 @@ class ProductArchiveHandler(
 
     override suspend fun archive(): List<Archive> {
         val toBeDeleted = productRegistrationRepository.findByRegistrationStatus(RegistrationStatus.DELETED)
-        LOG.info("${toBeDeleted.size} to be archived with status DELETED")
+        LOG.debug("${toBeDeleted.size} to be archived with status DELETED")
         val archives = toBeDeleted.map { toArchive ->
             productRegistrationRepository.deleteById(toArchive.id)
             Archive(
@@ -35,7 +35,7 @@ class ProductArchiveHandler(
     }
 
     override suspend fun unArchive(unArchive: Archive) {
-        LOG.info("Unarchiving ProductRegistration with oid: ${unArchive.oid} and keywords: ${unArchive.keywords}")
+        LOG.debug("Unarchiving ProductRegistration with oid: ${unArchive.oid} and keywords: ${unArchive.keywords}")
         val productRegistration = objectMapper.readValue(unArchive.payload, ProductRegistration::class.java)
         val unarchived = productRegistrationRepository.findBySupplierRefAndSupplierId(
             productRegistration.supplierRef,
