@@ -11,36 +11,31 @@ class TechLabelService(
     private val techLabelRegistrationRepository: TechLabelRegistrationRepository
 ) : LabelService {
 
-    private var techLabelsByIso: Map<String, List<TechLabelDTO>>
-
-
-    private var techLabelsByName: Map<String, List<TechLabelDTO>>
-
     companion object {
         private val LOG = LoggerFactory.getLogger(TechLabelService::class.java)
     }
 
-    init {
-        runBlocking {
-            val techLabels = techLabelRegistrationRepository.findAll().map { it.toTechLabelDTO() }.toList()
-            LOG.info("Init techLabels: ${techLabels.size}")
-            techLabelsByIso = techLabels.groupBy { it.isocode }
-            techLabelsByName = techLabels.groupBy { it.label }
-        }
-    }
-
-    override fun fetchLabelsByIsoCode(isocode: String): List<TechLabelDTO> {
+    override fun fetchLabelsByIsoCode(isocode: String): List<TechLabelDTO> = runBlocking {
+        LOG.info("Fetching labels by isocode: $isocode")
         val levels = isocode.length / 2
         val techLabels: MutableList<TechLabelDTO> = mutableListOf()
         for (i in levels downTo 0) {
             val iso = isocode.substring(0, i * 2)
-            techLabels.addAll(techLabelsByIso[iso] ?: emptyList())
+            techLabels.addAll(techLabelRegistrationRepository.findByIsocode(iso).map { it.toTechLabelDTO() })
         }
-        return techLabels.distinctBy { it.id }
+        techLabels.distinctBy { it.id }
     }
 
-    override fun fetchLabelsByName(name: String): List<TechLabelDTO>? = techLabelsByName[name]
+    override fun fetchLabelsByName(name: String): List<TechLabelDTO> = runBlocking {
+        LOG.info("Fetching labels by name: $name")
+        val techlabels = techLabelRegistrationRepository.findAll().map { it.toTechLabelDTO() }.toList()
+        techlabels.groupBy { it.label }[name] ?: emptyList()
+    }
 
-    override fun fetchAllLabels(): Map<String, List<TechLabelDTO>> = techLabelsByIso
+    override fun fetchAllLabels(): Map<String, List<TechLabelDTO>> = runBlocking {
+        LOG.info("Fetching labels list")
+        val techLabels = techLabelRegistrationRepository.findAll().map { it.toTechLabelDTO()}.toList()
+        techLabels.groupBy {  it.isocode }
+    }
 
 }
