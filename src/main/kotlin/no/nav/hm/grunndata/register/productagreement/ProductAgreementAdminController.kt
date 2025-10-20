@@ -89,7 +89,7 @@ open class ProductAgreementAdminController(
 
     @Post(
         value = "/",
-        consumes = [io.micronaut.http.MediaType.MULTIPART_FORM_DATA],
+        consumes = [io.micronaut.http.MediaType.APPLICATION_JSON],
         produces = [io.micronaut.http.MediaType.APPLICATION_JSON],
     )
     suspend fun createProductAgreement(

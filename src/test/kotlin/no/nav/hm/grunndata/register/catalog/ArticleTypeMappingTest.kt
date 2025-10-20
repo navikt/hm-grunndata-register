@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 @MicronautTest
-class CatalogExcelFileImportTest {
+class ArticleTypeMappingTest {
 
     @Test
     fun `test mapArticleType`() {

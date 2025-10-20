@@ -26,7 +26,9 @@ import no.nav.hm.grunndata.register.agreement.DelkontraktData
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationService
 import no.nav.hm.grunndata.register.catalog.ProductAgreementImportExcelService
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementAdminClient
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
@@ -56,7 +58,8 @@ class ProductRegistrationAdminApiTest(
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
     private val delkontraktRegistrationService: DelkontraktRegistrationService,
     private val seriesRegistrationService: SeriesRegistrationService,
-    private val objectMapper: ObjectMapper,
+    private val productAgreementAdminClient: ProductAgreementAdminClient,
+    private val objectMapper: ObjectMapper
 ) {
 
     val email = "ProductRegistrationAdminApiTest@test.test"
@@ -230,25 +233,8 @@ class ProductRegistrationAdminApiTest(
             agreementRegistrationRepository.save(agreementRegistration)
 
 
-            val productAgreement = productAgreementRegistrationRepository.save(
-                ProductAgreementRegistration(
-                    agreementId = agreementId,
-                    hmsArtNr = "12345",
-                    post = 1,
-                    rank = 1,
-                    postId = postId,
-                    reference = "20-1423",
-                    supplierId = supplierId,
-                    supplierRef = supplierRef,
-                    createdBy = ProductAgreementImportExcelService.EXCEL,
-                    title = "Test product agreement",
-                    status = ProductAgreementStatus.ACTIVE,
-                    articleName = "Test article",
-                    productId = UUID.randomUUID(),
-                )
-            )
 
-            seriesRegistrationService.save(
+            val series = seriesRegistrationService.save(
                 SeriesRegistration(
                     id = seriesUUID,
                     supplierId = supplierId,
@@ -269,7 +255,6 @@ class ProductRegistrationAdminApiTest(
                     version = 0,
                 )
             )
-
         }
     }
 
@@ -306,6 +291,26 @@ class ProductRegistrationAdminApiTest(
         val created = apiClient.updateProduct(jwt, draft.id, updateDTO)
         created.shouldNotBeNull()
         created.productData.techData shouldContain extendedTechData
+
+        productAgreementAdminClient.createProductAgreement(jwt,
+            ProductAgreementRegistrationDTO(
+                agreementId = agreementId,
+                hmsArtNr = "12345",
+                post = 1,
+                rank = 1,
+                postId = postId,
+                reference = "20-1423",
+                supplierId = supplierId,
+                supplierRef = supplierRef,
+                createdBy = ProductAgreementImportExcelService.EXCEL,
+                title = "Test product agreement",
+                status = ProductAgreementStatus.ACTIVE,
+                articleName = "Test article",
+                productId = created.id,
+                seriesUuid = seriesUUID,
+                published = LocalDateTime.now(),
+                expired = LocalDateTime.now().plusYears(1)
+            ))
 
         // read it from database
         val read = apiClient.readProduct(jwt, created.id)

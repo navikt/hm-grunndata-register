@@ -19,7 +19,7 @@ import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.agreement.DelkontraktData
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistration
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationRepository
-import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportExcelClient
+import no.nav.hm.grunndata.register.catalog.CatalogImportExcelClient
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierData
@@ -34,12 +34,12 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @MicronautTest
-class ProductAgreementExcelImportTest(
+class CatalogExcelImportTest(
     private val agreementRegistrationService: AgreementRegistrationService,
     private val supplierRegistrationService: SupplierRegistrationService,
     private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository,
     private val userRepository: UserRepository,
-    private val client: ProductAgreementImportExcelClient,
+    private val client: CatalogImportExcelClient,
     private val loginClient: LoginClient,
     private val catalogFileToProductAgreementScheduler: CatalogFileToProductAgreementScheduler
 
@@ -54,7 +54,7 @@ class ProductAgreementExcelImportTest(
     val supplierId = UUID.randomUUID()
 
     companion object {
-        private val LOG = LoggerFactory.getLogger(ProductAgreementExcelImportTest::class.java)
+        private val LOG = LoggerFactory.getLogger(CatalogExcelImportTest::class.java)
     }
 
     init {
@@ -178,7 +178,7 @@ class ProductAgreementExcelImportTest(
             val resp = loginClient.login(UsernamePasswordCredentials(email, password))
             val jwt = resp.getCookie("JWT").get().value
             val bytes1 =
-                ProductAgreementExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test.xls")
+                CatalogExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test.xls")
                     .readAllBytes()
             val multipartBody1 = MultipartBody
                 .builder()
@@ -193,9 +193,9 @@ class ProductAgreementExcelImportTest(
             body.shouldNotBeNull()
             val result = catalogFileToProductAgreementScheduler.scheduleCatalogFileToProductAgreement()
             result.shouldNotBeNull()
-            result.insertList.size shouldBe 2
+            result.insertList.size shouldBe 8
             val bytes2 =
-                ProductAgreementExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test-2.xls")
+                CatalogExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test-2.xls")
                     .readAllBytes()
             val multipartBody2 = MultipartBody
                 .builder()
@@ -210,7 +210,7 @@ class ProductAgreementExcelImportTest(
             body2.shouldNotBeNull()
             val result2 = catalogFileToProductAgreementScheduler.scheduleCatalogFileToProductAgreement()
             result2.shouldNotBeNull()
-            result2.insertList.size shouldBe 0
+            result2.insertList.size shouldBe 2
             result2.deactivateList.size shouldBe 2
 
         }

@@ -11,7 +11,7 @@ import java.util.UUID
 @Singleton
 class ProductRegistrationTestFactory(private val productRegistrationRepository: ProductRegistrationRepository) {
 
-    suspend fun createTestProduct(supplierId: UUID = UUID.randomUUID(), seriesUUID: UUID = UUID.randomUUID(), supplierRef : String = UUID.randomUUID().toString(), hmsArtNr: String = UUID.randomUUID().toString()):  ProductRegistration {
+    suspend fun createTestProduct(supplierId: UUID = UUID.randomUUID(), seriesUUID: UUID = UUID.randomUUID(), supplierRef : String = UUID.randomUUID().toString(), hmsArtNr: String? = UUID.randomUUID().toString()):  ProductRegistration {
         val productData1 =
             ProductData(
                 attributes =
