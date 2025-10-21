@@ -40,7 +40,7 @@ class ProductAgreementRegistrationRepositoryTest(
                     identifier = postId.toString()
                 )
             delkontraktRegistrationRepository.save(delkontraktToSave.toEntity())
-            val supplierRef= "TK1235-213"
+            val supplierRef = "TK1235-213"
             val productId = productRegistrationTestFactory.createTestProduct(supplierId, supplierRef = supplierRef, hmsArtNr = "1234")
             val saved =
                 productAgreementRegistrationRepository.save(
