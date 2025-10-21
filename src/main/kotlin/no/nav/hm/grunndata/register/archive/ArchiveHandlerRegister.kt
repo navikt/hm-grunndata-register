@@ -17,7 +17,7 @@ class ArchiveHandlerRegister(
     }
 
     override fun onCreated(event: BeanCreatedEvent<ArchiveHandler>): ArchiveHandler {
-        LOG.info("Found ArchiveHandler for: ${event.bean::class.simpleName}")
+        LOG.debug("Found ArchiveHandler for: ${event.bean::class.simpleName}")
         archiveService.addArchiveHandler(event.bean)
         return event.bean
     }
