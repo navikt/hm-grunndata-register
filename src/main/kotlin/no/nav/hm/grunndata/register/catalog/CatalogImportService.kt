@@ -44,7 +44,7 @@ open class CatalogImportService(
             insertedList.addAll(catalogImportList)
         } else {
             catalogImportList.forEach { catalogImport ->
-                val existing = existingCatalog.find { it.hmsArtNr== catalogImport.hmsArtNr }
+                val existing = existingCatalog.find { it.hmsArtNr == catalogImport.hmsArtNr }
                 if (existing == null) {
                     insertedList.add(catalogImport)
                 } else if (forceUpdate || existing != catalogImport) {
