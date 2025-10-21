@@ -25,7 +25,6 @@ class ProductRegistrationTestFactory(private val productRegistrationRepository: 
                     TechData(key = "Brukerhøyde maks", unit = "kg", value = "120")
                 )
             )
-        val seriesUUID = UUID.randomUUID()
         return productRegistrationRepository.save(ProductRegistration(
             id = UUID.randomUUID(),
             seriesUUID = seriesUUID,
