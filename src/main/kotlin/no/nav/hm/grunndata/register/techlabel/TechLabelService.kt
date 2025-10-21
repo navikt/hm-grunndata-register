@@ -19,7 +19,7 @@ open class TechLabelService(
     }
 
     override fun fetchLabelsByIsoCode(isocode: String): List<TechLabelDTO> = runBlocking {
-        LOG.info("Fetching labels by isocode: $isocode")
+        LOG.debug("Fetching labels by isocode: $isocode")
         val levels = isocode.length / 2
         val techLabels: MutableList<TechLabelDTO> = mutableListOf()
         for (i in levels downTo 0) {
