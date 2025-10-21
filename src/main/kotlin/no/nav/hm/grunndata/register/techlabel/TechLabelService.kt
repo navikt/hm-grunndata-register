@@ -18,22 +18,19 @@ open class TechLabelService(
         private val LOG = LoggerFactory.getLogger(TechLabelService::class.java)
     }
 
-    @Cacheable
     override fun fetchLabelsByIsoCode(isocode: String): List<TechLabelDTO> = runBlocking {
         LOG.info("Fetching labels by isocode: $isocode")
         val levels = isocode.length / 2
         val techLabels: MutableList<TechLabelDTO> = mutableListOf()
         for (i in levels downTo 0) {
             val iso = isocode.substring(0, i * 2)
-            techLabels.addAll(techLabelRegistrationRepository.findByIsoCode(iso).map { it.toTechLabelDTO() })
+            techLabels.addAll(fetchAllLabels()[iso] ?: emptyList())
         }
         techLabels.distinctBy { it.id }
     }
 
-    @Cacheable
     override fun fetchLabelsByName(name: String): List<TechLabelDTO> = runBlocking {
-        LOG.info("Fetching labels by name: $name")
-        techLabelRegistrationRepository.findByLabel(name).map { it.toTechLabelDTO() }.toList()
+        fetchAllLabelsGroupByName()[name] ?: emptyList()
     }
 
     @Cacheable
@@ -41,6 +38,11 @@ open class TechLabelService(
         LOG.info("Fetching labels list")
         val techLabels = techLabelRegistrationRepository.findAll().map { it.toTechLabelDTO()}.toList()
         techLabels.groupBy {  it.isocode }
+    }
+
+    fun fetchAllLabelsGroupByName(): Map<String, List<TechLabelDTO>> = runBlocking {
+        val techLabels = fetchAllLabels().values.flatten()
+        techLabels.groupBy {  it.label }
     }
 
 }

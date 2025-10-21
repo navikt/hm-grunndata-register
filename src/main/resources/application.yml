@@ -85,7 +85,7 @@ micronaut:
       charset: 'UTF-8'
     techlabels:
       charset: 'UTF-8'
-      expire-after-write: 30m
+      expire-after-write: 15m
   http:
     client:
       connect-timeout: 10s
