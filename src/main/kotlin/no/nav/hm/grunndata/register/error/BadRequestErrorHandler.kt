@@ -135,6 +135,6 @@ enum class ErrorType {
 // Global error logger for errorhandler
 private val LOG = LoggerFactory.getLogger("HttpRequestErrorHandler")
 
-class BadRequestException(message: String, val type: ErrorType = ErrorType.INVALID_VALUE) : Throwable(message)
+class BadRequestException(message: String, val type: ErrorType = ErrorType.INVALID_VALUE) : RuntimeException(message)
 
 data class ErrorMessage(val message: String, val errorType: ErrorType, val errorRef: UUID = UUID.randomUUID())
