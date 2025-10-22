@@ -19,8 +19,7 @@ open class CatalogFileToProductAgreementScheduler(
     private val productRegistrationRepository: ProductRegistrationRepository,
     private val catalogImportService: CatalogImportService,
     private val productAgreementImportExcelService: ProductAgreementImportExcelService,
-    @Value("\${catalog.import.force_update}") private val forceUpdate: Boolean,
-    private val productAgreementRegistrationService: ProductAgreementRegistrationService,
+    @Value("\${catalog.import.force_update}") private val forceUpdate: Boolean
 ) {
 
     @LeaderOnly
@@ -33,7 +32,7 @@ open class CatalogFileToProductAgreementScheduler(
                 val adminAuthentication =
                     ClientAuthentication(catalogFile.updatedByUser, mapOf("roles" to listOf(Roles.ROLE_ADMIN)))
                 val catalogImportResult = catalogImportService.mapExcelDTOToCatalogImportResult(catalogFile.catalogList, supplierId, forceUpdate)
-                catalogImportService.createNewProductFromImport(
+                catalogImportService.updateProductFromCatalogImport(
                     catalogImportResult,
                     adminAuthentication
                 )

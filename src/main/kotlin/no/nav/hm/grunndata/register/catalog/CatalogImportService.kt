@@ -26,7 +26,7 @@ open class CatalogImportService(
     private val catalogImportRepository: CatalogImportRepository,
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productRegistrationRepository: ProductRegistrationRepository,
-    private val seriesRegistrationRepository: SeriesRegistrationRepository,
+    private val seriesRegistrationRepository: SeriesRegistrationRepository
 ) {
 
     suspend fun findByOrderRef(orderRef: String): List<CatalogImport> {
@@ -101,16 +101,52 @@ open class CatalogImportService(
         }
     }
 
-    suspend fun createNewProductFromImport(
+    suspend fun updateProductFromCatalogImport(
         catalogImportResult: CatalogImportResult,
         adminAuthentication: ClientAuthentication) {
-
-        if (catalogImportResult.insertedList.isNotEmpty()) {
-            catalogImportResult.insertedList.forEach { catalogImport ->
+        val updates = catalogImportResult.insertedList + catalogImportResult.updatedList + catalogImportResult.deactivatedList
+        if (updates.isNotEmpty()) {
+            updates.forEach { catalogImport ->
                 val product = productRegistrationRepository.findByHmsArtNrAndSupplierId(catalogImport.hmsArtNr, catalogImport.supplierId)
-                    ?: productRegistrationRepository.findBySupplierRefAndSupplierId(catalogImport.supplierRef,catalogImport.supplierId) ?:
-                    createNewProductAndSeries(catalogImport, adminAuthentication)
-                LOG.info("Created new product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr} mainProduct: ${catalogImport.mainProduct} under orderRef: ${catalogImport.orderRef}" )
+                    ?: productRegistrationRepository.findBySupplierRefAndSupplierId(catalogImport.supplierRef,catalogImport.supplierId)
+                product?.let {
+                    if (it.supplierRef != catalogImport.supplierRef) {
+                        LOG.error("Product ${it.id} hmsArtNr: ${it.hmsArtNr} has different supplierRef: ${it.supplierRef} than catalogImport: ${catalogImport.supplierRef} under orderRef: ${catalogImport.orderRef}")
+                    }
+                    if (it.hmsArtNr != catalogImport.hmsArtNr) {
+                        LOG.error("Product ${it.id} supplierRef: ${it.supplierRef} has different hmsArtNr: ${it.hmsArtNr} than catalogImport: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                    }
+                    productRegistrationRepository.update(
+                        it.copy(
+                            hmsArtNr = catalogImport.hmsArtNr,
+                            supplierRef = catalogImport.supplierRef,
+                            articleName = catalogImport.title,
+                            accessory = catalogImport.accessory,
+                            sparePart = catalogImport.sparePart,
+                            mainProduct = catalogImport.mainProduct,
+                            updatedByUser = adminAuthentication.name,
+                            updated = LocalDateTime.now()
+                        )
+                    )
+                } ?: createNewProductAndSeries(catalogImport, adminAuthentication)
+            }
+        }
+        if (catalogImportResult.deactivatedList.isNotEmpty()) {
+            catalogImportResult.deactivatedList.forEach { catalogImport ->
+                val product = productRegistrationRepository.findByHmsArtNrAndSupplierId(catalogImport.hmsArtNr, catalogImport.supplierId)
+                    ?: productRegistrationRepository.findBySupplierRefAndSupplierId(catalogImport.supplierRef,catalogImport.supplierId)
+                if (product != null && !product.mainProduct) { // we only deactivate none main products
+                    productRegistrationRepository.update(
+                        product.copy(
+                            registrationStatus = RegistrationStatus.INACTIVE,
+                            expired = LocalDateTime.now(),
+                            updatedByUser = adminAuthentication.name
+                        )
+                    )
+                    LOG.info("Deactivated product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}" )
+                } else {
+                    LOG.warn("Could not find product to deactivate for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}" )
+                }
             }
         }
     }
@@ -137,7 +173,7 @@ open class CatalogImportService(
                 createdByAdmin = authentication.isAdmin(),
                 mainProduct = catalogImport.mainProduct,
             ))
-        return productRegistrationRepository.save(
+        val product = productRegistrationRepository.save(
             ProductRegistration(
                 seriesUUID = seriesId,
                 draftStatus = DraftStatus.DONE,
@@ -156,6 +192,8 @@ open class CatalogImportService(
                 updatedByUser = authentication.name,
                 createdByAdmin = authentication.isAdmin(),
             ))
+        LOG.info("Created product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr} mainProduct: ${catalogImport.mainProduct} under orderRef: ${catalogImport.orderRef}" )
+        return product
     }
     companion object {
         private val LOG = org.slf4j.LoggerFactory.getLogger(CatalogImportService::class.java)

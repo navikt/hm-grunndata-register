@@ -201,4 +201,4 @@ vertexai:
 
 catalog:
   import:
-    force_update: ${CATALOG_IMPORT_FORCE_UPDATE:true}
+    force_update: ${CATALOG_IMPORT_FORCE_UPDATE:false}

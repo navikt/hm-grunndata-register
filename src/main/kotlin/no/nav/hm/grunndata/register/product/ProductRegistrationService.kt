@@ -237,9 +237,8 @@ open class ProductRegistrationService(
                 changedHmsNrSupplierRef = true
             }
             if (changedHmsNrSupplierRef) {
-                productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(
-                    inDb.supplierId,
-                    inDb.supplierRef,
+                productAgreementRegistrationRepository.findByProductId(
+                    inDb.id
                 ).forEach { change ->
                     productAgreementRegistrationRepository.update(
                         change.copy(hmsArtNr = updateDTO.hmsArtNr!!, supplierRef = updateDTO.supplierRef),

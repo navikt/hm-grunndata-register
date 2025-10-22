@@ -99,17 +99,17 @@ open class ProductAgreementAdminController(
         LOG.info(
             "Creating product agreement: ${regDTO.agreementId} ${regDTO.supplierId} ${regDTO.supplierRef} by ${authentication.userId()}",
         )
-        productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostId(
-            regDTO.supplierId,
-            regDTO.supplierRef,
-            regDTO.agreementId,
-            regDTO.postId!!
-        )?.let {
-            throw BadRequestException("Product agreement already exists")
-        }
         val product =
             productRegistrationService.findBySupplierRefAndSupplierId(regDTO.supplierRef, regDTO.supplierId)
                 ?: throw BadRequestException("Product not found")
+        productAgreementRegistrationService.findByProductIdAndAgreementIdAndPostId(
+            product.id,
+            regDTO.agreementId,
+            regDTO.postId
+        )?.let {
+            throw BadRequestException("Product agreement already exists")
+        }
+
         val agreement =
             agreementRegistrationService.findById(regDTO.agreementId)
                 ?: throw BadRequestException("Agreement ${regDTO.agreementId} not found")
@@ -135,7 +135,7 @@ open class ProductAgreementAdminController(
                 createdBy = "REGISTER",
                 published = agreement.published,
                 expired = agreement.expired,
-                hmsArtNr = product.hmsArtNr!!,
+                hmsArtNr = product.hmsArtNr,
                 productId = product.id,
                 seriesUuid = product.seriesUUID,
                 articleName = product.articleName,
@@ -165,18 +165,17 @@ open class ProductAgreementAdminController(
 
         val validated =
             regDTOs.map { regDTO ->
-                productAgreementRegistrationService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostId(
-                    regDTO.supplierId,
-                    regDTO.supplierRef,
-                    regDTO.agreementId,
-                    regDTO.postId!!
-                )?.let {
-                    throw BadRequestException("Product agreement already exists")
-                }
-
                 val product =
                     productRegistrationService.findBySupplierRefAndSupplierId(regDTO.supplierRef, regDTO.supplierId)
                         ?: throw BadRequestException("Product not found")
+
+                productAgreementRegistrationService.findByProductIdAndAgreementIdAndPostId(
+                    product.id,
+                    regDTO.agreementId,
+                    regDTO.postId
+                )?.let {
+                    throw BadRequestException("Product agreement already exists")
+                }
 
                 val agreement =
                     agreementRegistrationService.findById(regDTO.agreementId)
@@ -197,7 +196,7 @@ open class ProductAgreementAdminController(
                     createdBy = "REGISTER",
                     published = agreement.published,
                     expired = agreement.expired,
-                    hmsArtNr = product.hmsArtNr!!,
+                    hmsArtNr = product.hmsArtNr,
                     productId = product.id,
                     seriesUuid = product.seriesUUID,
                     articleName = product.articleName,

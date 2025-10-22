@@ -68,13 +68,15 @@ open class ProductAgreementImportExcelService(
             "Excel import deactivating product agreement for agreement ${pa.agreementId}, " +
                     "post ${pa.postId} and productId: ${pa.productId}"
         )
-        return productAgreementService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostId(
-            pa.supplierId, pa.supplierRef, pa.agreementId, pa.postId
+        return productAgreementService.findByProductIdAndAgreementIdAndPostId(
+            pa.productId, pa.agreementId, pa.postId
         )?.let { existing ->
             productAgreementService.update(
                 existing.copy(
                     expired = LocalDateTime.now(),
                     updatedBy = EXCEL,
+                    hmsArtNr = pa.hmsArtNr,
+                    supplierRef = pa.supplierRef,
                     status = ProductAgreementStatus.INACTIVE,
                     updated = LocalDateTime.now()
                 )
@@ -83,8 +85,8 @@ open class ProductAgreementImportExcelService(
     }
 
     private suspend fun updateProductAndProductAgreement(pa: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO =
-        productAgreementService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostId(
-            pa.supplierId, pa.supplierRef, pa.agreementId, pa.postId
+        productAgreementService.findByProductIdAndAgreementIdAndPostId(
+            pa.productId, pa.agreementId, pa.postId
         )?.let { existing ->
             LOG.info(
                 "Excel import updating product agreement for agreement ${pa.agreementId}, " +
@@ -95,6 +97,7 @@ open class ProductAgreementImportExcelService(
                     productId = pa.productId,
                     hmsArtNr = pa.hmsArtNr,
                     seriesUuid = pa.seriesUuid,
+                    supplierRef = pa.supplierRef,
                     title = pa.title,
                     articleName = pa.articleName,
                     sparePart = pa.sparePart,
