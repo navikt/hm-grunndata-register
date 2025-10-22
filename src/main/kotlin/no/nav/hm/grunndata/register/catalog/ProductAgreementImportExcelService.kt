@@ -260,8 +260,14 @@ open class ProductAgreementImportExcelService(
 }
 
 fun parseHMSNr(hmsArtNr: String): String {
-    val parsedNumber = hmsArtNr.substringBefore(".").toInt().toString()
-    return parsedNumber.padStart(6, '0')
+    try {
+        val parsedNumber = hmsArtNr.substringBefore(".").toInt().toString()
+        return parsedNumber.padStart(6, '0')
+    }
+    catch (e: Exception) {
+        throw IllegalArgumentException("Klarte ikke å lese HMS artnr. $hmsArtNr")
+    }
+
 }
 
 fun parsedelkontraktNr(subContractNr: String): List<Pair<String, Int>> {
