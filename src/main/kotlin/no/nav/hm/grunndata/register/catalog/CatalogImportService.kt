@@ -11,6 +11,7 @@ import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
+import no.nav.hm.grunndata.register.catalog.ProductAgreementImportExcelService.Companion.EXCEL
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductData
 import no.nav.hm.grunndata.register.product.ProductRegistration
@@ -170,6 +171,7 @@ open class CatalogImportService(
                 createdByUser = authentication.name,
                 updatedByUser = authentication.name,
                 createdByAdmin = authentication.isAdmin(),
+                createdBy = EXCEL,
                 mainProduct = catalogImport.mainProduct,
             ))
         val product = productRegistrationRepository.save(
@@ -189,6 +191,7 @@ open class CatalogImportService(
                 mainProduct = catalogImport.mainProduct,
                 createdByUser = authentication.name,
                 updatedByUser = authentication.name,
+                createdBy = EXCEL,
                 createdByAdmin = authentication.isAdmin(),
             ))
         LOG.info("Created product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr} mainProduct: ${catalogImport.mainProduct} under orderRef: ${catalogImport.orderRef}" )
