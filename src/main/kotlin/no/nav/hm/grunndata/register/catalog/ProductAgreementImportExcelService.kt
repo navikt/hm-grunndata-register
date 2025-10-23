@@ -114,7 +114,7 @@ open class ProductAgreementImportExcelService(
     open suspend fun updateAccessoryAndSparePart(
         pa: ProductAgreementRegistrationDTO,
     ) {
-        productRegistrationService.findById(pa.productId!!)?.let { product ->
+        productRegistrationService.findById(pa.productId)?.let { product ->
             LOG.info("Excel import updating accessory/sparepart product ${product.id} for product agreement ${pa.agreementId}, post ${pa.postId} and seriesId: ${product.seriesUUID}")
             val series = seriesRegistrationService.findById(product.seriesUUID)
             seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(

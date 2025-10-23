@@ -95,7 +95,7 @@ open class CatalogImportService(
         }
     }
 
-    suspend fun updateProductFromCatalogImport(
+    suspend fun handleNewOrChangedSupplierRefFromCatalogImport(
         catalogImportResult: CatalogImportResult,
         adminAuthentication: ClientAuthentication) {
         val updates = catalogImportResult.insertedList + catalogImportResult.updatedList + catalogImportResult.deactivatedList
@@ -104,33 +104,16 @@ open class CatalogImportService(
                 val product = productRegistrationRepository.findByHmsArtNrAndSupplierId(catalogImport.hmsArtNr, catalogImport.supplierId)
                     ?: productRegistrationRepository.findBySupplierRefAndSupplierId(catalogImport.supplierRef,catalogImport.supplierId)
                 product?.let {
+                    var changedSupplierRefOrHmsNr = false
                     if (it.supplierRef != catalogImport.supplierRef) {
+                        changedSupplierRefOrHmsNr = true
                         LOG.error("Product ${it.id} hmsArtNr: ${it.hmsArtNr} has different supplierRef: ${it.supplierRef} than catalogImport: ${catalogImport.supplierRef} under orderRef: ${catalogImport.orderRef}")
                     }
                     if (it.hmsArtNr != catalogImport.hmsArtNr) {
+                        changedSupplierRefOrHmsNr = true
                         LOG.error("Product ${it.id} supplierRef: ${it.supplierRef} has different hmsArtNr: ${it.hmsArtNr} than catalogImport: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
                     }
-                    if (it.mainProduct) {
-                        productRegistrationRepository.update(
-                            it.copy(
-                                hmsArtNr = catalogImport.hmsArtNr,
-                                supplierRef = catalogImport.supplierRef,
-                                accessory = catalogImport.accessory,
-                                sparePart = catalogImport.sparePart,
-                                mainProduct = catalogImport.mainProduct,
-                                updatedByUser = adminAuthentication.name,
-                                updated = LocalDateTime.now()
-                            )
-                        )
-                    } else {
-                        seriesRegistrationRepository.update(
-                            seriesRegistrationRepository.findById(it.seriesUUID)!!.copy(
-                                title = catalogImport.title,
-                                isoCategory = catalogImport.iso,
-                                updatedByUser = adminAuthentication.name,
-                                updated = LocalDateTime.now()
-                            )
-                        )
+                    if (changedSupplierRefOrHmsNr) {
                         productRegistrationRepository.update(
                             it.copy(
                                 articleName = catalogImport.title,

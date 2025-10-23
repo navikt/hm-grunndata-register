@@ -7,7 +7,6 @@ import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
-import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.micronaut.leaderelection.LeaderOnly
 import org.slf4j.LoggerFactory
@@ -32,7 +31,7 @@ open class CatalogFileToProductAgreementScheduler(
                 val adminAuthentication =
                     ClientAuthentication(catalogFile.updatedByUser, mapOf("roles" to listOf(Roles.ROLE_ADMIN)))
                 val catalogImportResult = catalogImportService.mapExcelDTOToCatalogImportResult(catalogFile.catalogList, supplierId, forceUpdate)
-                catalogImportService.updateProductFromCatalogImport(
+                catalogImportService.handleNewOrChangedSupplierRefFromCatalogImport(
                     catalogImportResult,
                     adminAuthentication
                 )
