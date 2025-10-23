@@ -28,12 +28,6 @@ open class CatalogImportService(
     private val productRegistrationRepository: ProductRegistrationRepository,
     private val seriesRegistrationRepository: SeriesRegistrationRepository
 ) {
-
-    suspend fun findByOrderRef(orderRef: String): List<CatalogImport> {
-        return catalogImportRepository.findByOrderRef(orderRef)
-    }
-
-
     @Transactional
     open suspend fun convertAndCreateCatalogImportResult(catalogImportList: List<CatalogImport>, forceUpdate: Boolean): CatalogImportResult {
         val updatedList = mutableListOf<CatalogImport>()
@@ -116,18 +110,40 @@ open class CatalogImportService(
                     if (it.hmsArtNr != catalogImport.hmsArtNr) {
                         LOG.error("Product ${it.id} supplierRef: ${it.supplierRef} has different hmsArtNr: ${it.hmsArtNr} than catalogImport: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
                     }
-                    productRegistrationRepository.update(
-                        it.copy(
-                            hmsArtNr = catalogImport.hmsArtNr,
-                            supplierRef = catalogImport.supplierRef,
-                            articleName = catalogImport.title,
-                            accessory = catalogImport.accessory,
-                            sparePart = catalogImport.sparePart,
-                            mainProduct = catalogImport.mainProduct,
-                            updatedByUser = adminAuthentication.name,
-                            updated = LocalDateTime.now()
+                    if (it.mainProduct) {
+                        productRegistrationRepository.update(
+                            it.copy(
+                                hmsArtNr = catalogImport.hmsArtNr,
+                                supplierRef = catalogImport.supplierRef,
+                                accessory = catalogImport.accessory,
+                                sparePart = catalogImport.sparePart,
+                                mainProduct = catalogImport.mainProduct,
+                                updatedByUser = adminAuthentication.name,
+                                updated = LocalDateTime.now()
+                            )
                         )
-                    )
+                    } else {
+                        seriesRegistrationRepository.update(
+                            seriesRegistrationRepository.findById(it.seriesUUID)!!.copy(
+                                title = catalogImport.title,
+                                isoCategory = catalogImport.iso,
+                                updatedByUser = adminAuthentication.name,
+                                updated = LocalDateTime.now()
+                            )
+                        )
+                        productRegistrationRepository.update(
+                            it.copy(
+                                articleName = catalogImport.title,
+                                hmsArtNr = catalogImport.hmsArtNr,
+                                supplierRef = catalogImport.supplierRef,
+                                accessory = catalogImport.accessory,
+                                sparePart = catalogImport.sparePart,
+                                mainProduct = catalogImport.mainProduct,
+                                updatedByUser = adminAuthentication.name,
+                                updated = LocalDateTime.now()
+                            )
+                        )
+                    }
                 } ?: createNewProductAndSeries(catalogImport, adminAuthentication)
             }
         }
@@ -175,7 +191,7 @@ open class CatalogImportService(
             ))
         val product = productRegistrationRepository.save(
             ProductRegistration(
-                seriesUUID = seriesId,
+                seriesUUID = series.id,
                 draftStatus = DraftStatus.DONE,
                 adminStatus = if (catalogImport.mainProduct) AdminStatus.PENDING else AdminStatus.APPROVED,
                 registrationStatus = RegistrationStatus.ACTIVE,
