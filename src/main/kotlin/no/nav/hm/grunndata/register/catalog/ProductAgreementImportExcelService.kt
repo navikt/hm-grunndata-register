@@ -183,7 +183,7 @@ open class ProductAgreementImportExcelService(
     ): List<ProductAgreementRegistrationDTO> {
         val agreement = agreementRegistrationService.findById(agreementId)
             ?: throw BadRequestException("Avtale med id $agreementId finnes ikke, må den opprettes?")
-        val product = productRegistrationService.findByHmsArtNrAndSupplierId(hmsArtNr, supplierId) ?: throw BadRequestException("Produkt med hmsArtNr: $hmsArtNr finnes ikke, må den opprettes?")
+        val product = productRegistrationService.findByHmsArtNrAndSupplierId(hmsArtNr, supplierId) ?: throw BadRequestException("Produkt med hmsArtNr: $hmsArtNr finnes ikke. Produktet må være opprettet før katalogavtaleimport.")
         if (!postNr.isNullOrBlank()) {
             val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(postNr)
 
