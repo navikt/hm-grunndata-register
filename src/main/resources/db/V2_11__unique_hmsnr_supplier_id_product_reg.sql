@@ -1,0 +1,1 @@
+CREATE unique index hmsnr_supplier_id_product_reg_unique_idx on product_reg_v1 (hms_artnr, supplier_id);
