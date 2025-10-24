@@ -16,7 +16,8 @@ import java.util.UUID
 data class ProductAgreementRegistration(
     @field:Id
     val id: UUID = UUID.randomUUID(),
-    val productId: UUID? = null,
+    val productId: UUID,
+    @Deprecated("Use productId to join with product table to get seriesUuid")
     val seriesUuid: UUID? = null,
     val title: String,
     val articleName: String?,
@@ -43,7 +44,8 @@ data class ProductAgreementRegistration(
 
 data class ProductAgreementRegistrationDTO(
     override val id: UUID = UUID.randomUUID(),
-    val productId: UUID?,
+    val productId: UUID,
+    @Deprecated("Use productId to join with product table to get seriesUuid")
     val seriesUuid: UUID?,
     val title: String,
     val articleName: String?,

@@ -13,7 +13,7 @@ import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.register.error.BadRequestException
-import no.nav.hm.grunndata.register.productagreement.ProductAgreementImportDTO
+import no.nav.hm.grunndata.register.productagreement.CatalogImportResultReport
 import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
@@ -27,10 +27,12 @@ import java.util.*
 @Secured(Roles.ROLE_ADMIN)
 @Controller
 @Tag(name = "Admin Catalog File")
-open class CatalogFileAdminController(private val supplierRegistrationService: SupplierRegistrationService,
-                                      private val catalogExcelFileImport: CatalogExcelFileImport,
-                                      private val productAgreementImportExcelService: ProductAgreementImportExcelService,
-                                      private val catalogFileRepository: CatalogFileRepository) {
+open class CatalogFileAdminController(
+    private val supplierRegistrationService: SupplierRegistrationService,
+    private val catalogExcelFileImport: CatalogExcelFileImport,
+    private val catalogImportService: CatalogImportService,
+    private val catalogFileRepository: CatalogFileRepository
+) {
 
     companion object {
         private val LOG: Logger = LoggerFactory.getLogger(CatalogFileAdminController::class.java)
@@ -47,7 +49,7 @@ open class CatalogFileAdminController(private val supplierRegistrationService: S
         @QueryValue dryRun: Boolean = true,
         @QueryValue supplierId: UUID,
         authentication: Authentication,
-    ): ProductAgreementImportDTO {
+    ): CatalogImportResultReport {
         return excelImport(file, dryRun, supplierId, authentication)
     }
 
@@ -61,58 +63,52 @@ open class CatalogFileAdminController(private val supplierRegistrationService: S
         @QueryValue dryRun: Boolean = true,
         @QueryValue supplierId: UUID,
         authentication: Authentication,
-    ): ProductAgreementImportDTO {
+    ): CatalogImportResultReport {
         val supplier = supplierRegistrationService.findById(supplierId)
             ?: throw BadRequestException("Supplier $supplierId not found")
         LOG.info("Importing excel file: ${file.filename}, dryRun: $dryRun by ${authentication.userId()} for supplier ${supplier.name}")
+        try {
+            val importedExcelCatalog =
+                file.inputStream.use { input -> catalogExcelFileImport.importExcelFile(input) }
 
-        val importedExcelCatalog =
-            file.inputStream.use { input -> catalogExcelFileImport.importExcelFile(input) }
-
-        val productAgreementsImportResult = productAgreementImportExcelService.mapToProductAgreementImportResult(
-            importedExcelCatalog,
-            authentication,
-            supplierId,
-            true, // this has to be always set to true here, cause the persist function will be handled downstream
-            false
-        )
-
-        LOG.info("New product agreements found: ${productAgreementsImportResult.insertList.size}")
-        LOG.info("New series found: ${productAgreementsImportResult.newSeries.size}")
-        LOG.info("New accessory parts found: ${productAgreementsImportResult.newAccessoryParts.size}")
-        LOG.info("New main products found: ${productAgreementsImportResult.newProducts.size}")
-
-        if (!dryRun) {
-            LOG.info("Save the catalog file ${file.filename}, for downstream processing")
-            catalogFileRepository.save(
-                CatalogFile(
-                    fileName = file.filename,
-                    fileSize = file.size,
-                    orderRef = importedExcelCatalog[0].bestillingsNr,
-                    catalogList = importedExcelCatalog,
-                    supplierId = supplierId,
-                    created = LocalDateTime.now(),
-                    updatedByUser = authentication.name,
-                    updated = LocalDateTime.now(),
-                    status = CatalogFileStatus.PENDING
-                )
+            val catalogImportResult = catalogImportService.mapExcelDTOToCatalogImportResult(
+                importedExcelCatalog,
+                supplierId,
+                false
             )
+
+            LOG.info("inserted: ${catalogImportResult.insertedList.size}")
+            LOG.info("updated: ${catalogImportResult.updatedList.size}")
+            LOG.info("deactivated: ${catalogImportResult.deactivatedList.size}")
+
+            if (!dryRun) {
+                LOG.info("Save the catalog file ${file.filename}, for downstream processing")
+                catalogFileRepository.save(
+                    CatalogFile(
+                        fileName = file.filename,
+                        fileSize = file.size,
+                        orderRef = importedExcelCatalog[0].bestillingsNr,
+                        catalogList = importedExcelCatalog,
+                        supplierId = supplierId,
+                        created = LocalDateTime.now(),
+                        updatedByUser = authentication.name,
+                        updated = LocalDateTime.now(),
+                        status = CatalogFileStatus.PENDING
+                    )
+                )
+            }
+            return CatalogImportResultReport(
+                supplier = supplier.name,
+                file = file.name,
+                rows = importedExcelCatalog.size,
+                insertedList = catalogImportResult.insertedList,
+                updatedList = catalogImportResult.updatedList,
+                deactivatedList = catalogImportResult.deactivatedList,
+            )
+        } catch (e: Exception) {
+            LOG.error("Error importing catalog excel file: ${file.filename} for supplier ${supplier.name}", e)
+            throw BadRequestException("Feil i catalog fil: ${e.message}")
         }
-        val productAgreements = productAgreementsImportResult.insertList
-        val newCount = productAgreementsImportResult.insertList.size
-        return ProductAgreementImportDTO(
-            dryRun = dryRun,
-            count = productAgreements.size,
-            newCount = newCount,
-            file = file.filename,
-            supplier = supplier.name,
-            createdSeries = productAgreementsImportResult.newSeries,
-            createdAccessoryParts = productAgreementsImportResult.newAccessoryParts,
-            createdMainProducts = productAgreementsImportResult.newProducts,
-            newProductAgreements = productAgreementsImportResult.insertList,
-            updatedAgreements = productAgreementsImportResult.updateList,
-            deactivatedAgreements = productAgreementsImportResult.deactivateList,
-        )
     }
 
     @Get("${ADMIN_API_V1_CATALOG_FILE}/")
@@ -158,9 +154,11 @@ open class CatalogFileAdminController(private val supplierRegistrationService: S
 }
 
 @Introspected
-data class CatalogFileCriteria(val fileName: String? = null,
-                               val orderRef: String? = null,
-                               val supplierId: UUID? = null,
-                               val status: CatalogFileStatus? = null) {
+data class CatalogFileCriteria(
+    val fileName: String? = null,
+    val orderRef: String? = null,
+    val supplierId: UUID? = null,
+    val status: CatalogFileStatus? = null
+) {
     fun isNotEmpty() = fileName != null || orderRef != null || supplierId != null || status != null
 }

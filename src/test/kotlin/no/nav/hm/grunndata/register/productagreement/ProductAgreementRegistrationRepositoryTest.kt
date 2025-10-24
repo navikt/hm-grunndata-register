@@ -12,6 +12,7 @@ import no.nav.hm.grunndata.register.agreement.DelkontraktData
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationRepository
 import no.nav.hm.grunndata.register.agreement.toEntity
+import no.nav.hm.grunndata.register.product.ProductRegistrationTestFactory
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.assertThrows
 class ProductAgreementRegistrationRepositoryTest(
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
     private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository,
+    private val productRegistrationTestFactory: ProductRegistrationTestFactory,
 ) {
     @Test
     fun testProductAgreementRegistrationRepository() {
@@ -38,6 +40,8 @@ class ProductAgreementRegistrationRepositoryTest(
                     identifier = postId.toString()
                 )
             delkontraktRegistrationRepository.save(delkontraktToSave.toEntity())
+            val supplierRef = "TK1235-213"
+            val productId = productRegistrationTestFactory.createTestProduct(supplierId, supplierRef = supplierRef, hmsArtNr = "1234")
             val saved =
                 productAgreementRegistrationRepository.save(
                     ProductAgreementRegistration(
@@ -48,7 +52,7 @@ class ProductAgreementRegistrationRepositoryTest(
                         postId = postId,
                         reference = "20-1423",
                         supplierId = supplierId,
-                        supplierRef = "TK1235-213",
+                        supplierRef = supplierRef,
                         createdBy = REGISTER,
                         title = "Test product agreement",
                         status = ProductAgreementStatus.ACTIVE,
@@ -56,6 +60,7 @@ class ProductAgreementRegistrationRepositoryTest(
                         accessory = false,
                         sparePart = false,
                         mainProduct = true,
+                        productId = productId.id,
                     ),
                 )
 
@@ -86,6 +91,7 @@ class ProductAgreementRegistrationRepositoryTest(
                         title = "Test product agreement",
                         status = ProductAgreementStatus.ACTIVE,
                         articleName = "Test article",
+                        productId = productId.id,
                     ),
                 )
             }

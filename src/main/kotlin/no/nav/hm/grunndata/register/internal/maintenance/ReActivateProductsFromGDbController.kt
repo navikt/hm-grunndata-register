@@ -90,8 +90,8 @@ open class ReActivateProductsFromGDbController(
                 LOG.info("updating product agreement for product ${dto.id} with agreement_id ${agreementInfo.id} and postId ${agreementInfo.postId}")
                 agreementRegistrationRepository.findById(agreementInfo.id)?.let { agreement ->
                     LOG.info("Agreement ${agreementInfo.id} found in database")
-                    productAgreementRegistrationRepository.findBySupplierIdAndSupplierRefAndAgreementIdAndPostId(
-                        dto.supplier.id, dto.supplierRef, agreementInfo.id, agreementInfo.postId
+                    productAgreementRegistrationRepository.findByProductIdAndAgreementIdAndPostId(
+                        dto.id, agreementInfo.id, agreementInfo.postId!!
                     )?.let { inDb ->
                         LOG.info("Product agreement ${agreementInfo.id} found in database")
                         productAgreementRegistrationRepository.update(

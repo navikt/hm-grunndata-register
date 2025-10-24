@@ -15,11 +15,6 @@ interface ProductAgreementRegistrationRepository :
     CoroutineJpaSpecificationExecutor<ProductAgreementRegistration> {
 
 
-    suspend fun findBySupplierIdAndSupplierRef(
-        supplierId: UUID,
-        supplierRef: String,
-    ): List<ProductAgreementRegistration>
-
     suspend fun findByAgreementId(agreementId: UUID): List<ProductAgreementRegistration>
 
     suspend fun findByAgreementIdAndStatusAndPublishedBeforeAndExpiredAfter(
@@ -74,11 +69,10 @@ interface ProductAgreementRegistrationRepository :
         status: ProductAgreementStatus,
     ): List<ProductAgreementRegistration>
 
-    suspend fun findBySupplierIdAndSupplierRefAndAgreementIdAndPostId(
-        supplierId: UUID,
-        supplierRef: String,
+    suspend fun findByProductIdAndAgreementIdAndPostId(
+        productId: UUID,
         agreementId: UUID,
-        postId: UUID?
+        postId: UUID
     ): ProductAgreementRegistration?
 
     suspend fun findByStatusAndPublishedAfter(status: ProductAgreementStatus, published: LocalDateTime): List<ProductAgreementRegistration>

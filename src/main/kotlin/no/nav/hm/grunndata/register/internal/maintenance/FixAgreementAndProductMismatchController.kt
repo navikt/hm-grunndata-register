@@ -26,7 +26,7 @@ class FixAgreementAndProductMismatchController(private val productRegistrationRe
         products.forEach { product ->
             LOG.info("Fixing product ${product.id} for supplier ${product.supplierId}")
             val pag =
-                productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(product.supplierId, product.supplierRef)
+                productAgreementRegistrationRepository.findByProductId(product.id)
                     .firstOrNull { it.status == ProductAgreementStatus.ACTIVE }
             pag?.let {
                 productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
@@ -48,7 +48,7 @@ class FixAgreementAndProductMismatchController(private val productRegistrationRe
         products.forEach { product ->
             LOG.info("Fixing product ${product.id} for supplier ${product.supplierId}")
             val pag =
-                productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(product.supplierId, product.supplierRef)
+                productAgreementRegistrationRepository.findByProductId(product.id)
                     .firstOrNull { it.status == ProductAgreementStatus.ACTIVE }
             pag?.let {
                 productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(

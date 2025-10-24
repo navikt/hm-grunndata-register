@@ -85,6 +85,9 @@ open class ProductRegistrationService(
             supplierId
         )
 
+    open suspend fun findByHmsArtNrAndSupplierId(hmsArtNr: String, supplierId: UUID) =
+        productRegistrationRepository.findByHmsArtNrAndSupplierId(hmsArtNr, supplierId)
+
     open suspend fun findByHmsArtNr(hmsArtNr: String, authentication: Authentication): ProductRegistration? =
         if (authentication.isSupplier()) {
             productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierIdAndMainProduct(
@@ -211,9 +214,9 @@ open class ProductRegistrationService(
     open suspend fun updateProduct(
         updateDTO: UpdateProductRegistrationDTO,
         id: UUID,
-        authentication: Authentication,
+        authentication: Authentication
     ): ProductRegistration {
-        findById(id)?.let { inDb ->
+        val dto = findById(id)?.let { inDb ->
             if (!authentication.isAdmin() && authentication.supplierId() != inDb.supplierId) {
                 throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
             }
@@ -235,9 +238,8 @@ open class ProductRegistrationService(
                 changedHmsNrSupplierRef = true
             }
             if (changedHmsNrSupplierRef) {
-                productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(
-                    inDb.supplierId,
-                    inDb.supplierRef,
+                productAgreementRegistrationRepository.findByProductId(
+                    inDb.id
                 ).forEach { change ->
                     productAgreementRegistrationRepository.update(
                         change.copy(hmsArtNr = ensuredNotBlankHmsNr, supplierRef = updateDTO.supplierRef),
@@ -273,10 +275,9 @@ open class ProductRegistrationService(
                     )
                 seriesRegistrationRepository.update(updatedSeries)
             }
-            return dto
-        } ?: run {
-            throw BadRequestException("Product does not exists $id")
+            dto
         }
+        return dto ?: throw BadRequestException("Product not found", type = ErrorType.NOT_FOUND)
     }
 
     @Transactional
@@ -468,7 +469,7 @@ open class ProductRegistrationService(
         }
 
     private suspend fun ProductRegistration.toProductToApproveDto(): ProductToApproveDto {
-        val agreeements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)
+        val agreeements = productAgreementRegistrationRepository.findByProductId(id)
         val agreementInfo = agreeements.map { it.toAgreementInfo() }
         val supplier = supplierService.findById(supplierId)
 
@@ -491,7 +492,7 @@ open class ProductRegistrationService(
 
     private suspend fun ProductRegistration.toDTO(): ProductRegistrationDTO {
         // TODO cache agreements
-        val agreeements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(supplierId, supplierRef)
+        val agreeements = productAgreementRegistrationRepository.findByProductId(id)
         val productRegistration =  ProductRegistrationDTO(
             id = id,
             supplierId = supplierId,

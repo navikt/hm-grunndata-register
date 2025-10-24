@@ -29,7 +29,6 @@ open class ProductAgreementImportExcelService(
     private val productAgreementService: ProductAgreementRegistrationService,
     private val noDelKontraktHandler: NoDelKontraktHandler,
     private val catalogImportService: CatalogImportService,
-    private val productAccessorySparePartAgreementHandler: ProductAccessorySparePartAgreementHandler,
     private val seriesRegistrationService: SeriesRegistrationService
 ) {
     companion object {
@@ -38,28 +37,22 @@ open class ProductAgreementImportExcelService(
     }
 
     @Transactional
-    open suspend fun persistProductAgreementFromCatalogImport(productAgreementResult: ProductAgreementImportResult) {
-        val updated = productAgreementResult.updateList.map {
+    open suspend fun persistProductAgreementFromCatalogImport(mappedResultLists: ProductAgreementMappedResultLists) {
+        val updated = mappedResultLists.updateList.map {
             updateProductAndProductAgreement(it)
         }
 
-        val deactivated = productAgreementResult.deactivateList.map {
+        val deactivated = mappedResultLists.deactivateList.map {
             deactivateProductAgreement(it)
         }
 
-        val inserted = productAgreementResult.insertList.map {
+        val inserted = mappedResultLists.insertList.map {
             updateProductAndProductAgreement(it)
         }
         val distinct = (updated + deactivated + inserted).distinctBy { it.productId }
         // ssave and create events for all products
         distinct.forEach {
             if (it.mainProduct) {
-                if (it.productId == null) {
-                    throw BadRequestException(
-                        "Product agreement with hmsnr: ${it.hmsArtNr} with main product ${it.title} has no productId, cannot save, " +
-                                "check catalog import table, product probably deleted!"
-                    )
-                }
                 productRegistrationService.findById(it.productId)?.let { product ->
                     productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(product, isUpdate = true)
                 }
@@ -75,14 +68,15 @@ open class ProductAgreementImportExcelService(
             "Excel import deactivating product agreement for agreement ${pa.agreementId}, " +
                     "post ${pa.postId} and productId: ${pa.productId}"
         )
-        return productAgreementService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostId(
-            pa.supplierId, pa.supplierRef, pa.agreementId, pa.postId
+        return productAgreementService.findByProductIdAndAgreementIdAndPostId(
+            pa.productId, pa.agreementId, pa.postId
         )?.let { existing ->
-
             productAgreementService.update(
                 existing.copy(
                     expired = LocalDateTime.now(),
                     updatedBy = EXCEL,
+                    hmsArtNr = pa.hmsArtNr,
+                    supplierRef = pa.supplierRef,
                     status = ProductAgreementStatus.INACTIVE,
                     updated = LocalDateTime.now()
                 )
@@ -90,10 +84,9 @@ open class ProductAgreementImportExcelService(
         } ?: pa
     }
 
-
     private suspend fun updateProductAndProductAgreement(pa: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO =
-        productAgreementService.findBySupplierIdAndSupplierRefAndAgreementIdAndPostId(
-            pa.supplierId, pa.supplierRef, pa.agreementId, pa.postId
+        productAgreementService.findByProductIdAndAgreementIdAndPostId(
+            pa.productId, pa.agreementId, pa.postId
         )?.let { existing ->
             LOG.info(
                 "Excel import updating product agreement for agreement ${pa.agreementId}, " +
@@ -104,6 +97,7 @@ open class ProductAgreementImportExcelService(
                     productId = pa.productId,
                     hmsArtNr = pa.hmsArtNr,
                     seriesUuid = pa.seriesUuid,
+                    supplierRef = pa.supplierRef,
                     title = pa.title,
                     articleName = pa.articleName,
                     sparePart = pa.sparePart,
@@ -120,7 +114,7 @@ open class ProductAgreementImportExcelService(
     open suspend fun updateAccessoryAndSparePart(
         pa: ProductAgreementRegistrationDTO,
     ) {
-        productRegistrationService.findById(pa.productId!!)?.let { product ->
+        productRegistrationService.findById(pa.productId)?.let { product ->
             LOG.info("Excel import updating accessory/sparepart product ${product.id} for product agreement ${pa.agreementId}, post ${pa.postId} and seriesId: ${product.seriesUUID}")
             val series = seriesRegistrationService.findById(product.seriesUUID)
             seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
@@ -147,95 +141,49 @@ open class ProductAgreementImportExcelService(
     }
 
     suspend fun mapToProductAgreementImportResult(
-        importedExcelCatalog: List<CatalogImportExcelDTO>,
-        authentication: Authentication?,
-        supplierId: UUID,
-        dryRun: Boolean,
-        forceUpdate: Boolean,
-    ): ProductAgreementImportResult {
-        verifyCatalogImportList(importedExcelCatalog)
-        val agreementRef = importedExcelCatalog.first().reference
-        val cleanRef = agreementRef.lowercase().replace("/", "-")
-        val agreement = agreementRegistrationService.findByReferenceLike("%$cleanRef%")
-            ?: throw IllegalArgumentException("Agreement reference: $cleanRef not found!")
-        if (agreement.agreementStatus === AgreementStatus.DELETED) {
-            throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er slettet, må den opprettes?")
-        }
-        val catalogImportResult = catalogImportService.prepareCatalogImportResult(importedExcelCatalog.map {
-            it.toEntity(
-                agreement,
-                supplierId
-            )
-        }, forceUpdate)
-        val mappedLists = mapCatalogImport(catalogImportResult, authentication, supplierId, dryRun)
-        val productAgreementImportResult = productAccessorySparePartAgreementHandler.handleNewProductsInExcelImport(
-            mappedLists,
-            authentication,
-            dryRun
-        )
-        if (!dryRun) {
-            LOG.info("Persisting products and agreements from excel import")
-            persistCatalogResult(catalogImportResult, productAgreementImportResult)
-        }
-        LOG.info(
-            "Excel import for orderRef: ${importedExcelCatalog.first().bestillingsNr} with supplier ${importedExcelCatalog.first().supplierName} " +
-                    "resulted in ${productAgreementImportResult.insertList.size} inserted, " +
-                    "${productAgreementImportResult.updateList.size} updated and ${productAgreementImportResult.deactivateList.size} deactivated product agreements"
-        )
-        return productAgreementImportResult
+        catalogImportResult: CatalogImportResult,
+        authentication: Authentication,
+        supplierId: UUID
+    ): ProductAgreementMappedResultLists {
+
+        val mappedLists = mapCatalogImportToProductAgreement(catalogImportResult, authentication, supplierId)
+        LOG.info("Persisting products and agreements from excel import")
+        persistCatalogResult(catalogImportResult, mappedLists)
+
+        return mappedLists
     }
 
-
-    private fun verifyCatalogImportList(catalogImportList: List<CatalogImportExcelDTO>) {
-        if (catalogImportList.isEmpty()) {
-            throw IllegalArgumentException("Catalog import list is empty")
-        }
-        if (catalogImportList.map { it.bestillingsNr }.distinct().size > 1) {
-            throw IllegalArgumentException("Ugyldig katalog, inneholder flere bestillingsnr")
-        }
-        if (catalogImportList.map { it.supplierName }.distinct().size > 1) {
-            throw IllegalArgumentException("Ugyldig katalog, inneholder flere leverandører")
-        }
-        if (catalogImportList.map { it.reference }.distinct().size > 1) {
-            throw IllegalArgumentException("Ugylding katalog, inneholder flere rammeavtale referansenr")
-        }
-    }
 
     @Transactional
     open suspend fun persistCatalogResult(
         catalogImportResult: CatalogImportResult,
-        productAgreementResult: ProductAgreementImportResult
+        productAgreementResult: ProductAgreementMappedResultLists
     ) {
         catalogImportService.persistCatalogImportResult(catalogImportResult)
         persistProductAgreementFromCatalogImport(productAgreementResult)
     }
 
-    suspend fun mapCatalogImport(
+    suspend fun mapCatalogImportToProductAgreement(
         catalogImportResult: CatalogImportResult,
-        authentication: Authentication?,
-        supplierId: UUID,
-        dryRun: Boolean
-    ):
-            ProductAgreementMappedResultLists {
+        authentication: Authentication,
+        supplierId: UUID
+    ): ProductAgreementMappedResultLists {
         val updatedList =
-            catalogImportResult.updatedList.flatMap { it.toProductAgreementDTO(authentication, supplierId, dryRun) }
+            catalogImportResult.updatedList.flatMap { it.toProductAgreementDTO(authentication, supplierId) }
         val insertedList =
-            catalogImportResult.insertedList.flatMap { it.toProductAgreementDTO(authentication, supplierId, dryRun) }
+            catalogImportResult.insertedList.flatMap { it.toProductAgreementDTO(authentication, supplierId) }
         val deactivatedList =
-            catalogImportResult.deactivatedList.flatMap { it.toProductAgreementDTO(authentication, supplierId, dryRun) }
+            catalogImportResult.deactivatedList.flatMap { it.toProductAgreementDTO(authentication, supplierId) }
         return ProductAgreementMappedResultLists(updatedList, insertedList, deactivatedList)
     }
 
     private suspend fun CatalogImport.toProductAgreementDTO(
-        authentication: Authentication?, supplierId: UUID, dryRun: Boolean
+        authentication: Authentication,
+        supplierId: UUID
     ): List<ProductAgreementRegistrationDTO> {
         val agreement = agreementRegistrationService.findById(agreementId)
             ?: throw BadRequestException("Avtale med id $agreementId finnes ikke, må den opprettes?")
-        val product = productRegistrationService.findBySupplierRefAndSupplierId(supplierRef, supplierId)
-        if (product != null && mainProduct && !product.mainProduct) {
-            LOG.warn("Catalog import has main product set to true, but product inDb ${product.id} is not main product")
-            if (!dryRun) productRegistrationService.update(product.copy(mainProduct = true))
-        }
+        val product = productRegistrationService.findByHmsArtNrAndSupplierId(hmsArtNr, supplierId) ?: throw BadRequestException("Produkt med hmsArtNr: $hmsArtNr finnes ikke. Produktet må være opprettet før katalogavtaleimport.")
         if (!postNr.isNullOrBlank()) {
             val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(postNr)
 
@@ -245,11 +193,11 @@ open class ProductAgreementImportExcelService(
                     agreement.delkontraktList.find { it.delkontraktData.refNr == postRank.first }
                         ?: throw BadRequestException("Delkontrakt ${postRank.first} finnes ikke i avtale ${agreement.reference}, må den opprettes?")
                 ProductAgreementRegistrationDTO(
-                    hmsArtNr = parseHMSNr(hmsArtNr),
+                    hmsArtNr = hmsArtNr,
                     agreementId = agreement.id,
                     supplierRef = supplierRef,
-                    productId = product?.id,
-                    seriesUuid = product?.seriesUUID,
+                    productId = product.id,
+                    seriesUuid = product.seriesUUID,
                     title = title,
                     articleName = title,
                     reference = reference,
@@ -264,7 +212,7 @@ open class ProductAgreementImportExcelService(
                     accessory = accessory,
                     mainProduct = mainProduct,
                     isoCategory = iso,
-                    updatedByUser = authentication?.name ?: "system",
+                    updatedByUser = authentication.name,
                     status = mapProductAgreementStatus(agreement),
                 )
             }
@@ -273,13 +221,13 @@ open class ProductAgreementImportExcelService(
 
             return listOf(
                 ProductAgreementRegistrationDTO(
-                    hmsArtNr = parseHMSNr(hmsArtNr),
+                    hmsArtNr = hmsArtNr,
                     agreementId = agreement.id,
                     supplierRef = supplierRef,
-                    productId = product?.id,
+                    productId = product.id,
                     seriesUuid = product?.seriesUUID,
                     title = title,
-                    articleName = product?.articleName ?: title,
+                    articleName = product.articleName,
                     reference = reference,
                     post = noDelKonktraktPost.delkontraktData.sortNr,
                     rank = noDelKonktraktPost.delkontraktData.sortNr,
@@ -309,12 +257,17 @@ open class ProductAgreementImportExcelService(
         else ProductAgreementStatus.INACTIVE
     }
 
-
 }
 
 fun parseHMSNr(hmsArtNr: String): String {
-    val parsedNumber = hmsArtNr.substringBefore(".").toInt().toString()
-    return parsedNumber.padStart(6, '0')
+    try {
+        val parsedNumber = hmsArtNr.substringBefore(".").toInt().toString()
+        return parsedNumber.padStart(6, '0')
+    }
+    catch (e: Exception) {
+        throw IllegalArgumentException("Klarte ikke å lese HMS artnr. $hmsArtNr. Årsak: ${e.message}", e)
+    }
+
 }
 
 fun parsedelkontraktNr(subContractNr: String): List<Pair<String, Int>> {
@@ -338,7 +291,6 @@ fun parsedelkontraktNr(subContractNr: String): List<Pair<String, Int>> {
     } catch (e: Exception) {
         throw BadRequestException("Klarte ikke å lese post og rangering fra delkontrakt nr. $subContractNr")
     }
-
 }
 
 enum class ColumnNames(val column: String) {

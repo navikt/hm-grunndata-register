@@ -20,9 +20,8 @@ class ProductDTOMapper(
 ) {
     suspend fun toDTO(productRegistration: ProductRegistration): ProductRegistrationDTO {
         // TODO cache agreements
-        val agreements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(
-            productRegistration.supplierId,
-            productRegistration.supplierRef
+        val agreements = productAgreementRegistrationRepository.findByProductId(
+            productRegistration.id
         )
         return ProductRegistrationDTO(
             id = productRegistration.id,
@@ -58,9 +57,8 @@ class ProductDTOMapper(
     }
 
     suspend fun toDTOV2(productRegistration: ProductRegistration): ProductRegistrationDTOV2 {
-        val agreements = productAgreementRegistrationRepository.findBySupplierIdAndSupplierRef(
-            productRegistration.supplierId,
-            productRegistration.supplierRef
+        val agreements = productAgreementRegistrationRepository.findByProductId(
+            productRegistration.id
         )
         val techLabels = techLabelService.fetchLabelsByIsoCode(productRegistration.isoCategory)
 

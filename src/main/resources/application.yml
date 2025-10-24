@@ -68,6 +68,8 @@ micronaut:
         enabled: true
       logback:
         enabled: true
+      cache:
+        enabled: true
     export:
       prometheus:
         enabled: true
@@ -77,15 +79,10 @@ micronaut:
     pageable:
       max-page-size: 5000
   caches:
-    suppliers:
-      charset: 'UTF-8'
-    agreements:
-      charset: 'UTF-8'
-    agreementposts:
-      charset: 'UTF-8'
     techlabels:
       charset: 'UTF-8'
       expire-after-write: 15m
+      record-stats: true
   http:
     client:
       connect-timeout: 10s
