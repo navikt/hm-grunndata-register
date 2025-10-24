@@ -265,7 +265,7 @@ fun parseHMSNr(hmsArtNr: String): String {
         return parsedNumber.padStart(6, '0')
     }
     catch (e: Exception) {
-        throw IllegalArgumentException("Klarte ikke å lese HMS artnr. $hmsArtNr")
+        throw IllegalArgumentException("Klarte ikke å lese HMS artnr. $hmsArtNr. Årsak: ${e.message}", e)
     }
 
 }
