@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS catalog_import_v1_order_ref_supplier_ref_idx;
