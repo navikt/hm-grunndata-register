@@ -220,6 +220,7 @@ open class ProductRegistrationService(
             if (!authentication.isAdmin() && authentication.supplierId() != inDb.supplierId) {
                 throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
             }
+            val ensuredNotBlankHmsNr = if (updateDTO.hmsArtNr.isNullOrBlank()) null else updateDTO.hmsArtNr
 
             var changedHmsNrSupplierRef = false
             if ((inDb.hmsArtNr ?: "") != (updateDTO.hmsArtNr ?: "")) {
@@ -241,7 +242,7 @@ open class ProductRegistrationService(
                     inDb.id
                 ).forEach { change ->
                     productAgreementRegistrationRepository.update(
-                        change.copy(hmsArtNr = updateDTO.hmsArtNr!!, supplierRef = updateDTO.supplierRef),
+                        change.copy(hmsArtNr = ensuredNotBlankHmsNr, supplierRef = updateDTO.supplierRef),
                     )
                 }
             }
@@ -249,7 +250,7 @@ open class ProductRegistrationService(
             val dto =
                 saveAndCreateEventIfNotDraftAndApproved(
                     inDb.copy(
-                        hmsArtNr = updateDTO.hmsArtNr,
+                        hmsArtNr = ensuredNotBlankHmsNr,
                         articleName = updateDTO.articleName,
                         supplierRef = updateDTO.supplierRef,
                         productData =

@@ -173,8 +173,8 @@ interface ProductRegistrationRepository :
     @Query("SELECT array_agg(id) as ids, series_uuid, count(*) FROM product_reg_v1 WHERE main_product = false group by series_uuid having count(*) > 1")
     suspend fun findNotMainProductsThatIsInSeries():List<ProductIdSeriesUUID>
 
-    @Query("""SELECT id, hms_artnr, created FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY hms_artnr ORDER BY created ASC) AS rn, COUNT(*) OVER (PARTITION BY hms_artnr) AS cnt FROM product_reg_v1 WHERE hms_artnr IS NOT NULL) p WHERE cnt > 1 AND rn = 1""")
-    suspend fun findAllDuplicateHmsArtnr(
+    @Query("""SELECT id, hms_artnr, supplier_id, created FROM (SELECT id, hms_artnr, supplier_id, created, ROW_NUMBER() OVER (PARTITION BY hms_artnr, supplier_id ORDER BY created ASC) AS rn, COUNT(*) OVER (PARTITION BY hms_artnr, supplier_id) AS cnt FROM product_reg_v1 WHERE hms_artnr IS NOT NULL) AS subquery WHERE cnt > 1 AND rn = 1""")
+    suspend fun findAllDuplicateHmsArtnrSupplierId(
     ): List<ProductIdHmsArtNr>
 
     @Query("SELECT * FROM product_reg_v1 WHERE main_product = false AND (hms_artnr IS NULL OR hms_artnr = '') AND created_by_admin = false AND registration_status != 'DELETED' AND id NOT IN (SELECT product_id FROM hidden_part_v1)")
@@ -184,10 +184,12 @@ interface ProductRegistrationRepository :
 
 }
 
+
 @Serdeable
 data class ProductIdHmsArtNr (
     val id: UUID,
     val hmsArtNr: String,
+    val supplierId: UUID,
     val created: LocalDateTime,
 )
 
