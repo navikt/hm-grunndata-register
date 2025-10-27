@@ -21,6 +21,8 @@ import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
+import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
+import no.nav.hm.grunndata.register.catalog.CatalogImportRepository
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.error.ErrorType
 import no.nav.hm.grunndata.register.product.batch.ProductRegistrationExcelDTO
@@ -46,6 +48,7 @@ open class ProductRegistrationService(
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
     private val supplierService: SupplierRegistrationService,
+    private val catalogImportRepository: CatalogImportRepository,
     private val objectMapper: ObjectMapper
 ) {
     companion object {
@@ -238,6 +241,11 @@ open class ProductRegistrationService(
                 changedHmsNrSupplierRef = true
             }
             if (changedHmsNrSupplierRef) {
+                if (ensuredNotBlankHmsNr!=null) {
+                    catalogImportRepository.findByHmsArtNr(inDb.hmsArtNr?:"").forEach {
+                        catalogImportRepository.update(it.copy(hmsArtNr = ensuredNotBlankHmsNr, supplierRef = updateDTO.supplierRef))
+                    }
+                }
                 productAgreementRegistrationRepository.findByProductId(
                     inDb.id
                 ).forEach { change ->

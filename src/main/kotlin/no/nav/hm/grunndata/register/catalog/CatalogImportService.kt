@@ -115,6 +115,7 @@ open class CatalogImportService(
                         LOG.error("Product ${it.id} supplierRef: ${it.supplierRef} has different hmsArtNr: ${it.hmsArtNr} than catalogImport: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
                     }
                     if (changedSupplierRefOrHmsNr) {
+                        LOG.info("Updating product ${it.id} for HMS ArtNr: ${it.hmsArtNr} under orderRef: ${catalogImport.orderRef} with new supplierRef: ${catalogImport.supplierRef} and new hmsArtNr: ${catalogImport.hmsArtNr}" )
                         productRegistrationRepository.update(
                             it.copy(
                                 articleName = catalogImport.title,

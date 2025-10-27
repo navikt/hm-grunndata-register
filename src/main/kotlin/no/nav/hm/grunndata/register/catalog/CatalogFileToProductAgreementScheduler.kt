@@ -3,6 +3,7 @@ package no.nav.hm.grunndata.register.catalog
 import io.micronaut.context.annotation.Value
 import io.micronaut.scheduling.annotation.Scheduled
 import io.micronaut.security.authentication.ClientAuthentication
+import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
@@ -23,6 +24,7 @@ open class CatalogFileToProductAgreementScheduler(
 
     @LeaderOnly
     @Scheduled(cron = "0 * * * * *")
+    @Transactional
     open fun scheduleCatalogFileToProductAgreement(): ProductAgreementMappedResultLists? = runBlocking {
         catalogFileRepository.findOneByStatusOrderByCreatedAsc(CatalogFileStatus.PENDING)?.let { catalogFile ->
             try {
