@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.product
 
 import io.kotest.matchers.ints.shouldBeGreaterThan
+import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
@@ -11,6 +12,8 @@ import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.Attributes
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaSourceType
+import no.nav.hm.grunndata.rapid.dto.ProductRapidDTO
+import no.nav.hm.grunndata.rapid.dto.ProductRegistrationRapidDTO
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.rapid.event.EventName
@@ -18,14 +21,16 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventItemService
 import no.nav.hm.grunndata.register.event.EventItemType
 import no.nav.hm.grunndata.register.supplier.SupplierData
+import no.nav.hm.grunndata.register.supplier.SupplierRegistration
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
+import no.nav.hm.grunndata.register.supplier.SupplierRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
 
 @MicronautTest
 class ProductRegistrationEventHandlerTest(private val productRegistrationEventHandler: ProductRegistrationEventHandler,
-                                          private val supplierRegistrationService: SupplierRegistrationService,
+                                          private val supplierRepository: SupplierRepository,
                                           private val eventItemService: EventItemService) {
 
     @MockBean(RapidPushService::class)
@@ -34,8 +39,8 @@ class ProductRegistrationEventHandlerTest(private val productRegistrationEventHa
     @Test
     fun testProductRegistrationHandler() {
         runBlocking {
-            val testSupplier = supplierRegistrationService.save(
-                SupplierRegistrationDTO(
+            val testSupplier = supplierRepository.save(
+                SupplierRegistration(
                     id = UUID.randomUUID(),
                     supplierData = SupplierData(
                         address = "address 3",
@@ -43,8 +48,8 @@ class ProductRegistrationEventHandlerTest(private val productRegistrationEventHa
                         phone = "+47 12345678",
                         email = "supplier3@test.test",
                     ),
-                    identifier =  "supplier-123",
-                    name =  "name-123",
+                    identifier = "supplier-123",
+                    name = "name-123",
                 )
             )
             val productData = ProductData (
@@ -90,7 +95,9 @@ class ProductRegistrationEventHandlerTest(private val productRegistrationEventHa
             events.size shouldBeGreaterThan 0
             events.forEach {
                 if (it.type == EventItemType.PRODUCT) {
-                    productRegistrationEventHandler.sendRapidEvent(it)
+                    val sent = productRegistrationEventHandler.sendRapidEvent(it) as ProductRegistrationRapidDTO
+                    sent.productDTO.supplier.id shouldBe testSupplier!!.id
+                    sent.productDTO.supplier.name shouldBe testSupplier!!.name
                 }
             }
         }

@@ -18,10 +18,6 @@ open class SupplierRegistrationService(
         var CACHE: MutableMap<UUID, SupplierRegistrationDTO> = mutableMapOf()
     }
 
-    init {
-        supplierRepository.findAll().map { CACHE.put(it.id, it.toDTO()) }
-    }
-
     open suspend fun findById(id: UUID): SupplierRegistrationDTO? = supplierRepository.findById(id)?.toDTO()
 
     open suspend fun findByName(name: String): SupplierRegistrationDTO? = supplierRepository.findByName(name)?.toDTO()
@@ -54,7 +50,4 @@ open class SupplierRegistrationService(
         pageable: Pageable,
     ): Page<SupplierRegistrationDTO> = supplierRepository.findAll(spec, pageable).map { it.toDTO() }
 
-
-
-    open suspend fun findNameAndId(): List<SupplierNameAndId> = supplierRepository.findNameAndId()
 }

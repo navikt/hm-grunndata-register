@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.event
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import no.nav.hm.grunndata.rapid.dto.RapidDTO
 
 abstract class DefaultEventHandler(private val eventItemService: EventItemService,
                                    private val objectMapper: ObjectMapper,
@@ -22,9 +23,11 @@ abstract class DefaultEventHandler(private val eventItemService: EventItemServic
         )
     }
 
-    override fun sendRapidEvent(eventItem: EventItem) {
+    override fun sendRapidEvent(eventItem: EventItem): RapidDTO {
         val dto = objectMapper.readValue(eventItem.payload, getEventPayloadClass())
-        registerRapidPushService.pushToRapid(dto.toRapidDTO(), eventItem)
+        val payload = dto.toRapidDTO()
+        registerRapidPushService.pushToRapid(payload, eventItem)
+        return payload
     }
 
 

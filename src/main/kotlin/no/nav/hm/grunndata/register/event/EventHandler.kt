@@ -1,10 +1,12 @@
 package no.nav.hm.grunndata.register.event
 
+import no.nav.hm.grunndata.rapid.dto.RapidDTO
+
 interface EventHandler  {
 
     fun getEventType(): EventItemType
 
-    fun sendRapidEvent(eventItem: EventItem)
+    fun sendRapidEvent(eventItem: EventItem): RapidDTO
 
     fun getEventPayloadClass(): Class<out EventPayload>
 

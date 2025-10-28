@@ -23,8 +23,8 @@ import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.supplier.SupplierData
+import no.nav.hm.grunndata.register.supplier.SupplierRegistrationCache
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
-import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
 import no.nav.hm.grunndata.register.techlabel.TechLabelType
 
@@ -144,11 +144,12 @@ data class ProductRegistrationDTO(
             id = registration.id,
             supplier =
                 (
-                    SupplierRegistrationService.CACHE[registration.supplierId] ?: SupplierRegistrationDTO(
-                        id = registration.supplierId,
-                        name = "ukjent",
-                        supplierData = SupplierData(),
-                    )
+                        SupplierRegistrationCache[registration.supplierId] ?:
+                        SupplierRegistrationDTO(
+                            id = registration.supplierId,
+                            name = "ukjent",
+                            supplierData = SupplierData(),
+                        )
                 ).toRapidDTO() as SupplierDTO,
             supplierRef = registration.supplierRef,
             title = registration.title,
