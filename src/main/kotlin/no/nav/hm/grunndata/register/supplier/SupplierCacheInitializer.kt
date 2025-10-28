@@ -10,13 +10,8 @@ class SupplierCacheInitializer(private val supplierRepository: SupplierRepositor
 
     @EventListener
     fun onStartup(event: ApplicationStartupEvent) {
-        LOG.info("Initializing SupplierRegistrationCache on application startup")
         runBlocking {
             SupplierRegistrationCache.refresh(supplierRepository)
         }
-    }
-
-    companion object {
-        private val LOG = org.slf4j.LoggerFactory.getLogger(SupplierCacheInitializer::class.java)
     }
 }
