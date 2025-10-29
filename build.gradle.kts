@@ -3,7 +3,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jvmTarget = "17"
-val micronautVersion = "4.9.3"
+val micronautVersion = "4.10.0"
 val logbackEncoderVersion = "8.0"
 val postgresqlVersion = "42.7.2"
 val tcVersion = "1.20.4"
@@ -24,7 +24,7 @@ plugins {
     kotlin("kapt") version "1.9.25"
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("io.micronaut.application") version "4.5.4"
+    id("io.micronaut.application") version "4.6.0"
     id("com.github.ben-manes.versions") version "0.51.0"
 
 }
