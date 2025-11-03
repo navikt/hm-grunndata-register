@@ -25,19 +25,22 @@ class FixAgreementAndProductMismatchController(private val productRegistrationRe
         LOG.info("Got ${products.size} products that does not match agreement and spare part/accessory")
         products.forEach { product ->
             LOG.info("Fixing product ${product.id} for supplier ${product.supplierId}")
-            val pag =
-                productAgreementRegistrationRepository.findByProductId(product.id)
-                    .firstOrNull { it.status == ProductAgreementStatus.ACTIVE }
-            pag?.let {
-                productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
-                    product.copy(
-                        hmsArtNr = pag.hmsArtNr,
-                        mainProduct = pag.mainProduct,
-                        accessory = pag.accessory,
-                        sparePart = pag.sparePart
-                    ), isUpdate = true
-                )
+            val pag = productAgreementRegistrationRepository.findByProductId(product.id)
+            var mainProduct = false
+            var accessory = false
+            var sparePart = false
+            pag.forEach {
+               if (it.mainProduct) mainProduct = true
+               if (it.sparePart) sparePart = true
+               if (it.accessory) accessory = true
             }
+            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                product.copy(
+                    mainProduct = mainProduct,
+                    accessory = accessory,
+                    sparePart = sparePart
+                ), isUpdate = true
+            )
         }
     }
 

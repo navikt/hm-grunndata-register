@@ -121,9 +121,6 @@ open class CatalogImportService(
                                 articleName = catalogImport.title,
                                 hmsArtNr = catalogImport.hmsArtNr,
                                 supplierRef = catalogImport.supplierRef,
-                                accessory = catalogImport.accessory,
-                                sparePart = catalogImport.sparePart,
-                                mainProduct = catalogImport.mainProduct,
                                 updatedByUser = adminAuthentication.name,
                                 updated = LocalDateTime.now()
                             )

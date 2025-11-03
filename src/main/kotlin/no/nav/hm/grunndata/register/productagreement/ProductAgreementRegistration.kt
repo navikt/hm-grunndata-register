@@ -92,6 +92,9 @@ data class ProductAgreementRegistrationDTO(
             published = published,
             expired = expired,
             createdBy = createdBy,
+            mainProduct = mainProduct,
+            sparePart = sparePart,
+            accessory = accessory
         )
 }
 

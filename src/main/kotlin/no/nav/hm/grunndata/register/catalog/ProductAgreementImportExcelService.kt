@@ -129,7 +129,7 @@ open class ProductAgreementImportExcelService(
                     updated = LocalDateTime.now(),
                     draftStatus = DraftStatus.DONE,
                     adminStatus = AdminStatus.APPROVED,
-                    mainProduct = pa.mainProduct,
+                    mainProduct = if (!product.mainProduct) pa.mainProduct else true, // prevent changing mainProduct from true to false
                     accessory = pa.accessory,
                     sparePart = pa.sparePart,
                     published = pa.published,
