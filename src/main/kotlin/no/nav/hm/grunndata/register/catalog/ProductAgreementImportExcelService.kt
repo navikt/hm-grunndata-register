@@ -50,11 +50,17 @@ open class ProductAgreementImportExcelService(
             updateProductAndProductAgreement(it)
         }
         val distinct = (updated + deactivated + inserted).distinctBy { it.productId }
-        // ssave and create events for all products
+        // save and create events for all products
         distinct.forEach {
             if (it.mainProduct) {
                 productRegistrationService.findById(it.productId)?.let { product ->
-                    productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(product, isUpdate = true)
+                    var sparePart = product.sparePart
+                    var accessory = product.accessory
+                    if (it.sparePart) sparePart = true
+                    if (it.accessory) accessory = true
+                    productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(product.copy(
+                        mainProduct = it.mainProduct, sparePart = sparePart, accessory = accessory
+                    ), isUpdate = true)
                 }
             } else {
                 LOG.info("updating product agreement for accessory/sparepart with hmsnr: ${it.hmsArtNr} with title ${it.title} and productId ${it.productId}")
@@ -115,6 +121,14 @@ open class ProductAgreementImportExcelService(
         pa: ProductAgreementRegistrationDTO,
     ) {
         productRegistrationService.findById(pa.productId)?.let { product ->
+            var mainProduct = product.mainProduct
+            var sparePart = product.sparePart
+            var accessory = product.accessory
+            if (product.mainProduct) {
+                LOG.warn("This product hmsnr: ${product.hmsArtNr} with id: ${product.id} is marked as main product, but is being updated as accessory/sparepart from excel import.")
+            }
+            if (pa.sparePart) sparePart = true
+            if (pa.accessory) accessory = true
             LOG.info("Excel import updating accessory/sparepart product ${product.id} for product agreement ${pa.agreementId}, post ${pa.postId} and seriesId: ${product.seriesUUID}")
             val series = seriesRegistrationService.findById(product.seriesUUID)
             seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
@@ -129,9 +143,9 @@ open class ProductAgreementImportExcelService(
                     updated = LocalDateTime.now(),
                     draftStatus = DraftStatus.DONE,
                     adminStatus = AdminStatus.APPROVED,
-                    mainProduct = if (!product.mainProduct) pa.mainProduct else true, // prevent changing mainProduct from true to false
-                    accessory = pa.accessory,
-                    sparePart = pa.sparePart,
+                    mainProduct = mainProduct,
+                    accessory = accessory,
+                    sparePart = sparePart,
                     published = pa.published,
                     expired = pa.expired,
                     registrationStatus = if (pa.status == ProductAgreementStatus.ACTIVE) RegistrationStatus.ACTIVE else RegistrationStatus.INACTIVE,
