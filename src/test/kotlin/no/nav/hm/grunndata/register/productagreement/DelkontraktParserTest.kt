@@ -18,7 +18,7 @@ class DelkontraktParserTest {
         val del5 = "d14"   // mean no rank
         val del6 = "d21d22"
         val del7 = "d21, d22, d23"
-
+        val del8 = "d8r2"
         parsedelkontraktNr(del1) shouldBe listOf(Pair("1", 1))
         parsedelkontraktNr(del2) shouldBe listOf(Pair("1A", 1))
         parsedelkontraktNr(del3) shouldBe listOf(Pair("1B", 99))
@@ -26,6 +26,7 @@ class DelkontraktParserTest {
         parsedelkontraktNr(del5) shouldBe listOf(Pair("14", 99))
         parsedelkontraktNr(del6) shouldBe listOf(Pair("21", 99), Pair("22", 99))
         parsedelkontraktNr(del7) shouldBe listOf(Pair("21", 99), Pair("22", 99), Pair("23", 99))
+        parsedelkontraktNr(del8) shouldBe listOf(Pair("8", 2))
 
     }
 

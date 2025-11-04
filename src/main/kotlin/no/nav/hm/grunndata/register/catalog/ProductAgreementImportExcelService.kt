@@ -112,7 +112,9 @@ open class ProductAgreementImportExcelService(
                     published = pa.published,
                     expired = pa.expired,
                     updated = LocalDateTime.now(),
-                    status = pa.status
+                    status = pa.status,
+                    rank = pa.rank,
+                    post = pa.post
                 )
             )
         } ?: productAgreementService.save(pa)
