@@ -16,6 +16,6 @@
   "baseversion_scheduler_enabled": false,
   "env": {
     "DIGITAL_SOKNAD_SORTIMENT_URL": "https://navikt.github.io/digihot-sortiment/sortiment_av_apostid_per_kategori2.json",
-    "CATALOG_IMPORT_FORCE_UPDATE": false
+    "CATALOG_IMPORT_FORCE_UPDATE": true
   }
 }
