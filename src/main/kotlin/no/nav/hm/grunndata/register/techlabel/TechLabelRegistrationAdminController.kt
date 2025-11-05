@@ -13,9 +13,11 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.product.isAdmin
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
@@ -123,11 +125,23 @@ class TechLabelRegistrationAdminController(
                     }
                 } catch (e: Exception) {
                     LOG.error("Error updating products with new techLabel ${e.message}", e)
+                    throw BadRequestException("Error updating products with new techLabel ${e.message}")
                 }
             }
             HttpResponse.ok(updated.toDTO())
         } ?: HttpResponse.notFound()
 
+    @Delete("/{id}")
+    suspend fun deleteTechLabel(id: UUID, @QueryValue forcedDelete: Boolean = false, authentication: Authentication): HttpResponse<Unit> =
+        techLabelRegistrationService.findById(id)?.let { techLabel ->
+            try {
+                LOG.warn("Deleting TechLabel with id:$id iso:${techLabel.isoCode} ${techLabel.label} (${techLabel.unit}) by ${authentication.userId()}")
+                techLabelRegistrationService.delete(techLabel, forcedDelete)
+                HttpResponse.noContent()
+            } catch (e: IllegalStateException) {
+                throw BadRequestException("Advarsel sletting av teknisk beskrivelse med id=$id: ${e.message}")
+            }
+        } ?: HttpResponse.notFound()
 
 }
 

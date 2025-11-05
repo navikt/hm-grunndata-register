@@ -20,6 +20,19 @@ class TechLabelRegistrationService(private val techLabelRegistrationRepository: 
 
     suspend fun update(techlabel: TechLabelRegistration) = techLabelRegistrationRepository.update(techlabel)
 
+    suspend fun delete(techLabelRegistration: TechLabelRegistration, forcedDelete: Boolean) {
+        if (!forcedDelete) {
+            productRegistrationService.findByStartsWithIsoCategoryAndTechLabelKeyUnit(techLabelRegistration.isoCode, techLabelRegistration.label, techLabelRegistration.unit)
+                .let { products ->
+                    if (products.isNotEmpty()) {
+                        throw IllegalStateException("${techLabelRegistration.label} (${techLabelRegistration.unit}) " +
+                                "for ${techLabelRegistration.isoCode} er brukt av ${products.size} produkter!")
+                    }
+                }
+        }
+        techLabelRegistrationRepository.delete(techLabelRegistration)
+    }
+
     suspend fun changeProductsTechDataWithTechLabel(oldKey: String, oldUnit: String?, isoCode: String, newTechLabel: TechLabelRegistration) {
         if (isoCode.length<6) {
             throw IllegalArgumentException("IsoCode must be at least 6 characters to avoid too broad search, was $isoCode")
