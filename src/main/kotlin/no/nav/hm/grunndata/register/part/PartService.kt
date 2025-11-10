@@ -5,10 +5,12 @@ import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.register.catalog.CatalogImportRepository
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.isSupplier
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import org.slf4j.LoggerFactory
@@ -18,7 +20,9 @@ import java.util.UUID
 @Singleton
 open class PartService(
     private val seriesService: SeriesRegistrationService,
-    private val productService: ProductRegistrationService
+    private val productService: ProductRegistrationService,
+    private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
+    private val catalogImportRepository: CatalogImportRepository
 ) {
 
     companion object {
@@ -92,6 +96,16 @@ open class PartService(
                     updated = LocalDateTime.now(),
                 )
             )
+        }
+        if ((updateDto.hmsArtNr != null && updateDto.hmsArtNr != product.hmsArtNr) ||
+            (updateDto.supplierRef != null && updateDto.supplierRef != product.supplierRef)) {
+            LOG.info("hmsnr: ${product.hmsArtNr} supplierRef: ${product.supplierRef} was updated $updateDto")
+            productAgreementRegistrationRepository.findByProductId(product.id).forEach {
+                productAgreementRegistrationRepository.update(it.copy(hmsArtNr = updateDto.hmsArtNr, supplierRef = updateDto.supplierRef ?: it.supplierRef))
+            }
+            catalogImportRepository.findBySupplierIdAndSupplierRef(product.supplierId, product.supplierRef).forEach {
+                catalogImportRepository.update(it.copy(hmsArtNr = updateDto.hmsArtNr ?: it.hmsArtNr, supplierRef = updateDto.supplierRef ?: it.supplierRef))
+            }
         }
     }
 

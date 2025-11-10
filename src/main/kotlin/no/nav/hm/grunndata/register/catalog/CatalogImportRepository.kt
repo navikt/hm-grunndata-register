@@ -28,6 +28,8 @@ interface CatalogImportRepository:  CoroutineCrudRepository<CatalogImport, UUID>
 
         suspend fun findByHmsArtNr(hmsArtNr: String): List<CatalogImport>
 
+        suspend fun findBySupplierIdAndSupplierRef(supplierId: UUID, supplierRef: String): List<CatalogImport>
+
 }
 
 @Introspected
