@@ -85,11 +85,11 @@ open class PartService(
             )
         )
         val product = productService.findAllBySeriesUuid(seriesId).first()
-
+        val cleanHmsArtNr = if (!updateDto.hmsArtNr.isNullOrBlank()) updateDto.hmsArtNr else null
         product.let {
             productService.update(
                 product.copy(
-                    hmsArtNr = if (!auth.isSupplier()) updateDto.hmsArtNr else product.hmsArtNr,
+                    hmsArtNr = if (!auth.isSupplier()) cleanHmsArtNr else product.hmsArtNr,
                     supplierRef = updateDto.supplierRef ?: product.supplierRef,
                     articleName = updateDto.title ?: product.articleName,
                     updatedByUser = auth.name,
@@ -97,14 +97,14 @@ open class PartService(
                 )
             )
         }
-        if ((updateDto.hmsArtNr != null && updateDto.hmsArtNr != product.hmsArtNr) ||
+        if ((cleanHmsArtNr != null && cleanHmsArtNr != product.hmsArtNr) ||
             (updateDto.supplierRef != null && updateDto.supplierRef != product.supplierRef)) {
             LOG.info("hmsnr: ${product.hmsArtNr} supplierRef: ${product.supplierRef} was updated $updateDto")
             productAgreementRegistrationRepository.findByProductId(product.id).forEach {
-                productAgreementRegistrationRepository.update(it.copy(hmsArtNr = updateDto.hmsArtNr, supplierRef = updateDto.supplierRef ?: it.supplierRef))
+                productAgreementRegistrationRepository.update(it.copy(hmsArtNr = cleanHmsArtNr, supplierRef = updateDto.supplierRef ?: it.supplierRef))
             }
             catalogImportRepository.findBySupplierIdAndSupplierRef(product.supplierId, product.supplierRef).forEach {
-                catalogImportRepository.update(it.copy(hmsArtNr = updateDto.hmsArtNr ?: it.hmsArtNr, supplierRef = updateDto.supplierRef ?: it.supplierRef))
+                catalogImportRepository.update(it.copy(hmsArtNr = cleanHmsArtNr ?: it.hmsArtNr, supplierRef = updateDto.supplierRef ?: it.supplierRef))
             }
         }
     }
