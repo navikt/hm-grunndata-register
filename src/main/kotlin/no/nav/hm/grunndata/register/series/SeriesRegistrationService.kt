@@ -814,13 +814,28 @@ open class SeriesRegistrationService(
         var count = 0
         productRegistrationService.findAllBySeriesUuid(seriesToUngroup.id).forEach { product ->
             LOG.info("Ungrouping product ${product.id} from series ${seriesToUngroup.id}")
+            if (count == 0) {
+                // First product keeps the series, but use article name as title
+                val updatedSeries = saveAndCreateEventIfNotDraftAndApproved(
+                    seriesToUngroup.copy(
+                        title = product.articleName,
+                        updated = LocalDateTime.now(),
+                    ),
+                    isUpdate = true
+                )
+                productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                    product.copy(
+                        updated = LocalDateTime.now(),
+                    ), true
+                )
+            }
             if (count > 0) {
                 val series = saveAndCreateEventIfNotDraftAndApproved(
                     SeriesRegistration(
                         id = UUID.randomUUID(),
                         supplierId = seriesToUngroup.supplierId,
                         isoCategory = seriesToUngroup.isoCategory,
-                        title = seriesToUngroup.title,
+                        title = product.articleName,
                         text = seriesToUngroup.text,
                         identifier = UUID.randomUUID().toString(),
                         draftStatus = seriesToUngroup.draftStatus,
