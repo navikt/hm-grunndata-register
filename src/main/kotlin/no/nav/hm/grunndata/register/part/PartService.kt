@@ -13,6 +13,7 @@ import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
+import org.apache.commons.math3.stat.StatUtils.product
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
@@ -86,6 +87,7 @@ open class PartService(
         )
         val product = productService.findAllBySeriesUuid(seriesId).first()
         val cleanHmsArtNr = if (!updateDto.hmsArtNr.isNullOrBlank()) updateDto.hmsArtNr else null
+        LOG.info("Updated part draft for series: ${series.id}, product: ${product.id} and hmsArtNr: $cleanHmsArtNr")
         product.let {
             productService.update(
                 product.copy(

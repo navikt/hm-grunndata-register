@@ -809,6 +809,45 @@ open class SeriesRegistrationService(
             )
         }
     }
+
+    suspend fun ungroupSeries(seriesToUngroup: SeriesRegistration) {
+        var count = 0
+        productRegistrationService.findAllBySeriesUuid(seriesToUngroup.id).forEach { product ->
+            LOG.info("Ungrouping product ${product.id} from series ${seriesToUngroup.id}")
+            if (count > 0) {
+                val series = saveAndCreateEventIfNotDraftAndApproved(
+                    SeriesRegistration(
+                        id = UUID.randomUUID(),
+                        supplierId = seriesToUngroup.supplierId,
+                        isoCategory = seriesToUngroup.isoCategory,
+                        title = seriesToUngroup.title,
+                        text = seriesToUngroup.text,
+                        identifier = UUID.randomUUID().toString(),
+                        draftStatus = seriesToUngroup.draftStatus,
+                        adminStatus = seriesToUngroup.adminStatus,
+                        status = seriesToUngroup.status,
+                        createdBy = REGISTER,
+                        updatedBy = REGISTER,
+                        createdByUser = seriesToUngroup.createdByUser,
+                        updatedByUser = seriesToUngroup.updatedByUser,
+                        created = LocalDateTime.now(),
+                        updated = LocalDateTime.now(),
+                        seriesData = seriesToUngroup.seriesData,
+                        mainProduct = seriesToUngroup.mainProduct
+                    ),
+                    isUpdate = false
+                )
+                LOG.info("Created new series ${series.id} for product ${product.id}")
+                productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
+                    product.copy(
+                        seriesUUID = series.id,
+                        updated = LocalDateTime.now(),
+                    ), true
+                )
+            }
+            count++
+        }
+    }
 }
 
 data class MediaSort(val uri: String, val priority: Int)

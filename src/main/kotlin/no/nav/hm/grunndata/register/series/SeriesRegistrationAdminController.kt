@@ -6,6 +6,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
@@ -148,6 +149,16 @@ class SeriesRegistrationAdminController(
             seriesRegistrationService.moveOwnerForSeries(series, toSupplierId)
         }
         LOG.info("All series and products from supplier $fromSupplierId moved to supplier $toSupplierId")
+    }
+
+    @Post("/ungroup/{seriesId")
+    suspend fun ungroupSeies(
+        seriesId: UUID,
+    ): HttpResponse<Any> {
+        val seriesToUngroup = seriesRegistrationService.findById(seriesId) ?: return HttpResponse.notFound()
+        seriesRegistrationService.ungroupSeries(seriesToUngroup)
+        LOG.info("Ungrouped series: $seriesId")
+        return HttpResponse.ok()
     }
 }
 
