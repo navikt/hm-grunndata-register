@@ -67,6 +67,8 @@ class PartApiCommonController(
 
             if (authentication.isSupplier()) {
                 root[ProductRegistration::supplierId] eq authentication.supplierId()
+            } else {
+                criteria.supplierId?.let { root[ProductRegistration::supplierId] eq it }
             }
 
             criteria.excludedStatus?.let { root[ProductRegistration::registrationStatus] ne it }
