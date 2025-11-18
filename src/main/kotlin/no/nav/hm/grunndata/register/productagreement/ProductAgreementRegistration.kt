@@ -26,6 +26,7 @@ data class ProductAgreementRegistration(
     val mainProduct: Boolean = true,
     val supplierId: UUID,
     val supplierRef: String,
+    @Deprecated("Use productId to join with product table to get hmsArtNr")
     @field:Column(name = "hms_artnr")
     val hmsArtNr: String? = null,
     val agreementId: UUID,
@@ -55,6 +56,7 @@ data class ProductAgreementRegistrationDTO(
     val isoCategory: String? = null,
     val supplierId: UUID,
     val supplierRef: String,
+    @Deprecated("Use productId to join with product table to get hmsArtNr")
     val hmsArtNr: String?,
     val agreementId: UUID,
     val reference: String,
