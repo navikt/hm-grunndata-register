@@ -57,7 +57,7 @@ data class ProductAgreementRegistrationDTO(
     val supplierId: UUID,
     val supplierRef: String,
     @Deprecated("Use productId to join with product table to get hmsArtNr")
-    val hmsArtNr: String?,
+    val hmsArtNr: String? = null,
     val agreementId: UUID,
     val reference: String,
     val post: Int,
