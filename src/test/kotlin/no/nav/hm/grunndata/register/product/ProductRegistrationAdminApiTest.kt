@@ -295,7 +295,6 @@ class ProductRegistrationAdminApiTest(
         productAgreementAdminClient.createProductAgreement(jwt,
             ProductAgreementRegistrationDTO(
                 agreementId = agreementId,
-                hmsArtNr = "12345",
                 post = 1,
                 rank = 1,
                 postId = postId,

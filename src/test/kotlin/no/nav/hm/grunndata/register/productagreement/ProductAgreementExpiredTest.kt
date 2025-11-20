@@ -105,7 +105,6 @@ class ProductAgreementExpiredTest(private val productAgreementRegistrationServic
             val agreement =
                 ProductAgreementRegistrationDTO(
                     agreementId = agreementId,
-                    hmsArtNr = hmsNr,
                     post = 1,
                     rank = 1,
                     postId = postId,

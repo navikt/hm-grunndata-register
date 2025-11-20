@@ -63,7 +63,7 @@ open class ProductAgreementImportExcelService(
                     ), isUpdate = true)
                 }
             } else {
-                LOG.info("updating product agreement for accessory/sparepart with hmsnr: ${it.hmsArtNr} with title ${it.title} and productId ${it.productId}")
+                LOG.info("updating product agreement for accessory/sparepart with title ${it.title} and productId ${it.productId}")
                 updateAccessoryAndSparePart(it)
             }
         }
@@ -81,7 +81,6 @@ open class ProductAgreementImportExcelService(
                 existing.copy(
                     expired = LocalDateTime.now(),
                     updatedBy = EXCEL,
-                    hmsArtNr = pa.hmsArtNr,
                     supplierRef = pa.supplierRef,
                     status = ProductAgreementStatus.INACTIVE,
                     updated = LocalDateTime.now()
@@ -101,7 +100,6 @@ open class ProductAgreementImportExcelService(
             productAgreementService.update(
                 existing.copy(
                     productId = pa.productId,
-                    hmsArtNr = pa.hmsArtNr,
                     seriesUuid = pa.seriesUuid,
                     supplierRef = pa.supplierRef,
                     title = pa.title,
@@ -209,7 +207,6 @@ open class ProductAgreementImportExcelService(
                     agreement.delkontraktList.find { it.delkontraktData.refNr == postRank.first }
                         ?: throw BadRequestException("Delkontrakt ${postRank.first} finnes ikke i avtale ${agreement.reference}, må den opprettes?")
                 ProductAgreementRegistrationDTO(
-                    hmsArtNr = hmsArtNr,
                     agreementId = agreement.id,
                     supplierRef = supplierRef,
                     productId = product.id,
@@ -237,7 +234,6 @@ open class ProductAgreementImportExcelService(
 
             return listOf(
                 ProductAgreementRegistrationDTO(
-                    hmsArtNr = hmsArtNr,
                     agreementId = agreement.id,
                     supplierRef = supplierRef,
                     productId = product.id,
