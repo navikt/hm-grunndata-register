@@ -405,13 +405,12 @@ class SeriesRegistrationCommonController(
                 // Subquery: exists a product for this series with an active agreement
                 val subquery = criteriaBuilder.createQuery().subquery(Long::class.java)
                 val productRoot = subquery.from(no.nav.hm.grunndata.register.product.ProductRegistration::class.java)
-                val agreementRoot = subquery.from(no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration::class.java)
                 subquery.select(criteriaBuilder.count(productRoot))
+                val agreementJoin = productRoot.join("productAgreementRegistrations")
                 subquery.where(
                     criteriaBuilder.and(
                         criteriaBuilder.equal(productRoot.get<UUID>("seriesUUID"), root.get<UUID>("id")),
-                        criteriaBuilder.equal(agreementRoot.get<UUID>("productId"), productRoot.get<UUID>("id")),
-                        criteriaBuilder.equal(agreementRoot.get<String>("status"), "ACTIVE")
+                        criteriaBuilder.equal(agreementJoin.get<String>("status"), "ACTIVE")
                     )
                 )
                 predicates.add(
