@@ -29,6 +29,7 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.product.mapSuspend
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.reactivestreams.Publisher
@@ -43,6 +44,7 @@ import java.util.UUID
 class SeriesRegistrationCommonController(
     private val seriesRegistrationService: SeriesRegistrationService,
     private val productRegistrationService: ProductRegistrationService,
+    private val productAgreementRegistrationService: ProductAgreementRegistrationService,
     private val seriesDTOMapper: SeriesDTOMapper,
 ) {
     companion object {
@@ -399,6 +401,23 @@ class SeriesRegistrationCommonController(
                     ),
                 )
             }
+            if (criteria.mustBeOnAgreement == true) {
+                // Subquery: exists a product for this series with an active agreement
+                val subquery = criteriaBuilder.createQuery().subquery(Long::class.java)
+                val productRoot = subquery.from(no.nav.hm.grunndata.register.product.ProductRegistration::class.java)
+                val agreementRoot = subquery.from(no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration::class.java)
+                subquery.select(criteriaBuilder.count(productRoot))
+                subquery.where(
+                    criteriaBuilder.and(
+                        criteriaBuilder.equal(productRoot.get<UUID>("seriesUUID"), root.get<UUID>("id")),
+                        criteriaBuilder.equal(agreementRoot.get<UUID>("productId"), productRoot.get<UUID>("id")),
+                        criteriaBuilder.equal(agreementRoot.get<String>("status"), "ACTIVE")
+                    )
+                )
+                predicates.add(
+                    criteriaBuilder.greaterThan(subquery, 0L)
+                )
+            }
             // Return the combined predicates
             if (predicates.isNotEmpty()) {
                 criteriaBuilder.and(*predicates.toTypedArray())
@@ -424,6 +443,7 @@ data class SeriesCommonCriteria(
     val supplierFilter: List<UUID>? = null,
     val editStatus: List<EditStatus>? = null,
     val title: String? = null,
+    val mustBeOnAgreement: Boolean? = null,
 ) {
     fun isNotEmpty(): Boolean =
         mainProduct != null || adminStatus != null || excludedStatus != null || excludeExpired != null
