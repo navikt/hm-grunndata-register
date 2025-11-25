@@ -193,7 +193,7 @@ class CatalogExcelImportTest(
             body.shouldNotBeNull()
             val result = catalogFileToProductAgreementScheduler.scheduleCatalogFileToProductAgreement()
             result.shouldNotBeNull()
-            result.insertList.size shouldBe 8
+            result.insertList.size shouldBe 10
             val bytes2 =
                 CatalogExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test-2.xls")
                     .readAllBytes()

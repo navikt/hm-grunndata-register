@@ -62,9 +62,9 @@ class CatalogExcelFileImport {
         row: Row,
         columnMap: Map<String, Int>,
     ): CatalogImportExcelDTO? {
-        val leveartNr = readCellAsString(row, columnMap[leverandørensartnr.column]!!)
         val typeArtikkel = readCellAsString(row, columnMap[malTypeartikkel.column]!!)
-        if ("" != leveartNr && "HMS Servicetjeneste" != typeArtikkel) {
+        if (isKnownArticle(typeArtikkel)) {
+            val leveartNr = readCellAsString(row, columnMap[leverandørensartnr.column]!!)
             val hmsNr = readCellAsString(row, columnMap[hms_ArtNr.column]!!)
             val funksjonsendring = row.getCell(columnMap[funksjonsendring.column]!!).toString().trim()
             val type = mapArticleType(typeArtikkel, funksjonsendring)
@@ -75,7 +75,7 @@ class CatalogExcelFileImport {
                 hmsArtNr = parseHMSNr(hmsNr),
                 iso = readCellAsString(row, columnMap[kategori.column]!!),
                 title = readCellAsString(row, columnMap[beskrivelse.column]!!),
-                supplierRef = leveartNr,
+                supplierRef = leveartNr.ifBlank { "ikke oppgitt, bruk HMS. nummer $hmsNr" },
                 reference = readCellAsString(row, columnMap[anbudsnr.column]!!),
                 delkontraktNr = readCellAsString(row, columnMap[delkontraktnummer.column]!!),
                 dateFrom = readCellAsString(row, columnMap[datofom.column]!!),
@@ -88,10 +88,17 @@ class CatalogExcelFileImport {
                 supplierCity = readCellAsString(row, columnMap[leverandorsted.column]!!),
                 accessory = type.accessory,
                 sparePart = type.sparePart,
-                mainProduct = type.mainProduct,
+                mainProduct = type.mainProduct
             )
         }
         return null
+    }
+
+    private fun isKnownArticle(typeArtikkel: String): Boolean {
+        val lowerType = typeArtikkel.lowercase()
+        return lowerType.indexOf("hj.middel") > -1 ||
+                lowerType.indexOf("hms del") > -1 ||
+                lowerType.indexOf("hms servicetjeneste") > -1
     }
 
     private fun readCellAsString(
@@ -129,10 +136,11 @@ fun mapArticleType(
                 mainProduct && funksjonsendring.lowercase().indexOf("ja") > -1
     val sparePart =
         articleType.lowercase().indexOf("hms del") > -1 && funksjonsendring.lowercase().indexOf("nei") > -1
-    if (!mainProduct && !accessory && !sparePart) {
+    val service = articleType.lowercase().indexOf("hms servicetjeneste") > -1
+    if (!mainProduct && !accessory && !sparePart && !service) {
         throw BadRequestException("Unknown article type: $articleType")
     }
-    return ArticleType(mainProduct, sparePart, accessory)
+    return ArticleType(mainProduct, sparePart, accessory, service)
 }
 
-data class ArticleType(val mainProduct: Boolean, val sparePart: Boolean, val accessory: Boolean)
+data class ArticleType(val mainProduct: Boolean, val sparePart: Boolean, val accessory: Boolean, val service: Boolean)

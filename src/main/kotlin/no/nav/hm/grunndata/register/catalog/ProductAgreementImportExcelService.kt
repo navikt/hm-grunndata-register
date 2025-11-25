@@ -237,7 +237,7 @@ open class ProductAgreementImportExcelService(
                     agreementId = agreement.id,
                     supplierRef = supplierRef,
                     productId = product.id,
-                    seriesUuid = product?.seriesUUID,
+                    seriesUuid = product.seriesUUID,
                     title = title,
                     articleName = product.articleName,
                     reference = reference,
@@ -252,7 +252,7 @@ open class ProductAgreementImportExcelService(
                     accessory = accessory,
                     mainProduct = mainProduct,
                     isoCategory = iso,
-                    updatedByUser = authentication?.name ?: "system",
+                    updatedByUser = authentication.name ?: "system",
                     status = mapProductAgreementStatus(agreement),
                 ),
             )

@@ -103,7 +103,7 @@ open class CatalogImportService(
         if (updates.isNotEmpty()) {
             updates.forEach { catalogImport ->
                 val product = productRegistrationRepository.findByHmsArtNrAndSupplierId(catalogImport.hmsArtNr, catalogImport.supplierId)
-                    ?: productRegistrationRepository.findBySupplierRefAndSupplierId(catalogImport.supplierRef,catalogImport.supplierId)
+                    ?: productRegistrationRepository.findBySupplierRefAndSupplierId(catalogImport.supplierRef!!,catalogImport.supplierId)
                 product?.let {
                     var changedSupplierRefOrHmsNr = false
                     if (it.supplierRef != catalogImport.supplierRef) {
@@ -120,7 +120,7 @@ open class CatalogImportService(
                             it.copy(
                                 articleName = catalogImport.title,
                                 hmsArtNr = catalogImport.hmsArtNr,
-                                supplierRef = catalogImport.supplierRef,
+                                supplierRef = catalogImport.supplierRef!!,
                                 updatedByUser = adminAuthentication.name,
                                 updated = LocalDateTime.now()
                             )
@@ -132,7 +132,7 @@ open class CatalogImportService(
         if (catalogImportResult.deactivatedList.isNotEmpty()) {
             catalogImportResult.deactivatedList.forEach { catalogImport ->
                 val product = productRegistrationRepository.findByHmsArtNrAndSupplierId(catalogImport.hmsArtNr, catalogImport.supplierId)
-                    ?: productRegistrationRepository.findBySupplierRefAndSupplierId(catalogImport.supplierRef,catalogImport.supplierId)
+                    ?: productRegistrationRepository.findBySupplierRefAndSupplierId(catalogImport.supplierRef!!,catalogImport.supplierId)
                 if (product != null && !product.mainProduct) { // we only deactivate none main products
                     productRegistrationRepository.update(
                         product.copy(
@@ -183,7 +183,7 @@ open class CatalogImportService(
                 supplierId = catalogImport.supplierId,
                 hmsArtNr = catalogImport.hmsArtNr,
                 id = UUID.randomUUID(),
-                supplierRef = catalogImport.supplierRef,
+                supplierRef = catalogImport.supplierRef!!,
                 accessory = catalogImport.accessory,
                 sparePart = catalogImport.sparePart,
                 mainProduct = catalogImport.mainProduct,
