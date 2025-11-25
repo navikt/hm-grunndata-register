@@ -86,7 +86,7 @@ fun PartDraftWithDTO.toProductRegistration(seriesUUID: UUID, authentication: Aut
         seriesUUID = seriesUUID,
         supplierId = supplierId,
         supplierRef = levArtNr,
-        hmsArtNr = hmsArtNr,
+        hmsArtNr = if (hmsArtNr.isNullOrBlank()) null else hmsArtNr,
         draftStatus = DraftStatus.DRAFT,
         registrationStatus = RegistrationStatus.ACTIVE,
         adminStatus = AdminStatus.PENDING,
