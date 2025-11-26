@@ -4,7 +4,6 @@ import io.micronaut.security.authentication.Authentication
 import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
-import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
@@ -24,11 +23,10 @@ import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 
 @Singleton
 open class ProductAgreementImportExcelService(
-    private val agreementRegistrationService: AgreementRegistrationService,
     private val productRegistrationService: ProductRegistrationService,
     private val productAgreementService: ProductAgreementRegistrationService,
     private val noDelKontraktHandler: NoDelKontraktHandler,
-    private val catalogImportService: CatalogImportService,
+
     private val seriesRegistrationService: SeriesRegistrationService
 ) {
     companion object {
@@ -156,47 +154,32 @@ open class ProductAgreementImportExcelService(
 
     suspend fun mapToProductAgreementImportResult(
         catalogImportResult: CatalogImportResult,
-        authentication: Authentication,
-        supplierId: UUID
-    ): ProductAgreementMappedResultLists {
-
-        val mappedLists = mapCatalogImportToProductAgreement(catalogImportResult, authentication, supplierId)
-        LOG.info("Persisting products and agreements from excel import")
-        persistCatalogResult(catalogImportResult, mappedLists)
-
-        return mappedLists
-    }
-
-
-    @Transactional
-    open suspend fun persistCatalogResult(
-        catalogImportResult: CatalogImportResult,
-        productAgreementResult: ProductAgreementMappedResultLists
-    ) {
-        catalogImportService.persistCatalogImportResult(catalogImportResult)
-        persistProductAgreementFromCatalogImport(productAgreementResult)
-    }
-
-    suspend fun mapCatalogImportToProductAgreement(
-        catalogImportResult: CatalogImportResult,
+        agreement: AgreementRegistrationDTO,
         authentication: Authentication,
         supplierId: UUID
     ): ProductAgreementMappedResultLists {
         val updatedList =
-            catalogImportResult.updatedList.flatMap { it.toProductAgreementDTO(authentication, supplierId) }
+            catalogImportResult.updatedList.flatMap { it.toProductAgreementDTO(authentication, supplierId, agreement) }
         val insertedList =
-            catalogImportResult.insertedList.flatMap { it.toProductAgreementDTO(authentication, supplierId) }
+            catalogImportResult.insertedList.flatMap { it.toProductAgreementDTO(authentication, supplierId, agreement) }
         val deactivatedList =
-            catalogImportResult.deactivatedList.flatMap { it.toProductAgreementDTO(authentication, supplierId) }
+            catalogImportResult.deactivatedList.flatMap { it.toProductAgreementDTO(authentication, supplierId, agreement) }
         return ProductAgreementMappedResultLists(updatedList, insertedList, deactivatedList)
+    }
+
+
+
+    suspend fun persistResult(
+        productAgreementResult: ProductAgreementMappedResultLists
+    ) {
+        persistProductAgreementFromCatalogImport(productAgreementResult)
     }
 
     private suspend fun CatalogImport.toProductAgreementDTO(
         authentication: Authentication,
-        supplierId: UUID
+        supplierId: UUID,
+        agreement : AgreementRegistrationDTO
     ): List<ProductAgreementRegistrationDTO> {
-        val agreement = agreementRegistrationService.findById(agreementId)
-            ?: throw BadRequestException("Avtale med id $agreementId finnes ikke, må den opprettes?")
         val product = productRegistrationService.findByHmsArtNrAndSupplierId(hmsArtNr, supplierId) ?: throw BadRequestException("Produkt med hmsArtNr: $hmsArtNr finnes ikke. Produktet må være opprettet før katalogavtaleimport.")
         if (!postNr.isNullOrBlank()) {
             val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(postNr)

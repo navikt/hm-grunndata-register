@@ -71,12 +71,12 @@ open class CatalogFileAdminController(
             val importedExcelCatalog =
                 file.inputStream.use { input -> catalogExcelFileImport.importExcelFile(input) }
 
-            val catalogImportResult = catalogImportService.mapExcelDTOToCatalogImportResult(
+            val (agreement, catalogList) = catalogImportService.mapExcelDTOToCatalogImport(
                 importedExcelCatalog,
                 supplierId,
-                false
             )
 
+            val catalogImportResult= catalogImportService.convertAndCreateCatalogImportResult(catalogList, false)
             LOG.info("inserted: ${catalogImportResult.insertedList.size}")
             LOG.info("updated: ${catalogImportResult.updatedList.size}")
             LOG.info("deactivated: ${catalogImportResult.deactivatedList.size}")

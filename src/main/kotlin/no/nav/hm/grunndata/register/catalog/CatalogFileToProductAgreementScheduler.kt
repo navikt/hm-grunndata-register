@@ -19,6 +19,7 @@ open class CatalogFileToProductAgreementScheduler(
     private val productRegistrationRepository: ProductRegistrationRepository,
     private val catalogImportService: CatalogImportService,
     private val productAgreementImportExcelService: ProductAgreementImportExcelService,
+    private val serviceAgreementImportExcel: ServiceAgreementImportExcel,
     @Value("\${catalog.import.force_update}") private val forceUpdate: Boolean
 ) {
 
@@ -32,13 +33,36 @@ open class CatalogFileToProductAgreementScheduler(
                 val supplierId = catalogFile.supplierId
                 val adminAuthentication =
                     ClientAuthentication(catalogFile.updatedByUser, mapOf("roles" to listOf(Roles.ROLE_ADMIN)))
-                val catalogImportResult = catalogImportService.mapExcelDTOToCatalogImportResult(catalogFile.catalogList, supplierId, forceUpdate)
-                catalogImportService.handleNewOrChangedSupplierRefFromCatalogImport(
-                    catalogImportResult,
-                    adminAuthentication
+                val (agreement, catalogimports) = catalogImportService.mapExcelDTOToCatalogImport(
+                    catalogFile.catalogList,
+                    supplierId
                 )
 
-                val result = productAgreementImportExcelService.mapToProductAgreementImportResult(catalogImportResult, adminAuthentication, supplierId)
+                val catalogImportResult = catalogImportService.convertAndCreateCatalogImportResult(catalogimports, forceUpdate)
+
+                val productImportResult = CatalogImportResult(catalogImportResult.insertedList.filter { it.isProduct()},
+                    catalogImportResult.updatedList.filter { it.isProduct()} , catalogImportResult.deactivatedList.filter { it.isProduct()})
+                LOG.info("Product import result has inserted: ${productImportResult.insertedList.size} updated: ${productImportResult.updatedList.size} " +
+                        "deactivated: ${productImportResult.deactivatedList.size}")
+                catalogImportService.handleNewProductsOrChangedSupplierRefFromCatalogImport(
+                    productImportResult,
+                    adminAuthentication
+                )
+                val result = productAgreementImportExcelService.mapToProductAgreementImportResult(productImportResult, agreement, adminAuthentication, supplierId)
+                productAgreementImportExcelService.persistResult( result)
+                catalogImportService.persistCatalogImportResult(productImportResult)
+
+                val serviceImportResult = CatalogImportResult(catalogImportResult.insertedList.filter  { it.isProduct().not() },
+                    catalogImportResult.updatedList.filter { it.isProduct().not() },
+                    catalogImportResult.deactivatedList.filter { it.isProduct().not() })
+                LOG.info("Service import result has inserted: ${serviceImportResult.insertedList.size} updated: ${serviceImportResult.updatedList.size} " +
+                        "deactivated: ${serviceImportResult.deactivatedList.size}")
+
+
+                val serviceAgreementImportResul = serviceAgreementImportExcel.mapToServiceAgreementImportResult(serviceImportResult, agreement,  adminAuthentication, supplierId)
+                LOG.info("Persisting service and agreements from excel import")
+                serviceAgreementImportExcel.persistResult(serviceAgreementImportResul)
+                catalogImportService.persistCatalogImportResult(serviceImportResult)
                 val updatedCatalogFile =
                     catalogFileRepository.update(
                         catalogFile.copy(

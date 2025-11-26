@@ -8,6 +8,7 @@ import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import java.time.LocalDate
 import java.time.LocalDateTime
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
@@ -30,7 +31,10 @@ open class CatalogImportService(
     private val seriesRegistrationRepository: SeriesRegistrationRepository
 ) {
     @Transactional
-    open suspend fun convertAndCreateCatalogImportResult(catalogImportList: List<CatalogImport>, forceUpdate: Boolean): CatalogImportResult {
+    open suspend fun convertAndCreateCatalogImportResult(
+        catalogImportList: List<CatalogImport>,
+        forceUpdate: Boolean
+    ): CatalogImportResult {
         val updatedList = mutableListOf<CatalogImport>()
         val insertedList = mutableListOf<CatalogImport>()
         val orderRef = catalogImportList.first().orderRef
@@ -48,7 +52,7 @@ open class CatalogImportService(
             }
         }
         val deactivatedList = existingCatalog.filter { it.hmsArtNr !in catalogImportList.map { c -> c.hmsArtNr } }.map {
-            it.copy( dateTo = LocalDate.now().minusDays(1), updated = LocalDateTime.now())
+            it.copy(dateTo = LocalDate.now().minusDays(1), updated = LocalDateTime.now())
         }
         return CatalogImportResult(updatedList, deactivatedList, insertedList)
     }
@@ -60,11 +64,10 @@ open class CatalogImportService(
         catalogImportResult.insertedList.forEach { catalogImportRepository.save(it) }
     }
 
-    suspend fun mapExcelDTOToCatalogImportResult(
+    suspend fun mapExcelDTOToCatalogImport(
         importedExcelCatalog: List<CatalogImportExcelDTO>,
         supplierId: UUID,
-        forceUpdate: Boolean,
-    ): CatalogImportResult {
+    ): Pair<AgreementRegistrationDTO, List<CatalogImport>> {
         verifyCatalogImportList(importedExcelCatalog)
         val agreementRef = importedExcelCatalog.first().reference
         val cleanRef = agreementRef.lowercase().replace("/", "-")
@@ -73,12 +76,9 @@ open class CatalogImportService(
         if (agreement.agreementStatus === AgreementStatus.DELETED) {
             throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er slettet, må den opprettes?")
         }
-        return convertAndCreateCatalogImportResult(importedExcelCatalog.map {
-            it.toCatalogImport(
+        return agreement to importedExcelCatalog.map { it.toCatalogImport(
                 agreement,
-                supplierId
-            )
-        }, forceUpdate)
+                supplierId)}
     }
 
     private fun verifyCatalogImportList(catalogImportList: List<CatalogImportExcelDTO>) {
@@ -96,14 +96,22 @@ open class CatalogImportService(
         }
     }
 
-    suspend fun handleNewOrChangedSupplierRefFromCatalogImport(
+    suspend fun handleNewProductsOrChangedSupplierRefFromCatalogImport(
         catalogImportResult: CatalogImportResult,
-        adminAuthentication: ClientAuthentication) {
-        val updates = catalogImportResult.insertedList + catalogImportResult.updatedList + catalogImportResult.deactivatedList
+        adminAuthentication: ClientAuthentication
+    ) {
+        val updates =
+            catalogImportResult.insertedList + catalogImportResult.updatedList + catalogImportResult.deactivatedList
         if (updates.isNotEmpty()) {
             updates.forEach { catalogImport ->
-                val product = productRegistrationRepository.findByHmsArtNrAndSupplierId(catalogImport.hmsArtNr, catalogImport.supplierId)
-                    ?: productRegistrationRepository.findBySupplierRefAndSupplierId(catalogImport.supplierRef!!,catalogImport.supplierId)
+                val product = productRegistrationRepository.findByHmsArtNrAndSupplierId(
+                    catalogImport.hmsArtNr,
+                    catalogImport.supplierId
+                )
+                    ?: productRegistrationRepository.findBySupplierRefAndSupplierId(
+                        catalogImport.supplierRef!!,
+                        catalogImport.supplierId
+                    )
                 product?.let {
                     var changedSupplierRefOrHmsNr = false
                     if (it.supplierRef != catalogImport.supplierRef) {
@@ -115,7 +123,7 @@ open class CatalogImportService(
                         LOG.error("Product ${it.id} supplierRef: ${it.supplierRef} has different hmsArtNr: ${it.hmsArtNr} than catalogImport: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
                     }
                     if (changedSupplierRefOrHmsNr) {
-                        LOG.info("Updating product ${it.id} for HMS ArtNr: ${it.hmsArtNr} under orderRef: ${catalogImport.orderRef} with new supplierRef: ${catalogImport.supplierRef} and new hmsArtNr: ${catalogImport.hmsArtNr}" )
+                        LOG.info("Updating product ${it.id} for HMS ArtNr: ${it.hmsArtNr} under orderRef: ${catalogImport.orderRef} with new supplierRef: ${catalogImport.supplierRef} and new hmsArtNr: ${catalogImport.hmsArtNr}")
                         productRegistrationRepository.update(
                             it.copy(
                                 articleName = catalogImport.title,
@@ -131,8 +139,14 @@ open class CatalogImportService(
         }
         if (catalogImportResult.deactivatedList.isNotEmpty()) {
             catalogImportResult.deactivatedList.forEach { catalogImport ->
-                val product = productRegistrationRepository.findByHmsArtNrAndSupplierId(catalogImport.hmsArtNr, catalogImport.supplierId)
-                    ?: productRegistrationRepository.findBySupplierRefAndSupplierId(catalogImport.supplierRef!!,catalogImport.supplierId)
+                val product = productRegistrationRepository.findByHmsArtNrAndSupplierId(
+                    catalogImport.hmsArtNr,
+                    catalogImport.supplierId
+                )
+                    ?: productRegistrationRepository.findBySupplierRefAndSupplierId(
+                        catalogImport.supplierRef,
+                        catalogImport.supplierId
+                    )
                 if (product != null && !product.mainProduct) { // we only deactivate none main products
                     productRegistrationRepository.update(
                         product.copy(
@@ -141,10 +155,22 @@ open class CatalogImportService(
                             updatedByUser = adminAuthentication.name
                         )
                     )
-                    LOG.info("Deactivated product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}" )
+                    LOG.info("Deactivated product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
                 } else {
-                    LOG.warn("Could not find product to deactivate for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}" )
+                    LOG.warn("Could not find product to deactivate for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
                 }
+            }
+        }
+    }
+
+    suspend fun handleNewServicesFromCatalogImport(
+        catalogImportResult: CatalogImportResult,
+        adminAuthentication: ClientAuthentication
+    ) {
+        val inserts = catalogImportResult.insertedList
+        if (inserts.isNotEmpty()) {
+            inserts.forEach { catalogImport ->
+                createNewProductAndSeries(catalogImport, adminAuthentication)
             }
         }
     }
@@ -171,7 +197,8 @@ open class CatalogImportService(
                 createdByAdmin = authentication.isAdmin(),
                 createdBy = EXCEL,
                 mainProduct = catalogImport.mainProduct,
-            ))
+            )
+        )
         val product = productRegistrationRepository.save(
             ProductRegistration(
                 seriesUUID = series.id,
@@ -191,13 +218,19 @@ open class CatalogImportService(
                 updatedByUser = authentication.name,
                 createdBy = EXCEL,
                 createdByAdmin = authentication.isAdmin(),
-            ))
-        LOG.info("Created product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr} mainProduct: ${catalogImport.mainProduct} under orderRef: ${catalogImport.orderRef}" )
+            )
+        )
+        LOG.info("Created product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr} mainProduct: ${catalogImport.mainProduct} under orderRef: ${catalogImport.orderRef}")
         return product
     }
+
     companion object {
         private val LOG = org.slf4j.LoggerFactory.getLogger(CatalogImportService::class.java)
     }
+}
+
+fun CatalogImport.isProduct(): Boolean {
+    return mainProduct || accessory || sparePart
 }
 
 data class CatalogImportResult(
