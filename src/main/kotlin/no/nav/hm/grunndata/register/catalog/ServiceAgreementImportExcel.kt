@@ -8,13 +8,13 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.event.EventPayload
-import no.nav.hm.grunndata.register.servicetask.ServiceTaskRepository
+import no.nav.hm.grunndata.register.serviceoffering.ServiceOfferingRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
 @Singleton
-class ServiceAgreementImportExcel(private val agreementService: AgreementRegistrationService, private val serviceTaskRepository: ServiceTaskRepository)  {
+class ServiceAgreementImportExcel(private val agreementService: AgreementRegistrationService, private val serviceOfferingRepository: ServiceOfferingRepository)  {
 
     suspend fun mapToServiceAgreementImportResult(
         serviceImportResult: CatalogImportResult,
@@ -40,7 +40,7 @@ class ServiceAgreementImportExcel(private val agreementService: AgreementRegistr
         authentication: Authentication,
         supplierId: UUID
     ): ServiceAgreementDTO {
-        val service = serviceTaskRepository.findBySupplierIdAndHmsArtNr(supplierId, hmsArtNr)
+        val service = serviceOfferingRepository.findBySupplierIdAndHmsArtNr(supplierId, hmsArtNr)
             ?: throw IllegalStateException("Service with hmsArtNr $hmsArtNr for supplier $supplierId not found when importing service agreement from catalog")
         return ServiceAgreementDTO(
             serviceId = service.id,

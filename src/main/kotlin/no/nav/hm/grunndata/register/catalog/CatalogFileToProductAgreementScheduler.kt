@@ -44,20 +44,22 @@ open class CatalogFileToProductAgreementScheduler(
                     catalogImportResult.updatedList.filter { it.isProduct()} , catalogImportResult.deactivatedList.filter { it.isProduct()})
                 LOG.info("Product import result has inserted: ${productImportResult.insertedList.size} updated: ${productImportResult.updatedList.size} " +
                         "deactivated: ${productImportResult.deactivatedList.size}")
+
                 catalogImportService.handleNewProductsOrChangedSupplierRefFromCatalogImport(
                     productImportResult,
                     adminAuthentication
                 )
-                val result = productAgreementImportExcelService.mapToProductAgreementImportResult(productImportResult, agreement, adminAuthentication, supplierId)
-                productAgreementImportExcelService.persistResult( result)
+                val productAgreementMappedResultLists = productAgreementImportExcelService.mapToProductAgreementImportResult(productImportResult, agreement, adminAuthentication, supplierId)
+                productAgreementImportExcelService.persistResult( productAgreementMappedResultLists)
                 catalogImportService.persistCatalogImportResult(productImportResult)
 
-                val serviceImportResult = CatalogImportResult(catalogImportResult.insertedList.filter  { it.isProduct().not() },
-                    catalogImportResult.updatedList.filter { it.isProduct().not() },
-                    catalogImportResult.deactivatedList.filter { it.isProduct().not() })
+                val serviceImportResult = CatalogImportResult(catalogImportResult.insertedList.filter  { it.isService() },
+                    catalogImportResult.updatedList.filter { it.isService() },
+                    catalogImportResult.deactivatedList.filter { it.isService() })
                 LOG.info("Service import result has inserted: ${serviceImportResult.insertedList.size} updated: ${serviceImportResult.updatedList.size} " +
                         "deactivated: ${serviceImportResult.deactivatedList.size}")
 
+                catalogImportService.handleNewServices(serviceImportResult, adminAuthentication)
 
                 val serviceAgreementImportResul = serviceAgreementImportExcel.mapToServiceAgreementImportResult(serviceImportResult, agreement,  adminAuthentication, supplierId)
                 LOG.info("Persisting service and agreements from excel import")
@@ -70,9 +72,9 @@ open class CatalogFileToProductAgreementScheduler(
                             updated = LocalDateTime.now()
                         )
                     )
-                LOG.info("Finished saving with inserted: ${result.insertList.size} updated: ${result.updateList.size} " +
-                        "deactivated: ${result.deactivateList.size} for catalog file id: ${updatedCatalogFile.id} with name: ${updatedCatalogFile.fileName}")
-                result
+                LOG.info("Finished saving with inserted: ${productAgreementMappedResultLists.insertList.size} updated: ${productAgreementMappedResultLists.updateList.size} " +
+                        "deactivated: ${productAgreementMappedResultLists.deactivateList.size} for catalog file id: ${updatedCatalogFile.id} with name: ${updatedCatalogFile.fileName}")
+                productAgreementMappedResultLists
             } catch (e: Exception) {
                 LOG.error(
                     "Error while processing catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName}",

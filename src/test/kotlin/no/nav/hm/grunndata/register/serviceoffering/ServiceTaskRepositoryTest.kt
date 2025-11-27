@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.servicetask
+package no.nav.hm.grunndata.register.serviceoffering
 
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import kotlinx.coroutines.runBlocking
@@ -8,12 +8,12 @@ import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest
-class ServiceTaskRepositoryTest(private val serviceTaskRepository: ServiceTaskRepository) {
+class ServiceTaskRepositoryTest(private val serviceOfferingRepository: ServiceOfferingRepository) {
 
     @Test
     fun crudTest() = runBlocking {
         val now = LocalDateTime.now()
-        val serviceTask = ServiceTask(
+        val serviceOffering = ServiceOffering(
             id = UUID.randomUUID(),
             title = "Test Task",
             supplierRef = "SUP-123",
@@ -23,7 +23,7 @@ class ServiceTaskRepositoryTest(private val serviceTaskRepository: ServiceTaskRe
             published = now,
             expired = now.plusYears(1),
             serviceData = ServiceData(
-                attributes = ServiceTaskAttributes(
+                attributes = ServiceAttributes(
                     keywords = setOf("keyword1", "keyword2"),
                     serviceFor = ServiceFor(
                         seriesIds = setOf(UUID.randomUUID()),
@@ -36,25 +36,25 @@ class ServiceTaskRepositoryTest(private val serviceTaskRepository: ServiceTaskRe
         )
 
         // Create
-        val saved = serviceTaskRepository.save(serviceTask)
+        val saved = serviceOfferingRepository.save(serviceOffering)
         assertNotNull(saved)
         assertEquals("Test Task", saved.title)
         assertEquals("33445566", saved.hmsArtNr)
         assertNotNull(saved.serviceData.attributes.serviceFor)
 
         // Read
-        val found = serviceTaskRepository.findById(saved.id)
+        val found = serviceOfferingRepository.findById(saved.id)
         assertNotNull(found)
         assertEquals("Test Description", found?.serviceData?.attributes?.text)
 
         // Update
         val updated = saved.copy(title = "Updated Task")
-        val savedUpdated = serviceTaskRepository.update(updated)
+        val savedUpdated = serviceOfferingRepository.update(updated)
         assertEquals("Updated Task", savedUpdated.title)
 
         // Delete
-        serviceTaskRepository.deleteById(saved.id)
-        val afterDelete = serviceTaskRepository.findById(saved.id)
+        serviceOfferingRepository.deleteById(saved.id)
+        val afterDelete = serviceOfferingRepository.findById(saved.id)
         assertNull(afterDelete)
     }
 }

@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.servicetask
+package no.nav.hm.grunndata.register.serviceoffering
 
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
@@ -9,8 +9,8 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import java.time.LocalDateTime
 import java.util.UUID
 
-@MappedEntity("service_task_v1")
-data class ServiceTask(
+@MappedEntity("service_offering_v1")
+data class ServiceOffering(
     @field:Id
     val id: UUID,
     val title: String,
@@ -21,7 +21,7 @@ data class ServiceTask(
     val published: LocalDateTime,
     val expired: LocalDateTime,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
-    val status: ServiceTaskStatus = ServiceTaskStatus.ACTIVE,
+    val status: ServiceStatus = ServiceStatus.ACTIVE,
     val created: LocalDateTime = LocalDateTime.now(),
     @field:TypeDef(type = DataType.JSON)
     val serviceData: ServiceData,
@@ -29,15 +29,15 @@ data class ServiceTask(
     val version: Long? = 0L,
 )
 
-enum class ServiceTaskStatus {
+enum class ServiceStatus {
     ACTIVE, INACTIVE, DELETED
 }
 
 data class ServiceData (
-    val attributes: ServiceTaskAttributes = ServiceTaskAttributes(),
+    val attributes: ServiceAttributes = ServiceAttributes(),
 )
 
-data class ServiceTaskAttributes(
+data class ServiceAttributes(
     val keywords: Set<String>? = null,
     val url: String? = null,
     val text: String? = null,

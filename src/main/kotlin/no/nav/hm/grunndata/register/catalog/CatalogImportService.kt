@@ -21,6 +21,10 @@ import no.nav.hm.grunndata.register.product.isAdmin
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
+import no.nav.hm.grunndata.register.serviceoffering.ServiceData
+import no.nav.hm.grunndata.register.serviceoffering.ServiceOffering
+import no.nav.hm.grunndata.register.serviceoffering.ServiceOfferingRepository
+import org.slf4j.LoggerFactory
 import java.util.UUID
 
 @Singleton
@@ -28,7 +32,8 @@ open class CatalogImportService(
     private val catalogImportRepository: CatalogImportRepository,
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productRegistrationRepository: ProductRegistrationRepository,
-    private val seriesRegistrationRepository: SeriesRegistrationRepository
+    private val seriesRegistrationRepository: SeriesRegistrationRepository,
+    private val serviceOfferingRepository: ServiceOfferingRepository
 ) {
     @Transactional
     open suspend fun convertAndCreateCatalogImportResult(
@@ -163,14 +168,23 @@ open class CatalogImportService(
         }
     }
 
-    suspend fun handleNewServicesFromCatalogImport(
-        catalogImportResult: CatalogImportResult,
-        adminAuthentication: ClientAuthentication
-    ) {
-        val inserts = catalogImportResult.insertedList
-        if (inserts.isNotEmpty()) {
-            inserts.forEach { catalogImport ->
-                createNewProductAndSeries(catalogImport, adminAuthentication)
+
+    suspend fun handleNewServices(serviceImportResult: CatalogImportResult, adminAuthentication: ClientAuthentication) {
+        if (serviceImportResult.insertedList.isNotEmpty()) {
+            serviceImportResult.insertedList.forEach { catalogImport ->
+                LOG.info("Creating new service for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                val service = serviceOfferingRepository.save(ServiceOffering(
+                    id = UUID.randomUUID(),
+                    title = catalogImport.title,
+                    supplierRef = catalogImport.supplierRef,
+                    hmsArtNr = catalogImport.hmsArtNr,
+                    supplierId = catalogImport.supplierId,
+                    isoCategory = catalogImport.iso,
+                    published = catalogImport.dateFrom.atStartOfDay(),
+                    expired = catalogImport.dateTo.atStartOfDay(),
+                    serviceData = ServiceData()
+                ))
+                LOG.info("Created service with id: ${service.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
             }
         }
     }
@@ -224,13 +238,18 @@ open class CatalogImportService(
         return product
     }
 
+
     companion object {
-        private val LOG = org.slf4j.LoggerFactory.getLogger(CatalogImportService::class.java)
+        private val LOG = LoggerFactory.getLogger(CatalogImportService::class.java)
     }
 }
 
 fun CatalogImport.isProduct(): Boolean {
     return mainProduct || accessory || sparePart
+}
+
+fun CatalogImport.isService(): Boolean {
+    return !isProduct()
 }
 
 data class CatalogImportResult(

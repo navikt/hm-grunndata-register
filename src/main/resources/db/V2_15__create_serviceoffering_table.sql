@@ -1,4 +1,4 @@
-CREATE TABLE service_task_v1
+CREATE TABLE service_offering_v1
 (
     id           UUID                     NOT NULL PRIMARY KEY,
     title        TEXT                     NOT NULL,
@@ -15,5 +15,5 @@ CREATE TABLE service_task_v1
     version      BIGINT                   NOT NULL
 );
 
-CREATE UNIQUE INDEX unique_service_task_v1_supplier_id_hms_art_nr
+CREATE UNIQUE INDEX unique_service_offering_v1_supplier_id_hms_art_nr
     ON service_task_v1 (supplier_id, hms_art_nr);

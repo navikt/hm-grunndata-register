@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.servicetask
+package no.nav.hm.grunndata.register.serviceoffering
 
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
