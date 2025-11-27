@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest
-class ServiceTaskRepositoryTest(private val serviceOfferingRepository: ServiceOfferingRepository) {
+class ServiceOfferingRepositoryTest(private val serviceOfferingRepository: ServiceOfferingRepository) {
 
     @Test
     fun crudTest() = runBlocking {

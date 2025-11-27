@@ -187,6 +187,24 @@ open class CatalogImportService(
                 LOG.info("Created service with id: ${service.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
             }
         }
+        if (serviceImportResult.deactivatedList.isNotEmpty()) {
+            serviceImportResult.deactivatedList.forEach { catalogImport ->
+                val service = serviceOfferingRepository.findBySupplierIdAndHmsArtNr(
+                    catalogImport.supplierId,  catalogImport.hmsArtNr,
+                )
+                if (service != null) {
+                    serviceOfferingRepository.update(
+                        service.copy(
+                            expired = LocalDateTime.now(),
+                            updatedByUser = adminAuthentication.name
+                        )
+                    )
+                    LOG.info("Deactivated service with id: ${service.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                } else {
+                    LOG.warn("Could not find service to deactivate for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                }
+            }
+        }
     }
 
     private suspend fun createNewProductAndSeries(
