@@ -24,6 +24,7 @@ import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.serviceoffering.ServiceData
 import no.nav.hm.grunndata.register.serviceoffering.ServiceOffering
 import no.nav.hm.grunndata.register.serviceoffering.ServiceOfferingRepository
+import no.nav.hm.grunndata.register.serviceoffering.ServiceStatus
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
@@ -170,21 +171,40 @@ open class CatalogImportService(
 
 
     suspend fun handleNewServices(serviceImportResult: CatalogImportResult, adminAuthentication: ClientAuthentication) {
-        if (serviceImportResult.insertedList.isNotEmpty()) {
+        val updates = serviceImportResult.insertedList + serviceImportResult.updatedList
+        if (updates.isNotEmpty()) {
             serviceImportResult.insertedList.forEach { catalogImport ->
-                LOG.info("Creating new service for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
-                val service = serviceOfferingRepository.save(ServiceOffering(
-                    id = UUID.randomUUID(),
-                    title = catalogImport.title,
-                    supplierRef = catalogImport.supplierRef,
-                    hmsArtNr = catalogImport.hmsArtNr,
-                    supplierId = catalogImport.supplierId,
-                    isoCategory = catalogImport.iso,
-                    published = catalogImport.dateFrom.atStartOfDay(),
-                    expired = catalogImport.dateTo.atStartOfDay(),
-                    serviceData = ServiceData()
-                ))
-                LOG.info("Created service with id: ${service.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                serviceOfferingRepository.findBySupplierIdAndHmsArtNr(
+                    catalogImport.supplierId,
+                    catalogImport.hmsArtNr
+                )?.let {
+                    serviceOfferingRepository.update(
+                        it.copy(
+                            title = catalogImport.title,
+                            supplierRef = catalogImport.supplierRef,
+                            isoCategory = catalogImport.iso,
+                            published = catalogImport.dateFrom.atStartOfDay(),
+                            expired = catalogImport.dateTo.atStartOfDay(),
+                            updated = LocalDateTime.now(),
+                            updatedByUser = adminAuthentication.name
+                    ))
+                }?: run {
+                    LOG.info("Creating new service for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                    val service = serviceOfferingRepository.save(
+                        ServiceOffering(
+                            id = UUID.randomUUID(),
+                            title = catalogImport.title,
+                            supplierRef = catalogImport.supplierRef,
+                            hmsArtNr = catalogImport.hmsArtNr,
+                            supplierId = catalogImport.supplierId,
+                            isoCategory = catalogImport.iso,
+                            published = catalogImport.dateFrom.atStartOfDay(),
+                            expired = catalogImport.dateTo.atStartOfDay(),
+                            serviceData = ServiceData()
+                        )
+                    )
+                    LOG.info("Created service with id: ${service.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                }
             }
         }
         if (serviceImportResult.deactivatedList.isNotEmpty()) {
@@ -196,6 +216,8 @@ open class CatalogImportService(
                     serviceOfferingRepository.update(
                         service.copy(
                             expired = LocalDateTime.now(),
+                            status = ServiceStatus.INACTIVE,
+                            updated = LocalDateTime.now(),
                             updatedByUser = adminAuthentication.name
                         )
                     )

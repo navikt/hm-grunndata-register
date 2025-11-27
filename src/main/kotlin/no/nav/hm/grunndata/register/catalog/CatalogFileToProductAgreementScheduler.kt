@@ -7,11 +7,13 @@ import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.micronaut.leaderelection.LeaderOnly
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Singleton
 open class CatalogFileToProductAgreementScheduler(
@@ -40,31 +42,11 @@ open class CatalogFileToProductAgreementScheduler(
 
                 val catalogImportResult = catalogImportService.convertAndCreateCatalogImportResult(catalogimports, forceUpdate)
 
-                val productImportResult = CatalogImportResult(catalogImportResult.insertedList.filter { it.isProduct()},
-                    catalogImportResult.updatedList.filter { it.isProduct()} , catalogImportResult.deactivatedList.filter { it.isProduct()})
-                LOG.info("Product import result has inserted: ${productImportResult.insertedList.size} updated: ${productImportResult.updatedList.size} " +
-                        "deactivated: ${productImportResult.deactivatedList.size}")
+                val productAgreementMappedResultLists =
+                    processProducts(catalogImportResult, adminAuthentication, agreement, supplierId)
 
-                catalogImportService.handleNewProductsOrChangedSupplierRefFromCatalogImport(
-                    productImportResult,
-                    adminAuthentication
-                )
-                val productAgreementMappedResultLists = productAgreementImportExcelService.mapToProductAgreementImportResult(productImportResult, agreement, adminAuthentication, supplierId)
-                productAgreementImportExcelService.persistResult( productAgreementMappedResultLists)
-                catalogImportService.persistCatalogImportResult(productImportResult)
+                processServiceOfferings(catalogImportResult, adminAuthentication, agreement, supplierId)
 
-                val serviceImportResult = CatalogImportResult(catalogImportResult.insertedList.filter  { it.isService() },
-                    catalogImportResult.updatedList.filter { it.isService() },
-                    catalogImportResult.deactivatedList.filter { it.isService() })
-                LOG.info("Service import result has inserted: ${serviceImportResult.insertedList.size} updated: ${serviceImportResult.updatedList.size} " +
-                        "deactivated: ${serviceImportResult.deactivatedList.size}")
-
-                catalogImportService.handleNewServices(serviceImportResult, adminAuthentication)
-
-                val serviceAgreementImportResul = serviceAgreementImportExcel.mapToServiceAgreementImportResult(serviceImportResult, agreement,  adminAuthentication, supplierId)
-                LOG.info("Persisting service and agreements from excel import")
-                serviceAgreementImportExcel.persistResult(serviceAgreementImportResul)
-                catalogImportService.persistCatalogImportResult(serviceImportResult)
                 val updatedCatalogFile =
                     catalogFileRepository.update(
                         catalogFile.copy(
@@ -90,6 +72,64 @@ open class CatalogFileToProductAgreementScheduler(
                 null
             }
         }
+    }
+
+    private suspend fun processProducts(
+        catalogImportResult: CatalogImportResult,
+        adminAuthentication: ClientAuthentication,
+        agreement: AgreementRegistrationDTO,
+        supplierId: UUID
+    ): ProductAgreementMappedResultLists {
+        val productImportResult = CatalogImportResult(
+            catalogImportResult.insertedList.filter { it.isProduct() },
+            catalogImportResult.updatedList.filter { it.isProduct() },
+            catalogImportResult.deactivatedList.filter { it.isProduct() })
+        LOG.info(
+            "Product import result has inserted: ${productImportResult.insertedList.size} updated: ${productImportResult.updatedList.size} " +
+                    "deactivated: ${productImportResult.deactivatedList.size}"
+        )
+
+        catalogImportService.handleNewProductsOrChangedSupplierRefFromCatalogImport(
+            productImportResult,
+            adminAuthentication
+        )
+        val productAgreementMappedResultLists = productAgreementImportExcelService.mapToProductAgreementImportResult(
+            productImportResult,
+            agreement,
+            adminAuthentication,
+            supplierId
+        )
+        productAgreementImportExcelService.persistResult(productAgreementMappedResultLists)
+        catalogImportService.persistCatalogImportResult(productImportResult)
+        return productAgreementMappedResultLists
+    }
+
+    private suspend fun processServiceOfferings(
+        catalogImportResult: CatalogImportResult,
+        adminAuthentication: ClientAuthentication,
+        agreement: AgreementRegistrationDTO,
+        supplierId: UUID
+    ) {
+        val serviceImportResult = CatalogImportResult(
+            catalogImportResult.insertedList.filter { it.isService() },
+            catalogImportResult.updatedList.filter { it.isService() },
+            catalogImportResult.deactivatedList.filter { it.isService() })
+        LOG.info(
+            "Service import result has inserted: ${serviceImportResult.insertedList.size} updated: ${serviceImportResult.updatedList.size} " +
+                    "deactivated: ${serviceImportResult.deactivatedList.size}"
+        )
+
+        catalogImportService.handleNewServices(serviceImportResult, adminAuthentication)
+
+        val serviceAgreementImportResul = serviceAgreementImportExcel.mapToServiceAgreementImportResult(
+            serviceImportResult,
+            agreement,
+            adminAuthentication,
+            supplierId
+        )
+        LOG.info("Persisting service and agreements from excel import")
+        serviceAgreementImportExcel.persistResult(serviceAgreementImportResul)
+        catalogImportService.persistCatalogImportResult(serviceImportResult)
     }
 
     @LeaderOnly
