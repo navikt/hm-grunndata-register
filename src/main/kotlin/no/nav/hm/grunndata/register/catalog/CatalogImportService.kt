@@ -37,7 +37,7 @@ open class CatalogImportService(
     private val serviceOfferingRepository: ServiceOfferingRepository
 ) {
     @Transactional
-    open suspend fun convertAndCreateCatalogImportResult(
+    open suspend fun checkForExistingAndMapCatalogImportResult(
         catalogImportList: List<CatalogImport>,
         forceUpdate: Boolean
     ): CatalogImportResult {
@@ -65,6 +65,7 @@ open class CatalogImportService(
 
     @Transactional
     open suspend fun persistCatalogImportResult(catalogImportResult: CatalogImportResult) {
+        LOG.info("persisting catalog import result with inserted: ${catalogImportResult.insertedList.size}, updated: ${catalogImportResult.updatedList.size}, deactivated: ${catalogImportResult.deactivatedList.size}")
         catalogImportResult.updatedList.forEach { catalogImportRepository.update(it) }
         catalogImportResult.deactivatedList.forEach { catalogImportRepository.update(it) }
         catalogImportResult.insertedList.forEach { catalogImportRepository.save(it) }
@@ -181,7 +182,7 @@ open class CatalogImportService(
     suspend fun handleNewServices(serviceImportResult: CatalogImportResult, adminAuthentication: ClientAuthentication) {
         val updates = serviceImportResult.insertedList + serviceImportResult.updatedList
         if (updates.isNotEmpty()) {
-            serviceImportResult.insertedList.forEach { catalogImport ->
+            updates.forEach { catalogImport ->
                 serviceOfferingRepository.findBySupplierIdAndHmsArtNr(
                     catalogImport.supplierId,
                     catalogImport.hmsArtNr
@@ -197,7 +198,7 @@ open class CatalogImportService(
                             updated = LocalDateTime.now(),
                             updatedByUser = adminAuthentication.name,
                     ))
-                }?: run {
+                } ?: run {
                     LOG.info("Creating new service for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
                     val service = serviceOfferingRepository.save(
                         ServiceOffering(

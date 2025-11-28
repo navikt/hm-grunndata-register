@@ -76,7 +76,7 @@ open class CatalogFileAdminController(
                 supplierId,
             )
 
-            val catalogImportResult= catalogImportService.convertAndCreateCatalogImportResult(catalogList, false)
+            val catalogImportResult= catalogImportService.checkForExistingAndMapCatalogImportResult(catalogList, false)
             LOG.info("inserted: ${catalogImportResult.insertedList.size}")
             LOG.info("updated: ${catalogImportResult.updatedList.size}")
             LOG.info("deactivated: ${catalogImportResult.deactivatedList.size}")

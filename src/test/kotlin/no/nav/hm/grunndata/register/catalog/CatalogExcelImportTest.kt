@@ -19,7 +19,6 @@ import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.agreement.DelkontraktData
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistration
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationRepository
-import no.nav.hm.grunndata.register.catalog.CatalogImportExcelClient
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.supplier.SupplierData
@@ -191,9 +190,9 @@ class CatalogExcelImportTest(
             response.status shouldBe HttpStatus.OK
             val body = response.body()
             body.shouldNotBeNull()
-            val result = catalogFileToProductAgreementScheduler.scheduleCatalogFileToProductAgreement()
-            result.shouldNotBeNull()
-            result.insertList.size shouldBe 10
+            val (productAgreementMappedResultLists, serviceAgreementMappedResultLists)= catalogFileToProductAgreementScheduler.processCatalogFile() ?: throw IllegalStateException("No catalog file to process")
+            productAgreementMappedResultLists.insertList.size shouldBe 8
+            serviceAgreementMappedResultLists.insertList.size shouldBe 2
             val bytes2 =
                 CatalogExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test-2.xls")
                     .readAllBytes()
@@ -208,10 +207,10 @@ class CatalogExcelImportTest(
             response.status shouldBe HttpStatus.OK
             val body2 = response2.body()
             body2.shouldNotBeNull()
-            val result2 = catalogFileToProductAgreementScheduler.scheduleCatalogFileToProductAgreement()
-            result2.shouldNotBeNull()
-            result2.insertList.size shouldBe 2
-            result2.deactivateList.size shouldBe 2
+            val (pResult, sResult) = catalogFileToProductAgreementScheduler.processCatalogFile()?: throw IllegalStateException("No catalog file to process")
+            pResult.insertList.size shouldBe 2
+            pResult.deactivateList.size shouldBe 2
+            sResult.updateList.size shouldBe 0
 
         }
     }

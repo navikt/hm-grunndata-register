@@ -309,9 +309,9 @@ enum class ColumnNames(val column: String) {
 
 
 data class ProductAgreementMappedResultLists(
-    val updateList: List<ProductAgreementRegistrationDTO>,
-    val insertList: List<ProductAgreementRegistrationDTO>,
-    val deactivateList: List<ProductAgreementRegistrationDTO>,
+    val updateList: List<ProductAgreementRegistrationDTO> = emptyList(),
+    val insertList: List<ProductAgreementRegistrationDTO> = emptyList(),
+    val deactivateList: List<ProductAgreementRegistrationDTO> = emptyList(),
 )
 
 val delKontraktRegex = Regex("d(\\d+)([A-Q-STU-Z]*)r*(\\d*),*")

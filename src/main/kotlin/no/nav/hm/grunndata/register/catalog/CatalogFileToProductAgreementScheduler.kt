@@ -9,6 +9,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
+import no.nav.hm.grunndata.register.productagreement.CatalogImportResultReport
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.micronaut.leaderelection.LeaderOnly
 import org.slf4j.LoggerFactory
@@ -28,7 +29,7 @@ open class CatalogFileToProductAgreementScheduler(
     @LeaderOnly
     @Scheduled(cron = "0 * * * * *")
     @Transactional
-    open fun scheduleCatalogFileToProductAgreement(): ProductAgreementMappedResultLists? = runBlocking {
+    open fun processCatalogFile(): Pair<ProductAgreementMappedResultLists, ServiceAgreementMappedResultLists>?  = runBlocking {
         catalogFileRepository.findOneByStatusOrderByCreatedAsc(CatalogFileStatus.PENDING)?.let { catalogFile ->
             try {
                 LOG.info("Got catalog file with filename: ${catalogFile.fileName} with rows: ${catalogFile.catalogList.size} to process with forceUpdate: $forceUpdate")
@@ -40,13 +41,12 @@ open class CatalogFileToProductAgreementScheduler(
                     supplierId
                 )
 
-                val catalogImportResult = catalogImportService.convertAndCreateCatalogImportResult(catalogimports, forceUpdate)
+                val catalogImportResult = catalogImportService.checkForExistingAndMapCatalogImportResult(catalogimports, forceUpdate)
+
 
                 val productAgreementMappedResultLists =
                     processProducts(catalogImportResult, adminAuthentication, agreement, supplierId)
-
-                processServiceOfferings(catalogImportResult, adminAuthentication, agreement, supplierId)
-
+                val serviceAgreementMappedResultLists = processServiceOfferings(catalogImportResult, adminAuthentication, agreement, supplierId)
                 val updatedCatalogFile =
                     catalogFileRepository.update(
                         catalogFile.copy(
@@ -56,7 +56,7 @@ open class CatalogFileToProductAgreementScheduler(
                     )
                 LOG.info("Finished saving with inserted: ${productAgreementMappedResultLists.insertList.size} updated: ${productAgreementMappedResultLists.updateList.size} " +
                         "deactivated: ${productAgreementMappedResultLists.deactivateList.size} for catalog file id: ${updatedCatalogFile.id} with name: ${updatedCatalogFile.fileName}")
-                productAgreementMappedResultLists
+               productAgreementMappedResultLists to serviceAgreementMappedResultLists
             } catch (e: Exception) {
                 LOG.error(
                     "Error while processing catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName}",
@@ -69,7 +69,7 @@ open class CatalogFileToProductAgreementScheduler(
                         errorMessage = e.message
                     )
                 )
-                null
+               null
             }
         }
     }
@@ -81,9 +81,9 @@ open class CatalogFileToProductAgreementScheduler(
         supplierId: UUID
     ): ProductAgreementMappedResultLists {
         val productImportResult = CatalogImportResult(
-            catalogImportResult.insertedList.filter { it.isProduct() },
             catalogImportResult.updatedList.filter { it.isProduct() },
-            catalogImportResult.deactivatedList.filter { it.isProduct() })
+            catalogImportResult.deactivatedList.filter { it.isProduct() },
+            catalogImportResult.insertedList.filter { it.isProduct() })
         LOG.info(
             "Product import result has inserted: ${productImportResult.insertedList.size} updated: ${productImportResult.updatedList.size} " +
                     "deactivated: ${productImportResult.deactivatedList.size}"
@@ -109,11 +109,11 @@ open class CatalogFileToProductAgreementScheduler(
         adminAuthentication: ClientAuthentication,
         agreement: AgreementRegistrationDTO,
         supplierId: UUID
-    ) {
+    ): ServiceAgreementMappedResultLists {
         val serviceImportResult = CatalogImportResult(
-            catalogImportResult.insertedList.filter { it.isService() },
             catalogImportResult.updatedList.filter { it.isService() },
-            catalogImportResult.deactivatedList.filter { it.isService() })
+            catalogImportResult.deactivatedList.filter { it.isService() },
+            catalogImportResult.insertedList.filter { it.isService() })
         LOG.info(
             "Service import result has inserted: ${serviceImportResult.insertedList.size} updated: ${serviceImportResult.updatedList.size} " +
                     "deactivated: ${serviceImportResult.deactivatedList.size}"
@@ -130,6 +130,7 @@ open class CatalogFileToProductAgreementScheduler(
         LOG.info("Persisting service and agreements from excel import")
         serviceAgreementImportExcel.persistResult(serviceAgreementImportResul)
         catalogImportService.persistCatalogImportResult(serviceImportResult)
+        return serviceAgreementImportResul
     }
 
     @LeaderOnly

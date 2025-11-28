@@ -71,9 +71,9 @@ class ServiceAgreementImportExcel(private val agreementService: AgreementRegistr
 }
 
 data class ServiceAgreementMappedResultLists(
-    val updateList: List<ServiceAgreementDTO>,
-    val insertList: List<ServiceAgreementDTO>,
-    val deactivateList: List<ServiceAgreementDTO>,
+    val updateList: List<ServiceAgreementDTO> = emptyList(),
+    val insertList: List<ServiceAgreementDTO> = emptyList(),
+    val deactivateList: List<ServiceAgreementDTO> = emptyList()
 )
 
 
