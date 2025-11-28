@@ -119,27 +119,7 @@ open class CatalogImportService(
                         catalogImport.supplierId
                     )
                 product?.let {
-                    var changedSupplierRefOrHmsNr = false
-                    if (it.supplierRef != catalogImport.supplierRef) {
-                        changedSupplierRefOrHmsNr = true
-                        LOG.error("Product ${it.id} hmsArtNr: ${it.hmsArtNr} has different supplierRef: ${it.supplierRef} than catalogImport: ${catalogImport.supplierRef} under orderRef: ${catalogImport.orderRef}")
-                    }
-                    if (it.hmsArtNr != catalogImport.hmsArtNr) {
-                        changedSupplierRefOrHmsNr = true
-                        LOG.error("Product ${it.id} supplierRef: ${it.supplierRef} has different hmsArtNr: ${it.hmsArtNr} than catalogImport: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
-                    }
-                    if (changedSupplierRefOrHmsNr) {
-                        LOG.info("Updating product ${it.id} for HMS ArtNr: ${it.hmsArtNr} under orderRef: ${catalogImport.orderRef} with new supplierRef: ${catalogImport.supplierRef} and new hmsArtNr: ${catalogImport.hmsArtNr}")
-                        productRegistrationRepository.update(
-                            it.copy(
-                                articleName = catalogImport.title,
-                                hmsArtNr = catalogImport.hmsArtNr,
-                                supplierRef = catalogImport.supplierRef!!,
-                                updatedByUser = adminAuthentication.name,
-                                updated = LocalDateTime.now()
-                            )
-                        )
-                    }
+                    checkSupplierRefAndUpdate(it, catalogImport, adminAuthentication)
                 } ?: createNewProductAndSeries(catalogImport, adminAuthentication)
             }
         }
@@ -169,6 +149,34 @@ open class CatalogImportService(
         }
     }
 
+    private suspend fun checkSupplierRefAndUpdate(
+        registration: ProductRegistration,
+        catalogImport: CatalogImport,
+        adminAuthentication: ClientAuthentication
+    ) {
+        var changedSupplierRefOrHmsNr = false
+        if (registration.supplierRef != catalogImport.supplierRef) {
+            changedSupplierRefOrHmsNr = true
+            LOG.error("Product ${registration.id} hmsArtNr: ${registration.hmsArtNr} has different supplierRef: ${registration.supplierRef} than catalogImport: ${catalogImport.supplierRef} under orderRef: ${catalogImport.orderRef}")
+        }
+        if (registration.hmsArtNr != catalogImport.hmsArtNr) {
+            changedSupplierRefOrHmsNr = true
+            LOG.error("Product ${registration.id} supplierRef: ${registration.supplierRef} has different hmsArtNr: ${registration.hmsArtNr} than catalogImport: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+        }
+        if (changedSupplierRefOrHmsNr) {
+            LOG.info("Updating product ${registration.id} for HMS ArtNr: ${registration.hmsArtNr} under orderRef: ${catalogImport.orderRef} with new supplierRef: ${catalogImport.supplierRef} and new hmsArtNr: ${catalogImport.hmsArtNr}")
+            productRegistrationRepository.update(
+                registration.copy(
+                    articleName = catalogImport.title,
+                    hmsArtNr = catalogImport.hmsArtNr,
+                    supplierRef = catalogImport.supplierRef,
+                    updatedByUser = adminAuthentication.name,
+                    updated = LocalDateTime.now()
+                )
+            )
+        }
+    }
+
 
     suspend fun handleNewServices(serviceImportResult: CatalogImportResult, adminAuthentication: ClientAuthentication) {
         val updates = serviceImportResult.insertedList + serviceImportResult.updatedList
@@ -185,8 +193,9 @@ open class CatalogImportService(
                             isoCategory = catalogImport.iso,
                             published = catalogImport.dateFrom.atStartOfDay(),
                             expired = catalogImport.dateTo.atStartOfDay(),
+                            status = mapServiceStatus(catalogImport),
                             updated = LocalDateTime.now(),
-                            updatedByUser = adminAuthentication.name
+                            updatedByUser = adminAuthentication.name,
                     ))
                 }?: run {
                     LOG.info("Creating new service for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
@@ -200,6 +209,7 @@ open class CatalogImportService(
                             isoCategory = catalogImport.iso,
                             published = catalogImport.dateFrom.atStartOfDay(),
                             expired = catalogImport.dateTo.atStartOfDay(),
+                            status = mapServiceStatus(catalogImport),
                             serviceData = ServiceData()
                         )
                     )
@@ -227,6 +237,12 @@ open class CatalogImportService(
                 }
             }
         }
+    }
+
+    private fun mapServiceStatus(catalogImport: CatalogImport): ServiceStatus {
+        val nowDate = LocalDate.now()
+        return if (catalogImport.dateFrom <= nowDate && catalogImport.dateTo > nowDate) ServiceStatus.ACTIVE
+        else ServiceStatus.INACTIVE
     }
 
     private suspend fun createNewProductAndSeries(
