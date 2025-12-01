@@ -39,6 +39,7 @@ enum class EventItemType {
     PAAKREVDGODKJENNINGSKURS,
     PRODUKTTYPE,
     NEWS,
-    CATALOGFILE
+    CATALOGFILE,
+    SERVICEJOB
 }
 

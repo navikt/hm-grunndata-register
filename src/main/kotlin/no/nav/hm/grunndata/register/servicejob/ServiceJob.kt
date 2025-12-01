@@ -8,6 +8,7 @@ import io.micronaut.data.model.DataType
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.ServiceAgreementInfo
 import no.nav.hm.grunndata.rapid.dto.ServiceAttributes
+import no.nav.hm.grunndata.rapid.dto.ServiceJobRapidDTO
 import no.nav.hm.grunndata.rapid.dto.ServiceStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventPayload
@@ -61,8 +62,25 @@ data class ServiceJobDTO(
     val agreements: List<ServiceAgreementInfo> = emptyList(),
     val version: Long? = 0L,
 ): EventPayload {
-    override fun toRapidDTO(): no.nav.hm.grunndata.rapid.dto.RapidDTO {
-        TODO("Not yet implemented")
-    }
+    override fun toRapidDTO(): ServiceJobRapidDTO = ServiceJobRapidDTO(
+        id = id,
+        title = title,
+        supplierId = supplierId,
+        supplierRef = supplierRef,
+        hmsNr = hmsNr,
+        isoCategory = isoCategory,
+        published = published,
+        expired = expired,
+        updated = updated,
+        draftStatus = draftStatus,
+        status = status,
+        created = created,
+        updatedBy = updatedBy,
+        createdBy = createdBy,
+        createdByUser = createdByUser,
+        updatedByUser = updatedByUser,
+        agreements = agreements,
+        attributes = attributes,
+    )
 }
 

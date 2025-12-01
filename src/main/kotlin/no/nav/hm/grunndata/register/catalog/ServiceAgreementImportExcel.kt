@@ -4,19 +4,24 @@ import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
+import no.nav.hm.grunndata.rapid.dto.ServiceAgreementInfo
+import no.nav.hm.grunndata.rapid.dto.ServiceAgreementStatus
+import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
-import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.servicejob.ServiceAgreement
 import no.nav.hm.grunndata.register.servicejob.ServiceAgreementRepository
+import no.nav.hm.grunndata.register.servicejob.ServiceJob
+import no.nav.hm.grunndata.register.servicejob.ServiceJobDTO
+import no.nav.hm.grunndata.register.servicejob.ServiceJobEventHandler
 import no.nav.hm.grunndata.register.servicejob.ServiceJobRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Singleton
-class ServiceAgreementImportExcel(private val serviceJobService: AgreementRegistrationService,
+class ServiceAgreementImportExcel(private val serviceJobEventHandler: ServiceJobEventHandler,
                                   private val serviceAgreementRepository: ServiceAgreementRepository,
                                   private val serviceJobRepository: ServiceJobRepository)  {
 
@@ -64,7 +69,8 @@ class ServiceAgreementImportExcel(private val serviceJobService: AgreementRegist
         }
         val distinct = (updated + inserted + deactivated).distinctBy { it.serviceId }
         distinct.forEach {
-
+            val service = serviceJobRepository.findById(it.serviceId)
+            serviceJobEventHandler.queueDTORapidEvent(service!!.toDTO(), eventName = EventName.registeredServiceJobV1)
         }
     }
 
@@ -126,7 +132,44 @@ class ServiceAgreementImportExcel(private val serviceJobService: AgreementRegist
         ) ServiceAgreementStatus.ACTIVE
         else ServiceAgreementStatus.INACTIVE
     }
+
+    private suspend fun ServiceJob.toDTO(): ServiceJobDTO {
+        val agreements = serviceAgreementRepository.findByServiceId(id).map { agree ->
+            ServiceAgreementInfo(
+                id = agree.id,
+                supplierId = supplierId,
+                supplierRef = supplierRef,
+                agreementId = agree.agreementId,
+                status = agree.status,
+                published = agree.published,
+                expired = agree.expired,
+                serviceId = agree.serviceId
+            )
+        }
+        return ServiceJobDTO(
+            id = id,
+            title = title,
+            supplierId = supplierId,
+            supplierRef = supplierRef,
+            hmsNr = hmsArtNr,
+            isoCategory = isoCategory,
+            published = published,
+            expired = expired,
+            updated = updated,
+            draftStatus = draftStatus,
+            status = status,
+            created = created,
+            updatedBy = updatedBy,
+            createdBy = createdBy,
+            createdByUser = createdByUser,
+            updatedByUser = updatedByUser,
+            attributes = attributes,
+            agreements = agreements,
+            version = version
+        )
+    }
 }
+
 
 data class ServiceAgreementMappedResultLists(
     val updateList: List<ServiceAgreementDTO> = emptyList(),
@@ -157,8 +200,4 @@ data class ServiceAgreementDTO (
     override fun toRapidDTO(): RapidDTO {
         TODO("Not yet implemented")
     }
-}
-
-enum class ServiceAgreementStatus {
-    ACTIVE, INACTIVE
 }

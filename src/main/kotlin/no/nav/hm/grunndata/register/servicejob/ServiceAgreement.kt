@@ -2,8 +2,8 @@ package no.nav.hm.grunndata.register.servicejob
 
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
+import no.nav.hm.grunndata.rapid.dto.ServiceAgreementStatus
 import no.nav.hm.grunndata.register.REGISTER
-import no.nav.hm.grunndata.register.catalog.ServiceAgreementStatus
 import java.time.LocalDateTime
 import java.util.UUID
 
