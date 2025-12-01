@@ -8,6 +8,7 @@ import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.rapid.dto.ServiceStatus
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -21,10 +22,8 @@ import no.nav.hm.grunndata.register.product.isAdmin
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
-import no.nav.hm.grunndata.register.serviceoffering.ServiceData
-import no.nav.hm.grunndata.register.serviceoffering.ServiceOffering
-import no.nav.hm.grunndata.register.serviceoffering.ServiceOfferingRepository
-import no.nav.hm.grunndata.register.serviceoffering.ServiceStatus
+import no.nav.hm.grunndata.register.servicejob.ServiceJob
+import no.nav.hm.grunndata.register.servicejob.ServiceJobRepository
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
@@ -34,7 +33,7 @@ open class CatalogImportService(
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productRegistrationRepository: ProductRegistrationRepository,
     private val seriesRegistrationRepository: SeriesRegistrationRepository,
-    private val serviceOfferingRepository: ServiceOfferingRepository
+    private val serviceJobRepository: ServiceJobRepository
 ) {
     @Transactional
     open suspend fun checkForExistingAndMapCatalogImportResult(
@@ -183,11 +182,11 @@ open class CatalogImportService(
         val updates = serviceImportResult.insertedList + serviceImportResult.updatedList
         if (updates.isNotEmpty()) {
             updates.forEach { catalogImport ->
-                serviceOfferingRepository.findBySupplierIdAndHmsArtNr(
+                serviceJobRepository.findBySupplierIdAndHmsArtNr(
                     catalogImport.supplierId,
                     catalogImport.hmsArtNr
                 )?.let {
-                    serviceOfferingRepository.update(
+                    serviceJobRepository.update(
                         it.copy(
                             title = catalogImport.title,
                             supplierRef = catalogImport.supplierRef,
@@ -200,8 +199,8 @@ open class CatalogImportService(
                     ))
                 } ?: run {
                     LOG.info("Creating new service for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
-                    val service = serviceOfferingRepository.save(
-                        ServiceOffering(
+                    val service = serviceJobRepository.save(
+                        ServiceJob(
                             id = UUID.randomUUID(),
                             title = catalogImport.title,
                             supplierRef = catalogImport.supplierRef,
@@ -210,8 +209,7 @@ open class CatalogImportService(
                             isoCategory = catalogImport.iso,
                             published = catalogImport.dateFrom.atStartOfDay(),
                             expired = catalogImport.dateTo.atStartOfDay(),
-                            status = mapServiceStatus(catalogImport),
-                            serviceData = ServiceData()
+                            status = mapServiceStatus(catalogImport)
                         )
                     )
                     LOG.info("Created service with id: ${service.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
@@ -220,11 +218,11 @@ open class CatalogImportService(
         }
         if (serviceImportResult.deactivatedList.isNotEmpty()) {
             serviceImportResult.deactivatedList.forEach { catalogImport ->
-                val service = serviceOfferingRepository.findBySupplierIdAndHmsArtNr(
+                val service = serviceJobRepository.findBySupplierIdAndHmsArtNr(
                     catalogImport.supplierId,  catalogImport.hmsArtNr,
                 )
                 if (service != null) {
-                    serviceOfferingRepository.update(
+                    serviceJobRepository.update(
                         service.copy(
                             expired = LocalDateTime.now(),
                             status = ServiceStatus.INACTIVE,

@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.serviceoffering
+package no.nav.hm.grunndata.register.servicejob
 
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
@@ -12,8 +12,6 @@ data class ServiceAgreement(
     @field:Id
     val id: UUID = UUID.randomUUID(),
     val serviceId: UUID,
-    val title: String,
-    val isoCategory: String? = null,
     val supplierId: UUID,
     val supplierRef: String? = null,
     val agreementId: UUID,

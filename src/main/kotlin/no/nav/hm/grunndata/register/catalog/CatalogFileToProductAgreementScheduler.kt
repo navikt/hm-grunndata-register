@@ -9,7 +9,6 @@ import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
-import no.nav.hm.grunndata.register.productagreement.CatalogImportResultReport
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.micronaut.leaderelection.LeaderOnly
 import org.slf4j.LoggerFactory
@@ -46,7 +45,7 @@ open class CatalogFileToProductAgreementScheduler(
 
                 val productAgreementMappedResultLists =
                     processProducts(catalogImportResult, adminAuthentication, agreement, supplierId)
-                val serviceAgreementMappedResultLists = processServiceOfferings(catalogImportResult, adminAuthentication, agreement, supplierId)
+                val serviceAgreementMappedResultLists = processServiceJobs(catalogImportResult, adminAuthentication, agreement, supplierId)
                 val updatedCatalogFile =
                     catalogFileRepository.update(
                         catalogFile.copy(
@@ -104,7 +103,7 @@ open class CatalogFileToProductAgreementScheduler(
         return productAgreementMappedResultLists
     }
 
-    private suspend fun processServiceOfferings(
+    private suspend fun processServiceJobs(
         catalogImportResult: CatalogImportResult,
         adminAuthentication: ClientAuthentication,
         agreement: AgreementRegistrationDTO,
