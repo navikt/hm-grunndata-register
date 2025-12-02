@@ -14,12 +14,13 @@ import no.nav.hm.grunndata.register.servicejob.ServiceJob
 import no.nav.hm.grunndata.register.servicejob.ServiceJobDTO
 import no.nav.hm.grunndata.register.servicejob.ServiceJobEventHandler
 import no.nav.hm.grunndata.register.servicejob.ServiceJobRepository
+import no.nav.hm.grunndata.register.servicejob.ServiceJobService
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
 @Singleton
-class ServiceAgreementImportExcel(private val serviceJobEventHandler: ServiceJobEventHandler,
+class ServiceAgreementImportExcel(private val serviceJobService: ServiceJobService,
                                   private val serviceAgreementRepository: ServiceAgreementRepository,
                                   private val serviceJobRepository: ServiceJobRepository)  {
 
@@ -67,8 +68,9 @@ class ServiceAgreementImportExcel(private val serviceJobEventHandler: ServiceJob
         }
         val distinct = (updated + inserted + deactivated).distinctBy { it.serviceId }
         distinct.forEach {
-            val service = serviceJobRepository.findById(it.serviceId)
-            serviceJobEventHandler.queueDTORapidEvent(service!!.toDTO(), eventName = EventName.registeredServiceJobV1)
+            serviceJobRepository.findById(it.serviceId)?.let { existingJob ->
+                serviceJobService.queueServiceJobEventIfNotDraft(existingJob)
+            }
         }
     }
 
@@ -129,42 +131,6 @@ class ServiceAgreementImportExcel(private val serviceJobEventHandler: ServiceJob
             && dateTo > nowDate
         ) ServiceAgreementStatus.ACTIVE
         else ServiceAgreementStatus.INACTIVE
-    }
-
-    private suspend fun ServiceJob.toDTO(): ServiceJobDTO {
-        val agreements = serviceAgreementRepository.findByServiceId(id).map { agree ->
-            ServiceAgreementInfo(
-                id = agree.id,
-                supplierId = supplierId,
-                supplierRef = supplierRef,
-                agreementId = agree.agreementId,
-                status = agree.status,
-                published = agree.published,
-                expired = agree.expired,
-                serviceId = agree.serviceId
-            )
-        }
-        return ServiceJobDTO(
-            id = id,
-            title = title,
-            supplierId = supplierId,
-            supplierRef = supplierRef,
-            hmsNr = hmsArtNr,
-            isoCategory = isoCategory,
-            published = published,
-            expired = expired,
-            updated = updated,
-            draftStatus = draftStatus,
-            status = status,
-            created = created,
-            updatedBy = updatedBy,
-            createdBy = createdBy,
-            createdByUser = createdByUser,
-            updatedByUser = updatedByUser,
-            attributes = attributes,
-            agreements = agreements,
-            version = version
-        )
     }
 }
 

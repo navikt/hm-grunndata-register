@@ -177,8 +177,7 @@ class CatalogExcelImportTest(
             val resp = loginClient.login(UsernamePasswordCredentials(email, password))
             val jwt = resp.getCookie("JWT").get().value
             val bytes1 =
-                CatalogExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test.xls")
-                    .readAllBytes()
+                CatalogExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test.xls")?.readAllBytes()
             val multipartBody1 = MultipartBody
                 .builder()
                 .addPart(
@@ -194,8 +193,7 @@ class CatalogExcelImportTest(
             productAgreementMappedResultLists.insertList.size shouldBe 8
             serviceAgreementMappedResultLists.insertList.size shouldBe 0
             val bytes2 =
-                CatalogExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test-2.xls")
-                    .readAllBytes()
+                CatalogExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test-2.xls")?.readAllBytes()
             val multipartBody2 = MultipartBody
                 .builder()
                 .addPart(

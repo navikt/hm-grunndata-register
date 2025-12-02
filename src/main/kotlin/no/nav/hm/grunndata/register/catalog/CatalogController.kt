@@ -22,15 +22,15 @@ class CatalogController(
     @Get("/orderRef/{orderRef}")
     suspend fun fetchCatalogSeriesInfo(
         @QueryValue orderRef: String
-    ): List<CatalogSeriesInfo> {
-        return catalogImportRepository.findCatalogSeriesInfoByOrderRef(orderRef)
+    ): List<CatalogProductSeriesInfo> {
+        return catalogImportRepository.findCatalogProductSeriesInfoByOrderRef(orderRef)
     }
 
     @Get("/hmsnr/{hmsNr}")
     suspend fun fetchCatalogSeriesInfoByHmsNr(
         hmsNr: String
-    ): List<CatalogSeriesInfo> {
-        return catalogImportRepository.findCatalogSeriesInfosByHmsArtNrOrderByCreatedDesc(hmsNr)
+    ): List<CatalogProductSeriesInfo> {
+        return catalogImportRepository.findCatalogProductSeriesInfosByHmsArtNrOrderByCreatedDesc(hmsNr)
     }
 
     @Get("/files/all")
