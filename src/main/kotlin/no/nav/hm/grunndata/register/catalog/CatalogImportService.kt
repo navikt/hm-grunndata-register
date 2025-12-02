@@ -209,7 +209,10 @@ open class CatalogImportService(
                             isoCategory = catalogImport.iso,
                             published = catalogImport.dateFrom.atStartOfDay(),
                             expired = catalogImport.dateTo.atStartOfDay(),
-                            status = mapServiceStatus(catalogImport)
+                            status = mapServiceStatus(catalogImport),
+                            createdBy = EXCEL,
+                            createdByUser = adminAuthentication.name,
+                            updatedByUser = adminAuthentication.name,
                         )
                     )
                     LOG.info("Created service with id: ${service.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
