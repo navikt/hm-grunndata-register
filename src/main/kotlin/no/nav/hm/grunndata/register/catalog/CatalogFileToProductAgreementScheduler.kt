@@ -42,9 +42,9 @@ open class CatalogFileToProductAgreementScheduler(
 
                 val catalogImportResult = catalogImportService.checkForExistingAndMapCatalogImportResult(catalogImports, forceUpdate)
 
-
                 val productAgreementMappedResultLists =
                     processProducts(catalogImportResult, adminAuthentication, agreement, supplierId)
+
                 val serviceAgreementMappedResultLists = processServiceJobs(catalogImportResult, adminAuthentication, agreement, supplierId)
                 val updatedCatalogFile =
                     catalogFileRepository.update(
@@ -109,6 +109,10 @@ open class CatalogFileToProductAgreementScheduler(
         agreement: AgreementRegistrationDTO,
         supplierId: UUID
     ): ServiceAgreementMappedResultLists {
+        if (enableServiceJobImportNotInUse()) {
+            LOG.info("Service job import is disabled, skipping service job processing from catalog import")
+            return ServiceAgreementMappedResultLists(emptyList(), emptyList(), emptyList())
+        }
         val serviceImportResult = CatalogImportResult(
             catalogImportResult.updatedList.filter { it.isService() },
             catalogImportResult.deactivatedList.filter { it.isService() },
@@ -131,6 +135,8 @@ open class CatalogFileToProductAgreementScheduler(
         catalogImportService.persistCatalogImportResult(serviceImportResult)
         return serviceAgreementImportResult
     }
+
+    private fun enableServiceJobImportNotInUse(): Boolean = true
 
     @LeaderOnly
     @Scheduled(cron = "0 0 2 * * *")
