@@ -30,6 +30,13 @@ class ArticleTypeMappingTest {
         type4.mainProduct shouldBe true
         type4.accessory shouldBe false
         type4.sparePart shouldBe false
+        type4.service shouldBe false
+
+        val type5 = mapArticleType("HMS Servicetjeneste", "nei")
+        type5.mainProduct shouldBe false
+        type5.accessory shouldBe false
+        type5.sparePart shouldBe false
+        type5.service shouldBe true
 
         assertThrows<BadRequestException> {
             mapArticleType("unknown type", "ja")

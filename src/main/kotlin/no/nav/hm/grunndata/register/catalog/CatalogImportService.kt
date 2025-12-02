@@ -8,6 +8,8 @@ import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.rapid.dto.ServiceStatus
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import java.time.LocalDate
 import java.time.LocalDateTime
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
@@ -20,6 +22,9 @@ import no.nav.hm.grunndata.register.product.isAdmin
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
+import no.nav.hm.grunndata.register.servicejob.ServiceJob
+import no.nav.hm.grunndata.register.servicejob.ServiceJobRepository
+import org.slf4j.LoggerFactory
 import java.util.UUID
 
 @Singleton
@@ -27,10 +32,14 @@ open class CatalogImportService(
     private val catalogImportRepository: CatalogImportRepository,
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productRegistrationRepository: ProductRegistrationRepository,
-    private val seriesRegistrationRepository: SeriesRegistrationRepository
+    private val seriesRegistrationRepository: SeriesRegistrationRepository,
+    private val serviceJobRepository: ServiceJobRepository
 ) {
     @Transactional
-    open suspend fun convertAndCreateCatalogImportResult(catalogImportList: List<CatalogImport>, forceUpdate: Boolean): CatalogImportResult {
+    open suspend fun checkForExistingAndMapCatalogImportResult(
+        catalogImportList: List<CatalogImport>,
+        forceUpdate: Boolean
+    ): CatalogImportResult {
         val updatedList = mutableListOf<CatalogImport>()
         val insertedList = mutableListOf<CatalogImport>()
         val orderRef = catalogImportList.first().orderRef
@@ -48,23 +57,23 @@ open class CatalogImportService(
             }
         }
         val deactivatedList = existingCatalog.filter { it.hmsArtNr !in catalogImportList.map { c -> c.hmsArtNr } }.map {
-            it.copy( dateTo = LocalDate.now().minusDays(1), updated = LocalDateTime.now())
+            it.copy(dateTo = LocalDate.now().minusDays(1), updated = LocalDateTime.now())
         }
         return CatalogImportResult(updatedList, deactivatedList, insertedList)
     }
 
     @Transactional
     open suspend fun persistCatalogImportResult(catalogImportResult: CatalogImportResult) {
+        LOG.info("persisting catalog import result with inserted: ${catalogImportResult.insertedList.size}, updated: ${catalogImportResult.updatedList.size}, deactivated: ${catalogImportResult.deactivatedList.size}")
         catalogImportResult.updatedList.forEach { catalogImportRepository.update(it) }
         catalogImportResult.deactivatedList.forEach { catalogImportRepository.update(it) }
         catalogImportResult.insertedList.forEach { catalogImportRepository.save(it) }
     }
 
-    suspend fun mapExcelDTOToCatalogImportResult(
+    suspend fun mapExcelDTOToCatalogImport(
         importedExcelCatalog: List<CatalogImportExcelDTO>,
         supplierId: UUID,
-        forceUpdate: Boolean,
-    ): CatalogImportResult {
+    ): Pair<AgreementRegistrationDTO, List<CatalogImport>> {
         verifyCatalogImportList(importedExcelCatalog)
         val agreementRef = importedExcelCatalog.first().reference
         val cleanRef = agreementRef.lowercase().replace("/", "-")
@@ -73,12 +82,9 @@ open class CatalogImportService(
         if (agreement.agreementStatus === AgreementStatus.DELETED) {
             throw BadRequestException("Avtale med anbudsnummer ${agreement.reference} er slettet, må den opprettes?")
         }
-        return convertAndCreateCatalogImportResult(importedExcelCatalog.map {
-            it.toCatalogImport(
+        return agreement to importedExcelCatalog.map { it.toCatalogImport(
                 agreement,
-                supplierId
-            )
-        }, forceUpdate)
+                supplierId)}
     }
 
     private fun verifyCatalogImportList(catalogImportList: List<CatalogImportExcelDTO>) {
@@ -96,43 +102,37 @@ open class CatalogImportService(
         }
     }
 
-    suspend fun handleNewOrChangedSupplierRefFromCatalogImport(
+    suspend fun handleNewProductsOrChangedSupplierRefFromCatalogImport(
         catalogImportResult: CatalogImportResult,
-        adminAuthentication: ClientAuthentication) {
-        val updates = catalogImportResult.insertedList + catalogImportResult.updatedList + catalogImportResult.deactivatedList
+        adminAuthentication: ClientAuthentication
+    ) {
+        val updates =
+            catalogImportResult.insertedList + catalogImportResult.updatedList + catalogImportResult.deactivatedList
         if (updates.isNotEmpty()) {
             updates.forEach { catalogImport ->
-                val product = productRegistrationRepository.findByHmsArtNrAndSupplierId(catalogImport.hmsArtNr, catalogImport.supplierId)
-                    ?: productRegistrationRepository.findBySupplierRefAndSupplierId(catalogImport.supplierRef,catalogImport.supplierId)
+                val product = productRegistrationRepository.findByHmsArtNrAndSupplierId(
+                    catalogImport.hmsArtNr,
+                    catalogImport.supplierId
+                )
+                    ?: productRegistrationRepository.findBySupplierRefAndSupplierId(
+                        catalogImport.supplierRef,
+                        catalogImport.supplierId
+                    )
                 product?.let {
-                    var changedSupplierRefOrHmsNr = false
-                    if (it.supplierRef != catalogImport.supplierRef) {
-                        changedSupplierRefOrHmsNr = true
-                        LOG.error("Product ${it.id} hmsArtNr: ${it.hmsArtNr} has different supplierRef: ${it.supplierRef} than catalogImport: ${catalogImport.supplierRef} under orderRef: ${catalogImport.orderRef}")
-                    }
-                    if (it.hmsArtNr != catalogImport.hmsArtNr) {
-                        changedSupplierRefOrHmsNr = true
-                        LOG.error("Product ${it.id} supplierRef: ${it.supplierRef} has different hmsArtNr: ${it.hmsArtNr} than catalogImport: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
-                    }
-                    if (changedSupplierRefOrHmsNr) {
-                        LOG.info("Updating product ${it.id} for HMS ArtNr: ${it.hmsArtNr} under orderRef: ${catalogImport.orderRef} with new supplierRef: ${catalogImport.supplierRef} and new hmsArtNr: ${catalogImport.hmsArtNr}" )
-                        productRegistrationRepository.update(
-                            it.copy(
-                                articleName = catalogImport.title,
-                                hmsArtNr = catalogImport.hmsArtNr,
-                                supplierRef = catalogImport.supplierRef,
-                                updatedByUser = adminAuthentication.name,
-                                updated = LocalDateTime.now()
-                            )
-                        )
-                    }
+                    checkSupplierRefAndUpdate(it, catalogImport, adminAuthentication)
                 } ?: createNewProductAndSeries(catalogImport, adminAuthentication)
             }
         }
         if (catalogImportResult.deactivatedList.isNotEmpty()) {
             catalogImportResult.deactivatedList.forEach { catalogImport ->
-                val product = productRegistrationRepository.findByHmsArtNrAndSupplierId(catalogImport.hmsArtNr, catalogImport.supplierId)
-                    ?: productRegistrationRepository.findBySupplierRefAndSupplierId(catalogImport.supplierRef,catalogImport.supplierId)
+                val product = productRegistrationRepository.findByHmsArtNrAndSupplierId(
+                    catalogImport.hmsArtNr,
+                    catalogImport.supplierId
+                )
+                    ?: productRegistrationRepository.findBySupplierRefAndSupplierId(
+                        catalogImport.supplierRef,
+                        catalogImport.supplierId
+                    )
                 if (product != null && !product.mainProduct) { // we only deactivate none main products
                     productRegistrationRepository.update(
                         product.copy(
@@ -141,12 +141,110 @@ open class CatalogImportService(
                             updatedByUser = adminAuthentication.name
                         )
                     )
-                    LOG.info("Deactivated product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}" )
+                    LOG.info("Deactivated product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
                 } else {
-                    LOG.warn("Could not find product to deactivate for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}" )
+                    LOG.warn("Could not find product to deactivate for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
                 }
             }
         }
+    }
+
+    private suspend fun checkSupplierRefAndUpdate(
+        registration: ProductRegistration,
+        catalogImport: CatalogImport,
+        adminAuthentication: ClientAuthentication
+    ) {
+        var changedSupplierRefOrHmsNr = false
+        if (registration.supplierRef != catalogImport.supplierRef) {
+            changedSupplierRefOrHmsNr = true
+            LOG.error("Product ${registration.id} hmsArtNr: ${registration.hmsArtNr} has different supplierRef: ${registration.supplierRef} than catalogImport: ${catalogImport.supplierRef} under orderRef: ${catalogImport.orderRef}")
+        }
+        if (registration.hmsArtNr != catalogImport.hmsArtNr) {
+            changedSupplierRefOrHmsNr = true
+            LOG.error("Product ${registration.id} supplierRef: ${registration.supplierRef} has different hmsArtNr: ${registration.hmsArtNr} than catalogImport: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+        }
+        if (changedSupplierRefOrHmsNr) {
+            LOG.info("Updating product ${registration.id} for HMS ArtNr: ${registration.hmsArtNr} under orderRef: ${catalogImport.orderRef} with new supplierRef: ${catalogImport.supplierRef} and new hmsArtNr: ${catalogImport.hmsArtNr}")
+            productRegistrationRepository.update(
+                registration.copy(
+                    articleName = catalogImport.title,
+                    hmsArtNr = catalogImport.hmsArtNr,
+                    supplierRef = catalogImport.supplierRef,
+                    updatedByUser = adminAuthentication.name,
+                    updated = LocalDateTime.now()
+                )
+            )
+        }
+    }
+
+
+    suspend fun handleNewServices(serviceImportResult: CatalogImportResult, adminAuthentication: ClientAuthentication) {
+        val updates = serviceImportResult.insertedList + serviceImportResult.updatedList
+        if (updates.isNotEmpty()) {
+            updates.forEach { catalogImport ->
+                serviceJobRepository.findBySupplierIdAndHmsArtNr(
+                    catalogImport.supplierId,
+                    catalogImport.hmsArtNr
+                )?.let {
+                    serviceJobRepository.update(
+                        it.copy(
+                            title = catalogImport.title,
+                            supplierRef = catalogImport.supplierRef,
+                            isoCategory = catalogImport.iso,
+                            published = catalogImport.dateFrom.atStartOfDay(),
+                            expired = catalogImport.dateTo.atStartOfDay(),
+                            status = mapServiceStatus(catalogImport),
+                            updated = LocalDateTime.now(),
+                            updatedByUser = adminAuthentication.name,
+                    ))
+                } ?: run {
+                    LOG.info("Creating new service for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                    val service = serviceJobRepository.save(
+                        ServiceJob(
+                            id = UUID.randomUUID(),
+                            title = catalogImport.title,
+                            supplierRef = catalogImport.supplierRef,
+                            hmsArtNr = catalogImport.hmsArtNr,
+                            supplierId = catalogImport.supplierId,
+                            isoCategory = catalogImport.iso,
+                            published = catalogImport.dateFrom.atStartOfDay(),
+                            expired = catalogImport.dateTo.atStartOfDay(),
+                            status = mapServiceStatus(catalogImport),
+                            createdBy = EXCEL,
+                            createdByUser = adminAuthentication.name,
+                            updatedByUser = adminAuthentication.name,
+                        )
+                    )
+                    LOG.info("Created service with id: ${service.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                }
+            }
+        }
+        if (serviceImportResult.deactivatedList.isNotEmpty()) {
+            serviceImportResult.deactivatedList.forEach { catalogImport ->
+                val service = serviceJobRepository.findBySupplierIdAndHmsArtNr(
+                    catalogImport.supplierId,  catalogImport.hmsArtNr,
+                )
+                if (service != null) {
+                    serviceJobRepository.update(
+                        service.copy(
+                            expired = LocalDateTime.now(),
+                            status = ServiceStatus.INACTIVE,
+                            updated = LocalDateTime.now(),
+                            updatedByUser = adminAuthentication.name
+                        )
+                    )
+                    LOG.info("Deactivated service with id: ${service.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                } else {
+                    LOG.warn("Could not find service to deactivate for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                }
+            }
+        }
+    }
+
+    private fun mapServiceStatus(catalogImport: CatalogImport): ServiceStatus {
+        val nowDate = LocalDate.now()
+        return if (catalogImport.dateFrom <= nowDate && catalogImport.dateTo > nowDate) ServiceStatus.ACTIVE
+        else ServiceStatus.INACTIVE
     }
 
     private suspend fun createNewProductAndSeries(
@@ -171,7 +269,8 @@ open class CatalogImportService(
                 createdByAdmin = authentication.isAdmin(),
                 createdBy = EXCEL,
                 mainProduct = catalogImport.mainProduct,
-            ))
+            )
+        )
         val product = productRegistrationRepository.save(
             ProductRegistration(
                 seriesUUID = series.id,
@@ -191,13 +290,24 @@ open class CatalogImportService(
                 updatedByUser = authentication.name,
                 createdBy = EXCEL,
                 createdByAdmin = authentication.isAdmin(),
-            ))
-        LOG.info("Created product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr} mainProduct: ${catalogImport.mainProduct} under orderRef: ${catalogImport.orderRef}" )
+            )
+        )
+        LOG.info("Created product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr} mainProduct: ${catalogImport.mainProduct} under orderRef: ${catalogImport.orderRef}")
         return product
     }
+
+
     companion object {
-        private val LOG = org.slf4j.LoggerFactory.getLogger(CatalogImportService::class.java)
+        private val LOG = LoggerFactory.getLogger(CatalogImportService::class.java)
     }
+}
+
+fun CatalogImport.isProduct(): Boolean {
+    return mainProduct || accessory || sparePart
+}
+
+fun CatalogImport.isService(): Boolean {
+    return !isProduct()
 }
 
 data class CatalogImportResult(

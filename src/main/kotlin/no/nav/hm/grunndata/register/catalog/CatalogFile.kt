@@ -66,7 +66,7 @@ data class CatalogImportExcelDTO(
     val supplierCity: String,
     val mainProduct: Boolean,
     val sparePart: Boolean,
-    val accessory: Boolean,
+    val accessory: Boolean
 )
 
 

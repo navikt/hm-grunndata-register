@@ -7,11 +7,13 @@ import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.micronaut.leaderelection.LeaderOnly
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Singleton
 open class CatalogFileToProductAgreementScheduler(
@@ -19,26 +21,31 @@ open class CatalogFileToProductAgreementScheduler(
     private val productRegistrationRepository: ProductRegistrationRepository,
     private val catalogImportService: CatalogImportService,
     private val productAgreementImportExcelService: ProductAgreementImportExcelService,
+    private val serviceAgreementImportExcel: ServiceAgreementImportExcel,
     @Value("\${catalog.import.force_update}") private val forceUpdate: Boolean
 ) {
 
     @LeaderOnly
     @Scheduled(cron = "0 * * * * *")
     @Transactional
-    open fun scheduleCatalogFileToProductAgreement(): ProductAgreementMappedResultLists? = runBlocking {
+    open fun processCatalogFile(): Pair<ProductAgreementMappedResultLists, ServiceAgreementMappedResultLists>?  = runBlocking {
         catalogFileRepository.findOneByStatusOrderByCreatedAsc(CatalogFileStatus.PENDING)?.let { catalogFile ->
             try {
                 LOG.info("Got catalog file with filename: ${catalogFile.fileName} with rows: ${catalogFile.catalogList.size} to process with forceUpdate: $forceUpdate")
                 val supplierId = catalogFile.supplierId
                 val adminAuthentication =
                     ClientAuthentication(catalogFile.updatedByUser, mapOf("roles" to listOf(Roles.ROLE_ADMIN)))
-                val catalogImportResult = catalogImportService.mapExcelDTOToCatalogImportResult(catalogFile.catalogList, supplierId, forceUpdate)
-                catalogImportService.handleNewOrChangedSupplierRefFromCatalogImport(
-                    catalogImportResult,
-                    adminAuthentication
+                val (agreement, catalogImports) = catalogImportService.mapExcelDTOToCatalogImport(
+                    catalogFile.catalogList,
+                    supplierId
                 )
 
-                val result = productAgreementImportExcelService.mapToProductAgreementImportResult(catalogImportResult, adminAuthentication, supplierId)
+                val catalogImportResult = catalogImportService.checkForExistingAndMapCatalogImportResult(catalogImports, forceUpdate)
+
+                val productAgreementMappedResultLists =
+                    processProducts(catalogImportResult, adminAuthentication, agreement, supplierId)
+
+                val serviceAgreementMappedResultLists = processServiceJobs(catalogImportResult, adminAuthentication, agreement, supplierId)
                 val updatedCatalogFile =
                     catalogFileRepository.update(
                         catalogFile.copy(
@@ -46,9 +53,9 @@ open class CatalogFileToProductAgreementScheduler(
                             updated = LocalDateTime.now()
                         )
                     )
-                LOG.info("Finished saving with inserted: ${result.insertList.size} updated: ${result.updateList.size} " +
-                        "deactivated: ${result.deactivateList.size} for catalog file id: ${updatedCatalogFile.id} with name: ${updatedCatalogFile.fileName}")
-                result
+                LOG.info("Finished saving with inserted: ${productAgreementMappedResultLists.insertList.size} updated: ${productAgreementMappedResultLists.updateList.size} " +
+                        "deactivated: ${productAgreementMappedResultLists.deactivateList.size} for catalog file id: ${updatedCatalogFile.id} with name: ${updatedCatalogFile.fileName}")
+               productAgreementMappedResultLists to serviceAgreementMappedResultLists
             } catch (e: Exception) {
                 LOG.error(
                     "Error while processing catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName}",
@@ -65,6 +72,71 @@ open class CatalogFileToProductAgreementScheduler(
             }
         }
     }
+
+    private suspend fun processProducts(
+        catalogImportResult: CatalogImportResult,
+        adminAuthentication: ClientAuthentication,
+        agreement: AgreementRegistrationDTO,
+        supplierId: UUID
+    ): ProductAgreementMappedResultLists {
+        val productImportResult = CatalogImportResult(
+            catalogImportResult.updatedList.filter { it.isProduct() },
+            catalogImportResult.deactivatedList.filter { it.isProduct() },
+            catalogImportResult.insertedList.filter { it.isProduct() })
+        LOG.info(
+            "Product import result has inserted: ${productImportResult.insertedList.size} updated: ${productImportResult.updatedList.size} " +
+                    "deactivated: ${productImportResult.deactivatedList.size}"
+        )
+
+        catalogImportService.handleNewProductsOrChangedSupplierRefFromCatalogImport(
+            productImportResult,
+            adminAuthentication
+        )
+        val productAgreementMappedResultLists = productAgreementImportExcelService.mapToProductAgreementImportResult(
+            productImportResult,
+            agreement,
+            adminAuthentication,
+            supplierId
+        )
+        productAgreementImportExcelService.persistResult(productAgreementMappedResultLists)
+        catalogImportService.persistCatalogImportResult(productImportResult)
+        return productAgreementMappedResultLists
+    }
+
+    private suspend fun processServiceJobs(
+        catalogImportResult: CatalogImportResult,
+        adminAuthentication: ClientAuthentication,
+        agreement: AgreementRegistrationDTO,
+        supplierId: UUID
+    ): ServiceAgreementMappedResultLists {
+        if (enableServiceJobImportNotInUse()) {
+            LOG.info("Service job import is disabled, skipping service job processing from catalog import")
+            return ServiceAgreementMappedResultLists(emptyList(), emptyList(), emptyList())
+        }
+        val serviceImportResult = CatalogImportResult(
+            catalogImportResult.updatedList.filter { it.isService() },
+            catalogImportResult.deactivatedList.filter { it.isService() },
+            catalogImportResult.insertedList.filter { it.isService() })
+        LOG.info(
+            "Service import result has inserted: ${serviceImportResult.insertedList.size} updated: ${serviceImportResult.updatedList.size} " +
+                    "deactivated: ${serviceImportResult.deactivatedList.size}"
+        )
+
+        catalogImportService.handleNewServices(serviceImportResult, adminAuthentication)
+
+        val serviceAgreementImportResult = serviceAgreementImportExcel.mapToServiceAgreementImportResult(
+            serviceImportResult,
+            agreement,
+            adminAuthentication,
+            supplierId
+        )
+        LOG.info("Persisting service and agreements from excel import")
+        serviceAgreementImportExcel.persistResult(serviceAgreementImportResult)
+        catalogImportService.persistCatalogImportResult(serviceImportResult)
+        return serviceAgreementImportResult
+    }
+
+    private fun enableServiceJobImportNotInUse(): Boolean = true
 
     @LeaderOnly
     @Scheduled(cron = "0 0 2 * * *")

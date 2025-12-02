@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.catalog
 
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID

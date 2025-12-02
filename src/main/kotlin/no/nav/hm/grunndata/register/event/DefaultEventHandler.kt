@@ -12,7 +12,7 @@ abstract class DefaultEventHandler(private val eventItemService: EventItemServic
     }
 
     override suspend fun queueDTORapidEvent(payload: EventPayload, eventName: String, extraKeyValues: Map<String, Any>) {
-        LOG.info("queueDTORapidEvent for ${payload.id} with event: $eventName")
+        LOG.info("queueDTORapidEvent for ${payload.id} with event name: $eventName and type: ${getEventType()}")
         eventItemService.createNewEventItem(
             type = getEventType(),
             oid = payload.id,
