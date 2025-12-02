@@ -189,6 +189,7 @@ open class CatalogImportService(
                     serviceJobRepository.update(
                         it.copy(
                             title = catalogImport.title,
+                            draftStatus = DraftStatus.DONE,
                             supplierRef = catalogImport.supplierRef,
                             isoCategory = catalogImport.iso,
                             published = catalogImport.dateFrom.atStartOfDay(),
@@ -203,6 +204,7 @@ open class CatalogImportService(
                         ServiceJob(
                             id = UUID.randomUUID(),
                             title = catalogImport.title,
+                            draftStatus = DraftStatus.DONE,
                             supplierRef = catalogImport.supplierRef,
                             hmsArtNr = catalogImport.hmsArtNr,
                             supplierId = catalogImport.supplierId,
@@ -227,6 +229,7 @@ open class CatalogImportService(
                 if (service != null) {
                     serviceJobRepository.update(
                         service.copy(
+                            draftStatus = DraftStatus.DONE,
                             expired = LocalDateTime.now(),
                             status = ServiceStatus.INACTIVE,
                             updated = LocalDateTime.now(),

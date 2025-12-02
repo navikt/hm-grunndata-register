@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.accessory
+package no.nav.hm.grunndata.register.compatiblewith
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -79,7 +79,7 @@ open class CompatibleAIFinder(private val config: VertexAIConfig, private val ob
             val output: String = ResponseHandler.getText(response)
             LOG.debug("${config.project} ${config.location} - Generating content for model ${config.model} with temp: ${config.temperature} with prompt: $prompt")
             LOG.debug("Got response: $output")
-            return objectMapper.readValue(output,object : TypeReference<List<HmsNr>>() {} )
+            return objectMapper.readValue(output,object : com.fasterxml.jackson.core.type.TypeReference<List<HmsNr>>() {} )
         }
     }
     companion object {
