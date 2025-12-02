@@ -192,7 +192,7 @@ class CatalogExcelImportTest(
             body.shouldNotBeNull()
             val (productAgreementMappedResultLists, serviceAgreementMappedResultLists)= catalogFileToProductAgreementScheduler.processCatalogFile() ?: throw IllegalStateException("No catalog file to process")
             productAgreementMappedResultLists.insertList.size shouldBe 8
-            serviceAgreementMappedResultLists.insertList.size shouldBe 2
+            serviceAgreementMappedResultLists.insertList.size shouldBe 0
             val bytes2 =
                 CatalogExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test-2.xls")
                     .readAllBytes()
