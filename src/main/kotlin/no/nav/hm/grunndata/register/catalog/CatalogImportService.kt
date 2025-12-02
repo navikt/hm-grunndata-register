@@ -115,7 +115,7 @@ open class CatalogImportService(
                     catalogImport.supplierId
                 )
                     ?: productRegistrationRepository.findBySupplierRefAndSupplierId(
-                        catalogImport.supplierRef!!,
+                        catalogImport.supplierRef,
                         catalogImport.supplierId
                     )
                 product?.let {
@@ -279,7 +279,7 @@ open class CatalogImportService(
                 supplierId = catalogImport.supplierId,
                 hmsArtNr = catalogImport.hmsArtNr,
                 id = UUID.randomUUID(),
-                supplierRef = catalogImport.supplierRef!!,
+                supplierRef = catalogImport.supplierRef,
                 accessory = catalogImport.accessory,
                 sparePart = catalogImport.sparePart,
                 mainProduct = catalogImport.mainProduct,

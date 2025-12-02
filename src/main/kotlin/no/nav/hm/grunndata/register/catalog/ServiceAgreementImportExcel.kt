@@ -3,13 +3,11 @@ package no.nav.hm.grunndata.register.catalog
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import no.nav.hm.grunndata.rapid.dto.ServiceAgreementInfo
 import no.nav.hm.grunndata.rapid.dto.ServiceAgreementStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
-import no.nav.hm.grunndata.register.event.EventPayload
 import no.nav.hm.grunndata.register.servicejob.ServiceAgreement
 import no.nav.hm.grunndata.register.servicejob.ServiceAgreementRepository
 import no.nav.hm.grunndata.register.servicejob.ServiceJob
@@ -40,14 +38,14 @@ class ServiceAgreementImportExcel(private val serviceJobEventHandler: ServiceJob
         return ServiceAgreementMappedResultLists(updatedList, insertedList, deactivatedList)
     }
 
-    suspend fun persistResult(serviceAgreementImportResul: ServiceAgreementMappedResultLists) {
-        val updated = serviceAgreementImportResul.updateList.map {
+    suspend fun persistResult(serviceAgreementImportResult: ServiceAgreementMappedResultLists) {
+        val updated = serviceAgreementImportResult.updateList.map {
             persistServiceAgreement(it)
         }
-        val inserted = serviceAgreementImportResul.insertList.map {
+        val inserted = serviceAgreementImportResult.insertList.map {
             persistServiceAgreement(it)
         }
-        val deactivated = serviceAgreementImportResul.deactivateList.map {
+        val deactivated = serviceAgreementImportResult.deactivateList.map {
             serviceAgreementRepository.findByServiceIdAndAgreementId(it.serviceId, it.agreementId)?.let { existing ->
                 serviceAgreementRepository.update(
                     existing.copy(
@@ -181,7 +179,7 @@ data class ServiceAgreementMappedResultLists(
 
 
 data class ServiceAgreementDTO (
-    override val id: UUID = UUID.randomUUID(),
+    val id: UUID = UUID.randomUUID(),
     val serviceId: UUID,
     val title: String,
     val isoCategory: String? = null,
@@ -195,9 +193,5 @@ data class ServiceAgreementDTO (
     val updated: LocalDateTime = LocalDateTime.now(),
     val published: LocalDateTime,
     val expired: LocalDateTime,
-    override val updatedByUser: String = "system",
-): EventPayload {
-    override fun toRapidDTO(): RapidDTO {
-        TODO("Not yet implemented")
-    }
-}
+    val updatedByUser: String = "system",
+)

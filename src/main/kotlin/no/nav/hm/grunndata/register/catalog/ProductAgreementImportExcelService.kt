@@ -235,7 +235,7 @@ open class ProductAgreementImportExcelService(
                     accessory = accessory,
                     mainProduct = mainProduct,
                     isoCategory = iso,
-                    updatedByUser = authentication.name ?: "system",
+                    updatedByUser = authentication.name,
                     status = mapProductAgreementStatus(agreement),
                 ),
             )

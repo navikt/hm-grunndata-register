@@ -20,7 +20,7 @@ data class ServiceJob(
     @field:Id
     val id: UUID,
     val title: String,
-    val supplierRef: String?,
+    val supplierRef: String? = null,
     val hmsArtNr: String,
     val supplierId: UUID,
     val isoCategory: String,

@@ -35,12 +35,12 @@ open class CatalogFileToProductAgreementScheduler(
                 val supplierId = catalogFile.supplierId
                 val adminAuthentication =
                     ClientAuthentication(catalogFile.updatedByUser, mapOf("roles" to listOf(Roles.ROLE_ADMIN)))
-                val (agreement, catalogimports) = catalogImportService.mapExcelDTOToCatalogImport(
+                val (agreement, catalogImports) = catalogImportService.mapExcelDTOToCatalogImport(
                     catalogFile.catalogList,
                     supplierId
                 )
 
-                val catalogImportResult = catalogImportService.checkForExistingAndMapCatalogImportResult(catalogimports, forceUpdate)
+                val catalogImportResult = catalogImportService.checkForExistingAndMapCatalogImportResult(catalogImports, forceUpdate)
 
 
                 val productAgreementMappedResultLists =
@@ -68,7 +68,7 @@ open class CatalogFileToProductAgreementScheduler(
                         errorMessage = e.message
                     )
                 )
-               null
+                null
             }
         }
     }
@@ -120,16 +120,16 @@ open class CatalogFileToProductAgreementScheduler(
 
         catalogImportService.handleNewServices(serviceImportResult, adminAuthentication)
 
-        val serviceAgreementImportResul = serviceAgreementImportExcel.mapToServiceAgreementImportResult(
+        val serviceAgreementImportResult = serviceAgreementImportExcel.mapToServiceAgreementImportResult(
             serviceImportResult,
             agreement,
             adminAuthentication,
             supplierId
         )
         LOG.info("Persisting service and agreements from excel import")
-        serviceAgreementImportExcel.persistResult(serviceAgreementImportResul)
+        serviceAgreementImportExcel.persistResult(serviceAgreementImportResult)
         catalogImportService.persistCatalogImportResult(serviceImportResult)
-        return serviceAgreementImportResul
+        return serviceAgreementImportResult
     }
 
     @LeaderOnly
