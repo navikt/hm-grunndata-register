@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.servicejob
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.micronaut.context.annotation.Context
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.register.event.DefaultEventHandler
 import no.nav.hm.grunndata.register.event.EventItemService
@@ -10,6 +11,7 @@ import no.nav.hm.grunndata.register.event.RegisterRapidPushService
 
 
 @Singleton
+@Context
 class ServiceJobEventHandler(
     private val registerRapidPushService: RegisterRapidPushService,
     private val objectMapper: ObjectMapper,
