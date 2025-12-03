@@ -33,14 +33,10 @@ open class ServiceJobService(
     private suspend fun ServiceJob.toDTO(): ServiceJobDTO {
         val agreements = serviceAgreementRepository.findByServiceId(id).map { agree ->
             ServiceAgreementInfo(
-                id = agree.id,
-                supplierId = supplierId,
-                supplierRef = supplierRef,
                 agreementId = agree.agreementId,
                 status = agree.status,
                 published = agree.published,
-                expired = agree.expired,
-                serviceId = agree.serviceId
+                expired = agree.expired
             )
         }
         return ServiceJobDTO(
