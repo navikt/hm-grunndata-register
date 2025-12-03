@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.accessory
+package no.nav.hm.grunndata.register.compatiblewith
 
 import io.micronaut.scheduling.annotation.Scheduled
 import jakarta.inject.Singleton
@@ -12,7 +12,7 @@ open class CompatibleWithConnectScheduler(
     private val compatibleWithConnecter: CompatibleWithConnecter
 ) {
 
-    @Scheduled(cron = "0 30 0 * * *")
+    @Scheduled(cron = "0 35 0 * * *")
     @LeaderOnly
     open fun connectCompatibleWith() {
         runBlocking {

@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.accessory
+package no.nav.hm.grunndata.register.compatiblewith
 
 
 import io.kotest.matchers.nulls.shouldNotBeNull

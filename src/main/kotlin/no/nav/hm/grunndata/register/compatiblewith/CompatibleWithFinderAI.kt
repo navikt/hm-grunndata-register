@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.accessory
+package no.nav.hm.grunndata.register.compatiblewith
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -34,9 +34,21 @@ open class CompatibleAIFinder(private val config: VertexAIConfig, private val ob
         return modelGenerateContent(prompt)
     }
 
+    open fun findServiceableProducts(serviceTitle: String, mainTitles: List<HmsNrTitlePair>): List<HmsNr> {
+        val prompt = generatePromptServiceFor(serviceTitle, mainTitles)
+        LOG.debug("Generated prompt for serviceable products: $prompt")
+        return modelGenerateContent(prompt)
+    }
+
     open fun generatePrompt(accessory: String, mainProducts: List<HmsNrTitlePair>): String {
         val mainProductsString = mainProducts.joinToString(",") { "hmsnr=${it.hmsNr}: '${it.title.replace("'"," ")}'" }
         return "For følgende tilbehør: '${accessory.replace("'", " ").replace(",", " ")}' Finn ut hvilket hjelpemiddel som passer best blant disse: $mainProductsString \n svar med hmsnr"
+            .trimIndent().trim()
+    }
+
+    open fun generatePromptServiceFor(service: String, mainProducts: List<HmsNrTitlePair>): String {
+        val mainProductsString = mainProducts.joinToString(",") { "hmsnr=${it.hmsNr}: '${it.title.replace("'"," ")}'" }
+        return "For følgende tjeneste: '${service.replace("'", " ").replace(",", " ")}' Finn ut hvilket hjelpemiddel som passer best blant disse: $mainProductsString \n svar med hmsnr"
             .trimIndent().trim()
     }
 
@@ -67,7 +79,7 @@ open class CompatibleAIFinder(private val config: VertexAIConfig, private val ob
             val output: String = ResponseHandler.getText(response)
             LOG.debug("${config.project} ${config.location} - Generating content for model ${config.model} with temp: ${config.temperature} with prompt: $prompt")
             LOG.debug("Got response: $output")
-            return objectMapper.readValue(output,object : TypeReference<List<HmsNr>>() {} )
+            return objectMapper.readValue(output,object : com.fasterxml.jackson.core.type.TypeReference<List<HmsNr>>() {} )
         }
     }
     companion object {
@@ -96,6 +108,14 @@ data class CompatibleProductResult(
     val score: Double = 0.0,
     val title: String,
     val seriesTitle: String,
+    val seriesId: String,
+    val productId: String,
+    val hmsArtNr: String,
+)
+
+@Introspected
+data class ServiceForResult(
+    val title: String,
     val seriesId: String,
     val productId: String,
     val hmsArtNr: String,
