@@ -10,12 +10,14 @@ import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.event.EventName
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
 
 @Singleton
 open class AgreementRegistrationService(
     private val agreementRegistrationRepository: AgreementRegistrationRepository,
     private val agreementRegistrationEventHandler: AgreementRegistrationEventHandler,
-    private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository
+    private val delkontraktRegistrationRepository: DelkontraktRegistrationRepository,
+    private val productAgreementRegistrationService: ProductAgreementRegistrationService,
 ) {
 
 
@@ -34,7 +36,17 @@ open class AgreementRegistrationService(
         dto: AgreementRegistrationDTO,
         isUpdate: Boolean
     ): AgreementRegistrationDTO {
+        // When updating, check if expired has changed compared to the current persisted agreement
+        val existing = if (isUpdate) agreementRegistrationRepository.findById(dto.id) else null
+        val expiredChanged = existing?.expired != null && existing.expired != dto.expired
+
         val saved = if (isUpdate) update(dto) else save(dto)
+
+        if (isUpdate && expiredChanged) {
+            // Cascade new expiry date to all product agreements linked to this agreement
+            productAgreementRegistrationService.updateExpiredForAgreement(saved.id, saved.expired)
+        }
+
         if (saved.draftStatus == DraftStatus.DONE) {
             agreementRegistrationEventHandler.queueDTORapidEvent(saved, eventName = EventName.registeredAgreementV1)
         }

@@ -20,6 +20,31 @@ open class ProductAgreementRegistrationService(
     }
 
     @Transactional
+    open suspend fun updateExpiredForAgreement(
+        agreementId: UUID,
+        newExpired: LocalDateTime,
+    ) {
+        val productAgreements = productAgreementRegistrationRepository.findByAgreementId(agreementId)
+
+        if (productAgreements.isEmpty()) {
+            return
+        }
+
+        val dtosToUpdate = productAgreements.filter {
+            it.status == ProductAgreementStatus.ACTIVE
+        }.map { existing ->
+            existing.toDTO().copy(
+                expired = newExpired,
+                updated = LocalDateTime.now(),
+                updatedBy = REGISTER,
+            )
+        }
+
+        // Reuse existing update flow which will also emit events as today
+        updateAll(dtosToUpdate)
+    }
+
+    @Transactional
     open suspend fun saveAll(dtos: List<ProductAgreementRegistrationDTO>): List<ProductAgreementRegistrationDTO> =
         dtos.map { productAgreement -> saveIfNotExists(productAgreement) }
 
