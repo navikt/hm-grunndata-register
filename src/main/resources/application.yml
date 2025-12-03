@@ -167,7 +167,7 @@ grunndata:
     url: ${GRUNNDATA_DB_URL:`http://localhost:8888`}
 
 schedulers:
-  enabled: ${SCHEDULERS_ENABLED:true}
+  enabled: ${SCHEDULERS_ENABLED:false}
 
 baseversion:
     scheduler:
