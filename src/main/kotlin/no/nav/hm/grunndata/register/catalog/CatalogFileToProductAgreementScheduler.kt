@@ -27,50 +27,58 @@ open class CatalogFileToProductAgreementScheduler(
 
     @LeaderOnly
     @Scheduled(cron = "0 * * * * *")
-    @Transactional
-    open fun processCatalogFile(): Pair<ProductAgreementMappedResultLists, ServiceAgreementMappedResultLists>?  = runBlocking {
-        catalogFileRepository.findOneByStatusOrderByCreatedAsc(CatalogFileStatus.PENDING)?.let { catalogFile ->
-            try {
-                LOG.info("Got catalog file with filename: ${catalogFile.fileName} with rows: ${catalogFile.catalogList.size} to process with forceUpdate: $forceUpdate")
-                val supplierId = catalogFile.supplierId
-                val adminAuthentication =
-                    ClientAuthentication(catalogFile.updatedByUser, mapOf("roles" to listOf(Roles.ROLE_ADMIN)))
-                val (agreement, catalogImports) = catalogImportService.mapExcelDTOToCatalogImport(
-                    catalogFile.catalogList,
-                    supplierId
-                )
-
-                val catalogImportResult = catalogImportService.checkForExistingAndMapCatalogImportResult(catalogImports, forceUpdate)
-
-                val productAgreementMappedResultLists =
-                    processProducts(catalogImportResult, adminAuthentication, agreement, supplierId)
-
-                val serviceAgreementMappedResultLists = processServiceJobs(catalogImportResult, adminAuthentication, agreement, supplierId)
-                val updatedCatalogFile =
+    open fun processPendingCatalogs()
+        =  runBlocking {
+            catalogFileRepository.findOneByStatusOrderByCreatedAsc(CatalogFileStatus.PENDING)?.let { catalogFile ->
+                try {
+                    processCatalogFile(catalogFile)
+                } catch (e: Exception) {
+                    LOG.error(
+                        "Error while processing catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName}",
+                        e
+                    )
                     catalogFileRepository.update(
                         catalogFile.copy(
-                            status = CatalogFileStatus.DONE,
-                            updated = LocalDateTime.now()
+                            status = CatalogFileStatus.ERROR,
+                            updated = LocalDateTime.now(),
+                            errorMessage = e.message
                         )
                     )
-                LOG.info("Finished saving with inserted: ${productAgreementMappedResultLists.insertList.size} updated: ${productAgreementMappedResultLists.updateList.size} " +
-                        "deactivated: ${productAgreementMappedResultLists.deactivateList.size} for catalog file id: ${updatedCatalogFile.id} with name: ${updatedCatalogFile.fileName}")
-               productAgreementMappedResultLists to serviceAgreementMappedResultLists
-            } catch (e: Exception) {
-                LOG.error(
-                    "Error while processing catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName}",
-                    e
-                )
-                catalogFileRepository.update(
-                    catalogFile.copy(
-                        status = CatalogFileStatus.ERROR,
-                        updated = LocalDateTime.now(),
-                        errorMessage = e.message
-                    )
-                )
-                null
+                }
             }
         }
+
+    @Transactional
+    open suspend fun processCatalogFile(catalogFile: CatalogFile): Pair<ProductAgreementMappedResultLists, ServiceAgreementMappedResultLists> {
+        LOG.info("Got catalog file with filename: ${catalogFile.fileName} with rows: ${catalogFile.catalogList.size} to process with forceUpdate: $forceUpdate")
+        val supplierId = catalogFile.supplierId
+        val adminAuthentication =
+            ClientAuthentication(catalogFile.updatedByUser, mapOf("roles" to listOf(Roles.ROLE_ADMIN)))
+        val (agreement, catalogImports) = catalogImportService.mapExcelDTOToCatalogImport(
+            catalogFile.catalogList,
+            supplierId
+        )
+
+        val catalogImportResult =
+            catalogImportService.checkForExistingAndMapCatalogImportResult(catalogImports, forceUpdate)
+
+        val productAgreementMappedResultLists =
+            processProducts(catalogImportResult, adminAuthentication, agreement, supplierId)
+
+        val serviceAgreementMappedResultLists =
+            processServiceJobs(catalogImportResult, adminAuthentication, agreement, supplierId)
+        val updatedCatalogFile =
+            catalogFileRepository.update(
+                catalogFile.copy(
+                    status = CatalogFileStatus.DONE,
+                    updated = LocalDateTime.now()
+                )
+            )
+        LOG.info(
+            "Finished saving with inserted: ${productAgreementMappedResultLists.insertList.size} updated: ${productAgreementMappedResultLists.updateList.size} " +
+                    "deactivated: ${productAgreementMappedResultLists.deactivateList.size} for catalog file id: ${updatedCatalogFile.id} with name: ${updatedCatalogFile.fileName}"
+        )
+        return productAgreementMappedResultLists to serviceAgreementMappedResultLists
     }
 
     private suspend fun processProducts(
@@ -135,7 +143,7 @@ open class CatalogFileToProductAgreementScheduler(
     @LeaderOnly
     @Scheduled(cron = "0 0 2 * * *")
     open suspend fun findInconsistenciesBetweenFHCatalog() {
-        val productsNotMatchAS =  productRegistrationRepository.findProductThatDoesNotMatchAgreementSparePartAccessory()
+        val productsNotMatchAS = productRegistrationRepository.findProductThatDoesNotMatchAgreementSparePartAccessory()
         productsNotMatchAS.forEach {
             LOG.error("Product: ${it.id} hmsnr: ${it.hmsArtNr} does not match agreement and spare part/accessory")
         }

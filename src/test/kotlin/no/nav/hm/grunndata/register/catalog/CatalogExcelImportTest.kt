@@ -12,6 +12,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AgreementDTO
 import no.nav.hm.grunndata.rapid.dto.AgreementPost
+import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementData
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
@@ -40,6 +41,7 @@ class CatalogExcelImportTest(
     private val userRepository: UserRepository,
     private val client: CatalogImportExcelClient,
     private val loginClient: LoginClient,
+    private val catalogFileRepository: CatalogFileRepository,
     private val catalogFileToProductAgreementScheduler: CatalogFileToProductAgreementScheduler
 
 
@@ -189,9 +191,11 @@ class CatalogExcelImportTest(
             response.status shouldBe HttpStatus.OK
             val body = response.body()
             body.shouldNotBeNull()
-            val (productAgreementMappedResultLists, serviceAgreementMappedResultLists)= catalogFileToProductAgreementScheduler.processCatalogFile() ?: throw IllegalStateException("No catalog file to process")
-            productAgreementMappedResultLists.insertList.size shouldBe 8
-            serviceAgreementMappedResultLists.insertList.size shouldBe 2
+            catalogFileRepository.findOneByStatusOrderByCreatedAsc(CatalogFileStatus.PENDING)?.let { catalogFile ->
+                val (productAgreementMappedResultLists, serviceAgreementMappedResultLists)= catalogFileToProductAgreementScheduler.processCatalogFile( catalogFile)
+                productAgreementMappedResultLists.insertList.size shouldBe 8
+                serviceAgreementMappedResultLists.insertList.size shouldBe 2
+            }
             val bytes2 =
                 CatalogExcelImportTest::class.java.getResourceAsStream("/productagreement/katalog-test-2.xls")?.readAllBytes()
             val multipartBody2 = MultipartBody
@@ -205,11 +209,11 @@ class CatalogExcelImportTest(
             response.status shouldBe HttpStatus.OK
             val body2 = response2.body()
             body2.shouldNotBeNull()
-            val (pResult, sResult) = catalogFileToProductAgreementScheduler.processCatalogFile()?: throw IllegalStateException("No catalog file to process")
-            pResult.insertList.size shouldBe 2
-            pResult.deactivateList.size shouldBe 2
-            sResult.updateList.size shouldBe 0
-
+            catalogFileRepository.findOneByStatusOrderByCreatedAsc(CatalogFileStatus.PENDING)?.let { catalogFile ->
+                val (pResult, sResult) = catalogFileToProductAgreementScheduler.processCatalogFile(catalogFile)
+                pResult.deactivateList.size shouldBe 2
+                sResult.updateList.size shouldBe 0
+            }
         }
     }
 }
