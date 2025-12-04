@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.Hidden
 import org.slf4j.LoggerFactory
 
 @Secured(SecurityRule.IS_ANONYMOUS)
-@Controller("/internal/compatible/products")
+@Controller("/internal/compatible")
 @Hidden
 class CompatibleProductController(
     private val compatibleWithConnecter: CompatibleWithConnecter) {
