@@ -54,7 +54,7 @@ open class CompatibleWithConnecter(
                     }
                 }
             }
-            delay(1000)
+            delay(500)
         }
         val serviceJobs = catalogImportRepository.findCatalogServiceJobInfoByOrderRef(orderRef)
         LOG.info("Found ${serviceJobs.size} service jobs for orderRef: $orderRef to connect")
@@ -66,7 +66,7 @@ open class CompatibleWithConnecter(
                     }
                 }
             }
-            delay(1000)
+            delay(500)
         }
 
     }
@@ -168,6 +168,10 @@ open class CompatibleWithConnecter(
         // keep all previous connections.
         val productIds = serviceJob.attributes.serviceFor?.productIds?: emptySet()
         val seriesId = serviceJob.attributes.serviceFor?.seriesIds?: emptySet()
+        if (serviceJob.attributes.serviceFor != null) {
+            LOG.debug("Skip connecting service job ${serviceJob.hmsArtNr} already connected with serviceFor")
+            return null
+        }
         if (productIds.size>99 || seriesId.size > 50) {
             LOG.error("Too many serviceFor connections for serviceJob hmsnr: ${serviceJob.hmsArtNr}, skip connecting with serviceFor")
             return null
@@ -197,8 +201,7 @@ open class CompatibleWithConnecter(
             LOG.warn("Skip connecting product ${product.hmsArtNr} is not accessory or sparePart")
             return null
         }
-        if (product.productData.attributes.compatibleWith!= null
-            && product.productData.attributes.compatibleWith!!.connectedBy == CompatibleWith.MANUAL) {
+        if (product.productData.attributes.compatibleWith!= null) {
             LOG.debug("Skip connecting product ${product.hmsArtNr} already connected with compatibleWith by ${product.productData.attributes.compatibleWith?.connectedBy}")
             return null
         }
