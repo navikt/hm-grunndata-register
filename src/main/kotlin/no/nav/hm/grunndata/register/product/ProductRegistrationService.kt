@@ -11,17 +11,10 @@ import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.helse.rapids_rivers.toUUID
-import no.nav.hm.grunndata.rapid.dto.AdminStatus
-import no.nav.hm.grunndata.rapid.dto.AgreementInfo
-import no.nav.hm.grunndata.rapid.dto.Attributes
-import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.MediaType
-import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
-import no.nav.hm.grunndata.rapid.dto.TechData
+import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
-import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
 import no.nav.hm.grunndata.register.catalog.CatalogImportRepository
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.error.ErrorType
@@ -37,7 +30,7 @@ import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Singleton
 open class ProductRegistrationService(
@@ -49,7 +42,7 @@ open class ProductRegistrationService(
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
     private val supplierService: SupplierRegistrationService,
     private val catalogImportRepository: CatalogImportRepository,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(ProductRegistration::class.java)
@@ -629,10 +622,20 @@ open class ProductRegistrationService(
                 updatedByUser = authentication.name,
             )
 
-        seriesRegistrationRepository.updateStatusForSeries(
-            updatedProduct.seriesUUID,
-            newRegistrationStatus.toSeriesStatus()
-        )
+        if (!isExpired) {
+            val series = seriesRegistrationRepository.findById(productToUpdate.seriesUUID)
+            if (series != null && series.status != SeriesStatus.ACTIVE) {
+                val seriesNewExpiredDate = LocalDateTime.now().plusYears(10)
+                val updatedSeries = series.copy(
+                    status = SeriesStatus.ACTIVE,
+                    expired = seriesNewExpiredDate,
+                    updated = LocalDateTime.now(),
+                    updatedBy = REGISTER,
+                    updatedByUser = authentication.name,
+                )
+                seriesRegistrationRepository.update(updatedSeries)
+            }
+        }
 
         return saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
     }
