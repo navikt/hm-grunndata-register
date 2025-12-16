@@ -314,4 +314,4 @@ data class ProductAgreementMappedResultLists(
     val deactivateList: List<ProductAgreementRegistrationDTO> = emptyList(),
 )
 
-val delKontraktRegex = Regex("d?(\\d+)([A-Q-STU-Z]*)r*(\\d*),*")
+val delKontraktRegex = Regex("d(\\d+)([A-Q-STU-Z]*)r*(\\d*),*")
