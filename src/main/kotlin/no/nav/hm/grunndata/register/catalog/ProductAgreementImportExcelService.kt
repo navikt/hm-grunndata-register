@@ -284,7 +284,7 @@ fun parsedelkontraktNr(subContractNr: String): List<Pair<String, Int>> {
         }
         return mutableList
     } catch (e: Exception) {
-        throw BadRequestException("Klarte ikke å lese post og rangering fra delkontrakt nr. $subContractNr")
+        throw BadRequestException("Klarte ikke å lese post og rangering fra delkontrakt nr.  $subContractNr. Årsak: ${e.message}")
     }
 }
 
