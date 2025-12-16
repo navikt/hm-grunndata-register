@@ -241,9 +241,14 @@ open class ProductRegistrationService(
                 changedHmsNrSupplierRef = true
             }
             if (changedHmsNrSupplierRef) {
-                if (ensuredNotBlankHmsNr!=null) {
-                    catalogImportRepository.findByHmsArtNr(inDb.hmsArtNr?:"").forEach {
-                        catalogImportRepository.update(it.copy(hmsArtNr = ensuredNotBlankHmsNr, supplierRef = updateDTO.supplierRef))
+                if (ensuredNotBlankHmsNr != null) {
+                    catalogImportRepository.findByHmsArtNr(inDb.hmsArtNr ?: "").forEach {
+                        catalogImportRepository.update(
+                            it.copy(
+                                hmsArtNr = ensuredNotBlankHmsNr,
+                                supplierRef = updateDTO.supplierRef
+                            )
+                        )
                     }
                 }
                 productAgreementRegistrationRepository.findByProductId(
@@ -501,7 +506,7 @@ open class ProductRegistrationService(
     private suspend fun ProductRegistration.toDTO(): ProductRegistrationDTO {
         // TODO cache agreements
         val agreeements = productAgreementRegistrationRepository.findByProductId(id)
-        val productRegistration =  ProductRegistrationDTO(
+        val productRegistration = ProductRegistrationDTO(
             id = id,
             supplierId = supplierId,
             seriesId = seriesUUID.toString(),
@@ -536,7 +541,10 @@ open class ProductRegistrationService(
         return mapCorrectMainProductAndSparePartAndAccessoryFromAgreements(productRegistration, agreeements)
     }
 
-    private fun mapCorrectMainProductAndSparePartAndAccessoryFromAgreements(productRegistration: ProductRegistrationDTO, agreements: List<ProductAgreementRegistration>): ProductRegistrationDTO {
+    private fun mapCorrectMainProductAndSparePartAndAccessoryFromAgreements(
+        productRegistration: ProductRegistrationDTO,
+        agreements: List<ProductAgreementRegistration>
+    ): ProductRegistrationDTO {
         if (agreements.isEmpty()) return productRegistration
         val mainProduct = agreements.any { it.mainProduct }
         val accessory = agreements.any { it.accessory }
@@ -620,6 +628,11 @@ open class ProductRegistrationService(
                 updatedBy = REGISTER,
                 updatedByUser = authentication.name,
             )
+
+        seriesRegistrationRepository.updateStatusForSeries(
+            updatedProduct.seriesUUID,
+            newRegistrationStatus.toSeriesStatus()
+        )
 
         return saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
     }
@@ -716,7 +729,10 @@ open class ProductRegistrationService(
         val jsonQuery = objectMapper.writeValueAsString(listOf(queryMap))
         val isoCategoryPattern = "$isoCategory%"
         LOG.debug("Executing jsonQuery ${jsonQuery}")
-        return productRegistrationRepository.findDistinctByProductStartsWithIsoCategoryAndTechDataJsonQuery(isoCategoryPattern, jsonQuery.toString())
+        return productRegistrationRepository.findDistinctByProductStartsWithIsoCategoryAndTechDataJsonQuery(
+            isoCategoryPattern,
+            jsonQuery.toString()
+        )
     }
 
 }
@@ -724,4 +740,10 @@ open class ProductRegistrationService(
 suspend fun <T : Any, R : Any> Page<T>.mapSuspend(transform: suspend (T) -> R): Page<R> {
     val content = this.content.map { transform(it) }
     return Page.of(content, this.pageable, this.totalSize)
+}
+
+fun RegistrationStatus.toSeriesStatus(): String = when (this) {
+    RegistrationStatus.ACTIVE -> "ACTIVE"
+    RegistrationStatus.INACTIVE -> "INACTIVE"
+    RegistrationStatus.DELETED -> "DELETED"
 }
