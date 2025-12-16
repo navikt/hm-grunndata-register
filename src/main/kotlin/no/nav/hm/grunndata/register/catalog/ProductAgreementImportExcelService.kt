@@ -280,7 +280,7 @@ fun parsedelkontraktNr(subContractNr: String): List<Pair<String, Int>> {
                 matchResult = matchResult.next()
             }
         } else {
-            throw BadRequestException("Klarte ikke å lese delkontrakt nr. $subContractNr, Clan subcontractnr: $cleanSubContractNr" )
+            throw BadRequestException("Klarte ikke å lese delkontrakt nr. $subContractNr")
         }
         return mutableList
     } catch (e: Exception) {
@@ -314,7 +314,4 @@ data class ProductAgreementMappedResultLists(
     val deactivateList: List<ProductAgreementRegistrationDTO> = emptyList(),
 )
 
-val delKontraktRegex = Regex(
-    pattern = "d(\\d+)([A-Z]*)r?(\\d*)[,]?",
-    options = setOf(RegexOption.IGNORE_CASE)
-)
+val delKontraktRegex = Regex("d(\\d+)([A-Q-STU-Z]*)r*(\\d*),*")
