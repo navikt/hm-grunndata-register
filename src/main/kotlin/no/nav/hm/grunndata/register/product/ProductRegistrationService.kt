@@ -284,8 +284,9 @@ open class ProductRegistrationService(
         val saved = if (isUpdate) update(dto) else save(dto)
         if (saved.draftStatus == DraftStatus.DONE && (saved.adminStatus == AdminStatus.APPROVED || saved.registrationStatus == RegistrationStatus.DELETED)) {
             productRegistrationEventHandler.queueDTORapidEvent(saved.toDTO(), eventName = EventName.registeredProductV1)
-            val dto = saved.toDTO()
-            LOG.info("Product registration event sent for id ${dto.id}, mainProduct: ${dto.mainProduct}, accessory: ${dto.accessory}, sparePart: ${saved.sparePart}")
+            val dtoSaved = saved.toDTO()
+            LOG.info("Product registration event sent for id (dto) ${dto.id}, mainProduct: ${dto.mainProduct}, accessory: ${dto.accessory}, sparePart: ${saved.sparePart}")
+            LOG.info("Product registration event sent for id (saved) ${dtoSaved.id}, mainProduct: ${dtoSaved.mainProduct}, accessory: ${dtoSaved.accessory}, sparePart: ${dtoSaved.sparePart}")
         }
         return saved
     }
