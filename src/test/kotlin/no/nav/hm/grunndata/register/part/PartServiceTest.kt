@@ -48,7 +48,7 @@ class PartServiceTest(
 
             series.mainProduct shouldBe false
 
-            partService.changeToMainProduct(part.seriesUUID, newIsoCode = "12345")
+            partService.changeToMainProduct(part.seriesUUID, newIsoCode = "12345", authentication)
             val seriesAsMainProduct = seriesRegistrationService.findById(part.seriesUUID)
 
             seriesAsMainProduct?.mainProduct shouldBe true

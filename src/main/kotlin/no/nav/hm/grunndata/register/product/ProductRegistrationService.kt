@@ -76,9 +76,7 @@ open class ProductRegistrationService(
 
     open suspend fun findByExactHmsArtNrAndSupplierId(hmsArtNr: String, supplierId: UUID) =
         productRegistrationRepository.findByHmsArtNrAndRegistrationStatusInAndSupplierId(
-            hmsArtNr,
-            listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
-            supplierId
+            hmsArtNr, listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE), supplierId
         )
 
     open suspend fun findByHmsArtNrAndSupplierId(hmsArtNr: String, supplierId: UUID) =
@@ -149,8 +147,7 @@ open class ProductRegistrationService(
                 root[ProductRegistration::draftStatus] eq DraftStatus.DONE
             },
             pageable,
-        )
-            .mapSuspend { it.toProductToApproveDto() }
+        ).mapSuspend { it.toProductToApproveDto() }
 
     open suspend fun findBySupplierRefAndSupplierId(
         supplierRef: String,
@@ -200,17 +197,14 @@ open class ProductRegistrationService(
     suspend fun findAllBySeriesUUIDAndAdminStatus(
         seriesUUID: UUID,
         adminStatus: AdminStatus,
-    ): List<ProductRegistration> =
-        productRegistrationRepository.findAllBySeriesUUIDAndAdminStatus(
-            seriesUUID,
-            adminStatus,
-        )
+    ): List<ProductRegistration> = productRegistrationRepository.findAllBySeriesUUIDAndAdminStatus(
+        seriesUUID,
+        adminStatus,
+    )
 
     @Transactional
     open suspend fun updateProduct(
-        updateDTO: UpdateProductRegistrationDTO,
-        id: UUID,
-        authentication: Authentication
+        updateDTO: UpdateProductRegistrationDTO, id: UUID, authentication: Authentication
     ): ProductRegistration {
         val dto = findById(id)?.let { inDb ->
             if (!authentication.isAdmin() && authentication.supplierId() != inDb.supplierId) {
@@ -238,8 +232,7 @@ open class ProductRegistrationService(
                     catalogImportRepository.findByHmsArtNr(inDb.hmsArtNr ?: "").forEach {
                         catalogImportRepository.update(
                             it.copy(
-                                hmsArtNr = ensuredNotBlankHmsNr,
-                                supplierRef = updateDTO.supplierRef
+                                hmsArtNr = ensuredNotBlankHmsNr, supplierRef = updateDTO.supplierRef
                             )
                         )
                     }
@@ -253,32 +246,29 @@ open class ProductRegistrationService(
                 }
             }
 
-            val dto =
-                saveAndCreateEventIfNotDraftAndApproved(
-                    inDb.copy(
-                        hmsArtNr = ensuredNotBlankHmsNr,
-                        articleName = updateDTO.articleName,
-                        supplierRef = updateDTO.supplierRef,
-                        productData =
-                            inDb.productData.copy(
-                                attributes = updateDTO.productData.attributes,
-                                techData = updateDTO.productData.techData.map { it.toEntity() },
-                            ),
-                        updatedByUser = authentication.name,
-                        updatedBy = REGISTER,
-                        updated = LocalDateTime.now(),
+            val dto = saveAndCreateEventIfNotDraftAndApproved(
+                inDb.copy(
+                    hmsArtNr = ensuredNotBlankHmsNr,
+                    articleName = updateDTO.articleName,
+                    supplierRef = updateDTO.supplierRef,
+                    productData = inDb.productData.copy(
+                        attributes = updateDTO.productData.attributes,
+                        techData = updateDTO.productData.techData.map { it.toEntity() },
                     ),
-                    isUpdate = true,
-                )
+                    updatedByUser = authentication.name,
+                    updatedBy = REGISTER,
+                    updated = LocalDateTime.now(),
+                ),
+                isUpdate = true,
+            )
 
             val series = seriesRegistrationRepository.findById(dto.seriesUUID)
             if (series != null) {
-                val updatedSeries =
-                    series.copy(
-                        updated = LocalDateTime.now(),
-                        updatedByUser = authentication.name,
-                        updatedBy = REGISTER,
-                    )
+                val updatedSeries = series.copy(
+                    updated = LocalDateTime.now(),
+                    updatedByUser = authentication.name,
+                    updatedBy = REGISTER,
+                )
                 seriesRegistrationRepository.update(updatedSeries)
             }
             dto
@@ -294,6 +284,8 @@ open class ProductRegistrationService(
         val saved = if (isUpdate) update(dto) else save(dto)
         if (saved.draftStatus == DraftStatus.DONE && (saved.adminStatus == AdminStatus.APPROVED || saved.registrationStatus == RegistrationStatus.DELETED)) {
             productRegistrationEventHandler.queueDTORapidEvent(saved.toDTO(), eventName = EventName.registeredProductV1)
+            val dto = saved.toDTO()
+            LOG.info("Product registration event sent for id ${dto.id}, mainProduct: ${dto.mainProduct}, accessory: ${dto.accessory}, sparePart: ${saved.sparePart}")
         }
         return saved
     }
@@ -339,24 +331,21 @@ open class ProductRegistrationService(
         return dtos.map {
             findBySupplierRefAndSupplierId(it.levartnr, it.leverandorid.toUUID())?.let { inDb ->
                 if (changed(inDb, it)) {
-                    val product =
-                        inDb.copy(
-                            draftStatus = DraftStatus.DRAFT,
-                            adminStatus = AdminStatus.PENDING,
-                            title = it.produktseriesnavn,
-                            articleName = it.produktnavn,
-                            isoCategory = it.isoCategory,
-                            productData =
-                                inDb.productData.copy(
-                                    techData = it.techData,
-                                    attributes =
-                                        inDb.productData.attributes.copy(
-                                            shortdescription = it.andrespesifikasjoner,
-                                        ),
-                                ),
-                            updated = LocalDateTime.now(),
-                            updatedByUser = authentication.name,
-                        )
+                    val product = inDb.copy(
+                        draftStatus = DraftStatus.DRAFT,
+                        adminStatus = AdminStatus.PENDING,
+                        title = it.produktseriesnavn,
+                        articleName = it.produktnavn,
+                        isoCategory = it.isoCategory,
+                        productData = inDb.productData.copy(
+                            techData = it.techData,
+                            attributes = inDb.productData.attributes.copy(
+                                shortdescription = it.andrespesifikasjoner,
+                            ),
+                        ),
+                        updated = LocalDateTime.now(),
+                        updatedByUser = authentication.name,
+                    )
                     saveAndCreateEventIfNotDraftAndApproved(product, isUpdate = true)
                 } else {
                     inDb
@@ -385,28 +374,25 @@ open class ProductRegistrationService(
     ): List<ProductRegistrationDryRunDTO> {
         return dtos.map {
             findBySupplierRefAndSupplierId(it.levartnr, it.leverandorid.toUUID())?.let { inDb ->
-                val product =
-                    if (changed(inDb, it)) {
-                        inDb.copy(
-                            draftStatus = DraftStatus.DRAFT,
-                            adminStatus = AdminStatus.PENDING,
-                            title = it.produktseriesnavn,
-                            articleName = it.produktnavn,
-                            isoCategory = it.isoCategory,
-                            productData =
-                                inDb.productData.copy(
-                                    techData = it.techData,
-                                    attributes =
-                                        inDb.productData.attributes.copy(
-                                            shortdescription = it.andrespesifikasjoner,
-                                        ),
-                                ),
-                            updated = LocalDateTime.now(),
-                            updatedByUser = authentication.name,
-                        )
-                    } else {
-                        inDb
-                    }
+                val product = if (changed(inDb, it)) {
+                    inDb.copy(
+                        draftStatus = DraftStatus.DRAFT,
+                        adminStatus = AdminStatus.PENDING,
+                        title = it.produktseriesnavn,
+                        articleName = it.produktnavn,
+                        isoCategory = it.isoCategory,
+                        productData = inDb.productData.copy(
+                            techData = it.techData,
+                            attributes = inDb.productData.attributes.copy(
+                                shortdescription = it.andrespesifikasjoner,
+                            ),
+                        ),
+                        updated = LocalDateTime.now(),
+                        updatedByUser = authentication.name,
+                    )
+                } else {
+                    inDb
+                }
                 product.toProductRegistrationDryRunDTO()
             } ?: it.toRegistrationDryRunDTO()
         }
@@ -419,9 +405,8 @@ open class ProductRegistrationService(
     ): ProductRegistration {
         val previousProduct = productRegistrationRepository.findLastProductInSeries(seriesUUID)
 
-        val series =
-            seriesRegistrationRepository.findById(seriesUUID)
-                ?: throw BadRequestException("Series $seriesUUID not found", type = ErrorType.NOT_FOUND)
+        val series = seriesRegistrationRepository.findById(seriesUUID)
+            ?: throw BadRequestException("Series $seriesUUID not found", type = ErrorType.NOT_FOUND)
 
         if (authentication.isSupplier() && series.supplierId != authentication.supplierId()) {
             throw BadRequestException(
@@ -431,39 +416,35 @@ open class ProductRegistrationService(
         }
 
         val productId = UUID.randomUUID()
-        val product =
-            ProductData(
-                techData =
-                    previousProduct?.productData?.techData ?: createTechDataDraft(series.isoCategory),
-                attributes =
-                    Attributes(
-                        shortdescription = "",
-                        text = "",
-                    ),
-            )
-        val registration =
-            ProductRegistration(
-                id = productId,
-                seriesUUID = seriesUUID,
-                isoCategory = series.isoCategory,
-                supplierId = series.supplierId,
-                supplierRef = draftWithDTO.supplierRef,
-                hmsArtNr = null,
-                articleName = draftWithDTO.articleName,
-                createdBy = REGISTER,
-                updatedBy = REGISTER,
-                message = null,
-                published = null,
-                expired = LocalDateTime.now().plusYears(10),
-                productData = product,
-                createdByUser = authentication.name,
-                updatedByUser = authentication.name,
-                createdByAdmin = authentication.isAdmin(),
-                version = 0,
-                accessory = false,
-                sparePart = false,
-                mainProduct = true,
-            )
+        val product = ProductData(
+            techData = previousProduct?.productData?.techData ?: createTechDataDraft(series.isoCategory),
+            attributes = Attributes(
+                shortdescription = "",
+                text = "",
+            ),
+        )
+        val registration = ProductRegistration(
+            id = productId,
+            seriesUUID = seriesUUID,
+            isoCategory = series.isoCategory,
+            supplierId = series.supplierId,
+            supplierRef = draftWithDTO.supplierRef,
+            hmsArtNr = null,
+            articleName = draftWithDTO.articleName,
+            createdBy = REGISTER,
+            updatedBy = REGISTER,
+            message = null,
+            published = null,
+            expired = LocalDateTime.now().plusYears(10),
+            productData = product,
+            createdByUser = authentication.name,
+            updatedByUser = authentication.name,
+            createdByAdmin = authentication.isAdmin(),
+            version = 0,
+            accessory = false,
+            sparePart = false,
+            mainProduct = true,
+        )
         val draft = save(registration)
         LOG.info("Draft was created ${draft.id}")
         return draft
@@ -535,8 +516,7 @@ open class ProductRegistrationService(
     }
 
     private fun mapCorrectMainProductAndSparePartAndAccessoryFromAgreements(
-        productRegistration: ProductRegistrationDTO,
-        agreements: List<ProductAgreementRegistration>
+        productRegistration: ProductRegistrationDTO, agreements: List<ProductAgreementRegistration>
     ): ProductRegistrationDTO {
         if (agreements.isEmpty()) return productRegistration
         val mainProduct = agreements.any { it.mainProduct }
@@ -551,9 +531,8 @@ open class ProductRegistrationService(
     }
 
     private suspend fun ProductAgreementRegistration.toAgreementInfo(): AgreementInfo {
-        val agreement =
-            agreementRegistrationService.findById(agreementId)
-                ?: throw RuntimeException("Agreement not found") // consider caching agreements
+        val agreement = agreementRegistrationService.findById(agreementId)
+            ?: throw RuntimeException("Agreement not found") // consider caching agreements
         val delKontrakt = if (postId != null) agreement.delkontraktList.find { postId == it.id } else null
         return AgreementInfo(
             id = agreementId,
@@ -587,18 +566,15 @@ open class ProductRegistrationService(
     private suspend fun deleteAll(products: List<ProductRegistration>) =
         productRegistrationRepository.deleteAll(products)
 
-    suspend fun countBySupplier(supplierId: UUID): Long =
-        productRegistrationRepository.count(
-            where {
-                root[ProductRegistration::supplierId] eq supplierId
-                root[ProductRegistration::registrationStatus] eq RegistrationStatus.ACTIVE
-            },
-        )
+    suspend fun countBySupplier(supplierId: UUID): Long = productRegistrationRepository.count(
+        where {
+            root[ProductRegistration::supplierId] eq supplierId
+            root[ProductRegistration::registrationStatus] eq RegistrationStatus.ACTIVE
+        },
+    )
 
     suspend fun updateExpiredStatus(
-        @PathVariable id: UUID,
-        authentication: Authentication,
-        isExpired: Boolean
+        @PathVariable id: UUID, authentication: Authentication, isExpired: Boolean
     ): ProductRegistration {
         val productToUpdate = findById(id) ?: throw BadRequestException("Product not found", type = ErrorType.NOT_FOUND)
 
@@ -613,14 +589,13 @@ open class ProductRegistrationService(
             LocalDateTime.now().plusYears(10)
         }
 
-        val updatedProduct =
-            productToUpdate.copy(
-                registrationStatus = newRegistrationStatus,
-                expired = newExpiredDate,
-                updated = LocalDateTime.now(),
-                updatedBy = REGISTER,
-                updatedByUser = authentication.name,
-            )
+        val updatedProduct = productToUpdate.copy(
+            registrationStatus = newRegistrationStatus,
+            expired = newExpiredDate,
+            updated = LocalDateTime.now(),
+            updatedBy = REGISTER,
+            updatedByUser = authentication.name,
+        )
 
         if (!isExpired) {
             val series = seriesRegistrationRepository.findById(productToUpdate.seriesUUID)
@@ -644,22 +619,20 @@ open class ProductRegistrationService(
         ids: List<UUID>,
         authentication: Authentication,
     ): List<ProductRegistration> {
-        val products =
-            findByIdIn(ids).onEach {
-                if (authentication.isSupplier() && it.supplierId != authentication.supplierId()) {
-                    throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
-                }
+        val products = findByIdIn(ids).onEach {
+            if (authentication.isSupplier() && it.supplierId != authentication.supplierId()) {
+                throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
             }
+        }
 
-        val productsToDelete =
-            products.map {
-                it.copy(
-                    registrationStatus = RegistrationStatus.DELETED,
-                    expired = LocalDateTime.now(),
-                    updatedByUser = authentication.name,
-                    updatedBy = REGISTER,
-                )
-            }
+        val productsToDelete = products.map {
+            it.copy(
+                registrationStatus = RegistrationStatus.DELETED,
+                expired = LocalDateTime.now(),
+                updatedByUser = authentication.name,
+                updatedBy = REGISTER,
+            )
+        }
 
         return saveAllAndCreateEventIfNotDraftAndApproved(productsToDelete, isUpdate = true)
     }
@@ -668,15 +641,14 @@ open class ProductRegistrationService(
         ids: List<UUID>,
         authentication: Authentication,
     ) {
-        val products =
-            findByIdIn(ids).onEach {
-                if (authentication.isSupplier() && it.supplierId != authentication.supplierId()) {
-                    throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
-                }
-                if (!(it.draftStatus == DraftStatus.DRAFT && it.published == null)) {
-                    throw BadRequestException("product is not draft")
-                }
+        val products = findByIdIn(ids).onEach {
+            if (authentication.isSupplier() && it.supplierId != authentication.supplierId()) {
+                throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
             }
+            if (!(it.draftStatus == DraftStatus.DRAFT && it.published == null)) {
+                throw BadRequestException("product is not draft")
+            }
+        }
 
         products.forEach {
             LOG.info("Delete called for id ${it.id} and supplierRef ${it.supplierRef}")
@@ -690,14 +662,11 @@ open class ProductRegistrationService(
 
     suspend fun findAccessoryOrSparePartCombatibleWithSeriesIdAndSupplierId(seriesUUID: UUID, supplierId: UUID) =
         productRegistrationRepository.findAccessoryOrSparePartCombatibleWithSeriesIdAndSupplierId(
-            seriesUUID,
-            supplierId
+            seriesUUID, supplierId
         )
 
     suspend fun findByTechLabelValues(
-        key: String? = null,
-        unit: String? = null,
-        value: String? = null
+        key: String? = null, unit: String? = null, value: String? = null
     ): List<ProductRegistration> {
         if (key.isNullOrBlank() && unit.isNullOrBlank() && value.isNullOrBlank()) {
             throw BadRequestException("At least one of key, unit or value must be provided")
@@ -733,8 +702,7 @@ open class ProductRegistrationService(
         val isoCategoryPattern = "$isoCategory%"
         LOG.debug("Executing jsonQuery ${jsonQuery}")
         return productRegistrationRepository.findDistinctByProductStartsWithIsoCategoryAndTechDataJsonQuery(
-            isoCategoryPattern,
-            jsonQuery.toString()
+            isoCategoryPattern, jsonQuery.toString()
         )
     }
 

@@ -5,6 +5,7 @@ import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.catalog.CatalogImportRepository
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistration
@@ -35,14 +36,26 @@ open class PartService(
         object NotFound : ChangeToMainProductResult()
     }
 
-    open suspend fun changeToMainProduct(seriesUUID: UUID, newIsoCode: String): ChangeToMainProductResult {
+    open suspend fun changeToMainProduct(
+        seriesUUID: UUID,
+        newIsoCode: String,
+        authentication: Authentication
+    ): ChangeToMainProductResult {
         val series = seriesService.findById(seriesUUID) ?: return ChangeToMainProductResult.NotFound
 
         val updatedSeries = series.copy(mainProduct = true, isoCategory = newIsoCode)
         val products = productService.findAllBySeriesUuid(seriesUUID)
         products.forEach { product ->
             val updatedProduct =
-                product.copy(mainProduct = true, accessory = false, sparePart = false, isoCategory = newIsoCode)
+                product.copy(
+                    mainProduct = true,
+                    accessory = false,
+                    sparePart = false,
+                    isoCategory = newIsoCode,
+                    updated = LocalDateTime.now(),
+                    updatedBy = REGISTER,
+                    updatedByUser = authentication.name
+                )
             productService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
         }
         seriesService.saveAndCreateEventIfNotDraftAndApproved(updatedSeries, isUpdate = true)
@@ -100,13 +113,24 @@ open class PartService(
             )
         }
         if ((cleanHmsArtNr != null && cleanHmsArtNr != product.hmsArtNr) ||
-            (updateDto.supplierRef != null && updateDto.supplierRef != product.supplierRef)) {
+            (updateDto.supplierRef != null && updateDto.supplierRef != product.supplierRef)
+        ) {
             LOG.info("hmsnr: ${product.hmsArtNr} supplierRef: ${product.supplierRef} was updated $updateDto")
             productAgreementRegistrationRepository.findByProductId(product.id).forEach {
-                productAgreementRegistrationRepository.update(it.copy(hmsArtNr = cleanHmsArtNr, supplierRef = updateDto.supplierRef ?: it.supplierRef))
+                productAgreementRegistrationRepository.update(
+                    it.copy(
+                        hmsArtNr = cleanHmsArtNr,
+                        supplierRef = updateDto.supplierRef ?: it.supplierRef
+                    )
+                )
             }
             catalogImportRepository.findBySupplierIdAndSupplierRef(product.supplierId, product.supplierRef).forEach {
-                catalogImportRepository.update(it.copy(hmsArtNr = cleanHmsArtNr ?: it.hmsArtNr, supplierRef = updateDto.supplierRef ?: it.supplierRef))
+                catalogImportRepository.update(
+                    it.copy(
+                        hmsArtNr = cleanHmsArtNr ?: it.hmsArtNr,
+                        supplierRef = updateDto.supplierRef ?: it.supplierRef
+                    )
+                )
             }
         }
     }

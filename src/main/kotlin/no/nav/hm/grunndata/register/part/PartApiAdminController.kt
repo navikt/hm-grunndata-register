@@ -123,8 +123,13 @@ class PartApiAdminController(
     suspend fun changeToMainProduct(
         seriesId: UUID,
         @Body partToMainProductDto: PartToMainProductDto,
+        authentication: Authentication
     ): HttpResponse<Any> {
-        return when (partService.changeToMainProduct(seriesId, newIsoCode = partToMainProductDto.newIsoCode)) {
+        return when (partService.changeToMainProduct(
+            seriesId,
+            newIsoCode = partToMainProductDto.newIsoCode,
+            authentication
+        )) {
             is PartService.ChangeToMainProductResult.Ok -> HttpResponse.ok()
             is PartService.ChangeToMainProductResult.NotFound -> HttpResponse.notFound()
         }
