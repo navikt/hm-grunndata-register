@@ -281,7 +281,13 @@ open class ProductRegistrationService(
         dto: ProductRegistration,
         isUpdate: Boolean,
     ): ProductRegistration {
-        val saved = if (isUpdate) update(dto) else save(dto)
+        val saved = if (isUpdate) {
+            productRegistrationRepository.update(dto)
+            productRegistrationRepository.findById(dto.id)
+                ?: error("ProductRegistration with id=${dto.id} not found after update")
+        } else {
+            productRegistrationRepository.save(dto)
+        }
         if (saved.draftStatus == DraftStatus.DONE && (saved.adminStatus == AdminStatus.APPROVED || saved.registrationStatus == RegistrationStatus.DELETED)) {
             productRegistrationEventHandler.queueDTORapidEvent(saved.toDTO(), eventName = EventName.registeredProductV1)
             val dtoSaved = saved.toDTO()
