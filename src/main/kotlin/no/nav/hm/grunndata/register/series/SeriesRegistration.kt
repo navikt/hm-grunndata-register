@@ -75,6 +75,7 @@ data class SeriesAttributesDTO(
     val keywords: List<String>? = null,
     val url: String? = null,
     val compatibleWith: CompatibleWith? = null,
+    val documentUrls: List<String>? = null
 )
 
 data class SeriesRegistrationDTO(
@@ -174,6 +175,7 @@ fun SeriesDataDTO.toRapidDTO() =
             SeriesAttributes(
                 keywords = attributes.keywords?.toSet(),
                 url = attributes.url,
+                documentUrls = attributes.documentUrls,
                 compatibleWith = attributes.compatibleWith,
             ),
     )
@@ -203,6 +205,7 @@ data class UpdateSeriesRegistrationDTO(
     val text: String? = null,
     val keywords: List<String>? = null,
     val url: String? = null,
+    val documentUrls: List<String>? = null,
     val isoCategory: String? = null,
     val resetTechnicalData: Boolean? = null,
 )

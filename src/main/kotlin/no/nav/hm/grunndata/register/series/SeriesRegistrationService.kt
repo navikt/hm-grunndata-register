@@ -565,6 +565,7 @@ open class SeriesRegistrationService(
         val seriesDataAttributes = inDbSeries.seriesData.attributes.copy(
             keywords = patch.keywords ?: inDbSeriesAttributes.keywords,
             url = patch.url ?: inDbSeriesAttributes.url,
+            documentUrls = patch.documentUrls ?: inDbSeriesAttributes.documentUrls,
             compatibleWith = inDbSeriesAttributes.compatibleWith,
         )
 
