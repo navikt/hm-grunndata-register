@@ -8,6 +8,7 @@ import io.micronaut.data.annotation.Version
 import io.micronaut.data.model.DataType
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.CompatibleWith
+import no.nav.hm.grunndata.rapid.dto.DocumentUrl
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.IsoCategoryDTO
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
@@ -75,7 +76,7 @@ data class SeriesAttributesDTO(
     val keywords: List<String>? = null,
     val url: String? = null,
     val compatibleWith: CompatibleWith? = null,
-    val documentUrls: List<String>? = null
+    val documentUrls: List<DocumentUrl>? = null
 )
 
 data class SeriesRegistrationDTO(
@@ -205,7 +206,7 @@ data class UpdateSeriesRegistrationDTO(
     val text: String? = null,
     val keywords: List<String>? = null,
     val url: String? = null,
-    val documentUrls: List<String>? = null,
+    val documentUrls: List<DocumentUrl>? = null,
     val isoCategory: String? = null,
     val resetTechnicalData: Boolean? = null,
 )

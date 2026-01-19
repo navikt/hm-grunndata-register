@@ -235,6 +235,26 @@ class SeriesRegistrationCommonController(
         return HttpResponse.ok()
     }
 
+    @Put("/add-document-url/{seriesUUID}")
+    suspend fun addDocumentUrlToSeries(
+        seriesUUID: UUID,
+        @Body documentUrl: NewDocumentUrl,
+        authentication: Authentication
+    ): HttpResponse<Any> {
+        seriesRegistrationService.addDocumentUrl(seriesUUID, documentUrl, authentication)
+        return HttpResponse.ok()
+    }
+
+    @Delete("/delete-document-url/{seriesUUID}")
+    suspend fun deleteDocumentUrl(
+        seriesUUID: UUID,
+        @Body documentUrl: String,
+        authentication: Authentication
+    ): HttpResponse<Any> {
+        seriesRegistrationService.deleteDocumentUrl(seriesUUID, documentUrl, authentication)
+        return HttpResponse.ok()
+    }
+
     @Put("/add-videos/{seriesUUID}")
     suspend fun addVideoToSeries(
         seriesUUID: UUID,

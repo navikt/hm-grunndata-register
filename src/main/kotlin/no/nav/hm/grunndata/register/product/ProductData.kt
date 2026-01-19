@@ -71,3 +71,4 @@ data class MediaInfoDTO (
         return uri == other.uri
     }
 }
+

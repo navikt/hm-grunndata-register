@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactive.asFlow
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
+import no.nav.hm.grunndata.rapid.dto.DocumentUrl
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.MediaType
@@ -689,6 +690,38 @@ open class SeriesRegistrationService(
         )
     }
 
+
+    @Transactional
+    open suspend fun deleteDocumentUrl(
+        seriesUUID: UUID,
+        documentUrl: String,
+        authentication: Authentication
+    ) {
+        val seriesToUpdate = getSeriesValidate(seriesUUID, authentication)
+
+        val existingDocumentUrls = seriesToUpdate.seriesData.attributes.documentUrls ?: emptyList()
+        val updatedDocumentUrls: List<DocumentUrl> =
+            existingDocumentUrls.filter { documentUrl != it.url }
+
+        val updatedAttributes = seriesToUpdate.seriesData.attributes.copy(
+            documentUrls = updatedDocumentUrls
+        )
+
+        val updatedSeriesData = seriesToUpdate.seriesData.copy(
+            attributes = updatedAttributes
+        )
+
+        saveAndCreateEventIfNotDraftAndApproved(
+            seriesToUpdate
+                .copy(
+                    seriesData = updatedSeriesData,
+                    updated = LocalDateTime.now(),
+                    updatedByUser = authentication.name
+                ),
+            true,
+        )
+    }
+
     @Transactional
     open suspend fun deleteSeriesMedia(
         seriesUUID: UUID,
@@ -704,6 +737,37 @@ open class SeriesRegistrationService(
             seriesToUpdate
                 .copy(
                     seriesData = seriesToUpdate.seriesData.copy(media = updatedMedia),
+                    updated = LocalDateTime.now(),
+                    updatedByUser = authentication.name
+                ),
+            true,
+        )
+    }
+
+    open suspend fun addDocumentUrl(
+        seriesUUID: UUID,
+        documentUrl: NewDocumentUrl,
+        authentication: Authentication
+    ) {
+
+        val newDocumentUrl = DocumentUrl(url = documentUrl.uri, title = documentUrl.title)
+
+        val seriesToUpdate = getSeriesValidate(seriesUUID, authentication)
+        val existingDocumentUrls = seriesToUpdate.seriesData.attributes.documentUrls ?: emptyList()
+        val updatedDocumentUrls: List<DocumentUrl> = existingDocumentUrls + newDocumentUrl
+
+        val updatedAttributes = seriesToUpdate.seriesData.attributes.copy(
+            documentUrls = updatedDocumentUrls
+        )
+
+        val updatedSeriesData = seriesToUpdate.seriesData.copy(
+            attributes = updatedAttributes
+        )
+
+        saveAndCreateEventIfNotDraftAndApproved(
+            seriesToUpdate
+                .copy(
+                    seriesData = updatedSeriesData,
                     updated = LocalDateTime.now(),
                     updatedByUser = authentication.name
                 ),
@@ -869,3 +933,4 @@ open class SeriesRegistrationService(
 data class MediaSort(val uri: String, val priority: Int)
 data class NewVideo(val uri: String, val title: String)
 data class FileTitleDto(val uri: String, val newFileTitle: String)
+data class NewDocumentUrl(val uri: String, val title: String)
