@@ -932,5 +932,6 @@ open class SeriesRegistrationService(
 
 data class MediaSort(val uri: String, val priority: Int)
 data class NewVideo(val uri: String, val title: String)
+data class DeleteDocumentUrl(val uri: String)
 data class FileTitleDto(val uri: String, val newFileTitle: String)
 data class NewDocumentUrl(val uri: String, val title: String)

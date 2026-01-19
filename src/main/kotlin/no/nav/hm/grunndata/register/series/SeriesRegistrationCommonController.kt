@@ -248,10 +248,10 @@ class SeriesRegistrationCommonController(
     @Delete("/delete-document-url/{seriesUUID}")
     suspend fun deleteDocumentUrl(
         seriesUUID: UUID,
-        @Body documentUrl: String,
+        @Body documentUrl: DeleteDocumentUrl,
         authentication: Authentication
     ): HttpResponse<Any> {
-        seriesRegistrationService.deleteDocumentUrl(seriesUUID, documentUrl, authentication)
+        seriesRegistrationService.deleteDocumentUrl(seriesUUID, documentUrl.uri, authentication)
         return HttpResponse.ok()
     }
 
