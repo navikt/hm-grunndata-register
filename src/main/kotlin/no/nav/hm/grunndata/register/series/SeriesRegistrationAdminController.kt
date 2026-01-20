@@ -6,6 +6,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.QueryValue
@@ -62,6 +63,17 @@ class SeriesRegistrationAdminController(
         @QueryValue params: java.util.HashMap<String, String>?,
         pageable: Pageable,
     ): Page<SeriesToApproveDTO> = seriesRegistrationService.findSeriesToApprove(pageable, params)
+
+    @Get("/to-approve/variant-id/{variantIdentifier}")
+    suspend fun findSeriesPendingApproveByVariantIdentifier(
+        @PathVariable variantIdentifier: String,
+        authentication: Authentication,
+    ): SeriesToApproveDTO? {
+        val variant = productRegistrationService.findByHmsArtNr(variantIdentifier, authentication)
+            ?: productRegistrationService.findBySupplierRef(variantIdentifier, authentication)
+
+        return variant?.let { seriesRegistrationService.findToApproveById(it.seriesUUID) }
+    }
 
     @Put("/approve-v2/{id}")
     suspend fun approveSeriesAndVariants(

@@ -121,6 +121,10 @@ open class SeriesRegistrationService(
 
     suspend fun findById(id: UUID): SeriesRegistration? = seriesRegistrationRepository.findById(id)
 
+
+    suspend fun findToApproveById(id: UUID): SeriesToApproveDTO? =
+        seriesRegistrationRepository.findById(id)?.toSeriesToApproveDTO()
+
     suspend fun findById(id: UUID, authentication: Authentication): SeriesRegistration? =
         if (authentication.isSupplier()) {
             seriesRegistrationRepository.findByIdAndSupplierIdAndStatusIn(
