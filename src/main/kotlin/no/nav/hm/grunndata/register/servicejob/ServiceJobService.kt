@@ -1,9 +1,13 @@
 package no.nav.hm.grunndata.register.servicejob
 
 import jakarta.inject.Singleton
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.ServiceAgreementInfo
 import no.nav.hm.grunndata.rapid.event.EventName
+import java.util.UUID
 
 @Singleton
 open class ServiceJobService(
@@ -30,6 +34,7 @@ open class ServiceJobService(
             serviceJobEventHandler.queueDTORapidEvent(serviceJob.toDTO(), eventName = EventName.registeredServiceJobV1)
         }
     }
+
     private suspend fun ServiceJob.toDTO(): ServiceJobDTO {
         val agreements = serviceAgreementRepository.findByServiceId(id).map { agree ->
             ServiceAgreementInfo(
@@ -68,5 +73,14 @@ open class ServiceJobService(
 
     private suspend fun update(serviceJob: ServiceJob): ServiceJob {
         return serviceJobRepository.update(serviceJob)
+    }
+
+    suspend fun findByAgreementId(agreementId: UUID): List<ServiceJobDTO> {
+        val agreements = serviceAgreementRepository.findByAgreementId(agreementId)
+        if (agreements.isEmpty()) return emptyList()
+
+        val serviceIds = agreements.map { it.serviceId }.toSet()
+        val jobs = serviceJobRepository.findAll().filter { it.id in serviceIds }
+        return jobs.map { it.toDTO() }.toList()
     }
 }
