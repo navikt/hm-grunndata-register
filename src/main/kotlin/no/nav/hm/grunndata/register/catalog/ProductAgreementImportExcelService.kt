@@ -180,7 +180,7 @@ open class ProductAgreementImportExcelService(
         supplierId: UUID,
         agreement : AgreementRegistrationDTO
     ): List<ProductAgreementRegistrationDTO> {
-        val product = productRegistrationService.findByHmsArtNrAndSupplierId(hmsArtNr, supplierId) ?: throw BadRequestException("Produkt med hmsArtNr: $hmsArtNr finnes ikke. Produktet må være opprettet før katalogavtaleimport.")
+        val product = productRegistrationService.findByHmsArtNrAndSupplierId(hmsArtNr, supplierId) ?: throw BadRequestException("Produkt med hmsArtNr: $hmsArtNr og supplierId: $supplierId finnes ikke <$hmsArtNr-$supplierId>. Produktet må være opprettet før katalogavtaleimport.")
         if (!postNr.isNullOrBlank()) {
             val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(postNr)
 
