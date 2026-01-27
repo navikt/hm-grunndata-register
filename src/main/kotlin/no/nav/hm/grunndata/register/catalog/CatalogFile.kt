@@ -72,10 +72,11 @@ data class CatalogImportExcelDTO(
 
 fun CatalogImportExcelDTO.toCatalogImport(agreementRegistration: AgreementRegistrationDTO, supplierId: UUID): CatalogImport  {
     val remapped = mapArticleType(articleType,funksjonsendring) // ensure articletype
+    val normalizedHmsArtNr = parseHMSNr(hmsArtNr)
     return CatalogImport(
         agreementAction = rammeavtaleHandling,
         orderRef = bestillingsNr,
-        hmsArtNr = hmsArtNr,
+        hmsArtNr = normalizedHmsArtNr,
         iso = iso,
         title = title,
         supplierRef = supplierRef,
@@ -99,4 +100,3 @@ fun CatalogImportExcelDTO.toCatalogImport(agreementRegistration: AgreementRegist
 
 
 val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-

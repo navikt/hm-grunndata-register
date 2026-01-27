@@ -36,10 +36,12 @@ class DelkontraktParserTest {
         val nr2 = "12345"
         val nr3 = "066666"
         val nr4 = "123456"
+        val nr5 = "006019"
 
         parseHMSNr(nr1) shouldBe "000123"
         parseHMSNr(nr2) shouldBe "012345"
         parseHMSNr(nr3) shouldBe "066666"
         parseHMSNr(nr4) shouldBe "123456"
+        parseHMSNr(nr5) shouldBe "006019"
     }
 }
