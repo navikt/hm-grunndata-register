@@ -66,7 +66,7 @@ class ProductRegistrationRepositoryTest(
                 supplierId = supplierId,
                 title = "Dette er produkt title",
                 articleName = "Dette er produkt 1 med og med",
-                hmsArtNr = "321 ",
+                hmsArtNr = "321",
                 supplierRef = "eksternref-321 ",
                 draftStatus = DraftStatus.DRAFT,
                 adminStatus = AdminStatus.PENDING,
@@ -205,7 +205,7 @@ class ProductRegistrationRepositoryTest(
             distinct.size shouldBe 1
             distinct[0].id shouldBe updated.id
 
-            val productByHmsArtNr = productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierIdAndMainProduct(
+            val productByHmsArtNr = productRegistrationRepository.findByHmsArtNrAndRegistrationStatusInAndSupplierIdAndMainProduct(
                 "321",
                 listOf(RegistrationStatus.ACTIVE),
                 supplierId

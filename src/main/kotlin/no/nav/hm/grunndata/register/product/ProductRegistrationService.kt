@@ -84,8 +84,8 @@ open class ProductRegistrationService(
 
     open suspend fun findByHmsArtNr(hmsArtNr: String, authentication: Authentication): ProductRegistration? =
         if (authentication.isSupplier()) {
-            productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndSupplierIdAndMainProduct(
-                hmsArtNr,
+            productRegistrationRepository.findByHmsArtNrAndRegistrationStatusInAndSupplierIdAndMainProduct(
+                hmsArtNr.trim(),
                 listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
                 authentication.supplierId(),
             )
