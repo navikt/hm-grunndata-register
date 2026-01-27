@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.servicejob
 
+import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
@@ -82,5 +83,30 @@ open class ServiceJobService(
         val serviceIds = agreements.map { it.serviceId }.toSet()
         val jobs = serviceJobRepository.findAll().filter { it.id in serviceIds }
         return jobs.map { it.toDTO() }.toList()
+    }
+
+    suspend fun updateServiceJobTitleOrHmsArtNr(
+        id: UUID,
+        title: String?,
+        hmsArtNr: String?,
+    ): ServiceJobDTO? {
+        val existing = serviceJobRepository.findById(id) ?: return null
+
+        val updated = existing.copy(
+            title = title ?: existing.title,
+            hmsArtNr = hmsArtNr ?: existing.hmsArtNr,
+        )
+
+        val saved = update(updated)
+        queueServiceJobEventIfNotDraft(saved)
+        return saved.toDTO()
+    }
+
+    @Transactional
+    open suspend fun deleteById(id: UUID): Boolean {
+        val existing = serviceJobRepository.findById(id) ?: return false
+        serviceAgreementRepository.deleteByServiceId(id)
+        serviceJobRepository.delete(existing)
+        return true
     }
 }

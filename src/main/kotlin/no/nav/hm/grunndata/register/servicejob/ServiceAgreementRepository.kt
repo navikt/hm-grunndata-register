@@ -14,4 +14,5 @@ interface ServiceAgreementRepository : CoroutineCrudRepository<ServiceAgreement,
     suspend fun findByAgreementId(agreementId: UUID): List<ServiceAgreement>
     suspend fun findByServiceIdAndAgreementId(serviceId: UUID, agreementId: UUID): ServiceAgreement?
 
+    suspend fun deleteByServiceId(serviceId: UUID)
 }
