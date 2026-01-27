@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.product
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.data.model.Pageable
@@ -212,6 +213,13 @@ class ProductRegistrationRepositoryTest(
             )
             productByHmsArtNr.shouldNotBeNull()
 
+            val productByIncompleteHmsArtNr = productRegistrationRepository.findByHmsArtNrAndRegistrationStatusInAndSupplierIdAndMainProduct(
+                "32",
+                listOf(RegistrationStatus.ACTIVE),
+                supplierId
+            )
+
+            productByIncompleteHmsArtNr.shouldBeNull()
 
             val productBySupplierRef = productRegistrationRepository.findBySupplierRefStartingWithAndRegistrationStatusInAndSupplierIdAndMainProduct(
                 "eksternref-321",

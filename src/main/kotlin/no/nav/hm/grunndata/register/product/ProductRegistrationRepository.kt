@@ -32,7 +32,7 @@ interface ProductRegistrationRepository :
         supplierId: UUID,
     ): ProductRegistration?
 
-    suspend fun findByHmsArtNrStartingWithAndRegistrationStatusInAndMainProduct(
+    suspend fun findByHmsArtNrAndRegistrationStatusInAndMainProduct(
         hmsArtNr: String,
         registrationStatus: List<RegistrationStatus>,
         mainProduct: Boolean = true,

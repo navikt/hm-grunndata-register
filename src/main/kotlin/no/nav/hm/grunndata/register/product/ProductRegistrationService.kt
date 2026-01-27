@@ -63,7 +63,7 @@ open class ProductRegistrationService(
         productRegistrationRepository.findPartsMissingHmsArtNrCreatedBySupplier()
 
     open suspend fun findByHmsArtNr(hmsArtNr: String) =
-        productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndMainProduct(
+        productRegistrationRepository.findByHmsArtNrAndRegistrationStatusInAndMainProduct(
             hmsArtNr,
             listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
         )
@@ -90,7 +90,7 @@ open class ProductRegistrationService(
                 authentication.supplierId(),
             )
         } else {
-            productRegistrationRepository.findByHmsArtNrStartingWithAndRegistrationStatusInAndMainProduct(
+            productRegistrationRepository.findByHmsArtNrAndRegistrationStatusInAndMainProduct(
                 hmsArtNr,
                 listOf(RegistrationStatus.ACTIVE, RegistrationStatus.INACTIVE),
             )
