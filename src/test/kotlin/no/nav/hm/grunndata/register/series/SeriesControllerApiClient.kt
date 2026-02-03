@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.series
 
 import io.micronaut.http.annotation.CookieValue
+import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.client.annotation.Client
@@ -15,4 +16,5 @@ interface SeriesControllerApiClient {
         @CookieValue("JWT") jwt: String,
         @PathVariable id: UUID,
     )
+
 }

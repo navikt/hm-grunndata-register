@@ -8,6 +8,7 @@ import io.micronaut.data.model.Slice
 import io.micronaut.data.model.query.builder.sql.Dialect
 import io.micronaut.data.repository.jpa.kotlin.CoroutineJpaSpecificationExecutor
 import io.micronaut.data.repository.kotlin.CoroutineCrudRepository
+import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import java.util.UUID
 
@@ -59,33 +60,33 @@ interface SeriesRegistrationRepository :
 
     @Query(
         "UPDATE series_reg_v1 " +
-            "SET count_drafts = b.b_count " +
-            "FROM (SELECT series_uuid, count(*) as b_count FROM product_reg_v1 WHERE draft_status = 'DRAFT' AND registration_status = 'ACTIVE' AND admin_status != 'REJECTED' GROUP BY series_uuid) AS b " +
-            "WHERE id = b.series_uuid AND b.series_uuid = :id",
+                "SET count_drafts = b.b_count " +
+                "FROM (SELECT series_uuid, count(*) as b_count FROM product_reg_v1 WHERE draft_status = 'DRAFT' AND registration_status = 'ACTIVE' AND admin_status != 'REJECTED' GROUP BY series_uuid) AS b " +
+                "WHERE id = b.series_uuid AND b.series_uuid = :id",
     )
     suspend fun updateCountDraftsForSeries(id: UUID)
 
     @Query(
         "UPDATE series_reg_v1 " +
-            "SET count_published = b.b_count " +
-            "FROM (SELECT series_uuid, count(*) as b_count FROM product_reg_v1 WHERE draft_status = 'DONE' AND registration_status = 'ACTIVE' AND admin_status = 'APPROVED' GROUP BY series_uuid) AS b " +
-            "WHERE id = b.series_uuid AND b.series_uuid = :id",
+                "SET count_published = b.b_count " +
+                "FROM (SELECT series_uuid, count(*) as b_count FROM product_reg_v1 WHERE draft_status = 'DONE' AND registration_status = 'ACTIVE' AND admin_status = 'APPROVED' GROUP BY series_uuid) AS b " +
+                "WHERE id = b.series_uuid AND b.series_uuid = :id",
     )
     suspend fun updateCountPublishedForSeries(id: UUID)
 
     @Query(
         "UPDATE series_reg_v1 " +
-            "SET count_pending = b.b_count " +
-            "FROM (SELECT series_uuid, count(*) as b_count FROM product_reg_v1 WHERE draft_status = 'DONE' AND registration_status = 'ACTIVE' AND admin_status = 'PENDING' GROUP BY series_uuid) AS b " +
-            "WHERE id = b.series_uuid AND b.series_uuid = :id",
+                "SET count_pending = b.b_count " +
+                "FROM (SELECT series_uuid, count(*) as b_count FROM product_reg_v1 WHERE draft_status = 'DONE' AND registration_status = 'ACTIVE' AND admin_status = 'PENDING' GROUP BY series_uuid) AS b " +
+                "WHERE id = b.series_uuid AND b.series_uuid = :id",
     )
     suspend fun updateCountPendingForSeries(id: UUID)
 
     @Query(
         "UPDATE series_reg_v1 " +
-            "SET count_declined = b.b_count " +
-            "FROM (SELECT series_uuid, count(*) as b_count FROM product_reg_v1 WHERE draft_status = 'DRAFT' AND registration_status = 'ACTIVE' AND admin_status = 'REJECTED' GROUP BY series_uuid) AS b " +
-            "WHERE id = b.series_uuid AND b.series_uuid = :id",
+                "SET count_declined = b.b_count " +
+                "FROM (SELECT series_uuid, count(*) as b_count FROM product_reg_v1 WHERE draft_status = 'DRAFT' AND registration_status = 'ACTIVE' AND admin_status = 'REJECTED' GROUP BY series_uuid) AS b " +
+                "WHERE id = b.series_uuid AND b.series_uuid = :id",
     )
     suspend fun updateCountDeclinedForSeries(id: UUID)
 
@@ -110,6 +111,33 @@ interface SeriesRegistrationRepository :
     suspend fun setSeriesToExpiredIfAllVariantsAreExpired(
         id: UUID,
     )
+
+    @Query(
+        "SELECT id FROM series_reg_v1 " +
+                "WHERE supplier_id = :supplierId " +
+                "AND status != 'DELETED' " +
+                "AND main_product = (:mainProduct) " +
+                "AND (series_data->'media' IS NULL OR jsonb_array_length(series_data->'media') = 0 " +
+                "OR NOT EXISTS (" +
+                "  SELECT 1 FROM jsonb_array_elements(series_data->'media') elem " +
+                "  WHERE elem->>'type' != (:mediaType)" +
+                ") )",
+    )
+    suspend fun findIdsBySupplierIdAndMainProductAndEmptyMedia(
+        supplierId: UUID,
+        mediaType: String = MediaType.IMAGE.name,
+        mainProduct: Boolean,
+    ): List<UUID>
+
+    @Query(
+        "SELECT DISTINCT s.id FROM series_reg_v1 s " +
+                "JOIN product_reg_v1 p ON p.series_uuid = s.id " +
+                "JOIN product_agreement_reg_v1 pa ON pa.product_id = p.id " +
+                "WHERE s.supplier_id = :supplierId " +
+                "AND s.status != 'DELETED' " +
+                "AND pa.status = 'ACTIVE'",
+    )
+    suspend fun findSeriesIdsOnAgreementForSupplier(supplierId: UUID): List<UUID>
 }
 
 @Introspected

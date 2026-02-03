@@ -233,3 +233,10 @@ data class SeriesDTO(
     val inAgreement: Boolean,
     val hmdbId: String? = null,
 )
+
+data class SeriesIdDTO(val id: UUID)
+
+data class SeriesWithoutMediaByAgreementDTO(
+    val onAgreement: List<SeriesIdDTO>,
+    val notOnAgreement: List<SeriesIdDTO>,
+)

@@ -1,18 +1,17 @@
 package no.nav.hm.grunndata.register.series
 
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.annotation.Controller
-import io.micronaut.http.annotation.PathVariable
-import io.micronaut.http.annotation.Put
+import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.slf4j.LoggerFactory
-import java.util.UUID
+import java.util.*
 
 @Secured(Roles.ROLE_SUPPLIER)
 @Controller(SeriesRegistrationController.API_V1_SERIES)
@@ -44,8 +43,24 @@ class SeriesRegistrationController(
         LOG.info("set series to pending approval: $seriesUUID")
         return HttpResponse.ok()
     }
+
+    @Post("/no-media/by-agreement")
+    suspend fun seriesWithoutMediaByAgreement(
+        @Body request: SeriesByMediaTypeAndMainProductRequest,
+        authentication: Authentication
+    ): SeriesWithoutMediaByAgreementDTO {
+        val supplierId = authentication.supplierId()
+        return seriesRegistrationService.findSeriesIdsWithoutMediaSplitByAgreementForSupplier(
+            supplierId,
+            request.mediaType,
+            request.mainProduct
+        )
+    }
+
 }
 
 data class SeriesDraftResponse(val id: UUID)
 
 data class SeriesDraftWithDTO(val title: String, val isoCategory: String)
+
+data class SeriesByMediaTypeAndMainProductRequest(val mediaType: MediaType, val mainProduct: Boolean)

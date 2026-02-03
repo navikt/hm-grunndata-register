@@ -932,6 +932,36 @@ open class SeriesRegistrationService(
             count++
         }
     }
+
+    suspend fun findSeriesIdsWithoutMediaSplitByAgreementForSupplier(
+        supplierId: UUID,
+        mediaType: MediaType,
+        mainProduct: Boolean,
+    ): SeriesWithoutMediaByAgreementDTO {
+        val noMediaIds =
+            seriesRegistrationRepository
+                .findIdsBySupplierIdAndMainProductAndEmptyMedia(
+                    supplierId = supplierId,
+                    mediaType = mediaType.name,
+                    mainProduct = mainProduct,
+                ).toSet()
+        if (noMediaIds.isEmpty()) {
+            return SeriesWithoutMediaByAgreementDTO(onAgreement = emptyList(), notOnAgreement = emptyList())
+        }
+
+        val onAgreementIds =
+            seriesRegistrationRepository.findSeriesIdsOnAgreementForSupplier(supplierId)
+                .filter { it in noMediaIds }
+                .toSet()
+
+        val notOnAgreementIds = noMediaIds.minus(onAgreementIds)
+
+        return SeriesWithoutMediaByAgreementDTO(
+            onAgreement = onAgreementIds.map { SeriesIdDTO(it) },
+            notOnAgreement = notOnAgreementIds.map { SeriesIdDTO(it) },
+        )
+    }
+
 }
 
 data class MediaSort(val uri: String, val priority: Int)
