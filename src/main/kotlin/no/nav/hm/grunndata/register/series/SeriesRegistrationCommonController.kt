@@ -78,7 +78,35 @@ class SeriesRegistrationCommonController(
         pageable: Pageable,
         authentication: Authentication,
     ): Page<SeriesSearchDTO> {
-        return seriesRegistrationService.findAll(buildCriteriaSpec(seriesCriteria, authentication), pageable)
+        val spec = buildCriteriaSpec(seriesCriteria, authentication)
+        val agreementFilteredSpec = if (seriesCriteria.inAgreement != null) {
+            val seriesIdsInAgreement = seriesRegistrationService.findSeriesIdsOnAgreement()
+            val agreementSpec = if (seriesIdsInAgreement.isEmpty()) {
+                PredicateSpecification<SeriesRegistration> { root, criteriaBuilder ->
+                    if (seriesCriteria.inAgreement) {
+                        criteriaBuilder.disjunction()
+                    } else {
+                        criteriaBuilder.conjunction()
+                    }
+                }
+            } else {
+                PredicateSpecification<SeriesRegistration> { root, criteriaBuilder ->
+                    if (seriesCriteria.inAgreement) {
+                        root[SeriesRegistration::id].`in`(seriesIdsInAgreement)
+                    } else {
+                        criteriaBuilder.not(root[SeriesRegistration::id].`in`(seriesIdsInAgreement))
+                    }
+                }
+            }
+            if (spec != null) {
+                spec.and(agreementSpec)
+            } else {
+                agreementSpec
+            }
+        } else {
+            spec
+        }
+        return seriesRegistrationService.findAll(agreementFilteredSpec, pageable)
             .mapSuspend { it.toSearchDTO() }
     }
 
@@ -444,10 +472,11 @@ data class SeriesCommonCriteria(
     val supplierFilter: List<UUID>? = null,
     val editStatus: List<EditStatus>? = null,
     val title: String? = null,
+    val inAgreement: Boolean? = null,
 ) {
     fun isNotEmpty(): Boolean =
         mainProduct != null || adminStatus != null || excludedStatus != null || excludeExpired != null
                 || status != null || supplierId != null || draft != null || createdByUser != null
                 || updatedByUser != null || createdByAdmin != null || supplierFilter != null || editStatus != null
-                || title != null
+                || title != null || inAgreement != null
 }

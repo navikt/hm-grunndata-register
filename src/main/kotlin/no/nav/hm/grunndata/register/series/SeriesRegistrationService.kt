@@ -167,6 +167,9 @@ open class SeriesRegistrationService(
         pageable: Pageable,
     ): Page<SeriesRegistration> = seriesRegistrationRepository.findAll(spec, pageable)
 
+    suspend fun findSeriesIdsOnAgreement(): List<UUID> =
+        seriesRegistrationRepository.findSeriesIdsOnAgreement()
+
     suspend fun findByIdAndSupplierId(
         id: UUID,
         supplierId: UUID,

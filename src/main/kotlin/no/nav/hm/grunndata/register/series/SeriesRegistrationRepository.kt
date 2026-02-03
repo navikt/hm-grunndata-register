@@ -138,6 +138,14 @@ interface SeriesRegistrationRepository :
                 "AND pa.status = 'ACTIVE'",
     )
     suspend fun findSeriesIdsOnAgreementForSupplier(supplierId: UUID): List<UUID>
+
+    @Query(
+        "SELECT DISTINCT s.id FROM series_reg_v1 s " +
+                "JOIN product_reg_v1 p ON p.series_uuid = s.id " +
+                "JOIN product_agreement_reg_v1 pa ON pa.product_id = p.id " +
+                "WHERE pa.status = 'ACTIVE'",
+    )
+    suspend fun findSeriesIdsOnAgreement(): List<UUID>
 }
 
 @Introspected
