@@ -170,6 +170,9 @@ open class SeriesRegistrationService(
     suspend fun findSeriesIdsOnAgreement(): List<UUID> =
         seriesRegistrationRepository.findSeriesIdsOnAgreement()
 
+    suspend fun findSeriesIdsWithMissingMediaType(mediaType: String): List<UUID> =
+        seriesRegistrationRepository.findIdsWithMissingMediaType(mediaType)
+
     suspend fun findByIdAndSupplierId(
         id: UUID,
         supplierId: UUID,

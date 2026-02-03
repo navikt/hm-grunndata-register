@@ -130,6 +130,19 @@ interface SeriesRegistrationRepository :
     ): List<UUID>
 
     @Query(
+        "SELECT id FROM series_reg_v1 " +
+                "WHERE status != 'DELETED' " +
+                "AND (series_data->'media' IS NULL OR jsonb_array_length(series_data->'media') = 0 " +
+                "OR NOT EXISTS (" +
+                "  SELECT 1 FROM jsonb_array_elements(series_data->'media') elem " +
+                "  WHERE elem->>'type' = (:mediaType)" +
+                ") )",
+    )
+    suspend fun findIdsWithMissingMediaType(
+        mediaType: String = MediaType.IMAGE.name,
+    ): List<UUID>
+
+    @Query(
         "SELECT DISTINCT s.id FROM series_reg_v1 s " +
                 "JOIN product_reg_v1 p ON p.series_uuid = s.id " +
                 "JOIN product_agreement_reg_v1 pa ON pa.product_id = p.id " +

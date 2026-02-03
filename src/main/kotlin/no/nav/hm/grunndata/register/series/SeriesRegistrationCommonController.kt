@@ -78,35 +78,68 @@ class SeriesRegistrationCommonController(
         pageable: Pageable,
         authentication: Authentication,
     ): Page<SeriesSearchDTO> {
-        val spec = buildCriteriaSpec(seriesCriteria, authentication)
-        val agreementFilteredSpec = if (seriesCriteria.inAgreement != null) {
-            val seriesIdsInAgreement = seriesRegistrationService.findSeriesIdsOnAgreement()
-            val agreementSpec = if (seriesIdsInAgreement.isEmpty()) {
-                PredicateSpecification<SeriesRegistration> { root, criteriaBuilder ->
-                    if (seriesCriteria.inAgreement) {
-                        criteriaBuilder.disjunction()
-                    } else {
-                        criteriaBuilder.conjunction()
-                    }
-                }
+        var spec = buildCriteriaSpec(seriesCriteria, authentication)
+        
+        // Collect all ID-based filters and combine them efficiently to avoid SQL parameter limit
+        var filteredIds: Set<UUID>? = null
+        
+        if (seriesCriteria.inAgreement != null) {
+            val seriesIdsInAgreement = seriesRegistrationService.findSeriesIdsOnAgreement().toSet()
+            filteredIds = if (seriesCriteria.inAgreement) {
+                seriesIdsInAgreement
             } else {
-                PredicateSpecification<SeriesRegistration> { root, criteriaBuilder ->
-                    if (seriesCriteria.inAgreement) {
-                        root[SeriesRegistration::id].`in`(seriesIdsInAgreement)
-                    } else {
-                        criteriaBuilder.not(root[SeriesRegistration::id].`in`(seriesIdsInAgreement))
-                    }
-                }
+                // For "not in agreement", we'll handle this differently - skip ID filtering and use a NOT IN clause
+                null
             }
-            if (spec != null) {
-                spec.and(agreementSpec)
-            } else {
-                agreementSpec
-            }
-        } else {
-            spec
         }
-        return seriesRegistrationService.findAll(agreementFilteredSpec, pageable)
+        
+        if (seriesCriteria.missingMediaType != null) {
+            val seriesIdsWithMissingMedia = seriesRegistrationService.findSeriesIdsWithMissingMediaType(
+                seriesCriteria.missingMediaType
+            ).toSet()
+            
+            filteredIds = when {
+                filteredIds == null -> seriesIdsWithMissingMedia
+                else -> filteredIds.intersect(seriesIdsWithMissingMedia) // Intersection reduces parameter count
+            }
+        }
+        
+        // Create a single predicate based on the combined filtered IDs
+        if (filteredIds != null) {
+            val idsSpec = if (filteredIds.isEmpty()) {
+                PredicateSpecification<SeriesRegistration> { _, criteriaBuilder ->
+                    criteriaBuilder.disjunction() // No results
+                }
+            } else {
+                PredicateSpecification<SeriesRegistration> { root, _ ->
+                    root[SeriesRegistration::id].`in`(filteredIds)
+                }
+            }
+            spec = if (spec != null) {
+                spec.and(idsSpec)
+            } else {
+                idsSpec
+            }
+        } else if (seriesCriteria.inAgreement == false) {
+            // Handle "not in agreement" case separately
+            val seriesIdsInAgreement = seriesRegistrationService.findSeriesIdsOnAgreement()
+            val notInAgreementSpec = if (seriesIdsInAgreement.isEmpty()) {
+                PredicateSpecification<SeriesRegistration> { _, criteriaBuilder ->
+                    criteriaBuilder.conjunction() // All results
+                }
+            } else {
+                PredicateSpecification<SeriesRegistration> { root, criteriaBuilder ->
+                    criteriaBuilder.not(root[SeriesRegistration::id].`in`(seriesIdsInAgreement))
+                }
+            }
+            spec = if (spec != null) {
+                spec.and(notInAgreementSpec)
+            } else {
+                notInAgreementSpec
+            }
+        }
+        
+        return seriesRegistrationService.findAll(spec, pageable)
             .mapSuspend { it.toSearchDTO() }
     }
 
@@ -473,10 +506,11 @@ data class SeriesCommonCriteria(
     val editStatus: List<EditStatus>? = null,
     val title: String? = null,
     val inAgreement: Boolean? = null,
+    val missingMediaType: String? = null,
 ) {
     fun isNotEmpty(): Boolean =
         mainProduct != null || adminStatus != null || excludedStatus != null || excludeExpired != null
                 || status != null || supplierId != null || draft != null || createdByUser != null
                 || updatedByUser != null || createdByAdmin != null || supplierFilter != null || editStatus != null
-                || title != null || inAgreement != null
+                || title != null || inAgreement != null || missingMediaType != null
 }
