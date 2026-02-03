@@ -214,6 +214,8 @@ data class ProductRegistrationHmsUserCriteria(
     val createdByUser: String? = null,
     val updatedByUser: String? = null,
     val title: String? = null,
+    val inAgreement: Boolean? = null,
+    val missingMediaType: String? = null,
 ) {
     fun isNotEmpty(): Boolean = listOfNotNull(
         supplierRef,
@@ -225,7 +227,9 @@ data class ProductRegistrationHmsUserCriteria(
         createdByUser,
         updatedByUser,
         title,
-        excludedStatus
+        excludedStatus,
+        inAgreement,
+        missingMediaType
     ).isNotEmpty()
 }
 

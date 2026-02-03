@@ -713,6 +713,11 @@ open class ProductRegistrationService(
         )
     }
 
+    suspend fun findPartIdsOnAgreement(): List<UUID> = productRegistrationRepository.findPartIdsOnAgreement()
+
+    suspend fun findPartIdsWithMissingMediaType(mediaType: String): List<UUID> =
+        productRegistrationRepository.findPartIdsWithMissingMediaType(mediaType)
+
 }
 
 suspend fun <T : Any, R : Any> Page<T>.mapSuspend(transform: suspend (T) -> R): Page<R> {

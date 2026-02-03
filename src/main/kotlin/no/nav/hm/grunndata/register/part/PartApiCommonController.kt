@@ -55,9 +55,84 @@ class PartApiCommonController(
         @RequestBean criteria: ProductRegistrationHmsUserCriteria,
         pageable: Pageable,
         authentication: Authentication,
-    ): Page<ProductRegistrationDTOV2> = productRegistrationService
-        .findAll(buildCriteriaSpec(criteria, authentication), pageable)
-        .mapSuspend { productDTOMapper.toDTOV2(it) }
+    ): Page<ProductRegistrationDTOV2> {
+        var spec = buildCriteriaSpec(criteria, authentication)
+        
+        // Collect all ID-based filters and combine them efficiently to avoid SQL parameter limit
+        var filteredIds: Set<UUID>? = null
+        var partIdsInAgreement: Set<UUID>? = null
+        
+        if (criteria.inAgreement != null) {
+            partIdsInAgreement = productRegistrationService.findPartIdsOnAgreement().toSet()
+            if (criteria.inAgreement) {
+                filteredIds = partIdsInAgreement
+            }
+            // If inAgreement=false, we'll subtract these IDs from filteredIds later
+        }
+        
+        if (criteria.missingMediaType != null) {
+            val partIdsWithMissingMedia = productRegistrationService.findPartIdsWithMissingMediaType(
+                criteria.missingMediaType
+            ).toSet()
+            
+            filteredIds = when {
+                filteredIds == null -> partIdsWithMissingMedia
+                else -> filteredIds.intersect(partIdsWithMissingMedia) // Intersection reduces parameter count
+            }
+        }
+        
+        // Apply "not in agreement" by subtracting IDs in application code (avoids large NOT IN clause)
+        if (criteria.inAgreement == false && partIdsInAgreement != null) {
+            filteredIds = when {
+                filteredIds == null -> {
+                    // No other filters, we need to fetch all part IDs and subtract agreement IDs
+                    // This is expensive, so we'll use NOT IN clause in this specific case
+                    null
+                }
+                else -> {
+                    // Subtract agreement IDs from the filtered set
+                    filteredIds.minus(partIdsInAgreement)
+                }
+            }
+        }
+        
+        // Create a single predicate based on the combined filtered IDs
+        if (filteredIds != null) {
+            val idsSpec = if (filteredIds.isEmpty()) {
+                PredicateSpecification<ProductRegistration> { _, criteriaBuilder ->
+                    criteriaBuilder.disjunction() // No results
+                }
+            } else {
+                PredicateSpecification<ProductRegistration> { root, _ ->
+                    root[ProductRegistration::id].`in`(filteredIds)
+                }
+            }
+            spec = if (spec != null) {
+                spec.and(idsSpec)
+            } else {
+                idsSpec
+            }
+        } else if (criteria.inAgreement == false && partIdsInAgreement != null) {
+            // Only use NOT IN when there are no other ID-based filters
+            val notInAgreementSpec = if (partIdsInAgreement.isEmpty()) {
+                PredicateSpecification<ProductRegistration> { _, criteriaBuilder ->
+                    criteriaBuilder.conjunction() // All results
+                }
+            } else {
+                PredicateSpecification<ProductRegistration> { root, criteriaBuilder ->
+                    criteriaBuilder.not(root[ProductRegistration::id].`in`(partIdsInAgreement))
+                }
+            }
+            spec = if (spec != null) {
+                spec.and(notInAgreementSpec)
+            } else {
+                notInAgreementSpec
+            }
+        }
+        
+        return productRegistrationService.findAll(spec, pageable)
+            .mapSuspend { productDTOMapper.toDTOV2(it) }
+    }
 
     private fun buildCriteriaSpec(
         criteria: ProductRegistrationHmsUserCriteria,

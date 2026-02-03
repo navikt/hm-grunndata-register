@@ -82,15 +82,14 @@ class SeriesRegistrationCommonController(
         
         // Collect all ID-based filters and combine them efficiently to avoid SQL parameter limit
         var filteredIds: Set<UUID>? = null
+        var seriesIdsInAgreement: Set<UUID>? = null
         
         if (seriesCriteria.inAgreement != null) {
-            val seriesIdsInAgreement = seriesRegistrationService.findSeriesIdsOnAgreement().toSet()
-            filteredIds = if (seriesCriteria.inAgreement) {
-                seriesIdsInAgreement
-            } else {
-                // For "not in agreement", we'll handle this differently - skip ID filtering and use a NOT IN clause
-                null
+            seriesIdsInAgreement = seriesRegistrationService.findSeriesIdsOnAgreement().toSet()
+            if (seriesCriteria.inAgreement) {
+                filteredIds = seriesIdsInAgreement
             }
+            // If inAgreement=false, we'll subtract these IDs from filteredIds later
         }
         
         if (seriesCriteria.missingMediaType != null) {
@@ -101,6 +100,21 @@ class SeriesRegistrationCommonController(
             filteredIds = when {
                 filteredIds == null -> seriesIdsWithMissingMedia
                 else -> filteredIds.intersect(seriesIdsWithMissingMedia) // Intersection reduces parameter count
+            }
+        }
+        
+        // Apply "not in agreement" by subtracting IDs in application code (avoids large NOT IN clause)
+        if (seriesCriteria.inAgreement == false && seriesIdsInAgreement != null) {
+            filteredIds = when {
+                filteredIds == null -> {
+                    // No other filters, we need to fetch all series IDs and subtract agreement IDs
+                    // This is expensive, so we'll use NOT IN clause in this specific case
+                    null
+                }
+                else -> {
+                    // Subtract agreement IDs from the filtered set
+                    filteredIds.minus(seriesIdsInAgreement)
+                }
             }
         }
         
@@ -120,9 +134,8 @@ class SeriesRegistrationCommonController(
             } else {
                 idsSpec
             }
-        } else if (seriesCriteria.inAgreement == false) {
-            // Handle "not in agreement" case separately
-            val seriesIdsInAgreement = seriesRegistrationService.findSeriesIdsOnAgreement()
+        } else if (seriesCriteria.inAgreement == false && seriesIdsInAgreement != null) {
+            // Only use NOT IN when there are no other ID-based filters
             val notInAgreementSpec = if (seriesIdsInAgreement.isEmpty()) {
                 PredicateSpecification<SeriesRegistration> { _, criteriaBuilder ->
                     criteriaBuilder.conjunction() // All results

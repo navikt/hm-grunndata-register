@@ -44,23 +44,8 @@ class SeriesRegistrationController(
         return HttpResponse.ok()
     }
 
-    @Post("/no-media/by-agreement")
-    suspend fun seriesWithoutMediaByAgreement(
-        @Body request: SeriesByMediaTypeAndMainProductRequest,
-        authentication: Authentication
-    ): SeriesWithoutMediaByAgreementDTO {
-        val supplierId = authentication.supplierId()
-        return seriesRegistrationService.findSeriesIdsWithoutMediaSplitByAgreementForSupplier(
-            supplierId,
-            request.mediaType,
-            request.mainProduct
-        )
-    }
-
 }
 
 data class SeriesDraftResponse(val id: UUID)
 
 data class SeriesDraftWithDTO(val title: String, val isoCategory: String)
-
-data class SeriesByMediaTypeAndMainProductRequest(val mediaType: MediaType, val mainProduct: Boolean)

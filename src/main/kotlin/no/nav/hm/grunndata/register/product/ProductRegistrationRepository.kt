@@ -182,6 +182,27 @@ interface ProductRegistrationRepository :
 
     suspend fun findByRegistrationStatus(status: RegistrationStatus): List<ProductRegistration>
 
+    @Query(
+        "SELECT DISTINCT p.id FROM product_reg_v1 p " +
+                "JOIN product_agreement_reg_v1 pa ON pa.product_id = p.id " +
+                "WHERE pa.status = 'ACTIVE' " +
+                "AND (p.accessory = true OR p.spare_part = true)",
+    )
+    suspend fun findPartIdsOnAgreement(): List<UUID>
+
+    @Query(
+        "SELECT id FROM product_reg_v1 " +
+                "WHERE (accessory = true OR spare_part = true) " +
+                "AND (product_data->'media' IS NULL OR jsonb_array_length(product_data->'media') = 0 " +
+                "OR NOT EXISTS (" +
+                "  SELECT 1 FROM jsonb_array_elements(product_data->'media') elem " +
+                "  WHERE elem->>'type' = (:mediaType)" +
+                ") )",
+    )
+    suspend fun findPartIdsWithMissingMediaType(
+        mediaType: String,
+    ): List<UUID>
+
 }
 
 
