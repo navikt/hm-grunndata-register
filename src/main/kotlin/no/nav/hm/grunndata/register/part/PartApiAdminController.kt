@@ -214,6 +214,7 @@ data class ProductRegistrationHmsUserCriteria(
     val createdByUser: String? = null,
     val updatedByUser: String? = null,
     val title: String? = null,
+    val isAccessory: Boolean? = null,
     val inAgreement: Boolean? = null,
     val missingMediaType: String? = null,
 ) {

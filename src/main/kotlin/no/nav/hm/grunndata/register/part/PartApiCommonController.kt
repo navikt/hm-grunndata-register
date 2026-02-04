@@ -57,11 +57,11 @@ class PartApiCommonController(
         authentication: Authentication,
     ): Page<ProductRegistrationDTOV2> {
         var spec = buildCriteriaSpec(criteria, authentication)
-        
+
         // Collect all ID-based filters and combine them efficiently to avoid SQL parameter limit
         var filteredIds: Set<UUID>? = null
         var partIdsInAgreement: Set<UUID>? = null
-        
+
         if (criteria.inAgreement != null) {
             partIdsInAgreement = productRegistrationService.findPartIdsOnAgreement().toSet()
             if (criteria.inAgreement) {
@@ -69,18 +69,18 @@ class PartApiCommonController(
             }
             // If inAgreement=false, we'll subtract these IDs from filteredIds later
         }
-        
+
         if (criteria.missingMediaType != null) {
             val partIdsWithMissingMedia = productRegistrationService.findPartIdsWithMissingMediaType(
                 criteria.missingMediaType
             ).toSet()
-            
+
             filteredIds = when {
                 filteredIds == null -> partIdsWithMissingMedia
                 else -> filteredIds.intersect(partIdsWithMissingMedia) // Intersection reduces parameter count
             }
         }
-        
+
         // Apply "not in agreement" by subtracting IDs in application code (avoids large NOT IN clause)
         if (criteria.inAgreement == false && partIdsInAgreement != null) {
             filteredIds = when {
@@ -89,13 +89,14 @@ class PartApiCommonController(
                     // This is expensive, so we'll use NOT IN clause in this specific case
                     null
                 }
+
                 else -> {
                     // Subtract agreement IDs from the filtered set
                     filteredIds.minus(partIdsInAgreement)
                 }
             }
         }
-        
+
         // Create a single predicate based on the combined filtered IDs
         if (filteredIds != null) {
             val idsSpec = if (filteredIds.isEmpty()) {
@@ -129,7 +130,7 @@ class PartApiCommonController(
                 notInAgreementSpec
             }
         }
-        
+
         return productRegistrationService.findAll(spec, pageable)
             .mapSuspend { productDTOMapper.toDTOV2(it) }
     }
@@ -151,10 +152,17 @@ class PartApiCommonController(
             criteria.supplierRef?.let { root[ProductRegistration::supplierRef] eq it }
             criteria.hmsArtNr?.let { root[ProductRegistration::hmsArtNr] eq it }
             criteria.title?.let { criteriaBuilder.lower(root[ProductRegistration::articleName]) like LiteralExpression("%${it.lowercase()}%") }
-            or {
+
+            if (criteria.isAccessory != null && criteria.isAccessory) {
                 root[ProductRegistration::accessory] eq true
-                root[ProductRegistration::sparePart] eq true
+            } else {
+                or {
+                    root[ProductRegistration::accessory] eq true
+                    root[ProductRegistration::sparePart] eq true
+                }
             }
+
+
         }
 
 
