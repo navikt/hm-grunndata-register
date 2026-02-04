@@ -155,6 +155,8 @@ class PartApiCommonController(
 
             if (criteria.isAccessory != null && criteria.isAccessory) {
                 root[ProductRegistration::accessory] eq true
+            } else if (criteria.isAccessory != null && !criteria.isAccessory) {
+                root[ProductRegistration::sparePart] eq true
             } else {
                 or {
                     root[ProductRegistration::accessory] eq true
