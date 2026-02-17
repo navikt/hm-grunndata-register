@@ -21,7 +21,7 @@ jobs:
       id-token: write
     uses: navikt/hm-workflows/.github/workflows/deploy-dev.yaml@main
     with:
-      manifest: .nais/nais-dev.yaml
+      manifest: .nais/nais.yaml
       vars: .nais/nais-dev.json
       build-command: './gradlew build -x test'
     secrets: inherit

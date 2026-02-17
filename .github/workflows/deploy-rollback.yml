@@ -21,7 +21,7 @@ jobs:
       actions: read
     uses: navikt/pam-deploy/.github/workflows/deploy-rollback.yml@v7
     with:
-      NAIS_RESOURCE: ".nais/nais.yml"
+      NAIS_RESOURCE: ".nais/nais.yaml"
       NAIS_VARS: '.nais/nais_${{ inputs.CLUSTER }}.json'
       TEAM: "teamdigihot"
       CLUSTER: ${{ inputs.CLUSTER }}
