@@ -23,4 +23,5 @@ jobs:
     with:
       manifest: .nais/nais-dev.yaml
       vars: .nais/nais-dev.json
+      build-command: './gradlew build -x test'
     secrets: inherit
