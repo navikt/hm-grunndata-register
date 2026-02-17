@@ -58,7 +58,6 @@ class PartApiCommonController(
     ): Page<ProductRegistrationDTOV2> {
         var spec = buildCriteriaSpec(criteria, authentication)
 
-        // Collect all ID-based filters and combine them efficiently to avoid SQL parameter limit
         var filteredIds: Set<UUID>? = null
         var partIdsInAgreement: Set<UUID>? = null
 
@@ -67,7 +66,6 @@ class PartApiCommonController(
             if (criteria.inAgreement) {
                 filteredIds = partIdsInAgreement
             }
-            // If inAgreement=false, we'll subtract these IDs from filteredIds later
         }
 
         if (criteria.missingMediaType != null) {
@@ -77,31 +75,26 @@ class PartApiCommonController(
 
             filteredIds = when {
                 filteredIds == null -> partIdsWithMissingMedia
-                else -> filteredIds.intersect(partIdsWithMissingMedia) // Intersection reduces parameter count
+                else -> filteredIds.intersect(partIdsWithMissingMedia)
             }
         }
 
-        // Apply "not in agreement" by subtracting IDs in application code (avoids large NOT IN clause)
         if (criteria.inAgreement == false && partIdsInAgreement != null) {
             filteredIds = when {
                 filteredIds == null -> {
-                    // No other filters, we need to fetch all part IDs and subtract agreement IDs
-                    // This is expensive, so we'll use NOT IN clause in this specific case
                     null
                 }
 
                 else -> {
-                    // Subtract agreement IDs from the filtered set
                     filteredIds.minus(partIdsInAgreement)
                 }
             }
         }
 
-        // Create a single predicate based on the combined filtered IDs
         if (filteredIds != null) {
             val idsSpec = if (filteredIds.isEmpty()) {
                 PredicateSpecification<ProductRegistration> { _, criteriaBuilder ->
-                    criteriaBuilder.disjunction() // No results
+                    criteriaBuilder.disjunction()
                 }
             } else {
                 PredicateSpecification<ProductRegistration> { root, _ ->
@@ -114,10 +107,9 @@ class PartApiCommonController(
                 idsSpec
             }
         } else if (criteria.inAgreement == false && partIdsInAgreement != null) {
-            // Only use NOT IN when there are no other ID-based filters
             val notInAgreementSpec = if (partIdsInAgreement.isEmpty()) {
                 PredicateSpecification<ProductRegistration> { _, criteriaBuilder ->
-                    criteriaBuilder.conjunction() // All results
+                    criteriaBuilder.conjunction()
                 }
             } else {
                 PredicateSpecification<ProductRegistration> { root, criteriaBuilder ->
