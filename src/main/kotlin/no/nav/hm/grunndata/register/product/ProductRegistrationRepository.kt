@@ -191,11 +191,12 @@ interface ProductRegistrationRepository :
     suspend fun findPartIdsOnAgreement(): List<UUID>
 
     @Query(
-        "SELECT id FROM product_reg_v1 " +
-                "WHERE (accessory = true OR spare_part = true) " +
-                "AND (product_data->'media' IS NULL OR jsonb_array_length(product_data->'media') = 0 " +
+        "SELECT p.id FROM product_reg_v1 p " +
+                "JOIN series_reg_v1 s ON s.id = p.series_uuid " +
+                "WHERE (p.accessory = true OR p.spare_part = true) " +
+                "AND (s.series_data->'media' IS NULL OR jsonb_array_length(s.series_data->'media') = 0 " +
                 "OR NOT EXISTS (" +
-                "  SELECT 1 FROM jsonb_array_elements(product_data->'media') elem " +
+                "  SELECT 1 FROM jsonb_array_elements(s.series_data->'media') elem " +
                 "  WHERE elem->>'type' = (:mediaType)" +
                 ") )",
     )
