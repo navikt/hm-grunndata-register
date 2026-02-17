@@ -10,7 +10,7 @@ on:
       - "dev**"
       - ".nais/azure-emailer.yml"
     branches:
-      - main
+      - main_
 
 jobs:
   call-workflow:

@@ -102,7 +102,7 @@ dependencies {
 
     implementation("org.apache.commons:commons-compress:1.26.2")
 
-    implementation("com.opencsv:opencsv:5.10")
+    implementation("com.opencsv:opencsv:5.12.0")
 
     implementation(platform("com.google.cloud:libraries-bom:$googleCloudPlatformVersion"))
     implementation("com.google.cloud:google-cloud-vertexai")

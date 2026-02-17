@@ -1,0 +1,26 @@
+name: build-deploy-dev
+on:
+  push:
+    paths-ignore:
+      - "**.md"
+      - ".gitignore"
+      - "LICENCE"
+      - "CODEOWNERS"
+      - "docker-compose**"
+      - "dev**"
+      - ".nais/azure-emailer.yml"
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Bygg, deploy til dev-gcp og lag release
+    permissions:
+      packages: write
+      contents: write
+      id-token: write
+    uses: navikt/hm-workflows/.github/workflows/deploy-dev.yaml@main
+    with:
+      manifest: .nais/nais-dev.yaml
+      vars: .nais/nais-dev.json
+    secrets: inherit
