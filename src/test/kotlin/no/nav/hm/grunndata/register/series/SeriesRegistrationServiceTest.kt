@@ -1,27 +1,34 @@
 package no.nav.hm.grunndata.register.series
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
+import no.nav.hm.grunndata.register.product.ProductData
+import no.nav.hm.grunndata.register.product.ProductRegistration
+import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
 
 @MicronautTest
 class SeriesRegistrationServiceTest(
     private val service: SeriesRegistrationService,
+    private val productRegistrationService: ProductRegistrationService
 ) {
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -150,6 +157,76 @@ class SeriesRegistrationServiceTest(
             val savedVideo = seriesMedia.find { it.uri == mediaUri }
             savedVideo.shouldNotBeNull()
             savedVideo.text shouldBe videoTitle
+        }
+    }
+
+    @Test
+    fun `Delete delete draft series and product variants`() {
+        val seriesId = UUID.randomUUID()
+        val supplierId = UUID.randomUUID()
+        val series = newSeries(seriesId, supplierId)
+
+
+        val authentication = Authentication.build("marte", mapOf("supplierId" to supplierId.toString()))
+
+        runBlocking {
+            productRegistrationService.save(
+                ProductRegistration(
+                    id = UUID.randomUUID(),
+                    supplierId = supplierId,
+                    supplierRef = "123-abc",
+                    hmsArtNr = "1234",
+                    seriesUUID = seriesId,
+                    articleName = "produkt 1",
+                    productData = ProductData()
+                )
+            )
+
+            service.save(series)
+
+            service.deleteDraft(series, authentication)
+
+            service.findById(seriesId) shouldBe null
+            productRegistrationService.findAllBySeriesUuid(seriesId) shouldBe emptyList()
+        }
+    }
+
+    @Test
+    fun `Can't delete published series`() {
+        val seriesId = UUID.randomUUID()
+        val supplierId = UUID.randomUUID()
+        val series = SeriesRegistration(
+            id = seriesId,
+            supplierId = supplierId,
+            identifier = "identifier",
+            title = "ikke kladd",
+            text = "dette er absolutt ikke en kladd",
+            isoCategory = "1",
+            seriesData = SeriesDataDTO(),
+            published = LocalDateTime.now()
+        )
+
+        val authentication = Authentication.build("marte", mapOf("supplierId" to supplierId.toString()))
+
+        runBlocking {
+            productRegistrationService.save(
+                ProductRegistration(
+                    id = UUID.randomUUID(),
+                    supplierId = supplierId,
+                    supplierRef = "123-abc",
+                    hmsArtNr = "1234",
+                    seriesUUID = seriesId,
+                    articleName = "produkt 1",
+                    productData = ProductData()
+                )
+            )
+
+            service.save(series)
+
+            shouldThrow<BadRequestException> { service.deleteDraft(series, authentication) }
+
+            service.findById(seriesId).shouldNotBeNull()
+            productRegistrationService.findAllBySeriesUuid(seriesId).shouldNotBeEmpty()
         }
     }
 

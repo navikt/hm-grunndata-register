@@ -21,6 +21,9 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.persistence.criteria.Predicate
+import java.time.LocalDateTime
+import java.util.Locale
+import java.util.UUID
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaType
@@ -33,9 +36,6 @@ import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
-import java.util.Locale
-import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN, Roles.ROLE_SUPPLIER, Roles.ROLE_HMS)
 @Controller(SeriesRegistrationCommonController.API_V1_SERIES)
@@ -79,11 +79,11 @@ class SeriesRegistrationCommonController(
         authentication: Authentication,
     ): Page<SeriesSearchDTO> {
         var spec = buildCriteriaSpec(seriesCriteria, authentication)
-        
+
         // Collect all ID-based filters and combine them efficiently to avoid SQL parameter limit
         var filteredIds: Set<UUID>? = null
         var seriesIdsInAgreement: Set<UUID>? = null
-        
+
         if (seriesCriteria.inAgreement != null) {
             seriesIdsInAgreement = seriesRegistrationService.findSeriesIdsOnAgreement().toSet()
             if (seriesCriteria.inAgreement) {
@@ -91,18 +91,18 @@ class SeriesRegistrationCommonController(
             }
             // If inAgreement=false, we'll subtract these IDs from filteredIds later
         }
-        
+
         if (seriesCriteria.missingMediaType != null) {
             val seriesIdsWithMissingMedia = seriesRegistrationService.findSeriesIdsWithMissingMediaType(
                 seriesCriteria.missingMediaType
             ).toSet()
-            
+
             filteredIds = when {
                 filteredIds == null -> seriesIdsWithMissingMedia
                 else -> filteredIds.intersect(seriesIdsWithMissingMedia) // Intersection reduces parameter count
             }
         }
-        
+
         // Apply "not in agreement" by subtracting IDs in application code (avoids large NOT IN clause)
         if (seriesCriteria.inAgreement == false && seriesIdsInAgreement != null) {
             filteredIds = when {
@@ -111,13 +111,14 @@ class SeriesRegistrationCommonController(
                     // This is expensive, so we'll use NOT IN clause in this specific case
                     null
                 }
+
                 else -> {
                     // Subtract agreement IDs from the filtered set
                     filteredIds.minus(seriesIdsInAgreement)
                 }
             }
         }
-        
+
         // Create a single predicate based on the combined filtered IDs
         if (filteredIds != null) {
             val idsSpec = if (filteredIds.isEmpty()) {
@@ -151,7 +152,7 @@ class SeriesRegistrationCommonController(
                 notInAgreementSpec
             }
         }
-        
+
         return seriesRegistrationService.findAll(spec, pageable)
             .mapSuspend { it.toSearchDTO() }
     }
@@ -266,7 +267,7 @@ class SeriesRegistrationCommonController(
             if (seriesToUpdate.published != null) throw BadRequestException("can not delete a published series")
         }
 
-        seriesRegistrationService.deleteSeries(seriesToUpdate, authentication)
+        seriesRegistrationService.deleteDraft(seriesToUpdate, authentication)
         LOG.info("set series to deleted: $id")
         return HttpResponse.ok()
     }

@@ -11,6 +11,9 @@ import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.persistence.criteria.Predicate
 import jakarta.transaction.Transactional
+import java.time.LocalDateTime
+import java.util.Locale
+import java.util.UUID
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactive.asFlow
@@ -29,6 +32,7 @@ import no.nav.hm.grunndata.register.error.ErrorType
 import no.nav.hm.grunndata.register.media.MediaUploadService
 import no.nav.hm.grunndata.register.media.ObjectType
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
+import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.isHms
 import no.nav.hm.grunndata.register.product.isSupplier
@@ -38,9 +42,6 @@ import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
-import java.util.Locale
-import java.util.UUID
 
 @Singleton
 open class SeriesRegistrationService(
@@ -410,6 +411,27 @@ open class SeriesRegistrationService(
         productRegistrationService.saveAllAndCreateEventIfNotDraftAndApproved(variantsToDelete, isUpdate = true)
 
         return deleted
+    }
+
+    open suspend fun deleteDraft(
+        seriesToDelete: SeriesRegistration,
+        authentication: Authentication
+    ) {
+        if (authentication.isSupplier() && seriesToDelete.supplierId != authentication.supplierId()) {
+            throw BadRequestException("series belongs to another supplier", type = ErrorType.UNAUTHORIZED)
+        }
+        if (seriesToDelete.draftStatus != DraftStatus.DRAFT || seriesToDelete.published != null) {
+            throw BadRequestException("series ${seriesToDelete.id} is not a draft", ErrorType.INVALID_VALUE)
+        }
+
+        productRegistrationService.deleteDraftVariants(
+            productRegistrationService.findAllBySeriesUuid(seriesToDelete.id).map(ProductRegistration::id),
+            authentication
+        )
+
+        LOG.info("delete called for series ${seriesToDelete.id}")
+
+        seriesRegistrationRepository.delete(seriesToDelete)
     }
 
     open suspend fun findSeriesToApprove(
