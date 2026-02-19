@@ -37,6 +37,11 @@ configurations.all {
 }
 
 dependencies {
+    constraints {
+        implementation("com.opencsv:opencsv:5.12.0")
+        implementation("commons-beanutils:commons-beanutils:1.11.0")
+    }
+
 
     api("ch.qos.logback:logback-classic")
     api("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
