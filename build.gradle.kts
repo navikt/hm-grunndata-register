@@ -32,7 +32,7 @@ plugins {
 configurations.all {
     resolutionStrategy {
         failOnChangingVersions()
-        force("com.opencsv:opencsv:5.12.0")
+        force("commons-beanutils:commons-beanutils:1.11.0")
     }
 }
 
