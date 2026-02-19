@@ -3,14 +3,14 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jvmTarget = "17"
-val micronautVersion = "4.10.2"
+val micronautVersion = "4.10.8"
 val logbackEncoderVersion = "8.0"
 val postgresqlVersion = "42.7.2"
 val tcVersion = "1.21.4"
 val mockkVersion = "1.13.4"
 val kotestVersion = "5.5.5"
 val poiVersion = "5.4.0"
-val rapidsRiversVersion = "202510300622"
+val rapidsRiversVersion = "202602191319"
 val grunndataDtoVersion = "202601201544"
 val microsoftGrapVersion = "5.77.0"
 val leaderElectionVersion = "202405291312"
