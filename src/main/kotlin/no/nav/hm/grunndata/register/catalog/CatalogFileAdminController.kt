@@ -71,7 +71,7 @@ open class CatalogFileAdminController(
             val importedExcelCatalog =
                 file.inputStream.use { input -> catalogExcelFileImport.importExcelFile(input) }
 
-            val (agreement, catalogList) = catalogImportService.mapExcelDTOToCatalogImport(
+            val (_, catalogList) = catalogImportService.mapExcelDTOToCatalogImport(
                 importedExcelCatalog,
                 supplierId,
             )

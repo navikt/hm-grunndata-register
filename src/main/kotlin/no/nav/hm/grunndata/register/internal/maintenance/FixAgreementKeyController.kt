@@ -18,7 +18,7 @@ class FixAgreementKeyController(private val agreementRegistrationRepository: Agr
 
     @Put("/keys")
     suspend fun fixAgreementKeys() {
-        val agreements = agreementRegistrationRepository.findAll().collect { agreementRegistration ->
+        agreementRegistrationRepository.findAll().collect { agreementRegistration ->
             LOG.info("updating agreement ${agreementRegistration.id} with agreementKey ${agreementRegistration.agreementKey}")
             if (agreementRegistration.agreementKey == null) {
                 val agreementKey = generateKey(agreementRegistration.reference)

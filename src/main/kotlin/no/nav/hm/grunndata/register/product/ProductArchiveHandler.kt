@@ -37,7 +37,7 @@ class ProductArchiveHandler(
     override suspend fun unArchive(unArchive: Archive) {
         LOG.debug("Unarchiving ProductRegistration with oid: ${unArchive.oid} and keywords: ${unArchive.keywords}")
         val productRegistration = objectMapper.readValue(unArchive.payload, ProductRegistration::class.java)
-        val unarchived = productRegistrationRepository.findBySupplierRefAndSupplierId(
+        productRegistrationRepository.findBySupplierRefAndSupplierId(
             productRegistration.supplierRef,
             productRegistration.supplierId
         )?.let {

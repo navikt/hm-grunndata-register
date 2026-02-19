@@ -913,7 +913,7 @@ open class SeriesRegistrationService(
             LOG.info("Ungrouping product ${product.id} from series ${seriesToUngroup.id}")
             if (count == 0) {
                 // First product keeps the series, but use article name as title
-                val updatedSeries = saveAndCreateEventIfNotDraftAndApproved(
+                saveAndCreateEventIfNotDraftAndApproved(
                     seriesToUngroup.copy(
                         title = product.articleName,
                         updated = LocalDateTime.now(),
@@ -959,35 +959,6 @@ open class SeriesRegistrationService(
             }
             count++
         }
-    }
-
-    suspend fun findSeriesIdsWithoutMediaSplitByAgreementForSupplier(
-        supplierId: UUID,
-        mediaType: MediaType,
-        mainProduct: Boolean,
-    ): SeriesWithoutMediaByAgreementDTO {
-        val noMediaIds =
-            seriesRegistrationRepository
-                .findIdsBySupplierIdAndMainProductAndEmptyMedia(
-                    supplierId = supplierId,
-                    mediaType = mediaType.name,
-                    mainProduct = mainProduct,
-                ).toSet()
-        if (noMediaIds.isEmpty()) {
-            return SeriesWithoutMediaByAgreementDTO(onAgreement = emptyList(), notOnAgreement = emptyList())
-        }
-
-        val onAgreementIds =
-            seriesRegistrationRepository.findSeriesIdsOnAgreementForSupplier(supplierId)
-                .filter { it in noMediaIds }
-                .toSet()
-
-        val notOnAgreementIds = noMediaIds.minus(onAgreementIds)
-
-        return SeriesWithoutMediaByAgreementDTO(
-            onAgreement = onAgreementIds.map { SeriesIdDTO(it) },
-            notOnAgreement = notOnAgreementIds.map { SeriesIdDTO(it) },
-        )
     }
 
 }

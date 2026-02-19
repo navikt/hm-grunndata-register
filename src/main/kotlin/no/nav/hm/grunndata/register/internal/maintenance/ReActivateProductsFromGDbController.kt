@@ -63,7 +63,7 @@ open class ReActivateProductsFromGDbController(
                         productData = dto.toProductData()
                     )
                 )
-                val series = dto.seriesUUID?.let { uuid ->
+                dto.seriesUUID?.let { uuid ->
                     seriesRegistrationRepository.findById(uuid) ?: seriesRegistrationRepository.save(
                         SeriesRegistration(
                             id = uuid,
