@@ -1,0 +1,14 @@
+name: Kodekvalitet
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  kodekvalitet:
+    permissions:
+      actions: read
+      contents: write
+      security-events: write
+    uses: navikt/hm-workflows/.github/workflows/kodekvalitet.yaml@main
