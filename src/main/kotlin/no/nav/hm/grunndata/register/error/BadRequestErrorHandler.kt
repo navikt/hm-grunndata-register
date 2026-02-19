@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException
-import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import io.micronaut.context.annotation.Replaces
 import io.micronaut.core.convert.exceptions.ConversionErrorException
 import io.micronaut.http.HttpRequest
@@ -29,7 +29,7 @@ class BadRequestErrorHandler : ExceptionHandler<BadRequestException, HttpRespons
         val response =
             when (error.type) {
                 ErrorType.NOT_FOUND -> HttpResponse.notFound(createMessage(error))
-                ErrorType.MISSING_PARAMETER, ErrorType.INVALID_VALUE, ErrorType.PARSE_ERROR ->
+                ErrorType.MISMATCHED_INPUT, ErrorType.INVALID_VALUE, ErrorType.PARSE_ERROR ->
                     HttpResponse.badRequest(
                         createMessage(error),
                     )
@@ -97,9 +97,9 @@ private fun handleJsonProcessingException(error: JsonProcessingException): HttpR
             HttpResponse
                 .badRequest(ErrorMessage("Parse error: at ${error.location}", ErrorType.PARSE_ERROR))
 
-        is MissingKotlinParameterException ->
+        is MismatchedInputException ->
             HttpResponse
-                .badRequest(ErrorMessage("Missing parameter: ${error.parameter.name}", ErrorType.MISSING_PARAMETER))
+                .badRequest(ErrorMessage("Mismatched input: ${error.targetType}", ErrorType.MISMATCHED_INPUT))
 
         is InvalidFormatException ->
             HttpResponse
@@ -124,7 +124,7 @@ private fun handleJsonProcessingException(error: JsonProcessingException): HttpR
 
 enum class ErrorType {
     PARSE_ERROR,
-    MISSING_PARAMETER,
+    MISMATCHED_INPUT,
     INVALID_VALUE,
     CONFLICT,
     NOT_FOUND,
