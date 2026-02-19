@@ -32,6 +32,7 @@ plugins {
 configurations.all {
     resolutionStrategy {
         failOnChangingVersions()
+        force("com.opencsv:opencsv:5.12.0")
     }
 }
 
