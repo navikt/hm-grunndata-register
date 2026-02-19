@@ -287,7 +287,7 @@ class Where<T>(var root: Root<T>, var criteriaBuilder: CriteriaBuilder) {
 
     infix fun Expression<*>.ne(other: Any?) = addPredicate(criteriaBuilder::notEqual, other)
 
-    infix fun Expression<*>.ne(other: Expression<*>) = addPredicateExp(criteriaBuilder::notEqual, other)
+    infix fun Expression<*>.neExp(other: Expression<*>) = addPredicateExp(criteriaBuilder::notEqual, other)
 
     infix fun <Y : Comparable<Y>> Expression<out Y?>.greaterThan(other: Y) = addComparablePredicate(criteriaBuilder::greaterThan, other)
 
