@@ -97,10 +97,6 @@ private fun handleJsonProcessingException(error: JsonProcessingException): HttpR
             HttpResponse
                 .badRequest(ErrorMessage("Parse error: at ${error.location}", ErrorType.PARSE_ERROR))
 
-        is MismatchedInputException ->
-            HttpResponse
-                .badRequest(ErrorMessage("Mismatched input: ${error.targetType}", ErrorType.MISMATCHED_INPUT))
-
         is InvalidFormatException ->
             HttpResponse
                 .badRequest(

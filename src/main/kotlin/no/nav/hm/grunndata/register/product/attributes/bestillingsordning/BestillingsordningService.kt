@@ -8,7 +8,7 @@ import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.BestillingsordningStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import org.slf4j.LoggerFactory
-import java.net.URL
+import java.net.URI
 import java.time.LocalDateTime
 
 data class BestillingsordningDTO(
@@ -29,12 +29,12 @@ open class BestillingsordningService(
     }
 
     private var boMap: Map<String, BestillingsordningDTO> =
-        objectMapper.readValue(URL(url), object : TypeReference<List<BestillingsordningDTO>>(){}).associateBy { it.hmsnr }
+        objectMapper.readValue(URI(url).toURL(), object : TypeReference<List<BestillingsordningDTO>>(){}).associateBy { it.hmsnr }
 
     suspend fun findByHmsArtNr(hmsArtNr: String): BestillingsordningRegistrationDTO? = bestillingsordningRegistrationRepository.findByHmsArtNr(hmsArtNr)?.toDTO()
 
     suspend fun importAndUpdateDb() {
-        boMap = objectMapper.readValue(URL(url), object : TypeReference<List<BestillingsordningDTO>>(){}).associateBy { it.hmsnr }
+        boMap = objectMapper.readValue(URI(url).toURL(), object : TypeReference<List<BestillingsordningDTO>>(){}).associateBy { it.hmsnr }
         val deactiveList = bestillingsordningRegistrationRepository.findByStatus(BestillingsordningStatus.ACTIVE).filter {
             !boMap.containsKey(it.hmsArtNr)
         }

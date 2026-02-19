@@ -8,7 +8,7 @@ import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.ProdukttypeStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import org.slf4j.LoggerFactory
-import java.net.URL
+import java.net.URI
 import java.time.LocalDateTime
 
 data class ProdukttypeDTO(
@@ -19,7 +19,7 @@ data class ProdukttypeDTO(
 @Singleton
 open class ProdukttypeService(
     @Value("\${digihotSortiment.produkttype}")
-    private val url : String,
+    private val url: String,
     private val objectMapper: ObjectMapper,
     private val produkttypeRegistrationRepository: ProdukttypeRegistrationRepository,
     private val produkttypeEventHandler: ProdukttypeEventHandler,
@@ -29,24 +29,28 @@ open class ProdukttypeService(
     }
 
     suspend fun importAndUpdateDb() {
-        val boMap = objectMapper.readValue(URL(url), object : TypeReference<List<ProdukttypeDTO>>(){}).associateBy { it.isokode }.mapValues { it.value.produkttype }
+        val boMap = objectMapper.readValue(URI(url).toURL(), object : TypeReference<List<ProdukttypeDTO>>() {})
+            .associateBy { it.isokode }.mapValues { it.value.produkttype }
 
-        val deactiveList = produkttypeRegistrationRepository.findByStatus(ProdukttypeStatus.ACTIVE).filter { currentlyActive ->
-            return@filter !boMap.containsKey(currentlyActive.isokode)
-        }
+        val deactiveList =
+            produkttypeRegistrationRepository.findByStatus(ProdukttypeStatus.ACTIVE).filter { currentlyActive ->
+                return@filter !boMap.containsKey(currentlyActive.isokode)
+            }
 
         boMap.forEach { (isokode, produkttype) ->
             produkttypeRegistrationRepository.findByIsokode(isokode)?.let { existing ->
                 if (existing.status != ProdukttypeStatus.ACTIVE || existing.produkttype != produkttype) {
                     // update produkttype which was previously deactivated
                     LOG.info("Updating produkttype for isokode: ${isokode}: $produkttype")
-                    saveAndCreateEvent(existing.copy (
-                        produkttype = produkttype,
-                        status = ProdukttypeStatus.ACTIVE,
-                        updated = LocalDateTime.now(),
-                        deactivated = null,
-                        updatedByUser = "system",
-                    ).toDTO(), update = true)
+                    saveAndCreateEvent(
+                        existing.copy(
+                            produkttype = produkttype,
+                            status = ProdukttypeStatus.ACTIVE,
+                            updated = LocalDateTime.now(),
+                            deactivated = null,
+                            updatedByUser = "system",
+                        ).toDTO(), update = true
+                    )
                 }
                 existing
             } ?: run {
@@ -59,13 +63,20 @@ open class ProdukttypeService(
 
         deactiveList.forEach {
             LOG.info("Deactivate produkttype for isokode: ${it.isokode}: ${it.produkttype}")
-            saveAndCreateEvent(it.copy(status = ProdukttypeStatus.INACTIVE,
-                updated = LocalDateTime.now(), deactivated = LocalDateTime.now()).toDTO(), update = true)
+            saveAndCreateEvent(
+                it.copy(
+                    status = ProdukttypeStatus.INACTIVE,
+                    updated = LocalDateTime.now(), deactivated = LocalDateTime.now()
+                ).toDTO(), update = true
+            )
         }
     }
 
     @Transactional
-    open suspend fun saveAndCreateEvent(produkttypeRegistration: ProdukttypeRegistrationDTO, update:Boolean): ProdukttypeRegistrationDTO {
+    open suspend fun saveAndCreateEvent(
+        produkttypeRegistration: ProdukttypeRegistrationDTO,
+        update: Boolean
+    ): ProdukttypeRegistrationDTO {
         val saved = if (update) {
             produkttypeRegistrationRepository.update(produkttypeRegistration.toEntity())
         } else {
