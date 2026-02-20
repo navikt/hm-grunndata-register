@@ -30,7 +30,9 @@ open class PaakrevdGodkjenningskursService(
     }
 
     suspend fun importAndUpdateDb() {
-        val boMap = objectMapper.readValue(URI(url).toURL(), object : TypeReference<List<PaakrevdGodkjenningskursDTO>>(){}).associateBy { it.isokode }
+        val boMap = URI(url).toURL().openStream().use { inputStream ->
+            objectMapper.readValue(inputStream, object : TypeReference<List<PaakrevdGodkjenningskursDTO>>() {})
+        }.associateBy { it.isokode }
 
         val deactiveList = paakrevdGodkjenningskursRegistrationRepository.findByStatus(PaakrevdGodkjenningskursStatus.ACTIVE).filter { currentlyActive ->
             return@filter !boMap.containsKey(currentlyActive.isokode)
