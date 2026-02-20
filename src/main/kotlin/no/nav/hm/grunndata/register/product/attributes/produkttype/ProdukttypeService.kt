@@ -29,7 +29,8 @@ open class ProdukttypeService(
     }
 
     suspend fun importAndUpdateDb() {
-        val boMap = objectMapper.readValue(URI(url).toURL(), object : TypeReference<List<ProdukttypeDTO>>() {})
+        val json = URI(url).toURL().readText()
+        val boMap = objectMapper.readValue(json, object : TypeReference<List<ProdukttypeDTO>>() {})
             .associateBy { it.isokode }.mapValues { it.value.produkttype }
 
         val deactiveList =
