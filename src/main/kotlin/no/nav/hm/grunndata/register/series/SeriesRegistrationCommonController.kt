@@ -78,83 +78,72 @@ class SeriesRegistrationCommonController(
         pageable: Pageable,
         authentication: Authentication,
     ): Page<SeriesSearchDTO> {
-        var spec = buildCriteriaSpec(seriesCriteria, authentication)
-
-        // Collect all ID-based filters and combine them efficiently to avoid SQL parameter limit
-        var filteredIds: Set<UUID>? = null
-        var seriesIdsInAgreement: Set<UUID>? = null
-
-        if (seriesCriteria.inAgreement != null) {
-            seriesIdsInAgreement = seriesRegistrationService.findSeriesIdsOnAgreement().toSet()
-            if (seriesCriteria.inAgreement) {
-                filteredIds = seriesIdsInAgreement
-            }
-            // If inAgreement=false, we'll subtract these IDs from filteredIds later
-        }
-
-        if (seriesCriteria.missingMediaType != null) {
-            val seriesIdsWithMissingMedia = seriesRegistrationService.findSeriesIdsWithMissingMediaType(
-                seriesCriteria.missingMediaType
-            ).toSet()
-
-            filteredIds = when {
-                filteredIds == null -> seriesIdsWithMissingMedia
-                else -> filteredIds.intersect(seriesIdsWithMissingMedia) // Intersection reduces parameter count
-            }
-        }
-
-        // Apply "not in agreement" by subtracting IDs in application code (avoids large NOT IN clause)
-        if (seriesCriteria.inAgreement == false && seriesIdsInAgreement != null) {
-            filteredIds = when {
-                filteredIds == null -> {
-                    // No other filters, we need to fetch all series IDs and subtract agreement IDs
-                    // This is expensive, so we'll use NOT IN clause in this specific case
-                    null
-                }
-
-                else -> {
-                    // Subtract agreement IDs from the filtered set
-                    filteredIds.minus(seriesIdsInAgreement)
-                }
-            }
-        }
-
-        // Create a single predicate based on the combined filtered IDs
-        if (filteredIds != null) {
-            val idsSpec = if (filteredIds.isEmpty()) {
-                PredicateSpecification<SeriesRegistration> { _, criteriaBuilder ->
-                    criteriaBuilder.disjunction() // No results
-                }
-            } else {
-                PredicateSpecification<SeriesRegistration> { root, _ ->
-                    root[SeriesRegistration::id].`in`(filteredIds)
-                }
-            }
-            spec = if (spec != null) {
-                spec.and(idsSpec)
-            } else {
-                idsSpec
-            }
-        } else if (seriesCriteria.inAgreement == false && seriesIdsInAgreement != null) {
-            // Only use NOT IN when there are no other ID-based filters
-            val notInAgreementSpec = if (seriesIdsInAgreement.isEmpty()) {
-                PredicateSpecification<SeriesRegistration> { _, criteriaBuilder ->
-                    criteriaBuilder.conjunction() // All results
-                }
-            } else {
-                PredicateSpecification<SeriesRegistration> { root, criteriaBuilder ->
-                    criteriaBuilder.not(root[SeriesRegistration::id].`in`(seriesIdsInAgreement))
-                }
-            }
-            spec = if (spec != null) {
-                spec.and(notInAgreementSpec)
-            } else {
-                notInAgreementSpec
-            }
-        }
+        val spec = buildCriteriaSpec(seriesCriteria, authentication)
+            .withAgreementAndMissingMediaFilter(seriesCriteria)
 
         return seriesRegistrationService.findAll(spec, pageable)
             .mapSuspend { it.toSearchDTO() }
+    }
+
+    // Filtering on agreement and missing media is too ineffective to be done in 'pure' predicates so it is done as filtering on ids instead.
+    private suspend fun PredicateSpecification<SeriesRegistration>?.withAgreementAndMissingMediaFilter(
+        seriesCriteria: SeriesCommonCriteria,
+    ): PredicateSpecification<SeriesRegistration>? {
+
+        var agreementAndMissingMediaFilter: Set<UUID>? = null
+        var agreementSeriesIds: Set<UUID>? = null
+        var missingMediaIds: Set<UUID>?
+
+        if (seriesCriteria.inAgreement != null) {
+            agreementSeriesIds = seriesRegistrationService.findSeriesIdsOnAgreement().toSet()
+            if (seriesCriteria.inAgreement) {
+                agreementAndMissingMediaFilter = agreementSeriesIds
+            }
+        }
+
+        if (seriesCriteria.missingMediaType != null) {
+            missingMediaIds = seriesRegistrationService.findSeriesIdsWithMissingMediaType(
+                seriesCriteria.missingMediaType
+            ).toSet()
+
+            agreementAndMissingMediaFilter = when {
+                agreementAndMissingMediaFilter == null -> missingMediaIds
+                else -> agreementAndMissingMediaFilter.intersect(missingMediaIds)
+            }
+        }
+
+        if (seriesCriteria.inAgreement == false && agreementSeriesIds != null) {
+            agreementAndMissingMediaFilter = when {
+                agreementAndMissingMediaFilter == null -> null
+                else -> agreementAndMissingMediaFilter.minus(agreementSeriesIds)
+            }
+        }
+
+        if (agreementAndMissingMediaFilter != null) {
+            val idsSpec = if (agreementAndMissingMediaFilter.isEmpty()) {
+                PredicateSpecification<SeriesRegistration> { _, criteriaBuilder ->
+                    criteriaBuilder.disjunction()
+                }
+            } else {
+                PredicateSpecification<SeriesRegistration> { root, _ ->
+                    root[SeriesRegistration::id].`in`(agreementAndMissingMediaFilter)
+                }
+            }
+            return this?.and(idsSpec) ?: idsSpec
+        } else if (seriesCriteria.inAgreement == false && agreementSeriesIds != null) {
+            val notInAgreementSpec = if (agreementSeriesIds.isEmpty()) {
+                PredicateSpecification<SeriesRegistration> { _, criteriaBuilder ->
+                    criteriaBuilder.conjunction()
+                }
+            } else {
+                PredicateSpecification<SeriesRegistration> { root, criteriaBuilder ->
+                    criteriaBuilder.not(root[SeriesRegistration::id].`in`(agreementSeriesIds))
+                }
+            }
+            return this?.and(notInAgreementSpec) ?: notInAgreementSpec
+        }
+
+        return this
     }
 
     @Get("/variant-id/{variantIdentifier}")
