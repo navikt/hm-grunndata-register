@@ -28,13 +28,18 @@ open class BestillingsordningService(
         private val LOG = LoggerFactory.getLogger(BestillingsordningService::class.java)
     }
 
-    private var boMap: Map<String, BestillingsordningDTO> =
-        objectMapper.readValue(URI(url).toURL(), object : TypeReference<List<BestillingsordningDTO>>(){}).associateBy { it.hmsnr }
+    private fun loadBoMap(): Map<String, BestillingsordningDTO> {
+        val reader = objectMapper.readerFor(object : TypeReference<List<BestillingsordningDTO>>() {})
+        val list: List<BestillingsordningDTO> = reader.readValue(URI(url).toURL())
+        return list.associateBy { it.hmsnr }
+    }
+
+    private var boMap: Map<String, BestillingsordningDTO> = loadBoMap()
 
     suspend fun findByHmsArtNr(hmsArtNr: String): BestillingsordningRegistrationDTO? = bestillingsordningRegistrationRepository.findByHmsArtNr(hmsArtNr)?.toDTO()
 
     suspend fun importAndUpdateDb() {
-        boMap = objectMapper.readValue(URI(url).toURL(), object : TypeReference<List<BestillingsordningDTO>>(){}).associateBy { it.hmsnr }
+        boMap = loadBoMap()
         val deactiveList = bestillingsordningRegistrationRepository.findByStatus(BestillingsordningStatus.ACTIVE).filter {
             !boMap.containsKey(it.hmsArtNr)
         }
