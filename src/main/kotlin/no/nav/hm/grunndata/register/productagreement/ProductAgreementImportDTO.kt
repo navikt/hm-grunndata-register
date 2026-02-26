@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.productagreement
 
 import io.micronaut.core.annotation.Introspected
 import no.nav.hm.grunndata.register.catalog.CatalogImport
+import no.nav.hm.grunndata.register.catalog.DuplicateConflict
 
 
 @Introspected
@@ -12,6 +13,7 @@ data class CatalogImportResultReport(
     val insertedList: List<CatalogImport> = emptyList(),
     val updatedList: List<CatalogImport> = emptyList(),
     val deactivatedList: List<CatalogImport> = emptyList(),
+    val conflictList: List<DuplicateConflict> = emptyList(),
 )
 
 

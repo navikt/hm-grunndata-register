@@ -300,6 +300,38 @@ open class CatalogImportService(
     }
 
 
+    suspend fun checkForProductRegistrationConflicts(catalogImportResult: CatalogImportResult): List<DuplicateConflict> {
+        val conflicts = mutableListOf<DuplicateConflict>()
+        val toCheck = (catalogImportResult.insertedList + catalogImportResult.updatedList).filter { it.isProduct() }
+        toCheck.forEach { catalogImport ->
+            val foundByHmsArtNr = productRegistrationRepository.findByHmsArtNrAndSupplierId(
+                catalogImport.hmsArtNr, catalogImport.supplierId
+            )
+            val foundBySupplierRef = productRegistrationRepository.findBySupplierRefAndSupplierId(
+                catalogImport.supplierRef, catalogImport.supplierId
+            )
+            if (foundByHmsArtNr != null &&
+                foundByHmsArtNr.supplierRef != catalogImport.supplierRef &&
+                foundBySupplierRef != null &&
+                foundBySupplierRef.id != foundByHmsArtNr.id
+            ) {
+                conflicts.add(
+                    DuplicateConflict(
+                        hmsArtNr = catalogImport.hmsArtNr,
+                        supplierRef = catalogImport.supplierRef,
+                        supplierId = catalogImport.supplierId,
+                        conflictingProductId = foundBySupplierRef.id,
+                        conflictingHmsArtNr = foundBySupplierRef.hmsArtNr,
+                        message = "Updating supplierRef on product ${foundByHmsArtNr.id} (hmsArtNr: ${foundByHmsArtNr.hmsArtNr}) " +
+                                "would violate unique constraint: (supplierId, supplierRef=${catalogImport.supplierRef}) " +
+                                "already exists on product ${foundBySupplierRef.id} (hmsArtNr: ${foundBySupplierRef.hmsArtNr})"
+                    )
+                )
+            }
+        }
+        return conflicts
+    }
+
     companion object {
         private val LOG = LoggerFactory.getLogger(CatalogImportService::class.java)
     }
@@ -317,4 +349,13 @@ data class CatalogImportResult(
     val updatedList: List<CatalogImport>,
     val deactivatedList: List<CatalogImport>,
     val insertedList: List<CatalogImport>
+)
+
+data class DuplicateConflict(
+    val hmsArtNr: String,
+    val supplierRef: String,
+    val supplierId: UUID,
+    val conflictingProductId: UUID,
+    val conflictingHmsArtNr: String?,
+    val message: String,
 )

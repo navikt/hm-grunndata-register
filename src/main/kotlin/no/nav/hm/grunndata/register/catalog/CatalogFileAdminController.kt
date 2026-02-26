@@ -81,6 +81,12 @@ open class CatalogFileAdminController(
             LOG.info("updated: ${catalogImportResult.updatedList.size}")
             LOG.info("deactivated: ${catalogImportResult.deactivatedList.size}")
 
+            val conflicts = catalogImportService.checkForProductRegistrationConflicts(catalogImportResult)
+            if (conflicts.isNotEmpty()) {
+                LOG.warn("Found ${conflicts.size} potential duplicate key conflict(s) for supplier ${supplier.name}:")
+                conflicts.forEach { LOG.warn("  Conflict: ${it.message}") }
+            }
+
             if (!dryRun) {
                 LOG.info("Save the catalog file ${file.filename}, for downstream processing")
                 catalogFileRepository.save(
@@ -104,6 +110,7 @@ open class CatalogFileAdminController(
                 insertedList = catalogImportResult.insertedList,
                 updatedList = catalogImportResult.updatedList,
                 deactivatedList = catalogImportResult.deactivatedList,
+                conflictList = conflicts,
             )
         } catch (e: Exception) {
             LOG.error("Error importing catalog excel file: ${file.filename} for supplier ${supplier.name}", e)
