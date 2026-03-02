@@ -6,9 +6,16 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.rapid.dto.ServiceAgreementInfo
+import no.nav.hm.grunndata.rapid.dto.ServiceAgreementStatus
 import no.nav.hm.grunndata.rapid.event.EventName
+import no.nav.hm.grunndata.register.catalog.ServiceAgreementDTO
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationDTO
+import no.nav.hm.grunndata.register.productagreement.toDTO
+import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.collections.map
 
 @Singleton
 open class ServiceJobService(
@@ -16,6 +23,14 @@ open class ServiceJobService(
     private val serviceJobEventHandler: ServiceJobEventHandler,
     private val serviceAgreementRepository: ServiceAgreementRepository
 ) {
+
+
+    open suspend fun saveServiceAgreement(
+        serviceAgreement: ServiceAgreement,
+        isUpdate: Boolean = false
+    ) {
+        if (isUpdate) update(serviceAgreement) else save(serviceAgreement)
+    }
 
     open suspend fun saveAndCreateEventIfNotDraft(
         serviceJob: ServiceJob,
@@ -76,6 +91,14 @@ open class ServiceJobService(
         return serviceJobRepository.update(serviceJob)
     }
 
+    private suspend fun save(serviceAgreement: ServiceAgreement): ServiceAgreement {
+        return serviceAgreementRepository.save(serviceAgreement)
+    }
+
+    private suspend fun update(serviceAgreement: ServiceAgreement): ServiceAgreement {
+        return serviceAgreementRepository.update(serviceAgreement)
+    }
+
     suspend fun findByAgreementId(agreementId: UUID): List<ServiceJobDTO> {
         val agreements = serviceAgreementRepository.findByAgreementId(agreementId)
         if (agreements.isEmpty()) return emptyList()
@@ -84,6 +107,26 @@ open class ServiceJobService(
         val jobs = serviceJobRepository.findAll().filter { it.id in serviceIds }
         return jobs.map { it.toDTO() }.toList()
     }
+
+    suspend fun findServiceJobEntitiesByAgreementId(agreementId: UUID): List<ServiceJob> {
+        val agreements = serviceAgreementRepository.findByAgreementId(agreementId)
+        if (agreements.isEmpty()) return emptyList()
+        val serviceIds = agreements.map { it.serviceId }.toSet()
+        return serviceJobRepository.findAll().filter { it.id in serviceIds }.toList()
+    }
+
+    suspend fun findByAgreementIdAndStatusAndPublishedBeforeAndExpiredAfter(
+        agreementId: UUID,
+        status: ServiceAgreementStatus,
+        published: LocalDateTime,
+        expired: LocalDateTime,
+    ): List<ServiceAgreement> =
+        serviceAgreementRepository.findByAgreementIdAndStatusAndPublishedBeforeAndExpiredAfter(
+            agreementId,
+            status,
+            published,
+            expired,
+        )
 
     suspend fun updateServiceJobTitleOrHmsArtNr(
         id: UUID,
