@@ -29,9 +29,11 @@ import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
 
 @MicronautTest
-class ProductRegistrationEventHandlerTest(private val productRegistrationEventHandler: ProductRegistrationEventHandler,
-                                          private val supplierRepository: SupplierRepository,
-                                          private val eventItemService: EventItemService) {
+class ProductRegistrationEventHandlerTest(
+    private val productRegistrationEventHandler: ProductRegistrationEventHandler,
+    private val supplierRepository: SupplierRepository,
+    private val eventItemService: EventItemService
+) {
 
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -52,17 +54,21 @@ class ProductRegistrationEventHandlerTest(private val productRegistrationEventHa
                     name = "name-123",
                 )
             )
-            val productData = ProductData (
-                attributes = Attributes (
+            val productData = ProductData(
+                attributes = Attributes(
                     shortdescription = "En kort beskrivelse av produktet",
                     text = "En lang beskrivelse av produktet"
                 ),
                 techData = listOf(TechData(key = "maksvekt", unit = "kg", value = "120")),
                 media = setOf(
-                    MediaInfoDTO(uri="123.jpg", text = "bilde av produktet", source = MediaSourceType.EXTERNALURL,
-                        sourceUri = "https://ekstern.url/123.jpg"),
-                    MediaInfoDTO(uri="124.jpg", text = "bilde av produktet 2", source = MediaSourceType.EXTERNALURL,
-                        sourceUri = "https://ekstern.url/124.jpg")
+                    MediaInfoDTO(
+                        uri = "123.jpg", text = "bilde av produktet", source = MediaSourceType.EXTERNALURL,
+                        sourceUri = "https://ekstern.url/123.jpg"
+                    ),
+                    MediaInfoDTO(
+                        uri = "124.jpg", text = "bilde av produktet 2", source = MediaSourceType.EXTERNALURL,
+                        sourceUri = "https://ekstern.url/124.jpg"
+                    )
                 )
             )
             val registration = ProductRegistrationDTO(
@@ -94,7 +100,7 @@ class ProductRegistrationEventHandlerTest(private val productRegistrationEventHa
             val events = eventItemService.findByStatusOrderByUpdatedAsc()
             events.size shouldBeGreaterThan 0
             events.forEach {
-                if (it.type == EventItemType.PRODUCT) {
+                if (it.type == EventItemType.PRODUCT && it.oid == registration.id) {
                     val sent = productRegistrationEventHandler.sendRapidEvent(it) as ProductRegistrationRapidDTO
                     sent.productDTO.supplier.id shouldBe testSupplier!!.id
                     sent.productDTO.supplier.name shouldBe testSupplier!!.name
