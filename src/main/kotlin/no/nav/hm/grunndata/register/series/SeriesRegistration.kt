@@ -67,6 +67,10 @@ data class SeriesRegistration(
     val version: Long? = 0L,
 )
 
+fun SeriesRegistration.canCreateEvent(): Boolean =
+    (draftStatus == DraftStatus.DONE && adminStatus == AdminStatus.APPROVED) || status == SeriesStatus.DELETED
+
+
 data class SeriesDataDTO(
     val media: Set<MediaInfoDTO> = emptySet(),
     val attributes: SeriesAttributesDTO = SeriesAttributesDTO(),

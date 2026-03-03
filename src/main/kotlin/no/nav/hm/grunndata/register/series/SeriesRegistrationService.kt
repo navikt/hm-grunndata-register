@@ -157,7 +157,7 @@ open class SeriesRegistrationService(
         eventName: String = EventName.registeredSeriesV1,
     ): SeriesRegistration {
         val saved = if (isUpdate) update(dto) else save(dto)
-        if (saved.draftStatus == DraftStatus.DONE && saved.adminStatus == AdminStatus.APPROVED) {
+        if (saved.canCreateEvent()) {
             seriesRegistrationEventHandler.queueDTORapidEvent(saved.toDTO(), eventName = eventName)
         }
         return saved
