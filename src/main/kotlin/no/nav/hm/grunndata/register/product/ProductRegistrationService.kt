@@ -288,7 +288,7 @@ open class ProductRegistrationService(
         } else {
             productRegistrationRepository.save(dto)
         }
-        if (saved.draftStatus == DraftStatus.DONE && (saved.adminStatus == AdminStatus.APPROVED || saved.registrationStatus == RegistrationStatus.DELETED)) {
+        if (saved.canCreateEvent()) {
             productRegistrationEventHandler.queueDTORapidEvent(saved.toDTO(), eventName = EventName.registeredProductV1)
             val dtoSaved = saved.toDTO()
             LOG.info("Product registration event sent for id (dto) ${dto.id}, mainProduct: ${dto.mainProduct}, accessory: ${dto.accessory}, sparePart: ${saved.sparePart}")
