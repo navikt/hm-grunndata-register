@@ -420,7 +420,7 @@ open class SeriesRegistrationService(
         if (authentication.isSupplier() && seriesToDelete.supplierId != authentication.supplierId()) {
             throw BadRequestException("series belongs to another supplier", type = ErrorType.UNAUTHORIZED)
         }
-        if (seriesToDelete.draftStatus != DraftStatus.DRAFT || seriesToDelete.published != null) {
+        if (seriesToDelete.published != null) {
             throw BadRequestException("series ${seriesToDelete.id} is not a draft", ErrorType.INVALID_VALUE)
         }
 

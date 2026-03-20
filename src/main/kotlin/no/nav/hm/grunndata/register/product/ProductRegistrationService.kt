@@ -652,7 +652,7 @@ open class ProductRegistrationService(
             if (authentication.isSupplier() && it.supplierId != authentication.supplierId()) {
                 throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
             }
-            if (!(it.draftStatus == DraftStatus.DRAFT && it.published == null)) {
+            if (it.published != null) {
                 throw BadRequestException("product is not draft")
             }
         }
