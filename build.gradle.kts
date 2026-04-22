@@ -1,13 +1,14 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jvmTarget = "17"
-val micronautVersion = "4.10.10"
+val micronautVersion = "4.10.12"
 val logbackEncoderVersion = "8.0"
 val postgresqlVersion = "42.7.2"
 val tcVersion = "1.21.4"
-val mockkVersion = "1.13.4"
+val mockkVersion = "1.13.17"
 val kotestVersion = "5.5.5"
 val poiVersion = "5.4.0"
 val rapidsRiversVersion = "202602191359"
@@ -20,8 +21,9 @@ group = "no.nav.hm"
 version = properties["version"] ?: "local-build"
 
 plugins {
-    kotlin("jvm") version "1.9.25"
-    kotlin("kapt") version "1.9.25"
+    id("org.jetbrains.kotlin.jvm") version "2.1.21"
+    id("org.jetbrains.kotlin.plugin.allopen") version "2.1.21"
+    id("com.google.devtools.ksp") version "2.1.21-2.0.1"
     id("java")
     id("com.gradleup.shadow") version "9.3.1"
     id("io.micronaut.application") version "4.6.2"
@@ -55,15 +57,15 @@ dependencies {
 
     // security
     implementation("io.micronaut.security:micronaut-security-jwt")
-    kapt("io.micronaut.security:micronaut-security-annotations")
-    kapt("io.micronaut:micronaut-inject-java")
+    ksp("io.micronaut.security:micronaut-security-annotations")
+    ksp("io.micronaut:micronaut-inject-java")
 
     // micronaut-data
     implementation("io.micronaut.data:micronaut-data-jdbc")
     implementation("jakarta.persistence:jakarta.persistence-api")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     runtimeOnly("io.micronaut.sql:micronaut-jdbc-hikari")
-    kapt("io.micronaut.data:micronaut-data-processor")
+    ksp("io.micronaut.data:micronaut-data-processor")
     implementation("org.postgresql:postgresql:$postgresqlVersion")
     implementation("io.micronaut.flyway:micronaut-flyway")
     implementation("io.micronaut:micronaut-runtime")
@@ -86,7 +88,7 @@ dependencies {
     implementation("no.nav.hm.grunndata:hm-grunndata-rapid-dto:$grunndataDtoVersion")
 
     // OpenApi
-    kapt("io.micronaut.openapi:micronaut-openapi")
+    ksp("io.micronaut.openapi:micronaut-openapi")
     implementation("io.micronaut.openapi:micronaut-openapi")
     compileOnly("io.micronaut.openapi:micronaut-openapi-annotations")
 
@@ -135,13 +137,11 @@ java {
 
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = jvmTarget
-    kapt.includeCompileClasspath = false
+    compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
 }
 
 tasks.named<KotlinCompile>("compileTestKotlin") {
-    kotlinOptions.jvmTarget = jvmTarget
-    kapt.includeCompileClasspath = false
+    compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
 }
 
 

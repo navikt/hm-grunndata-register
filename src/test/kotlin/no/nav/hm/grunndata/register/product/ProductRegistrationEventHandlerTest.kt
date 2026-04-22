@@ -6,27 +6,19 @@ import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import java.time.LocalDateTime
-import java.util.UUID
-import no.nav.hm.grunndata.rapid.dto.AdminStatus
-import no.nav.hm.grunndata.rapid.dto.Attributes
-import no.nav.hm.grunndata.rapid.dto.DraftStatus
-import no.nav.hm.grunndata.rapid.dto.MediaSourceType
-import no.nav.hm.grunndata.rapid.dto.ProductRapidDTO
-import no.nav.hm.grunndata.rapid.dto.ProductRegistrationRapidDTO
-import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
-import no.nav.hm.grunndata.rapid.dto.TechData
+import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventItemService
 import no.nav.hm.grunndata.register.event.EventItemType
+import no.nav.hm.grunndata.register.event.RegisterRapidPushService
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistration
-import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
-import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
+import java.util.*
 
 @MicronautTest
 class ProductRegistrationEventHandlerTest(
@@ -35,7 +27,7 @@ class ProductRegistrationEventHandlerTest(
     private val eventItemService: EventItemService
 ) {
 
-    @MockBean(RapidPushService::class)
+    @MockBean(RegisterRapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
 
     @Test
@@ -102,8 +94,8 @@ class ProductRegistrationEventHandlerTest(
             events.forEach {
                 if (it.type == EventItemType.PRODUCT && it.oid == registration.id) {
                     val sent = productRegistrationEventHandler.sendRapidEvent(it) as ProductRegistrationRapidDTO
-                    sent.productDTO.supplier.id shouldBe testSupplier!!.id
-                    sent.productDTO.supplier.name shouldBe testSupplier!!.name
+                    sent.productDTO.supplier.id shouldBe testSupplier.id
+                    sent.productDTO.supplier.name shouldBe testSupplier.name
                 }
             }
         }
