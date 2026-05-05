@@ -58,15 +58,8 @@ open class ProductAgreementScheduler(
                         ),
                         isUpdate = true
                     )
-                }
-                else {
-                    productAgreementRegistrationService.saveAndCreateEvent(
-                        it.copy(
-                            status = ProductAgreementStatus.INACTIVE,
-                            expired = agreement.expired,
-                            updated = LocalDateTime.now()
-                        ), isUpdate = true
-                    )
+                } else {
+                    LOG.warn("Agreement ${agreement.id} is not active or not done, cannot activate product agreement ${it.id}")
                 }
             }
         }
