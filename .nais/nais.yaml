@@ -114,3 +114,4 @@ spec:
       rules:
         - application: hm-grunndata-index
         - application: hm-grunndata-db
+        - application: hm-adminregister
