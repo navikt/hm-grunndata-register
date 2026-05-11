@@ -258,14 +258,10 @@ open class ProductAgreementRegistrationService(
         isUpdate: Boolean,
     ): ProductAgreementRegistrationDTO {
         val saved = if (isUpdate) update(dto) else save(dto)
-        if (dto.productId != null) {
-            productAgreementRegistrationHandler.queueDTORapidEvent(
-                saved,
-                eventName = EventName.registeredProductAgreementV1,
-            )
-        } else {
-            LOG.info("This product does not have a product id, will not create event")
-        }
+        productAgreementRegistrationHandler.queueDTORapidEvent(
+            saved,
+            eventName = EventName.registeredProductAgreementV1,
+        )
         return saved
     }
 
