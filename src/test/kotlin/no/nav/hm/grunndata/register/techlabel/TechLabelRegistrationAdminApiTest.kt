@@ -47,6 +47,8 @@ class TechLabelRegistrationAdminApiTest(private val client: TechLabelRegistratio
             type = TechLabelType.N,
             unit = "cm",
             isoCode = "09070601",
+            sort = 1,
+            required = true
         )
         var response = client.createTechLabel(jwt, dto)
         response.status() shouldBe HttpStatus.CREATED
@@ -58,6 +60,8 @@ class TechLabelRegistrationAdminApiTest(private val client: TechLabelRegistratio
         body = response.body.get()
         body.label shouldBe "Høyde endret"
         body.systemLabel shouldBe "hoydeendretn"
+        body.sort shouldBe 1
+        body.required shouldBe true
 
     }
 }

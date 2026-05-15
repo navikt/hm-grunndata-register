@@ -162,5 +162,7 @@ data class TechLabelCreateUpdateDTO(
     val isoCode: String,
     val type: TechLabelType,
     val unit: String?,
+    val sort: Int,
+    val required: Boolean,
     val options: List<String> = emptyList(),
 )
