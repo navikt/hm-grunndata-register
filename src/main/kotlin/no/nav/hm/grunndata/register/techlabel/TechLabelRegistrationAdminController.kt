@@ -85,7 +85,8 @@ class TechLabelRegistrationAdminController(
                         isoCode = dto.isoCode,
                         type = dto.type,
                         unit = dto.unit,
-                        sort = 0,
+                        sort = dto.sort,
+                        required = dto.required,
                         options = dto.options,
                         createdByUser = authentication.name,
                         updatedByUser = authentication.name
@@ -107,6 +108,8 @@ class TechLabelRegistrationAdminController(
                     isoCode = dto.isoCode,
                     type = dto.type,
                     unit = dto.unit,
+                    sort = dto.sort,
+                    required = dto.required,
                     options = dto.options,
                     updated = LocalDateTime.now(),
                     updatedByUser = authentication.name
