@@ -115,8 +115,8 @@ class TechLabelRegistrationAdminController(
                     updatedByUser = authentication.name
                 )
             )
-            if (inDb.label != dto.label || inDb.unit != dto.unit) {
-                LOG.info("Updated TechLabel with id=$id, changed label or unit, update products using this label")
+            if (inDb.label != dto.label || inDb.unit != dto.unit || inDb.sort != dto.sort) {
+                LOG.info("Updated TechLabel with id=$id, changed label or unit or sort, update products using this label")
                 try {
                     coroutineScope.launch {
                         techLabelRegistrationService.changeProductsTechDataWithTechLabel(
