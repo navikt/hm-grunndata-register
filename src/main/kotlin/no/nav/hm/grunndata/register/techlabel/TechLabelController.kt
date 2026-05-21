@@ -21,8 +21,12 @@ class TechLabelController(private val techLabelService: TechLabelService) {
     @Get("/name/{name}")
     fun fetchTechLabelsByName(name: String) = techLabelService.fetchLabelsByName(name)
 
-    @Get("/units")
+    @Get("/all/units")
     fun fetchUnits(): List<String> = techLabelService.fetchUnits()
 
+    @Get("/all/names")
+    fun fetchLabelNames(): List<String> = runBlocking {
+        techLabelService.fetchLabelNames()
+    }
 
 }

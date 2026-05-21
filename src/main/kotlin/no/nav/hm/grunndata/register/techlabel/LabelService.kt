@@ -9,4 +9,5 @@ interface LabelService {
 
     fun fetchUnits(): List<String>
 
+    fun fetchLabelNames(): List<String>
 }

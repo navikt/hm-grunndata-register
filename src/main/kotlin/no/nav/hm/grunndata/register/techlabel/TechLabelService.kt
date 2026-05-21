@@ -35,7 +35,7 @@ open class TechLabelService(
 
     @Cacheable
     override fun fetchAllLabels(): Map<String, List<TechLabelDTO>> = runBlocking {
-        LOG.info("Fetching labels list")
+        LOG.debug("Fetching labels list")
         val techLabels = techLabelRegistrationRepository.findAll().map { it.toTechLabelDTO()}.toList()
         techLabels.groupBy {  it.isocode }
     }
@@ -47,8 +47,14 @@ open class TechLabelService(
 
     @Cacheable
     override fun fetchUnits(): List<String> = runBlocking {
-        LOG.info("Fetching units")
+        LOG.debug("Fetching units")
         techLabelRegistrationRepository.findDistinctUnits()
+    }
+
+    @Cacheable
+    override fun fetchLabelNames(): List<String> = runBlocking {
+        LOG.debug("Fetching label names")
+        techLabelRegistrationRepository.findDistinctLabelNames()
     }
 
 }

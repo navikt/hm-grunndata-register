@@ -15,4 +15,6 @@ interface TechLabelRegistrationRepository: CoroutineCrudRepository<TechLabelRegi
     suspend fun findByLabel(label: String):  List<TechLabelRegistration>
     @Query("SELECT DISTINCT unit FROM techlabel_reg_v1 WHERE unit IS NOT NULL ORDER BY unit")
     suspend fun findDistinctUnits(): List<String>
+    @Query("SELECT DISTINCT label FROM techlabel_reg_v1 WHERE label IS NOT NULL ORDER BY label")
+    suspend fun findDistinctLabelNames(): List<String>
 }
