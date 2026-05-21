@@ -7,5 +7,6 @@ interface LabelService {
 
     fun fetchAllLabels(): Map<String, List<TechLabelDTO>>
 
+    fun fetchUnits(): List<String>
 
 }

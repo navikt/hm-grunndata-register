@@ -33,13 +33,12 @@ class TechLabelRegistrationService(private val techLabelRegistrationRepository: 
         techLabelRegistrationRepository.delete(techLabelRegistration)
     }
 
-    suspend fun changeProductsTechDataWithTechLabel(oldKey: String, oldUnit: String?, isoCode: String, newTechLabel: TechLabelRegistration): Int {
+    suspend fun changeProductsTechDataWithTechLabel(oldKey: String, oldUnit: String?, isoCode: String, newTechLabel: TechLabelRegistration) {
         if (isoCode.length<6) {
             throw IllegalArgumentException("IsoCode must be at least 6 characters to avoid too broad search, was $isoCode")
         }
         val products = productRegistrationService.findByStartsWithIsoCategoryAndTechLabelKeyUnit(isoCode, key = oldKey, unit = oldUnit)
         LOG.debug("Found ${products.size} products with techLabel key=$oldKey, unit=$oldUnit to update to new techLabel ${newTechLabel.label} (${newTechLabel.unit})")
-        var count = 0
         products.forEach { product ->
             val techData = product.productData.techData.toMutableList()
             val techLabel = techData.find { it.key == oldKey && it.unit == oldUnit }
@@ -47,12 +46,11 @@ class TechLabelRegistrationService(private val techLabelRegistrationRepository: 
                 techData.remove(it)
                 LOG.debug("Changed from ${it.key} to ${newTechLabel.label} and ${it.unit} to ${newTechLabel.unit} for product ${product.hmsArtNr}")
                 techData.add(it.copy(key = newTechLabel.label, unit = newTechLabel.unit ?: ""))
-                count++
             }
             val updatedProdData = product.productData.copy(techData = techData)
             productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(product.copy(productData = updatedProdData), true)
         }
-        return count
+
     }
 
     suspend fun findByLabelAndIsoCode(label: String, isoCode: String) =

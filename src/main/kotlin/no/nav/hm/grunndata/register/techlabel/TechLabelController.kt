@@ -5,6 +5,7 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.openapi.visitor.security.SecurityRule
 import io.micronaut.security.annotation.Secured
 import io.swagger.v3.oas.annotations.tags.Tag
+import kotlinx.coroutines.runBlocking
 
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller("/api/v1/techlabels")
@@ -19,6 +20,9 @@ class TechLabelController(private val techLabelService: TechLabelService) {
 
     @Get("/name/{name}")
     fun fetchTechLabelsByName(name: String) = techLabelService.fetchLabelsByName(name)
+
+    @Get("/units")
+    fun fetchUnits(): List<String> = techLabelService.fetchUnits()
 
 
 }

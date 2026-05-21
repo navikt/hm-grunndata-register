@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory
 @Singleton
 class TechLabelMaintenance(
     val techLabelRepository: TechLabelRegistrationRepository,
-    private val techLabelRegistrationService: TechLabelRegistrationService,
     val objectMapper: ObjectMapper,
 ) {
 
@@ -23,16 +22,14 @@ class TechLabelMaintenance(
     } as Map<String, String>
 
     suspend fun fixUnitsInTechLabel() {
-        var countProductChanged = 0
         val techlabelsChanged = techLabelRepository.findAll().map { t ->
           techlabelUnitMap[t.unit]?.let { v ->
               val cUnit = if ("grader" == t.unit && t.label.indexOf("temp")>-1) "°C" else v
               LOG.info("Found wrong unit ${t.unit} for techlabel with label ${t.label} and iso ${t.isoCode}, updating to $cUnit")
               val newTechLabel = techLabelRepository.update(t.copy(unit = cUnit))
-              countProductChanged += techLabelRegistrationService.changeProductsTechDataWithTechLabel(t.label, t.unit, t.isoCode, newTechLabel )
               newTechLabel
           }
         }.toList().filterNotNull()
-        LOG.info("Total Changed unit ${techlabelsChanged.size} and products changed $countProductChanged")
+        LOG.info("Total Changed unit ${techlabelsChanged.size}")
     }
 }

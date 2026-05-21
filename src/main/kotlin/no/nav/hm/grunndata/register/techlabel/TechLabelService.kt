@@ -45,4 +45,10 @@ open class TechLabelService(
         techLabels.groupBy {  it.label }
     }
 
+    @Cacheable
+    override fun fetchUnits(): List<String> = runBlocking {
+        LOG.info("Fetching units")
+        techLabelRegistrationRepository.findDistinctUnits()
+    }
+
 }
