@@ -25,7 +25,6 @@ open class EventItemScheduler(
             val items = eventItemService.findByStatusOrderByUpdatedAsc()
             LOG.debug("Running sendEventItemScheduler with ${items.size} items")
             items.forEach {
-                LOG.info("sending event ${it.oid} with type ${it.type} and ${it.updated}")
                 eventItemService.sendRapidEvent(it)
             }
         }
