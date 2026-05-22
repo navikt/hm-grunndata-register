@@ -70,21 +70,21 @@ class TechLabelRegistrationAdminController(
     ): HttpResponse<TechLabelRegistrationDTO> =
         if (techLabelRegistrationService.findByLabelAndIsoCode(dto.label, dto.isoCode) != null) {
             throw BadRequestException("TechLabel with label='${dto.label}' and isocode='${dto.isoCode}' already exists")
-        } else if (dto.type == TechLabelType.N && (dto.unit == null || dto.unit.isEmpty())) {
+        } else if (dto.type == TechLabelType.N && dto.unit.isNullOrEmpty()) {
             throw BadRequestException("TechLabel with type=NUMERIC must have a unit")
-        } else if (dto.isoCode.length<6 || dto.isoCode.length>8) {
+        } else if (dto.isoCode.length !in 6..8) {
             throw BadRequestException("TechLabel must have a valid isoCode with length between 6 and 8 characters")
         }
         else
             HttpResponse.created(
                 techLabelRegistrationService.save(
                     TechLabelRegistration(
-                        label = dto.label,
+                        label = dto.label.trim(),
                         guide = dto.label,
                         definition = null,
-                        isoCode = dto.isoCode,
+                        isoCode = dto.isoCode.trim(),
                         type = dto.type,
-                        unit = dto.unit,
+                        unit = dto.unit?.trim(),
                         sort = dto.sort,
                         required = dto.required,
                         options = dto.options,
@@ -103,11 +103,11 @@ class TechLabelRegistrationAdminController(
         techLabelRegistrationService.findById(id)?.let { inDb ->
             val updated = techLabelRegistrationService.update(
                 inDb.copy(
-                    label = dto.label,
+                    label = dto.label.trim(),
                     guide = dto.label,
-                    isoCode = dto.isoCode,
+                    isoCode = dto.isoCode.trim(),
                     type = dto.type,
-                    unit = dto.unit,
+                    unit = dto.unit?.trim(),
                     sort = dto.sort,
                     required = dto.required,
                     options = dto.options,
