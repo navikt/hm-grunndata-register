@@ -16,4 +16,15 @@ class TechLabelFixController(val techLabelMaintenance: TechLabelMaintenance) {
     suspend fun fixUnits() {
         techLabelMaintenance.fixUnitsInTechLabel()
     }
+
+    @Put("/labels")
+    suspend fun fixLabels() {
+        techLabelMaintenance.normalizeLabels()
+    }
+
+    @Put("/products")
+    suspend fun fixProducts() {
+        techLabelMaintenance.fixProductTechLabels()
+    }
+
 }

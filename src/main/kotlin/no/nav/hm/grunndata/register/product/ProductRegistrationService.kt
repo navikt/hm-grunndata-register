@@ -10,6 +10,7 @@ import io.micronaut.http.annotation.PathVariable
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import kotlinx.coroutines.flow.Flow
 import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.rapid.dto.*
 import no.nav.hm.grunndata.rapid.event.EventName
@@ -138,6 +139,10 @@ open class ProductRegistrationService(
         spec: PredicateSpecification<ProductRegistration>?,
         pageable: Pageable,
     ): Page<ProductRegistration> = productRegistrationRepository.findAll(spec, pageable)
+
+    open suspend fun findAll(
+        spec: PredicateSpecification<ProductRegistration>?,
+    ): Flow<ProductRegistration> = productRegistrationRepository.findAll(spec)
 
     open suspend fun findProductsToApprove(pageable: Pageable): Page<ProductToApproveDto> =
         productRegistrationRepository.findAll(

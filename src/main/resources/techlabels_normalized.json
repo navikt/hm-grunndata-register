@@ -1,0 +1,4092 @@
+[
+  {
+    "original": "2/3/4-punkts",
+    "normalized": "2/3/4-punkts",
+    "category": "Generell"
+  },
+  {
+    "original": "Abduksjon regulerbar",
+    "normalized": "Abduksjon regulerbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Abduksjonsklosser",
+    "normalized": "Abduksjonsklosser",
+    "category": "Generell"
+  },
+  {
+    "original": "Adapterplate",
+    "normalized": "Adapterplate",
+    "category": "Generell"
+  },
+  {
+    "original": "Alarm",
+    "normalized": "Alarm",
+    "category": "Generell"
+  },
+  {
+    "original": "Alarm-/påminnelse",
+    "normalized": "Alarm-/påminnelse",
+    "category": "Generell"
+  },
+  {
+    "original": "Amputasjonsseil",
+    "normalized": "Amputasjonsseil",
+    "category": "Generell"
+  },
+  {
+    "original": "Anatomisk håndtak",
+    "normalized": "Anatomisk håndtak",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall bryterinnganger",
+    "normalized": "Antall bryterinnganger",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall celler",
+    "normalized": "Antall celler",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall ekstra språk",
+    "normalized": "Antall ekstra språk",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall fargekombinasjoner",
+    "normalized": "Antall fargekombinasjoner",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall faser",
+    "normalized": "Antall faser",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall gir",
+    "normalized": "Antall gir",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall hjul",
+    "normalized": "Antall hjul",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Antall høydeposisjoner mast",
+    "normalized": "Antall høydeposisjoner mast",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Antall kammer",
+    "normalized": "Antall kammer",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall kanaler",
+    "normalized": "Antall kanaler",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall knapper",
+    "normalized": "Antall knapper",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall lag",
+    "normalized": "Antall lag",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall motorer",
+    "normalized": "Antall motorer",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall opphengspunkter std",
+    "normalized": "Antall opphengspunkter std",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall seksjoner",
+    "normalized": "Antall seksjoner",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall søyler",
+    "normalized": "Antall søyler",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall språk i tillegg til norsk",
+    "normalized": "Antall språk i tillegg til norsk",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall spylinger med samme temperatur",
+    "normalized": "Antall spylinger med samme temperatur",
+    "category": "Generell"
+  },
+  {
+    "original": "Antall trappetrinn",
+    "normalized": "Antall trappetrinn",
+    "category": "Generell"
+  },
+  {
+    "original": "Åpnekraft regulerbar",
+    "normalized": "Åpnekraft regulerbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Apple",
+    "normalized": "Apple",
+    "category": "Generell"
+  },
+  {
+    "original": "Apple IOS",
+    "normalized": "Apple iOS",
+    "category": "IT"
+  },
+  {
+    "original": "Apple OSX",
+    "normalized": "Apple macOS",
+    "category": "IT"
+  },
+  {
+    "original": "Armaturplassering",
+    "normalized": "Armaturplassering",
+    "category": "Generell"
+  },
+  {
+    "original": "Armleneavstand maks",
+    "normalized": "Armleneavstand maks",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Armleneavstand min",
+    "normalized": "Armleneavstand min",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Armlenebredde",
+    "normalized": "Armlenebredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Armlenehøyde maks",
+    "normalized": "Armlenehøyde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Armlenehøyde min",
+    "normalized": "Armlenehøyde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Armlene hreg",
+    "normalized": "Armlene hreg",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Armlener",
+    "normalized": "Armlener",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Armlener avtagbare",
+    "normalized": "Armlener avtagbare",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Armlener dybderegulerbare",
+    "normalized": "Armlener dybderegulerbare",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Armleneregulering",
+    "normalized": "Armleneregulering",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Armlener fellbare",
+    "normalized": "Armlener fellbare",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Armlener fellbare/svingbare",
+    "normalized": "Armlener fellbare/svingbare",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Armlener høyderegulerbare",
+    "normalized": "Armlener høyderegulerbare",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Armlener nedfellbare",
+    "normalized": "Armlener nedfellbare",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Armlener oppfellbare",
+    "normalized": "Armlener oppfellbare",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "armlengde maks",
+    "normalized": "Armlengde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Armlengde min",
+    "normalized": "Armlengde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Armtrener",
+    "normalized": "Armtrener",
+    "category": "Generell"
+  },
+  {
+    "original": "Automatikk branndør",
+    "normalized": "Automatikk branndør",
+    "category": "Generell"
+  },
+  {
+    "original": "Automatikk for skyvedører",
+    "normalized": "Automatikk for skyvedører",
+    "category": "Generell"
+  },
+  {
+    "original": "Automatikk for slagdører",
+    "normalized": "Automatikk for slagdører",
+    "category": "Generell"
+  },
+  {
+    "original": "Automatikk rullegardin",
+    "normalized": "Automatikk rullegardin",
+    "category": "Generell"
+  },
+  {
+    "original": "Automatikk sidegardiner",
+    "normalized": "Automatikk sidegardiner",
+    "category": "Generell"
+  },
+  {
+    "original": "Automatisk sommertid",
+    "normalized": "Automatisk sommertid",
+    "category": "Generell"
+  },
+  {
+    "original": "Avlastningsflate",
+    "normalized": "Avlastningsflate",
+    "category": "Generell"
+  },
+  {
+    "original": "Avlastningsfl. plassering",
+    "normalized": "Avlastningsflate plassering",
+    "category": "Generell"
+  },
+  {
+    "original": "Avløpsslange lengde",
+    "normalized": "Avløpsslange lengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Avstand fra vegg",
+    "normalized": "Avstand fra vegg",
+    "category": "Generell"
+  },
+  {
+    "original": "Avstand oppheng-brukers sete maks",
+    "normalized": "Avstand oppheng-brukers sete maks",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Avstandskamera",
+    "normalized": "Avstandskamera",
+    "category": "Generell"
+  },
+  {
+    "original": "Avstand skinne til opphengspkt seil, maks",
+    "normalized": "Avstand skinne til opphengspkt seil, maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Avstand skinne til opphengspkt seil, min",
+    "normalized": "Avstand skinne til opphengspkt seil, min",
+    "category": "Generell"
+  },
+  {
+    "original": "Avstand underkant skinne til opphengspunkt",
+    "normalized": "Avstand underkant skinne til opphengspunkt",
+    "category": "Generell"
+  },
+  {
+    "original": "Avstand vegg gulvmontert",
+    "normalized": "Avstand vegg gulvmontert",
+    "category": "Generell"
+  },
+  {
+    "original": "Avstand vegg veggmontert",
+    "normalized": "Avstand vegg veggmontert",
+    "category": "Generell"
+  },
+  {
+    "original": "Avstivet",
+    "normalized": "Avstivet",
+    "category": "Generell"
+  },
+  {
+    "original": "Avtagbar",
+    "normalized": "Avtagbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Badekarbredde maks",
+    "normalized": "Badekarbredde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Badekarbredde min",
+    "normalized": "Badekarbredde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bærehåndtak",
+    "normalized": "Bærehåndtak",
+    "category": "Generell"
+  },
+  {
+    "original": "Ballens diameter",
+    "normalized": "Diameter",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Batteri brukstid",
+    "normalized": "Batteri brukstid",
+    "category": "Strøm"
+  },
+  {
+    "original": "Batteridrevet",
+    "normalized": "Batteridrevet",
+    "category": "Strøm"
+  },
+  {
+    "original": "Batteridrift",
+    "normalized": "Batteridrift",
+    "category": "Strøm"
+  },
+  {
+    "original": "Batterikapasitet",
+    "normalized": "Batterikapasitet",
+    "category": "Strøm"
+  },
+  {
+    "original": "Batteriladetid",
+    "normalized": "Batteriladetid",
+    "category": "Strøm"
+  },
+  {
+    "original": "Batteriladetid mottaker",
+    "normalized": "Batteriladetid mottaker",
+    "category": "Strøm"
+  },
+  {
+    "original": "Batterilevetid",
+    "normalized": "Batterilevetid",
+    "category": "Strøm"
+  },
+  {
+    "original": "Batterilevetid mottaker maks",
+    "normalized": "Batterilevetid mottaker maks",
+    "category": "Strøm"
+  },
+  {
+    "original": "Batterilevetid maks",
+    "normalized": "Batterilevetid maks",
+    "category": "Strøm"
+  },
+  {
+    "original": "Batteri levetid",
+    "normalized": "Batterilevetid",
+    "category": "Strøm"
+  },
+  {
+    "original": "Batterilevetid mottaker min",
+    "normalized": "Batterilevetid mottaker min",
+    "category": "Strøm"
+  },
+  {
+    "original": "Rekkevidde mottaker",
+    "normalized": "Rekkevidde mottaker",
+    "category": "Generell"
+  },
+  {
+    "original": "Batterilevetid min",
+    "normalized": "Batterilevetid min",
+    "category": "Strøm"
+  },
+  {
+    "original": "Ant. vask minimum",
+    "normalized": "Antall vask min",
+    "category": "Vedlikehold"
+  },
+  {
+    "original": "Batterilevetidx",
+    "normalized": "Batterilevetid",
+    "category": "Strøm"
+  },
+  {
+    "original": "Batteritype",
+    "normalized": "Batteritype",
+    "category": "Strøm"
+  },
+  {
+    "original": "Bekken/bøtte med lokk",
+    "normalized": "Bekken/bøtte med lokk",
+    "category": "Generell"
+  },
+  {
+    "original": "Belastning maks",
+    "normalized": "Belastning maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Belastningsbrems",
+    "normalized": "Belastningsbrems",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Belte",
+    "normalized": "Belte",
+    "category": "Generell"
+  },
+  {
+    "original": "Belte/sele",
+    "normalized": "Belte/sele",
+    "category": "Generell"
+  },
+  {
+    "original": "Bendelere separate",
+    "normalized": "Bendelere separate",
+    "category": "Generell"
+  },
+  {
+    "original": "Benstøttehøyde over gulv i ytterstilling maks",
+    "normalized": "Benstøttehøyde over gulv i ytterstilling maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Benstøttehøyde over gulv i ytterstilling min",
+    "normalized": "Benstøttehøyde over gulv i ytterstilling min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Benstøttelengde maks",
+    "normalized": "Benstøttelengde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Benstøttelengde min",
+    "normalized": "Benstøttelengde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Benstøtter",
+    "normalized": "Benstøtter",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Benstøtter avtagbare",
+    "normalized": "Benstøtter avtagbare",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Benstøtter delte",
+    "normalized": "Benstøtter delte",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Benstøtter fastmonterte",
+    "normalized": "Benstøtter fastmonterte",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Benstøtte sentermontert",
+    "normalized": "Benstøtte sentermontert",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Benstøtte/støtteben",
+    "normalized": "Benstøtte/støtteben",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Benstøttevinkling",
+    "normalized": "Benstøttevinkling",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Bentrener",
+    "normalized": "Bentrener",
+    "category": "Generell"
+  },
+  {
+    "original": "Beregnet på barn",
+    "normalized": "Beregnet på barn",
+    "category": "Generell"
+  },
+  {
+    "original": "Berøringsskjerm",
+    "normalized": "Berøringsskjerm",
+    "category": "Generell"
+  },
+  {
+    "original": "Betjening dusj høyre",
+    "normalized": "Betjening dusj høyre",
+    "category": "Generell"
+  },
+  {
+    "original": "Betjening dusj venstre",
+    "normalized": "Betjening dusj venstre",
+    "category": "Generell"
+  },
+  {
+    "original": "Betjening høyre",
+    "normalized": "Betjening høyre",
+    "category": "Generell"
+  },
+  {
+    "original": "Betjeningsknapper antall",
+    "normalized": "Betjeningsknapper antall",
+    "category": "Generell"
+  },
+  {
+    "original": "Betjening spyl/tørk høyre",
+    "normalized": "Betjening spyl/tørk høyre",
+    "category": "Generell"
+  },
+  {
+    "original": "Betjening spyl/tørk ryggbryter",
+    "normalized": "Betjening spyl/tørk ryggbryter",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Betjening spyl/tørk trådløst panel",
+    "normalized": "Betjening spyl/tørk trådløst panel",
+    "category": "Generell"
+  },
+  {
+    "original": "Betjening spyl/tørk valgfri plassering",
+    "normalized": "Betjening spyl/tørk valgfri plassering",
+    "category": "Generell"
+  },
+  {
+    "original": "Betjening spyl/tørk venstre",
+    "normalized": "Betjening spyl/tørk venstre",
+    "category": "Generell"
+  },
+  {
+    "original": "Betjening tørk høyre",
+    "normalized": "Betjening tørk høyre",
+    "category": "Generell"
+  },
+  {
+    "original": "Betjening tørk venstre",
+    "normalized": "Betjening tørk venstre",
+    "category": "Generell"
+  },
+  {
+    "original": "Betjening type",
+    "normalized": "Betjening type",
+    "category": "Generell"
+  },
+  {
+    "original": "Betjening venstre",
+    "normalized": "Betjening venstre",
+    "category": "Generell"
+  },
+  {
+    "original": "Bildedeling",
+    "normalized": "Bildedeling",
+    "category": "Generell"
+  },
+  {
+    "original": "Bluetooth",
+    "normalized": "Bluetooth",
+    "category": "IT"
+  },
+  {
+    "original": "Bordplate bredde",
+    "normalized": "Bordplate bredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bordplate dybde",
+    "normalized": "Bordplate dybde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bordplate fast",
+    "normalized": "Bordplate fast",
+    "category": "Generell"
+  },
+  {
+    "original": "Bordplate høyde maks",
+    "normalized": "Bordplate høyde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bordplate høyde min",
+    "normalized": "Bordplate høyde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bordplate speilvendbar",
+    "normalized": "Bordplate speilvendbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Bordplate vinkelreg.",
+    "normalized": "Bordplate vreg",
+    "category": "Generell"
+  },
+  {
+    "original": "Bordplate vreg bredde",
+    "normalized": "Bordplate vreg bredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bordplate vreg dybde",
+    "normalized": "Bordplate vreg dybde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde",
+    "normalized": "Bredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde innvendig",
+    "normalized": "Bredde innvendig",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde kontrollenhet",
+    "normalized": "Bredde kontrollenhet",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde maks",
+    "normalized": "Bredde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde mellom armlener",
+    "normalized": "Bredde mellom armlener",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde mellom armlener maks",
+    "normalized": "Bredde mellom armlener maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde mellom armlener min",
+    "normalized": "Bredde mellom armlener min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde min",
+    "normalized": "Bredde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde mottaker",
+    "normalized": "Bredde mottaker",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde plattform",
+    "normalized": "Bredde plattform",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde plattformgulv",
+    "normalized": "Bredde plattformgulv",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredderegulering parallell",
+    "normalized": "Bredderegulering parallell",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredderegulering V-form",
+    "normalized": "Bredderegulering V-form",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde sammenlagt",
+    "normalized": "Bredde sammenlagt",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde sender",
+    "normalized": "Bredde sender",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde sensor",
+    "normalized": "Bredde sensor",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde servant",
+    "normalized": "Bredde servant",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde servantløfter",
+    "normalized": "Bredde servantløfter",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde understell maks",
+    "normalized": "Bredde understell maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde understell min",
+    "normalized": "Bredde understell min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde utvendig",
+    "normalized": "Bredde utvendig",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Bredde vinkelreg. del",
+    "normalized": "Bredde vreg del",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Brems",
+    "normalized": "Brems",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Brems brukerbetjent",
+    "normalized": "Brems brukerbetjent",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Brems hydraulisk",
+    "normalized": "Brems hydraulisk",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Brems mekanisk",
+    "normalized": "Brems mekanisk",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Brukerhøyde",
+    "normalized": "Brukerhøyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Brukerhøyde maks",
+    "normalized": "Brukerhøyde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Brukerhøyde maks m/tilbehør",
+    "normalized": "Brukerhøyde maks m/tilbehør",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Brukerhøyde min",
+    "normalized": "Brukerhøyde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Brukerlengde maks",
+    "normalized": "Brukerlengde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Brukerlengde min",
+    "normalized": "Brukerlengde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Brukerstyrt",
+    "normalized": "Brukerstyrt",
+    "category": "Generell"
+  },
+  {
+    "original": "Brukervekt",
+    "normalized": "Brukervekt",
+    "category": "Vekt"
+  },
+  {
+    "original": "Brukervekt maks",
+    "normalized": "Brukervekt maks",
+    "category": "Vekt"
+  },
+  {
+    "original": "Brukervekt min",
+    "normalized": "Brukervekt min",
+    "category": "Vekt"
+  },
+  {
+    "original": "Bruksområde",
+    "normalized": "Bruksområde",
+    "category": "Generell"
+  },
+  {
+    "original": "Brukstid",
+    "normalized": "Brukstid",
+    "category": "Generell"
+  },
+  {
+    "original": "Brystbelte",
+    "normalized": "Brystbelte",
+    "category": "Generell"
+  },
+  {
+    "original": "Bryterenhet",
+    "normalized": "Bryterenhet",
+    "category": "Generell"
+  },
+  {
+    "original": "Bueformet løftebevegelse",
+    "normalized": "Bueformet løftebevegelse",
+    "category": "Generell"
+  },
+  {
+    "original": "CD-spiller",
+    "normalized": "CD-spiller",
+    "category": "Generell"
+  },
+  {
+    "original": "Cobra",
+    "normalized": "Cobra",
+    "category": "Generell"
+  },
+  {
+    "original": "Dekkplate",
+    "normalized": "Dekkplate",
+    "category": "Generell"
+  },
+  {
+    "original": "Delbar",
+    "normalized": "Delbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Delbar med verktøy",
+    "normalized": "Delbar med verktøy",
+    "category": "Generell"
+  },
+  {
+    "original": "Delbar uten verktøy",
+    "normalized": "Delbar uten verktøy",
+    "category": "Generell"
+  },
+  {
+    "original": "Deteksjonstype",
+    "normalized": "Deteksjonstype",
+    "category": "Generell"
+  },
+  {
+    "original": "Diameter",
+    "normalized": "Diameter",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Diameter maks",
+    "normalized": "Diameter maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Diameter min",
+    "normalized": "Diameter min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Differensialdrift",
+    "normalized": "Differensialdrift",
+    "category": "Generell"
+  },
+  {
+    "original": "Display dynamisk",
+    "normalized": "Display dynamisk",
+    "category": "Generell"
+  },
+  {
+    "original": "Dobbelsidig",
+    "normalized": "Dobbelsidig",
+    "category": "Generell"
+  },
+  {
+    "original": "Dokumentleser",
+    "normalized": "Dokumentleser",
+    "category": "Generell"
+  },
+  {
+    "original": "Dørtype",
+    "normalized": "Dørtype",
+    "category": "Generell"
+  },
+  {
+    "original": "Driftsspenning",
+    "normalized": "Driftsspenning",
+    "category": "Strøm"
+  },
+  {
+    "original": "Driftstid batteri",
+    "normalized": "Driftstid batteri",
+    "category": "Strøm"
+  },
+  {
+    "original": "Drivhjul",
+    "normalized": "Drivhjul",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Drivhjuldiameter",
+    "normalized": "Drivhjuldiameter",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Drivstoff",
+    "normalized": "Drivstoff",
+    "category": "Generell"
+  },
+  {
+    "original": "Dybde",
+    "normalized": "Dybde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Dybde kontrollenhet",
+    "normalized": "Dybde kontrollenhet",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Dybde mottaker",
+    "normalized": "Dybde mottaker",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Dybde plattform",
+    "normalized": "Dybde plattform",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Dybde sender",
+    "normalized": "Dybde sender",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Dybde sensor",
+    "normalized": "Dybde sensor",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Dybde servant",
+    "normalized": "Dybde servant",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Dynamisk",
+    "normalized": "Dynamisk",
+    "category": "Generell"
+  },
+  {
+    "original": "Effekt",
+    "normalized": "Effekt",
+    "category": "Generell"
+  },
+  {
+    "original": "Elastisk",
+    "normalized": "Elastisk",
+    "category": "Generell"
+  },
+  {
+    "original": "Elektrisk åpning",
+    "normalized": "Elektrisk åpning",
+    "category": "Generell"
+  },
+  {
+    "original": "Elektrisk bredderegulering",
+    "normalized": "Elektrisk bredderegulering",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Elektrisk regulering",
+    "normalized": "Elektrisk regulering",
+    "category": "Generell"
+  },
+  {
+    "original": "Ensidig utskrift",
+    "normalized": "Ensidig utskrift",
+    "category": "Generell"
+  },
+  {
+    "original": "Eternet",
+    "normalized": "Ethernet",
+    "category": "Generell"
+  },
+  {
+    "original": "Farge",
+    "normalized": "Farge",
+    "category": "Generell"
+  },
+  {
+    "original": "Fargetemperatur",
+    "normalized": "Fargetemperatur",
+    "category": "Generell"
+  },
+  {
+    "original": "Fast forhåndinnstilt tørketid",
+    "normalized": "Fast forhåndinnstilt tørketid",
+    "category": "Generell"
+  },
+  {
+    "original": "Fasthet regulerbar",
+    "normalized": "Fasthet regulerbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Fastmontert",
+    "normalized": "Fastmontert",
+    "category": "Generell"
+  },
+  {
+    "original": "Fast rygg",
+    "normalized": "Fast rygg",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Fast strømtilkobling",
+    "normalized": "Fast strømtilkobling",
+    "category": "Strøm"
+  },
+  {
+    "original": "Festebøyler",
+    "normalized": "Festebøyler",
+    "category": "Generell"
+  },
+  {
+    "original": "Festemåte",
+    "normalized": "Festemåte",
+    "category": "Generell"
+  },
+  {
+    "original": "Fjernprogrammering",
+    "normalized": "Fjernprogrammering",
+    "category": "Generell"
+  },
+  {
+    "original": "Fôret",
+    "normalized": "Fôret",
+    "category": "Generell"
+  },
+  {
+    "original": "Forhøyerens høyde",
+    "normalized": "Forhøyerens høyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Forhøyning bak",
+    "normalized": "Forhøyning bak",
+    "category": "Generell"
+  },
+  {
+    "original": "Forhøyning foran",
+    "normalized": "Forhøyning foran",
+    "category": "Generell"
+  },
+  {
+    "original": "Forsterket",
+    "normalized": "Forsterket",
+    "category": "Generell"
+  },
+  {
+    "original": "Forstørrelse dioptrier",
+    "normalized": "Forstørrelse dioptrier",
+    "category": "Generell"
+  },
+  {
+    "original": "Forstørrelsesgrad maks",
+    "normalized": "Forstørrelsesgrad maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Forstørrelsesgrad min",
+    "normalized": "Forstørrelsesgrad min",
+    "category": "Generell"
+  },
+  {
+    "original": "Fotstøtte",
+    "normalized": "Fotstøtte",
+    "category": "Generell"
+  },
+  {
+    "original": "Fotstøtte delt",
+    "normalized": "Fotstøtte delt",
+    "category": "Generell"
+  },
+  {
+    "original": "Fotstøtte hel",
+    "normalized": "Fotstøtte hel",
+    "category": "Generell"
+  },
+  {
+    "original": "Framdrift",
+    "normalized": "Framdrift",
+    "category": "Generell"
+  },
+  {
+    "original": "Framdrift elektrisk",
+    "normalized": "Framdrift elektrisk",
+    "category": "Generell"
+  },
+  {
+    "original": "Framdrift manuell",
+    "normalized": "Framdrift manuell",
+    "category": "Generell"
+  },
+  {
+    "original": "Frekvens",
+    "normalized": "Frekvens",
+    "category": "Generell"
+  },
+  {
+    "original": "Fri arbeidshøyde",
+    "normalized": "Fri arbeidshøyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Fri høyde over gulv",
+    "normalized": "Fri høyde over gulv",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Frikobling ved brann",
+    "normalized": "Frikobling ved brann",
+    "category": "Generell"
+  },
+  {
+    "original": "Friksjonsregulering",
+    "normalized": "Friksjonsregulering",
+    "category": "Generell"
+  },
+  {
+    "original": "Frittstående",
+    "normalized": "Frittstående",
+    "category": "Generell"
+  },
+  {
+    "original": "Fuktabsorberende",
+    "normalized": "Fuktabsorberende",
+    "category": "Generell"
+  },
+  {
+    "original": "Fyllmateriale",
+    "normalized": "Fyllmateriale",
+    "category": "Generell"
+  },
+  {
+    "original": "Gavler fjernes u/verktøy",
+    "normalized": "Gavler fjernes u/verktøy",
+    "category": "Generell"
+  },
+  {
+    "original": "Grafikk taktil",
+    "normalized": "Grafikk taktil",
+    "category": "Generell"
+  },
+  {
+    "original": "Grepsdiameter",
+    "normalized": "Grepsdiameter",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Gulvmontert",
+    "normalized": "Gulvmontert",
+    "category": "Generell"
+  },
+  {
+    "original": "Halsbåren teleslynge",
+    "normalized": "Halsbåren teleslynge",
+    "category": "Generell"
+  },
+  {
+    "original": "Håndbrems",
+    "normalized": "Håndbrems",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Håndtak bygger ut fra veggen",
+    "normalized": "Håndtak bygger ut fra veggen",
+    "category": "Generell"
+  },
+  {
+    "original": "Håndtak hreg maks",
+    "normalized": "Håndtak hreg maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Håndtak hreg min",
+    "normalized": "Håndtak hreg min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Harddisk",
+    "normalized": "Harddisk",
+    "category": "Generell"
+  },
+  {
+    "original": "Hard type",
+    "normalized": "Hard type",
+    "category": "Generell"
+  },
+  {
+    "original": "Hastighet maks",
+    "normalized": "Hastighet maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Hastighetsregulering",
+    "normalized": "Hastighetsregulering",
+    "category": "Generell"
+  },
+  {
+    "original": "Hastighet utskrift",
+    "normalized": "Hastighet utskrift",
+    "category": "Generell"
+  },
+  {
+    "original": "Helling maks",
+    "normalized": "Helling maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Helningsgrad maks",
+    "normalized": "Helningsgrad maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Hinderhøyde maks",
+    "normalized": "Hinderhøyde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Hjelpemotor",
+    "normalized": "Hjelpemotor",
+    "category": "Generell"
+  },
+  {
+    "original": "Hjørneinngang",
+    "normalized": "Hjørneinngang",
+    "category": "Generell"
+  },
+  {
+    "original": "Hjul",
+    "normalized": "Hjul",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Hjul bak",
+    "normalized": "Hjul bak",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Hjuldiameter",
+    "normalized": "Hjuldiameter",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Hjuldiameter bak",
+    "normalized": "Hjuldiameter bak",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Hjuldiameter foran",
+    "normalized": "Hjuldiameter foran",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Hjuldrift",
+    "normalized": "Hjuldrift",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Hjul foran",
+    "normalized": "Hjul foran",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Hjul låsbare",
+    "normalized": "Hjul låsbare",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Hjul, små",
+    "normalized": "Hjul, små",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Hjul, store",
+    "normalized": "Hjul, store",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Hjulstørrelse",
+    "normalized": "Hjulstørrelse",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Hjulstørrelse bak",
+    "normalized": "Hjulstørrelse bak",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Hjulstørrelse foran",
+    "normalized": "Hjulstørrelse foran",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Hodedel vreg",
+    "normalized": "Hodedel vreg",
+    "category": "Generell"
+  },
+  {
+    "original": "Hodestøtte",
+    "normalized": "Hodestøtte",
+    "category": "Generell"
+  },
+  {
+    "original": "Hodetelefon uttak",
+    "normalized": "Hodetelefon uttak",
+    "category": "Generell"
+  },
+  {
+    "original": "Hoftebelte",
+    "normalized": "Hoftebelte",
+    "category": "Generell"
+  },
+  {
+    "original": "Høyde",
+    "normalized": "Høyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyde bak",
+    "normalized": "Høyde bak",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyde foran",
+    "normalized": "Høyde foran",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyde maks",
+    "normalized": "Høyde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyde min",
+    "normalized": "Høyde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyde oppreist maks",
+    "normalized": "Høyde oppreist maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyde over gulv maks",
+    "normalized": "Høyde over gulv maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyde over gulv min",
+    "normalized": "Høyde over gulv min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyderegulerbar",
+    "normalized": "Høyderegulerbar",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyderegulerbart",
+    "normalized": "Høyderegulerbar",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyderegulering",
+    "normalized": "Høyderegulering",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyderegulering batteridrift",
+    "normalized": "Høyderegulering batteridrift",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyderegulering elektrisk",
+    "normalized": "Høyderegulering elektrisk",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyderegulering hydraulisk",
+    "normalized": "Høyderegulering hydraulisk",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyderegulering manuell",
+    "normalized": "Høyderegulering manuell",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyderegulering mekanisk",
+    "normalized": "Høyderegulering mekanisk",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyde sammenlagt",
+    "normalized": "Høyde sammenlagt",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Høyde understell",
+    "normalized": "Høyde understell",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Hullets bredde",
+    "normalized": "Hullets bredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Hullets dybde",
+    "normalized": "Hullets dybde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Hylle",
+    "normalized": "Hylle",
+    "category": "Generell"
+  },
+  {
+    "original": "Individuell regulering",
+    "normalized": "Individuell regulering",
+    "category": "Generell"
+  },
+  {
+    "original": "Inkotrekk",
+    "normalized": "Inkotrekk",
+    "category": "Generell"
+  },
+  {
+    "original": "Innendørs bruk",
+    "normalized": "Innendørs bruk",
+    "category": "Generell"
+  },
+  {
+    "original": "Innstigningshøyde",
+    "normalized": "Innstigningshøyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Innstillinger lagres v/strømbrudd",
+    "normalized": "Innstillinger lagres v/strømbrudd",
+    "category": "Strøm"
+  },
+  {
+    "original": "Innvendig bredde",
+    "normalized": "Innvendig bredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Innvendig bredde maks",
+    "normalized": "Innvendig bredde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Innvendig bredde min",
+    "normalized": "Innvendig bredde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Innvendig høyde",
+    "normalized": "Innvendig høyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Innvendig lengde",
+    "normalized": "Innvendig lengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Integrert lader",
+    "normalized": "Integrert lader",
+    "category": "Strøm"
+  },
+  {
+    "original": "Integrert lys",
+    "normalized": "Integrert lys",
+    "category": "Generell"
+  },
+  {
+    "original": "Internminne",
+    "normalized": "Internminne",
+    "category": "Generell"
+  },
+  {
+    "original": "Iphone",
+    "normalized": "Iphone",
+    "category": "Generell"
+  },
+  {
+    "original": "Ipod touch",
+    "normalized": "Ipod touch",
+    "category": "Generell"
+  },
+  {
+    "original": "Jaws",
+    "normalized": "Jaws",
+    "category": "Generell"
+  },
+  {
+    "original": "Justeres (med verktøy)",
+    "normalized": "Justeres (med verktøy)",
+    "category": "Generell"
+  },
+  {
+    "original": "Kabellengde",
+    "normalized": "Kabellengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Kabellengde sender",
+    "normalized": "Kabellengde sender",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Kabellengde sensor",
+    "normalized": "Kabellengde sensor",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Kabin",
+    "normalized": "Kabin",
+    "category": "Generell"
+  },
+  {
+    "original": "Kamera",
+    "normalized": "Kamera",
+    "category": "Generell"
+  },
+  {
+    "original": "Kan brukes av menn",
+    "normalized": "Kan brukes av menn",
+    "category": "Generell"
+  },
+  {
+    "original": "Kan brukes i våtrom",
+    "normalized": "Kan brukes i våtrom",
+    "category": "Generell"
+  },
+  {
+    "original": "Kan brukes med toalettløfter",
+    "normalized": "Kan brukes med toalettløfter",
+    "category": "Generell"
+  },
+  {
+    "original": "Kan låses når sammenslått",
+    "normalized": "Kan låses når sammenslått",
+    "category": "Generell"
+  },
+  {
+    "original": "Kan låses når utslått",
+    "normalized": "Kan låses når utslått",
+    "category": "Generell"
+  },
+  {
+    "original": "Kan skråstilles",
+    "normalized": "Kan skråstilles",
+    "category": "Generell"
+  },
+  {
+    "original": "Kan tilkobles leselist",
+    "normalized": "Kan tilkobles leselist",
+    "category": "Generell"
+  },
+  {
+    "original": "Kan tilpasses hjørnebadekar",
+    "normalized": "Kan tilpasses hjørnebadekar",
+    "category": "Generell"
+  },
+  {
+    "original": "Kan tiltes",
+    "normalized": "Kan tiltes",
+    "category": "Generell"
+  },
+  {
+    "original": "Karmdybde maks",
+    "normalized": "Karmdybde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Karmdybde min",
+    "normalized": "Karmdybde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Kjørebøyle",
+    "normalized": "Kjørebøyle",
+    "category": "Generell"
+  },
+  {
+    "original": "Kjørehåndtak",
+    "normalized": "Kjørehåndtak",
+    "category": "Generell"
+  },
+  {
+    "original": "Kjørehåndtak hreg",
+    "normalized": "Kjørehåndtak hreg",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Kjørehåndtakregulering",
+    "normalized": "Kjørehåndtakregulering",
+    "category": "Generell"
+  },
+  {
+    "original": "Kjørehastighet",
+    "normalized": "Kjørehastighet",
+    "category": "Generell"
+  },
+  {
+    "original": "Kjørel.",
+    "normalized": "Kjørel.",
+    "category": "Generell"
+  },
+  {
+    "original": "Kjørelengde",
+    "normalized": "Kjørelengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Kjørelengde maks",
+    "normalized": "Kjørelengde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Klaff",
+    "normalized": "Klaff",
+    "category": "Generell"
+  },
+  {
+    "original": "Klatremåte",
+    "normalized": "Klatremåte",
+    "category": "Generell"
+  },
+  {
+    "original": "Klemsikring",
+    "normalized": "Klemsikring",
+    "category": "Generell"
+  },
+  {
+    "original": "Knapper programmerbare",
+    "normalized": "Knapper programmerbare",
+    "category": "Generell"
+  },
+  {
+    "original": "Knappesymboler kan skiftes",
+    "normalized": "Knappesymboler kan skiftes",
+    "category": "Generell"
+  },
+  {
+    "original": "Kne vreg",
+    "normalized": "Kne vreg",
+    "category": "Generell"
+  },
+  {
+    "original": "Kne vreg grader",
+    "normalized": "Kne vreg grader",
+    "category": "Generell"
+  },
+  {
+    "original": "Komfortinnstilling",
+    "normalized": "Komfortinnstilling",
+    "category": "Generell"
+  },
+  {
+    "original": "Komponenttype",
+    "normalized": "Komponenttype",
+    "category": "Generell"
+  },
+  {
+    "original": "Kopistøp",
+    "normalized": "Kopistøp",
+    "category": "Generell"
+  },
+  {
+    "original": "Kulediameter",
+    "normalized": "Kulediameter",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Kurv",
+    "normalized": "Kurv",
+    "category": "Generell"
+  },
+  {
+    "original": "Lader type",
+    "normalized": "Lader type",
+    "category": "Strøm"
+  },
+  {
+    "original": "Ladespenning",
+    "normalized": "Ladespenning",
+    "category": "Strøm"
+  },
+  {
+    "original": "Ladetid",
+    "normalized": "Ladetid",
+    "category": "Generell"
+  },
+  {
+    "original": "Lagdelt",
+    "normalized": "Lagdelt",
+    "category": "Generell"
+  },
+  {
+    "original": "Lagringsmulighet",
+    "normalized": "Lagringsmulighet",
+    "category": "Generell"
+  },
+  {
+    "original": "Lampearm lengde maks",
+    "normalized": "Lampearm lengde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lampearm lengde min",
+    "normalized": "Lampearm lengde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lårbredde maks",
+    "normalized": "Lårbredde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lårbredde min",
+    "normalized": "Lårbredde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lårdel reguleres separat",
+    "normalized": "Lårdel reguleres separat",
+    "category": "Generell"
+  },
+  {
+    "original": "Låsesystem styrbart",
+    "normalized": "Låsesystem styrbart",
+    "category": "Generell"
+  },
+  {
+    "original": "Låskasse",
+    "normalized": "Låskasse",
+    "category": "Generell"
+  },
+  {
+    "original": "Last per skinne maks",
+    "normalized": "Last per skinne maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Last per skinne/rampe maks",
+    "normalized": "Last per skinne/rampe maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Ledsagerstyrt",
+    "normalized": "Ledsagerstyrt",
+    "category": "Generell"
+  },
+  {
+    "original": "Leggdel reguleres separat",
+    "normalized": "Leggdel reguleres separat",
+    "category": "Generell"
+  },
+  {
+    "original": "Lengde",
+    "normalized": "Lengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde armstøtte",
+    "normalized": "Lengde armstøtte",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde bak",
+    "normalized": "Lengde bak",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde foran",
+    "normalized": "Lengde foran",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde innvendig",
+    "normalized": "Lengde innvendig",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde kontrollenhet",
+    "normalized": "Lengde kontrollenhet",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde maks",
+    "normalized": "Lengde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde min",
+    "normalized": "Lengde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde min, v/transport",
+    "normalized": "Lengde min, v/transport",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde mottaker",
+    "normalized": "Lengde mottaker",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde øvre anlegg",
+    "normalized": "Lengde øvre anlegg",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde på ledning",
+    "normalized": "Lengde på ledning",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde plattformgulv",
+    "normalized": "Lengde plattformgulv",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde reg",
+    "normalized": "Lengde reg",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde sammenlagt",
+    "normalized": "Lengde sammenlagt",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde sender",
+    "normalized": "Lengde sender",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde sensor",
+    "normalized": "Lengde sensor",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Lengde utvendig",
+    "normalized": "Lengde utvendig",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Leselinje",
+    "normalized": "Leselinje",
+    "category": "Generell"
+  },
+  {
+    "original": "Leseplate",
+    "normalized": "Leseplate",
+    "category": "Generell"
+  },
+  {
+    "original": "Liggeflate bredde",
+    "normalized": "Liggeflate bredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Liggeflate dybde",
+    "normalized": "Liggeflate dybde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Liggeflate lengde",
+    "normalized": "Liggeflate lengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Liggehøyde",
+    "normalized": "Liggehøyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Linsediameter",
+    "normalized": "Linsediameter",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Linsens form",
+    "normalized": "Linsens form",
+    "category": "Generell"
+  },
+  {
+    "original": "Linux",
+    "normalized": "Linux",
+    "category": "Generell"
+  },
+  {
+    "original": "Livvidde",
+    "normalized": "Livvidde",
+    "category": "Generell"
+  },
+  {
+    "original": "Løft diagonalt",
+    "normalized": "Løft diagonalt",
+    "category": "Generell"
+  },
+  {
+    "original": "Løftebånd lengde",
+    "normalized": "Løftebånd lengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Løftehastighet",
+    "normalized": "Løftehastighet",
+    "category": "Generell"
+  },
+  {
+    "original": "Løftehøyde",
+    "normalized": "Løftehøyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Løftehøyde maks",
+    "normalized": "Løftehøyde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Løftehøyde min",
+    "normalized": "Løftehøyde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Løftekapasitet",
+    "normalized": "Løftekapasitet",
+    "category": "Generell"
+  },
+  {
+    "original": "Løftekapasitet maks",
+    "normalized": "Løftekapasitet maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Løfteområde maks",
+    "normalized": "Løfteområde maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Løfteområde min",
+    "normalized": "Løfteområde min",
+    "category": "Generell"
+  },
+  {
+    "original": "løfter benk",
+    "normalized": "Løfter benk",
+    "category": "Generell"
+  },
+  {
+    "original": "Løfterens bredde",
+    "normalized": "Løfterens bredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Løfterens høyde",
+    "normalized": "Løfterens høyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Løfterens lengde",
+    "normalized": "Løfterens lengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Løfterens vekt",
+    "normalized": "Løfterens vekt",
+    "category": "Vekt"
+  },
+  {
+    "original": "Løfter for garderobe",
+    "normalized": "Løfter for garderobe",
+    "category": "Generell"
+  },
+  {
+    "original": "Løfter for hylle",
+    "normalized": "Løfter for hylle",
+    "category": "Generell"
+  },
+  {
+    "original": "løfter overskap",
+    "normalized": "Løfter overskap",
+    "category": "Generell"
+  },
+  {
+    "original": "Løfter skapinnredning",
+    "normalized": "Løfter skapinnredning",
+    "category": "Generell"
+  },
+  {
+    "original": "Løft vertikalt",
+    "normalized": "Løft vertikalt",
+    "category": "Generell"
+  },
+  {
+    "original": "Lokk",
+    "normalized": "Lokk",
+    "category": "Generell"
+  },
+  {
+    "original": "Løs madrass",
+    "normalized": "Løs madrass",
+    "category": "Generell"
+  },
+  {
+    "original": "Lukkekraft regulerbar",
+    "normalized": "Lukkekraft regulerbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Lukking strømløs (returfjær)",
+    "normalized": "Lukking strømløs (returfjær)",
+    "category": "Strøm"
+  },
+  {
+    "original": "Lydformat",
+    "normalized": "Lydformat",
+    "category": "Generell"
+  },
+  {
+    "original": "Lydtilkobling",
+    "normalized": "Lydtilkobling",
+    "category": "Generell"
+  },
+  {
+    "original": "Lyskilde",
+    "normalized": "Lyskilde",
+    "category": "Generell"
+  },
+  {
+    "original": "Lysstyrke",
+    "normalized": "Lysstyrke",
+    "category": "Generell"
+  },
+  {
+    "original": "Lysstyrke regulerbar antall trinn",
+    "normalized": "Lysstyrke regulerbar antall trinn",
+    "category": "Generell"
+  },
+  {
+    "original": "Madrass bredde",
+    "normalized": "Madrass bredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Madrass bredde maks",
+    "normalized": "Madrass bredde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Madrass bredde min",
+    "normalized": "Madrass bredde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Madrass lengde",
+    "normalized": "Madrass lengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Madrass lengde maks",
+    "normalized": "Madrass lengde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Madrass lengde min",
+    "normalized": "Madrass lengde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Magnetlås",
+    "normalized": "Magnetlås",
+    "category": "Generell"
+  },
+  {
+    "original": "Makrofunksjon",
+    "normalized": "Makrofunksjon",
+    "category": "Generell"
+  },
+  {
+    "original": "Maks åpningsvinkel",
+    "normalized": "Åpningsvinkel maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Maks brukervekt",
+    "normalized": "Brukervekt maks",
+    "category": "Vekt"
+  },
+  {
+    "original": "Maks. brukervekt",
+    "normalized": "Brukervekt maks",
+    "category": "Vekt"
+  },
+  {
+    "original": "Maks grader vask",
+    "normalized": "Vasketemp maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Maks last",
+    "normalized": "Last maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Maks trekkelengde",
+    "normalized": "Trekkelengde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Maks vekt dørblad",
+    "normalized": "Dørblad vekt maks",
+    "category": "Vekt"
+  },
+  {
+    "original": "Maks vekt seng/stol",
+    "normalized": "Seng/stol vekt maks",
+    "category": "Vekt"
+  },
+  {
+    "original": "Manuell åpning",
+    "normalized": "Manuell åpning",
+    "category": "Generell"
+  },
+  {
+    "original": "Manuell bredderegulering",
+    "normalized": "Manuell bredderegulering",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Manuell regulering",
+    "normalized": "Manuell regulering",
+    "category": "Generell"
+  },
+  {
+    "original": "Maskinvaskes",
+    "normalized": "Maskinvaskes",
+    "category": "Generell"
+  },
+  {
+    "original": "Materiale",
+    "normalized": "Materiale",
+    "category": "Generell"
+  },
+  {
+    "original": "Materiale gavler",
+    "normalized": "Materiale gavler",
+    "category": "Generell"
+  },
+  {
+    "original": "Materiale i sengeløfter",
+    "normalized": "Materiale i sengeløfter",
+    "category": "Generell"
+  },
+  {
+    "original": "Materiale i trekk",
+    "normalized": "Materiale i trekk",
+    "category": "Generell"
+  },
+  {
+    "original": "Materiale lameller",
+    "normalized": "Materiale lameller",
+    "category": "Generell"
+  },
+  {
+    "original": "Materiale liggeflate",
+    "normalized": "Materiale liggeflate",
+    "category": "Generell"
+  },
+  {
+    "original": "Materiale rammeverk",
+    "normalized": "Materiale rammeverk",
+    "category": "Generell"
+  },
+  {
+    "original": "Materiale sengebunn",
+    "normalized": "Materiale sengebunn",
+    "category": "Generell"
+  },
+  {
+    "original": "Matrisemating",
+    "normalized": "Matrisemating",
+    "category": "Generell"
+  },
+  {
+    "original": "Max grader vask",
+    "normalized": "Vasketemp maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Med armer",
+    "normalized": "Med armer",
+    "category": "Generell"
+  },
+  {
+    "original": "Med meier",
+    "normalized": "Med meier",
+    "category": "Generell"
+  },
+  {
+    "original": "Med ski",
+    "normalized": "Med ski",
+    "category": "Generell"
+  },
+  {
+    "original": "Mikrofoninngang",
+    "normalized": "Mikrofoninngang",
+    "category": "Generell"
+  },
+  {
+    "original": "Min. brukervekt",
+    "normalized": "Brukervekt min",
+    "category": "Vekt"
+  },
+  {
+    "original": "Minimum brukervekt",
+    "normalized": "Brukervekt min",
+    "category": "Vekt"
+  },
+  {
+    "original": "Minimumsvekt for deteksjon hardt gulv",
+    "normalized": "Minimumsvekt for deteksjon hardt gulv",
+    "category": "Vekt"
+  },
+  {
+    "original": "Minimumsvekt for deteksjon tynt teppe",
+    "normalized": "Minimumsvekt for deteksjon tynt teppe",
+    "category": "Vekt"
+  },
+  {
+    "original": "Minimum vekt for deteksjon",
+    "normalized": "Minimumsvekt for deteksjon",
+    "category": "Vekt"
+  },
+  {
+    "original": "Minne",
+    "normalized": "Minne",
+    "category": "Generell"
+  },
+  {
+    "original": "Minnekortslot",
+    "normalized": "Minnekortslot",
+    "category": "Generell"
+  },
+  {
+    "original": "MobileSpeak",
+    "normalized": "MobileSpeak",
+    "category": "Generell"
+  },
+  {
+    "original": "Montering gulv-tak",
+    "normalized": "Montering gulv-tak",
+    "category": "Generell"
+  },
+  {
+    "original": "Monteringsside rett trapp",
+    "normalized": "Monteringsside rett trapp",
+    "category": "Generell"
+  },
+  {
+    "original": "Montering valgfri side",
+    "normalized": "Montering valgfri side",
+    "category": "Generell"
+  },
+  {
+    "original": "Montering vegg",
+    "normalized": "Montering vegg",
+    "category": "Generell"
+  },
+  {
+    "original": "Montert på bilmodell",
+    "normalized": "Montert på bilmodell",
+    "category": "Generell"
+  },
+  {
+    "original": "Motorenhet bredde",
+    "normalized": "Motorenhet bredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Motorenhet dybde",
+    "normalized": "Motorenhet dybde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Motorenhet lengde",
+    "normalized": "Motorenhet lengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Motorlås",
+    "normalized": "Motorlås",
+    "category": "Generell"
+  },
+  {
+    "original": "Motor plassering hø",
+    "normalized": "Motor plassering høyre",
+    "category": "Generell"
+  },
+  {
+    "original": "Motor plassering under",
+    "normalized": "Motor plassering under",
+    "category": "Generell"
+  },
+  {
+    "original": "Motor plassering ve",
+    "normalized": "Motor plassering venstre",
+    "category": "Generell"
+  },
+  {
+    "original": "Motorstyrke",
+    "normalized": "Motorstyrke",
+    "category": "Generell"
+  },
+  {
+    "original": "Mottaker integrert",
+    "normalized": "Mottaker integrert",
+    "category": "Generell"
+  },
+  {
+    "original": "Myk type",
+    "normalized": "Myk type",
+    "category": "Generell"
+  },
+  {
+    "original": "Nedbygningsdybde",
+    "normalized": "Nedbygningsdybde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Nedfellbar",
+    "normalized": "Nedfellbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Nedtelling låsbar",
+    "normalized": "Nedtelling låsbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Nettdrift",
+    "normalized": "Nettdrift",
+    "category": "Generell"
+  },
+  {
+    "original": "Netting",
+    "normalized": "Netting",
+    "category": "Generell"
+  },
+  {
+    "original": "Nødsenk betjening",
+    "normalized": "Nødsenk betjening",
+    "category": "Generell"
+  },
+  {
+    "original": "Nødsenk type",
+    "normalized": "Nødsenk type",
+    "category": "Generell"
+  },
+  {
+    "original": "Nominell spenning",
+    "normalized": "Nominell spenning",
+    "category": "Strøm"
+  },
+  {
+    "original": "Nuance engelsk",
+    "normalized": "Nuance engelsk",
+    "category": "Generell"
+  },
+  {
+    "original": "Nuance Nora",
+    "normalized": "Nuance Nora",
+    "category": "Generell"
+  },
+  {
+    "original": "Nuance Stine",
+    "normalized": "Nuance Stine",
+    "category": "Generell"
+  },
+  {
+    "original": "OCR programvare",
+    "normalized": "OCR programvare",
+    "category": "Generell"
+  },
+  {
+    "original": "Onesize",
+    "normalized": "Onesize",
+    "category": "Generell"
+  },
+  {
+    "original": "Operativsystem",
+    "normalized": "Operativsystem",
+    "category": "Generell"
+  },
+  {
+    "original": "Oppfellbar",
+    "normalized": "Oppfellbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Oppladbar",
+    "normalized": "Oppladbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Opplærbar",
+    "normalized": "Opplærbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Oppstarthjelp motor",
+    "normalized": "Oppstarthjelp motor",
+    "category": "Generell"
+  },
+  {
+    "original": "Originalstøp",
+    "normalized": "Originalstøp",
+    "category": "Generell"
+  },
+  {
+    "original": "Overflaten gir friksjon",
+    "normalized": "Overflaten gir friksjon",
+    "category": "Generell"
+  },
+  {
+    "original": "Overføringstype",
+    "normalized": "Overføringstype",
+    "category": "Generell"
+  },
+  {
+    "original": "Overskap høyde maks",
+    "normalized": "Overskap høyde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Overskap høyde min",
+    "normalized": "Overskap høyde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Påkjøring begge sider",
+    "normalized": "Påkjøring begge sider",
+    "category": "Generell"
+  },
+  {
+    "original": "Påkjøring forfra",
+    "normalized": "Påkjøring forfra",
+    "category": "Generell"
+  },
+  {
+    "original": "Påkjøring mot bil",
+    "normalized": "Påkjøring mot bil",
+    "category": "Generell"
+  },
+  {
+    "original": "Påkjøring sideveis",
+    "normalized": "Påkjøring sideveis",
+    "category": "Generell"
+  },
+  {
+    "original": "Parkeringsbrems",
+    "normalized": "Parkeringsbrems",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Parkeringsdybde (oppslått)",
+    "normalized": "Parkeringsdybde (oppslått)",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Passer til flere rektangulære badekarmodeller",
+    "normalized": "Passer til flere rektangulære badekarmodeller",
+    "category": "Generell"
+  },
+  {
+    "original": "Passer til gulvmontert toalett",
+    "normalized": "Passer til gulvmontert toalett",
+    "category": "Generell"
+  },
+  {
+    "original": "Passer til veggmontert toalett",
+    "normalized": "Passer til veggmontert toalett",
+    "category": "Generell"
+  },
+  {
+    "original": "Pedalbrems",
+    "normalized": "Pedalbrems",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Plassering drivkilde",
+    "normalized": "Plassering drivkilde",
+    "category": "Generell"
+  },
+  {
+    "original": "Plattformbredde",
+    "normalized": "Plattformbredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Plattformhøyde",
+    "normalized": "Plattformhøyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Plattformlengde",
+    "normalized": "Plattformlengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Polstret",
+    "normalized": "Polstret",
+    "category": "Generell"
+  },
+  {
+    "original": "Portabelt",
+    "normalized": "Portabelt",
+    "category": "Generell"
+  },
+  {
+    "original": "Produktvekt",
+    "normalized": "Produktvekt",
+    "category": "Vekt"
+  },
+  {
+    "original": "Prossessor",
+    "normalized": "Prossessor",
+    "category": "Generell"
+  },
+  {
+    "original": "PS2",
+    "normalized": "PS2",
+    "category": "Generell"
+  },
+  {
+    "original": "Punktkonvertering",
+    "normalized": "Punktkonvertering",
+    "category": "Generell"
+  },
+  {
+    "original": "Punktmerket",
+    "normalized": "Punktmerket",
+    "category": "Generell"
+  },
+  {
+    "original": "Pustende",
+    "normalized": "Pustende",
+    "category": "Generell"
+  },
+  {
+    "original": "Radiorekkevidde",
+    "normalized": "Radiorekkevidde",
+    "category": "Generell"
+  },
+  {
+    "original": "Radiorekkevidde mottaker",
+    "normalized": "Radiorekkevidde mottaker",
+    "category": "Generell"
+  },
+  {
+    "original": "Radiorekkevidde sender",
+    "normalized": "Radiorekkevidde sender",
+    "category": "Generell"
+  },
+  {
+    "original": "Rammetype",
+    "normalized": "Rammetype",
+    "category": "Generell"
+  },
+  {
+    "original": "Reguleres (uten verktøy)",
+    "normalized": "Reguleres (uten verktøy)",
+    "category": "Generell"
+  },
+  {
+    "original": "Regulering",
+    "normalized": "Regulering",
+    "category": "Generell"
+  },
+  {
+    "original": "Rekkevidde",
+    "normalized": "Rekkevidde",
+    "category": "Generell"
+  },
+  {
+    "original": "Rekkverk",
+    "normalized": "Rekkverk",
+    "category": "Generell"
+  },
+  {
+    "original": "Rekkverk høyde",
+    "normalized": "Rekkverk høyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Rettløft",
+    "normalized": "Rettløft",
+    "category": "Generell"
+  },
+  {
+    "original": "Rett løftebevegelse",
+    "normalized": "Rett løftebevegelse",
+    "category": "Generell"
+  },
+  {
+    "original": "Romtemp min",
+    "normalized": "Romtemp min",
+    "category": "Generell"
+  },
+  {
+    "original": "Rustfri",
+    "normalized": "Rustfri",
+    "category": "Generell"
+  },
+  {
+    "original": "Rygg",
+    "normalized": "Rygg",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Ryggbånd",
+    "normalized": "Ryggbånd",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Ryggbredde",
+    "normalized": "Ryggbredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Ryggbredde maks",
+    "normalized": "Ryggbredde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Ryggbredde min",
+    "normalized": "Ryggbredde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Ryggdel reguleres separat",
+    "normalized": "Ryggdel reguleres separat",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Rygg høy",
+    "normalized": "Rygg høy",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Rygghøyde",
+    "normalized": "Rygghøyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Rygghøyde intervall",
+    "normalized": "Rygghøyde intervall",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Rygghøyde maks",
+    "normalized": "Rygghøyde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Rygghøyde min",
+    "normalized": "Rygghøyde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Rygg hreg",
+    "normalized": "Rygg hreg",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Rygg lav",
+    "normalized": "Rygg lav",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Rygg polstret",
+    "normalized": "Rygg polstret",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Ryggstøtte",
+    "normalized": "Ryggstøtte",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Ryggstøtte bredde",
+    "normalized": "Ryggstøtte bredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Ryggstøtte høyde",
+    "normalized": "Ryggstøtte høyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Ryggvinkel",
+    "normalized": "Ryggvinkel",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Ryggvinkel maks",
+    "normalized": "Ryggvinkel maks",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Ryggvinkel min",
+    "normalized": "Ryggvinkel min",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Rygg vinkelstillbar",
+    "normalized": "Rygg vinkelstillbar",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Ryggvinkling",
+    "normalized": "Ryggvinkling",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Rygg vreg",
+    "normalized": "Rygg vreg",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Rygg vreg grader",
+    "normalized": "Rygg vreg grader",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Sammenleggbar",
+    "normalized": "Sammenleggbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Sammenleggbarhet",
+    "normalized": "Sammenleggbarhet",
+    "category": "Generell"
+  },
+  {
+    "original": "Seil dusj/bad",
+    "normalized": "Seil dusj/bad",
+    "category": "Generell"
+  },
+  {
+    "original": "Seil helt",
+    "normalized": "Seil helt",
+    "category": "Generell"
+  },
+  {
+    "original": "Seng delbar antall",
+    "normalized": "Seng delbar antall",
+    "category": "Generell"
+  },
+  {
+    "original": "Sengebredde maks",
+    "normalized": "Sengebredde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Sengebredde min",
+    "normalized": "Sengebredde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Sengeforlengelse",
+    "normalized": "Sengeforlengelse",
+    "category": "Generell"
+  },
+  {
+    "original": "Sengegrind",
+    "normalized": "Sengegrind",
+    "category": "Generell"
+  },
+  {
+    "original": "Sengegrind høyde",
+    "normalized": "Sengegrind høyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Sengegrind nedfellbar",
+    "normalized": "Sengegrind nedfellbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Sengeport utsvingbar",
+    "normalized": "Sengeport utsvingbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Senkehastighet",
+    "normalized": "Senkehastighet",
+    "category": "Generell"
+  },
+  {
+    "original": "Sentralbrems",
+    "normalized": "Sentralbrems",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Seriell port",
+    "normalized": "Seriell port",
+    "category": "Generell"
+  },
+  {
+    "original": "Serveringsbrett",
+    "normalized": "Serveringsbrett",
+    "category": "Generell"
+  },
+  {
+    "original": "Sete",
+    "normalized": "Sete",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Setebredde",
+    "normalized": "Setebredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setebredde intervall",
+    "normalized": "Setebredde intervall",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setebredde maks",
+    "normalized": "Setebredde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setebredde med sideklaffer",
+    "normalized": "Setebredde med sideklaffer",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setebredde min",
+    "normalized": "Setebredde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setebredde uten sideklaffer",
+    "normalized": "Setebredde uten sideklaffer",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setedybde",
+    "normalized": "Setedybde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setedybde intervall",
+    "normalized": "Setedybde intervall",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setedybde maks",
+    "normalized": "Setedybde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setedybde min",
+    "normalized": "Setedybde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setedybde regulering",
+    "normalized": "Setedybde regulering",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setehøyde",
+    "normalized": "Setehøyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setehøyde foran maks",
+    "normalized": "Setehøyde foran maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setehøyde foran min",
+    "normalized": "Setehøyde foran min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setehøyde maks",
+    "normalized": "Setehøyde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setehøyde maks med verktøy",
+    "normalized": "Setehøyde maks med verktøy",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setehøyde min",
+    "normalized": "Setehøyde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setehøyde min med verktøy",
+    "normalized": "Setehøyde min med verktøy",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setehøyde oppreist stilling rettløft bak",
+    "normalized": "Setehøyde oppreist stilling rettløft bak",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setehøyde oppreist stilling rettløft foran",
+    "normalized": "Setehøyde oppreist stilling rettløft foran",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setehøyde oppreist stilling skråløft bak",
+    "normalized": "Setehøyde oppreist stilling skråløft bak",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setehøyde oppreist stilling skråløft foran",
+    "normalized": "Setehøyde oppreist stilling skråløft foran",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setehøyde std",
+    "normalized": "Setehøyde std",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setehøyde uten pute maks",
+    "normalized": "Setehøyde uten pute maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Setehøyde uten pute min",
+    "normalized": "Setehøyde uten pute min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Seteløft",
+    "normalized": "Seteløft",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Seteløft rett",
+    "normalized": "Seteløft rett",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Seteløft vinklet",
+    "normalized": "Seteløft vinklet",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Sete med utsparing",
+    "normalized": "Sete med utsparing",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Sete oppfellbart",
+    "normalized": "Sete oppfellbart",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Sete polstret",
+    "normalized": "Sete polstret",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Setepute avtagbar",
+    "normalized": "Setepute avtagbar",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Seterotasjon",
+    "normalized": "Seterotasjon",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Seterotasjon låsbar",
+    "normalized": "Seterotasjon låsbar",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Sete/rygg delt",
+    "normalized": "Sete/rygg delt",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Sete svingbart",
+    "normalized": "Sete svingbart",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Setetilt",
+    "normalized": "Setetilt",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Setetilt bakover",
+    "normalized": "Setetilt bakover",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Setetilt fremover",
+    "normalized": "Setetilt fremover",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Setets vekt",
+    "normalized": "Setets vekt",
+    "category": "Vekt"
+  },
+  {
+    "original": "Setetype",
+    "normalized": "Setetype",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Sete vinkelstillbart",
+    "normalized": "Sete vinkelstillbart",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Sete vreg bakover",
+    "normalized": "Sete vreg bakover",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Sete vreg forover",
+    "normalized": "Sete vreg forover",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Sidebøyler",
+    "normalized": "Sidebøyler",
+    "category": "Generell"
+  },
+  {
+    "original": "Sidebøyler avtagbare",
+    "normalized": "Sidebøyler avtagbare",
+    "category": "Generell"
+  },
+  {
+    "original": "Sidebøyler fellbare/svingbare",
+    "normalized": "Sidebøyler fellbare/svingbare",
+    "category": "Generell"
+  },
+  {
+    "original": "Sidegrind høyde",
+    "normalized": "Sidegrind høyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Sidegrind lengde",
+    "normalized": "Sidegrind lengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Sideinngang",
+    "normalized": "Sideinngang",
+    "category": "Generell"
+  },
+  {
+    "original": "Sideplate fast bredde",
+    "normalized": "Sideplate fast bredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Sideplate fast dybde",
+    "normalized": "Sideplate fast dybde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Signalkoding (låskode)",
+    "normalized": "Signalkoding (låskode)",
+    "category": "Generell"
+  },
+  {
+    "original": "Sikret mot vann i hulrom",
+    "normalized": "Sikret mot vann i hulrom",
+    "category": "Generell"
+  },
+  {
+    "original": "Sitteenhet låsbar",
+    "normalized": "Sitteenhet låsbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Sitteenhet svingbar",
+    "normalized": "Sitteenhet svingbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Sittehøyde",
+    "normalized": "Sittehøyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Skallseil",
+    "normalized": "Skallseil",
+    "category": "Generell"
+  },
+  {
+    "original": "Skanner",
+    "normalized": "Skanner",
+    "category": "Generell"
+  },
+  {
+    "original": "Skap",
+    "normalized": "Skap",
+    "category": "Generell"
+  },
+  {
+    "original": "Skilengde",
+    "normalized": "Skilengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Skinneavslutning",
+    "normalized": "Skinneavslutning",
+    "category": "Generell"
+  },
+  {
+    "original": "Skinne bygger ut fra veggen",
+    "normalized": "Skinne bygger ut fra veggen",
+    "category": "Generell"
+  },
+  {
+    "original": "Skinne stigning maks",
+    "normalized": "Skinne stigning maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Skjermforstørring",
+    "normalized": "Skjermforstørring",
+    "category": "Generell"
+  },
+  {
+    "original": "Skjerm høyderegulerbar",
+    "normalized": "Skjerm høyderegulerbar",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Skjermlesing",
+    "normalized": "Skjermlesing",
+    "category": "Generell"
+  },
+  {
+    "original": "Skjermstørrelse",
+    "normalized": "Skjermstørrelse",
+    "category": "Generell"
+  },
+  {
+    "original": "Skjermtilkobling",
+    "normalized": "Skjermtilkobling",
+    "category": "Generell"
+  },
+  {
+    "original": "Skjerm tiltbar",
+    "normalized": "Skjerm tiltbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Sklisikker overflate",
+    "normalized": "Sklisikker overflate",
+    "category": "Generell"
+  },
+  {
+    "original": "Sklisikring",
+    "normalized": "Sklisikring",
+    "category": "Generell"
+  },
+  {
+    "original": "Skråløft",
+    "normalized": "Skråløft",
+    "category": "Generell"
+  },
+  {
+    "original": "Skrittlengde maks",
+    "normalized": "Skrittlengde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Skrittlengde min",
+    "normalized": "Skrittlengde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Skuff",
+    "normalized": "Skuff",
+    "category": "Generell"
+  },
+  {
+    "original": "Skyves foran",
+    "normalized": "Skyves foran",
+    "category": "Generell"
+  },
+  {
+    "original": "Slaglengde maksimum",
+    "normalized": "Slaglengde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Slaglengde minimum",
+    "normalized": "Slaglengde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Sluttstykke",
+    "normalized": "Sluttstykke",
+    "category": "Generell"
+  },
+  {
+    "original": "Små hjul",
+    "normalized": "Små hjul",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Snudiameter",
+    "normalized": "Snudiameter",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Solenoidlås",
+    "normalized": "Solenoidlås",
+    "category": "Generell"
+  },
+  {
+    "original": "Spesialmål mulig",
+    "normalized": "Spesialmål mulig",
+    "category": "Generell"
+  },
+  {
+    "original": "Språk antall",
+    "normalized": "Språk antall",
+    "category": "Generell"
+  },
+  {
+    "original": "Språk engelsk",
+    "normalized": "Språk engelsk",
+    "category": "Generell"
+  },
+  {
+    "original": "Språk norsk",
+    "normalized": "Språk norsk",
+    "category": "Generell"
+  },
+  {
+    "original": "Ståfunksjon (elektrisk)",
+    "normalized": "Ståfunksjon (elektrisk)",
+    "category": "Generell"
+  },
+  {
+    "original": "Statisk",
+    "normalized": "Statisk",
+    "category": "Generell"
+  },
+  {
+    "original": "Stellefunksjon",
+    "normalized": "Stellefunksjon",
+    "category": "Generell"
+  },
+  {
+    "original": "Stellefunksjon tilbakestilles",
+    "normalized": "Stellefunksjon tilbakestilles",
+    "category": "Generell"
+  },
+  {
+    "original": "Stelleplate bredde",
+    "normalized": "Stelleplate bredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Stelleplate dybde oppslått",
+    "normalized": "Stelleplate dybde oppslått",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Stelleplate lengde",
+    "normalized": "Stelleplate lengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Stelleplate oppfellbar",
+    "normalized": "Stelleplate oppfellbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Stelleplate polstret",
+    "normalized": "Stelleplate polstret",
+    "category": "Generell"
+  },
+  {
+    "original": "Stolbredde maks",
+    "normalized": "Stolbredde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Stolbredde utvendig maks",
+    "normalized": "Stolbredde utvendig maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Stolens vekt",
+    "normalized": "Stolens vekt",
+    "category": "Vekt"
+  },
+  {
+    "original": "Stollengde utvendig maks",
+    "normalized": "Stollengde utvendig maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Størrelse",
+    "normalized": "Størrelse",
+    "category": "Generell"
+  },
+  {
+    "original": "Støtteben",
+    "normalized": "Støtteben",
+    "category": "Generell"
+  },
+  {
+    "original": "Støttebord delt",
+    "normalized": "Støttebord delt",
+    "category": "Generell"
+  },
+  {
+    "original": "Støttebord helt",
+    "normalized": "Støttebord helt",
+    "category": "Generell"
+  },
+  {
+    "original": "Støttehåndtak",
+    "normalized": "Støttehåndtak",
+    "category": "Generell"
+  },
+  {
+    "original": "Støttepunkter",
+    "normalized": "Støttepunkter",
+    "category": "Generell"
+  },
+  {
+    "original": "Støtter flere skjermer",
+    "normalized": "Støtter flere skjermer",
+    "category": "Generell"
+  },
+  {
+    "original": "Støttering",
+    "normalized": "Støttering",
+    "category": "Generell"
+  },
+  {
+    "original": "Støtter leselist",
+    "normalized": "Støtter leselist",
+    "category": "Generell"
+  },
+  {
+    "original": "Støynivå",
+    "normalized": "Støynivå",
+    "category": "Generell"
+  },
+  {
+    "original": "Støynivå pumpe",
+    "normalized": "Støynivå pumpe",
+    "category": "Generell"
+  },
+  {
+    "original": "Strømforsyning",
+    "normalized": "Strømforsyning",
+    "category": "Strøm"
+  },
+  {
+    "original": "Strømstyrke",
+    "normalized": "Strømstyrke",
+    "category": "Strøm"
+  },
+  {
+    "original": "Styrekant",
+    "normalized": "Styrekant",
+    "category": "Generell"
+  },
+  {
+    "original": "Styrekanter",
+    "normalized": "Styrekanter",
+    "category": "Generell"
+  },
+  {
+    "original": "Styrekant høyde maks",
+    "normalized": "Styrekant høyde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Styrekant høyde min",
+    "normalized": "Styrekant høyde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Sugekopper",
+    "normalized": "Sugekopper",
+    "category": "Generell"
+  },
+  {
+    "original": "Supernova",
+    "normalized": "Supernova",
+    "category": "Generell"
+  },
+  {
+    "original": "Svingbar",
+    "normalized": "Svingbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Svingbart sete",
+    "normalized": "Svingbart sete",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Svinghjuldiameter",
+    "normalized": "Svinghjuldiameter",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Symbolbibliotek",
+    "normalized": "Symbolbibliotek",
+    "category": "Generell"
+  },
+  {
+    "original": "Symbolsystem",
+    "normalized": "Symbolsystem",
+    "category": "Generell"
+  },
+  {
+    "original": "Synkron regulering",
+    "normalized": "Synkron regulering",
+    "category": "Generell"
+  },
+  {
+    "original": "Takhøyde maks",
+    "normalized": "Takhøyde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Takhøyde min",
+    "normalized": "Takhøyde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Tale",
+    "normalized": "Tale",
+    "category": "Generell"
+  },
+  {
+    "original": "Talestøtte",
+    "normalized": "Talestøtte",
+    "category": "Generell"
+  },
+  {
+    "original": "Talesyntese",
+    "normalized": "Talesyntese",
+    "category": "Generell"
+  },
+  {
+    "original": "Taleveiledning",
+    "normalized": "Taleveiledning",
+    "category": "Generell"
+  },
+  {
+    "original": "Talks",
+    "normalized": "Talks",
+    "category": "Generell"
+  },
+  {
+    "original": "Teleskopstang",
+    "normalized": "Teleskopstang",
+    "category": "Generell"
+  },
+  {
+    "original": "Terskelhøyde maks",
+    "normalized": "Terskelhøyde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Terskelhøyde min",
+    "normalized": "Terskelhøyde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Tidsintervall valgfritt",
+    "normalized": "Tidsintervall valgfritt",
+    "category": "Generell"
+  },
+  {
+    "original": "Tidsvisning",
+    "normalized": "Tidsvisning",
+    "category": "Generell"
+  },
+  {
+    "original": "Tilkoblingsplugg",
+    "normalized": "Tilkoblingsplugg",
+    "category": "Generell"
+  },
+  {
+    "original": "Tilpasning av displayvisning",
+    "normalized": "Tilpasning av displayvisning",
+    "category": "Generell"
+  },
+  {
+    "original": "Tilt",
+    "normalized": "Tilt",
+    "category": "Generell"
+  },
+  {
+    "original": "Tilting bakover",
+    "normalized": "Tilting bakover",
+    "category": "Generell"
+  },
+  {
+    "original": "Tilting forover",
+    "normalized": "Tilting forover",
+    "category": "Generell"
+  },
+  {
+    "original": "Tilt maks",
+    "normalized": "Tilt maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Tilt manuell fotbetjent",
+    "normalized": "Tilt manuell fotbetjent",
+    "category": "Generell"
+  },
+  {
+    "original": "Tilt manuell håndbetjent",
+    "normalized": "Tilt manuell håndbetjent",
+    "category": "Generell"
+  },
+  {
+    "original": "Tilt min",
+    "normalized": "Tilt min",
+    "category": "Generell"
+  },
+  {
+    "original": "Toalettåpning bredde",
+    "normalized": "Toalettåpning bredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Toalettåpning lengde",
+    "normalized": "Toalettåpning lengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Toalettåpning (lysåpning) bredde",
+    "normalized": "Toalettåpning (lysåpning) bredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Toalettåpning (lysåpning) lengde",
+    "normalized": "Toalettåpning (lysåpning) lengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Toalettseil",
+    "normalized": "Toalettseil",
+    "category": "Generell"
+  },
+  {
+    "original": "Tørketemp",
+    "normalized": "Tørketemp",
+    "category": "Generell"
+  },
+  {
+    "original": "Tørketid",
+    "normalized": "Tørketid",
+    "category": "Generell"
+  },
+  {
+    "original": "Totalbredde",
+    "normalized": "Totalbredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Totalbredde maks",
+    "normalized": "Totalbredde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Totalbredde min",
+    "normalized": "Totalbredde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Totaldybde",
+    "normalized": "Totaldybde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Totaldybde fra vegg",
+    "normalized": "Totaldybde fra vegg",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Totalhøyde",
+    "normalized": "Totalhøyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Totallengde",
+    "normalized": "Totallengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Totallengde maks",
+    "normalized": "Totallengde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Totalvekt",
+    "normalized": "Totalvekt",
+    "category": "Vekt"
+  },
+  {
+    "original": "Trådløs/trådbunden",
+    "normalized": "Trådløs/trådbunden",
+    "category": "Generell"
+  },
+  {
+    "original": "Transportvekt",
+    "normalized": "Transportvekt",
+    "category": "Vekt"
+  },
+  {
+    "original": "Trappebredde min",
+    "normalized": "Trappebredde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Trappeklatrer type",
+    "normalized": "Trappeklatrer type",
+    "category": "Generell"
+  },
+  {
+    "original": "Trappeløpsbredde min",
+    "normalized": "Trappeløpsbredde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Trappevange",
+    "normalized": "Trappevange",
+    "category": "Generell"
+  },
+  {
+    "original": "Trekk",
+    "normalized": "Trekk",
+    "category": "Generell"
+  },
+  {
+    "original": "Trekkes etter",
+    "normalized": "Trekkes etter",
+    "category": "Generell"
+  },
+  {
+    "original": "Trekk maskinvaskbart ved 60°",
+    "normalized": "Trekk maskinvaskbart ved 60°",
+    "category": "Generell"
+  },
+  {
+    "original": "Trykk-kraft",
+    "normalized": "Trykk-kraft",
+    "category": "Generell"
+  },
+  {
+    "original": "Tykkelse",
+    "normalized": "Tykkelse",
+    "category": "Generell"
+  },
+  {
+    "original": "Type brems",
+    "normalized": "Type brems",
+    "category": "Mobilitet"
+  },
+  {
+    "original": "Type celler",
+    "normalized": "Type celler",
+    "category": "Generell"
+  },
+  {
+    "original": "Type sensor",
+    "normalized": "Type sensor",
+    "category": "Generell"
+  },
+  {
+    "original": "Type stativ",
+    "normalized": "Type stativ",
+    "category": "Generell"
+  },
+  {
+    "original": "Type tastatur",
+    "normalized": "Type tastatur",
+    "category": "Generell"
+  },
+  {
+    "original": "Ullprosent",
+    "normalized": "Ullprosent",
+    "category": "Generell"
+  },
+  {
+    "original": "Understell bredde",
+    "normalized": "Understell bredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Understellbredde maks",
+    "normalized": "Understellbredde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Understellbredde min",
+    "normalized": "Understellbredde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Understellets vekt",
+    "normalized": "Understellets vekt",
+    "category": "Vekt"
+  },
+  {
+    "original": "Understell høyde",
+    "normalized": "Understell høyde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Understell hreg",
+    "normalized": "Understell hreg",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "USB tilkobling",
+    "normalized": "USB tilkobling",
+    "category": "IT"
+  },
+  {
+    "original": "Utebruk begrenset",
+    "normalized": "Utebruk begrenset",
+    "category": "Generell"
+  },
+  {
+    "original": "Utendørs bruk",
+    "normalized": "Utendørs bruk",
+    "category": "Generell"
+  },
+  {
+    "original": "Utskrift på A3",
+    "normalized": "Utskrift på A3",
+    "category": "Generell"
+  },
+  {
+    "original": "Utskrift på A4",
+    "normalized": "Utskrift på A4",
+    "category": "Generell"
+  },
+  {
+    "original": "Utskrift på A5",
+    "normalized": "Utskrift på A5",
+    "category": "Generell"
+  },
+  {
+    "original": "Utsparing",
+    "normalized": "Utsparing",
+    "category": "Generell"
+  },
+  {
+    "original": "Utsvingbar",
+    "normalized": "Utsvingbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Vannavstøtende",
+    "normalized": "Vannavstøtende",
+    "category": "Generell"
+  },
+  {
+    "original": "Vanntemperatur kan reguleres av bruker",
+    "normalized": "Vanntemperatur kan reguleres av bruker",
+    "category": "Generell"
+  },
+  {
+    "original": "Varsler med",
+    "normalized": "Varsler med",
+    "category": "Generell"
+  },
+  {
+    "original": "Vasketemp",
+    "normalized": "Vasketemp",
+    "category": "Generell"
+  },
+  {
+    "original": "Vasketemp madrass",
+    "normalized": "Vasketemp madrass",
+    "category": "Generell"
+  },
+  {
+    "original": "Vasketemp polster",
+    "normalized": "Vasketemp polster",
+    "category": "Generell"
+  },
+  {
+    "original": "Vasketemp pute",
+    "normalized": "Vasketemp pute",
+    "category": "Generell"
+  },
+  {
+    "original": "Vasketemp trekk",
+    "normalized": "Vasketemp trekk",
+    "category": "Generell"
+  },
+  {
+    "original": "Veggmontert",
+    "normalized": "Veggmontert",
+    "category": "Generell"
+  },
+  {
+    "original": "Vekseltrykk",
+    "normalized": "Vekseltrykk",
+    "category": "Generell"
+  },
+  {
+    "original": "Vekt",
+    "normalized": "Vekt",
+    "category": "Vekt"
+  },
+  {
+    "original": "Vekt batteri",
+    "normalized": "Vekt batteri",
+    "category": "Vekt"
+  },
+  {
+    "original": "Vekt inkl batteri",
+    "normalized": "Vekt inkl batteri",
+    "category": "Vekt"
+  },
+  {
+    "original": "Vekt kontrollenhet",
+    "normalized": "Vekt kontrollenhet",
+    "category": "Vekt"
+  },
+  {
+    "original": "Vekt løfter",
+    "normalized": "Vekt løfter",
+    "category": "Vekt"
+  },
+  {
+    "original": "Vekt madrass",
+    "normalized": "Vekt madrass",
+    "category": "Vekt"
+  },
+  {
+    "original": "Vekt mottaker",
+    "normalized": "Vekt mottaker",
+    "category": "Vekt"
+  },
+  {
+    "original": "Vekt per skinne",
+    "normalized": "Vekt per skinne",
+    "category": "Vekt"
+  },
+  {
+    "original": "Vekt per skinne/rampe",
+    "normalized": "Vekt per skinne/rampe",
+    "category": "Vekt"
+  },
+  {
+    "original": "Vekt pute",
+    "normalized": "Vekt pute",
+    "category": "Vekt"
+  },
+  {
+    "original": "Vekt sender",
+    "normalized": "Vekt sender",
+    "category": "Vekt"
+  },
+  {
+    "original": "Vekt sengeløfter",
+    "normalized": "Vekt sengeløfter",
+    "category": "Vekt"
+  },
+  {
+    "original": "Vekt sitteenhet",
+    "normalized": "Vekt sitteenhet",
+    "category": "Vekt"
+  },
+  {
+    "original": "Vekt tyngste del",
+    "normalized": "Vekt tyngste del",
+    "category": "Vekt"
+  },
+  {
+    "original": "Vekt understell",
+    "normalized": "Vekt understell",
+    "category": "Vekt"
+  },
+  {
+    "original": "Vendefunksjon",
+    "normalized": "Vendefunksjon",
+    "category": "Generell"
+  },
+  {
+    "original": "Vendefunksjon justerbar",
+    "normalized": "Vendefunksjon justerbar",
+    "category": "Generell"
+  },
+  {
+    "original": "Vendefunksjon tidsintervall",
+    "normalized": "Vendefunksjon tidsintervall",
+    "category": "Generell"
+  },
+  {
+    "original": "Vindtett",
+    "normalized": "Vindtett",
+    "category": "Generell"
+  },
+  {
+    "original": "vindu innadslående",
+    "normalized": "Vindu innadslående",
+    "category": "Generell"
+  },
+  {
+    "original": "Vindusbredde",
+    "normalized": "Vindusbredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Vindu utadslående",
+    "normalized": "Vindu utadslående",
+    "category": "Generell"
+  },
+  {
+    "original": "Vinkel oppreist maks",
+    "normalized": "Vinkel oppreist maks",
+    "category": "Generell"
+  },
+  {
+    "original": "Vinkel sete-rygg maks",
+    "normalized": "Vinkel sete-rygg maks",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Vinkel sete-rygg min",
+    "normalized": "Vinkel sete-rygg min",
+    "category": "Ergonomi"
+  },
+  {
+    "original": "Visuell skrift",
+    "normalized": "Visuell skrift",
+    "category": "Generell"
+  },
+  {
+    "original": "WiFi",
+    "normalized": "WiFi",
+    "category": "IT"
+  },
+  {
+    "original": "Windows",
+    "normalized": "Windows",
+    "category": "IT"
+  },
+  {
+    "original": "Windows-Eyes",
+    "normalized": "Windows-Eyes",
+    "category": "IT"
+  },
+  {
+    "original": "Yttermål bredde",
+    "normalized": "Yttermål bredde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Yttermål bredde maks",
+    "normalized": "Yttermål bredde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Yttermål bredde min",
+    "normalized": "Yttermål bredde min",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Yttermål lengde",
+    "normalized": "Yttermål lengde",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Yttermål lengde maks",
+    "normalized": "Yttermål lengde maks",
+    "category": "Dimensjon"
+  },
+  {
+    "original": "Yttermål lengde min",
+    "normalized": "Yttermål lengde min",
+    "category": "Dimensjon"
+  }
+]
