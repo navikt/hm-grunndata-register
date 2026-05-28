@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://micronaut-projects.github.io/micronaut-starter/latest/schema/application.schema.json
 micronaut:
   server:
     multipart:
@@ -82,7 +83,15 @@ micronaut:
     techlabels:
       charset: 'UTF-8'
       expire-after-write: 15m
-      record-stats: true
+    techlabels-all-labels:
+      charset: 'UTF-8'
+      expire-after-write: 15m
+    techlabels-units:
+      charset: 'UTF-8'
+      expire-after-write: 15m
+    techlabels-names:
+      charset: 'UTF-8'
+      expire-after-write: 15m
   http:
     client:
       connect-timeout: 10s
@@ -170,8 +179,8 @@ schedulers:
   enabled: ${SCHEDULERS_ENABLED:false}
 
 baseversion:
-    scheduler:
-        enabled: ${BASEVERSION_SCHEDULER_ENABLED:false}
+  scheduler:
+    enabled: ${BASEVERSION_SCHEDULER_ENABLED:false}
 
 import:
   autoapprove: ${IMPORT_AUTOAPPROVE:false}
@@ -199,3 +208,5 @@ vertexai:
 catalog:
   import:
     force_update: ${CATALOG_IMPORT_FORCE_UPDATE:false}
+
+

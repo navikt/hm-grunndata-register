@@ -33,25 +33,25 @@ open class TechLabelService(
         fetchAllLabelsGroupByName()[name] ?: emptyList()
     }
 
-    @Cacheable
+    private fun fetchAllLabelsGroupByName(): Map<String, List<TechLabelDTO>> = runBlocking {
+        val techLabels = fetchAllLabels().values.flatten()
+        techLabels.groupBy {  it.label }
+    }
+
+    @Cacheable("techlabels-all-labels")
     override fun fetchAllLabels(): Map<String, List<TechLabelDTO>> = runBlocking {
         LOG.debug("Fetching labels list")
         val techLabels = techLabelRegistrationRepository.findAll().map { it.toTechLabelDTO()}.toList()
         techLabels.groupBy {  it.isocode }
     }
 
-    fun fetchAllLabelsGroupByName(): Map<String, List<TechLabelDTO>> = runBlocking {
-        val techLabels = fetchAllLabels().values.flatten()
-        techLabels.groupBy {  it.label }
-    }
-
-    @Cacheable
+    @Cacheable("techlabels-units")
     override fun fetchUnits(): List<String> = runBlocking {
         LOG.debug("Fetching units")
         techLabelRegistrationRepository.findDistinctUnits()
     }
 
-    @Cacheable
+    @Cacheable("techlabels-names")
     override fun fetchLabelNames(): List<String> = runBlocking {
         LOG.debug("Fetching label names")
         techLabelRegistrationRepository.findDistinctLabelNames()
