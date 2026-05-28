@@ -78,7 +78,7 @@ fun ProductRegistration.isDraft(): Boolean = draftStatus == DraftStatus.DRAFT
 fun ProductRegistration.isApproved(): Boolean = adminStatus == AdminStatus.APPROVED
 
 fun ProductRegistration.canCreateEvent(): Boolean =
-    (draftStatus == DraftStatus.DONE && adminStatus == AdminStatus.APPROVED) || registrationStatus == RegistrationStatus.DELETED
+    (draftStatus == DraftStatus.DONE && adminStatus == AdminStatus.APPROVED && published != null) || registrationStatus == RegistrationStatus.DELETED
 
 fun ProductRegistration.approve(approvedByName: String): ProductRegistration =
     this.copy(
