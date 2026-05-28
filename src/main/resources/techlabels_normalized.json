@@ -1876,7 +1876,7 @@
   },
   {
     "original": "Lengde min, v/transport",
-    "normalized": "Lengde min, v/transport",
+    "normalized": "Lengde v/transport min",
     "category": "Dimensjon"
   },
   {
@@ -2976,7 +2976,7 @@
   },
   {
     "original": "Setehøyde maks med verktøy",
-    "normalized": "Setehøyde maks med verktøy",
+    "normalized": "Setehøyde med verktøy maks",
     "category": "Dimensjon"
   },
   {
@@ -2986,7 +2986,7 @@
   },
   {
     "original": "Setehøyde min med verktøy",
-    "normalized": "Setehøyde min med verktøy",
+    "normalized": "Setehøyde med verktøy min",
     "category": "Dimensjon"
   },
   {
