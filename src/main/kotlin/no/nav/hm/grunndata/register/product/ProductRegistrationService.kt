@@ -283,21 +283,18 @@ open class ProductRegistrationService(
 
     @Transactional
     open suspend fun saveAndCreateEventIfNotDraftAndApproved(
-        dto: ProductRegistration,
+        product: ProductRegistration,
         isUpdate: Boolean,
     ): ProductRegistration {
         val saved = if (isUpdate) {
-            productRegistrationRepository.update(dto)
-            productRegistrationRepository.findById(dto.id)
-                ?: error("ProductRegistration with id=${dto.id} not found after update")
+            productRegistrationRepository.update(product)
         } else {
-            productRegistrationRepository.save(dto)
+            productRegistrationRepository.save(product)
         }
         if (saved.canCreateEvent()) {
-            productRegistrationEventHandler.queueDTORapidEvent(saved.toDTO(), eventName = EventName.registeredProductV1)
             val dtoSaved = saved.toDTO()
-            LOG.info("Product registration event sent for id (dto) ${dto.id}, mainProduct: ${dto.mainProduct}, accessory: ${dto.accessory}, sparePart: ${saved.sparePart}")
-            LOG.info("Product registration event sent for id (saved) ${dtoSaved.id}, mainProduct: ${dtoSaved.mainProduct}, accessory: ${dtoSaved.accessory}, sparePart: ${dtoSaved.sparePart}")
+            productRegistrationEventHandler.queueDTORapidEvent(dtoSaved, eventName = EventName.registeredProductV1)
+            LOG.info("Product registration event sent for id (saved) ${dtoSaved.id} updated time: ${dtoSaved.updated}")
         }
         return saved
     }
@@ -492,7 +489,7 @@ open class ProductRegistrationService(
     private suspend fun ProductRegistration.toDTO(): ProductRegistrationDTO {
         // TODO cache agreements
         val agreeements = productAgreementRegistrationRepository.findByProductId(id)
-        val productRegistration = ProductRegistrationDTO(
+        return ProductRegistrationDTO(
             id = id,
             supplierId = supplierId,
             seriesId = seriesUUID.toString(),
@@ -522,23 +519,6 @@ open class ProductRegistrationService(
             isoCategory = isoCategory,
             agreements = agreeements.map { it.toAgreementInfo() },
             version = version,
-        )
-        // agreements does have something to say about mainProduct, sparePart and accessory
-        return mapCorrectMainProductAndSparePartAndAccessoryFromAgreements(productRegistration, agreeements)
-    }
-
-    private fun mapCorrectMainProductAndSparePartAndAccessoryFromAgreements(
-        productRegistration: ProductRegistrationDTO, agreements: List<ProductAgreementRegistration>
-    ): ProductRegistrationDTO {
-        if (agreements.isEmpty()) return productRegistration
-        val mainProduct = agreements.any { it.mainProduct }
-        val accessory = agreements.any { it.accessory }
-        val sparePart = agreements.any { it.sparePart }
-
-        return productRegistration.copy(
-            mainProduct = mainProduct,
-            accessory = accessory,
-            sparePart = sparePart,
         )
     }
 
