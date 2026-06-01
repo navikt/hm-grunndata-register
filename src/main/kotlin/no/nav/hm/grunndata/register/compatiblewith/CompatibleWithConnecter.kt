@@ -28,9 +28,9 @@ open class CompatibleWithConnecter(
 ) {
 
 
-    open suspend fun connectWithHmsNr(hmsNr: String) {
+    open suspend fun connectWithHmsNr(hmsNr: String, reconnect: Boolean) {
         productRegistrationService.findByExactHmsArtNr(hmsNr)?.let { product ->
-            addCompatibleWithAttribute(product).let { updatedProduct ->
+            addCompatibleWithAttribute(product, reconnect).let { updatedProduct ->
                 if(updatedProduct != null) {
                     productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
                 }
@@ -39,13 +39,13 @@ open class CompatibleWithConnecter(
     }
 
 
-    open suspend fun connectWithOrderRef(orderRef: String) {
+    open suspend fun connectWithOrderRef(orderRef: String, reconnect: Boolean=false) {
         val productSeriesInfo =  catalogImportRepository.findCatalogProductSeriesInfoByOrderRef(orderRef)
         val parts = productSeriesInfo.filter { !it.mainProduct && it.productId != null }
         LOG.info("Found ${parts.size} parts for orderRef: $orderRef to connect")
         parts.forEach {
             productRegistrationService.findById(it.productId!!)?.let { product ->
-                addCompatibleWithAttribute(product).let { updatedProduct ->
+                addCompatibleWithAttribute(product, reconnect).let { updatedProduct ->
                     if (updatedProduct != null) {
                         productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                             updatedProduct,
@@ -71,9 +71,9 @@ open class CompatibleWithConnecter(
 
     }
 
-    open suspend fun connectCatalogOrderRef(orderRef: String)   {
+    open suspend fun connectCatalogOrderRef(orderRef: String, reconnect: Boolean)   {
         val catalogList = catalogFileRepository.findByOrderRef(orderRef)
-        connectWithOrderRef(orderRef)
+        connectWithOrderRef(orderRef, reconnect)
         catalogList.forEach { catalogFileRepository.updatedConnectedUpdatedById(it.id, connected = true, updated = LocalDateTime.now()) }
     }
 
@@ -196,22 +196,23 @@ open class CompatibleWithConnecter(
         }
     }
 
-    private suspend fun addCompatibleWithAttribute(product: ProductRegistration): ProductRegistration? {
+    private suspend fun addCompatibleWithAttribute(product: ProductRegistration, reconnect: Boolean = false): ProductRegistration? {
         if (!product.accessory && !product.sparePart) {
             LOG.warn("Skip connecting product ${product.hmsArtNr} is not accessory or sparePart")
             return null
         }
-        if (product.productData.attributes.compatibleWith!= null) {
-            LOG.debug("Skip connecting product ${product.hmsArtNr} already connected with compatibleWith by ${product.productData.attributes.compatibleWith?.connectedBy}")
+        if (product.productData.attributes.compatibleWith!= null && !reconnect) {
+            LOG.debug("Skip connecting product ${product.hmsArtNr} already connected with compatibleWith by " +
+                    "${product.productData.attributes.compatibleWith?.connectedBy} and reconnect is $reconnect")
             return null
         }
         if (product.hmsArtNr == null) {
             LOG.error("No hmsArtNr for product ${product.id}, skip connecting with compatibleWith")
             return null
         }
-        // keep all previous connections.
-        val seriesIdToKeep = product.productData.attributes.compatibleWith?.seriesIds?: emptySet()
-        val productIds = product.productData.attributes.compatibleWith?.productIds ?: emptySet()
+
+        val seriesIdToKeep = if (reconnect) emptySet() else product.productData.attributes.compatibleWith?.seriesIds ?: emptySet()
+        val productIds = if (reconnect) emptySet() else product.productData.attributes.compatibleWith?.productIds ?: emptySet()
         if (productIds.size>99 || seriesIdToKeep.size > 50) {
             LOG.error("Too many compatibleWith connections for product hmsnr: ${product.hmsArtNr}, skip connecting with compatibleWith")
             return null

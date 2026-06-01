@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.compatiblewith
 
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.swagger.v3.oas.annotations.Hidden
@@ -14,8 +15,8 @@ class CompatibleProductController(
     private val compatibleWithConnecter: CompatibleWithConnecter) {
 
     @Post("/connect/{hmsNr}")
-    suspend fun connect(hmsNr: String) {
-        compatibleWithConnecter.connectWithHmsNr(hmsNr)
+    suspend fun connect(hmsNr: String, @QueryValue(defaultValue = "false") reconnect: Boolean) {
+        compatibleWithConnecter.connectWithHmsNr(hmsNr, reconnect)
     }
 
     companion object {
@@ -23,9 +24,9 @@ class CompatibleProductController(
     }
 
     @Post("/catalog/connect/orderref/{orderRef}")
-    suspend fun connectWithCatalog(orderRef: String) {
+    suspend fun connectWithCatalog(orderRef: String, @QueryValue(defaultValue = "false") reconnect: Boolean) {
         LOG.info("connectWithCatalog: $orderRef")
-        compatibleWithConnecter.connectCatalogOrderRef(orderRef)
+        compatibleWithConnecter.connectCatalogOrderRef(orderRef, reconnect)
     }
 
     @Post("/connect/orders")
