@@ -295,8 +295,8 @@ data class ExtendedTechDataDTO(
         key = key,
         value = when (
             value.lowercase()) {
-            "ja" -> "JA"
-            "nei" -> "NEI"
+            "ja" -> "Ja"
+            "nei" -> "Nei"
             else -> value
         }, unit = unit
     )

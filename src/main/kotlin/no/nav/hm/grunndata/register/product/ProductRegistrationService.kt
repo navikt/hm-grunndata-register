@@ -663,20 +663,19 @@ open class ProductRegistrationService(
         if (key.isNullOrBlank() && unit.isNullOrBlank() && value.isNullOrBlank()) {
             throw BadRequestException("At least one of key, unit or value must be provided")
         }
-        val jsonQuery = StringBuilder("[{")
+        val queryMap = mutableMapOf<String, String>()
         if (!key.isNullOrBlank()) {
-            jsonQuery.append("\"key\": \"$key\",")
+            queryMap["key"] = key
         }
         if (!unit.isNullOrBlank()) {
-            jsonQuery.append("\"unit\": \"$unit\",")
+            queryMap["unit"] = unit
         }
         if (!value.isNullOrBlank()) {
-            jsonQuery.append("\"value\": \"$value\",")
+            queryMap["value"] = value
         }
-        if (jsonQuery.endsWith(",")) jsonQuery.setLength(jsonQuery.length - 1) // Remove trailing comma
-        jsonQuery.append("}]")
-        LOG.info("Executing jsonQuery ${jsonQuery}")
-        return productRegistrationRepository.findDistinctByProductTechDataJsonQuery(jsonQuery.toString())
+        val jsonQuery = objectMapper.writeValueAsString(listOf(queryMap))
+        LOG.info("Executing jsonQuery $jsonQuery")
+        return productRegistrationRepository.findDistinctByProductTechDataJsonQuery(jsonQuery)
     }
 
     suspend fun findByStartsWithIsoCategoryAndTechLabelKeyUnit(

@@ -42,7 +42,7 @@ open class CompatibleWithConnecter(
     open suspend fun connectWithOrderRef(orderRef: String, reconnect: Boolean=false) {
         val productSeriesInfo =  catalogImportRepository.findCatalogProductSeriesInfoByOrderRef(orderRef)
         val parts = productSeriesInfo.filter { !it.mainProduct && it.productId != null }
-        LOG.info("Found ${parts.size} parts for orderRef: $orderRef to connect")
+        LOG.info("Found ${parts.size} parts for orderRef: $orderRef to connect and reconnect: $reconnect")
         parts.forEach {
             productRegistrationService.findById(it.productId!!)?.let { product ->
                 addCompatibleWithAttribute(product, reconnect).let { updatedProduct ->

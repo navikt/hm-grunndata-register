@@ -63,8 +63,6 @@ class TechLabelMaintenance(
 
     suspend fun fixProductTechLabels() {
         val products = productRegistrationService.findAll(spec = where {
-            root[ProductRegistration::adminStatus] eq AdminStatus.APPROVED
-            root[ProductRegistration::draftStatus] eq DraftStatus.DONE
             root[ProductRegistration::mainProduct] eq true
         })
         var countChanged = 0
