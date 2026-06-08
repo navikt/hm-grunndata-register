@@ -289,6 +289,7 @@ data class ExtendedTechDataDTO(
     val unit: String,
     val type: TechDataType,
     val definition: String?,
+    val required: Boolean=false,
     val options: List<String>?
 ) {
     fun toEntity(): TechData = TechData(
@@ -314,6 +315,7 @@ fun TechData.toExtendedDTO(techLabels: List<TechLabelDTO>): ExtendedTechDataDTO 
         unit = unit,
         type = TechDataType.from(techLabel),
         definition = techLabel.definition,
+        required = techLabel.required,
         options = techLabel.options
     )
 }
