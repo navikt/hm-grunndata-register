@@ -12,19 +12,9 @@ import no.nav.hm.grunndata.register.techlabel.TechLabelMaintenance
 @Controller("/internal/techlabel/fix")
 class TechLabelFixController(val techLabelMaintenance: TechLabelMaintenance) {
 
-    @Put("/units")
-    suspend fun fixUnits() {
-        techLabelMaintenance.fixUnitsInTechLabel()
-    }
-
-    @Put("/labels")
-    suspend fun fixLabels() {
-        techLabelMaintenance.normalizeLabels()
-    }
-
-    @Put("/products")
+    @Put("/all")
     suspend fun fixProducts() {
-        techLabelMaintenance.fixProductTechLabels()
+        techLabelMaintenance.normalizeTechLabelsAndValues()
     }
 
 }

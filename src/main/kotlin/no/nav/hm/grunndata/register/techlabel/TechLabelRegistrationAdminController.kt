@@ -167,5 +167,5 @@ data class TechLabelCreateUpdateDTO(
     val unit: String?,
     val sort: Int,
     val required: Boolean,
-    val options: List<String> = emptyList(),
+    val options: Set<String> = emptySet(),
 )
