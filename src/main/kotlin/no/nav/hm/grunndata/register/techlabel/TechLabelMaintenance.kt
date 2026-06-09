@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.data.runtime.criteria.get
 import jakarta.inject.Singleton
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
-import net.logstash.logback.argument.StructuredArguments.v
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.runtime.where
