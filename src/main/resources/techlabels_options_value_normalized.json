@@ -1,0 +1,2570 @@
+[
+  {
+    "value": "fastramme",
+    "normalized": "Fastramme",
+    "label": "Rammetype",
+    "iso_code": "12220305"
+  },
+  {
+    "value": "kryssramme",
+    "normalized": "Kryssramme",
+    "label": "Rammetype",
+    "iso_code": "12220305"
+  },
+  {
+    "value": "sammenleggbar",
+    "normalized": "Sammenleggbar",
+    "label": "Rammetype",
+    "iso_code": "12220305"
+  },
+  {
+    "value": "fastramme",
+    "normalized": "Fastramme",
+    "label": "Rammetype",
+    "iso_code": "30090008"
+  },
+  {
+    "value": "kryssramme",
+    "normalized": "Kryssramme",
+    "label": "Rammetype",
+    "iso_code": "30090008"
+  },
+  {
+    "value": "sammenleggbar",
+    "normalized": "Sammenleggbar",
+    "label": "Rammetype",
+    "iso_code": "30090008"
+  },
+  {
+    "value": "delbar",
+    "normalized": "Delbar",
+    "label": "Rammetype",
+    "iso_code": "30090008"
+  },
+  {
+    "value": "motor",
+    "normalized": "Motor",
+    "label": "Framdrift",
+    "iso_code": "30090008"
+  },
+  {
+    "value": "manuell",
+    "normalized": "Manuell",
+    "label": "Framdrift",
+    "iso_code": "30090008"
+  },
+  {
+    "value": "regulerbar",
+    "normalized": "Regulerbar",
+    "label": "Setetilt",
+    "iso_code": "24361501"
+  },
+  {
+    "value": "justerbar",
+    "normalized": "Justerbar",
+    "label": "Setetilt",
+    "iso_code": "24361501"
+  },
+  {
+    "value": "fast",
+    "normalized": "Fast",
+    "label": "Setetilt",
+    "iso_code": "24361501"
+  },
+  {
+    "value": "regulerbar",
+    "normalized": "Regulerbar",
+    "label": "Ryggvinkel",
+    "iso_code": "24361501"
+  },
+  {
+    "value": "justerbar",
+    "normalized": "Justerbar",
+    "label": "Ryggvinkel",
+    "iso_code": "24361501"
+  },
+  {
+    "value": "fast",
+    "normalized": "Fast",
+    "label": "Ryggvinkel",
+    "iso_code": "24361501"
+  },
+  {
+    "value": "luftfylte",
+    "normalized": "Luftfylte",
+    "label": "Hjul",
+    "iso_code": "24361501"
+  },
+  {
+    "value": "kompakte",
+    "normalized": "Kompakte",
+    "label": "Hjul",
+    "iso_code": "24361501"
+  },
+  {
+    "value": "2-punkts",
+    "normalized": "2-punkts",
+    "label": "Belte",
+    "iso_code": "24361501"
+  },
+  {
+    "value": "3-punkts",
+    "normalized": "3-punkts",
+    "label": "Belte",
+    "iso_code": "24361501"
+  },
+  {
+    "value": "4-punkts",
+    "normalized": "4-punkts",
+    "label": "Belte",
+    "iso_code": "24361501"
+  },
+  {
+    "value": "5-punkts",
+    "normalized": "5-punkts",
+    "label": "Belte",
+    "iso_code": "24361501"
+  },
+  {
+    "value": "regulerbar",
+    "normalized": "Regulerbar",
+    "label": "Setetilt",
+    "iso_code": "12270701"
+  },
+  {
+    "value": "justerbar",
+    "normalized": "Justerbar",
+    "label": "Setetilt",
+    "iso_code": "12270701"
+  },
+  {
+    "value": "fast",
+    "normalized": "Fast",
+    "label": "Setetilt",
+    "iso_code": "12270701"
+  },
+  {
+    "value": "regulerbar",
+    "normalized": "Regulerbar",
+    "label": "Ryggvinkel",
+    "iso_code": "12270701"
+  },
+  {
+    "value": "justerbar",
+    "normalized": "Justerbar",
+    "label": "Ryggvinkel",
+    "iso_code": "12270701"
+  },
+  {
+    "value": "fast",
+    "normalized": "Fast",
+    "label": "Ryggvinkel",
+    "iso_code": "12270701"
+  },
+  {
+    "value": "2-punkts",
+    "normalized": "2-punkts",
+    "label": "Belte",
+    "iso_code": "12270701"
+  },
+  {
+    "value": "3-punkts",
+    "normalized": "3-punkts",
+    "label": "Belte",
+    "iso_code": "12270701"
+  },
+  {
+    "value": "4-punkts",
+    "normalized": "4-punkts",
+    "label": "Belte",
+    "iso_code": "12270701"
+  },
+  {
+    "value": "5-punkts",
+    "normalized": "5-punkts",
+    "label": "Belte",
+    "iso_code": "12270701"
+  },
+  {
+    "value": "faste",
+    "normalized": "Faste",
+    "label": "Hjul foran",
+    "iso_code": "12270701"
+  },
+  {
+    "value": "svingbare",
+    "normalized": "Svingbare",
+    "label": "Hjul foran",
+    "iso_code": "12270701"
+  },
+  {
+    "value": "faste/låsbare",
+    "normalized": "Faste og låsbare",
+    "label": "Hjul foran",
+    "iso_code": "12270701"
+  },
+  {
+    "value": "svingbare/låsbare",
+    "normalized": "Svingbare og låsbare",
+    "label": "Hjul foran",
+    "iso_code": "12270701"
+  },
+  {
+    "value": "luftfylte",
+    "normalized": "Luftfylte",
+    "label": "Hjul",
+    "iso_code": "12270701"
+  },
+  {
+    "value": "kompakte",
+    "normalized": "Kompakte",
+    "label": "Hjul",
+    "iso_code": "12270701"
+  },
+  {
+    "value": "fastramme",
+    "normalized": "Fastramme",
+    "label": "Rammetype",
+    "iso_code": "12220301"
+  },
+  {
+    "value": "kryssramme",
+    "normalized": "Kryssramme",
+    "label": "Rammetype",
+    "iso_code": "12220301"
+  },
+  {
+    "value": "sammenleggbar",
+    "normalized": "Sammenleggbar",
+    "label": "Rammetype",
+    "iso_code": "12220301"
+  },
+  {
+    "value": "fastramme",
+    "normalized": "Fastramme",
+    "label": "Rammetype",
+    "iso_code": "12220302"
+  },
+  {
+    "value": "kryssramme",
+    "normalized": "Kryssramme",
+    "label": "Rammetype",
+    "iso_code": "12220302"
+  },
+  {
+    "value": "sammenleggbar",
+    "normalized": "Sammenleggbar",
+    "label": "Rammetype",
+    "iso_code": "12220302"
+  },
+  {
+    "value": "fastramme",
+    "normalized": "Fastramme",
+    "label": "Rammetype",
+    "iso_code": "12220303"
+  },
+  {
+    "value": "kryssramme",
+    "normalized": "Kryssramme",
+    "label": "Rammetype",
+    "iso_code": "12220303"
+  },
+  {
+    "value": "sammenleggbar",
+    "normalized": "Sammenleggbar",
+    "label": "Rammetype",
+    "iso_code": "12220303"
+  },
+  {
+    "value": "fastramme",
+    "normalized": "Fastramme",
+    "label": "Rammetype",
+    "iso_code": "12220304"
+  },
+  {
+    "value": "kryssramme",
+    "normalized": "Kryssramme",
+    "label": "Rammetype",
+    "iso_code": "12220304"
+  },
+  {
+    "value": "sammenleggbar",
+    "normalized": "Sammenleggbar",
+    "label": "Rammetype",
+    "iso_code": "12220304"
+  },
+  {
+    "value": "windows",
+    "normalized": "Windows",
+    "label": "Operativsystem",
+    "iso_code": "223912"
+  },
+  {
+    "value": "osx",
+    "normalized": "macOS",
+    "label": "Operativsystem",
+    "iso_code": "223912"
+  },
+  {
+    "value": "linux",
+    "normalized": "Linux",
+    "label": "Operativsystem",
+    "iso_code": "223912"
+  },
+  {
+    "value": "frontalt",
+    "normalized": "Frontalt",
+    "label": "Type stativ",
+    "iso_code": "05360301"
+  },
+  {
+    "value": "dorsalt",
+    "normalized": "Dorsalt",
+    "label": "Type stativ",
+    "iso_code": "05360301"
+  },
+  {
+    "value": "frontalt/dorsalt",
+    "normalized": "Frontalt og dorsalt",
+    "label": "Type stativ",
+    "iso_code": "05360301"
+  },
+  {
+    "value": "manuell",
+    "normalized": "Manuell",
+    "label": "Tilt",
+    "iso_code": "05360301"
+  },
+  {
+    "value": "elektrisk",
+    "normalized": "Elektrisk",
+    "label": "Tilt",
+    "iso_code": "05360301"
+  },
+  {
+    "value": "ingen",
+    "normalized": "Ingen",
+    "label": "Tilt",
+    "iso_code": "05360301"
+  },
+  {
+    "value": "foran",
+    "normalized": "Foran",
+    "label": "Hjul",
+    "iso_code": "05360301"
+  },
+  {
+    "value": "bak",
+    "normalized": "Bak",
+    "label": "Hjul",
+    "iso_code": "05360301"
+  },
+  {
+    "value": "foran/bak",
+    "normalized": "Foran og bak",
+    "label": "Hjul",
+    "iso_code": "05360301"
+  },
+  {
+    "value": "elektrisk",
+    "normalized": "Elektrisk",
+    "label": "Regulering",
+    "iso_code": "180915"
+  },
+  {
+    "value": "manuell",
+    "normalized": "Manuell",
+    "label": "Regulering",
+    "iso_code": "180915"
+  },
+  {
+    "value": "hud",
+    "normalized": "Hud",
+    "label": "Trekk",
+    "iso_code": "180915"
+  },
+  {
+    "value": "stoff",
+    "normalized": "Stoff",
+    "label": "Trekk",
+    "iso_code": "180915"
+  },
+  {
+    "value": "analog",
+    "normalized": "Analog",
+    "label": "Tidsvisning",
+    "iso_code": "22271501"
+  },
+  {
+    "value": "digital",
+    "normalized": "Digital",
+    "label": "Tidsvisning",
+    "iso_code": "22271501"
+  },
+  {
+    "value": "analog/digital",
+    "normalized": "Analog og digital",
+    "label": "Tidsvisning",
+    "iso_code": "22271501"
+  },
+  {
+    "value": "ios",
+    "normalized": "iOS",
+    "label": "Operativsystem",
+    "iso_code": "22271501"
+  },
+  {
+    "value": "android",
+    "normalized": "Android",
+    "label": "Operativsystem",
+    "iso_code": "22271501"
+  },
+  {
+    "value": "ios/android",
+    "normalized": "iOS og Android",
+    "label": "Operativsystem",
+    "iso_code": "22271501"
+  },
+  {
+    "value": "windows",
+    "normalized": "Windows",
+    "label": "Operativsystem",
+    "iso_code": "22271501"
+  },
+  {
+    "value": "ios/android/win",
+    "normalized": "iOS, Android og Windows",
+    "label": "Operativsystem",
+    "iso_code": "22271501"
+  },
+  {
+    "value": "elektrisk",
+    "normalized": "Elektrisk",
+    "label": "Seteløft",
+    "iso_code": "122303"
+  },
+  {
+    "value": "manuell",
+    "normalized": "Manuell",
+    "label": "Seteløft",
+    "iso_code": "122303"
+  },
+  {
+    "value": "ingen",
+    "normalized": "Ingen",
+    "label": "Seteløft",
+    "iso_code": "122303"
+  },
+  {
+    "value": "elektrisk",
+    "normalized": "Elektrisk",
+    "label": "Tilt",
+    "iso_code": "122303"
+  },
+  {
+    "value": "manuell",
+    "normalized": "Manuell",
+    "label": "Tilt",
+    "iso_code": "122303"
+  },
+  {
+    "value": "ingen",
+    "normalized": "Ingen",
+    "label": "Tilt",
+    "iso_code": "122303"
+  },
+  {
+    "value": "elektrisk",
+    "normalized": "Elektrisk",
+    "label": "Ryggvinkling",
+    "iso_code": "122303"
+  },
+  {
+    "value": "manuell",
+    "normalized": "Manuell",
+    "label": "Ryggvinkling",
+    "iso_code": "122303"
+  },
+  {
+    "value": "ingen",
+    "normalized": "Ingen",
+    "label": "Ryggvinkling",
+    "iso_code": "122303"
+  },
+  {
+    "value": "elektrisk",
+    "normalized": "Elektrisk",
+    "label": "Seterotasjon",
+    "iso_code": "122303"
+  },
+  {
+    "value": "manuell",
+    "normalized": "Manuell",
+    "label": "Seterotasjon",
+    "iso_code": "122303"
+  },
+  {
+    "value": "ingen",
+    "normalized": "Ingen",
+    "label": "Seterotasjon",
+    "iso_code": "122303"
+  },
+  {
+    "value": "bakhjulsdrift",
+    "normalized": "Bakhjulsdrift",
+    "label": "Hjuldrift",
+    "iso_code": "122306"
+  },
+  {
+    "value": "forhjulsdrift",
+    "normalized": "Forhjulsdrift",
+    "label": "Hjuldrift",
+    "iso_code": "122306"
+  },
+  {
+    "value": "senterdrift",
+    "normalized": "Senterdrift",
+    "label": "Hjuldrift",
+    "iso_code": "122306"
+  },
+  {
+    "value": "firehjulsdrift",
+    "normalized": "Firehjulsdrift",
+    "label": "Hjuldrift",
+    "iso_code": "122306"
+  },
+  {
+    "value": "elektrisk",
+    "normalized": "Elektrisk",
+    "label": "Benstøttevinkling",
+    "iso_code": "122306"
+  },
+  {
+    "value": "manuell",
+    "normalized": "Manuell",
+    "label": "Benstøttevinkling",
+    "iso_code": "122306"
+  },
+  {
+    "value": "elektrisk/manuell",
+    "normalized": "Elektrisk og manuell",
+    "label": "Benstøttevinkling",
+    "iso_code": "122306"
+  },
+  {
+    "value": "ingen",
+    "normalized": "Ingen",
+    "label": "Benstøttevinkling",
+    "iso_code": "122306"
+  },
+  {
+    "value": "elektrisk",
+    "normalized": "Elektrisk",
+    "label": "Seterotasjon",
+    "iso_code": "122306"
+  },
+  {
+    "value": "manuell",
+    "normalized": "Manuell",
+    "label": "Seterotasjon",
+    "iso_code": "122306"
+  },
+  {
+    "value": "ingen",
+    "normalized": "Ingen",
+    "label": "Seterotasjon",
+    "iso_code": "122306"
+  },
+  {
+    "value": "elektrisk",
+    "normalized": "Elektrisk",
+    "label": "Ryggvinkling",
+    "iso_code": "122306"
+  },
+  {
+    "value": "manuell",
+    "normalized": "Manuell",
+    "label": "Ryggvinkling",
+    "iso_code": "122306"
+  },
+  {
+    "value": "elektrisk/manuell",
+    "normalized": "Elektrisk og manuell",
+    "label": "Ryggvinkling",
+    "iso_code": "122306"
+  },
+  {
+    "value": "ingen",
+    "normalized": "Ingen",
+    "label": "Ryggvinkling",
+    "iso_code": "122306"
+  },
+  {
+    "value": "elektrisk",
+    "normalized": "Elektrisk",
+    "label": "Tilt",
+    "iso_code": "122306"
+  },
+  {
+    "value": "manuell",
+    "normalized": "Manuell",
+    "label": "Tilt",
+    "iso_code": "122306"
+  },
+  {
+    "value": "ingen",
+    "normalized": "Ingen",
+    "label": "Tilt",
+    "iso_code": "122306"
+  },
+  {
+    "value": "elektrisk",
+    "normalized": "Elektrisk",
+    "label": "Seteløft",
+    "iso_code": "122306"
+  },
+  {
+    "value": "manuell",
+    "normalized": "Manuell",
+    "label": "Seteløft",
+    "iso_code": "122306"
+  },
+  {
+    "value": "ingen",
+    "normalized": "Ingen",
+    "label": "Seteløft",
+    "iso_code": "122306"
+  },
+  {
+    "value": "rund",
+    "normalized": "Rund",
+    "label": "Linsens form",
+    "iso_code": "22030901"
+  },
+  {
+    "value": "rektangulær",
+    "normalized": "Rektangulær",
+    "label": "Linsens form",
+    "iso_code": "22030901"
+  },
+  {
+    "value": "led",
+    "normalized": "Led",
+    "label": "Lyskilde",
+    "iso_code": "22030901"
+  },
+  {
+    "value": "dioder",
+    "normalized": "Dioder",
+    "label": "Lyskilde",
+    "iso_code": "22030901"
+  },
+  {
+    "value": "halogen",
+    "normalized": "Halogen",
+    "label": "Lyskilde",
+    "iso_code": "22030901"
+  },
+  {
+    "value": "glødelampe",
+    "normalized": "Glødelampe",
+    "label": "Lyskilde",
+    "iso_code": "22030901"
+  },
+  {
+    "value": "trådløs",
+    "normalized": "Trådløs",
+    "label": "Lader type",
+    "iso_code": "22030901"
+  },
+  {
+    "value": "kabel",
+    "normalized": "Kabel",
+    "label": "Lader type",
+    "iso_code": "22030901"
+  },
+  {
+    "value": "aa",
+    "normalized": "AA",
+    "label": "Batteritype",
+    "iso_code": "22030901"
+  },
+  {
+    "value": "aaa",
+    "normalized": "AAA",
+    "label": "Batteritype",
+    "iso_code": "22030901"
+  },
+  {
+    "value": "li-ion",
+    "normalized": "Li-ion",
+    "label": "Batteritype",
+    "iso_code": "22030901"
+  },
+  {
+    "value": "nimh",
+    "normalized": "NiMH",
+    "label": "Batteritype",
+    "iso_code": "22030901"
+  },
+  {
+    "value": "lifep04",
+    "normalized": "Lifep04",
+    "label": "Batteritype",
+    "iso_code": "22030901"
+  },
+  {
+    "value": "mekanisk",
+    "normalized": "Mekanisk",
+    "label": "Brems",
+    "iso_code": "121804"
+  },
+  {
+    "value": "hydraulisk",
+    "normalized": "Hydraulisk",
+    "label": "Brems",
+    "iso_code": "121804"
+  },
+  {
+    "value": "magnet",
+    "normalized": "Magnet",
+    "label": "Type sensor",
+    "iso_code": "12180401"
+  },
+  {
+    "value": "moment",
+    "normalized": "Moment",
+    "label": "Type sensor",
+    "iso_code": "12180401"
+  },
+  {
+    "value": "magnet",
+    "normalized": "Magnet",
+    "label": "Type sensor",
+    "iso_code": "12180603"
+  },
+  {
+    "value": "moment",
+    "normalized": "Moment",
+    "label": "Type sensor",
+    "iso_code": "12180603"
+  },
+  {
+    "value": "torque",
+    "normalized": "Torque",
+    "label": "Type sensor",
+    "iso_code": "12180603"
+  },
+  {
+    "value": "magnet",
+    "normalized": "Magnet",
+    "label": "Type sensor",
+    "iso_code": "12181503"
+  },
+  {
+    "value": "moment",
+    "normalized": "Moment",
+    "label": "Type sensor",
+    "iso_code": "12181503"
+  },
+  {
+    "value": "magnet",
+    "normalized": "Magnet",
+    "label": "Type sensor",
+    "iso_code": "12180902"
+  },
+  {
+    "value": "moment",
+    "normalized": "Moment",
+    "label": "Type sensor",
+    "iso_code": "12180902"
+  },
+  {
+    "value": "felg",
+    "normalized": "Felg",
+    "label": "Brems",
+    "iso_code": "122411"
+  },
+  {
+    "value": "skive",
+    "normalized": "Skive",
+    "label": "Brems",
+    "iso_code": "122411"
+  },
+  {
+    "value": "felg og skive",
+    "normalized": "Felg og skive",
+    "label": "Brems",
+    "iso_code": "122411"
+  },
+  {
+    "value": "fastramme",
+    "normalized": "Fastramme",
+    "label": "Rammetype",
+    "iso_code": "30098901"
+  },
+  {
+    "value": "kryssramme",
+    "normalized": "Kryssramme",
+    "label": "Rammetype",
+    "iso_code": "30098901"
+  },
+  {
+    "value": "sammenleggbar",
+    "normalized": "Sammenleggbar",
+    "label": "Rammetype",
+    "iso_code": "30098901"
+  },
+  {
+    "value": "manuell",
+    "normalized": "Manuell",
+    "label": "Framdrift",
+    "iso_code": "30098901"
+  },
+  {
+    "value": "motor",
+    "normalized": "Motor",
+    "label": "Framdrift",
+    "iso_code": "30098901"
+  },
+  {
+    "value": "fastramme",
+    "normalized": "Fastramme",
+    "label": "Rammetype",
+    "iso_code": "30090301"
+  },
+  {
+    "value": "kryssramme",
+    "normalized": "Kryssramme",
+    "label": "Rammetype",
+    "iso_code": "30090301"
+  },
+  {
+    "value": "sammenleggbar",
+    "normalized": "Sammenleggbar",
+    "label": "Rammetype",
+    "iso_code": "30090301"
+  },
+  {
+    "value": "manuell",
+    "normalized": "Manuell",
+    "label": "Framdrift",
+    "iso_code": "30090301"
+  },
+  {
+    "value": "motor",
+    "normalized": "Motor",
+    "label": "Framdrift",
+    "iso_code": "30090301"
+  },
+  {
+    "value": "bomull",
+    "normalized": "Bomull",
+    "label": "Materiale i trekk",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "cordura",
+    "normalized": "Cordura",
+    "label": "Materiale i trekk",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "nylon",
+    "normalized": "Nylon",
+    "label": "Materiale i trekk",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "cordura/poly",
+    "normalized": "Cordura og polyester",
+    "label": "Materiale i trekk",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "polyester/nylon",
+    "normalized": "Polyester og nylon",
+    "label": "Materiale i trekk",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "nylon/spand/polyu",
+    "normalized": "Nylon, spandex og polyuretan",
+    "label": "Materiale i trekk",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "poly/uretan",
+    "normalized": "Polyester og polyuretan",
+    "label": "Materiale i trekk",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "polyester",
+    "normalized": "Polyester",
+    "label": "Materiale i trekk",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "polyester/polyu",
+    "normalized": "Polyester og polyuretan",
+    "label": "Materiale i trekk",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "polyester/neopren",
+    "normalized": "Polyester og neopren",
+    "label": "Materiale i trekk",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "polyester/vinyl",
+    "normalized": "Polyester og vinyl",
+    "label": "Materiale i trekk",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "polyester/neopren",
+    "normalized": "Polyester og neopren",
+    "label": "Materiale i trekk",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "poly/spandex",
+    "normalized": "Polyester og spandex",
+    "label": "Materiale i trekk",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "polyuretan",
+    "normalized": "Polyuretan",
+    "label": "Materiale i trekk",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "gel",
+    "normalized": "Gel",
+    "label": "Fyllmateriale",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "luft",
+    "normalized": "Luft",
+    "label": "Fyllmateriale",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "skum",
+    "normalized": "Skum",
+    "label": "Fyllmateriale",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "luft/skum",
+    "normalized": "Luft og skum",
+    "label": "Fyllmateriale",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "luft/olje",
+    "normalized": "Luft og olje",
+    "label": "Fyllmateriale",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "olje/skum",
+    "normalized": "Olje og skum",
+    "label": "Fyllmateriale",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "olje/skum/luft",
+    "normalized": "Olje, skum og luft",
+    "label": "Fyllmateriale",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "gele/skum",
+    "normalized": "Gele og skum",
+    "label": "Fyllmateriale",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "polyuretan",
+    "normalized": "Polyuretan",
+    "label": "Fyllmateriale",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "skum/visco",
+    "normalized": "Skum og visco",
+    "label": "Fyllmateriale",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "3d mesh",
+    "normalized": "3d mesh",
+    "label": "Fyllmateriale",
+    "iso_code": "18100601"
+  },
+  {
+    "value": "foran",
+    "normalized": "Foran",
+    "label": "Plassering drivkilde",
+    "iso_code": "122409"
+  },
+  {
+    "value": "bak",
+    "normalized": "Bak",
+    "label": "Plassering drivkilde",
+    "iso_code": "122409"
+  },
+  {
+    "value": "integrert",
+    "normalized": "Integrert",
+    "label": "Plassering drivkilde",
+    "iso_code": "122409"
+  },
+  {
+    "value": "windows",
+    "normalized": "Windows",
+    "label": "Operativsystem",
+    "iso_code": "222109"
+  },
+  {
+    "value": "macos",
+    "normalized": "macOS",
+    "label": "Operativsystem",
+    "iso_code": "222109"
+  },
+  {
+    "value": "ios",
+    "normalized": "iOS",
+    "label": "Operativsystem",
+    "iso_code": "222109"
+  },
+  {
+    "value": "android",
+    "normalized": "Android",
+    "label": "Operativsystem",
+    "iso_code": "222109"
+  },
+  {
+    "value": "chrome os",
+    "normalized": "Chrome OS",
+    "label": "Operativsystem",
+    "iso_code": "222109"
+  },
+  {
+    "value": "windows",
+    "normalized": "Windows",
+    "label": "Operativsystem",
+    "iso_code": "223621"
+  },
+  {
+    "value": "macos",
+    "normalized": "macOS",
+    "label": "Operativsystem",
+    "iso_code": "223621"
+  },
+  {
+    "value": "ios",
+    "normalized": "iOS",
+    "label": "Operativsystem",
+    "iso_code": "223621"
+  },
+  {
+    "value": "android",
+    "normalized": "Android",
+    "label": "Operativsystem",
+    "iso_code": "223621"
+  },
+  {
+    "value": "chrome os",
+    "normalized": "Chrome OS",
+    "label": "Operativsystem",
+    "iso_code": "223621"
+  },
+  {
+    "value": "fukt",
+    "normalized": "Fukt",
+    "label": "Deteksjonstype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "kramper",
+    "normalized": "Kramper",
+    "label": "Deteksjonstype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "fravær",
+    "normalized": "Fravær",
+    "label": "Deteksjonstype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "lyd og stemme",
+    "normalized": "Lyd og stemme",
+    "label": "Deteksjonstype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "puls",
+    "normalized": "Puls",
+    "label": "Deteksjonstype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "fall",
+    "normalized": "Fall",
+    "label": "Deteksjonstype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "trykk",
+    "normalized": "Trykk",
+    "label": "Deteksjonstype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "pcs",
+    "normalized": "pcs",
+    "label": "Symbolsystem",
+    "iso_code": "222103"
+  },
+  {
+    "value": "widgit",
+    "normalized": "Widgit",
+    "label": "Symbolsystem",
+    "iso_code": "222103"
+  },
+  {
+    "value": "symbolstix",
+    "normalized": "Symbolstix",
+    "label": "Symbolsystem",
+    "iso_code": "222103"
+  },
+  {
+    "value": "bliss",
+    "normalized": "Bliss",
+    "label": "Symbolsystem",
+    "iso_code": "222103"
+  },
+  {
+    "value": "tegn-til-tale (tegnbanken)",
+    "normalized": "Tegn-til-tale (tegnbanken)",
+    "label": "Symbolsystem",
+    "iso_code": "222103"
+  },
+  {
+    "value": "pcs",
+    "normalized": "pcs",
+    "label": "Symbolsystem",
+    "iso_code": "222112"
+  },
+  {
+    "value": "widgit",
+    "normalized": "Widgit",
+    "label": "Symbolsystem",
+    "iso_code": "222112"
+  },
+  {
+    "value": "symbolstix",
+    "normalized": "Symbolstix",
+    "label": "Symbolsystem",
+    "iso_code": "222112"
+  },
+  {
+    "value": "bliss",
+    "normalized": "Bliss",
+    "label": "Symbolsystem",
+    "iso_code": "222112"
+  },
+  {
+    "value": "tegn-til-tale (tegnbanken)",
+    "normalized": "Tegn-til-tale (tegnbanken)",
+    "label": "Symbolsystem",
+    "iso_code": "222112"
+  },
+  {
+    "value": "lyd",
+    "normalized": "Lyd",
+    "label": "Varsler med",
+    "iso_code": "222704"
+  },
+  {
+    "value": "lys",
+    "normalized": "Lys",
+    "label": "Varsler med",
+    "iso_code": "222704"
+  },
+  {
+    "value": "annet",
+    "normalized": "Annet",
+    "label": "Varsler med",
+    "iso_code": "222704"
+  },
+  {
+    "value": "sensor",
+    "normalized": "Sensor",
+    "label": "Komponenttype",
+    "iso_code": "222704"
+  },
+  {
+    "value": "mottaker",
+    "normalized": "Mottaker",
+    "label": "Komponenttype",
+    "iso_code": "222704"
+  },
+  {
+    "value": "sender",
+    "normalized": "Sender",
+    "label": "Komponenttype",
+    "iso_code": "222704"
+  },
+  {
+    "value": "sender og mottaker",
+    "normalized": "Sender og mottaker",
+    "label": "Komponenttype",
+    "iso_code": "222704"
+  },
+  {
+    "value": "ekstern varsling",
+    "normalized": "Ekstern varsling",
+    "label": "Komponenttype",
+    "iso_code": "222704"
+  },
+  {
+    "value": "kontrollenhet og sender",
+    "normalized": "Kontrollenhet og sender",
+    "label": "Komponenttype",
+    "iso_code": "222704"
+  },
+  {
+    "value": "sensor og kontrollenhet",
+    "normalized": "Sensor og kontrollenhet",
+    "label": "Komponenttype",
+    "iso_code": "222704"
+  },
+  {
+    "value": "sensor og mottaker",
+    "normalized": "Sensor og mottaker",
+    "label": "Komponenttype",
+    "iso_code": "222704"
+  },
+  {
+    "value": "forsterker",
+    "normalized": "Forsterker",
+    "label": "Komponenttype",
+    "iso_code": "222704"
+  },
+  {
+    "value": "sensor og sender",
+    "normalized": "Sensor og sender",
+    "label": "Komponenttype",
+    "iso_code": "222704"
+  },
+  {
+    "value": "batteri",
+    "normalized": "Batteri",
+    "label": "Komponenttype",
+    "iso_code": "222704"
+  },
+  {
+    "value": "3 pin minixlr",
+    "normalized": "3 pin minixlr",
+    "label": "Mikrofoninngang",
+    "iso_code": "220906"
+  },
+  {
+    "value": "4 pin minixlr",
+    "normalized": "4 pin minixlr",
+    "label": "Mikrofoninngang",
+    "iso_code": "220906"
+  },
+  {
+    "value": "3.5 mm minijack",
+    "normalized": "3.5 mm minijack",
+    "label": "Mikrofoninngang",
+    "iso_code": "220906"
+  },
+  {
+    "value": "fukt",
+    "normalized": "Fukt",
+    "label": "Deteksjonstype",
+    "iso_code": "222724"
+  },
+  {
+    "value": "kramper",
+    "normalized": "Kramper",
+    "label": "Deteksjonstype",
+    "iso_code": "222724"
+  },
+  {
+    "value": "fravær",
+    "normalized": "Fravær",
+    "label": "Deteksjonstype",
+    "iso_code": "222724"
+  },
+  {
+    "value": "sensor",
+    "normalized": "Sensor",
+    "label": "Komponenttype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "mottaker",
+    "normalized": "Mottaker",
+    "label": "Komponenttype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "sender",
+    "normalized": "Sender",
+    "label": "Komponenttype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "sender og mottaker",
+    "normalized": "Sender og mottaker",
+    "label": "Komponenttype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "ekstern varsling",
+    "normalized": "Ekstern varsling",
+    "label": "Komponenttype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "kontrollenhet og sender",
+    "normalized": "Kontrollenhet og sender",
+    "label": "Komponenttype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "sensor og kontrollenhet",
+    "normalized": "Sensor og kontrollenhet",
+    "label": "Komponenttype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "sensor og mottaker",
+    "normalized": "Sensor og mottaker",
+    "label": "Komponenttype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "sensor",
+    "normalized": "Sensor",
+    "label": "Komponenttype",
+    "iso_code": "222724"
+  },
+  {
+    "value": "mottaker",
+    "normalized": "Mottaker",
+    "label": "Komponenttype",
+    "iso_code": "222724"
+  },
+  {
+    "value": "sender",
+    "normalized": "Sender",
+    "label": "Komponenttype",
+    "iso_code": "222724"
+  },
+  {
+    "value": "venstre",
+    "normalized": "Venstre",
+    "label": "Avlastningsflate plassering",
+    "iso_code": "18150602"
+  },
+  {
+    "value": "høyre",
+    "normalized": "Høyre",
+    "label": "Avlastningsflate plassering",
+    "iso_code": "18150602"
+  },
+  {
+    "value": "midtplassert",
+    "normalized": "Midtplassert",
+    "label": "Avlastningsflate plassering",
+    "iso_code": "18150602"
+  },
+  {
+    "value": "frekvens",
+    "normalized": "Frekvens",
+    "label": "Overføringstype",
+    "iso_code": "221824"
+  },
+  {
+    "value": "kryptert",
+    "normalized": "Kryptert",
+    "label": "Overføringstype",
+    "iso_code": "221824"
+  },
+  {
+    "value": "åpen",
+    "normalized": "Åpen",
+    "label": "Overføringstype",
+    "iso_code": "221824"
+  },
+  {
+    "value": "sensor",
+    "normalized": "Sensor",
+    "label": "Komponenttype",
+    "iso_code": "221824"
+  },
+  {
+    "value": "mottaker",
+    "normalized": "Mottaker",
+    "label": "Komponenttype",
+    "iso_code": "221824"
+  },
+  {
+    "value": "sender",
+    "normalized": "Sender",
+    "label": "Komponenttype",
+    "iso_code": "221824"
+  },
+  {
+    "value": "sender og mottaker",
+    "normalized": "Sender og mottaker",
+    "label": "Komponenttype",
+    "iso_code": "221824"
+  },
+  {
+    "value": "ekstern varsling",
+    "normalized": "Ekstern varsling",
+    "label": "Komponenttype",
+    "iso_code": "221824"
+  },
+  {
+    "value": "kontrollenhet og sender",
+    "normalized": "Kontrollenhet og sender",
+    "label": "Komponenttype",
+    "iso_code": "221824"
+  },
+  {
+    "value": "sensor og kontrollenhet",
+    "normalized": "Sensor og kontrollenhet",
+    "label": "Komponenttype",
+    "iso_code": "221824"
+  },
+  {
+    "value": "sensor og mottaker",
+    "normalized": "Sensor og mottaker",
+    "label": "Komponenttype",
+    "iso_code": "221824"
+  },
+  {
+    "value": "optisk",
+    "normalized": "Optisk",
+    "label": "Lydtilkobling",
+    "iso_code": "221824"
+  },
+  {
+    "value": "analog",
+    "normalized": "Analog",
+    "label": "Lydtilkobling",
+    "iso_code": "221824"
+  },
+  {
+    "value": "hdmi",
+    "normalized": "HDMI",
+    "label": "Lydtilkobling",
+    "iso_code": "221824"
+  },
+  {
+    "value": "sensor",
+    "normalized": "Sensor",
+    "label": "Komponenttype",
+    "iso_code": "221836"
+  },
+  {
+    "value": "mottaker",
+    "normalized": "Mottaker",
+    "label": "Komponenttype",
+    "iso_code": "221836"
+  },
+  {
+    "value": "sender",
+    "normalized": "Sender",
+    "label": "Komponenttype",
+    "iso_code": "221836"
+  },
+  {
+    "value": "sender og mottaker",
+    "normalized": "Sender og mottaker",
+    "label": "Komponenttype",
+    "iso_code": "221836"
+  },
+  {
+    "value": "ekstern varsling",
+    "normalized": "Ekstern varsling",
+    "label": "Komponenttype",
+    "iso_code": "221836"
+  },
+  {
+    "value": "kontrollenhet og sender",
+    "normalized": "Kontrollenhet og sender",
+    "label": "Komponenttype",
+    "iso_code": "221836"
+  },
+  {
+    "value": "sensor og kontrollenhet",
+    "normalized": "Sensor og kontrollenhet",
+    "label": "Komponenttype",
+    "iso_code": "221836"
+  },
+  {
+    "value": "sensor og mottaker",
+    "normalized": "Sensor og mottaker",
+    "label": "Komponenttype",
+    "iso_code": "221836"
+  },
+  {
+    "value": "forsterker",
+    "normalized": "Forsterker",
+    "label": "Komponenttype",
+    "iso_code": "221836"
+  },
+  {
+    "value": "sensor",
+    "normalized": "Sensor",
+    "label": "Komponenttype",
+    "iso_code": "222712"
+  },
+  {
+    "value": "mottaker",
+    "normalized": "Mottaker",
+    "label": "Komponenttype",
+    "iso_code": "222712"
+  },
+  {
+    "value": "sender",
+    "normalized": "Sender",
+    "label": "Komponenttype",
+    "iso_code": "222712"
+  },
+  {
+    "value": "sender og mottaker",
+    "normalized": "Sender og mottaker",
+    "label": "Komponenttype",
+    "iso_code": "222712"
+  },
+  {
+    "value": "ekstern varsling",
+    "normalized": "Ekstern varsling",
+    "label": "Komponenttype",
+    "iso_code": "222712"
+  },
+  {
+    "value": "kontrollenhet og sender",
+    "normalized": "Kontrollenhet og sender",
+    "label": "Komponenttype",
+    "iso_code": "222712"
+  },
+  {
+    "value": "sensor og kontrollenhet",
+    "normalized": "Sensor og kontrollenhet",
+    "label": "Komponenttype",
+    "iso_code": "222712"
+  },
+  {
+    "value": "sensor og mottaker",
+    "normalized": "Sensor og mottaker",
+    "label": "Komponenttype",
+    "iso_code": "222712"
+  },
+  {
+    "value": "frekvens",
+    "normalized": "Frekvens",
+    "label": "Overføringstype",
+    "iso_code": "221836"
+  },
+  {
+    "value": "kryptert",
+    "normalized": "Kryptert",
+    "label": "Overføringstype",
+    "iso_code": "221836"
+  },
+  {
+    "value": "åpen",
+    "normalized": "Åpen",
+    "label": "Overføringstype",
+    "iso_code": "221836"
+  },
+  {
+    "value": "frekvens",
+    "normalized": "Frekvens",
+    "label": "Overføringstype",
+    "iso_code": "222721"
+  },
+  {
+    "value": "kryptert",
+    "normalized": "Kryptert",
+    "label": "Overføringstype",
+    "iso_code": "222721"
+  },
+  {
+    "value": "åpen",
+    "normalized": "Åpen",
+    "label": "Overføringstype",
+    "iso_code": "222721"
+  },
+  {
+    "value": "optisk",
+    "normalized": "Optisk",
+    "label": "Lydtilkobling",
+    "iso_code": "222721"
+  },
+  {
+    "value": "analog",
+    "normalized": "Analog",
+    "label": "Lydtilkobling",
+    "iso_code": "222721"
+  },
+  {
+    "value": "hdmi",
+    "normalized": "HDMI",
+    "label": "Lydtilkobling",
+    "iso_code": "222721"
+  },
+  {
+    "value": "sensor",
+    "normalized": "Sensor",
+    "label": "Komponenttype",
+    "iso_code": "222106"
+  },
+  {
+    "value": "mottaker",
+    "normalized": "Mottaker",
+    "label": "Komponenttype",
+    "iso_code": "222106"
+  },
+  {
+    "value": "sender",
+    "normalized": "Sender",
+    "label": "Komponenttype",
+    "iso_code": "222106"
+  },
+  {
+    "value": "sender og mottaker",
+    "normalized": "Sender og mottaker",
+    "label": "Komponenttype",
+    "iso_code": "222106"
+  },
+  {
+    "value": "ekstern varsling",
+    "normalized": "Ekstern varsling",
+    "label": "Komponenttype",
+    "iso_code": "222106"
+  },
+  {
+    "value": "kontrollenhet og sender",
+    "normalized": "Kontrollenhet og sender",
+    "label": "Komponenttype",
+    "iso_code": "222106"
+  },
+  {
+    "value": "sensor og kontrollenhet",
+    "normalized": "Sensor og kontrollenhet",
+    "label": "Komponenttype",
+    "iso_code": "222106"
+  },
+  {
+    "value": "sensor og mottaker",
+    "normalized": "Sensor og mottaker",
+    "label": "Komponenttype",
+    "iso_code": "222106"
+  },
+  {
+    "value": "forsterker",
+    "normalized": "Forsterker",
+    "label": "Komponenttype",
+    "iso_code": "222106"
+  },
+  {
+    "value": "sensor",
+    "normalized": "Sensor",
+    "label": "Komponenttype",
+    "iso_code": "222721"
+  },
+  {
+    "value": "mottaker",
+    "normalized": "Mottaker",
+    "label": "Komponenttype",
+    "iso_code": "222721"
+  },
+  {
+    "value": "sender",
+    "normalized": "Sender",
+    "label": "Komponenttype",
+    "iso_code": "222721"
+  },
+  {
+    "value": "sender og mottaker",
+    "normalized": "Sender og mottaker",
+    "label": "Komponenttype",
+    "iso_code": "222721"
+  },
+  {
+    "value": "ekstern varsling",
+    "normalized": "Ekstern varsling",
+    "label": "Komponenttype",
+    "iso_code": "222721"
+  },
+  {
+    "value": "kontrollenhet og sender",
+    "normalized": "Kontrollenhet og sender",
+    "label": "Komponenttype",
+    "iso_code": "222721"
+  },
+  {
+    "value": "sensor og kontrollenhet",
+    "normalized": "Sensor og kontrollenhet",
+    "label": "Komponenttype",
+    "iso_code": "222721"
+  },
+  {
+    "value": "sensor og mottaker",
+    "normalized": "Sensor og mottaker",
+    "label": "Komponenttype",
+    "iso_code": "222721"
+  },
+  {
+    "value": "batteri",
+    "normalized": "Batteri",
+    "label": "Komponenttype",
+    "iso_code": "222721"
+  },
+  {
+    "value": "sensor og sender",
+    "normalized": "Sensor og sender",
+    "label": "Komponenttype",
+    "iso_code": "222721"
+  },
+  {
+    "value": "sensor",
+    "normalized": "Sensor",
+    "label": "Komponenttype",
+    "iso_code": "221833"
+  },
+  {
+    "value": "mottaker",
+    "normalized": "Mottaker",
+    "label": "Komponenttype",
+    "iso_code": "221833"
+  },
+  {
+    "value": "sender",
+    "normalized": "Sender",
+    "label": "Komponenttype",
+    "iso_code": "221833"
+  },
+  {
+    "value": "sender og mottaker",
+    "normalized": "Sender og mottaker",
+    "label": "Komponenttype",
+    "iso_code": "221833"
+  },
+  {
+    "value": "ekstern varsling",
+    "normalized": "Ekstern varsling",
+    "label": "Komponenttype",
+    "iso_code": "221833"
+  },
+  {
+    "value": "kontrollenhet og sender",
+    "normalized": "Kontrollenhet og sender",
+    "label": "Komponenttype",
+    "iso_code": "221833"
+  },
+  {
+    "value": "sensor og kontrollenhet",
+    "normalized": "Sensor og kontrollenhet",
+    "label": "Komponenttype",
+    "iso_code": "221833"
+  },
+  {
+    "value": "sensor og mottaker",
+    "normalized": "Sensor og mottaker",
+    "label": "Komponenttype",
+    "iso_code": "221833"
+  },
+  {
+    "value": "optisk",
+    "normalized": "Optisk",
+    "label": "Lydtilkobling",
+    "iso_code": "221836"
+  },
+  {
+    "value": "analog",
+    "normalized": "Analog",
+    "label": "Lydtilkobling",
+    "iso_code": "221836"
+  },
+  {
+    "value": "hdmi",
+    "normalized": "HDMI",
+    "label": "Lydtilkobling",
+    "iso_code": "221836"
+  },
+  {
+    "value": "frekvens",
+    "normalized": "Frekvens",
+    "label": "Overføringstype",
+    "iso_code": "222106"
+  },
+  {
+    "value": "kryptert",
+    "normalized": "Kryptert",
+    "label": "Overføringstype",
+    "iso_code": "222106"
+  },
+  {
+    "value": "åpen",
+    "normalized": "Åpen",
+    "label": "Overføringstype",
+    "iso_code": "222106"
+  },
+  {
+    "value": "optisk",
+    "normalized": "Optisk",
+    "label": "Lydtilkobling",
+    "iso_code": "222106"
+  },
+  {
+    "value": "analog",
+    "normalized": "Analog",
+    "label": "Lydtilkobling",
+    "iso_code": "222106"
+  },
+  {
+    "value": "hdmi",
+    "normalized": "HDMI",
+    "label": "Lydtilkobling",
+    "iso_code": "222106"
+  },
+  {
+    "value": "optisk",
+    "normalized": "Optisk",
+    "label": "Lydtilkobling",
+    "iso_code": "222718"
+  },
+  {
+    "value": "analog",
+    "normalized": "Analog",
+    "label": "Lydtilkobling",
+    "iso_code": "222718"
+  },
+  {
+    "value": "hdmi",
+    "normalized": "HDMI",
+    "label": "Lydtilkobling",
+    "iso_code": "222718"
+  },
+  {
+    "value": "frekvens",
+    "normalized": "Frekvens",
+    "label": "Overføringstype",
+    "iso_code": "222704"
+  },
+  {
+    "value": "kryptert",
+    "normalized": "Kryptert",
+    "label": "Overføringstype",
+    "iso_code": "222704"
+  },
+  {
+    "value": "åpen",
+    "normalized": "Åpen",
+    "label": "Overføringstype",
+    "iso_code": "222704"
+  },
+  {
+    "value": "optisk",
+    "normalized": "Optisk",
+    "label": "Lydtilkobling",
+    "iso_code": "222712"
+  },
+  {
+    "value": "analog",
+    "normalized": "Analog",
+    "label": "Lydtilkobling",
+    "iso_code": "222712"
+  },
+  {
+    "value": "hdmi",
+    "normalized": "HDMI",
+    "label": "Lydtilkobling",
+    "iso_code": "222712"
+  },
+  {
+    "value": "frekvens",
+    "normalized": "Frekvens",
+    "label": "Overføringstype",
+    "iso_code": "221833"
+  },
+  {
+    "value": "kryptert",
+    "normalized": "Kryptert",
+    "label": "Overføringstype",
+    "iso_code": "221833"
+  },
+  {
+    "value": "åpen",
+    "normalized": "Åpen",
+    "label": "Overføringstype",
+    "iso_code": "221833"
+  },
+  {
+    "value": "optisk",
+    "normalized": "Optisk",
+    "label": "Lydtilkobling",
+    "iso_code": "221833"
+  },
+  {
+    "value": "analog",
+    "normalized": "Analog",
+    "label": "Lydtilkobling",
+    "iso_code": "221833"
+  },
+  {
+    "value": "hdmi",
+    "normalized": "HDMI",
+    "label": "Lydtilkobling",
+    "iso_code": "221833"
+  },
+  {
+    "value": "optisk",
+    "normalized": "Optisk",
+    "label": "Lydtilkobling",
+    "iso_code": "222704"
+  },
+  {
+    "value": "analog",
+    "normalized": "Analog",
+    "label": "Lydtilkobling",
+    "iso_code": "222704"
+  },
+  {
+    "value": "hdmi",
+    "normalized": "HDMI",
+    "label": "Lydtilkobling",
+    "iso_code": "222704"
+  },
+  {
+    "value": "frekvens",
+    "normalized": "Frekvens",
+    "label": "Overføringstype",
+    "iso_code": "222712"
+  },
+  {
+    "value": "kryptert",
+    "normalized": "Kryptert",
+    "label": "Overføringstype",
+    "iso_code": "222712"
+  },
+  {
+    "value": "åpen",
+    "normalized": "Åpen",
+    "label": "Overføringstype",
+    "iso_code": "222712"
+  },
+  {
+    "value": "frekvens",
+    "normalized": "Frekvens",
+    "label": "Overføringstype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "kryptert",
+    "normalized": "Kryptert",
+    "label": "Overføringstype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "åpen",
+    "normalized": "Åpen",
+    "label": "Overføringstype",
+    "iso_code": "222718"
+  },
+  {
+    "value": "venstre",
+    "normalized": "Venstre",
+    "label": "Bordplate vreg del",
+    "iso_code": "280303"
+  },
+  {
+    "value": "høyre",
+    "normalized": "Høyre",
+    "label": "Bordplate vreg del",
+    "iso_code": "280303"
+  },
+  {
+    "value": "midtre",
+    "normalized": "Midtre",
+    "label": "Bordplate vreg del",
+    "iso_code": "280303"
+  },
+  {
+    "value": "hele",
+    "normalized": "Hele",
+    "label": "Bordplate vreg del",
+    "iso_code": "280303"
+  },
+  {
+    "value": "mot gulv",
+    "normalized": "Mot gulv",
+    "label": "Type brems",
+    "iso_code": "18092101"
+  },
+  {
+    "value": "mot hjul",
+    "normalized": "Mot hjul",
+    "label": "Type brems",
+    "iso_code": "18092101"
+  },
+  {
+    "value": "mot gulv",
+    "normalized": "Mot gulv",
+    "label": "Type brems",
+    "iso_code": "180907"
+  },
+  {
+    "value": "mot hjul",
+    "normalized": "Mot hjul",
+    "label": "Type brems",
+    "iso_code": "180907"
+  },
+  {
+    "value": "mot gulv",
+    "normalized": "Mot gulv",
+    "label": "Type brems",
+    "iso_code": "180903"
+  },
+  {
+    "value": "mot hjul",
+    "normalized": "Mot hjul",
+    "label": "Type brems",
+    "iso_code": "180903"
+  },
+  {
+    "value": "mot gulv",
+    "normalized": "Mot gulv",
+    "label": "Type brems",
+    "iso_code": "180909"
+  },
+  {
+    "value": "mot hjul",
+    "normalized": "Mot hjul",
+    "label": "Type brems",
+    "iso_code": "180909"
+  },
+  {
+    "value": "elektrisk",
+    "normalized": "Elektrisk",
+    "label": "Seteløft",
+    "iso_code": "18090301"
+  },
+  {
+    "value": "manuell",
+    "normalized": "Manuell",
+    "label": "Seteløft",
+    "iso_code": "18090301"
+  },
+  {
+    "value": "ingen",
+    "normalized": "Ingen",
+    "label": "Seteløft",
+    "iso_code": "18090301"
+  },
+  {
+    "value": "elektrisk",
+    "normalized": "Elektrisk",
+    "label": "Seteløft",
+    "iso_code": "18090302"
+  },
+  {
+    "value": "manuell",
+    "normalized": "Manuell",
+    "label": "Seteløft",
+    "iso_code": "18090302"
+  },
+  {
+    "value": "løs",
+    "normalized": "Løs",
+    "label": "Leseplate",
+    "iso_code": "22031801"
+  },
+  {
+    "value": "fast",
+    "normalized": "Fast",
+    "label": "Leseplate",
+    "iso_code": "22031801"
+  },
+  {
+    "value": "løs",
+    "normalized": "Løs",
+    "label": "Leseplate",
+    "iso_code": "22031802"
+  },
+  {
+    "value": "fast",
+    "normalized": "Fast",
+    "label": "Leseplate",
+    "iso_code": "22031802"
+  },
+  {
+    "value": "løs",
+    "normalized": "Løs",
+    "label": "Leseplate",
+    "iso_code": "22031803"
+  },
+  {
+    "value": "fast",
+    "normalized": "Fast",
+    "label": "Leseplate",
+    "iso_code": "22031803"
+  },
+  {
+    "value": "løs",
+    "normalized": "Løs",
+    "label": "Leseplate",
+    "iso_code": "22031804"
+  },
+  {
+    "value": "fast",
+    "normalized": "Fast",
+    "label": "Leseplate",
+    "iso_code": "22031804"
+  },
+  {
+    "value": "flate",
+    "normalized": "Flate",
+    "label": "Type celler",
+    "iso_code": "22390502"
+  },
+  {
+    "value": "konkave",
+    "normalized": "Konkave",
+    "label": "Type celler",
+    "iso_code": "22390502"
+  },
+  {
+    "value": "trykknapp",
+    "normalized": "Trykknapp",
+    "label": "Betjening type",
+    "iso_code": "183003"
+  },
+  {
+    "value": "joystick",
+    "normalized": "Joystick",
+    "label": "Betjening type",
+    "iso_code": "183003"
+  },
+  {
+    "value": "touch",
+    "normalized": "Touch",
+    "label": "Betjening type",
+    "iso_code": "183003"
+  },
+  {
+    "value": "bruker",
+    "normalized": "Bruker",
+    "label": "Nødsenk betjening",
+    "iso_code": "183003"
+  },
+  {
+    "value": "hjelper",
+    "normalized": "Hjelper",
+    "label": "Nødsenk betjening",
+    "iso_code": "183003"
+  },
+  {
+    "value": "bruker/hjelper",
+    "normalized": "Bruker og hjelper",
+    "label": "Nødsenk betjening",
+    "iso_code": "183003"
+  },
+  {
+    "value": "knapp",
+    "normalized": "Knapp",
+    "label": "Nødsenk type",
+    "iso_code": "183003"
+  },
+  {
+    "value": "sveiv",
+    "normalized": "Sveiv",
+    "label": "Nødsenk type",
+    "iso_code": "183003"
+  },
+  {
+    "value": "hendel",
+    "normalized": "Hendel",
+    "label": "Nødsenk type",
+    "iso_code": "183003"
+  },
+  {
+    "value": "knapp/sveiv",
+    "normalized": "Knapp og sveiv",
+    "label": "Nødsenk type",
+    "iso_code": "183003"
+  },
+  {
+    "value": "annet",
+    "normalized": "Annet",
+    "label": "Nødsenk type",
+    "iso_code": "183003"
+  },
+  {
+    "value": "innendørs",
+    "normalized": "Innendørs",
+    "label": "Bruksområde",
+    "iso_code": "183003"
+  },
+  {
+    "value": "utendørs",
+    "normalized": "Utendørs",
+    "label": "Bruksområde",
+    "iso_code": "183003"
+  },
+  {
+    "value": "inne/ute",
+    "normalized": "Inne og ute",
+    "label": "Bruksområde",
+    "iso_code": "183003"
+  },
+  {
+    "value": "innendørs",
+    "normalized": "Innendørs",
+    "label": "Bruksområde",
+    "iso_code": "183005"
+  },
+  {
+    "value": "utendørs",
+    "normalized": "Utendørs",
+    "label": "Bruksområde",
+    "iso_code": "183005"
+  },
+  {
+    "value": "inne/ute",
+    "normalized": "Inne og ute",
+    "label": "Bruksområde",
+    "iso_code": "183005"
+  },
+  {
+    "value": "trykknapp",
+    "normalized": "Trykknapp",
+    "label": "Betjening type",
+    "iso_code": "183005"
+  },
+  {
+    "value": "joystick",
+    "normalized": "Joystick",
+    "label": "Betjening type",
+    "iso_code": "183005"
+  },
+  {
+    "value": "knapp/joystick",
+    "normalized": "Knapp og joystick",
+    "label": "Betjening type",
+    "iso_code": "183005"
+  },
+  {
+    "value": "touch",
+    "normalized": "Touch",
+    "label": "Betjening type",
+    "iso_code": "183005"
+  },
+  {
+    "value": "brukerbetjent",
+    "normalized": "Brukerbetjent",
+    "label": "Nødsenk betjening",
+    "iso_code": "183005"
+  },
+  {
+    "value": "hjelperbetjent",
+    "normalized": "Hjelperbetjent",
+    "label": "Nødsenk betjening",
+    "iso_code": "183005"
+  },
+  {
+    "value": "knapp",
+    "normalized": "Knapp",
+    "label": "Nødsenk type",
+    "iso_code": "183005"
+  },
+  {
+    "value": "sveiv",
+    "normalized": "Sveiv",
+    "label": "Nødsenk type",
+    "iso_code": "183005"
+  },
+  {
+    "value": "hendel",
+    "normalized": "Hendel",
+    "label": "Nødsenk type",
+    "iso_code": "183005"
+  },
+  {
+    "value": "joystick",
+    "normalized": "Joystick",
+    "label": "Nødsenk type",
+    "iso_code": "183005"
+  },
+  {
+    "value": "annet",
+    "normalized": "Annet",
+    "label": "Nødsenk type",
+    "iso_code": "183005"
+  },
+  {
+    "value": "innendørs",
+    "normalized": "Innendørs",
+    "label": "Bruksområde",
+    "iso_code": "183010"
+  },
+  {
+    "value": "utendørs",
+    "normalized": "Utendørs",
+    "label": "Bruksområde",
+    "iso_code": "183010"
+  },
+  {
+    "value": "inne/ute",
+    "normalized": "Inne og ute",
+    "label": "Bruksområde",
+    "iso_code": "183010"
+  },
+  {
+    "value": "bruker",
+    "normalized": "Bruker",
+    "label": "Nødsenk betjening",
+    "iso_code": "183010"
+  },
+  {
+    "value": "hjelper",
+    "normalized": "Hjelper",
+    "label": "Nødsenk betjening",
+    "iso_code": "183010"
+  },
+  {
+    "value": "bruker/hjelper",
+    "normalized": "Bruker og hjelper",
+    "label": "Nødsenk betjening",
+    "iso_code": "183010"
+  },
+  {
+    "value": "knapp",
+    "normalized": "Knapp",
+    "label": "Nødsenk type",
+    "iso_code": "183010"
+  },
+  {
+    "value": "sveiv",
+    "normalized": "Sveiv",
+    "label": "Nødsenk type",
+    "iso_code": "183010"
+  },
+  {
+    "value": "snor,batteri",
+    "normalized": "Batteri og snor",
+    "label": "Nødsenk type",
+    "iso_code": "183010"
+  },
+  {
+    "value": "hendel",
+    "normalized": "Hendel",
+    "label": "Nødsenk type",
+    "iso_code": "183010"
+  },
+  {
+    "value": "batteri/sveiv",
+    "normalized": "Batteri og sveiv",
+    "label": "Nødsenk type",
+    "iso_code": "183010"
+  },
+  {
+    "value": "annet",
+    "normalized": "Annet",
+    "label": "Nødsenk type",
+    "iso_code": "183010"
+  },
+  {
+    "value": "trykknapp",
+    "normalized": "Trykknapp",
+    "label": "Betjening type",
+    "iso_code": "183010"
+  },
+  {
+    "value": "vippebryter",
+    "normalized": "Vippebryter",
+    "label": "Betjening type",
+    "iso_code": "183010"
+  },
+  {
+    "value": "joystick",
+    "normalized": "Joystick",
+    "label": "Betjening type",
+    "iso_code": "183010"
+  },
+  {
+    "value": "styrepute",
+    "normalized": "Styrepute",
+    "label": "Betjening type",
+    "iso_code": "183010"
+  },
+  {
+    "value": "touch",
+    "normalized": "Touch",
+    "label": "Betjening type",
+    "iso_code": "183010"
+  },
+  {
+    "value": "nøkkel",
+    "normalized": "Nøkkel",
+    "label": "Betjening type",
+    "iso_code": "183010"
+  },
+  {
+    "value": "innendørs",
+    "normalized": "Innendørs",
+    "label": "Bruksområde",
+    "iso_code": "183011"
+  },
+  {
+    "value": "utendørs",
+    "normalized": "Utendørs",
+    "label": "Bruksområde",
+    "iso_code": "183011"
+  },
+  {
+    "value": "inne/ute",
+    "normalized": "Inne og ute",
+    "label": "Bruksområde",
+    "iso_code": "183011"
+  },
+  {
+    "value": "trykknapp",
+    "normalized": "Trykknapp",
+    "label": "Betjening type",
+    "iso_code": "183011"
+  },
+  {
+    "value": "joystick",
+    "normalized": "Joystick",
+    "label": "Betjening type",
+    "iso_code": "183011"
+  },
+  {
+    "value": "touch",
+    "normalized": "Touch",
+    "label": "Betjening type",
+    "iso_code": "183011"
+  },
+  {
+    "value": "nøkkel",
+    "normalized": "Nøkkel",
+    "label": "Betjening type",
+    "iso_code": "183011"
+  },
+  {
+    "value": "fjernkontroll",
+    "normalized": "Fjernkontroll",
+    "label": "Betjening type",
+    "iso_code": "183011"
+  },
+  {
+    "value": "knapp/joystick",
+    "normalized": "Knapp og joystick",
+    "label": "Betjening type",
+    "iso_code": "183011"
+  },
+  {
+    "value": "bruker",
+    "normalized": "Bruker",
+    "label": "Nødsenk betjening",
+    "iso_code": "183011"
+  },
+  {
+    "value": "hjelper",
+    "normalized": "Hjelper",
+    "label": "Nødsenk betjening",
+    "iso_code": "183011"
+  },
+  {
+    "value": "bruker/hjelper",
+    "normalized": "Bruker og hjelper",
+    "label": "Nødsenk betjening",
+    "iso_code": "183011"
+  },
+  {
+    "value": "knapp",
+    "normalized": "Knapp",
+    "label": "Nødsenk type",
+    "iso_code": "183011"
+  },
+  {
+    "value": "sveiv",
+    "normalized": "Sveiv",
+    "label": "Nødsenk type",
+    "iso_code": "183011"
+  },
+  {
+    "value": "hendel",
+    "normalized": "Hendel",
+    "label": "Nødsenk type",
+    "iso_code": "183011"
+  },
+  {
+    "value": "ratt",
+    "normalized": "Ratt",
+    "label": "Nødsenk type",
+    "iso_code": "183011"
+  },
+  {
+    "value": "nøkkel",
+    "normalized": "Nøkkel",
+    "label": "Nødsenk type",
+    "iso_code": "183011"
+  },
+  {
+    "value": "batteri/sveiv",
+    "normalized": "Batteri og sveiv",
+    "label": "Nødsenk type",
+    "iso_code": "183011"
+  },
+  {
+    "value": "annet",
+    "normalized": "Annet",
+    "label": "Nødsenk type",
+    "iso_code": "183011"
+  },
+  {
+    "value": "rullestol",
+    "normalized": "Rullestol",
+    "label": "Trappeklatrer type",
+    "iso_code": "121703"
+  },
+  {
+    "value": "sete",
+    "normalized": "Sete",
+    "label": "Trappeklatrer type",
+    "iso_code": "121703"
+  },
+  {
+    "value": "ekstern",
+    "normalized": "Ekstern",
+    "label": "Lader type",
+    "iso_code": "121703"
+  },
+  {
+    "value": "intern",
+    "normalized": "Intern",
+    "label": "Lader type",
+    "iso_code": "121703"
+  }
+]

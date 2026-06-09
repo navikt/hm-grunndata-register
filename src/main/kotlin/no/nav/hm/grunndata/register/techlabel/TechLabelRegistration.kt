@@ -22,7 +22,7 @@ data class TechLabelRegistration(
     val unit: String?,
     val sort: Int,
     @field:TypeDef(type = DataType.JSON)
-    val options: List<String> = emptyList(),
+    val options: Set<String> = emptySet(),
     val isActive: Boolean = true,
     val required: Boolean = false,
     @Deprecated("isKeyLabel is deprecated, use required instead")
@@ -45,7 +45,7 @@ data class TechLabelRegistrationDTO(
     val type: TechLabelType,
     val unit: String? = null,
     val sort: Int,
-    val options: List<String> = emptyList(),
+    val options: Set<String> = emptySet(),
     val isActive: Boolean = true,
     val required: Boolean = false,
     @Deprecated("isKeyLabel is deprecated, use required instead")
@@ -118,7 +118,7 @@ data class TechLabelDTO(
     @Deprecated("isKeyLabel is deprecated, use required instead")
     val isKeyLabel: Boolean? = required,
     val systemLabel: String? = label.systemLabel(type),
-    val options: List<String> = emptyList(),
+    val options: Set<String> = emptySet(),
     val createdBy: String,
     val updatedBy: String,
     val created: LocalDateTime,

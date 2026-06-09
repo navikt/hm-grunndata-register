@@ -275,7 +275,7 @@ class ProductRegistrationAdminApiTest(
             value = "120",
             type = TechDataType.NUMBER,
             definition = null,
-            options = emptyList()
+            options = emptySet()
         )
         val productData = ProductDataDTO(techData = listOf(extendedTechData))
         val hmsArtNr = UUID.randomUUID().toString()

@@ -18,6 +18,7 @@ import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
+import org.apache.commons.collections.set.ListOrderedSet
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
@@ -167,5 +168,5 @@ data class TechLabelCreateUpdateDTO(
     val unit: String?,
     val sort: Int,
     val required: Boolean,
-    val options: List<String> = emptyList(),
+    val options: Set<String> = emptySet(),
 )
