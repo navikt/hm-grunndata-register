@@ -18,7 +18,6 @@ import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
-import org.apache.commons.collections.set.ListOrderedSet
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
