@@ -220,7 +220,8 @@ class ProductRegistrationApiTest(
                     value = "120",
                     type = TechDataType.NUMBER,
                     definition = null,
-                    options = null
+                    options = null,
+                    required = false
                 )
             ),
         )

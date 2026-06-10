@@ -289,7 +289,7 @@ data class ExtendedTechDataDTO(
     val unit: String,
     val type: TechDataType,
     val definition: String?,
-    val required: Boolean=false,
+    val required: Boolean,
     val options: Set<String>?
 ) {
     fun toEntity(): TechData = TechData(

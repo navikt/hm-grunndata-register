@@ -275,6 +275,7 @@ class ProductRegistrationAdminApiTest(
             value = "120",
             type = TechDataType.NUMBER,
             definition = null,
+            required = false,
             options = emptySet()
         )
         val productData = ProductDataDTO(techData = listOf(extendedTechData))

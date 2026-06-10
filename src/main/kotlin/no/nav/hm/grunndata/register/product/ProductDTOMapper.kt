@@ -106,7 +106,8 @@ class ProductDTOMapper(
                 unit = techLabel.unit ?: "",
                 type = TechDataType.from(techLabel),
                 definition = techLabel.definition,
-                options = techLabel.options
+                options = techLabel.options,
+                required = techLabel.required
             )
         }.sortedBy { it.key }
 
