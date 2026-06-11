@@ -45,6 +45,7 @@ class TechLabelRegistrationAdminApiTest(private val client: TechLabelRegistratio
         val dto = TechLabelCreateUpdateDTO(
             label = "HøydeLængde maks",
             type = TechLabelType.N,
+            definition = "En beskrivelse",
             unit = "cm",
             isoCode = "09070601",
             sort = 1,
@@ -64,6 +65,7 @@ class TechLabelRegistrationAdminApiTest(private val client: TechLabelRegistratio
         body.sort shouldBe 1
         body.required shouldBe true
         body.guide shouldBe "Her skal det stå en veiledningstekst"
+        body.definition shouldBe "En beskrivelse"
 
     }
 }
