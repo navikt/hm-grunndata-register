@@ -104,7 +104,7 @@ class TechLabelRegistrationAdminController(
             val updated = techLabelRegistrationService.update(
                 inDb.copy(
                     label = dto.label.trim(),
-                    guide = dto.label,
+                    guide = dto.guide.trim(),
                     isoCode = dto.isoCode.trim(),
                     type = dto.type,
                     unit = dto.unit?.trim(),
@@ -165,6 +165,7 @@ data class TechLabelCreateUpdateDTO(
     val isoCode: String,
     val type: TechLabelType,
     val unit: String?,
+    val guide: String="",
     val sort: Int,
     val required: Boolean,
     val options: Set<String> = emptySet(),

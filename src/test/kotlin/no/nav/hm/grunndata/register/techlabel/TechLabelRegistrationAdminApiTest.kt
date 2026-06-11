@@ -48,6 +48,7 @@ class TechLabelRegistrationAdminApiTest(private val client: TechLabelRegistratio
             unit = "cm",
             isoCode = "09070601",
             sort = 1,
+            guide = "Her skal det stå en veiledningstekst",
             required = true
         )
         var response = client.createTechLabel(jwt, dto)
@@ -62,6 +63,7 @@ class TechLabelRegistrationAdminApiTest(private val client: TechLabelRegistratio
         body.systemLabel shouldBe "hoydeendretn"
         body.sort shouldBe 1
         body.required shouldBe true
+        body.guide shouldBe "Her skal det stå en veiledningstekst"
 
     }
 }

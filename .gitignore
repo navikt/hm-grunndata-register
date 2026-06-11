@@ -1,6 +1,8 @@
 Thumbs.db
 .DS_Store
 .gradle
+.kotlin
+.tmp
 dist/
 node_modules/
 build/
