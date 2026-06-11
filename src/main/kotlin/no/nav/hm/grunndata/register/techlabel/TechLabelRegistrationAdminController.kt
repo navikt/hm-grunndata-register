@@ -81,7 +81,7 @@ class TechLabelRegistrationAdminController(
                     TechLabelRegistration(
                         label = dto.label.trim(),
                         guide = dto.label,
-                        definition = null,
+                        definition = dto.definition,
                         isoCode = dto.isoCode.trim(),
                         type = dto.type,
                         unit = dto.unit?.trim(),
@@ -111,6 +111,7 @@ class TechLabelRegistrationAdminController(
                     sort = dto.sort,
                     required = dto.required,
                     options = dto.options,
+                    definition = dto.definition,
                     updated = LocalDateTime.now(),
                     updatedByUser = authentication.name
                 )
@@ -169,4 +170,5 @@ data class TechLabelCreateUpdateDTO(
     val sort: Int,
     val required: Boolean,
     val options: Set<String> = emptySet(),
+    val definition: String? = null
 )
