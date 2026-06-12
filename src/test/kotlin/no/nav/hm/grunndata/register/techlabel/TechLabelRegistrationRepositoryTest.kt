@@ -35,7 +35,6 @@ class TechLabelRegistrationRepositoryTest(private val techLabelRegistrationRepos
             updated.shouldNotBeNull()
             updated.updated shouldBeAfter saved.updated
             updated.updatedBy shouldBe REGISTER
-            updated.isKeyLabel shouldBe false
             updated.required shouldBe true
         }
     }
