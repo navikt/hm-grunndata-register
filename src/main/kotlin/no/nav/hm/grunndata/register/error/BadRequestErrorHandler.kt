@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException
-import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import io.micronaut.context.annotation.Replaces
 import io.micronaut.core.convert.exceptions.ConversionErrorException
 import io.micronaut.http.HttpRequest
@@ -63,10 +62,7 @@ class BadRequestErrorHandler : ExceptionHandler<BadRequestException, HttpRespons
 @Singleton
 @Replaces(ConversionErrorHandler::class)
 class ConversionExceptionHandler : ExceptionHandler<ConversionErrorException, HttpResponse<ErrorMessage>> {
-    override fun handle(
-        request: HttpRequest<*>?,
-        error: ConversionErrorException,
-    ): HttpResponse<ErrorMessage> {
+    override fun handle(request: HttpRequest<Any>, error: ConversionErrorException): HttpResponse<ErrorMessage> {
         val response =
             when (error.cause) {
                 is JsonProcessingException -> handleJsonProcessingException(error.cause as JsonProcessingException)
@@ -81,10 +77,7 @@ class ConversionExceptionHandler : ExceptionHandler<ConversionErrorException, Ht
 @Singleton
 @Replaces(JsonExceptionHandler::class)
 class ApiJsonErrorHandler : ExceptionHandler<JsonProcessingException, HttpResponse<ErrorMessage>> {
-    override fun handle(
-        request: HttpRequest<*>?,
-        error: JsonProcessingException,
-    ): HttpResponse<ErrorMessage> {
+    override fun handle(request: HttpRequest<Any>, error: JsonProcessingException): HttpResponse<ErrorMessage> {
         val response = handleJsonProcessingException(error)
         LOG.error(response.body().toString())
         return response

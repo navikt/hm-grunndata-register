@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.micronaut.data.model.Pageable
 import io.micronaut.http.MediaType
 import io.micronaut.http.multipart.CompletedFileUpload
+import io.micronaut.http.multipart.StreamingFileUpload
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import java.io.InputStream
 import java.nio.ByteBuffer
@@ -22,16 +23,12 @@ class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRe
     @Test
     fun testRepository() {
         val resourceStream = CatalogFileRepositoryTest::class.java.getResourceAsStream("/productagreement/katalog-test.xls")
-        val completedFileUpload = CustomCompletedFileUpload(
-            inputStream = resourceStream,
-            filename = "katalog-test.xls",
-            size = resourceStream.available().toLong()
-        )
         val catalogList = catalogExcelFileImport.importExcelFile(resourceStream)
+
 
         val testCatalogFile = CatalogFile(
             fileName = "katalog-test.xls",
-            fileSize = completedFileUpload.size,
+            fileSize = resourceStream.available().toLong(),
             orderRef = "orderRef",
             catalogList = catalogList,
             supplierId = UUID.randomUUID(),
@@ -59,31 +56,4 @@ class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRe
             catalogFileRepository.findMany(Pageable.from(0, 10))
         }
     }
-}
-
-class CustomCompletedFileUpload(
-    private val inputStream: InputStream,
-    private val filename: String,
-    private val size: Long
-) : CompletedFileUpload {
-
-    override fun getContentType(): Optional<MediaType> {
-        TODO("Not yet implemented")
-    }
-
-    override fun getName(): String = filename
-    override fun getFilename(): String = filename
-    override fun getSize(): Long = size
-
-    override fun getDefinedSize(): Long = size
-
-    override fun isComplete(): Boolean {
-        return true
-    }
-
-    override fun getBytes(): ByteArray = inputStream.readBytes()
-    override fun getByteBuffer(): ByteBuffer {
-        return ByteBuffer.wrap(inputStream.readBytes())
-    }
-    override fun getInputStream(): InputStream = inputStream
 }

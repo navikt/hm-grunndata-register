@@ -28,7 +28,7 @@ class MediaUploadService(private val mediaUploadClient: MediaUploadClient) {
     suspend fun getMediaList(oid: UUID): List<MediaDTO> = mediaUploadClient.getMediaList(oid)
         .filter { it.status == "ACTIVE" || it.status == "INACTIVE"  }
 
-    suspend fun deleteByOidAndUri(oid: UUID, uri: String): MediaDTO? = mediaUploadClient.deleteByOidAndUri(oid, uri)
+    suspend fun deleteByOidAndUri(oid: UUID, uri: String): MediaDTO = mediaUploadClient.deleteByOidAndUri(oid, uri)
 
     private fun getMediaType(file: CompletedFileUpload): MediaType {
         return when (file.extension.lowercase()) {

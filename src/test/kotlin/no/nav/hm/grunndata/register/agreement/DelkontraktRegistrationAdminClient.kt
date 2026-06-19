@@ -16,7 +16,7 @@ import java.util.*
 interface DelkontraktRegistrationAdminClient {
 
     @Get(uri = "/{id}", consumes = [MediaType.APPLICATION_JSON])
-    suspend fun getById(@CookieValue("JWT") jwt: String, id: UUID): HttpResponse<DelkontraktRegistrationDTO?>
+    suspend fun getById(@CookieValue("JWT") jwt: String, id: UUID): HttpResponse<DelkontraktRegistrationDTO>
 
     @Put(uri = "/{id}", consumes = [MediaType.APPLICATION_JSON])
     suspend fun updateDelkontrakt(

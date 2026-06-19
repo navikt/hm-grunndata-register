@@ -25,7 +25,7 @@ class BestillingsordningAdminController(private val bestillingsordningService: B
 
 
     @Get("/{hmsArtNr}")
-    suspend fun findByHmsNr(hmsArtNr: String): HttpResponse<BestillingsordningRegistrationDTO?> =
+    suspend fun findByHmsNr(hmsArtNr: String): HttpResponse<BestillingsordningRegistrationDTO> =
         bestillingsordningService.findByHmsArtNr(hmsArtNr)
             ?.let { HttpResponse.ok(it) }
             ?: HttpResponse.notFound()
@@ -42,7 +42,7 @@ class BestillingsordningAdminController(private val bestillingsordningService: B
 
 
     @Put("/{hmsArtNr}")
-    suspend fun updateBestillingsordningStatus(dto: BestillingsordningRegistrationDTO, authentication: Authentication): HttpResponse<BestillingsordningRegistrationDTO?> =
+    suspend fun updateBestillingsordningStatus(dto: BestillingsordningRegistrationDTO, authentication: Authentication): HttpResponse<BestillingsordningRegistrationDTO> =
           bestillingsordningService.findByHmsArtNr(dto.hmsArtNr)?.let {
                 HttpResponse.ok(bestillingsordningService.saveAndCreateEvent(dto.copy(updatedByUser = authentication.name), update = true))
             } ?: HttpResponse.notFound()

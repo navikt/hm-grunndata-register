@@ -1,4 +1,4 @@
-FROM gcr.io/distroless/java17-debian12:nonroot
+FROM eclipse-temurin:25-jre
 WORKDIR /app
 ENV TZ="Europe/Oslo"
 EXPOSE 8080

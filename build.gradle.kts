@@ -3,11 +3,11 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val jvmTarget = "17"
-val micronautVersion = "4.10.14"
+val jvmTarget = "25"
+val micronautVersion = "5.0.2"
 val logbackEncoderVersion = "8.0"
 val postgresqlVersion = "42.7.11"
-val tcVersion = "1.21.4"
+val tcVersion = "2.0.1"
 val mockkVersion = "1.13.17"
 val kotestVersion = "5.5.5"
 val poiVersion = "5.4.0"
@@ -21,12 +21,12 @@ group = "no.nav.hm"
 version = properties["version"] ?: "local-build"
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "2.1.21"
-    id("org.jetbrains.kotlin.plugin.allopen") version "2.1.21"
-    id("com.google.devtools.ksp") version "2.1.21-2.0.1"
+    id("org.jetbrains.kotlin.jvm") version "2.3.0"
+    id("org.jetbrains.kotlin.plugin.allopen") version "2.3.0"
+    id("com.google.devtools.ksp") version "2.3.0"
     id("java")
     id("com.gradleup.shadow") version "9.3.1"
-    id("io.micronaut.application") version "4.6.2"
+    id("io.micronaut.application") version "5.0.0"
     id("com.github.ben-manes.versions") version "0.51.0"
 
 }
@@ -79,7 +79,7 @@ dependencies {
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
-    testImplementation("org.testcontainers:postgresql:$tcVersion")
+    testImplementation("org.testcontainers:testcontainers-postgresql:$tcVersion")
 
     // Rapids and Rivers
     implementation("com.github.navikt:hm-rapids-and-rivers-v2-core:$rapidsRiversVersion")
@@ -162,7 +162,7 @@ tasks.withType<Test> {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "8.11"
+    gradleVersion = "9.5.0"
 }
 
 

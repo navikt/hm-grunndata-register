@@ -110,7 +110,7 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
         userById.email shouldBe userEmail
 
         val userByEmail = userAdminApiClient.getUserByEmail(jwtAdmin, userEmail)
-        userByEmail.body().name shouldBe "User test"
+        userByEmail.body()?.name shouldBe "User test"
 
         val users = userAdminApiClient.getUsers(jwtAdmin, email = userEmail, size = 10, page = 0, sort = "updated,asc")
 
@@ -125,7 +125,7 @@ class UserAdminControllerTest(private val userRepository: UserRepository,
         val oneUser = supplierUsers[0]
 
         val updated = userAdminApiClient.updateUser(jwtAdmin, oneUser.id, oneUser.copy(name="New Name"))
-        updated.body().name shouldBe "New Name"
+        updated.body()?.name shouldBe "New Name"
 
     }
 

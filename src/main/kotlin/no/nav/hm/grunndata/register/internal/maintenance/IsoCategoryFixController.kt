@@ -18,7 +18,6 @@ import no.nav.hm.grunndata.register.iso.IsoCategoryRegistrationDTO
 import no.nav.hm.grunndata.register.iso.IsoCategoryRegistrationService
 import no.nav.hm.grunndata.register.iso.IsoTranslations
 import org.slf4j.LoggerFactory
-import org.yaml.snakeyaml.reader.StreamReader
 
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller("/internal/fix/category")
