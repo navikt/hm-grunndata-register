@@ -10,7 +10,6 @@ open class ArchiveScheduler(private val archiveService: ArchiveService) {
 
     @LeaderOnly
     @Scheduled(cron = "0 0/5 * * * *")
-
     open fun archiveAll() {
         runBlocking {
             archiveService.archiveAll()
