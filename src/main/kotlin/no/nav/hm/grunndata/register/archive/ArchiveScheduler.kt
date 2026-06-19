@@ -9,7 +9,8 @@ import no.nav.hm.micronaut.leaderelection.LeaderOnly
 open class ArchiveScheduler(private val archiveService: ArchiveService) {
 
     @LeaderOnly
-    @Scheduled(cron = "0 30 3 * * *")
+    @Scheduled(cron = "0 0/5 * * * *")
+
     open fun archiveAll() {
         runBlocking {
             archiveService.archiveAll()
