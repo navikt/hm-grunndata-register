@@ -286,10 +286,11 @@ open class ProductRegistrationService(
         product: ProductRegistration,
         isUpdate: Boolean,
     ): ProductRegistration {
+        val washed = wash(product)
         val saved = if (isUpdate) {
-            productRegistrationRepository.update(product)
+            productRegistrationRepository.update(washed)
         } else {
-            productRegistrationRepository.save(product)
+            productRegistrationRepository.save(washed)
         }
         if (saved.canCreateEvent()) {
             val dtoSaved = saved.toDTO()
@@ -297,6 +298,17 @@ open class ProductRegistrationService(
             LOG.info("Product registration event sent for id (saved) ${dtoSaved.id} updated time: ${dtoSaved.updated}")
         }
         return saved
+    }
+
+    fun wash(product: ProductRegistration): ProductRegistration {
+        val washed = product.copy(
+            hmsArtNr = product.hmsArtNr?.trim(),
+            articleName = product.articleName.trim(),
+            supplierRef = product.supplierRef.trim(),
+            productData = product.productData.copy(techData = product.productData.techData.map {
+                it.copy(key = it.key, value = it.value.trim(), unit = it.unit) },
+        ))
+        return washed
     }
 
     @Transactional
