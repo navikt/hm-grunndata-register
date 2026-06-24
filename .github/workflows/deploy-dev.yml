@@ -23,4 +23,5 @@ jobs:
     with:
       manifest: .nais/nais.yaml
       vars: .nais/nais-dev.json
+      java-version: '25'
     secrets: inherit
