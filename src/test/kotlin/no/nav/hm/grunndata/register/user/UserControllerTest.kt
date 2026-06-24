@@ -1,6 +1,5 @@
 package no.nav.hm.grunndata.register.user
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -28,12 +27,14 @@ import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.ObjectMapper
 
 @MicronautTest
 class UserControllerTest(private val userRepository: UserRepository,
                          private val supplierRegistrationService: SupplierRegistrationService,
                          private val loginClient: LoginClient,
-                         private val objectMapper: ObjectMapper) {
+                         private val objectMapper: ObjectMapper
+) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(UserControllerTest::class.java)
@@ -159,7 +160,7 @@ class UserControllerTest(private val userRepository: UserRepository,
                 .cookie(jwt), UserDTO::class.java
         )
         response.status().code shouldBe 201
-        val dto = response.body()
+        val dto = response.body()!!
         dto.roles shouldBe listOf(Roles.ROLE_SUPPLIER)
         dto.name shouldBe "New user"
         dto.email shouldBe "newuser1@email.com"
@@ -174,7 +175,7 @@ class UserControllerTest(private val userRepository: UserRepository,
                 .cookie(jwt), UserDTO::class.java
         )
         response2.status().code shouldBe 200
-        val dto2 = response2.body()
+        val dto2 = response2.body()!!
         dto2.name shouldBe "New name 2"
         dto2.email shouldBe "newuser1@email.com"
         dto2.attributes[UserAttribute.SUPPLIER_ID] shouldBe user.attributes[UserAttribute.SUPPLIER_ID]

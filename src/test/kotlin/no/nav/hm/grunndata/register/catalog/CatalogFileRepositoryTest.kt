@@ -3,17 +3,12 @@ package no.nav.hm.grunndata.register.catalog
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.data.model.Pageable
-import io.micronaut.http.MediaType
-import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
-import java.io.InputStream
-import java.nio.ByteBuffer
-import java.time.LocalDateTime
-import java.util.Optional
-import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
+import java.util.*
 
 @MicronautTest
 class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRepository,
@@ -22,68 +17,38 @@ class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRe
     @Test
     fun testRepository() {
         val resourceStream = CatalogFileRepositoryTest::class.java.getResourceAsStream("/productagreement/katalog-test.xls")
-        val completedFileUpload = CustomCompletedFileUpload(
-            inputStream = resourceStream,
-            filename = "katalog-test.xls",
-            size = resourceStream.available().toLong()
-        )
-        val catalogList = catalogExcelFileImport.importExcelFile(resourceStream)
+        resourceStream.use { stream ->
+            val catalogList = catalogExcelFileImport.importExcelFile(stream!!)
 
-        val testCatalogFile = CatalogFile(
-            fileName = "katalog-test.xls",
-            fileSize = completedFileUpload.size,
-            orderRef = "orderRef",
-            catalogList = catalogList,
-            supplierId = UUID.randomUUID(),
-            updatedByUser = "test",
-            created = LocalDateTime.now(),
-            updated = LocalDateTime.now(),
-            status = CatalogFileStatus.PENDING,
-            errorMessage = "Got an error"
-        )
+            val testCatalogFile = CatalogFile(
+                fileName = "katalog-test.xls",
+                fileSize = 0,
+                orderRef = "orderRef",
+                catalogList = catalogList,
+                supplierId = UUID.randomUUID(),
+                updatedByUser = "test",
+                created = LocalDateTime.now(),
+                updated = LocalDateTime.now(),
+                status = CatalogFileStatus.PENDING,
+                errorMessage = "Got an error"
+            )
 
-        runBlocking {
-            val saved = catalogFileRepository.save(testCatalogFile)
-            saved.shouldNotBeNull()
-            val id = saved.id
-            val found = catalogFileRepository.findById(id)
-            val foundDTO = catalogFileRepository.findOne(id)
-            found.shouldNotBeNull()
-            foundDTO.shouldNotBeNull()
-            catalogFileRepository.updatedConnectedUpdatedById(foundDTO.id, true, LocalDateTime.now())
-            found.catalogList.size shouldBe catalogList.size
-            found.fileSize shouldBe foundDTO.fileSize
-            found.fileName shouldBe foundDTO.fileName
-            found.connected shouldBe foundDTO.connected
-            found.errorMessage shouldBe "Got an error"
-            catalogFileRepository.findMany(Pageable.from(0, 10))
+            runBlocking {
+                val saved = catalogFileRepository.save(testCatalogFile)
+                saved.shouldNotBeNull()
+                val id = saved.id
+                val found = catalogFileRepository.findById(id)
+                val foundDTO = catalogFileRepository.findOne(id)
+                found.shouldNotBeNull()
+                foundDTO.shouldNotBeNull()
+                catalogFileRepository.updatedConnectedUpdatedById(foundDTO.id, true, LocalDateTime.now())
+                found.catalogList.size shouldBe catalogList.size
+                found.fileSize shouldBe foundDTO.fileSize
+                found.fileName shouldBe foundDTO.fileName
+                found.connected shouldBe foundDTO.connected
+                found.errorMessage shouldBe "Got an error"
+                catalogFileRepository.findMany(Pageable.from(0, 10))
+            }
         }
     }
-}
-
-class CustomCompletedFileUpload(
-    private val inputStream: InputStream,
-    private val filename: String,
-    private val size: Long
-) : CompletedFileUpload {
-
-    override fun getContentType(): Optional<MediaType> {
-        TODO("Not yet implemented")
-    }
-
-    override fun getName(): String = filename
-    override fun getFilename(): String = filename
-    override fun getSize(): Long = size
-
-    override fun getDefinedSize(): Long = size
-
-    override fun isComplete(): Boolean {
-        return true
-    }
-
-    override fun getBytes(): ByteArray = inputStream.readBytes()
-    override fun getByteBuffer(): ByteBuffer {
-        return ByteBuffer.wrap(inputStream.readBytes())
-    }
-    override fun getInputStream(): InputStream = inputStream
 }

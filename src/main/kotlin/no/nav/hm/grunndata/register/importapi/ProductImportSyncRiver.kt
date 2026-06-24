@@ -1,6 +1,5 @@
 package no.nav.hm.grunndata.register.importapi
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.context.annotation.Context
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.annotation.Value
@@ -26,6 +25,7 @@ import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.toProductData
 import no.nav.hm.rapids_rivers.micronaut.RiverHead
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.ObjectMapper
 
 @Context
 @Requires(bean = KafkaRapid::class)
@@ -35,7 +35,7 @@ class ProductImportSyncRiver(
     private val productRegistrationService: ProductRegistrationService,
     private val productRegistrationEventHandler: ProductRegistrationEventHandler,
     private val productDTOMapper: ProductDTOMapper,
-    @Value("\${import.autoapprove}") private val autoApprove: Boolean
+    @param:Value("\${import.autoapprove}") private val autoApprove: Boolean
 ) : River.PacketListener {
 
     companion object {

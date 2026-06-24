@@ -72,7 +72,7 @@ class DelkontraktRegistrationAdminTest(
             )
             resp.status() shouldBe HttpStatus.OK
             val updated = resp.body()
-            updated.delkontraktData.title shouldBe "Updated title"
+            updated!!.delkontraktData.title shouldBe "Updated title"
             var find  = delkontraktRegistrationClient.getById(jwt, updated.id)
             find.status() shouldBe HttpStatus.OK
             find.body()!!.delkontraktData.title shouldBe "Updated title"

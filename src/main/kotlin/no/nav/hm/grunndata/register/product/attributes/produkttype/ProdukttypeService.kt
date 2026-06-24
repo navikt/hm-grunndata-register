@@ -1,13 +1,13 @@
 package no.nav.hm.grunndata.register.product.attributes.produkttype
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.context.annotation.Value
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.ProdukttypeStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import org.slf4j.LoggerFactory
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.ObjectMapper
 import java.net.URI
 import java.time.LocalDateTime
 

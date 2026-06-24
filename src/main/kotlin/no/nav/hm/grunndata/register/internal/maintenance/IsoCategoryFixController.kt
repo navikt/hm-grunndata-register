@@ -1,7 +1,5 @@
 package no.nav.hm.grunndata.register.internal.maintenance
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.opencsv.CSVParserBuilder
 import com.opencsv.CSVReaderBuilder
 import io.micronaut.http.annotation.Controller
@@ -18,14 +16,16 @@ import no.nav.hm.grunndata.register.iso.IsoCategoryRegistrationDTO
 import no.nav.hm.grunndata.register.iso.IsoCategoryRegistrationService
 import no.nav.hm.grunndata.register.iso.IsoTranslations
 import org.slf4j.LoggerFactory
-import org.yaml.snakeyaml.reader.StreamReader
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.ObjectMapper
 
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller("/internal/fix/category")
 @Hidden
 class IsoCategoryFixController(private val isoCategoryRegistrationService: IsoCategoryRegistrationService,
                                private val gdbApiClient: GdbApiClient,
-                               private val objectMapper: ObjectMapper ) {
+                               private val objectMapper: ObjectMapper
+) {
 
 
     @Put("/add-missing-category")

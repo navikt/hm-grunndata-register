@@ -114,7 +114,7 @@ class AgreementRegistrationAdminApiTest(private val apiClient: AgreementRegistra
         page2.totalSize shouldBe 1
 
         val updatedVersion = apiClient.getAgreementById(jwt, updated.id).body()
-        updatedVersion.version!! shouldBeGreaterThan 0
+        updatedVersion!!.version!! shouldBeGreaterThan 0
         updatedVersion.updatedByUser shouldBe email
     }
 

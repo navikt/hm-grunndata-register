@@ -11,7 +11,6 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.UUID
-import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
@@ -37,7 +36,7 @@ class DelkontraktRegistrationAdminController(
     }
 
     @Get("/{id}")
-    suspend fun findByDelkontraktId(id: UUID): HttpResponse<DelkontraktRegistrationDTO?> =
+    suspend fun findByDelkontraktId(id: UUID): HttpResponse<DelkontraktRegistrationDTO> =
         delkontraktRegistrationService.findById(id)?.let { HttpResponse.ok(it) } ?: HttpResponse.notFound()
 
     @Post("/")

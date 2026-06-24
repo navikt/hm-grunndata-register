@@ -1,7 +1,7 @@
 package no.nav.hm.grunndata.register.event
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
+import tools.jackson.databind.ObjectMapper
 
 abstract class DefaultEventHandler(private val eventItemService: EventItemService,
                                    private val objectMapper: ObjectMapper,

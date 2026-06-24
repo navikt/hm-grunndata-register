@@ -23,7 +23,7 @@ interface MediaUploadClient {
     suspend fun getMediaList(oid:UUID): List<MediaDTO>
 
     @Delete(value= "/{oid}/{uri}")
-    suspend fun deleteByOidAndUri(oid: UUID, uri: String): MediaDTO?
+    suspend fun deleteByOidAndUri(oid: UUID, uri: String): MediaDTO
 
 
 }

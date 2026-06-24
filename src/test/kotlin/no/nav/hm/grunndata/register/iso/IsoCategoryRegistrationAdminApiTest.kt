@@ -69,7 +69,7 @@ class IsoCategoryRegistrationAdminApiTest(private val client: IsoCategoryRegistr
         response = client.updateIsoCategory(jwt, dto.isoCode, updated)
         response.shouldNotBeNull()
         response.status() shouldBe HttpStatus.OK
-        response.body().isoTitle shouldBe "Hjelpemidler for drikking"
+        response.body()!!.isoTitle shouldBe "Hjelpemidler for drikking"
 
     }
 }

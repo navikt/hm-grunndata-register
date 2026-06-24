@@ -1,15 +1,14 @@
 package no.nav.hm.grunndata.register.techlabel
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.data.runtime.criteria.get
 import jakarta.inject.Singleton
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.runtime.where
 import org.slf4j.LoggerFactory
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.ObjectMapper
 
 @Singleton
 class TechLabelMaintenance(

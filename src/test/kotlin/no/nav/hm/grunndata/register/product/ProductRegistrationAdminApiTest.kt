@@ -1,7 +1,5 @@
 package no.nav.hm.grunndata.register.product
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -45,6 +43,8 @@ import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.ObjectMapper
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -55,7 +55,6 @@ class ProductRegistrationAdminApiTest(
     private val userRepository: UserRepository,
     private val supplierRegistrationService: SupplierRegistrationService,
     private val agreementRegistrationRepository: AgreementRegistrationRepository,
-    private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
     private val delkontraktRegistrationService: DelkontraktRegistrationService,
     private val seriesRegistrationService: SeriesRegistrationService,
     private val productAgreementAdminClient: ProductAgreementAdminClient,

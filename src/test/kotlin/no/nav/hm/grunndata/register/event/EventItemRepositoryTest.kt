@@ -1,6 +1,5 @@
 package no.nav.hm.grunndata.register.event
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
@@ -13,11 +12,13 @@ import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
 import org.junit.jupiter.api.Test
+import tools.jackson.databind.ObjectMapper
 import java.util.*
 
 @MicronautTest
 class EventItemRepositoryTest(private val eventItemRepository: EventItemRepository,
-                              private val objectMapper: ObjectMapper) {
+                              private val objectMapper: ObjectMapper
+) {
 
     @Test
     fun crudTest() {

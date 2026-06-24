@@ -184,7 +184,7 @@ class CatalogExcelImportTest(
                 .builder()
                 .addPart(
                     "file", "katalog-test.xls",
-                    MediaType.MICROSOFT_EXCEL_TYPE, bytes1
+                    MediaType.MICROSOFT_EXCEL_TYPE, bytes1!!
                 )
                 .build()
             val response = client.excelImport(jwt, multipartBody1, false, supplierId)
@@ -202,7 +202,7 @@ class CatalogExcelImportTest(
                 .builder()
                 .addPart(
                     "file", "katalog-test-2.xls",
-                    MediaType.MICROSOFT_EXCEL_TYPE, bytes2
+                    MediaType.MICROSOFT_EXCEL_TYPE, bytes2!!
                 )
                 .build()
             val response2 = client.excelImport(jwt, multipartBody2, false, supplierId)

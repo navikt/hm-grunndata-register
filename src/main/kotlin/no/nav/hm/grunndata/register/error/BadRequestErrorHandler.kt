@@ -1,10 +1,6 @@
 package no.nav.hm.grunndata.register.error
 
-import com.fasterxml.jackson.core.JsonParseException
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.exc.InvalidFormatException
-import com.fasterxml.jackson.databind.exc.ValueInstantiationException
-import com.fasterxml.jackson.databind.exc.MismatchedInputException
+import tools.jackson.databind.exc.InvalidFormatException
 import io.micronaut.context.annotation.Replaces
 import io.micronaut.core.convert.exceptions.ConversionErrorException
 import io.micronaut.http.HttpRequest
@@ -17,6 +13,9 @@ import io.micronaut.http.server.exceptions.ExceptionHandler
 import io.micronaut.http.server.exceptions.JsonExceptionHandler
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
+import tools.jackson.core.JacksonException
+import tools.jackson.core.exc.StreamReadException
+import tools.jackson.databind.exc.ValueInstantiationException
 import java.util.UUID
 
 @Produces
@@ -63,13 +62,10 @@ class BadRequestErrorHandler : ExceptionHandler<BadRequestException, HttpRespons
 @Singleton
 @Replaces(ConversionErrorHandler::class)
 class ConversionExceptionHandler : ExceptionHandler<ConversionErrorException, HttpResponse<ErrorMessage>> {
-    override fun handle(
-        request: HttpRequest<*>?,
-        error: ConversionErrorException,
-    ): HttpResponse<ErrorMessage> {
+    override fun handle(request: HttpRequest<Any>, error: ConversionErrorException): HttpResponse<ErrorMessage> {
         val response =
             when (error.cause) {
-                is JsonProcessingException -> handleJsonProcessingException(error.cause as JsonProcessingException)
+                is JacksonException -> handleJacksonException(error.cause as JacksonException)
                 else -> HttpResponse.serverError(ErrorMessage(error.message!!, ErrorType.UNKNOWN))
             }
         LOG.error(response.body().toString())
@@ -80,20 +76,17 @@ class ConversionExceptionHandler : ExceptionHandler<ConversionErrorException, Ht
 @Produces
 @Singleton
 @Replaces(JsonExceptionHandler::class)
-class ApiJsonErrorHandler : ExceptionHandler<JsonProcessingException, HttpResponse<ErrorMessage>> {
-    override fun handle(
-        request: HttpRequest<*>?,
-        error: JsonProcessingException,
-    ): HttpResponse<ErrorMessage> {
-        val response = handleJsonProcessingException(error)
+class ApiJsonErrorHandler : ExceptionHandler<JacksonException, HttpResponse<ErrorMessage>> {
+    override fun handle(request: HttpRequest<Any>, error: JacksonException): HttpResponse<ErrorMessage> {
+        val response = handleJacksonException(error)
         LOG.error(response.body().toString())
         return response
     }
 }
 
-private fun handleJsonProcessingException(error: JsonProcessingException): HttpResponse<ErrorMessage> {
+private fun handleJacksonException(error: JacksonException): HttpResponse<ErrorMessage> {
     return when (error) {
-        is JsonParseException ->
+        is StreamReadException ->
             HttpResponse
                 .badRequest(ErrorMessage("Parse error: at ${error.location}", ErrorType.PARSE_ERROR))
 
