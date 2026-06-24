@@ -131,11 +131,6 @@ jackson:
   bean-introspection-module: true
   serialization:
     indentOutput: true
-  deserialization:
-    failOnNullForPrimitives: false
-    failOnUnknownProperties: false
-    readUnknownEnumValuesUsingDefaultValue: true
-    acceptSingleValueAsArray: true
 
 datasources:
   default:
