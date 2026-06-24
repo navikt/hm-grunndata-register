@@ -1,7 +1,6 @@
 package no.nav.hm.grunndata.register.version
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.convertValue
+
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
@@ -17,6 +16,8 @@ import no.nav.hm.grunndata.register.series.SeriesAttributesDTO
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationDTO
 import org.junit.jupiter.api.Test
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.convertValue
 import java.time.LocalDateTime
 import java.util.UUID
 

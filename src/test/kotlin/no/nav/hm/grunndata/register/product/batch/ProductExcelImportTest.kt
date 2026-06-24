@@ -1,7 +1,5 @@
 package no.nav.hm.grunndata.register.product.batch
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.every
@@ -9,11 +7,14 @@ import io.mockk.mockk
 import no.nav.hm.grunndata.register.techlabel.LabelService
 import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
 import org.junit.jupiter.api.Test
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.ObjectMapper
 
 
 @MicronautTest
 class ProductExcelImportTest(private val excelImport: ProductExcelImport,
-                             private val objectMapper: ObjectMapper) {
+                             private val objectMapper: ObjectMapper
+) {
 
     @MockBean(LabelService::class)
     fun mockTechLabelService(): LabelService = mockk<LabelService>().apply {

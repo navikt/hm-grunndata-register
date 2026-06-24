@@ -1,6 +1,5 @@
 package no.nav.hm.grunndata.register.archive
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.date.shouldBeAfter
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -9,6 +8,7 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import kotlinx.coroutines.runBlocking
 
 import org.junit.jupiter.api.Test
+import tools.jackson.databind.ObjectMapper
 import java.time.LocalDateTime
 import java.util.UUID
 

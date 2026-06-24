@@ -1,9 +1,9 @@
 package no.nav.hm.grunndata.register.techlabel
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Test
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.ObjectMapper
 
 
 @MicronautTest

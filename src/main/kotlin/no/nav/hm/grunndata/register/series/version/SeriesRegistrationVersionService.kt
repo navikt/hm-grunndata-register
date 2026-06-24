@@ -1,7 +1,6 @@
 package no.nav.hm.grunndata.register.series.version
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.convertValue
+
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
@@ -16,10 +15,13 @@ import no.nav.hm.grunndata.register.version.Difference
 import no.nav.hm.grunndata.register.version.MapDifference
 import no.nav.hm.grunndata.register.version.difference
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.convertValue
 
 @Singleton
 class SeriesRegistrationVersionService(private val seriesRegistrationVersionRepository: SeriesRegistrationVersionRepository,
-                                       private val objectMapper: ObjectMapper)
+                                       private val objectMapper: ObjectMapper
+)
 {
 
     companion object {

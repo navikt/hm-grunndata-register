@@ -1,12 +1,12 @@
 package no.nav.hm.grunndata.register.product
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.context.annotation.Context
 import io.micronaut.core.annotation.Order
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.archive.Archive
 import no.nav.hm.grunndata.register.archive.ArchiveHandler
 import no.nav.hm.grunndata.register.archive.ArchiveType
+import tools.jackson.databind.ObjectMapper
 
 @Context
 @Order(1)

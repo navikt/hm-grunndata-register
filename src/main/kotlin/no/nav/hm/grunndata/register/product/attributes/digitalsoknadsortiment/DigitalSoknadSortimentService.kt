@@ -1,12 +1,12 @@
 package no.nav.hm.grunndata.register.product.attributes.digitalsoknadsortiment
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.context.annotation.Value
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.DigitalSoknadSortimentStatus
 import no.nav.hm.grunndata.rapid.event.EventName
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.ObjectMapper
 import java.net.URI
 import java.time.LocalDateTime
 import java.util.UUID
@@ -29,19 +29,21 @@ open class DigitalSoknadSortimentService(
     }
 
     suspend fun importAndUpdateDb() {
-        val boMap = objectMapper.readTree(URI(url).toURL()).let { node ->
-            require(node.isObject) { "unexpected non-object reply from digihot-sortiment" }
-            val res = mutableListOf<DigitalSoknadSortimentDTO>()
-            node.properties().forEach { (key, value) ->
-                require(value.isArray) { "unexpected non-array reply from digihot-sortiment" }
-                res.add(
-                    DigitalSoknadSortimentDTO(
-                        sortimentKategori = key!!,
-                        postIds = value!!.mapNotNull { it.at("/postId").textValue() }.map { UUID.fromString(it) },
+        val boMap = URI(url).toURL().openStream().use { stream ->
+             objectMapper.readTree(stream).let { node ->
+                require(node.isObject) { "unexpected non-object reply from digihot-sortiment" }
+                val res = mutableListOf<DigitalSoknadSortimentDTO>()
+                node.properties().forEach { (key, value) ->
+                    require(value.isArray) { "unexpected non-array reply from digihot-sortiment" }
+                    res.add(
+                        DigitalSoknadSortimentDTO(
+                            sortimentKategori = key!!,
+                            postIds = value!!.mapNotNull { it.at("/postId").textValue() }.map { UUID.fromString(it) },
+                        )
                     )
-                )
+                }
+                res
             }
-            res
         }
 
         val deactiveList = digitalSoknadSortimentRegistrationRepository.findByStatus(DigitalSoknadSortimentStatus.ACTIVE).filter { currentlyActive ->

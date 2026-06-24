@@ -1,7 +1,6 @@
 package no.nav.hm.grunndata.register.compatiblewith
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
+
 import com.google.cloud.vertexai.VertexAI
 import com.google.cloud.vertexai.api.GenerationConfig
 import com.google.cloud.vertexai.api.Schema
@@ -13,6 +12,8 @@ import io.micronaut.context.annotation.ConfigurationProperties
 import io.micronaut.core.annotation.Introspected
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.ObjectMapper
 import kotlin.collections.joinToString
 import kotlin.jvm.Throws
 import kotlin.jvm.java
@@ -22,7 +23,7 @@ import kotlin.text.trimIndent
 import kotlin.use
 
 @Singleton
-open class CompatibleAIFinder(private val config: VertexAIConfig, private val objectMapper: ObjectMapper ) {
+open class CompatibleAIFinder(private val config: VertexAIConfig, private val objectMapper: ObjectMapper) {
     val instruction: String = """
         Du jobber i en NAV hjelpemiddelsentral, og bruker finnhjelpemiddel.no for informasjon.
     """.trimIndent()
@@ -79,7 +80,7 @@ open class CompatibleAIFinder(private val config: VertexAIConfig, private val ob
             val output: String = ResponseHandler.getText(response)
             LOG.debug("${config.project} ${config.location} - Generating content for model ${config.model} with temp: ${config.temperature} with prompt: $prompt")
             LOG.debug("Got response: $output")
-            return objectMapper.readValue(output,object : com.fasterxml.jackson.core.type.TypeReference<List<HmsNr>>() {} )
+            return objectMapper.readValue(output,object : TypeReference<List<HmsNr>>() {} )
         }
     }
     companion object {

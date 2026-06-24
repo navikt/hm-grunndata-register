@@ -1,6 +1,5 @@
 package no.nav.hm.grunndata.register.user
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -28,12 +27,14 @@ import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.ObjectMapper
 
 @MicronautTest
 class UserControllerTest(private val userRepository: UserRepository,
                          private val supplierRegistrationService: SupplierRegistrationService,
                          private val loginClient: LoginClient,
-                         private val objectMapper: ObjectMapper) {
+                         private val objectMapper: ObjectMapper
+) {
 
     companion object {
         private val LOG = LoggerFactory.getLogger(UserControllerTest::class.java)

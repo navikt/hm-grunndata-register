@@ -1,6 +1,5 @@
 package no.nav.hm.grunndata.register.product
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -22,6 +21,7 @@ import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistratio
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import org.junit.jupiter.api.Test
+import tools.jackson.databind.ObjectMapper
 
 @MicronautTest
 class ProductRegistrationRepositoryTest(

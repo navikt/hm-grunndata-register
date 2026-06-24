@@ -1,8 +1,8 @@
 package no.nav.hm.grunndata.register.event
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import tools.jackson.databind.ObjectMapper
 import java.time.LocalDateTime
 import java.util.UUID
 

@@ -5,25 +5,25 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jvmTarget = "25"
 val micronautVersion = "5.0.2"
-val logbackEncoderVersion = "8.0"
+val logbackEncoderVersion = "9.0"
 val postgresqlVersion = "42.7.11"
 val tcVersion = "2.0.1"
 val mockkVersion = "1.13.17"
 val kotestVersion = "5.5.5"
 val poiVersion = "5.4.0"
-val rapidsRiversVersion = "202602191359"
-val grunndataDtoVersion = "202604280844"
+val rapidsRiversVersion = "202606190809"
+val grunndataDtoVersion = "202606180923"
 val microsoftGrapVersion = "5.77.0"
-val leaderElectionVersion = "202405291312"
+val leaderElectionVersion = "202606231046"
 val googleCloudPlatformVersion = "26.61.0"
 
 group = "no.nav.hm"
 version = properties["version"] ?: "local-build"
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "2.3.0"
-    id("org.jetbrains.kotlin.plugin.allopen") version "2.3.0"
-    id("com.google.devtools.ksp") version "2.3.0"
+    id("org.jetbrains.kotlin.jvm") version "2.3.21"
+    id("org.jetbrains.kotlin.plugin.allopen") version "2.3.21"
+    id("com.google.devtools.ksp") version "2.3.7"
     id("java")
     id("com.gradleup.shadow") version "9.3.1"
     id("io.micronaut.application") version "5.0.0"

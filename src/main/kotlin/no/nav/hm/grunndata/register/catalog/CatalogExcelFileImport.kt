@@ -1,31 +1,11 @@
 package no.nav.hm.grunndata.register.catalog
 
 import jakarta.inject.Singleton
-import java.io.InputStream
-import javax.lang.model.type.UnknownTypeException
-import no.nav.hm.grunndata.register.catalog.CatalogExcelFileImport.Companion.LOG
+import no.nav.hm.grunndata.register.catalog.ColumnNames.*
 import no.nav.hm.grunndata.register.error.BadRequestException
-import no.nav.hm.grunndata.register.catalog.ColumnNames
-import no.nav.hm.grunndata.register.catalog.ColumnNames.anbudsnr
-import no.nav.hm.grunndata.register.catalog.ColumnNames.beskrivelse
-import no.nav.hm.grunndata.register.catalog.ColumnNames.datofom
-import no.nav.hm.grunndata.register.catalog.ColumnNames.datotom
-import no.nav.hm.grunndata.register.catalog.ColumnNames.delkontraktnummer
-import no.nav.hm.grunndata.register.catalog.ColumnNames.funksjonsendring
-import no.nav.hm.grunndata.register.catalog.ColumnNames.hms_ArtNr
-import no.nav.hm.grunndata.register.catalog.ColumnNames.kategori
-import no.nav.hm.grunndata.register.catalog.ColumnNames.leverandorfirmanavn
-import no.nav.hm.grunndata.register.catalog.ColumnNames.leverandorsted
-import no.nav.hm.grunndata.register.catalog.ColumnNames.leverandørensartnr
-import no.nav.hm.grunndata.register.catalog.ColumnNames.malTypeartikkel
-import no.nav.hm.grunndata.register.catalog.ColumnNames.malgruppebarn
-
 import org.apache.poi.openxml4j.util.ZipSecureFile
-import org.apache.poi.ss.usermodel.Cell
-import org.apache.poi.ss.usermodel.DataFormatter
-import org.apache.poi.ss.usermodel.Row
-import org.apache.poi.ss.usermodel.Workbook
-import org.apache.poi.ss.usermodel.WorkbookFactory
+import org.apache.poi.ss.usermodel.*
+import java.io.InputStream
 
 @Singleton
 class CatalogExcelFileImport {

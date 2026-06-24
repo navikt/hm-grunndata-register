@@ -1,17 +1,18 @@
 package no.nav.hm.grunndata.register.productagreement
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.context.annotation.Context
 import io.micronaut.core.annotation.Order
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.register.archive.Archive
 import no.nav.hm.grunndata.register.archive.ArchiveHandler
 import no.nav.hm.grunndata.register.archive.ArchiveType
+import tools.jackson.databind.ObjectMapper
 
 @Context
 @Order(2)
 class ProductAgreementArchiveHandler(private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
-                                     private val objectMapper: ObjectMapper): ArchiveHandler {
+                                     private val objectMapper: ObjectMapper
+): ArchiveHandler {
     override fun getArchiveType(): ArchiveType = ArchiveType.PRODUCTAGREEMENT
 
     override suspend fun archive(): List<Archive> {

@@ -1,7 +1,5 @@
 package no.nav.hm.grunndata.register.product.batch
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.every
@@ -35,6 +33,8 @@ import no.nav.hm.grunndata.register.user.UserRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.junit.jupiter.api.Test
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.ObjectMapper
 
 @MicronautTest
 class ProductExcelExportTest(
