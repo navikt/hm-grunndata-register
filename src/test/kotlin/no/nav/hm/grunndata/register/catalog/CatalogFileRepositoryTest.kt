@@ -16,13 +16,13 @@ class CatalogFileRepositoryTest(private val catalogFileRepository: CatalogFileRe
 
     @Test
     fun testRepository() {
-        val resourceStream = CatalogFileRepositoryTest::class.java.getResourceAsStream("productagreement/katalog-test.xls")
-        resourceStream.use {
-            val catalogList = catalogExcelFileImport.importExcelFile(resourceStream!!)
+        val resourceStream = CatalogFileRepositoryTest::class.java.getResourceAsStream("/productagreement/katalog-test.xls")
+        resourceStream.use { stream ->
+            val catalogList = catalogExcelFileImport.importExcelFile(stream!!)
 
             val testCatalogFile = CatalogFile(
                 fileName = "katalog-test.xls",
-                fileSize = resourceStream.available().toLong(),
+                fileSize = 0,
                 orderRef = "orderRef",
                 catalogList = catalogList,
                 supplierId = UUID.randomUUID(),
