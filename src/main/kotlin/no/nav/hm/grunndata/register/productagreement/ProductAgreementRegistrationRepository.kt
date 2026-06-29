@@ -84,5 +84,6 @@ interface ProductAgreementRegistrationRepository :
     suspend fun findByStatus(
         status: ProductAgreementStatus,
     ): List<ProductAgreementRegistration>
-    
+
+    suspend fun findByMainProductAndRankLessThan(mainProduct: Boolean, rank: Int): List<ProductAgreementRegistration>
 }
