@@ -198,7 +198,7 @@ open class ProductAgreementImportExcelService(
                     articleName = title,
                     reference = reference,
                     post = delkontrakt.delkontraktData.sortNr,
-                    rank = postRank.second,
+                    rank = if (!mainProduct) 99 else  postRank.second, // set all not main products rank to 99=means no rank
                     postId = delkontrakt.id,
                     supplierId = supplierId,
                     published = dateFrom.atTime(0, 0, 0),
