@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.catalog
 
+import io.kotest.matchers.ints.shouldBeLessThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.micronaut.http.HttpStatus
@@ -194,6 +195,15 @@ class CatalogExcelImportTest(
             catalogFileRepository.findOneByStatusOrderByCreatedAsc(CatalogFileStatus.PENDING)?.let { catalogFile ->
                 val (productAgreementMappedResultLists, serviceAgreementMappedResultLists)= catalogFileToProductAgreementScheduler.processCatalogFile( catalogFile)
                 productAgreementMappedResultLists.insertList.size shouldBe 8
+                val (mains, accessories) = productAgreementMappedResultLists.insertList.partition {it.mainProduct}
+                mains.size shouldBe 2
+                accessories.size shouldBe 6
+                mains.forEach { main ->
+                    main.rank shouldBeLessThan 99
+                }
+                accessories.forEach { access ->
+                    access.rank shouldBe 99
+                }
                 serviceAgreementMappedResultLists.insertList.size shouldBe 2
             }
             val bytes2 =
