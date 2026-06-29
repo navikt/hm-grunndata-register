@@ -204,6 +204,12 @@ interface ProductRegistrationRepository :
         mediaType: String,
     ): List<UUID>
 
+    //Temporary method to find products with supplierRef that needs trimming, will be removed when we have fixed all supplierRefs in the database
+    @Query("""SELECT * from product_reg_v1 WHERE supplier_ref LIKE ' %' or supplier_ref LIKE '% '""")
+    suspend fun findBySupplierRefForTrimming(): List<ProductRegistration>
+
+    @Query("""SELECT * from product_reg_v1 WHERE hms_artnr LIKE ' %' or hms_artnr LIKE '% '""")
+    suspend fun findByHmsnrForTrimming(): List<ProductRegistration>
 }
 
 
