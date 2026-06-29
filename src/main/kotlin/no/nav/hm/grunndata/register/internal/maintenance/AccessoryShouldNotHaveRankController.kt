@@ -13,11 +13,11 @@ import org.slf4j.LoggerFactory
 @Hidden
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller("/internal/fix/accessory/shouldNotHaveRank")
-class AccessoryShouldNotHaveRank(private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
-                                 private val productRegistrationService: ProductRegistrationService) {
+class AccessoryShouldNotHaveRankController(private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
+                                           private val productRegistrationService: ProductRegistrationService) {
 
     companion object {
-        private val LOG: Logger = LoggerFactory.getLogger(AccessoryShouldNotHaveRank::class.java)
+        private val LOG: Logger = LoggerFactory.getLogger(AccessoryShouldNotHaveRankController::class.java)
     }
 
     @Put("/")
