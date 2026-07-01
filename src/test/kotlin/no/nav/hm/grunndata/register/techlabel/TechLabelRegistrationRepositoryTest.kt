@@ -40,7 +40,8 @@ class TechLabelRegistrationRepositoryTest(private val techLabelRegistrationRepos
             updated.updated shouldBeAfter saved.updated
             updated.updatedBy shouldBe REGISTER
             updated.required shouldBe true
-            updated.section shouldBe "Høyde"
+            val found2 = techLabelRegistrationRepository.findById(saved.id)
+            found2!!.section shouldBe "Høyde"
         }
     }
 }
