@@ -88,6 +88,7 @@ class TechLabelRegistrationAdminController(
                         sort = dto.sort,
                         required = dto.required,
                         options = dto.options,
+                        section = dto.section,
                         createdByUser = authentication.name,
                         updatedByUser = authentication.name
                     )
@@ -112,6 +113,7 @@ class TechLabelRegistrationAdminController(
                     required = dto.required,
                     options = dto.options,
                     definition = dto.definition,
+                    section = dto.section,
                     updated = LocalDateTime.now(),
                     updatedByUser = authentication.name
                 )
@@ -154,10 +156,11 @@ data class TechLabelCriteria(
     val label: String? = null,
     val type: TechLabelType? = null,
     val unit: String? = null,
-    val isoCode: String? = null
+    val isoCode: String? = null,
+    val section: String? = null,
 ) {
 
-    fun isNotEmpty() = label != null || type != null || unit != null || isoCode != null
+    fun isNotEmpty() = label != null || type != null || unit != null || isoCode != null || section != null
 }
 
 @Introspected
@@ -170,5 +173,6 @@ data class TechLabelCreateUpdateDTO(
     val sort: Int,
     val required: Boolean,
     val options: Set<String> = emptySet(),
-    val definition: String? = null
+    val definition: String? = null,
+    val section: String? = null,
 )
