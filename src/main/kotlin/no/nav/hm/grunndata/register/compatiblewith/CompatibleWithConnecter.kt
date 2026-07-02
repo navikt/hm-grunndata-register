@@ -201,11 +201,7 @@ open class CompatibleWithConnecter(
             LOG.warn("Skip connecting product ${product.hmsArtNr} is not accessory or sparePart")
             return null
         }
-        if (product.productData.attributes.compatibleWith!= null && !reconnect) {
-            LOG.debug("Skip connecting product ${product.hmsArtNr} already connected with compatibleWith by " +
-                    "${product.productData.attributes.compatibleWith?.connectedBy} and reconnect is $reconnect")
-            return null
-        }
+
         if (product.hmsArtNr == null) {
             LOG.error("No hmsArtNr for product ${product.id}, skip connecting with compatibleWith")
             return null
