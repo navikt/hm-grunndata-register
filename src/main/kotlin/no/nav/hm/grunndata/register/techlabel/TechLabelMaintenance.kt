@@ -22,6 +22,18 @@ class TechLabelMaintenance(
 
     }
 
+    suspend fun initSectionMappingFromFile() {
+        LOG.info("Reading from file")
+        val techLabelSectionMapping = objectMapper.readValue(TechLabelMaintenance::class.java.getResourceAsStream("/techlabel_section_mapping.json"),
+            object : TypeReference<List<TechLabelSectionMapping>>() {}).associate { it.label to it.section }
+
+        techLabelRepository.findAll().collect {
+            inDb -> techLabelSectionMapping[inDb.label]?.let {
+                techLabelRepository.update(inDb.copy(section = it))
+                LOG.info("Updated ${inDb.label} section mapping to $it")
+            }
+        }
+    }
 
     suspend fun normalizeTechLabelsAndValues() {
         LOG.info("Reading unit mapping")
@@ -156,4 +168,9 @@ data class TechLabelOptionMapping(
     val normalized: String,
     val label: String,
     val iso_code: String
+)
+
+data class TechLabelSectionMapping(
+    val label: String,
+    val section: String
 )

@@ -17,4 +17,9 @@ class TechLabelFixController(val techLabelMaintenance: TechLabelMaintenance) {
         techLabelMaintenance.normalizeTechLabelsAndValues()
     }
 
+    @Put("/init/section")
+    suspend fun initSectionMapping() {
+        techLabelMaintenance.initSectionMappingFromFile()
+    }
+
 }
