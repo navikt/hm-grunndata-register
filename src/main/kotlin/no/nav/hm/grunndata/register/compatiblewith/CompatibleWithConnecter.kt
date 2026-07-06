@@ -2,7 +2,6 @@ package no.nav.hm.grunndata.register.compatiblewith
 
 import jakarta.inject.Singleton
 import kotlinx.coroutines.delay
-import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.rapid.dto.CompatibleWith
 import no.nav.hm.grunndata.rapid.dto.ServiceFor
@@ -10,6 +9,7 @@ import no.nav.hm.grunndata.register.catalog.CatalogFileRepository
 import no.nav.hm.grunndata.register.catalog.CatalogImportRepository
 import no.nav.hm.grunndata.register.part.CompatibleWithDTO
 import no.nav.hm.grunndata.register.product.ProductRegistration
+import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.servicejob.ServiceJob
 import no.nav.hm.grunndata.register.servicejob.ServiceJobRepository
@@ -24,7 +24,8 @@ open class CompatibleWithConnecter(
     private val serviceJobRepository: ServiceJobRepository,
     private val catalogFileRepository: CatalogFileRepository,
     private val catalogImportRepository: CatalogImportRepository,
-    private val serviceJobService: ServiceJobService
+    private val serviceJobService: ServiceJobService,
+    private val productRegistrationRepository: ProductRegistrationRepository
 ) {
 
 
@@ -124,8 +125,8 @@ open class CompatibleWithConnecter(
             mainProducts.find { it.hmsArtNr == series.hmsnr }?.let { mainProduct ->
                 ServiceForResult(
                     title = mainProduct.title,
-                    seriesId = mainProduct.seriesId.toString(),
-                    productId = mainProduct.productId?.toString() ?: "",
+                    seriesId = mainProduct.seriesId,
+                    productId = mainProduct.productId,
                     hmsArtNr = mainProduct.hmsArtNr
                 )
             }
@@ -140,28 +141,44 @@ open class CompatibleWithConnecter(
             return emptyList()
         }
         val mainProducts = catalogImportRepository.findCatalogProductSeriesInfoByOrderRefAndMain(catProduct.orderRef, mainProduct = true)
-        if (mainProducts.isEmpty()) {
-            LOG.info("No main products found for orderRef ${catProduct.orderRef}, skip connecting with compatibleWith")
-            return emptyList()
-        }
-        val hmsNrTitlePairs = mainProducts.map { product -> HmsNrTitlePair(product.hmsArtNr ,  product.seriesTitle)}.distinct()
-        val compatibleWithSeries = compatibleAIFinder.findCompatibleProducts(catProduct.title, hmsNrTitlePairs)
-        if (compatibleWithSeries.isEmpty()) {
-            LOG.info("No compatible series found for product ${catProduct.hmsArtNr}, skip connecting with compatibleWith")
-            return emptyList()
-        }
-
-        return compatibleWithSeries.mapNotNull { series ->
-            mainProducts.find { it.hmsArtNr == series.hmsnr }?.let { mainProduct ->
-                CompatibleProductResult(
-                    title = mainProduct.title,
-                    seriesTitle = mainProduct.seriesTitle,
-                    seriesId = mainProduct.seriesId.toString(),
-                    productId = mainProduct.productId?.toString() ?: "",
-                    hmsArtNr = mainProduct.hmsArtNr
-                )
+        if (!mainProducts.isEmpty()) {
+            val hmsNrTitlePairs = mainProducts.map { product -> HmsNrTitlePair(product.hmsArtNr ,  product.seriesTitle)}.distinct()
+            val compatibleWithHmsnrs = compatibleAIFinder.findCompatibleProducts(catProduct.title, hmsNrTitlePairs)
+            if (compatibleWithHmsnrs.isEmpty()) {
+                LOG.info("No compatible series found for product ${catProduct.hmsArtNr}, skip connecting with compatibleWith")
+                return emptyList()
+            }
+            return compatibleWithHmsnrs.mapNotNull { compatibleHmsnr ->
+                mainProducts.find { it.hmsArtNr == compatibleHmsnr.hmsnr }?.let { mainProduct ->
+                    CompatibleProductResult(
+                        title = mainProduct.title,
+                        seriesId = mainProduct.seriesId,
+                        productId = mainProduct.productId,
+                        hmsArtNr = mainProduct.hmsArtNr
+                    )
+                }
             }
         }
+        else
+        {
+            LOG.info("No main products found in catalog for hmsnr: ${hmsNr} and orderRef ${catProduct.orderRef}, try searching internet")
+            val compatibleWithHmsNrs = compatibleAIFinder.findCompatibleWhenNoMainProducts(catProduct.title, catProduct.supplierName)
+            if (compatibleWithHmsNrs.isEmpty()) {
+                LOG.info("No compatible series found for product ${catProduct.hmsArtNr}, skip connecting with compatibleWith")
+                return emptyList()
+            }
+            return compatibleWithHmsNrs.mapNotNull {
+                productRegistrationRepository.findByHmsArtNrAndSupplierId(it.hmsnr, catProduct.supplierId)?.let {
+                    mainProduct -> CompatibleProductResult(
+                        title = mainProduct.articleName,
+                        seriesId = mainProduct.seriesUUID,
+                        productId = mainProduct.id,
+                        hmsArtNr = mainProduct.hmsArtNr!!
+                    )
+                }
+            }
+        }
+
     }
 
     private suspend fun addServiceForAttribute(serviceJob: ServiceJob): ServiceJob? {
@@ -181,7 +198,7 @@ open class CompatibleWithConnecter(
             LOG.info("No serviceFor found for serviceJob ${serviceJob.hmsArtNr}, skip connecting with serviceFor")
             return null
         }
-        val seriesIds = serviceFors.map { it.seriesId.toUUID() }.toSet()
+        val seriesIds = serviceFors.map { it.seriesId }.toSet()
         return if (seriesIds.isNotEmpty()) {
             serviceJob.copy(
                 attributes = serviceJob.attributes.copy(
@@ -218,7 +235,11 @@ open class CompatibleWithConnecter(
             LOG.info("No compatibleWith found for product ${product.hmsArtNr}, skip connecting with compatibleWith")
             return null
         }
-        val seriesIds = compatibleWiths.map { it.seriesId.toUUID() }.toSet()
+        if (compatibleWiths.size > 50) {
+            LOG.warn("Too many compatiblewith connections for product ${product.id}, skip connecting with compatibleWith")
+            return null
+        }
+        val seriesIds = compatibleWiths.map { it.seriesId }.toSet()
 
         return if (seriesIds.isNotEmpty()) {
             product.copy(

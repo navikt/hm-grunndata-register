@@ -49,7 +49,7 @@ data class CatalogProductSeriesInfo(
     val accessory: Boolean,
     val seriesTitle: String,
     val seriesId: UUID,
-    val productId: UUID?,
+    val productId: UUID,
     val agreementId: UUID,
     val created: LocalDateTime,
     val updated: LocalDateTime

@@ -8,6 +8,7 @@ import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.coEvery
 import io.mockk.mockk
+import io.mockk.spyk
 import kotlinx.coroutines.runBlocking
 import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.register.catalog.CatalogImport
@@ -24,6 +25,7 @@ import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
 import org.junit.jupiter.api.Test
+import tools.jackson.databind.ObjectMapper
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -47,11 +49,17 @@ class AccessoryCompatibleWithTest(
     val mSeriesId = UUID.randomUUID()
 
     @MockBean(CompatibleAIFinder::class)
-    fun mockCompatibleFinder(): CompatibleAIFinder = mockk<CompatibleAIFinder>(relaxed = true).apply {
-        coEvery {
-            findCompatibleProducts(any(), any())
-        } coAnswers {
-            listOf(HmsNr("229392"))
+    fun mockCompatibleFinder(
+        config: VertexAIConfig,
+        objectMapper: ObjectMapper
+    ): CompatibleAIFinder {
+        val realFinder = CompatibleAIFinder(config, objectMapper)
+        return spyk(realFinder).apply {
+            coEvery {
+                modelGenerateContent(any())
+            } coAnswers {
+                listOf(HmsNr("229392"))
+            }
         }
     }
 
@@ -183,8 +191,8 @@ class AccessoryCompatibleWithTest(
             compatibleProductResults.size shouldBe 1
             val item = compatibleProductResults[0]
             val compatibleWithDTO = CompatibleWithDTO(
-                seriesIds = setOf(item.seriesId.toUUID()),
-                productIds = setOf(item.productId.toUUID())
+                seriesIds = setOf(item.seriesId),
+                productIds = setOf(item.productId)
             )
             val connectedProduct = accessoryCompatibleWithApiClient.connectProductAndVariants(jwtHms, compatibleWithDTO, productId)
             connectedProduct.shouldNotBeNull()
