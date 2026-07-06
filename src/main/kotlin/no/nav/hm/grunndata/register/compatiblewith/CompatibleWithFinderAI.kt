@@ -68,7 +68,7 @@ open class CompatibleAIFinder(private val config: VertexAIConfig, private val ob
     open fun generatePromptWhenNoMainProducts(accessory: String, company: String): String {
         return "For følgende tilbehør: '${
             accessory.replace("'", " ").replace(",", " ")
-        }' fra leverandør $company. Finn ut hvilket hjelpemiddel som passer best. \n Svar KUN med en JSON array med HMS-nummer, f.eks: [{\\\"hmsnr\\\": \\\"123456\\\"}]\""
+        }' fra leverandør $company. Finn ut hvilket hjelpemiddel som passer best. \n Svar KUN med en JSON array med HMS-nummer, f.eks: [{\"hmsnr\": \"123456\"}]"
             .trimIndent().trim()
     }
 
@@ -122,8 +122,8 @@ open class CompatibleAIFinder(private val config: VertexAIConfig, private val ob
                 .withSystemInstruction(ContentMaker.fromString(instruction))
             val response = model.generateContent(prompt)
             val output: String = ResponseHandler.getText(response)
-            LOG.debug("Got response: $output")
             val json = extractJsonFromOutput(output)
+            LOG.debug("Got output response: $output converted: $json")
             return objectMapper.readValue(json, object : TypeReference<List<HmsNr>>() {})
         }
     } catch (e: Exception) {
@@ -135,7 +135,7 @@ open class CompatibleAIFinder(private val config: VertexAIConfig, private val ob
         val startIndex = output.indexOf("[")
         val endIndex = output.lastIndexOf("]")
         if (startIndex == -1 || endIndex == -1) throw Exception("Can not json parse the ouput")
-        return output.substring(startIndex + 1, endIndex)
+        return output.substring(startIndex, endIndex+1)
     }
 
     companion object {
