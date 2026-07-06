@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 @MicronautTest
-//@Disabled("Only for real world")
+@Disabled("Only for real world")
 class CompatibleWithRealWorldTest(private val compatibleAIFinder: CompatibleAIFinder) {
 
     @Test
