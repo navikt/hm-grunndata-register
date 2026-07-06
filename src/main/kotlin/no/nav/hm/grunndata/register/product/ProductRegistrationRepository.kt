@@ -210,6 +210,7 @@ interface ProductRegistrationRepository :
 
     @Query("""SELECT * from product_reg_v1 WHERE hms_artnr LIKE ' %' or hms_artnr LIKE '% '""")
     suspend fun findByHmsnrForTrimming(): List<ProductRegistration>
+
 }
 
 
