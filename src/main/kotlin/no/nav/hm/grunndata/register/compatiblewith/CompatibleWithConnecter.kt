@@ -2,7 +2,6 @@ package no.nav.hm.grunndata.register.compatiblewith
 
 import jakarta.inject.Singleton
 import kotlinx.coroutines.delay
-import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.rapid.dto.CatalogFileStatus
 import no.nav.hm.grunndata.rapid.dto.CompatibleWith
 import no.nav.hm.grunndata.rapid.dto.ServiceFor
@@ -162,7 +161,7 @@ open class CompatibleWithConnecter(
         }
         else
         {
-            LOG.info("No main products found for hmsnr: ${hmsNr} and orderRef ${catProduct.orderRef}, try searching internet")
+            LOG.info("No main products found in catalog for hmsnr: ${hmsNr} and orderRef ${catProduct.orderRef}, try searching internet")
             val compatibleWithHmsNrs = compatibleAIFinder.findCompatibleWhenNoMainProducts(catProduct.title, catProduct.supplierName)
             if (compatibleWithHmsNrs.isEmpty()) {
                 LOG.info("No compatible series found for product ${catProduct.hmsArtNr}, skip connecting with compatibleWith")
