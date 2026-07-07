@@ -1,0 +1,1590 @@
+[
+  {
+    "label": "3 godkjente sitteplasser",
+    "section": "Sete"
+  },
+  {
+    "label":"Abduksjon regulerbar",
+    "section":"Sete"
+  },
+  {
+    "label": "Abduksjonsklosser",
+    "section": "Sete"
+  },
+  {
+    "label": "Adapterplate",
+    "section": "Sete"
+  },
+  {
+    "label": "Antall batterier pr skift",
+    "section": "Batteri"
+  },
+  {
+    "label": "Armleneavstand maks",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armleneavstand min",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armlenebredde",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armlenehøyde maks",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armlenehøyde min",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armlene høyderegulerbart",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armlene hreg",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armlener",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armlener avtagbare",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armlener dybderegulerbare",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armleneregulering",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armlener fellbare",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armlener fellbare/svingbare",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armlener høyderegulerbare",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armlener nedfellbare",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armlener oppfellbare",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armlene vinkelreg",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armlengde maks",
+    "section": "Armlene"
+  },
+  {
+    "label": "Armlengde min",
+    "section": "Armlene"
+  },
+  {
+    "label": "Avløpsslange lengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Avstand fra vegg",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Avstand oppheng-brukers sete maks",
+    "section": "Sete"
+  },
+  {
+    "label": "Avstand skinne til opphengspkt seil, maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Avstand skinne til opphengspkt seil, min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Avstand underkant skinne til opphengspunkt",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Avstand vegg gulvmontert",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Avstand vegg veggmontert",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Åpningsvinkel maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Badekarbredde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Badekarbredde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Batteri brukstid",
+    "section": "Batteri"
+  },
+  {
+    "label": "Batteridrevet",
+    "section": "Batteri"
+  },
+  {
+    "label": "Batteridrift",
+    "section": "Batteri"
+  },
+  {
+    "label": "Batterikapasitet",
+    "section": "Batteri"
+  },
+  {
+    "label": "Batteriladetid",
+    "section": "Batteri"
+  },
+  {
+    "label": "Batteriladetid mottaker",
+    "section": "Batteri"
+  },
+  {
+    "label": "Batteritype",
+    "section": "Batteri"
+  },
+  {
+    "label": "Benstøttehøyde over gulv i ytterstilling maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Belastning maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Benstøttehøyde over gulv i ytterstilling min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Benstøttelengde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Benstøttelengde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bordplate bredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bordplate dybde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bordplate høyde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bordplate høyde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bordplate vreg bredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bordplate vreg dybde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde innvendig",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde kontrollenhet",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde mellom armlener",
+    "section": "Armlene"
+  },
+  {
+    "label": "Bredde mellom armlener maks",
+    "section": "Armlene"
+  },
+  {
+    "label": "Bredde mellom armlener min",
+    "section": "Armlene"
+  },
+  {
+    "label": "Bredde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde mottaker",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde plattform",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde plattformgulv",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredderegulering parallell",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredderegulering V-form",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde sammenlagt",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde sender",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde sensor",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde servant",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde servantløfter",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde understell maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde understell min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde utvendig",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Bredde vreg del",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Brukerhøyde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Brukerhøyde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Brukerhøyde maks m/tilbehør",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Brukerhøyde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Brukerlengde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Brukerlengde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Brukervekt",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Brukervekt maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Brukervekt min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Byggehøyde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Diameter",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Diameter maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Diameter min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Dørblad vekt maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Driftstid batteri",
+    "section": "Batteri"
+  },
+  {
+    "label": "Drivhjuldiameter",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Dybde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Dybde kontrollenhet",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Dybde mottaker",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Dybde plattform",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Dybde sender",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Dybde sensor",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Dybde servant",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Fast rygg",
+    "section": "Rygg"
+  },
+  {
+    "label": "Forhøyerens høyde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Forstørrelse dioptrier",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Forstørrelsesgrad maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Forhøyning bak",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Forhøyning foran",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Forstørrelsesgrad min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Fri arbeidshøyde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Fri høyde over gulv",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Grepsdiameter",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Helling maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Helningsgrad maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Hinderhøyde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Hjuldiameter",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Hjuldiameter bak",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Hjuldiameter foran",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Hjulstørrelse",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Hjulstørrelse bak",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Hjulstørrelse foran",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Høyde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Høyde bak",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Høyde foran",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Høyde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Høyde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Høyde oppreist maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Høyde over gulv maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Høyde over gulv min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Høyde sammenlagt",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Høyde understell",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Hullets bredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Hullets dybde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Innstigningshøyde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Innvendig bredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Innvendig bredde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Innvendig bredde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Innvendig høyde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Innvendig lengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Integrert lader",
+    "section": "Batteri"
+  },
+  {
+    "label": "Kabellengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Kabellengde sender",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Kabellengde sensor",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Karmdybde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Karmdybde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Kjørelengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Kjørelengde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Korsryggstøtte reg",
+    "section": "Rygg"
+  },
+  {
+    "label": "Kulediameter",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lader type",
+    "section": "Batteri"
+  },
+  {
+    "label": "Ladespenning",
+    "section": "Batteri"
+  },
+  {
+    "label": "Ladetid",
+    "section": "Batteri"
+  },
+  {
+    "label": "Lages etter mål",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lampearm lengde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lampearm lengde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Last maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Last per skinne maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lårbredde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lårbredde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lengde armstøtte",
+    "section": "Armlene"
+  },
+  {
+    "label": "Lengde bak",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lengde foran",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lengde innvendig",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lengde kontrollenhet",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lengde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lengde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lengde mottaker",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lengde øvre anlegg",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lengde på ledning",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lengde plattformgulv",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lengde sammenlagt",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lengde sender",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lengde sensor",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lengde utvendig",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Lengde v/transport min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Liggeflate bredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Liggeflate bredde med sideklaffer",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Liggeflate bredde uten sideklaffer",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Liggeflate dybde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Liggeflate høyde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Liggeflate høyde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Liggeflate lengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Liggehøyde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Linsediameter",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Livvidde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Løftebånd lengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Løftehøyde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Løftehøyde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Løftehøyde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Løftekapasitet",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Løftekapasitet maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Løfteområde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Løfteområde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Løfterens bredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Løfterens høyde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Løfterens lengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Løfterens vekt",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Madrass bredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Madrass bredde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Madrass bredde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Madrass lengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Madrass lengde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Madrass lengde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Maks belastning per skinne/rampe",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Maks hastighet",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Makslast pr festekopp",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Makslast pr reim",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Maks romstørrelse",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Manuell bredderegulering",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Minimumsvekt for deteksjon",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Minimumsvekt for deteksjon hardt gulv",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Minimumsvekt for deteksjon tynt teppe",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Motorenhet bredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Motorenhet dybde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Motorenhet lengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Motorstørrelse",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Nedbygningsdybde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Overskap høyde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Overskap høyde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Parkeringsdybde (oppslått)",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Passer badekar indre bredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Passer badekar indre lengde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Passer badekar indre lengde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Plattformbredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Plattformhøyde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Plattformlengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Produktvekt",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Regulerbar sitteenhet",
+    "section": "Sete"
+  },
+  {
+    "label": "Rekkverk høyde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Rygg",
+    "section": "Rygg"
+  },
+  {
+    "label": "Ryggbånd",
+    "section": "Rygg"
+  },
+  {
+    "label": "Ryggbredde",
+    "section": "Rygg"
+  },
+  {
+    "label": "Ryggbredde maks",
+    "section": "Rygg"
+  },
+  {
+    "label": "Ryggbredde min",
+    "section": "Rygg"
+  },
+  {
+    "label": "Ryggdel reguleres separat",
+    "section": "Rygg"
+  },
+  {
+    "label": "Rygg høy",
+    "section": "Rygg"
+  },
+  {
+    "label": "Rygghøyde",
+    "section": "Rygg"
+  },
+  {
+    "label": "Rygghøyde intervall",
+    "section": "Rygg"
+  },
+  {
+    "label": "Rygghøyde maks",
+    "section": "Rygg"
+  },
+  {
+    "label": "Rygghøyde min",
+    "section": "Rygg"
+  },
+  {
+    "label": "Rygg hreg",
+    "section": "Rygg"
+  },
+  {
+    "label": "Rygg lav",
+    "section": "Rygg"
+  },
+  {
+    "label": "Rygg polstret",
+    "section": "Rygg"
+  },
+  {
+    "label": "Ryggpute oppvarming",
+    "section": "Rygg"
+  },
+  {
+    "label": "Ryggstøtte",
+    "section": "Rygg"
+  },
+  {
+    "label": "Ryggstøtte bredde",
+    "section": "Rygg"
+  },
+  {
+    "label": "Ryggstøtte høyde",
+    "section": "Rygg"
+  },
+  {
+    "label": "Ryggvinkel",
+    "section": "Rygg"
+  },
+  {
+    "label": "Ryggvinkel maks",
+    "section": "Rygg"
+  },
+  {
+    "label": "Ryggvinkel min",
+    "section": "Rygg"
+  },
+  {
+    "label": "Rygg vinkelreg el",
+    "section": "Rygg"
+  },
+  {
+    "label": "Rygg vinkelreg man",
+    "section": "Rygg"
+  },
+  {
+    "label": "Rygg vinkelstillbar",
+    "section": "Rygg"
+  },
+  {
+    "label": "Ryggvinkling",
+    "section": "Rygg"
+  },
+  {
+    "label": "Rygg vreg",
+    "section": "Rygg"
+  },
+  {
+    "label": "Rygg vreg grader",
+    "section": "Rygg"
+  },
+  {
+    "label": "Sengebredde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Sengebredde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Sengegrind høyde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Seng/stol vekt maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Sete",
+    "section": "Sete"
+  },
+  {
+    "label": "Setebredde",
+    "section": "Sete"
+  },
+  {
+    "label": "Setebredde intervall",
+    "section": "Sete"
+  },
+  {
+    "label": "Setebredde maks",
+    "section": "Sete"
+  },
+  {
+    "label": "Setebredde med sideklaffer",
+    "section": "Sete"
+  },
+  {
+    "label": "Setebredde min",
+    "section": "Sete"
+  },
+  {
+    "label": "Setebredde uten sideklaffer",
+    "section": "Sete"
+  },
+  {
+    "label": "Setedybde",
+    "section": "Sete"
+  },
+  {
+    "label": "Setedybde intervall",
+    "section": "Sete"
+  },
+  {
+    "label": "Setedybde maks",
+    "section": "Sete"
+  },
+  {
+    "label": "Setedybde min",
+    "section": "Sete"
+  },
+  {
+    "label": "Setedybde regulering",
+    "section": "Sete"
+  },
+  {
+    "label": "Setehøyde",
+    "section": "Sete"
+  },
+  {
+    "label": "Setehøyde foran maks",
+    "section": "Sete"
+  },
+  {
+    "label": "Setehøyde foran min",
+    "section": "Sete"
+  },
+  {
+    "label": "Setehøyde maks",
+    "section": "Sete"
+  },
+  {
+    "label": "Setehøyde med verktøy maks",
+    "section": "Sete"
+  },
+  {
+    "label": "Setehøyde med verktøy min",
+    "section": "Sete"
+  },
+  {
+    "label": "Setehøyde min",
+    "section": "Sete"
+  },
+  {
+    "label": "Setehøyde oppreist stilling rettløft bak",
+    "section": "Sete"
+  },
+  {
+    "label": "Setehøyde oppreist stilling rettløft foran",
+    "section": "Sete"
+  },
+  {
+    "label": "Setehøyde oppreist stilling skråløft bak",
+    "section": "Sete"
+  },
+  {
+    "label": "Setehøyde oppreist stilling skråløft foran",
+    "section": "Sete"
+  },
+  {
+    "label": "Setehøyde std",
+    "section": "Sete"
+  },
+  {
+    "label": "Setehøyde uten pute maks",
+    "section": "Sete"
+  },
+  {
+    "label": "Setehøyde uten pute min",
+    "section": "Sete"
+  },
+  {
+    "label": "Seteløft",
+    "section": "Sete"
+  },
+  {
+    "label": "Seteløft rett",
+    "section": "Sete"
+  },
+  {
+    "label": "Seteløft vinklet",
+    "section": "Sete"
+  },
+  {
+    "label": "Sete med utsparing",
+    "section": "Sete"
+  },
+  {
+    "label": "Sete oppfellbart",
+    "section": "Sete"
+  },
+  {
+    "label": "Sete polstret",
+    "section": "Sete"
+  },
+  {
+    "label": "Setepute avtagbar",
+    "section": "Sete"
+  },
+  {
+    "label": "Seteregulering",
+    "section": "Sete"
+  },
+  {
+    "label": "Seterotasjon",
+    "section": "Sete"
+  },
+  {
+    "label": "Seterotasjon låsbar",
+    "section": "Sete"
+  },
+  {
+    "label": "Sete/rygg delt",
+    "section": "Sete"
+  },
+  {
+    "label": "Sete/rygg reg tilnærmet flatt",
+    "section": "Sete"
+  },
+  {
+    "label": "Sete svingbart",
+    "section": "Sete"
+  },
+  {
+    "label": "Setetilt",
+    "section": "Sete"
+  },
+  {
+    "label": "Setetilt bakover",
+    "section": "Sete"
+  },
+  {
+    "label": "Setetilt fremover",
+    "section": "Sete"
+  },
+  {
+    "label": "Setets vekt",
+    "section": "Sete"
+  },
+  {
+    "label": "Setetype",
+    "section": "Sete"
+  },
+  {
+    "label": "Setevarme",
+    "section": "Sete"
+  },
+  {
+    "label": "Sete vinkelstillbart",
+    "section": "Sete"
+  },
+  {
+    "label": "Setevinkling",
+    "section": "Sete"
+  },
+  {
+    "label": "Sete vreg bakover",
+    "section": "Sete"
+  },
+  {
+    "label": "Sete vreg forover",
+    "section": "Sete"
+  },
+  {
+    "label": "Sidegrind høyde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Sidegrind lengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Sideplate fast bredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Sideplate fast dybde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Sidest rygg reg/utskiftbare",
+    "section": "Rygg"
+  },
+  {
+    "label": "Sidest sete h",
+    "section": "Sete"
+  },
+  {
+    "label": "Sidest sete reg/utskiftbare",
+    "section": "Sete"
+  },
+  {
+    "label": "Sitteenhet låsbar",
+    "section": "Sete"
+  },
+  {
+    "label": "Sitteenhet svingbar",
+    "section": "Sete"
+  },
+  {
+    "label": "Sittehøyde",
+    "section": "Sete"
+  },
+  {
+    "label": "Sittende posisjon",
+    "section": "Sete"
+  },
+  {
+    "label": "Skilengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Skinne stigning maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Skjerm høyderegulerbar",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Skjermstørrelse",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Skrittlengde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Skrittlengde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Slaglengde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Slaglengde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Snudiameter",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Spesialmål mulig",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Standardmål",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Stelleplate bredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Stelleplate dybde oppslått",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Stelleplate lengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Stigningsforhold i høyeste posisjon",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Stolbredde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Stolbredde utvendig maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Stolens vekt",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Stollengde utvendig maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Størrelse",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Styrekant høyde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Styrekant høyde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Svingbart sete",
+    "section": "Sete"
+  },
+  {
+    "label": "Svinghjuldiameter",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Takhøyde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Takhøyde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Termostatbatteri",
+    "section": "Batteri"
+  },
+  {
+    "label": "Terskelhøyde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Terskelhøyde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Tilt maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Tilt min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Toalettåpning bredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Toalettåpning lengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Toalettåpning (lysåpning) bredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Toalettåpning (lysåpning) lengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Totalbredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Totalbredde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Totalbredde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Totaldybde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Totaldybde fra vegg",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Totalhøyde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Totallengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Totallengde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Totalvekt",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Transportvekt",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Trappebredde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Trappeløpsbredde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Trekkelengde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Understell bredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Understellbredde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Understellbredde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Understellets vekt",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Understell høyde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vekt",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vekt batteri",
+    "section": "Batteri"
+  },
+  {
+    "label": "Vekt inkl batteri",
+    "section": "Batteri"
+  },
+  {
+    "label": "Vekt kontrollenhet",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vekt løfter",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vekt madrass",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vekt mottaker",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vekt per skinne",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vekt per skinne/rampe",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vekt pute",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vekt sender",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vekt sengeløfter",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vekt sitteenhet",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vekt tyngste del",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vekt understell",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vindusbredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vindusbredde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vindushøyde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vinkel oppreist maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vinkel sete-rygg maks",
+    "section": "Sete"
+  },
+  {
+    "label": "Vinkel sete-rygg min",
+    "section": "Sete"
+  },
+  {
+    "label": "Yttermål bredde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Yttermål bredde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Yttermål bredde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Yttermål lengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Yttermål lengde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Yttermål lengde min",
+    "section": "Mål og vekt"
+  }
+]
