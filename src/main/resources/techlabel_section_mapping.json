@@ -724,7 +724,7 @@
     "section": "Mål og vekt"
   },
   {
-    "label": "Lividde",
+    "label": "Livvidde",
     "section": "Mål og vekt"
   },
   {
@@ -797,6 +797,22 @@
   },
   {
     "label": "Madrass lengde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Maks belastning per skinne/rampe",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Maks hastighet",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Makslast pr festekopp",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Makslast pr reim",
     "section": "Mål og vekt"
   },
   {
@@ -1256,6 +1272,10 @@
     "section": "Mål og vekt"
   },
   {
+    "label": "Skinne stigning maks",
+    "section": "Mål og vekt"
+  },
+  {
     "label": "Skjerm høyderegulerbar",
     "section": "Mål og vekt"
   },
@@ -1301,6 +1321,10 @@
   },
   {
     "label": "Stelleplate lengde",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Stigningsforhold i høyeste posisjon",
     "section": "Mål og vekt"
   },
   {
@@ -1357,6 +1381,14 @@
   },
   {
     "label": "Terskelhøyde min",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Tilt maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Tilt min",
     "section": "Mål og vekt"
   },
   {
@@ -1497,7 +1529,7 @@
   },
   {
     "label": "Vekt sitteenhet",
-    "section": "Sete"
+    "section": "Mål og vekt"
   },
   {
     "label": "Vekt tyngste del",
@@ -1517,6 +1549,10 @@
   },
   {
     "label": "Vindushøyde maks",
+    "section": "Mål og vekt"
+  },
+  {
+    "label": "Vinkel oppreist maks",
     "section": "Mål og vekt"
   },
   {

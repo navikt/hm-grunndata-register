@@ -26,13 +26,20 @@ class TechLabelMaintenance(
         LOG.info("Reading from file")
         val techLabelSectionMapping = objectMapper.readValue(TechLabelMaintenance::class.java.getResourceAsStream("/techlabel_section_mapping.json"),
             object : TypeReference<List<TechLabelSectionMapping>>() {}).associate { it.label to it.section }
-
+        LOG.info("Section values: ${techLabelSectionMapping.values.toSet()}")
+        var categorized = 0
+        var uncategorized = 0
         techLabelRepository.findAll().collect {
             inDb -> techLabelSectionMapping[inDb.label]?.let {
                 techLabelRepository.update(inDb.copy(section = it))
                 LOG.info("Updated ${inDb.label} section mapping to $it")
+                 categorized++
+            } ?: run {
+                uncategorized++
+                LOG.error("label ${inDb.label} will be mapped to Diverse")
             }
         }
+        LOG.info("Categorized: $categorized and uncategorized: $uncategorized")
     }
 
     suspend fun normalizeTechLabelsAndValues() {
