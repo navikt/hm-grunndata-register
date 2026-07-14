@@ -1,21 +1,24 @@
 package no.nav.hm.grunndata.register.iso.v22
 
+import io.micronaut.data.annotation.Id
+import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.model.DataType
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.iso.IsoTranslations
 import java.time.LocalDateTime
+import java.util.UUID
 
+@MappedEntity("iso_v22")
 data class Iso22 (
+    @field:Id
+    val id: UUID = UUID.randomUUID(),
     val isoCode: String,
     val isoTitle: String,
     val isoTitleShort: String?=null,
     val isoText: String,
-    val isoTextShort: String,
     @field:TypeDef(type = DataType.JSON)
     val isoTranslations: IsoTranslations = IsoTranslations(),
-    val isoLevel: Int,
-    val isActive: Boolean = true,
     @field:TypeDef(type = DataType.JSON)
     val searchWords: List<String> = emptyList(),
     val createdByUser: String,
@@ -27,6 +30,11 @@ data class Iso22 (
 )
 
 data class IsoMap(
+    val code16: String?=null,
+    val code22: String?=null,
+)
+
+data class Kode16Map(
     val titel16dk: String?=null,
     val titel16eng: String?=null,
     val kode16: String?=null,
