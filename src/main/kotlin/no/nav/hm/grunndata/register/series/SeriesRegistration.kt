@@ -32,8 +32,6 @@ data class SeriesRegistration(
     val supplierId: UUID,
     val identifier: String,
     val title: String,
-    @Deprecated("Use case-insensitive search instead")
-    val titleLowercase: String = title.lowercase(Locale.getDefault()),
     val text: String,
     val formattedText: String? = null,
     val isoCategory: String,
@@ -146,7 +144,6 @@ fun SeriesRegistration.toDTO() =
         supplierId = supplierId,
         identifier = identifier,
         title = title,
-        titleLowercase = titleLowercase,
         text = text,
         formattedText = formattedText,
         isoCategory = isoCategory,
