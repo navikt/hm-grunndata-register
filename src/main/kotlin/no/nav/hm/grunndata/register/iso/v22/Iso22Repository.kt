@@ -12,7 +12,11 @@ import java.util.UUID
 interface Iso22Repository : CoroutineCrudRepository<Iso22, UUID> {
 
     @Query("SELECT DISTINCT iso_category FROM product_reg_v1 WHERE iso_category IS NOT NULL")
-    fun findDistinctIsoCodes(): List<ProductIsoCategory>
+    suspend fun findDistinctIsoCodes(): List<ProductIsoCategory>
+
+    suspend fun findByIsoCode(isoCode: String): List<Iso22>
+
+
 
 }
 

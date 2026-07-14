@@ -29,11 +29,6 @@ data class Iso22 (
     val updated: LocalDateTime = LocalDateTime.now()
 )
 
-data class IsoMap(
-    val code16: String?=null,
-    val code22: String?=null,
-)
-
 data class Kode16Map(
     val titel16dk: String?=null,
     val titel16eng: String?=null,

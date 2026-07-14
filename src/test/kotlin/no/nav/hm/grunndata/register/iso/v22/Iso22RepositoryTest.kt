@@ -28,7 +28,9 @@ class Iso22RepositoryTest(private val repository: Iso22Repository) {
             saved.shouldNotBeNull()
 
             val read = repository.findById(saved.id)
+            val read2 = repository.findByIsoCode("30300001")
             read.shouldNotBeNull()
+            read2.shouldNotBeNull()
             read!!
             read.isoCode shouldBe iso22.isoCode
             read.isoTitle shouldBe iso22.isoTitle
