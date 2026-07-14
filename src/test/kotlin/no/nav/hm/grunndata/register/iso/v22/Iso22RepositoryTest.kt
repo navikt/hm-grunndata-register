@@ -45,6 +45,8 @@ class Iso22RepositoryTest(private val repository: Iso22Repository) {
             read.createdByUser shouldBe "tester"
             read.created.shouldNotBeNull()
             read.updated.shouldNotBeNull()
+            val codes = repository.findDistinctIsoCodes()
+            codes.shouldNotBeNull()
         }
     }
 }
