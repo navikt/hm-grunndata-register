@@ -14,15 +14,15 @@ class IsoMapperTest(private val mapper: IsoMapper) {
 
     @Test
     fun testIsoMapper() {
-        mapper.isoMap.shouldNotBeNull()
+        mapper.kode16Map.shouldNotBeNull()
         var count=0
-        mapper.isoMap.sortedBy { it.kode16 }.forEach {
-            if (it.konv!="1" && it.konv!="20") {
+        mapper.kode16Map.sortedBy { it.kode16 }.forEach {
+            if (it.kode16 != null && it.kode22 == null) {
                 count++
                 LOG.info("${it.kode16}  -> ${it.kode22} (${it.konv} - ${it.betydning})  ${it.isoTitle_no}")
             }
             //LOG.info("${it.kode16} ${it.titel16eng} -> ${it.kode22} (${it.konv} - ${it.betydning}) ${it.titel22eng} ${it.isoText_no}")
         }
-        LOG.info("${count} -> ${mapper.isoMap.size}")
+        LOG.info("${count} -> ${mapper.kode16Map.size}")
     }
 }
