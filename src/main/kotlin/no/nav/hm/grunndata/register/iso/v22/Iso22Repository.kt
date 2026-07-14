@@ -11,8 +11,8 @@ import java.util.UUID
 @JdbcRepository(dialect = Dialect.POSTGRES)
 interface Iso22Repository : CoroutineCrudRepository<Iso22, UUID> {
 
-    @Query("SELECT DISTINCT iso_category FROM product_reg_v1 WHERE iso_category IS NOT NULL")
-    suspend fun findDistinctIsoCodes(): List<ProductIsoCategory>
+    @Query("SELECT DISTINCT iso_category FROM series_reg_v1 WHERE iso_category IS NOT NULL")
+    suspend fun findDistinctIsoCodes(): List<SeriesIsoCategory>
 
     suspend fun findByIsoCode(isoCode: String): List<Iso22>
 
@@ -21,6 +21,6 @@ interface Iso22Repository : CoroutineCrudRepository<Iso22, UUID> {
 }
 
 @Introspected
-data class ProductIsoCategory(
+data class SeriesIsoCategory(
     val isoCategory: String
 )
