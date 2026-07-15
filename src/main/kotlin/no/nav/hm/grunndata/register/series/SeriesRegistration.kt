@@ -123,6 +123,7 @@ data class SeriesRegistrationDTO(
             text = text,
             formattedText = formattedText,
             isoCategory = isoCategory,
+            isoCategory22 = isoCategory22,
             draftStatus = draftStatus,
             adminStatus = adminStatus,
             status = status,
