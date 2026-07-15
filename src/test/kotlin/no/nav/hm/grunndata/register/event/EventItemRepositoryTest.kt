@@ -29,6 +29,7 @@ class EventItemRepositoryTest(private val eventItemRepository: EventItemReposito
             title = "series title",
             text = "series text",
             isoCategory = "12345678",
+
             draftStatus = DraftStatus.DONE,
             status = SeriesStatus.ACTIVE,
             seriesData = SeriesDataDTO(media = setOf(
