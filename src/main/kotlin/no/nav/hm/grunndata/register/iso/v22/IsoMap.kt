@@ -5,7 +5,7 @@ import io.micronaut.data.annotation.MappedEntity
 import java.time.LocalDateTime
 import java.util.UUID
 
-@MappedEntity
+@MappedEntity("iso_map_v22")
 data class IsoMap(
     @field:Id
     val id: UUID = UUID.randomUUID(),

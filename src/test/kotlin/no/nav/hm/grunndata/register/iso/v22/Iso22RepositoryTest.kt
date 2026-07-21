@@ -16,7 +16,6 @@ class Iso22RepositoryTest(private val repository: Iso22Repository) {
         val iso22 = Iso22(
             isoCode = "30300001",
             isoTitle = "Hjelpemidler for røyking",
-            isoTitleShort = "Hjelpemidler for røyking",
             isoText = "Hjelpemidler som gjør det mulig for en person å røyke.",
             isoTranslations = IsoTranslations(titleEn = "English title", textEn = "English text"),
             searchWords = listOf("Hjelpemidler", "røyking"),
@@ -34,7 +33,6 @@ class Iso22RepositoryTest(private val repository: Iso22Repository) {
             read!!
             read.isoCode shouldBe iso22.isoCode
             read.isoTitle shouldBe iso22.isoTitle
-            read.isoTitleShort shouldBe iso22.isoTitleShort
             read.isoText shouldBe iso22.isoText
             read.isoTranslations.titleEn shouldBe iso22.isoTranslations.titleEn
             read.isoTranslations.textEn shouldBe iso22.isoTranslations.textEn
