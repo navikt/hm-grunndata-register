@@ -6,7 +6,6 @@ import io.micronaut.http.annotation.Post
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.swagger.v3.oas.annotations.tags.Tag
-import no.nav.hm.grunndata.register.security.Roles
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
