@@ -16,8 +16,9 @@ CREATE TABLE iso_v22
 
 CREATE TABLE iso_map_v22
 (
-    id      uuid        NOT NULL,
-    code16  VARCHAR(32) NOT NULL,
+    id      uuid        NOT NULL PRIMARY KEY,
+    code16  VARCHAR(32) NOT NULL UNIQUE,
     code22  VARCHAR(32) NOT NULL,
+    map_enum VARCHAR(255) NOT NULL,
     created TIMESTAMP WITHOUT TIME ZONE NOT NULL
 );

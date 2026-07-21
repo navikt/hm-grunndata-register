@@ -57,6 +57,22 @@ class Iso22JsonTest(private val objectMapper: ObjectMapper) {
 
     }
 
+    @Test
+    fun readIsoMapping() {
+        val isoMaps = objectMapper.readValue(
+            Iso22JsonTest::class.java.classLoader.getResource("iso/mapping.json")!!.readText(),
+            Array<IsoMapping>::class.java
+        )
+        val iso22maps = isoMaps.map { map ->
+            IsoMap(
+                code16 = map.code16.replace(" ", "").trim(),
+                mapEnum = IsoMapEnum.fromCode(map.codeMap.trim()) ?: IsoMapEnum.UNKNOWN,
+                code22 = map.code22.replace(" ", "").trim()
+            )
+        }
+        println(objectMapper.writeValueAsString(iso22maps))
+    }
+
     companion object   {
         private val LOG = org.slf4j.LoggerFactory.getLogger(Iso22JsonTest::class.java)
     }
@@ -68,4 +84,11 @@ data class IsoLabel(
     val code: String,
     val label: String,
     val text: String
+)
+
+@Introspected
+data class IsoMapping(
+    val code16: String,
+    val codeMap: String,
+    val code22: String,
 )
