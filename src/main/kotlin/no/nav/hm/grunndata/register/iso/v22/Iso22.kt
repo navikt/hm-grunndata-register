@@ -15,7 +15,6 @@ data class Iso22 (
     val id: UUID = UUID.randomUUID(),
     val isoCode: String,
     val isoTitle: String,
-    val isoTitleShort: String?=null,
     val isoText: String,
     @field:TypeDef(type = DataType.JSON)
     val isoTranslations: IsoTranslations = IsoTranslations(),
