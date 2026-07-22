@@ -4,6 +4,7 @@ CREATE TABLE iso_v22
     iso_code         character varying(32)   NOT NULL UNIQUE,
     iso_title        character varying(1024) NOT NULL,
     iso_text         text,
+    iso_type         character varying(32)   NOT NULL,
     iso_translations jsonb                   NOT NULL,
     created_by_user  character varying(255)  NOT NULL,
     updated_by_user  character varying(255)  NOT NULL,
@@ -18,7 +19,7 @@ CREATE TABLE iso_map_v22
 (
     id      uuid        NOT NULL PRIMARY KEY,
     code16  VARCHAR(32) NOT NULL UNIQUE,
-    code22  VARCHAR(32) NOT NULL,
+    code22  VARCHAR(32),
     map_enum jsonb DEFAULT '[]'::jsonb NOT NULL,
     created TIMESTAMP WITHOUT TIME ZONE NOT NULL
 );

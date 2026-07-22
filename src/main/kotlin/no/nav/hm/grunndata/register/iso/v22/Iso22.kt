@@ -20,6 +20,7 @@ data class Iso22 (
     val isoTranslations: IsoTranslations = IsoTranslations(),
     @field:TypeDef(type = DataType.JSON)
     val searchWords: List<String> = emptyList(),
+    val isoType: IsoType = IsoType.ISO,
     val createdByUser: String,
     val updatedByUser: String,
     val createdBy: String = REGISTER,
@@ -28,19 +29,8 @@ data class Iso22 (
     val updated: LocalDateTime = LocalDateTime.now()
 )
 
-data class Kode16Map(
-    val titel16dk: String?=null,
-    val titel16eng: String?=null,
-    val kode16: String?=null,
-    val std_nat: String,
-    val konv: String,
-    val betydning: String,
-    val kode22: String?=null,
-    val titel22eng: String?=null,
-    val titel22dk: String?=null,
-    val isoCode: String?=null,
-    val isoTitle_no: String?=null,
-    val isoText_no: String?=null,
-    val isoTextShort_no: String?=null,
-    val isoLevel: String?=null
-)
+enum class IsoType {
+    ISO,
+    NAT,
+    OBS
+}
