@@ -14,7 +14,7 @@ class IsoMapRepositoryTest(private val repo: IsoMapRepository) {
     fun testCrudRepository() {
         val isoMap = IsoMap(
             code16 = "30300001",
-            mapEnum = IsoMapEnum.SAME_OR_CHANGED_CODE_SAME_HEADER_MERGED,
+            mapEnum = listOf(IsoMapEnum.SAME_OR_CHANGED_CODE_SAME_HEADER_MERGED),
             code22 = "20200001"
         )
         runBlocking {
@@ -24,7 +24,7 @@ class IsoMapRepositoryTest(private val repo: IsoMapRepository) {
             read.shouldNotBeNull()
             read.code16 shouldBe "30300001"
             read.code22 shouldBe "20200001"
-            read.mapEnum shouldBe IsoMapEnum.SAME_OR_CHANGED_CODE_SAME_HEADER_MERGED
+            read.mapEnum shouldBe listOf(IsoMapEnum.SAME_OR_CHANGED_CODE_SAME_HEADER_MERGED)
             read.created.shouldNotBeNull()
         }
     }
