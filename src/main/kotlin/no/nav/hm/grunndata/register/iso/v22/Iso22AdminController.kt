@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller(Iso22AdminController.API_V1_ADMIN_ISO22)
 @Tag(name="Admin IsoCategory")
-class Iso22AdminController(private val iso22Repository: Iso22Repository) {
+class Iso22AdminController(private val iso22Repository: Iso22Repository, private val isoMapRepository: IsoMapRepository) {
 
 
     @Post("/")
@@ -23,6 +23,18 @@ class Iso22AdminController(private val iso22Repository: Iso22Repository) {
                 iso22Repository.update(iso22.copy(id = it.id, created = it.created))
             } ?:run {
                 iso22Repository.save(iso22)
+            }
+        }
+    }
+
+    @Post("/mapping")
+    suspend fun updateIso22Mapping(@Body mappings: List<IsoMap>) {
+        LOG.info("Got iso22 mappings: $mappings")
+        mappings.forEach { mapping ->
+            isoMapRepository.findByCode16(mapping.code16!!)?.let {
+                isoMapRepository.update(mapping.copy(id = it.id, created = it.created))
+            } ?:run {
+                isoMapRepository.save(mapping)
             }
         }
     }
