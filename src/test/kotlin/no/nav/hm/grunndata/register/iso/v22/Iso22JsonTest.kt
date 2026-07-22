@@ -63,10 +63,12 @@ class Iso22JsonTest(private val objectMapper: ObjectMapper) {
             Iso22JsonTest::class.java.classLoader.getResource("iso/mapping.json")!!.readText(),
             Array<IsoMapping>::class.java
         )
+        var codes = mutableSetOf<String>()
         val iso22maps = isoMaps.map { map ->
+            codes += map.codeMap.trim()
             IsoMap(
                 code16 = map.code16.replace(" ", "").trim(),
-                mapEnum = IsoMapEnum.fromCode(map.codeMap.trim()) ?: IsoMapEnum.UNKNOWN,
+                mapEnum = IsoMapEnum.fromCode(map.codeMap.trim()),
                 code22 = map.code22.replace(" ", "").trim()
             )
         }
@@ -77,6 +79,17 @@ class Iso22JsonTest(private val objectMapper: ObjectMapper) {
         private val LOG = org.slf4j.LoggerFactory.getLogger(Iso22JsonTest::class.java)
     }
 
+    @Test
+    fun mapEnumTest() {
+        val codes = "#*, =, C, *, ~*, ≥*, ≥, X, C+, ~, >, >*, <, C*, #, +, *<".split(",")
+        codes.forEach { code ->
+            LOG.info("Code found: $code")
+            IsoMapEnum.fromCode(code).let {
+                LOG.info("code: $code, enum: $it")
+            }
+        }
+
+    }
 }
 
 @Introspected
