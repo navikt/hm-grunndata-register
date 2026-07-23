@@ -1,14 +1,12 @@
 package no.nav.hm.grunndata.register.iso.v22
 
-import kotlinx.coroutines.flow.map
+import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.rapid.dto.IsoCategoryDTO
-import no.nav.hm.grunndata.register.iso.IsoCategoryRegistrationRepository
 import no.nav.hm.grunndata.register.iso.IsoCategoryService
-import no.nav.hm.grunndata.register.iso.toRapidDTO
 import org.slf4j.LoggerFactory
 
+@Singleton
 class Iso22Service(
     private val iso22Repository: Iso22Repository,
     private val isoMapRepository: IsoMapRepository

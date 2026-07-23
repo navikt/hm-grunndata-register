@@ -18,6 +18,7 @@ import kotlin.collections.forEach
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller("/internal/iso/migration")
 class IsoMigrationController(private val iso22Service: Iso22Service,
+                             private val isoCategoryService: IsoCategoryService,
                              private val iso22Repository: Iso22Repository) {
 
     companion object {
@@ -27,14 +28,17 @@ class IsoMigrationController(private val iso22Service: Iso22Service,
     @Get("/dryrun")
     suspend fun migrateProducts() {
         val isosInDb = iso22Repository.findAllDistinctIso16InDb()
-        val isomappings: MutableMap<List<IsoMapEnum>, Int> = mutableMapOf()
+        val isomappings: MutableMap<List<IsoMapEnum>, MutableList<IsoMigrationResult>> = mutableMapOf()
         var noMap = 0
         isosInDb.forEach { iso ->
             // get the first
             // 6 numbers.
             val isoMap = iso22Service.toIsoMap(iso.isoCategory.take(6))
             if (isoMap != null) {
-                isomappings[isoMap.mapEnum] = isomappings.getOrDefault(isoMap.mapEnum, 0) + 1
+                isomappings[isoMap.mapEnum] = isomappings.getOrDefault(isoMap.mapEnum, mutableListOf()).apply {
+                    add(IsoMigrationResult(iso.isoCategory, isoMap.code22,
+                        isoCategoryService.lookUpCode(iso.isoCategory)?.isoTitle,
+                        iso22Service.lookUp22Code(isoMap.code22?:"")?.isoTitle)) }
             }
             else {
                 noMap++
@@ -47,9 +51,8 @@ class IsoMigrationController(private val iso22Service: Iso22Service,
 }
 
 data class IsoMigrationResult(
-    val isoCategory: String,
-    val isoMap: List<IsoMap> = emptyList(),
-    val isoTitle: String,
-    val iso22Title: String,
-    val count: Int
+    val isoCategory: String?,
+    val iso22Code: String?,
+    val isoTitle: String?,
+    val iso22Title: String?,
 )
