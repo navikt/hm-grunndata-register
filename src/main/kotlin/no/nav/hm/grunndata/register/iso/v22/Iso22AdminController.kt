@@ -38,9 +38,9 @@ class Iso22AdminController(private val iso22Repository: Iso22Repository, private
     suspend fun updateIsoMapping(@Body mappings: List<IsoMap>) {
         LOG.info("Got iso22 mappings: $mappings")
         mappings.forEach { mapping ->
-            isoMapRepository.findByCode16(mapping.code16!!)?.let {
+            isoMapRepository.findById(mapping.id)?.let {
                 isoMapRepository.update(mapping.copy(id = it.id, created = it.created))
-            } ?:run {
+            } ?: run {
                 isoMapRepository.save(mapping)
             }
         }

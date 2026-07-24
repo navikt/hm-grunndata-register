@@ -25,8 +25,10 @@ class Iso22Service(
     init {
         runBlocking {
             iso22Categories = iso22Repository.findAll().toList().associateBy { it.isoCode }
-            isoMaps = isoMapRepository.findAll().toList().associateBy { it.code16 }
-
+            isoMaps = isoMapRepository.findAll()
+                .toList()
+                .filter { it.code16 != null && it.code22 != null }
+                .associateBy { it.code16!! }
         }
     }
     fun lookUp22Code(iso22Code: String): Iso22? = iso22Categories[iso22Code]
