@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.Hidden
 import no.nav.hm.grunndata.register.iso.IsoCategoryService
 import no.nav.hm.grunndata.register.iso.v22.Iso22Repository
 import no.nav.hm.grunndata.register.iso.v22.Iso22Service
-import no.nav.hm.grunndata.register.iso.v22.IsoMap
 import no.nav.hm.grunndata.register.iso.v22.IsoMapEnum
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -26,33 +25,40 @@ class IsoMigrationController(private val iso22Service: Iso22Service,
     }
 
     @Get("/dryrun")
-    suspend fun migrateProducts() {
+    suspend fun migrateProducts(): Map<List<IsoMapEnum>, MutableList<IsoMigrationResult>> {
         val isosInDb = iso22Repository.findAllDistinctIso16InDb()
         val isomappings: MutableMap<List<IsoMapEnum>, MutableList<IsoMigrationResult>> = mutableMapOf()
         var noMap = 0
         isosInDb.forEach { iso ->
             // get the first
             // 6 numbers.
-            val isoMap = iso22Service.toIsoMap(iso.isoCategory.take(6))
+            val isoCategory = iso.isoCategory.take(6)
+            val isoMap = iso22Service.toIsoMap(isoCategory)
             if (isoMap != null) {
                 isomappings[isoMap.mapEnum] = isomappings.getOrDefault(isoMap.mapEnum, mutableListOf()).apply {
-                    add(IsoMigrationResult(iso.isoCategory, isoMap.code22,
-                        isoCategoryService.lookUpCode(iso.isoCategory)?.isoTitle,
-                        iso22Service.lookUp22Code(isoMap.code22?:"")?.isoTitle)) }
+                    add(IsoMigrationResult(mapEnums = isoMap.mapEnum, iso16Code = iso.isoCategory, iso22Code = isoMap.code22,
+                        iso16Title = isoCategoryService.lookUpCode(iso.isoCategory)?.isoTitle,
+                        iso16Titlelvl3 = isoCategoryService.lookUpCode(isoCategory)?.isoTitle,
+                        iso22Title = iso22Service.lookUp22Code(isoMap.code22?:"")?.isoTitle)) }
             }
             else {
                 noMap++
             }
         }
-        println(isomappings)
         println("No mapping: $noMap")
+        println("Count SAME: ${isomappings.getOrDefault(listOf(IsoMapEnum.SAME), mutableListOf()).size}")
+        println("Count Total: ${isomappings.values.flatten().size}")
+        // filter out the ones that have "SAME" isoMapEnum
+        return isomappings.filter { entry -> !entry.key.contains(IsoMapEnum.SAME) }
     }
 
 }
 
 data class IsoMigrationResult(
-    val isoCategory: String?,
+    val mapEnums: List<IsoMapEnum> = listOf(IsoMapEnum.SAME),
+    val iso16Code: String?,
     val iso22Code: String?,
-    val isoTitle: String?,
+    val iso16Title: String?,
+    val iso16Titlelvl3: String?,
     val iso22Title: String?,
 )

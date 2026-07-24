@@ -18,7 +18,7 @@ CREATE TABLE iso_v22
 CREATE TABLE iso_map_v22
 (
     id      uuid        NOT NULL PRIMARY KEY,
-    code16  VARCHAR(32) NOT NULL UNIQUE,
+    code16  VARCHAR(32),
     code22  VARCHAR(32),
     map_enum jsonb DEFAULT '[]'::jsonb NOT NULL,
     created TIMESTAMP WITHOUT TIME ZONE NOT NULL
