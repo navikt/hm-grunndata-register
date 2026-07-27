@@ -7,9 +7,6 @@ val jvmTarget = "25"
 val micronautVersion = "5.0.2"
 val logbackEncoderVersion = "9.0"
 val postgresqlVersion = "42.7.11"
-val tcVersion = "2.0.1"
-val mockkVersion = "1.13.17"
-val kotestVersion = "5.5.5"
 val poiVersion = "5.4.0"
 val rapidsRiversVersion = "202606190809"
 val grunndataDtoVersion = "202606180923"
@@ -18,11 +15,10 @@ val leaderElectionVersion = "202606231046"
 val googleCloudPlatformVersion = "26.61.0"
 
 group = "no.nav.hm"
-version = properties["version"] ?: "local-build"
 
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "2.3.21"
-    id("org.jetbrains.kotlin.plugin.allopen") version "2.3.21"
+    kotlin("jvm") version "2.3.21"
+    kotlin("plugin.allopen") version "2.3.21"
     id("com.google.devtools.ksp") version "2.3.7"
     id("java")
     id("com.gradleup.shadow") version "9.3.1"
@@ -43,7 +39,6 @@ dependencies {
         implementation("com.opencsv:opencsv:5.12.0")
         implementation("commons-beanutils:commons-beanutils:1.11.0")
     }
-
 
     api("ch.qos.logback:logback-classic")
     api("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
@@ -77,10 +72,10 @@ dependencies {
     implementation("io.micronaut.micrometer:micronaut-micrometer-core")
     implementation("io.micronaut.micrometer:micronaut-micrometer-registry-prometheus")
     implementation("io.micronaut:micronaut-management")
-    testImplementation("io.mockk:mockk:$mockkVersion")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.2")
-    testImplementation("org.testcontainers:testcontainers-postgresql:$tcVersion")
+    testImplementation("io.mockk:mockk")
+    testImplementation("io.kotest:kotest-assertions-core-jvm")
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
+    testImplementation("org.testcontainers:testcontainers-postgresql")
 
     // Rapids and Rivers
     implementation("com.github.navikt:hm-rapids-and-rivers-v2-core:$rapidsRiversVersion")
@@ -89,10 +84,8 @@ dependencies {
     implementation("no.nav.hm.grunndata:hm-grunndata-rapid-dto:$grunndataDtoVersion")
 
     // OpenApi
-    ksp("io.micronaut.openapi:micronaut-openapi")
     implementation("io.micronaut.openapi:micronaut-openapi")
     compileOnly("io.micronaut.openapi:micronaut-openapi-annotations")
-
 
     // excel import
     implementation("org.apache.poi:poi:$poiVersion")
@@ -136,7 +129,6 @@ java {
     withSourcesJar()
 }
 
-
 tasks.withType<KotlinCompile> {
     compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
 }
@@ -144,7 +136,6 @@ tasks.withType<KotlinCompile> {
 tasks.named<KotlinCompile>("compileTestKotlin") {
     compilerOptions.jvmTarget.set(JvmTarget.fromTarget(jvmTarget))
 }
-
 
 tasks.named<ShadowJar>("shadowJar") {
     isZip64 = true
@@ -161,12 +152,6 @@ tasks.withType<Test> {
         showStandardStreams = true
     }
 }
-
-tasks.withType<Wrapper> {
-    gradleVersion = "9.3.1"
-}
-
-
 
 repositories {
     mavenLocal()
