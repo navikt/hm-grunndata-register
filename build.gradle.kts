@@ -10,9 +10,16 @@ val postgresqlVersion = "42.7.11"
 val poiVersion = "5.4.0"
 val rapidsRiversVersion = "202606190809"
 val grunndataDtoVersion = "202606180923"
-val microsoftGrapVersion = "5.77.0"
 val leaderElectionVersion = "202606231046"
 val googleCloudPlatformVersion = "26.61.0"
+val microsoftGrapVersion = "5.77.0"
+val azureIdentityVersion = "1.12.2"
+val flywayPostgresqlVersion = "10.6.0"
+
+// Security versions:
+val jsonSmartVersion = "2.5.2"
+val commonsCompressVersion = "1.26.2"
+val opencsvVersion = "5.12.0"
 
 group = "no.nav.hm"
 
@@ -36,7 +43,7 @@ configurations.all {
 
 dependencies {
     constraints {
-        implementation("com.opencsv:opencsv:5.12.0")
+        implementation("com.opencsv:opencsv:$opencsvVersion")
         implementation("commons-beanutils:commons-beanutils:1.11.0")
     }
 
@@ -93,18 +100,18 @@ dependencies {
 
     // Microsoft Graph
     implementation("com.microsoft.graph:microsoft-graph:$microsoftGrapVersion")
-    implementation("com.azure:azure-identity:1.12.2")
-    implementation("net.minidev:json-smart:2.5.2")
+    implementation("com.azure:azure-identity:$azureIdentityVersion")
+    implementation("net.minidev:json-smart:$jsonSmartVersion")
 
     // flyway-postgresql
-    implementation("org.flywaydb:flyway-database-postgresql:10.6.0")
+    implementation("org.flywaydb:flyway-database-postgresql:$flywayPostgresqlVersion")
 
     // micronaut-leaderelection
     implementation("com.github.navikt:hm-micronaut-leaderelection:$leaderElectionVersion")
 
-    implementation("org.apache.commons:commons-compress:1.26.2")
+    implementation("org.apache.commons:commons-compress:$commonsCompressVersion")
 
-    implementation("com.opencsv:opencsv:5.12.0")
+    implementation("com.opencsv:opencsv:$opencsvVersion")
 
     implementation(platform("com.google.cloud:libraries-bom:$googleCloudPlatformVersion"))
     implementation("com.google.cloud:google-cloud-vertexai")
