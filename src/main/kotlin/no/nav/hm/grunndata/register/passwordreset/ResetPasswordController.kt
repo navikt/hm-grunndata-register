@@ -7,10 +7,13 @@ import io.micronaut.http.annotation.Post
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.annotation.security.PermitAll
 import org.slf4j.LoggerFactory
+import io.micronaut.security.annotation.Secured
+import io.micronaut.security.rules.SecurityRule
 
 @Controller(ResetPasswordController.API_V1_RESET_PASSWORD)
 @Tag(name = "Reset password")
-@PermitAll
+@Secured(SecurityRule.IS_ANONYMOUS)
+
 class ResetPasswordController(
     private val resetPasswordService: ResetPasswordService,
 ) {
