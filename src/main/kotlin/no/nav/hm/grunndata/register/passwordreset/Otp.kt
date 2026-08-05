@@ -12,6 +12,7 @@ data class Otp(
     val otp: String,
     val email: String,
     val used: Boolean,
+    val attempts: Int = 0,
     val created: LocalDateTime = LocalDateTime.now(),
     val updated: LocalDateTime = LocalDateTime.now(),
 )
