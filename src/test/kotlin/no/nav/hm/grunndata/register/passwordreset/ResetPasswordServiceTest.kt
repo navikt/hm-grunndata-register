@@ -1,12 +1,10 @@
 package no.nav.hm.grunndata.register.passwordreset
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.mockk
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.aadgraph.EmailService
 import no.nav.hm.grunndata.register.security.Roles
@@ -34,7 +32,7 @@ class ResetPasswordServiceTest(
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
 
     @Test
-    fun requestOtpTest() =
+    fun requestOtpTest() {
         runBlocking {
             val testSupplierRegistration =
                 supplierRegistrationService.save(
@@ -42,17 +40,17 @@ class ResetPasswordServiceTest(
                         id = UUID.randomUUID(),
                         supplierData =
                             SupplierData(
-                                email = "supplier1@test.test",
+                                email = "supplier1-${UUID.randomUUID()}@test.test",
                                 address = "address 1",
                                 homepage = "https://www.hompage.no",
                                 phone = "+47 12345678",
                             ),
-                        identifier = "supplier1-unique-name",
+                        identifier = "supplier1-${UUID.randomUUID()}",
                         name = "Supplier AS1",
                     ),
                 )
 
-            val email = "aasmund.nordstoga@nav.no"
+            val email = "reset1-${UUID.randomUUID()}@nav.no"
             userRepository.createUser(
                 User(
                     name = "First Family",
@@ -67,9 +65,7 @@ class ResetPasswordServiceTest(
 
             resetPasswordService.requestOtp(email)
 
-            val otpList = otpRepository.findAll().toList()
-            otpList.size shouldBe 1
-            val otp = otpList[0]
+            val otp = otpRepository.findByEmailAndUsedOrderByCreatedDesc(email, false)!!
 
             resetPasswordService.verifyOtp(otp.otp, email)
 
@@ -82,4 +78,51 @@ class ResetPasswordServiceTest(
                 resetPasswordService.resetPassword(otp.otp, email, "anotherPassword")
             }
         }
+    }
+
+    @Test
+    fun otpLockoutAfterMaxAttemptsTest() {
+        runBlocking {
+            val testSupplierRegistration =
+                supplierRegistrationService.save(
+                    SupplierRegistrationDTO(
+                        id = UUID.randomUUID(),
+                        supplierData =
+                            SupplierData(
+                                email = "supplier2-${UUID.randomUUID()}@test.test",
+                                address = "address 2",
+                                homepage = "https://www.hompage.no",
+                                phone = "+47 12345678",
+                            ),
+                        identifier = "supplier2-${UUID.randomUUID()}",
+                        name = "Supplier AS2",
+                    ),
+                )
+
+            val email = "lockout-${UUID.randomUUID()}@nav.no"
+            userRepository.createUser(
+                User(
+                    name = "Lockout User",
+                    email = email,
+                    token = "token456",
+                    roles = listOf(Roles.ROLE_SUPPLIER),
+                    attributes = mapOf(Pair(UserAttribute.SUPPLIER_ID, testSupplierRegistration.id.toString())),
+                ),
+            )
+
+            resetPasswordService.requestOtp(email)
+            val correctOtp = otpRepository.findByEmailAndUsedOrderByCreatedDesc(email, false)!!.otp
+
+            repeat(ResetPasswordService.MAX_ATTEMPTS) {
+                shouldThrow<IllegalArgumentException> {
+                    resetPasswordService.verifyOtp("000000", email)
+                }
+            }
+
+            // OTP is now burned; even the correct code no longer verifies
+            shouldThrow<IllegalArgumentException> {
+                resetPasswordService.verifyOtp(correctOtp, email)
+            }
+        }
+    }
 }

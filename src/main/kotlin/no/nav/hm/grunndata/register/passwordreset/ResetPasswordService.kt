@@ -5,6 +5,7 @@ import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.register.aadgraph.EmailService
 import no.nav.hm.grunndata.register.user.UserRepository
+import java.security.SecureRandom
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -14,11 +15,16 @@ open class ResetPasswordService(
     private val otpRepository: OtpRepository,
     private val emailService: EmailService,
 ) {
+    companion object {
+        const val MAX_ATTEMPTS = 5
+        const val OTP_TTL_MINUTES = 30L
+    }
+
     @Transactional
     open suspend fun requestOtp(email: String) {
         userRepository.findByEmailIgnoreCase(email)?.let {
             val existingOtp = otpRepository.findByEmailAndUsedOrderByCreatedDesc(email, false)
-            if (existingOtp != null && existingOtp.created.plusMinutes(30).isAfter(LocalDateTime.now())) {
+            if (existingOtp != null && existingOtp.created.plusMinutes(OTP_TTL_MINUTES).isAfter(LocalDateTime.now())) {
                 return
             }
             // create and send OTP
@@ -33,13 +39,24 @@ open class ResetPasswordService(
         }
     }
 
+    @Transactional
     open suspend fun verifyOtp(
-        otp: String,
+        submittedOtp: String,
         email: String,
     ) {
-        val otp = otpRepository.findByOtpAndEmail(otp, email) ?: throw IllegalArgumentException("Invalid OTP")
-        if (otp.used) throw IllegalArgumentException("OTP already used")
-        if (otp.created.plusMinutes(30).isBefore(LocalDateTime.now())) throw IllegalArgumentException("OTP expired")
+        val active =
+            otpRepository.findByEmailAndUsedOrderByCreatedDesc(email, false)
+                ?: throw IllegalArgumentException("Invalid OTP")
+        if (active.created.plusMinutes(OTP_TTL_MINUTES).isBefore(LocalDateTime.now())) {
+            throw IllegalArgumentException("OTP expired")
+        }
+        if (active.otp != submittedOtp) {
+            val attempts = active.attempts + 1
+            otpRepository.update(
+                active.copy(attempts = attempts, used = attempts >= MAX_ATTEMPTS, updated = LocalDateTime.now()),
+            )
+            throw IllegalArgumentException("Invalid OTP")
+        }
     }
 
     @Transactional
@@ -50,7 +67,7 @@ open class ResetPasswordService(
     ) {
         val otpFromDb = otpRepository.findByOtpAndEmail(otp, email) ?: throw IllegalArgumentException("Invalid OTP" )
         if (otpFromDb.used) throw IllegalArgumentException("OTP already used")
-        if (otpFromDb.created.plusMinutes(30).isBefore(LocalDateTime.now())) throw IllegalArgumentException("OTP expired")
+        if (otpFromDb.created.plusMinutes(OTP_TTL_MINUTES).isBefore(LocalDateTime.now())) throw IllegalArgumentException("OTP expired")
         userRepository.findByEmailIgnoreCase(email)?.let {
             userRepository.updatePassword(it.id, newPassword)
         }
@@ -58,7 +75,6 @@ open class ResetPasswordService(
     }
 }
 
-fun generateOTP(): String {
-    val randomPin = (Math.random() * 90000).toInt() + 1000
-    return randomPin.toString()
-}
+private val secureRandom = SecureRandom()
+
+fun generateOTP(): String = (100_000 + secureRandom.nextInt(900_000)).toString()
