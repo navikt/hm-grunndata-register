@@ -6,6 +6,8 @@ on:
       - ".gitignore"
       - "LICENCE"
       - "CODEOWNERS"
+    branches-ignore:
+      - "main"
 
 jobs:
   build:
