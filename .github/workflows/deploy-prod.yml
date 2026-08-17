@@ -10,7 +10,7 @@ jobs:
       id-token: write
       security-events: write
       actions: read
-    uses: navikt/pam-deploy/.github/workflows/deploy-prod.yml@v7
+    uses: navikt/pam-deploy/.github/workflows/deploy-prod.yml@v8
     with:
       NAIS_RESOURCE: ".nais/nais.yaml"
       NAIS_VARS: ".nais/nais-prod.json"
