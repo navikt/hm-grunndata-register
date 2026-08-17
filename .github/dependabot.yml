@@ -34,3 +34,6 @@ updates:
       major:
         update-types:
           - "major"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
