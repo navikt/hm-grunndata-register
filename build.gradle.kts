@@ -17,7 +17,7 @@ val azureIdentityVersion = "1.12.2"
 val flywayPostgresqlVersion = "10.6.0"
 
 // Security versions:
-val jsonSmartVersion = "2.5.2"
+val jsonSmartVersion = "2.6.0"
 val commonsCompressVersion = "1.26.2"
 val opencsvVersion = "5.12.0"
 
