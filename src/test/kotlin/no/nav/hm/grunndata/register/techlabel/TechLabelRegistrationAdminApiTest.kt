@@ -1,7 +1,9 @@
 package no.nav.hm.grunndata.register.techlabel
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.micronaut.http.HttpStatus
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
@@ -98,5 +100,39 @@ class TechLabelRegistrationAdminApiTest(private val client: TechLabelRegistratio
 
         client.getTechLabelById(jwt, created1.id).body.get().section shouldBe "Sete"
         client.getTechLabelById(jwt, created2.id).body.get().section shouldBe "Sete"
+    }
+
+    @Test
+    fun invalidSectionTest() {
+        val resp = loginClient.login(UsernamePasswordCredentials(email, password))
+        val jwt = resp.getCookie("JWT").get().value
+
+        val dto = TechLabelCreateUpdateDTO(
+            label = "Setedybde min",
+            type = TechLabelType.N,
+            unit = "cm",
+            isoCode = "12221803",
+            sort = 1,
+            required = false,
+            section = "Ugyldig seksjon"
+        )
+
+        val createEx = shouldThrow<HttpClientResponseException> {
+            client.createTechLabel(jwt, dto)
+        }
+        createEx.status shouldBe HttpStatus.BAD_REQUEST
+
+        val created = client.createTechLabel(jwt, dto.copy(section = "Sete")).body.get()
+        created.section shouldBe "Sete"
+
+        val updateEx = shouldThrow<HttpClientResponseException> {
+            client.updateTechLabel(jwt, created.id, dto.copy(section = "Ugyldig seksjon"))
+        }
+        updateEx.status shouldBe HttpStatus.BAD_REQUEST
+
+        val updateSectionEx = shouldThrow<HttpClientResponseException> {
+            client.updateSection(jwt, TechLabelSectionUpdateDTO(label = dto.label, section = "Ugyldig seksjon"))
+        }
+        updateSectionEx.status shouldBe HttpStatus.BAD_REQUEST
     }
 }

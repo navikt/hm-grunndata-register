@@ -74,6 +74,8 @@ class TechLabelRegistrationAdminController(
             throw BadRequestException("TechLabel with type=NUMERIC must have a unit")
         } else if (dto.isoCode.length !in 6..8) {
             throw BadRequestException("TechLabel must have a valid isoCode with length between 6 and 8 characters")
+        } else if (!TechLabelSection.isValid(dto.section)) {
+            throw BadRequestException("Invalid section '${dto.section}', must be one of ${TechLabelSection.labels()}")
         }
         else
             HttpResponse.created(
@@ -100,6 +102,9 @@ class TechLabelRegistrationAdminController(
         @Body dto: TechLabelSectionUpdateDTO,
         authentication: Authentication
     ): HttpResponse<List<TechLabelRegistrationDTO>> {
+        if (!TechLabelSection.isValid(dto.section)) {
+            throw BadRequestException("Invalid section '${dto.section}', must be one of ${TechLabelSection.labels()}")
+        }
         LOG.info("Updating section to '${dto.section}' for all TechLabels with label='${dto.label}' by ${authentication.userId()}")
         val updated = techLabelRegistrationService.updateSectionForLabel(dto.label, dto.section)
         return HttpResponse.ok(updated.map { it.toDTO() })
@@ -112,6 +117,9 @@ class TechLabelRegistrationAdminController(
         authentication: Authentication
     ): HttpResponse<TechLabelRegistrationDTO> =
         techLabelRegistrationService.findById(id)?.let { inDb ->
+            if (!TechLabelSection.isValid(dto.section)) {
+                throw BadRequestException("Invalid section '${dto.section}', must be one of ${TechLabelSection.labels()}")
+            }
             val updated = techLabelRegistrationService.update(
                 inDb.copy(
                     label = dto.label.trim(),

@@ -29,4 +29,7 @@ class TechLabelController(private val techLabelService: TechLabelService) {
         techLabelService.fetchLabelNames()
     }
 
+    @Get("/all/sections")
+    fun fetchSections(): List<String> = TechLabelSection.labels()
+
 }
