@@ -95,6 +95,16 @@ class TechLabelRegistrationAdminController(
                 ).toDTO()
             )
 
+    @Put("/section")
+    suspend fun updateSection(
+        @Body dto: TechLabelSectionUpdateDTO,
+        authentication: Authentication
+    ): HttpResponse<List<TechLabelRegistrationDTO>> {
+        LOG.info("Updating section to '${dto.section}' for all TechLabels with label='${dto.label}' by ${authentication.userId()}")
+        val updated = techLabelRegistrationService.updateSectionForLabel(dto.label, dto.section)
+        return HttpResponse.ok(updated.map { it.toDTO() })
+    }
+
     @Put("/{id}")
     suspend fun updateTechLabel(
         id: UUID,
@@ -174,5 +184,11 @@ data class TechLabelCreateUpdateDTO(
     val required: Boolean,
     val options: Set<String> = emptySet(),
     val definition: String? = null,
+    val section: String? = null,
+)
+
+@Introspected
+data class TechLabelSectionUpdateDTO(
+    val label: String,
     val section: String? = null,
 )
