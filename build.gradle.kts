@@ -18,7 +18,7 @@ val flywayPostgresqlVersion = "13.2.0"
 
 // Security versions:
 val jsonSmartVersion = "2.6.0"
-val commonsCompressVersion = "1.26.2"
+val commonsCompressVersion = "1.28.0"
 val opencsvVersion = "5.12.0"
 
 group = "no.nav.hm"
