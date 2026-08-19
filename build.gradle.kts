@@ -24,7 +24,7 @@ val opencsvVersion = "5.12.0"
 group = "no.nav.hm"
 
 plugins {
-    kotlin("jvm") version "2.3.21"
+    kotlin("jvm") version "2.4.10"
     kotlin("plugin.allopen") version "2.3.21"
     id("com.google.devtools.ksp") version "2.3.7"
     id("java")
