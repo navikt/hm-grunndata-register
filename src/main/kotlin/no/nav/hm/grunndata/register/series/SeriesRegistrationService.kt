@@ -311,7 +311,7 @@ open class SeriesRegistrationService(
     private suspend fun SeriesRegistration.toSeriesToApproveDTO(): SeriesToApproveDTO {
         val status = published?.let { "CHANGE" } ?: "NEW"
         val supplier = supplierService.findById(supplierId)
-        val imageUri = seriesData.media.firstOrNull { it.type == MediaType.IMAGE && it.priority == 1 }?.uri
+        val imageUri = seriesData.media.sortedBy { it.priority }.firstOrNull { it.type == MediaType.IMAGE }?.uri
 
         return SeriesToApproveDTO(
             title = title,

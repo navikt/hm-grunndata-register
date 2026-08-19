@@ -56,6 +56,11 @@ class TechLabelRegistrationService(private val techLabelRegistrationRepository: 
     suspend fun findByLabelAndIsoCode(label: String, isoCode: String) =
         techLabelRegistrationRepository.findByLabelAndIsoCode(label, isoCode)
 
+    suspend fun updateSectionForLabel(label: String, section: String?): List<TechLabelRegistration> {
+        val techLabels = techLabelRegistrationRepository.findByLabel(label)
+        return techLabels.map { techLabelRegistrationRepository.update(it.copy(section = section)) }
+    }
+
     companion object {
         private val LOG = org.slf4j.LoggerFactory.getLogger(TechLabelRegistrationService::class.java)
     }

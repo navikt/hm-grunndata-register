@@ -22,4 +22,7 @@ interface TechLabelRegistrationAdminApiClient {
 
     @Put(uri = "/{id}", consumes = [MediaType.APPLICATION_JSON])
     fun updateTechLabel(@CookieValue("JWT") jwt: String, id: UUID, @Body dto: TechLabelCreateUpdateDTO): HttpResponse<TechLabelRegistrationDTO>
+
+    @Put(uri = "/section", consumes = [MediaType.APPLICATION_JSON])
+    fun updateSection(@CookieValue("JWT") jwt: String, @Body dto: TechLabelSectionUpdateDTO): HttpResponse<List<TechLabelRegistrationDTO>>
 }

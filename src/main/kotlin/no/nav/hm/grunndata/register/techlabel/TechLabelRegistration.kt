@@ -152,3 +152,16 @@ fun String.systemLabel(type: TechLabelType): String {
 enum class TechLabelType {
     N, L, C
 }
+
+enum class TechLabelSection(val label: String) {
+    SETE("Sete"),
+    ARMLENE("Armlene"),
+    RYGG("Rygg"),
+    BATTERI("Batteri"),
+    MAL_OG_VEKT("Mål og vekt");
+
+    companion object {
+        fun labels(): List<String> = entries.map { it.label }
+        fun isValid(section: String?): Boolean = section == null || entries.any { it.label == section }
+    }
+}
