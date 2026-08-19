@@ -10,10 +10,9 @@ val postgresqlVersion = "42.7.12"
 val poiVersion = "5.5.1"
 val rapidsRiversVersion = "202606190809"
 val grunndataDtoVersion = "202607151330"
-val microsoftGrapVersion = "5.77.0"
+val microsoftGraphVersion = "5.77.0"
 val leaderElectionVersion = "202606231046"
 val googleCloudPlatformVersion = "26.61.0"
-val microsoftGrapVersion = "5.77.0"
 val azureIdentityVersion = "1.18.4"
 val flywayPostgresqlVersion = "13.2.0"
 
@@ -100,7 +99,7 @@ dependencies {
     implementation("org.apache.poi:poi-ooxml:$poiVersion")
 
     // Microsoft Graph
-    implementation("com.microsoft.graph:microsoft-graph:$microsoftGrapVersion")
+    implementation("com.microsoft.graph:microsoft-graph:$microsoftGraphVersion")
     implementation("com.azure:azure-identity:$azureIdentityVersion")
     implementation("net.minidev:json-smart:$jsonSmartVersion")
 
