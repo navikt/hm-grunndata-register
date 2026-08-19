@@ -6,6 +6,7 @@ import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.part.PartDTO
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
+import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.techlabel.LabelService
 import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
@@ -17,12 +18,15 @@ class ProductDTOMapper(
     private val techLabelService: LabelService,
     private val agreementRegistrationService: AgreementRegistrationService,
     private val supplierRegistrationService: SupplierRegistrationService,
+    private val seriesRegistrationService: SeriesRegistrationService,
 ) {
     suspend fun toDTO(productRegistration: ProductRegistration): ProductRegistrationDTO {
         // TODO cache agreements
         val agreements = productAgreementRegistrationRepository.findByProductId(
             productRegistration.id
         )
+        val series = seriesRegistrationService.findById(productRegistration.seriesUUID)
+
         return ProductRegistrationDTO(
             id = productRegistration.id,
             supplierId = productRegistration.supplierId,
@@ -30,7 +34,7 @@ class ProductDTOMapper(
             seriesUUID = productRegistration.seriesUUID,
             supplierRef = productRegistration.supplierRef,
             hmsArtNr = productRegistration.hmsArtNr,
-            title = productRegistration.title,
+            title = series!!.title,
             articleName = productRegistration.articleName,
             draftStatus = productRegistration.draftStatus,
             adminStatus = productRegistration.adminStatus,
@@ -50,7 +54,7 @@ class ProductDTOMapper(
             sparePart = productRegistration.sparePart,
             accessory = productRegistration.accessory,
             mainProduct = productRegistration.mainProduct,
-            isoCategory = productRegistration.isoCategory,
+            isoCategory = series.isoCategory,
             agreements = agreements.map { it.toAgreementInfo() },
             version = productRegistration.version,
         )
@@ -60,7 +64,8 @@ class ProductDTOMapper(
         val agreements = productAgreementRegistrationRepository.findByProductId(
             productRegistration.id
         )
-        val techLabels = techLabelService.fetchLabelsByIsoCode(productRegistration.isoCategory)
+        val series = seriesRegistrationService.findById(productRegistration.seriesUUID)
+        val techLabels = techLabelService.fetchLabelsByIsoCode(series!!.isoCategory)
 
         return ProductRegistrationDTOV2(
             id = productRegistration.id,
@@ -80,7 +85,8 @@ class ProductDTOMapper(
     }
 
     suspend fun toPartDTO(productRegistration: ProductRegistration): PartDTO {
-        val techLabels = techLabelService.fetchLabelsByIsoCode(productRegistration.isoCategory)
+        val series = seriesRegistrationService.findById(productRegistration.seriesUUID)
+        val techLabels = techLabelService.fetchLabelsByIsoCode(series!!.isoCategory)
         val supplier = supplierRegistrationService.findById(productRegistration.supplierId)
         return PartDTO(
             id = productRegistration.id,

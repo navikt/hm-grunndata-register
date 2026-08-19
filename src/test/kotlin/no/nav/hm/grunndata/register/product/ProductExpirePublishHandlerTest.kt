@@ -55,7 +55,6 @@ class ProductExpirePublishHandlerTest(
             ProductRegistration(
                 id = UUID.randomUUID(),
                 seriesUUID = seriesUUID,
-                isoCategory = "12001314",
                 supplierId = supplierId,
                 registrationStatus = RegistrationStatus.ACTIVE,
                 title = "Dette er produkt title",
@@ -77,7 +76,6 @@ class ProductExpirePublishHandlerTest(
             ProductRegistration(
                 id = UUID.randomUUID(),
                 seriesUUID = seriesUUID,
-                isoCategory = "12001314",
                 supplierId = supplierId,
                 title = "Dette er produkt title 2",
                 articleName = "Dette er produkt 2",
@@ -99,7 +97,6 @@ class ProductExpirePublishHandlerTest(
             ProductRegistration(
                 id = UUID.randomUUID(),
                 seriesUUID = seriesUUID,
-                isoCategory = "12001314",
                 supplierId = supplierId,
                 title = "Dette er produkt title 3",
                 articleName = "Dette er produkt 3",

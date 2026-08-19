@@ -1,0 +1,1 @@
+ALTER TABLE product_reg_v1 ALTER COLUMN iso_category DROP NOT NULL;

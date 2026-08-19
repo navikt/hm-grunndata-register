@@ -37,8 +37,6 @@ data class ProductRegistration(
     val seriesUUID: UUID,
     @field:Column(name = "hms_artnr")
     val hmsArtNr: String?,
-    @Deprecated("Use series isoCategory instead")
-    val isoCategory: String = "0",
     @Deprecated("Use series title instead")
     val title: String = "Use series title",
     val articleName: String,
@@ -217,7 +215,6 @@ fun ProductRegistrationDTO.toEntity(): ProductRegistration =
         updatedBy = updatedBy,
         createdByAdmin = createdByAdmin,
         productData = productData,
-        isoCategory = isoCategory,
         version = version,
         sparePart = sparePart,
         accessory = accessory,
@@ -232,7 +229,8 @@ data class ProductRegistrationDryRunDTO(
     val supplierRef: String,
     val hmsArtNr: String?,
     val seriesUUID: UUID?,
-    val isoCategory: String,
+    @Deprecated("Use series isoCategory instead")
+    val isoCategory: String? = null,
     val title: String,
     val articleName: String,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,

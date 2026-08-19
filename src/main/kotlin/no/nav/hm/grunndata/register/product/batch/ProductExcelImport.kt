@@ -156,7 +156,6 @@ fun ProductRegistrationExcelDTO.toProductRegistration(): ProductRegistration {
         adminStatus = AdminStatus.PENDING,
         title = produktseriesnavn,
         articleName = produktnavn ?: produktseriesnavn ?: "",
-        isoCategory = isoCategory,
         sparePart = false,
         accessory = false,
         mainProduct = true,
@@ -214,5 +213,4 @@ fun ProductRegistration.toProductRegistrationDryRunDTO(): ProductRegistrationDry
         adminStatus = adminStatus,
         registrationStatus = registrationStatus,
         productData = productData,
-        isoCategory = isoCategory,
     )

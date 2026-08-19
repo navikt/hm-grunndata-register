@@ -51,7 +51,6 @@ open class PartService(
                     mainProduct = true,
                     accessory = false,
                     sparePart = false,
-                    isoCategory = newIsoCode,
                     updated = LocalDateTime.now(),
                     updatedBy = REGISTER,
                     updatedByUser = authentication.name

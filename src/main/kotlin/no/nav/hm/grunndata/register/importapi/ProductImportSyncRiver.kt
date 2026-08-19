@@ -66,7 +66,6 @@ class ProductImportSyncRiver(
                         inDb.copy(
                             title = importDTO.productDTO.title,
                             articleName = importDTO.productDTO.articleName,
-                            isoCategory = importDTO.productDTO.isoCategory,
                             productData = importDTO.productDTO.toProductData(),
                             seriesUUID = importDTO.productDTO.seriesUUID?:importDTO.id,
                             updated = importDTO.updated,
@@ -81,7 +80,6 @@ class ProductImportSyncRiver(
                         id = importDTO.id,
                         title = importDTO.productDTO.title,
                         articleName = importDTO.productDTO.articleName,
-                        isoCategory = importDTO.productDTO.isoCategory,
                         supplierId = importDTO.supplierId,
                         supplierRef = importDTO.supplierRef,
                         seriesUUID = importDTO.productDTO.seriesUUID?:importDTO.id,

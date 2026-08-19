@@ -63,7 +63,6 @@ class ProductRegistrationRepositoryTest(
             ProductRegistration(
                 id = UUID.randomUUID(),
                 seriesUUID = seriesUUID,
-                isoCategory = "12001314",
                 supplierId = supplierId,
                 title = "Dette er produkt title",
                 articleName = "Dette er produkt 1 med og med",
@@ -86,7 +85,6 @@ class ProductRegistrationRepositoryTest(
             ProductRegistration(
                 id = UUID.randomUUID(),
                 seriesUUID = seriesUUID,
-                isoCategory = "12001314",
                 supplierId = supplierId,
                 title = "Dette er produkt title",
                 articleName = "Dette er produkt 1 med og med",

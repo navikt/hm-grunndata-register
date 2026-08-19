@@ -357,7 +357,6 @@ open class ProductRegistrationService(
                         adminStatus = AdminStatus.PENDING,
                         title = it.produktseriesnavn,
                         articleName = it.produktnavn,
-                        isoCategory = it.isoCategory,
                         productData = inDb.productData.copy(
                             techData = it.techData,
                             attributes = inDb.productData.attributes.copy(
@@ -401,7 +400,6 @@ open class ProductRegistrationService(
                         adminStatus = AdminStatus.PENDING,
                         title = it.produktseriesnavn,
                         articleName = it.produktnavn,
-                        isoCategory = it.isoCategory,
                         productData = inDb.productData.copy(
                             techData = it.techData,
                             attributes = inDb.productData.attributes.copy(
@@ -447,7 +445,6 @@ open class ProductRegistrationService(
         val registration = ProductRegistration(
             id = productId,
             seriesUUID = seriesUUID,
-            isoCategory = series.isoCategory,
             supplierId = series.supplierId,
             supplierRef = draftWithDTO.supplierRef,
             hmsArtNr = null,
@@ -528,7 +525,6 @@ open class ProductRegistrationService(
             sparePart = sparePart,
             accessory = accessory,
             mainProduct = mainProduct,
-            isoCategory = isoCategory,
             agreements = agreeements.map { it.toAgreementInfo() },
             version = version,
         )

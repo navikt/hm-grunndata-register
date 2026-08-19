@@ -92,7 +92,6 @@ fun PartDraftWithDTO.toProductRegistration(seriesUUID: UUID, authentication: Aut
         adminStatus = AdminStatus.PENDING,
         title = title,
         articleName = title,
-        isoCategory = isoCategory,
         sparePart = sparePart ?: false,
         accessory = accessory ?: false,
         mainProduct = false,
