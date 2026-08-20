@@ -1,0 +1,1 @@
+ALTER TABLE product_reg_v1 ADD CONSTRAINT fk_series_uuid_series FOREIGN KEY (series_uuid) REFERENCES series_reg_v1 (id) ON UPDATE CASCADE;

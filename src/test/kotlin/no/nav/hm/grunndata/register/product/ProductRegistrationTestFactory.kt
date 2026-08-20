@@ -6,12 +6,34 @@ import no.nav.hm.grunndata.rapid.dto.Attributes
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
+import no.nav.hm.grunndata.register.series.SeriesDataDTO
+import no.nav.hm.grunndata.register.series.SeriesRegistration
+import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import java.util.UUID
 
 @Singleton
-class ProductRegistrationTestFactory(private val productRegistrationRepository: ProductRegistrationRepository) {
+class ProductRegistrationTestFactory(
+    private val productRegistrationRepository: ProductRegistrationRepository,
+    private val seriesRegistrationRepository: SeriesRegistrationRepository
+) {
 
-    suspend fun createTestProduct(supplierId: UUID = UUID.randomUUID(), seriesUUID: UUID = UUID.randomUUID(), supplierRef : String = UUID.randomUUID().toString(), hmsArtNr: String? = UUID.randomUUID().toString()):  ProductRegistration {
+    suspend fun createTestProduct(productId: UUID = UUID.randomUUID(),supplierId: UUID = UUID.randomUUID(), seriesUUID: UUID = UUID.randomUUID(), supplierRef : String = UUID.randomUUID().toString(), hmsArtNr: String? = UUID.randomUUID().toString()):  ProductRegistration {
+        val series = seriesRegistrationRepository.findById(seriesUUID) ?:
+            seriesRegistrationRepository.save(
+            SeriesRegistration(
+                id = seriesUUID,
+                supplierId = supplierId,
+                title = "Dette er en serie",
+                text = "Dette er en lang beskrivelse av serien",
+                draftStatus = DraftStatus.DRAFT,
+                adminStatus = AdminStatus.PENDING,
+                message = "Melding til leverandør",
+                updatedByUser = "user",
+                createdByUser = "user",
+                isoCategory = "12000123",
+                seriesData = SeriesDataDTO()
+            )
+        )
         val productData1 =
             ProductData(
                 attributes =
@@ -26,8 +48,8 @@ class ProductRegistrationTestFactory(private val productRegistrationRepository: 
                 )
             )
         return productRegistrationRepository.save(ProductRegistration(
-            id = UUID.randomUUID(),
-            seriesUUID = seriesUUID,
+            id = productId,
+            seriesUUID = series.id,
             supplierId = supplierId,
             title = "Dette er produkt title",
             articleName = "Dette er produkt 1 med og med",

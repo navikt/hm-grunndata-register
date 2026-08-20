@@ -11,6 +11,9 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
+import no.nav.hm.grunndata.register.series.SeriesDataDTO
+import no.nav.hm.grunndata.register.series.SeriesRegistration
+import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
@@ -19,6 +22,7 @@ import java.util.*
 @MicronautTest
 class ProductExpirePublishHandlerTest(
     private val productRegistrationRepository: ProductRegistrationRepository,
+    private val seriesRegistrationRepository: SeriesRegistrationRepository,
     private val productExpirePublishHandler: ProductExpirePublishHandler) {
 
     @MockBean(RapidPushService::class)
@@ -51,6 +55,20 @@ class ProductExpirePublishHandlerTest(
             )
         val supplierId = UUID.randomUUID()
         val seriesUUID = UUID.randomUUID()
+        val series = SeriesRegistration(
+            id = seriesUUID,
+            supplierId = supplierId,
+            title = "Dette er en serie",
+            text = "Dette er en lang beskrivelse av serien",
+            draftStatus = DraftStatus.DRAFT,
+            adminStatus = AdminStatus.PENDING,
+            message = "Melding til leverandør",
+            updatedByUser = "user",
+            createdByUser = "user",
+            isoCategory = "12000123",
+            seriesData = SeriesDataDTO()
+        )
+
         val registration1 =
             ProductRegistration(
                 id = UUID.randomUUID(),
@@ -117,6 +135,8 @@ class ProductExpirePublishHandlerTest(
 
 
         runBlocking {
+
+            seriesRegistrationRepository.save( series)
             val saved1 = productRegistrationRepository.save(registration1)
             saved1.shouldNotBeNull()
             val saved2 = productRegistrationRepository.save(registration2)

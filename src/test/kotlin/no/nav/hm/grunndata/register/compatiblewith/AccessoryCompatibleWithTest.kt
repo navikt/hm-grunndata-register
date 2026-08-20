@@ -7,10 +7,8 @@ import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.mockk.coEvery
-import io.mockk.mockk
 import io.mockk.spyk
 import kotlinx.coroutines.runBlocking
-import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.register.catalog.CatalogImport
 import no.nav.hm.grunndata.register.catalog.CatalogImportRepository
 import no.nav.hm.grunndata.register.part.CompatibleWithDTO
@@ -70,6 +68,17 @@ class AccessoryCompatibleWithTest(
                     email = userEmail, token = password, name = "HMS tester", roles = listOf(Roles.ROLE_HMS)
                 )
             )
+            val series = seriesRegistrationRepository.save(
+                SeriesRegistration(
+                    id = aSeriesId,
+                    supplierId = supplierId,
+                    identifier = aSeriesId.toString(),
+                    title = "Test series",
+                    text = "Test series text",
+                    isoCategory = "ISO1234",
+                    seriesData = SeriesDataDTO()
+                )
+            )
             val product = productRegistrationRepository.save(
                 ProductRegistration(
                     id = productId,
@@ -85,17 +94,7 @@ class AccessoryCompatibleWithTest(
                     created = LocalDateTime.now()
                 )
             )
-            val series = seriesRegistrationRepository.save(
-                SeriesRegistration(
-                    id = aSeriesId,
-                    supplierId = supplierId,
-                    identifier = aSeriesId.toString(),
-                    title = "Test series",
-                    text = "Test series text",
-                    isoCategory = "ISO1234",
-                    seriesData = SeriesDataDTO()
-                )
-            )
+
             val catalogAccessory = catalogImportRepository.save(CatalogImport(
                 id = UUID.randomUUID(),
                 orderRef = "123456",
@@ -122,6 +121,17 @@ class AccessoryCompatibleWithTest(
                 accessory = true,
                 agreementId = agreementId
             ))
+            val mainSeries = seriesRegistrationRepository.save(
+                SeriesRegistration(
+                    id = mSeriesId,
+                    supplierId = supplierId,
+                    identifier = mSeriesId.toString(),
+                    title = "Test main series",
+                    text = "Test main series text",
+                    isoCategory = "ISO1234",
+                    seriesData = SeriesDataDTO()
+                )
+            )
             val mainProduct = productRegistrationRepository.save(
                 ProductRegistration(
                     id = UUID.randomUUID(),
@@ -135,17 +145,6 @@ class AccessoryCompatibleWithTest(
                     mainProduct = true,
                     accessory = false,
                     created = LocalDateTime.now()
-                )
-            )
-            val mainSeries = seriesRegistrationRepository.save(
-                SeriesRegistration(
-                    id = mSeriesId,
-                    supplierId = supplierId,
-                    identifier = mSeriesId.toString(),
-                    title = "Test main series",
-                    text = "Test main series text",
-                    isoCategory = "ISO1234",
-                    seriesData = SeriesDataDTO()
                 )
             )
             val mainCatalogImport = catalogImportRepository.save(CatalogImport(
