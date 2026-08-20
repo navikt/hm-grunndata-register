@@ -144,7 +144,6 @@ open class ProductAgreementAdminController(
                 accessory = product.accessory,
                 sparePart = product.sparePart,
                 mainProduct = product.mainProduct,
-                isoCategory = product.isoCategory,
                 status = status,
             ),
             isUpdate = false,
@@ -202,7 +201,6 @@ open class ProductAgreementAdminController(
                     updatedBy = REGISTER,
                     accessory = product.accessory,
                     sparePart = product.sparePart,
-                    isoCategory = product.isoCategory,
                 )
             }
 

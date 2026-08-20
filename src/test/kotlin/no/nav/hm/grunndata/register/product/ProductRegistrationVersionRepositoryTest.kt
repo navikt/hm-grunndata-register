@@ -31,7 +31,6 @@ class ProductRegistrationVersionRepositoryTest(private val productRegistrationVe
             hmsArtNr = "hmsArtNr",
             supplierRef = "supplierRef",
             title = "title",
-            isoCategory = "12345678",
             productData = ProductData(
                 media = setOf(
                     MediaInfoDTO(

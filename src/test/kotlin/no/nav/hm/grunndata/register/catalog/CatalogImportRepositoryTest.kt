@@ -16,6 +16,7 @@ import no.nav.hm.grunndata.register.product.ProductData
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.grunndata.register.catalog.ProductAgreementImportExcelService.Companion.EXCEL
+import no.nav.hm.grunndata.register.product.ProductRegistrationTestFactory
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
@@ -28,7 +29,7 @@ import java.time.LocalDateTime
 class CatalogImportRepositoryTest(
     private val catalogImportRepository: CatalogImportRepository,
     private val serviceJobRepository: ServiceJobRepository,
-    private val seriesRegistrationRepository: SeriesRegistrationRepository,
+    private val productRegistrationTestFactory: ProductRegistrationTestFactory,
     private val productRegistrationRepository: ProductRegistrationRepository,
 ) {
 
@@ -112,56 +113,14 @@ class CatalogImportRepositoryTest(
             testCatalog2 shouldBeEqual  testCatalog3
 
             val seriesId = UUID.randomUUID()
-            val product1 = productRegistrationRepository.save(
-                ProductRegistration(
-                    hmsArtNr = "432100",
-                    supplierId = supplierId,
-                    supplierRef = "supplierRef1",
-                    createdBy = EXCEL,
-                    title = "Test product agreement",
-                    articleName = "Test article",
-                    id = UUID.randomUUID(),
-                    seriesUUID = seriesId,
-                    productData = ProductData(),
-                )
-            )
-            val product2 = productRegistrationRepository.save(ProductRegistration(
-                hmsArtNr = "432101",
-                supplierId = supplierId,
-                supplierRef = "supplierRef2",
-                createdBy = EXCEL,
-                title = "Test product agreement 2",
-                articleName = "supplierRef2",
-                id = UUID.randomUUID(),
-                seriesUUID = seriesId,
-                productData = ProductData(),
-            ))
 
-            val seriesRegistration = seriesRegistrationRepository.save(SeriesRegistration(
-                id = seriesId,
-                supplierId = supplierId,
-                identifier = "HMDB-123",
-                title = "Series 1",
-                text = "Series 1 text",
-                isoCategory = "12343212",
-                status = SeriesStatus.ACTIVE,
-                adminStatus = AdminStatus.PENDING,
-                seriesData = SeriesDataDTO(
-                    media = setOf(
-                        MediaInfoDTO(
-                            uri = "http://example.com",
-                            type = MediaType.IMAGE,
-                            text = "image description",
-                            sourceUri = "http://example.com",
-                            source = MediaSourceType.REGISTER
-                        )
-                    )
-                )
-            ))
+            val product1 = productRegistrationTestFactory.createTestProduct(supplierId = supplierId, seriesUUID = seriesId, hmsArtNr = "432100", supplierRef = "supplierRef1")
+            val product2 = productRegistrationTestFactory.createTestProduct(supplierId = supplierId, seriesUUID = seriesId, hmsArtNr = "432101", supplierRef = "supplierRef2")
+
             val catalogSeriesInfo = catalogImportRepository.findCatalogProductSeriesInfoByOrderRef("1234")
             catalogSeriesInfo.size shouldBe 2
             catalogSeriesInfo[0].seriesId shouldBe seriesId
-            catalogSeriesInfo[0].seriesTitle shouldBe "Series 1"
+            catalogSeriesInfo[0].seriesTitle shouldBe "Dette er en serie"
             catalogSeriesInfo[0].mainProduct shouldBe false
             catalogSeriesInfo[0].sparePart shouldBe true
             catalogSeriesInfo[0].agreementId shouldBe agreementId
