@@ -170,6 +170,7 @@ class SeriesRegistrationServiceTest(
         val authentication = Authentication.build("marte", mapOf("supplierId" to supplierId.toString()))
 
         runBlocking {
+            service.save(series)
             productRegistrationService.save(
                 ProductRegistration(
                     id = UUID.randomUUID(),
@@ -181,8 +182,6 @@ class SeriesRegistrationServiceTest(
                     productData = ProductData()
                 )
             )
-
-            service.save(series)
 
             service.deleteDraft(series, authentication)
 
@@ -209,6 +208,7 @@ class SeriesRegistrationServiceTest(
         val authentication = Authentication.build("marte", mapOf("supplierId" to supplierId.toString()))
 
         runBlocking {
+            service.save(series)
             productRegistrationService.save(
                 ProductRegistration(
                     id = UUID.randomUUID(),
@@ -220,9 +220,6 @@ class SeriesRegistrationServiceTest(
                     productData = ProductData()
                 )
             )
-
-            service.save(series)
-
             shouldThrow<BadRequestException> { service.deleteDraft(series, authentication) }
 
             service.findById(seriesId).shouldNotBeNull()

@@ -78,7 +78,6 @@ open class SeriesRegistrationService(
                 mainProduct = false,
                 accessory = accessory,
                 sparePart = !accessory,
-                isoCategory = newIsoCode,
                 productData = if (resetTechnicalData)
                     product.productData.copy(techData = createTechDataDraft(newIsoCode))
                 else
@@ -625,7 +624,6 @@ open class SeriesRegistrationService(
             val products = productRegistrationService.findAllBySeriesUuid(id)
             products.forEach { product ->
                 val updatedProduct = product.copy(
-                    isoCategory = patch.isoCategory,
                     productData = if (patch.resetTechnicalData == true)
                         product.productData.copy(techData = createTechDataDraft(patch.isoCategory))
                     else

@@ -66,13 +66,12 @@ class ProductAgreementExpiredTest(private val productAgreementRegistrationServic
             val supplierId = UUID.randomUUID()
             val supplierRef = "eksternref-14324"
             val seriesUUID = UUID.randomUUID()
-            val product = productRegistrationTestFactory.createTestProduct(supplierId, seriesUUID, supplierRef, null)
+            val product = productRegistrationTestFactory.createTestProduct(supplierId = supplierId, seriesUUID = seriesUUID, supplierRef = supplierRef, hmsArtNr = null)
             val hmsNr = "12345678"
             val registration =
                 ProductRegistration(
                     id = product.id,
                     seriesUUID = seriesUUID,
-                    isoCategory = "12001314",
                     supplierId = supplierId,
                     title = "Dette er produkt title",
                     articleName = "Dette er produkt 1 med og med",

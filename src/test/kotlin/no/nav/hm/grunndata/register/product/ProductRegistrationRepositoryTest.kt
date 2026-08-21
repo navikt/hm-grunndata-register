@@ -19,6 +19,8 @@ import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationRepository
 import no.nav.hm.grunndata.register.agreement.toEntity
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistration
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
+import no.nav.hm.grunndata.register.series.SeriesDataDTO
+import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import org.junit.jupiter.api.Test
 import tools.jackson.databind.ObjectMapper
@@ -43,7 +45,7 @@ class ProductRegistrationRepositoryTest(
                 techData = listOf(
                     TechData(key = "maksvekt", unit = "kg", value = "120"),
                     TechData(key = "bredde", unit = "cm", value = "120"),
-                    TechData(key = "Brukerhøyde maks", unit = "kg", value = "120")
+                    TechData(key = "Brukerhøyde min", unit = "kg", value = "120")
                 )
             )
         val productData2 =
@@ -63,7 +65,6 @@ class ProductRegistrationRepositoryTest(
             ProductRegistration(
                 id = UUID.randomUUID(),
                 seriesUUID = seriesUUID,
-                isoCategory = "12001314",
                 supplierId = supplierId,
                 title = "Dette er produkt title",
                 articleName = "Dette er produkt 1 med og med",
@@ -86,7 +87,6 @@ class ProductRegistrationRepositoryTest(
             ProductRegistration(
                 id = UUID.randomUUID(),
                 seriesUUID = seriesUUID,
-                isoCategory = "12001314",
                 supplierId = supplierId,
                 title = "Dette er produkt title",
                 articleName = "Dette er produkt 1 med og med",
@@ -165,6 +165,17 @@ class ProductRegistrationRepositoryTest(
             )
 
         runBlocking {
+            val series = seriesGroupRepository.save(
+                SeriesRegistration(
+                    id = seriesUUID,
+                    supplierId = supplierId,
+                    identifier = seriesUUID.toString(),
+                    title = "Test series",
+                    text = "Test series text",
+                    isoCategory = "ISO1234",
+                    seriesData = SeriesDataDTO()
+                )
+            )
             val saved1 = productRegistrationRepository.save(registration1)
             val saved2 = productRegistrationRepository.save(registration2)
             saved1.shouldNotBeNull()
@@ -202,7 +213,7 @@ class ProductRegistrationRepositoryTest(
             val lastProductInSeries = productRegistrationRepository.findLastProductInSeries(seriesUUID)
             lastProductInSeries.shouldNotBeNull()
             updated.productData.techData.size shouldBe 3
-            val distinct = productRegistrationRepository.findDistinctByProductTechDataJsonQuery("""[{"key":"Brukerhøyde maks","unit":"kg"}]""")
+            val distinct = productRegistrationRepository.findDistinctByProductTechDataJsonQuery("""[{"key":"Brukerhøyde min","unit":"kg"}]""")
             distinct.size shouldBe 1
             distinct[0].id shouldBe updated.id
 

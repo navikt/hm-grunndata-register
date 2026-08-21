@@ -30,7 +30,7 @@ data class SeriesRegistration(
     @field:Id
     val id: UUID,
     val supplierId: UUID,
-    val identifier: String,
+    val identifier: String = id.toString(),
     val title: String,
     val text: String,
     val formattedText: String? = null,

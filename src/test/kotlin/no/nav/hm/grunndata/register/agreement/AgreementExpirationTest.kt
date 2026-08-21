@@ -103,12 +103,12 @@ class AgreementExpirationTest(
             val seriesUUID1 = UUID.randomUUID()
             val supplierRef = "12345"
             val hmsnr = "12345"
-            val product1 = productRegistrationTestFactory.createTestProduct(supplier.id, seriesUUID1, supplierRef, hmsnr )
+            val product1 = productRegistrationTestFactory.createTestProduct(supplierId = supplier.id, seriesUUID = seriesUUID1, supplierRef = supplierRef, hmsArtNr = hmsnr )
             val productAgreement =
                 ProductAgreementRegistrationDTO(
                     productId = product1.id,
                     agreementId = agreement.id,
-                    seriesUuid = UUID.randomUUID(),
+                    seriesUuid = product1.seriesUUID,
                     reference = agreement.reference,
                     published = agreement.published,
                     expired = agreement.expired,
@@ -124,12 +124,12 @@ class AgreementExpirationTest(
                     status = ProductAgreementStatus.ACTIVE
                 )
 
-            val product2 = productRegistrationTestFactory.createTestProduct(supplier.id, seriesUUID1, "123456", "123456" )
+            val product2 = productRegistrationTestFactory.createTestProduct(supplierId = supplier.id, seriesUUID = seriesUUID1, supplierRef = "123456", hmsArtNr = "123456" )
             val productAgreement2 =
                 ProductAgreementRegistrationDTO(
                     agreementId = expired.id,
                     productId = product2.id,
-                    seriesUuid = UUID.randomUUID(),
+                    seriesUuid = product2.seriesUUID,
                     reference = expired.reference,
                     published = expired.published,
                     expired = expired.expired,

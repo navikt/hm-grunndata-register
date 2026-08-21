@@ -84,7 +84,7 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                     updatedBy = "tester",
                     identifier = postId.toString()
                 )
-            val product = productRegistrationTestFactory.createTestProduct(supplier.id, supplierRef = "12345", hmsArtNr = "12345")
+            val product = productRegistrationTestFactory.createTestProduct(supplierId = supplier.id, supplierRef = "12345", hmsArtNr = "12345")
             val productAgreement = ProductAgreementRegistrationDTO(
                 agreementId = agreement.id,
                 productId = product.id,
@@ -101,7 +101,7 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                 supplierRef = product.supplierRef,
                 updatedBy = REGISTER
             )
-            val product2 = productRegistrationTestFactory.createTestProduct(supplier.id, supplierRef = "123456", hmsArtNr = "123456")
+            val product2 = productRegistrationTestFactory.createTestProduct(supplierId = supplier.id, supplierRef = "123456", hmsArtNr = "123456")
             val productAgreement2 = ProductAgreementRegistrationDTO(
                 agreementId = publishing.id,
                 productId = product2.id,
@@ -119,7 +119,7 @@ class AgreementPublishTest(private val agreementPublish: AgreementPublish,
                 supplierRef = product2.supplierRef,
                 updatedBy = REGISTER
             )
-            val product3 = productRegistrationTestFactory.createTestProduct(supplier.id, supplierRef = "1234567", hmsArtNr = "1234567")
+            val product3 = productRegistrationTestFactory.createTestProduct(supplierId = supplier.id, supplierRef = "1234567", hmsArtNr = "1234567")
 
             val expiredProductAgreement = ProductAgreementRegistrationDTO(
                 agreementId = publishing.id,

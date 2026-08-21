@@ -27,6 +27,17 @@ class WorksWithConnectorTest(private val worksWithConnector: WorksWithConnector,
             val targetId = UUID.randomUUID()
             val targetSeriesId = UUID.randomUUID()
             val supplierId = UUID.randomUUID()
+            val sourceSeries = seriesRegistrationRepository.save(
+                SeriesRegistration(
+                    id = sourceSeriesId,
+                    supplierId = supplierId,
+                    identifier = sourceSeriesId.toString(),
+                    title = "Source Test series",
+                    text = "Source Test series text",
+                    isoCategory = "ISO1234",
+                    seriesData = SeriesDataDTO()
+                )
+            )
             val source = productRegistrationRepository.save(
                 ProductRegistration(
                     id = sourceId,
@@ -42,13 +53,13 @@ class WorksWithConnectorTest(private val worksWithConnector: WorksWithConnector,
                     created = LocalDateTime.now()
                 )
             )
-            val sourceSeries = seriesRegistrationRepository.save(
+            val targetSeries = seriesRegistrationRepository.save(
                 SeriesRegistration(
-                    id = sourceSeriesId,
+                    id = targetSeriesId,
                     supplierId = supplierId,
-                    identifier = sourceSeriesId.toString(),
-                    title = "Source Test series",
-                    text = "Source Test series text",
+                    identifier = targetSeriesId.toString(),
+                    title = "Target Test series",
+                    text = "Target Test series text",
                     isoCategory = "ISO1234",
                     seriesData = SeriesDataDTO()
                 )
@@ -66,17 +77,6 @@ class WorksWithConnectorTest(private val worksWithConnector: WorksWithConnector,
                     accessory = false,
                     mainProduct = true,
                     created = LocalDateTime.now()
-                )
-            )
-            val targetSeries = seriesRegistrationRepository.save(
-                SeriesRegistration(
-                    id = targetSeriesId,
-                    supplierId = supplierId,
-                    identifier = targetSeriesId.toString(),
-                    title = "Target Test series",
-                    text = "Target Test series text",
-                    isoCategory = "ISO1234",
-                    seriesData = SeriesDataDTO()
                 )
             )
 

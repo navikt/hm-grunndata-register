@@ -12,13 +12,19 @@ import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersion
 import no.nav.hm.grunndata.register.product.version.ProductRegistrationVersionService
+import no.nav.hm.grunndata.register.series.SeriesDataDTO
+import no.nav.hm.grunndata.register.series.SeriesRegistration
+import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.version.DiffStatus
 import no.nav.hm.grunndata.register.version.Difference
 import org.junit.jupiter.api.Test
 
 @MicronautTest
-class ProductRegistrationVersionServiceTest(private val productRegistrationVersionService: ProductRegistrationVersionService,
-                                            private val productRegistrationRepository: ProductRegistrationRepository) {
+class ProductRegistrationVersionServiceTest(
+    private val productRegistrationVersionService: ProductRegistrationVersionService,
+    private val productRegistrationRepository: ProductRegistrationRepository,
+    private val seriesRegistrationRepository: SeriesRegistrationRepository
+) {
 
     @Test
     fun testVersionDifference() {
@@ -48,6 +54,17 @@ class ProductRegistrationVersionServiceTest(private val productRegistrationVersi
         )
 
         runBlocking {
+            val series = seriesRegistrationRepository.save(
+                SeriesRegistration(
+                    id = seriesId,
+                    supplierId = supplierId,
+                    identifier = seriesId.toString(),
+                    title = "Test series",
+                    text = "Test series text",
+                    isoCategory = "ISO1234",
+                    seriesData = SeriesDataDTO()
+                )
+            )
             val saved = productRegistrationRepository.save(pending)
             saved.shouldNotBeNull()
             val approved = productRegistrationRepository.update(saved.copy(
