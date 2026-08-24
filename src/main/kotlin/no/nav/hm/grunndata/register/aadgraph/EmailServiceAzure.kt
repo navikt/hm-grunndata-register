@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory
 
 @Singleton
 open class EmailServiceAzure(private val aadProperties: AzureADProperties) : EmailService {
-    val scopes = listOf("https://graph.microsoft.com/.default").toString()
+    val scopes = "https://graph.microsoft.com/.default"
 
     companion object {
         private val LOG = LoggerFactory.getLogger(EmailServiceAzure::class.java)
