@@ -1,43 +1,35 @@
 package no.nav.hm.grunndata.register.aadgraph
 
+import com.azure.identity.ClientSecretCredential
 import com.azure.identity.ClientSecretCredentialBuilder
-import com.microsoft.graph.authentication.TokenCredentialAuthProvider
 import com.microsoft.graph.models.BodyType
 import com.microsoft.graph.models.EmailAddress
 import com.microsoft.graph.models.ItemBody
 import com.microsoft.graph.models.Message
 import com.microsoft.graph.models.Recipient
-import com.microsoft.graph.models.UserSendMailParameterSet
-import com.microsoft.graph.requests.GraphServiceClient
+import com.microsoft.graph.serviceclient.GraphServiceClient
+import com.microsoft.graph.users.item.sendmail.SendMailPostRequestBody
 import jakarta.inject.Singleton
-import org.slf4j.LoggerFactory
 import java.util.LinkedList
+import org.slf4j.LoggerFactory
 
 @Singleton
 open class EmailServiceAzure(private val aadProperties: AzureADProperties) : EmailService {
-    val scopes = listOf("https://graph.microsoft.com/.default")
+    val scopes = listOf("https://graph.microsoft.com/.default").toString()
 
     companion object {
         private val LOG = LoggerFactory.getLogger(EmailServiceAzure::class.java)
         private val SECURE_LOG = LoggerFactory.getLogger(EmailServiceAzure::class.java.name + ".secure")
     }
 
-    val credential =
+    val credential: ClientSecretCredential? =
         ClientSecretCredentialBuilder()
             .clientId(aadProperties.clientId)
             .tenantId(aadProperties.tenantId)
             .clientSecret(aadProperties.clientSecret)
             .build()
 
-    val authProvider =
-        TokenCredentialAuthProvider(
-            scopes,
-            credential,
-        )
-
-    val graphClient: GraphServiceClient<okhttp3.Request> =
-        GraphServiceClient.builder()
-            .authenticationProvider(authProvider).buildClient()
+    val graphClient: GraphServiceClient = GraphServiceClient(credential, scopes)
 
     override fun sendSimpleMessage(
         to: String,
@@ -62,16 +54,12 @@ open class EmailServiceAzure(private val aadProperties: AzureADProperties) : Ema
         body.content = content
         message.body = body
 
+        val sendMailPostRequestBody = SendMailPostRequestBody()
+        sendMailPostRequestBody.message = message;
+        sendMailPostRequestBody.saveToSentItems = true;
+
         kotlin.runCatching {
-            graphClient.users("ikke.svar.finnhjelpemiddel@nav.no").sendMail(
-                UserSendMailParameterSet
-                    .newBuilder()
-                    .withMessage(message)
-                    .withSaveToSentItems(true)
-                    .build(),
-            )
-                .buildRequest()
-                .post()
+            graphClient.users().byUserId("ikke.svar.finnhjelpemiddel@nav.no").sendMail().post(sendMailPostRequestBody)
         }
             .onSuccess {
                 LOG.info("mail sent")

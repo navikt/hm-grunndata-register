@@ -33,7 +33,7 @@ open class ResetPasswordService(
             emailService.sendSimpleMessage(
                 to = email,
                 subject = "Engangskode - Finn Hjelpemiddel - Leverandør",
-                BodyType.TEXT,
+                BodyType.Text,
                 content = "Din engangskode er: $otp",
             )
         }

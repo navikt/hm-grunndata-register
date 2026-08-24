@@ -12,7 +12,7 @@ val rapidsRiversVersion = "202606190809"
 val grunndataDtoVersion = "202606180923"
 val leaderElectionVersion = "202606231046"
 val googleCloudPlatformVersion = "26.86.0"
-val microsoftGrapVersion = "5.77.0"
+val microsoftGrapVersion = "6.1.0"
 val azureIdentityVersion = "1.18.4"
 val flywayPostgresqlVersion = "13.2.0"
 
