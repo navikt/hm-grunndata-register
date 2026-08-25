@@ -24,9 +24,11 @@ open class ResetPasswordService(
     open suspend fun requestOtp(email: String) {
         userRepository.findByEmailIgnoreCase(email)?.let {
             val existingOtp = otpRepository.findByEmailAndUsedOrderByCreatedDesc(email, false)
+            /*
             if (existingOtp != null && existingOtp.created.plusMinutes(OTP_TTL_MINUTES).isAfter(LocalDateTime.now())) {
                 return
             }
+            */
             // create and send OTP
             val otp = generateOTP()
             otpRepository.save(Otp(id = UUID.randomUUID(), email = email, otp = otp, used = false))
