@@ -14,7 +14,7 @@ val leaderElectionVersion = "202606231046"
 val googleCloudPlatformVersion = "26.86.0"
 val microsoftGrapVersion = "6.1.0"
 val azureIdentityVersion = "1.18.4"
-val flywayPostgresqlVersion = "13.2.0"
+val flywayPostgresqlVersion = "13.3.0"
 
 // Security versions:
 val jsonSmartVersion = "2.6.0"
