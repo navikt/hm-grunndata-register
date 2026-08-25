@@ -31,7 +31,8 @@ enum class IsoMapEnum(val code: Char, val textNo: String) {
     NEW_CODE_SAME_HEADER_SPLIT('≤', "Ny kode, samme overskrift — Består av deler av tidligere inndelinger som har blitt delt opp"),
     DELETED_CLASS_OR_SUBCLASS_OR_SECTION('X', "Klasse/underklasse eller inndeling har blitt slettet"),
     NEW_CLASS_OR_SUBCLASS_OR_SECTION('!', "Ny klasse/underklasse eller inndeling"),
-    SAME_CODE_NEW_HEADER_AND_EXPLANATION('±', "Samme kode, ny overskrift og ny forklaring");
+    SAME_CODE_NEW_HEADER_AND_EXPLANATION('±', "Samme kode, ny overskrift og ny forklaring"),
+    UNKNOWN('?', "Ukjent kode");
 
     companion object {
         fun fromCode(code: String): List<IsoMapEnum> = code.trim().mapNotNull { char -> entries.find { it.code == char } }
