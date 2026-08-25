@@ -59,8 +59,7 @@ open class EmailServiceAzure(private val aadProperties: AzureADProperties) : Ema
         sendMailPostRequestBody.saveToSentItems = true;
 
         kotlin.runCatching {
-            val userId = graphClient.usersWithUserPrincipalName("ikke.svar.finnhjelpemiddel@nav.no").get().id
-            graphClient.users().byUserId(userId).sendMail().post(sendMailPostRequestBody)
+            graphClient.users().byUserId("ikke.svar.finnhjelpemiddel@nav.no").sendMail().post(sendMailPostRequestBody)
         }
             .onSuccess {
                 LOG.info("mail sent")
