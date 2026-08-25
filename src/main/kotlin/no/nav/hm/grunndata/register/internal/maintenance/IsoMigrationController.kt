@@ -6,9 +6,12 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.swagger.v3.oas.annotations.Hidden
 import no.nav.hm.grunndata.register.iso.IsoCategoryService
+import no.nav.hm.grunndata.register.iso.v22.Iso16TreeMigrate
 import no.nav.hm.grunndata.register.iso.v22.Iso22Repository
 import no.nav.hm.grunndata.register.iso.v22.Iso22Service
+import no.nav.hm.grunndata.register.iso.v22.IsoMap
 import no.nav.hm.grunndata.register.iso.v22.IsoMapEnum
+import no.nav.hm.grunndata.register.iso.v22.IsoMapResult
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.collections.forEach
@@ -17,48 +20,24 @@ import kotlin.collections.forEach
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller("/internal/iso/migration")
 class IsoMigrationController(private val iso22Service: Iso22Service,
-                             private val isoCategoryService: IsoCategoryService,
-                             private val iso22Repository: Iso22Repository) {
+                             private val iso16TreeMigrate: Iso16TreeMigrate) {
 
     companion object {
         private val LOG: Logger = LoggerFactory.getLogger(IsoMigrationController::class.java)
     }
 
-    @Get("/dryrun")
-    suspend fun migrateProducts(): Map<List<IsoMapEnum>, MutableList<IsoMigrationResult>> {
-        val isosInDb = iso22Repository.findAllDistinctIso16InDb()
-        val isomappings: MutableMap<List<IsoMapEnum>, MutableList<IsoMigrationResult>> = mutableMapOf()
-        var noMap = 0
-        isosInDb.forEach { iso ->
-            // get the first
-            // 6 numbers.
-            val isoCategory = iso.isoCategory.take(6)
-            val isoMap = iso22Service.toIsoMap(isoCategory)
-            if (isoMap != null) {
-                isomappings[isoMap.mapEnum] = isomappings.getOrDefault(isoMap.mapEnum, mutableListOf()).apply {
-                    add(IsoMigrationResult(mapEnums = isoMap.mapEnum, iso16Code = iso.isoCategory, iso22Code = isoMap.code22,
-                        iso16Title = isoCategoryService.lookUpCode(iso.isoCategory)?.isoTitle,
-                        iso16Titlelvl3 = isoCategoryService.lookUpCode(isoCategory)?.isoTitle,
-                        iso22Title = iso22Service.lookUp22Code(isoMap.code22?:"")?.isoTitle)) }
+    @Get("/migrate")
+    fun migrateIso16To22(): List<IsoMapResult> {
+        val isoMaps = iso16TreeMigrate.migrateIso16Tree()
+        isoMaps.forEach {
+            if (!it.code22.isNullOrEmpty()) {
+                iso22Service.lookUp22Code(it.code22) ?: throw Exception("Could not find iso22 code: ${it.code22} mapped from iso16 code ${it.code16}")
             }
             else {
-                noMap++
+                LOG.error("Could not find iso16 code: ${it.code16} mapped to iso22 code: ${it.code22} with enum: ${it.isoMap?.mapEnum}")
             }
         }
-        println("No mapping: $noMap")
-        println("Count SAME: ${isomappings.getOrDefault(listOf(IsoMapEnum.SAME), mutableListOf()).size}")
-        println("Count Total: ${isomappings.values.flatten().size}")
-        // filter out the ones that have "SAME" isoMapEnum
-        return isomappings.filter { entry -> !entry.key.contains(IsoMapEnum.SAME) }
+        return isoMaps
     }
-
 }
 
-data class IsoMigrationResult(
-    val mapEnums: List<IsoMapEnum> = listOf(IsoMapEnum.SAME),
-    val iso16Code: String?,
-    val iso22Code: String?,
-    val iso16Title: String?,
-    val iso16Titlelvl3: String?,
-    val iso22Title: String?,
-)
