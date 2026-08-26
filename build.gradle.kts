@@ -9,12 +9,14 @@ val logbackEncoderVersion = "9.0"
 val postgresqlVersion = "42.7.12"
 val poiVersion = "5.5.1"
 val rapidsRiversVersion = "202606190809"
+val grunndataDtoVersion = "202607151330"
 val grunndataDtoVersion = "202608211129"
 val microsoftGraphVersion = "5.77.0"
 val leaderElectionVersion = "202606231046"
-val googleCloudPlatformVersion = "26.61.0"
+val googleCloudPlatformVersion = "26.86.0"
+val microsoftGrapVersion = "6.67.0"
 val azureIdentityVersion = "1.18.4"
-val flywayPostgresqlVersion = "13.2.0"
+val flywayPostgresqlVersion = "13.3.0"
 
 // Security versions:
 val jsonSmartVersion = "2.6.0"
@@ -99,7 +101,7 @@ dependencies {
     implementation("org.apache.poi:poi-ooxml:$poiVersion")
 
     // Microsoft Graph
-    implementation("com.microsoft.graph:microsoft-graph:$microsoftGraphVersion")
+    implementation("com.microsoft.graph:microsoft-graph:$microsoftGrapVersion")
     implementation("com.azure:azure-identity:$azureIdentityVersion")
     implementation("net.minidev:json-smart:$jsonSmartVersion")
 

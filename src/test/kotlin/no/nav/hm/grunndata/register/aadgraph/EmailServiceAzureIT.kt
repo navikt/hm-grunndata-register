@@ -14,7 +14,7 @@ class EmailServiceAzureIT(private val emailServiceAzure: EmailServiceAzure) {
         emailServiceAzure.sendSimpleMessage(
             "somemailadress",
             "Dette er en test",
-            BodyType.TEXT,
+            BodyType.Text,
             "Dette er en test",
         )
     }
