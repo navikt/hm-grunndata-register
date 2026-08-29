@@ -25,7 +25,7 @@ group = "no.nav.hm"
 
 plugins {
     kotlin("jvm") version "2.3.21"
-    kotlin("plugin.allopen") version "2.3.21"
+    kotlin("plugin.allopen") version "2.4.10"
     id("com.google.devtools.ksp") version "2.3.7"
     id("java")
     id("com.gradleup.shadow") version "9.6.1"
