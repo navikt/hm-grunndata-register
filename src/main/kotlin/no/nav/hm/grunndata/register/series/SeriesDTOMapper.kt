@@ -3,6 +3,7 @@ package no.nav.hm.grunndata.register.series
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.HMDB
+import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.iso.IsoCategoryService
 import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
@@ -13,6 +14,7 @@ import java.time.LocalDateTime
 @Singleton
 class SeriesDTOMapper(
     private val productAgreementRegistrationService: ProductAgreementRegistrationService,
+    private val agreementRegistrationService: AgreementRegistrationService,
     private val productRegistrationService: ProductRegistrationService,
     private val isoCategoryService: IsoCategoryService,
     private val supplierRegistrationService: SupplierRegistrationService,
@@ -27,11 +29,22 @@ class SeriesDTOMapper(
         val productRegistrationDTOs = productRegistrationService.findAllBySeriesUuid(seriesRegistration.id)
             .filter { it.registrationStatus != RegistrationStatus.DELETED }
             .map { product -> productDTOMapper.toDTOV2(product) }
-        val inAgreement = productAgreementRegistrationService.findAllByProductIds(
+        val activeProductAgreements = productAgreementRegistrationService.findAllByProductIds(
             productRegistrationService.findAllBySeriesUuid(seriesRegistration.id)
                 .filter { it.registrationStatus == RegistrationStatus.ACTIVE }
                 .map { it.id },
-        ).isNotEmpty()
+        )
+        val agreements = activeProductAgreements
+            .distinctBy { it.agreementId }
+            .mapNotNull { productAgreement ->
+                agreementRegistrationService.findById(productAgreement.agreementId)?.let { agreement ->
+                    SeriesAgreementInfo(
+                        id = agreement.id,
+                        title = agreement.title,
+                        reference = agreement.reference,
+                    )
+                }
+            }
 
         return SeriesDTO(
             id = seriesRegistration.id,
@@ -52,7 +65,8 @@ class SeriesDTOMapper(
             version = seriesRegistration.version,
             isExpired = seriesRegistration.expired < LocalDateTime.now(),
             isPublished = seriesRegistration.published?.let { it < LocalDateTime.now() } ?: false,
-            inAgreement = inAgreement,
+            inAgreement = activeProductAgreements.isNotEmpty(),
+            agreements = agreements,
             hmdbId = if (seriesRegistration.identifier != seriesRegistration.id.toString() &&
                 seriesRegistration.createdBy == HMDB
             ) {

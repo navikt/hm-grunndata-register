@@ -236,7 +236,14 @@ data class SeriesDTO(
     val isExpired: Boolean,
     val isPublished: Boolean,
     val inAgreement: Boolean,
+    val agreements: List<SeriesAgreementInfo> = emptyList(),
     val hmdbId: String? = null,
+)
+
+data class SeriesAgreementInfo(
+    val id: UUID,
+    val title: String,
+    val reference: String,
 )
 
 data class SeriesIdDTO(val id: UUID)

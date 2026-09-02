@@ -91,8 +91,10 @@ dependencies {
     implementation("no.nav.hm.grunndata:hm-grunndata-rapid-dto:$grunndataDtoVersion")
 
     // OpenApi
+    ksp("io.micronaut.openapi:micronaut-openapi")
     implementation("io.micronaut.openapi:micronaut-openapi")
-    compileOnly("io.micronaut.openapi:micronaut-openapi-annotations")
+    implementation("io.micronaut.openapi:micronaut-openapi-annotations")
+    implementation("io.swagger.core.v3:swagger-annotations")
 
     // excel import
     implementation("org.apache.poi:poi:$poiVersion")
