@@ -14,8 +14,8 @@ class IsoMapper(private val isoMapRepository: IsoMapRepository   ) {
         runBlocking {
             isoMaps = isoMapRepository.findAll()
                 .toList()
-                .filter { it.code16 != null && it.code22 != null }
-                .associateBy { it.code16!! }
+                .filter { it.code16.isNotEmpty() && it.code22.isNotEmpty() }
+                .associateBy { it.code16 }
         }
         LOG.info("Found ${isoMaps.size} isomaps")
     }
@@ -29,7 +29,6 @@ class IsoMapper(private val isoMapRepository: IsoMapRepository   ) {
             }
             code16Prefix = code16Prefix.dropLast(2)
         }
-        //LOG.error("Could not find mapping for code16: $code16")
         return null
     }
 
