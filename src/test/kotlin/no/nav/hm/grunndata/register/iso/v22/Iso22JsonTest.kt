@@ -6,6 +6,7 @@ import no.nav.hm.grunndata.rapid.dto.IsoCategoryDTO
 import no.nav.hm.grunndata.register.iso.IsoTranslations
 import org.junit.jupiter.api.Test
 import tools.jackson.databind.ObjectMapper
+import java.io.File
 
 @MicronautTest
 class Iso22JsonTest(private val objectMapper: ObjectMapper) {
@@ -62,7 +63,7 @@ class Iso22JsonTest(private val objectMapper: ObjectMapper) {
         val isoMaps = objectMapper.readValue(
             Iso22JsonTest::class.java.classLoader.getResource("iso/mapping.json")!!.readText(),
             Array<IsoMapping>::class.java
-        )
+        ).distinct()
         var codes = mutableSetOf<String>()
         val iso22maps = isoMaps.map { map ->
             codes += map.codeMap.trim()
@@ -72,7 +73,9 @@ class Iso22JsonTest(private val objectMapper: ObjectMapper) {
                 code22 = map.code22.replace(" ", "").trim()
             )
         }
-        println(objectMapper.writeValueAsString(iso22maps))
+        File("src/test/resources/iso/iso22-map.json").writeText(
+            objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(iso22maps)
+        )
     }
 
     companion object   {

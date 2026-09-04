@@ -21,5 +21,8 @@ CREATE TABLE iso_map_v22
     code16  VARCHAR(32),
     code22  VARCHAR(32),
     map_enum jsonb DEFAULT '[]'::jsonb NOT NULL,
-    created TIMESTAMP WITHOUT TIME ZONE NOT NULL
+    created TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    verified  BOOLEAN NOT NULL
 );
+
+create unique index idx_iso_map_v22_code16_code22 on iso_map_v22 (code16, code22);
