@@ -1,7 +1,6 @@
 package no.nav.hm.grunndata.register.iso.v22
 
 
-import io.micronaut.context.annotation.Context
 import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -11,7 +10,7 @@ import org.slf4j.LoggerFactory
 @Singleton
 class Iso22Service(
     private val iso22Repository: Iso22Repository,
-    private val iso16TreeMigrate: Iso16TreeMigrate,
+    private val iso16ToIso22Util: Iso16ToIso22Util,
 ) {
 
     private var iso22Categories: Map<String, Iso22>

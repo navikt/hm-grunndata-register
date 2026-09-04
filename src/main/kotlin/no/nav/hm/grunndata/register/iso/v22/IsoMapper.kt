@@ -17,18 +17,19 @@ class IsoMapper(private val isoMapRepository: IsoMapRepository   ) {
                 .filter { it.code16 != null && it.code22 != null }
                 .associateBy { it.code16!! }
         }
+        LOG.info("Found ${isoMaps.size} isomaps")
     }
 
     fun mapIso16To22(code16: String): IsoMap? {
         var code16Prefix = code16
         for (code16PrefixLength in code16Prefix.length downTo 2) {
-            LOG.debug("Trying to find mapping for code16 prefix: $code16Prefix")
             if (isoMaps[code16Prefix] != null) {
+                LOG.info("Found mapping for code16 prefix: $code16Prefix")
                 return isoMaps[code16Prefix]
             }
             code16Prefix = code16Prefix.dropLast(2)
         }
-        LOG.error("Could not find mapping for code16: $code16")
+        //LOG.error("Could not find mapping for code16: $code16")
         return null
     }
 

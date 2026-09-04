@@ -11,11 +11,12 @@ import java.util.UUID
 data class IsoMap(
     @field:Id
     val id: UUID = UUID.randomUUID(),
-    val code16: String?= null,
+    val code16: String="",
     @field:TypeDef(type = DataType.JSON)
     val mapEnum: List<IsoMapEnum> = emptyList(),
-    val code22: String?=null,
+    val code22: String="",
     val created: LocalDateTime = LocalDateTime.now(),
+    val verified: Boolean = false,
 )
 
 enum class IsoMapEnum(val code: Char, val textNo: String) {
