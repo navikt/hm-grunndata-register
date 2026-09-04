@@ -26,6 +26,7 @@ class SeriesRegistrationRepositoryTest(private val seriesRegistrationRepository:
             title = "Series 1",
             text = "Series 1 text",
             isoCategory = "12343212",
+            isoCategoryV22 = "12343213",
             status = SeriesStatus.ACTIVE,
             adminStatus = AdminStatus.PENDING,
             seriesData = SeriesDataDTO(media = setOf(
@@ -45,6 +46,7 @@ class SeriesRegistrationRepositoryTest(private val seriesRegistrationRepository:
             updated.draftStatus shouldBe DraftStatus.DONE
             updated.adminStatus shouldBe AdminStatus.APPROVED
             updated.isoCategory shouldBe "12343212"
+            updated.isoCategoryV22 shouldBe "12343213"
             updated.seriesData.media.size shouldBe 1
             updated.seriesData.media.first().uri shouldBe "http://example.com"
         }

@@ -58,19 +58,6 @@ class IsoCategoryFixController(private val isoCategoryRegistrationService: IsoCa
         }
     }
 
-    @Put("/fix-missing-searchwords")
-    suspend fun fixMissingSearchWords() {
-        val isos = objectMapper.readValue(IsoCategoryFixController::class.java.getResourceAsStream("/isos.json"),
-            object : TypeReference<List<IsoCategoryRegistrationDTO>>(){})
-        isos.forEach {
-            if (it.searchWords.isNotEmpty()) {
-                isoCategoryRegistrationService.findByCode(it.isoCode)?.let { iso ->
-                    isoCategoryRegistrationService.update(iso.copy(searchWords = it.searchWords))
-                } ?: isoCategoryRegistrationService.save(it)
-            }
-        }
-    }
-
     private fun createIsoCategory(isocode: String, isoTitle: String): IsoCategoryRegistrationDTO {
         return IsoCategoryRegistrationDTO(
             isoCode = isocode,
