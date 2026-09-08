@@ -4,19 +4,14 @@ package no.nav.hm.grunndata.register.iso.v22
 import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
-import no.nav.hm.grunndata.register.iso.IsoCategoryService
-import org.slf4j.LoggerFactory
+
 
 @Singleton
 class Iso22Service(
     private val iso22Repository: Iso22Repository,
 ) {
 
-    private var iso22Categories: Map<String, Iso22>
-
-    companion object {
-        private val LOG = LoggerFactory.getLogger(IsoCategoryService::class.java)
-    }
+    private var iso22Categories: Map<String, Iso22> = emptyMap()
 
     init {
         runBlocking {
