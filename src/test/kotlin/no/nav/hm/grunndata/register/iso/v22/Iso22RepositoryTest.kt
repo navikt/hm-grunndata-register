@@ -15,10 +15,10 @@ class Iso22RepositoryTest(private val repository: Iso22Repository) {
     fun testCrudRepository() {
         val iso22 = Iso22(
             isoCode = "30300001",
-            isoTitle = "Hjelpemidler for røyking",
-            isoText = "Hjelpemidler som gjør det mulig for en person å røyke.",
+            isoTitle = "Hjelpemidler for svømming",
+            isoText = "Hjelpemidler som gjør det mulig for en person å svømme.",
             isoTranslations = IsoTranslations(titleEn = "English title", textEn = "English text"),
-            searchWords = listOf("Hjelpemidler", "røyking"),
+            searchWords = listOf("Hjelpemidler", "svømming"),
             createdByUser = "tester",
             updatedByUser = "tester",
         )

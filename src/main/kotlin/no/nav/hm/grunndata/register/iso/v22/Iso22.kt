@@ -29,6 +29,22 @@ data class Iso22 (
     val updated: LocalDateTime = LocalDateTime.now()
 )
 
+data class Iso22DTO (
+    val id: UUID = UUID.randomUUID(),
+    val isoCode: String,
+    val isoTitle: String,
+    val isoText: String?=null,
+    val isoTranslations: IsoTranslations = IsoTranslations(),
+    val searchWords: List<String> = emptyList(),
+    val isoType: IsoType = IsoType.ISO,
+    val createdByUser: String,
+    val updatedByUser: String,
+    val createdBy: String = REGISTER,
+    val updatedBy: String = REGISTER,
+    val created: LocalDateTime = LocalDateTime.now(),
+    val updated: LocalDateTime = LocalDateTime.now()
+)
+
 enum class IsoType {
     ISO,
     NAT,
