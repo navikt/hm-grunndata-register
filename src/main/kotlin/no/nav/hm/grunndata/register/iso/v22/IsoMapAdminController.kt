@@ -9,6 +9,7 @@ import io.micronaut.security.annotation.Secured
 import kotlinx.coroutines.flow.toList
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
+import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(IsoMapAdminController.API_V1_ADMIN_ISOMAP)
@@ -18,19 +19,42 @@ class IsoMapAdminController(private val isoMapRepository: IsoMapRepository) {
     }
 
     @Get("/")
-    suspend fun getAllIsoMaps(): List<IsoMap> {
-        return isoMapRepository.findAll().toList()
+    suspend fun getAllIsoMaps(): List<IsoMapDTO> {
+        return isoMapRepository.findAll().toList().map { it.toDTO() }
     }
 
     @Post("/")
-    suspend fun createIsoMap(isoMap: IsoMap): HttpResponse<IsoMap> = isoMapRepository.findByCode16AndCode22(isoMap.code16, isoMap.code22)?.let {
+    suspend fun createIsoMap(isoMap: IsoMapDTO): HttpResponse<IsoMapDTO> = isoMapRepository.findByCode16AndCode22(isoMap.code16, isoMap.code22)?.let {
             throw BadRequestException("IsoMap ${isoMap.code16} -> ${isoMap.code22} already exists")
-        } ?: HttpResponse.created(isoMapRepository.save(isoMap))
+        } ?: HttpResponse.created(isoMapRepository.save(isoMap.toEntity()).toDTO())
 
 
-    @Put("/")
-    suspend fun updateIsoMap(isoMap: IsoMap): HttpResponse<IsoMap> = isoMapRepository.findById(isoMap.id)?.let { inDb ->
-            HttpResponse.ok(isoMapRepository.update(isoMap.copy(id = inDb.id)))
+    @Put("/{id}")
+    suspend fun updateIsoMap(id: UUID, isoMap: IsoMapDTO): HttpResponse<IsoMapDTO> = isoMapRepository.findById(id)?.let { inDb ->
+            HttpResponse.ok(isoMapRepository.update(isoMap.copy(id = inDb.id).toEntity()).toDTO())
         } ?: HttpResponse.notFound()
 
+    suspend fun getVerifiedPercentage(): Int {
+        val total = isoMapRepository.count()
+        val verified = isoMapRepository.countVerified()
+        return if (total == 0L) 0 else (verified * 100 / total).toInt()
+    }
+
+    fun IsoMap.toDTO(): IsoMapDTO = IsoMapDTO(
+        id = this.id,
+        code16 = this.code16,
+        code22 = this.code22,
+        mapEnum = this.mapEnum,
+        created = this.created,
+        verified = this.verified
+    )
+
+    fun IsoMapDTO.toEntity(): IsoMap = IsoMap(
+        id = this.id,
+        code16 = this.code16,
+        code22 = this.code22,
+        mapEnum = this.mapEnum,
+        created = this.created,
+        verified = this.verified
+    )
 }

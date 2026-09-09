@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.iso.v22
 
+import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
@@ -13,6 +14,16 @@ data class IsoMap(
     val id: UUID = UUID.randomUUID(),
     val code16: String="",
     @field:TypeDef(type = DataType.JSON)
+    val mapEnum: List<IsoMapEnum> = emptyList(),
+    val code22: String="",
+    val created: LocalDateTime = LocalDateTime.now(),
+    val verified: Boolean = false,
+)
+
+@Introspected
+data class IsoMapDTO(
+    val id: UUID = UUID.randomUUID(),
+    val code16: String="",
     val mapEnum: List<IsoMapEnum> = emptyList(),
     val code22: String="",
     val created: LocalDateTime = LocalDateTime.now(),
