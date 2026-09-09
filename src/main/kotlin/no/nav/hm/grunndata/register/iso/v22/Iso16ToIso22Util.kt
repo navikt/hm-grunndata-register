@@ -36,7 +36,7 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
                         }
                     }
                     else {
-                        if (isoMap.code22!!.length > 6 && getLevelFromIsoCode(isoMap.code22) == 3 && iso16Nat.isoCode.startsWith(isoMap.code22) ) {
+                        if (isoMap.code22.length > 6 && getLevelFromIsoCode(isoMap.code22) == 3 && iso16Nat.isoCode.startsWith(isoMap.code22) ) {
                             LOG.info("Found mapping for iso16: ${iso16Nat.isoCode} to iso22: ${isoMap.code22}, but not SAME code, but iso22 is level 3 and iso16 starts with iso22, so we can map it")
                             isoMapRepository.findByCode16AndCode22(iso16Nat.isoCode, iso16Nat.isoCode) ?: run {
                                 isoMapRepository.save(

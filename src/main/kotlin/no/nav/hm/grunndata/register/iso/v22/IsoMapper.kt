@@ -24,7 +24,6 @@ class IsoMapper(private val isoMapRepository: IsoMapRepository   ) {
         var code16Prefix = code16
         for (code16PrefixLength in code16Prefix.length downTo 2) {
             if (isoMaps[code16Prefix] != null) {
-                LOG.info("Found mapping for code16 prefix: $code16Prefix")
                 return isoMaps[code16Prefix]
             }
             code16Prefix = code16Prefix.dropLast(2)

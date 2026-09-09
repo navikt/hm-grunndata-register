@@ -5,10 +5,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.IsoCategoryDTO
-import no.nav.hm.grunndata.register.iso.v22.Iso22
-import no.nav.hm.grunndata.register.iso.v22.Iso22Repository
-import no.nav.hm.grunndata.register.iso.v22.IsoMap
-import no.nav.hm.grunndata.register.iso.v22.IsoMapRepository
 import org.slf4j.LoggerFactory
 
 @Singleton
