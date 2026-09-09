@@ -31,7 +31,7 @@ class IsoMapAdminController(private val isoMapRepository: IsoMapRepository) {
 
     @Put("/{id}")
     suspend fun updateIsoMap(id: UUID, isoMap: IsoMapDTO): HttpResponse<IsoMapDTO> = isoMapRepository.findById(id)?.let { inDb ->
-            HttpResponse.ok(isoMapRepository.update(isoMap.copy(id = inDb.id).toEntity()).toDTO())
+            HttpResponse.ok(isoMapRepository.update(isoMap.copy(id = inDb.id, created=inDb.created, ).toEntity()).toDTO())
         } ?: HttpResponse.notFound()
 
     suspend fun getVerifiedPercentage(): Int {

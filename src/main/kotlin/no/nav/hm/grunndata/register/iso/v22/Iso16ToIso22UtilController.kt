@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory
             isoMapRepository.findById(mapping.id)?.let {
                 isoMapRepository.update(mapping.copy(id = it.id, created = it.created, verified = mapping.mapEnum.contains(IsoMapEnum.SAME)))
             } ?: run {
-                isoMapRepository.save(mapping)
+                isoMapRepository.save(mapping.copy(verified = mapping.mapEnum.contains(IsoMapEnum.SAME)) )
             }
         }
     }

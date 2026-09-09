@@ -36,7 +36,7 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
                         }
                     }
                     else {
-                        if (isoMap.code22.length > 6 && getLevelFromIsoCode(isoMap.code22) == 3 && iso16Nat.isoCode.startsWith(isoMap.code22) ) {
+                        if (getLevelFromIsoCode(isoMap.code22) == 3 && iso16Nat.isoCode.startsWith(isoMap.code22) ) {
                             LOG.info("Found mapping for iso16: ${iso16Nat.isoCode} to iso22: ${isoMap.code22}, but not SAME code, but iso22 is level 3 and iso16 starts with iso22, so we can map it")
                             isoMapRepository.findByCode16AndCode22(iso16Nat.isoCode, iso16Nat.isoCode) ?: run {
                                 isoMapRepository.save(
@@ -74,7 +74,7 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
     suspend fun checkCode22Mappings() {
         val code22List = isoMapRepository.findAll().map { it.code22 }.toSet()
         code22List.forEach {
-            code22 -> iso22Repository.findByIsoCode(code22!!)?.let {
+            code22 -> iso22Repository.findByIsoCode(code22)?.let {
             } ?: run {
                 LOG.warn("Could not find iso22 for code22: $code22")
             }
