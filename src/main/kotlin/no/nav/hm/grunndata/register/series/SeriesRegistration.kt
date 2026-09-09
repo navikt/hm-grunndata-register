@@ -35,7 +35,6 @@ data class SeriesRegistration(
     val text: String,
     val formattedText: String? = null,
     val isoCategory: String,
-    val isoCategoryV22: String? = null,
     @field:TypeDef(type = DataType.JSON)
     val seriesData: SeriesDataDTO,
     val message: String? = null,
@@ -150,7 +149,6 @@ fun SeriesRegistration.toDTO() =
         text = text,
         formattedText = formattedText,
         isoCategory = isoCategory,
-        isoCategoryV22 = isoCategoryV22,
         message = message,
         draftStatus = draftStatus,
         adminStatus = adminStatus,

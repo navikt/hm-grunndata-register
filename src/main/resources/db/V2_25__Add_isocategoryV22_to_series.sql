@@ -1,1 +1,0 @@
-ALTER TABLE series_reg_v1 ADD COLUMN iso_category_v22 VARCHAR(255);
