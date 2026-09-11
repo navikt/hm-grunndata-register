@@ -281,6 +281,43 @@ open class ProductRegistrationService(
         return dto ?: throw BadRequestException("Product not found", type = ErrorType.NOT_FOUND)
     }
 
+    open suspend fun bulkUpdateTechData(
+        bulkUpdateDTO: BulkTechDataUpdateDTO,
+        authentication: Authentication,
+    ): BulkTechDataUpdateResult {
+        val updated = mutableListOf<ProductRegistration>()
+        val failed = mutableListOf<BulkTechDataUpdateError>()
+
+        bulkUpdateDTO.updates.forEach { variantUpdate ->
+            try {
+                val inDb = findById(variantUpdate.productId)
+                    ?: throw BadRequestException("Product not found", type = ErrorType.NOT_FOUND)
+                if (!authentication.isAdmin() && authentication.supplierId() != inDb.supplierId) {
+                    throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
+                }
+                val saved = saveAndCreateEventIfNotDraftAndApproved(
+                    inDb.copy(
+                        productData = inDb.productData.copy(
+                            techData = variantUpdate.techData.map { it.toEntity() },
+                        ),
+                        updatedByUser = authentication.name,
+                        updatedBy = REGISTER,
+                        updated = LocalDateTime.now(),
+                    ),
+                    isUpdate = true,
+                )
+                updated.add(saved)
+            } catch (e: BadRequestException) {
+                LOG.warn("Bulk tech data update rejected for product ${variantUpdate.productId}: ${e.message}")
+                failed.add(BulkTechDataUpdateError(variantUpdate.productId, e.message ?: "Ukjent feil"))
+            } catch (e: Exception) {
+                LOG.error("Bulk tech data update failed for product ${variantUpdate.productId}", e)
+                failed.add(BulkTechDataUpdateError(variantUpdate.productId, e.message ?: "Ukjent feil"))
+            }
+        }
+        return BulkTechDataUpdateResult(updated = updated, failed = failed)
+    }
+
     @Transactional
     open suspend fun saveAndCreateEventIfNotDraftAndApproved(
         product: ProductRegistration,
