@@ -18,6 +18,7 @@ data class IsoMap(
     val code22: String?=null,
     val created: LocalDateTime = LocalDateTime.now(),
     val verified: Boolean = false,
+    val level22: Int = code22?.let { getLevelFromIsoCode(it) } ?: 0
 )
 
 @Introspected
@@ -28,6 +29,7 @@ data class IsoMapDTO(
     val code22: String?=null,
     val created: LocalDateTime = LocalDateTime.now(),
     val verified: Boolean = false,
+    val level22: Int = code22?.let { getLevelFromIsoCode(it) } ?: 0
 )
 
 enum class IsoMapEnum(val code: Char, val textNo: String) {

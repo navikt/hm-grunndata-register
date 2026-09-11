@@ -46,7 +46,8 @@ class IsoMapAdminController(private val isoMapRepository: IsoMapRepository) {
         code22 = this.code22,
         mapEnum = this.mapEnum,
         created = this.created,
-        verified = this.verified
+        verified = this.verified,
+        level22 = this.level22
     )
 
     fun IsoMapDTO.toEntity(): IsoMap = IsoMap(
@@ -55,6 +56,7 @@ class IsoMapAdminController(private val isoMapRepository: IsoMapRepository) {
         code22 = this.code22,
         mapEnum = this.mapEnum,
         created = this.created,
-        verified = this.verified
+        verified = this.verified,
+        level22 = this.level22
     )
 }

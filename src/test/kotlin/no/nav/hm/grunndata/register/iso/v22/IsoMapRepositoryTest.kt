@@ -24,6 +24,7 @@ class IsoMapRepositoryTest(private val repo: IsoMapRepository) {
             read.shouldNotBeNull()
             read.code16 shouldBe "30300001"
             read.code22 shouldBe "20200001"
+            read.level22 shouldBe 4
             read.mapEnum shouldBe listOf(IsoMapEnum.SAME_OR_CHANGED_CODE_SAME_HEADER_MERGED)
             read.created.shouldNotBeNull()
         }
