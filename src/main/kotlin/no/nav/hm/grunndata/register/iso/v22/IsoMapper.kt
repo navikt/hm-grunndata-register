@@ -14,8 +14,8 @@ class IsoMapper(private val isoMapRepository: IsoMapRepository   ) {
         runBlocking {
             isoMaps = isoMapRepository.findAll()
                 .toList()
-                .filter { it.code16.isNotEmpty() && it.code22.isNotEmpty() }
-                .associateBy { it.code16 }
+                .filter { !it.code16.isNullOrEmpty() && !it.code22.isNullOrEmpty() }
+                .associateBy { it.code16!! }
         }
         LOG.info("Found ${isoMaps.size} isomaps")
     }

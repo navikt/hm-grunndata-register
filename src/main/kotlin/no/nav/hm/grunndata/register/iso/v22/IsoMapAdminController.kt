@@ -24,7 +24,7 @@ class IsoMapAdminController(private val isoMapRepository: IsoMapRepository) {
     }
 
     @Post("/")
-    suspend fun createIsoMap(isoMap: IsoMapDTO): HttpResponse<IsoMapDTO> = isoMapRepository.findByCode16AndCode22(isoMap.code16, isoMap.code22)?.let {
+    suspend fun createIsoMap(isoMap: IsoMapDTO): HttpResponse<IsoMapDTO> = isoMapRepository.findByCode16AndCode22(isoMap.code16!!, isoMap.code22!!)?.let {
             throw BadRequestException("IsoMap ${isoMap.code16} -> ${isoMap.code22} already exists")
         } ?: HttpResponse.created(isoMapRepository.save(isoMap.toEntity()).toDTO())
 

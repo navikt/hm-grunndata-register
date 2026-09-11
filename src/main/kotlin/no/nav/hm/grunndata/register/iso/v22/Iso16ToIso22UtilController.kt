@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory
             }
         }
         mappings.forEach { mapping ->
-
             isoMapRepository.findById(mapping.id)?.let {
                 isoMapRepository.update(mapping.copy(id = it.id, created = it.created, verified = mapping.mapEnum.contains(IsoMapEnum.SAME)))
             } ?: run {
