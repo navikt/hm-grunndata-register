@@ -9,11 +9,11 @@ import org.slf4j.LoggerFactory
 
 @Singleton
 class IsoCategoryService(
-    private val isoCategoryRegistrationRepository: IsoCategoryRegistrationRepository
+    private val isoCategoryRegistrationRepository: IsoCategoryRegistrationRepository,
+
 ) {
 
     private var isoCategories: Map<String, IsoCategoryDTO>
-
 
     companion object {
         private val LOG = LoggerFactory.getLogger(IsoCategoryService::class.java)
@@ -26,8 +26,8 @@ class IsoCategoryService(
             if (isoCategories.size < 1000) {
                 LOG.error("ISO categories are not loaded properly, only ${isoCategories.size} loaded")
             }
-        }
 
+        }
     }
 
     fun lookUpCode(isoCode: String): IsoCategoryDTO? = isoCategories[isoCode]
