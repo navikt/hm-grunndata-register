@@ -153,6 +153,20 @@ class ProductRegistrationAdminApiController(
             throw BadRequestException("Got exception while updating product $id")
         }
 
+    @Put("/tech-data/bulk")
+    suspend fun bulkUpdateTechData(
+        @Body bulkUpdateDTO: BulkTechDataUpdateDTO,
+        authentication: Authentication,
+    ): HttpResponse<BulkTechDataUpdateResultDTO> {
+        val result = productRegistrationService.bulkUpdateTechData(bulkUpdateDTO, authentication)
+        return HttpResponse.ok(
+            BulkTechDataUpdateResultDTO(
+                updated = result.updated.map { productDTOMapper.toDTOV2(it) },
+                failed = result.failed,
+            )
+        )
+    }
+
     @Put("/to-expired/{id}")
     suspend fun setPublishedProductToInactive(
         @PathVariable id: UUID,
