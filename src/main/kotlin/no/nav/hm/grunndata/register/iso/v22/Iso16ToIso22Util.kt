@@ -101,7 +101,7 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
                             createdByUser = "system",
                             updatedByUser = "system",
                             isoTranslations = iso16.isoTranslations,
-                            isoType = IsoType.NAT,
+                            isoType = if (isOebsCategory(isoMap.code22)) IsoType.OEBS else IsoType.NAT,
                             searchWords = iso16.searchWords
                         )
                     )

@@ -49,5 +49,5 @@ data class Iso22DTO (
 enum class IsoType {
     ISO,
     NAT,
-    OBS
+    OEBS
 }
