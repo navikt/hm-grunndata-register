@@ -130,6 +130,6 @@ fun getLevelFromIsoCode(isoCode: String): Int {
         4 -> 2
         6 -> 3
         8 -> 4
-        else -> throw IllegalArgumentException("Invalid isoCode length: ${isoCode.length}")
+        else -> 0
     }
 }

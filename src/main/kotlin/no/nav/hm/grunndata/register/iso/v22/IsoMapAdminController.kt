@@ -31,7 +31,12 @@ class IsoMapAdminController(private val isoMapRepository: IsoMapRepository) {
 
     @Put("/{id}")
     suspend fun updateIsoMap(id: UUID, isoMap: IsoMapDTO): HttpResponse<IsoMapDTO> = isoMapRepository.findById(id)?.let { inDb ->
-            HttpResponse.ok(isoMapRepository.update(isoMap.copy(id = inDb.id, created=inDb.created, ).toEntity()).toDTO())
+        isoMapRepository.findByCode16AndCode22(isoMap.code16!!, isoMap.code22!!)?.let { existing ->
+            if (existing.id != id) {
+                throw BadRequestException("IsoMap ${isoMap.code16} -> ${isoMap.code22} already exists with a different id")
+            }
+        }
+        HttpResponse.ok(isoMapRepository.update(isoMap.copy(id = inDb.id, created=inDb.created, ).toEntity()).toDTO())
         } ?: HttpResponse.notFound()
 
     suspend fun getVerifiedPercentage(): Int {

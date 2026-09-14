@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory
         }
     }
 
-    @Post("/mapping")
+    @Post("/upload-mapping")
     suspend fun updateIsoMapping(@Body mappings: List<IsoMap>) {
         LOG.info("Got iso22 mappings: $mappings")
         // verify everything is ok before saving, if not throw exception
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory
         }
     }
 
-    @Post("/nat-mapping")
+    @Post("/rebuild/nat-mapping")
     suspend fun updateIsoNatMapping(@Body mappings: List<IsoMap>) {
         iso16ToIso22Util.rebuildIso16NatTo22Map()
     }

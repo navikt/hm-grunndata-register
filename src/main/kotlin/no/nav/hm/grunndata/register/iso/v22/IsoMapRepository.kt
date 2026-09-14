@@ -7,7 +7,6 @@ import java.util.*
 
 @JdbcRepository(dialect = Dialect.POSTGRES)
 interface IsoMapRepository : CoroutineCrudRepository<IsoMap, UUID> {
-    suspend fun findByCode16(code16: String): IsoMap?
     suspend fun findByCode16AndCode22(code16: String, code22: String): IsoMap?
     suspend fun countByVerified(verified: Boolean): Long
     suspend fun countVerified(): Long = countByVerified(true)
