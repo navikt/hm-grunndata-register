@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory
 
     @Post("/rebuild-iso22-tree")
     suspend fun rebuildIso22Tree() {
-        iso16ToIso22Util.rebuildIso22Tree()
+        iso16ToIso22Util.rebuildIso22TreeBasedOnVerifiedMapping()
     }
 
     companion object {

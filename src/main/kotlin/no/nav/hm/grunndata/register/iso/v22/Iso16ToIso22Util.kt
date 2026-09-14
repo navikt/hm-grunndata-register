@@ -17,7 +17,7 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
 
 
     suspend fun rebuildIso16NatTo22Map() {
-        val iso16Nats = isoCategoryRepository.findAll().filter { it.isoLevel == 4 || isOebsCategory(it) }.toList()
+        val iso16Nats = isoCategoryRepository.findAll().filter { it.isoLevel == 4 || isOebsCategory(it.isoCode) }.toList()
         val allIso16Maps = isoMapRepository.findAll().filter { !it.code16.isNullOrEmpty() }.map { it.code16 }.toSet()
         iso16Nats.forEach { iso16Nat ->
             if (!allIso16Maps.contains(iso16Nat.isoCode)) {
@@ -43,7 +43,7 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
                     )
                 }
             } else {
-                if (isOebsCategory(iso16Nat) && iso16Nat.isoCode.startsWith(isoMap.code22!!)) {
+                if (isOebsCategory(iso16Nat.isoCode) && iso16Nat.isoCode.startsWith(isoMap.code22!!)) {
                     LOG.info("Found mapping for iso16: ${iso16Nat.isoCode} to iso22: ${isoMap.code22}, but not SAME code, but iso16 is oebs category and starts with iso22, so we can map it")
                     isoMapRepository.findByCode16AndCode22(iso16Nat.isoCode, iso16Nat.isoCode) ?: run {
                         isoMapRepository.save(
@@ -85,9 +85,9 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
         }
     }
 
-    suspend fun rebuildIso22Tree() {
+    suspend fun rebuildIso22TreeBasedOnVerifiedMapping() {
         // rebuild iso22 tree based on iso16 to iso22 mapping, only the ones that are verified.
-        val verifiedIsoMaps = isoMapRepository.findAll().filter { it.verified && getLevelFromIsoCode(it.code22!!) == 4 }.toList()
+        val verifiedIsoMaps = isoMapRepository.findAll().filter { it.verified && (getLevelFromIsoCode(it.code22!!) == 4 || isOebsCategory(it.code22)) }.toList()
         verifiedIsoMaps.forEach { isoMap ->
             iso22Repository.findByIsoCode(isoMap.code22!!) ?: run {
                 // level 4 iso22 does not exist, create it based on iso16
@@ -110,13 +110,12 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
         }
     }
 
-
     companion object {
         private val LOG = LoggerFactory.getLogger(Iso16ToIso22Util::class.java)
     }
 }
 
-private fun isOebsCategory(iso16Nat: IsoCategoryRegistration): Boolean = iso16Nat.isoLevel == 3 && iso16Nat.isoCode[3] == '9'
+private fun isOebsCategory(isoCode: String): Boolean = getLevelFromIsoCode(isoCode)== 3 && isoCode[4] == '9'
 
 data class IsoMapResult(
     val code16: String,

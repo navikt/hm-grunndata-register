@@ -34,6 +34,7 @@ data class Iso22DTO (
     val isoCode: String,
     val isoTitle: String,
     val isoText: String?=null,
+    val level: Int = getLevelFromIsoCode(isoCode),
     val isoTranslations: IsoTranslations = IsoTranslations(),
     val searchWords: List<String> = emptyList(),
     val isoType: IsoType = IsoType.ISO,

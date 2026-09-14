@@ -46,7 +46,6 @@ class Iso22AdminController(private val iso22Repository: Iso22Repository) {
         } ?: HttpResponse.notFound()
 
     companion object {
-        private val LOG: Logger = LoggerFactory.getLogger(Iso22AdminController::class.java)
         const val API_V1_ADMIN_ISO22 = "/admin/api/v1/iso22"
     }
 
@@ -55,6 +54,7 @@ class Iso22AdminController(private val iso22Repository: Iso22Repository) {
         isoCode = this.isoCode,
         isoTitle = this.isoTitle,
         isoText = this.isoText,
+        level = getLevelFromIsoCode(this.isoCode),
         isoTranslations = this.isoTranslations,
         searchWords = this.searchWords,
         isoType = this.isoType,
