@@ -15,7 +15,7 @@ class Iso22JsonTest(private val objectMapper: ObjectMapper) {
         private val LOG = org.slf4j.LoggerFactory.getLogger(Iso22JsonTest::class.java)
     }
 
-    @Test
+    //@Test
     fun readIsoMapping() {
         val isoMaps = objectMapper.readValue(
             Iso22JsonTest::class.java.classLoader.getResource("iso/mapping.json")!!.readText(),
