@@ -49,7 +49,7 @@ import javax.print.attribute.standard.MediaSize
                 throw BadRequestException("Mapping for code16: ${mapping.code16} and code22: ${mapping.code22} is empty")
             }
         }
-        mappings.distinctBy { "${it.code16}-${it.code22}" }.forEach { mapping ->
+        mappings.filter { !it.code16.isNullOrEmpty() }.distinctBy { "${it.code16}-${it.code22}" }.forEach { mapping ->
             isoMapRepository.findById(mapping.id)?.let {
                 isoMapRepository.update(mapping.copy(id = it.id, created = it.created, verified = mapping.mapEnum.contains(IsoMapEnum.SAME)))
             } ?: run {
