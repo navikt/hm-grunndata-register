@@ -10,17 +10,15 @@ class IsoMapper(private val isoMapRepository: IsoMapRepository   ) {
 
     var isoMaps: Map<String, IsoMap> = emptyMap()
 
-    init {
-        runBlocking {
-            isoMaps = isoMapRepository.findAll()
-                .toList()
-                .filter { !it.code16.isNullOrEmpty() && !it.code22.isNullOrEmpty() }
-                .associateBy { it.code16!! }
-        }
-        LOG.info("Found ${isoMaps.size} isomaps")
-    }
 
     fun mapIso16To22(code16: String): IsoMap? {
+        if (isoMaps.isEmpty()) {
+            runBlocking {
+                isoMaps = isoMapRepository.findAll().toList()
+                    .filter { !it.code16.isNullOrEmpty() && !it.code22.isNullOrEmpty() }
+                    .associateBy { it.code16!! }
+            }
+        }
         var code16Prefix = code16
         for (code16PrefixLength in code16Prefix.length downTo 2) {
             if (isoMaps[code16Prefix] != null) {

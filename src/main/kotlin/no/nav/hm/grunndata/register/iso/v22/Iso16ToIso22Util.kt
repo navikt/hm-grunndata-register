@@ -51,7 +51,7 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
                                 code16 = iso16Nat.isoCode,
                                 code22 = iso16Nat.isoCode,
                                 mapEnum = isoMap.mapEnum,
-                                verified = true
+                                verified = false
                             )
                         )
                     }
@@ -70,8 +70,17 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
                 }
             }
         } ?: run {
-            LOG.error("Could not find mapping for iso16: ${iso16Nat.isoCode}")
-            null
+            LOG.warn("Could not find mapping for iso16: ${iso16Nat.isoCode}")
+            isoMapRepository.findByCode16AndCode22(iso16Nat.isoCode, "") ?: run {
+                isoMapRepository.save(
+                    IsoMap(
+                        code16 = iso16Nat.isoCode,
+                        code22 = "",
+                        mapEnum = listOf(IsoMapEnum.DELETED_CLASS_OR_SUBCLASS_OR_SECTION),
+                        verified = false
+                    )
+                )
+            }
         }
     }
 
