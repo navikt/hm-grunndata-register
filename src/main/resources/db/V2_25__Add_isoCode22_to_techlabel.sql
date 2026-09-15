@@ -1,0 +1,1 @@
+ALTER TABLE techlabel_reg_v1 ADD COLUMN iso_code22 VARCHAR(255);

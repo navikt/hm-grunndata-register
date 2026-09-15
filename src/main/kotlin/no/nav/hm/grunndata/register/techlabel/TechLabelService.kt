@@ -29,6 +29,17 @@ open class TechLabelService(
         techLabels.distinctBy { it.id }
     }
 
+    override fun fetchLabelsByIsoCode22(isocode22: String): List<TechLabelDTO> = runBlocking {
+        LOG.debug("Fetching labels by isocode22: $isocode22")
+        val levels = isocode22.length / 2
+        val techLabels: MutableList<TechLabelDTO> = mutableListOf()
+        for (i in levels downTo 0) {
+            val iso = isocode22.substring(0, i * 2)
+            techLabels.addAll(fetchAllLabels22()[iso] ?: emptyList())
+        }
+        techLabels.distinctBy { it.id }
+    }
+
     override fun fetchLabelsByName(name: String): List<TechLabelDTO> = runBlocking {
         fetchAllLabelsGroupByName()[name] ?: emptyList()
     }
@@ -43,6 +54,13 @@ open class TechLabelService(
         LOG.debug("Fetching labels list")
         val techLabels = techLabelRegistrationRepository.findAll().map { it.toTechLabelDTO()}.toList()
         techLabels.groupBy {  it.isocode }
+    }
+
+    @Cacheable("techlabels-all-labels22")
+    override fun fetchAllLabels22(): Map<String, List<TechLabelDTO>> = runBlocking {
+        LOG.debug("Fetching labels list")
+        val techLabels = techLabelRegistrationRepository.findAll().map { it.toTechLabelDTO()}.toList()
+        techLabels.groupBy {  it.isocode22!! }
     }
 
     @Cacheable("techlabels-units")
