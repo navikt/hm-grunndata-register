@@ -1,11 +1,10 @@
-package no.nav.hm.grunndata.register.internal.maintenance
+package no.nav.hm.grunndata.register.techlabel
 
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.swagger.v3.oas.annotations.Hidden
-import no.nav.hm.grunndata.register.techlabel.TechLabelMaintenance
 
 @Hidden
 @Secured(SecurityRule.IS_ANONYMOUS)
@@ -20,6 +19,11 @@ class TechLabelFixController(val techLabelMaintenance: TechLabelMaintenance) {
     @Put("/init/section")
     suspend fun initSectionMapping() {
         techLabelMaintenance.initSectionMappingFromFile()
+    }
+
+    @Put("/mapIso22")
+    suspend fun mapIso22() {
+        techLabelMaintenance.mapIsoCode16ToIsoCode22()
     }
 
 }
