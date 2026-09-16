@@ -86,6 +86,9 @@ micronaut:
     techlabels-all-labels:
       charset: 'UTF-8'
       expire-after-write: 15m
+    techlabels-all-labels22:
+      charset: 'UTF-8'
+      expire-after-write: 15m
     techlabels-units:
       charset: 'UTF-8'
       expire-after-write: 15m

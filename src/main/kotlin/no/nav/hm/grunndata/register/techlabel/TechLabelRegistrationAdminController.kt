@@ -50,6 +50,7 @@ class TechLabelRegistrationAdminController(
             where {
                 criteria.label?.let { root[TechLabelRegistration::label] eq it }
                 criteria.isoCode?.let { root[TechLabelRegistration::isoCode] eq it }
+                criteria.isoCode22?.let { root[TechLabelRegistration::isoCode22] eq it }
                 criteria.unit?.let { root[TechLabelRegistration::unit] eq it }
                 criteria.type?.let { root[TechLabelRegistration::type] eq it }
             }
@@ -125,6 +126,7 @@ class TechLabelRegistrationAdminController(
                     label = dto.label.trim(),
                     guide = dto.guide.trim(),
                     isoCode = dto.isoCode.trim(),
+                    isoCode22 = dto.isoCode22?.trim(),
                     type = dto.type,
                     unit = dto.unit?.trim(),
                     sort = dto.sort,
@@ -175,16 +177,18 @@ data class TechLabelCriteria(
     val type: TechLabelType? = null,
     val unit: String? = null,
     val isoCode: String? = null,
+    val isoCode22: String? = null,
     val section: String? = null,
 ) {
 
-    fun isNotEmpty() = label != null || type != null || unit != null || isoCode != null || section != null
+    fun isNotEmpty() = label != null || type != null || unit != null || isoCode != null || isoCode22 != null || section != null
 }
 
 @Introspected
 data class TechLabelCreateUpdateDTO(
     val label: String,
     val isoCode: String,
+    val isoCode22: String?=null,
     val type: TechLabelType,
     val unit: String?,
     val guide: String="",
