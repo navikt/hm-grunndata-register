@@ -50,6 +50,7 @@ class TechLabelRegistrationAdminController(
             where {
                 criteria.label?.let { root[TechLabelRegistration::label] eq it }
                 criteria.isoCode?.let { root[TechLabelRegistration::isoCode] eq it }
+                criteria.isoCode22?.let { root[TechLabelRegistration::isoCode22] eq it }
                 criteria.unit?.let { root[TechLabelRegistration::unit] eq it }
                 criteria.type?.let { root[TechLabelRegistration::type] eq it }
             }

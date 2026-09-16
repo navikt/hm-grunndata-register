@@ -60,7 +60,7 @@ open class TechLabelService(
     override fun fetchAllLabels22(): Map<String, List<TechLabelDTO>> = runBlocking {
         LOG.debug("Fetching labels list")
         val techLabels = techLabelRegistrationRepository.findAll().map { it.toTechLabelDTO()}.toList()
-        techLabels.groupBy {  it.isocode22!! }
+        techLabels.filter { it.isocode22 != null }.groupBy {  it.isocode22!! }
     }
 
     @Cacheable("techlabels-units")
