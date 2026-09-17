@@ -5,6 +5,7 @@ import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.HMDB
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.iso.IsoCategoryService
+import no.nav.hm.grunndata.register.iso.v22.Iso22Service
 import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationService
@@ -17,6 +18,7 @@ class SeriesDTOMapper(
     private val agreementRegistrationService: AgreementRegistrationService,
     private val productRegistrationService: ProductRegistrationService,
     private val isoCategoryService: IsoCategoryService,
+    private val iso22Service: Iso22Service,
     private val supplierRegistrationService: SupplierRegistrationService,
     private val productDTOMapper: ProductDTOMapper
 ) {
@@ -26,6 +28,7 @@ class SeriesDTOMapper(
             supplierRegistrationService.findById(seriesRegistration.supplierId)?.name
                 ?: throw IllegalArgumentException("cannot find series ${seriesRegistration.id} supplier")
         val isoCategoryDTO = isoCategoryService.lookUpCode(seriesRegistration.isoCategory)
+        val isoCategory22DTO = iso22Service.lookUpCode(seriesRegistration.isoCategory)
         val productRegistrationDTOs = productRegistrationService.findAllBySeriesUuid(seriesRegistration.id)
             .filter { it.registrationStatus != RegistrationStatus.DELETED }
             .map { product -> productDTOMapper.toDTOV2(product) }
@@ -52,6 +55,7 @@ class SeriesDTOMapper(
             title = seriesRegistration.title,
             text = seriesRegistration.text,
             isoCategory = isoCategoryDTO,
+            isoCategory22 = isoCategory22DTO,
             message = seriesRegistration.message,
             status = EditStatus.from(seriesRegistration),
             seriesData = seriesRegistration.seriesData,

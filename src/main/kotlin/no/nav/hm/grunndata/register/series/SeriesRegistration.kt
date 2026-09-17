@@ -10,6 +10,7 @@ import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.CompatibleWith
 import no.nav.hm.grunndata.rapid.dto.DocumentUrl
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.IsoCategory22DTO
 import no.nav.hm.grunndata.rapid.dto.IsoCategoryDTO
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import no.nav.hm.grunndata.rapid.dto.SeriesAttributes
@@ -123,6 +124,7 @@ data class SeriesRegistrationDTO(
             text = text,
             formattedText = formattedText,
             isoCategory = isoCategory,
+            isoCategory22 = isoCategory22,
             draftStatus = draftStatus,
             adminStatus = adminStatus,
             status = status,
@@ -222,6 +224,7 @@ data class SeriesDTO(
     val title: String,
     val text: String,
     val isoCategory: IsoCategoryDTO?,
+    val isoCategory22: IsoCategory22DTO?,
     val message: String?,
     val status: EditStatus,
     val seriesData: SeriesDataDTO,
