@@ -11,8 +11,8 @@ import no.nav.hm.grunndata.register.techlabel.TechLabelRegistrationRepository
 @Hidden
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller("/internal/iso22-util/techlabel/update")
-class TechLabelFixController(val techLabelRepository: TechLabelRegistrationRepository,
-                             val isoMapper: IsoMapper) {
+class TechLabelIso22UpdateController(val techLabelRepository: TechLabelRegistrationRepository,
+                                     val isoMapper: IsoMapper) {
 
     @Put("/mapIso22")
     suspend fun mapIso22() {
@@ -36,6 +36,6 @@ class TechLabelFixController(val techLabelRepository: TechLabelRegistrationRepos
     }
 
     companion object {
-        private val LOG = org.slf4j.LoggerFactory.getLogger(TechLabelFixController::class.java)
+        private val LOG = org.slf4j.LoggerFactory.getLogger(TechLabelIso22UpdateController::class.java)
     }
 }
