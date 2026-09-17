@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.iso.v22
+package no.nav.hm.grunndata.register.iso.updatev22
 
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
@@ -8,16 +8,22 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.iso.v22.Iso22
+import no.nav.hm.grunndata.register.iso.v22.Iso22Repository
+import no.nav.hm.grunndata.register.iso.v22.IsoMap
+import no.nav.hm.grunndata.register.iso.v22.IsoMapEnum
+import no.nav.hm.grunndata.register.iso.v22.IsoMapRepository
+import no.nav.hm.grunndata.register.iso.v22.IsoType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import javax.print.attribute.standard.MediaSize
 
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller(Iso16ToIso22UtilController.INTERNAL_ISO22_UTIL)
 @Tag(name="Admin IsoCategory")
     class Iso16ToIso22UtilController(private val iso16ToIso22Util: Iso16ToIso22Util,
                                      private val iso22Repository: Iso22Repository,
-                                     private val isoMapRepository: IsoMapRepository) {
+                                     private val isoMapRepository: IsoMapRepository
+) {
 
     @Post("/upload")
     suspend fun uploadList(@Body isos: List<Iso22>) {
@@ -51,7 +57,8 @@ import javax.print.attribute.standard.MediaSize
         }
         mappings.filter { !it.code16.isNullOrEmpty() }.distinctBy { "${it.code16}-${it.code22}" }.forEach { mapping ->
             isoMapRepository.findById(mapping.id)?.let {
-                isoMapRepository.update(mapping.copy(id = it.id, created = it.created, verified = mapping.mapEnum.contains(IsoMapEnum.SAME)))
+                isoMapRepository.update(mapping.copy(id = it.id, created = it.created, verified = mapping.mapEnum.contains(
+                    IsoMapEnum.SAME)))
             } ?: run {
                 isoMapRepository.save(mapping.copy(verified = mapping.mapEnum.contains(IsoMapEnum.SAME)) )
             }

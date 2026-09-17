@@ -1,25 +1,16 @@
-package no.nav.hm.grunndata.register.techlabel
+package no.nav.hm.grunndata.register.iso.updatev22
 
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import io.swagger.v3.oas.annotations.Hidden
+import no.nav.hm.grunndata.register.techlabel.TechLabelMaintenance
 
 @Hidden
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller("/internal/techlabel/fix")
 class TechLabelFixController(val techLabelMaintenance: TechLabelMaintenance) {
-
-    @Put("/all")
-    suspend fun fixProducts() {
-        techLabelMaintenance.normalizeTechLabelsAndValues()
-    }
-
-    @Put("/init/section")
-    suspend fun initSectionMapping() {
-        techLabelMaintenance.initSectionMappingFromFile()
-    }
 
     @Put("/mapIso22")
     suspend fun mapIso22() {

@@ -44,8 +44,6 @@ class Iso22RepositoryTest(private val repository: Iso22Repository) {
             read.created.shouldNotBeNull()
             read.updated.shouldNotBeNull()
             read.isoType shouldBe IsoType.ISO
-            val codes = repository.findAllDistinctIso16InDb()
-            codes.shouldNotBeNull()
         }
     }
 }

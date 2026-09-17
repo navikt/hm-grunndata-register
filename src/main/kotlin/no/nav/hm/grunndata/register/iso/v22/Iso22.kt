@@ -51,3 +51,15 @@ enum class IsoType {
     NAT,
     OEBS
 }
+
+fun getLevelFromIsoCode(isoCode: String): Int {
+    return when (isoCode.length) {
+        2 -> 1
+        4 -> 2
+        6 -> 3
+        8 -> 4
+        else -> 0
+    }
+}
+
+fun isOebsCategory(isoCode: String): Boolean = getLevelFromIsoCode(isoCode)== 3 && isoCode[4] == '9'
