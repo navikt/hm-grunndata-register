@@ -12,6 +12,6 @@ import kotlinx.coroutines.runBlocking
 open class IsoMapService(private val isoMapRepository: IsoMapRepository) {
 
     @Cacheable("isomap-all")
-    fun retrieveAll(): List<IsoMapDTO> = runBlocking { isoMapRepository.findAll().filter { it.verified }.toList().map { it.toDTO() } }
+    open fun retrieveAll(): List<IsoMapDTO> = runBlocking { isoMapRepository.findAll().filter { it.verified }.toList().map { it.toDTO() } }
 
 }
