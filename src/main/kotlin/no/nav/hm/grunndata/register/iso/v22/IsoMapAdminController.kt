@@ -44,24 +44,25 @@ class IsoMapAdminController(private val isoMapRepository: IsoMapRepository) {
         val verified = isoMapRepository.countVerified()
         return if (total == 0L) 0 else (verified * 100 / total).toInt()
     }
-
-    fun IsoMap.toDTO(): IsoMapDTO = IsoMapDTO(
-        id = this.id,
-        code16 = this.code16,
-        code22 = this.code22,
-        mapEnum = this.mapEnum,
-        created = this.created,
-        verified = this.verified,
-        level22 = this.level22
-    )
-
-    fun IsoMapDTO.toEntity(): IsoMap = IsoMap(
-        id = this.id,
-        code16 = this.code16,
-        code22 = this.code22,
-        mapEnum = this.mapEnum,
-        created = this.created,
-        verified = this.verified,
-        level22 = this.level22
-    )
 }
+
+
+fun IsoMap.toDTO(): IsoMapDTO = IsoMapDTO(
+    id = this.id,
+    code16 = this.code16,
+    code22 = this.code22,
+    mapEnum = this.mapEnum,
+    created = this.created,
+    verified = this.verified,
+    level22 = this.level22
+)
+
+fun IsoMapDTO.toEntity(): IsoMap = IsoMap(
+    id = this.id,
+    code16 = this.code16,
+    code22 = this.code22,
+    mapEnum = this.mapEnum,
+    created = this.created,
+    verified = this.verified,
+    level22 = this.level22
+)
