@@ -8,6 +8,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.register.iso.IsoCategoryRegistration
 import no.nav.hm.grunndata.register.iso.IsoCategoryRegistrationRepository
+import no.nav.hm.grunndata.register.iso.updatev22.Iso16ToIso22Util
 import org.junit.jupiter.api.Test
 
 @MicronautTest

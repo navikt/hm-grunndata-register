@@ -37,6 +37,7 @@ class SeriesRegistrationRepositoryTest(private val seriesRegistrationRepository:
             val found = seriesRegistrationRepository.findById(saved.id)
             found.shouldNotBeNull()
             val updated = seriesRegistrationRepository.update(found.copy(title="Series 2",
+                isoCategory22 = "12343213",
                 draftStatus = DraftStatus.DONE,
                 adminStatus = AdminStatus.APPROVED))
             updated.title shouldBe "Series 2"
@@ -45,6 +46,7 @@ class SeriesRegistrationRepositoryTest(private val seriesRegistrationRepository:
             updated.draftStatus shouldBe DraftStatus.DONE
             updated.adminStatus shouldBe AdminStatus.APPROVED
             updated.isoCategory shouldBe "12343212"
+            updated.isoCategory22 shouldBe "12343213"
             updated.seriesData.media.size shouldBe 1
             updated.seriesData.media.first().uri shouldBe "http://example.com"
         }

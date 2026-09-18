@@ -2,7 +2,6 @@ package no.nav.hm.grunndata.register.iso.v22
 
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
-import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.CookieValue
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
@@ -11,7 +10,7 @@ import io.micronaut.http.client.annotation.Client
 import no.nav.hm.grunndata.register.CONTEXT_PATH
 import java.util.UUID
 
-@Client(id = "$CONTEXT_PATH/${IsoMapAdminController.API_V1_ADMIN_ISOMAP}")
+@Client(id = "$CONTEXT_PATH/${IsoMapAdminController.ADMIN_API_V22_ISOMAP}")
 interface IsoMapAdminApiClient {
 
     @Get("/")

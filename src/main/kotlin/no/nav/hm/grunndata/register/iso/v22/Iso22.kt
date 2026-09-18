@@ -4,6 +4,8 @@ import io.micronaut.data.annotation.Id
 import io.micronaut.data.annotation.MappedEntity
 import io.micronaut.data.annotation.TypeDef
 import io.micronaut.data.model.DataType
+import no.nav.hm.grunndata.rapid.dto.IsoCategory22DTO
+import no.nav.hm.grunndata.rapid.dto.IsoTranslationsDTO
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.iso.IsoTranslations
 import java.time.LocalDateTime
@@ -46,8 +48,30 @@ data class Iso22DTO (
     val updated: LocalDateTime = LocalDateTime.now()
 )
 
+fun Iso22.toRapidDTO(): IsoCategory22DTO = IsoCategory22DTO(
+    isoCode = isoCode,
+    isoTitle = isoTitle,
+    isoText = isoText?:"",
+    isoTranslations = IsoTranslationsDTO(titleEn = isoTranslations.titleEn, textEn = isoTranslations.textEn),
+    isoLevel = getLevelFromIsoCode(isoCode),
+    searchWords = searchWords
+)
+
+
 enum class IsoType {
     ISO,
     NAT,
     OEBS
 }
+
+fun getLevelFromIsoCode(isoCode: String): Int {
+    return when (isoCode.length) {
+        2 -> 1
+        4 -> 2
+        6 -> 3
+        8 -> 4
+        else -> 0
+    }
+}
+
+fun isOebsCategory(isoCode: String): Boolean = getLevelFromIsoCode(isoCode)== 3 && isoCode[4] == '9'

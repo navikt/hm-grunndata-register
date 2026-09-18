@@ -95,8 +95,6 @@ interface SeriesRegistrationRepository :
     )
     suspend fun resetCountStatusesForSeries(id: UUID)
 
-    suspend fun findByIsoCategory(isoCategory: String): List<SeriesRegistration>
-
     suspend fun findDistinctIsoCategory(): List<String>
 
     @Query(

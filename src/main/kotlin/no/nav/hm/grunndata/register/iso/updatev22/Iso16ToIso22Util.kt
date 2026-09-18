@@ -1,4 +1,4 @@
-package no.nav.hm.grunndata.register.iso.v22
+package no.nav.hm.grunndata.register.iso.updatev22
 
 import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.filter
@@ -7,13 +7,23 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.toSet
 import no.nav.hm.grunndata.register.iso.IsoCategoryRegistration
 import no.nav.hm.grunndata.register.iso.IsoCategoryRegistrationRepository
+import no.nav.hm.grunndata.register.iso.v22.Iso22
+import no.nav.hm.grunndata.register.iso.v22.Iso22Repository
+import no.nav.hm.grunndata.register.iso.v22.IsoMap
+import no.nav.hm.grunndata.register.iso.v22.IsoMapEnum
+import no.nav.hm.grunndata.register.iso.v22.IsoMapRepository
+import no.nav.hm.grunndata.register.iso.v22.IsoMapper
+import no.nav.hm.grunndata.register.iso.v22.IsoType
+import no.nav.hm.grunndata.register.iso.v22.getLevelFromIsoCode
+import no.nav.hm.grunndata.register.iso.v22.isOebsCategory
 import org.slf4j.LoggerFactory
 
 @Singleton
 class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistrationRepository,
                        private val isoMapRepository: IsoMapRepository,
                        private val iso22Repository: Iso22Repository,
-                       private val isoMapper: IsoMapper) {
+                       private val isoMapper: IsoMapper
+) {
 
 
     suspend fun rebuildIso16NatTo22Map() {
@@ -121,23 +131,5 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
 
     companion object {
         private val LOG = LoggerFactory.getLogger(Iso16ToIso22Util::class.java)
-    }
-}
-
-private fun isOebsCategory(isoCode: String): Boolean = getLevelFromIsoCode(isoCode)== 3 && isoCode[4] == '9'
-
-data class IsoMapResult(
-    val code16: String,
-    val code22: String?,
-    val isoMap: IsoMap? = null
-)
-
-fun getLevelFromIsoCode(isoCode: String): Int {
-    return when (isoCode.length) {
-        2 -> 1
-        4 -> 2
-        6 -> 3
-        8 -> 4
-        else -> 0
     }
 }

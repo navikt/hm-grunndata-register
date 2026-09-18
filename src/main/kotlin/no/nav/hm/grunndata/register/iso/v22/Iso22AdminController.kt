@@ -1,7 +1,6 @@
 package no.nav.hm.grunndata.register.iso.v22
 
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.MutableHttpResponse
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
@@ -9,17 +8,14 @@ import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
-import io.micronaut.security.rules.SecurityRule
 import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.toList
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 
 @Secured(Roles.ROLE_ADMIN)
-@Controller(Iso22AdminController.API_V1_ADMIN_ISO22)
+@Controller(Iso22AdminController.ADMIN_API_V22_ISO)
 @Tag(name="Admin IsoCategory v22")
 class Iso22AdminController(private val iso22Repository: Iso22Repository) {
 
@@ -46,7 +42,7 @@ class Iso22AdminController(private val iso22Repository: Iso22Repository) {
         } ?: HttpResponse.notFound()
 
     companion object {
-        const val API_V1_ADMIN_ISO22 = "/admin/api/v1/iso22"
+        const val ADMIN_API_V22_ISO = "/admin/api/v22/isocategory"
     }
 
     fun Iso22.toDTO(): Iso22DTO = Iso22DTO(

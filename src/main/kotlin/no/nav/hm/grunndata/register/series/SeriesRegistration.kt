@@ -10,6 +10,7 @@ import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.CompatibleWith
 import no.nav.hm.grunndata.rapid.dto.DocumentUrl
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
+import no.nav.hm.grunndata.rapid.dto.IsoCategory22DTO
 import no.nav.hm.grunndata.rapid.dto.IsoCategoryDTO
 import no.nav.hm.grunndata.rapid.dto.RapidDTO
 import no.nav.hm.grunndata.rapid.dto.SeriesAttributes
@@ -35,6 +36,7 @@ data class SeriesRegistration(
     val text: String,
     val formattedText: String? = null,
     val isoCategory: String,
+    val isoCategory22: String? = null,
     @field:TypeDef(type = DataType.JSON)
     val seriesData: SeriesDataDTO,
     val message: String? = null,
@@ -89,6 +91,7 @@ data class SeriesRegistrationDTO(
     val text: String,
     val formattedText: String? = null,
     val isoCategory: String,
+    val isoCategory22: String? = null,
     val message: String? = null,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
     val adminStatus: AdminStatus = AdminStatus.PENDING,
@@ -121,6 +124,7 @@ data class SeriesRegistrationDTO(
             text = text,
             formattedText = formattedText,
             isoCategory = isoCategory,
+            isoCategory22 = isoCategory22,
             draftStatus = draftStatus,
             adminStatus = adminStatus,
             status = status,
@@ -147,6 +151,7 @@ fun SeriesRegistration.toDTO() =
         text = text,
         formattedText = formattedText,
         isoCategory = isoCategory,
+        isoCategory22 = isoCategory22,
         message = message,
         draftStatus = draftStatus,
         adminStatus = adminStatus,
@@ -209,6 +214,7 @@ data class UpdateSeriesRegistrationDTO(
     val url: String? = null,
     val documentUrls: List<DocumentUrl>? = null,
     val isoCategory: String? = null,
+    val isoCategory22: String? = null,
     val resetTechnicalData: Boolean? = null,
 )
 
@@ -218,6 +224,7 @@ data class SeriesDTO(
     val title: String,
     val text: String,
     val isoCategory: IsoCategoryDTO?,
+    val isoCategory22: IsoCategory22DTO?,
     val message: String?,
     val status: EditStatus,
     val seriesData: SeriesDataDTO,
