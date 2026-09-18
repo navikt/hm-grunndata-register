@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 
 @Singleton
 @CacheConfig(cacheNames = ["isomap"])
-class IsoMapService(private val isoMapRepository: IsoMapRepository) {
+open class IsoMapService(private val isoMapRepository: IsoMapRepository) {
 
     @Cacheable("isomap-all")
     fun retrieveAll(): List<IsoMapDTO> = runBlocking { isoMapRepository.findAll().filter { it.verified }.toList().map { it.toDTO() } }
