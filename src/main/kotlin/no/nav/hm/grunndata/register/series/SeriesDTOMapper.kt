@@ -28,7 +28,7 @@ class SeriesDTOMapper(
             supplierRegistrationService.findById(seriesRegistration.supplierId)?.name
                 ?: throw IllegalArgumentException("cannot find series ${seriesRegistration.id} supplier")
         val isoCategoryDTO = isoCategoryService.lookUpCode(seriesRegistration.isoCategory)
-        val isoCategory22DTO = iso22Service.lookUpCode(seriesRegistration.isoCategory)
+        val isoCategory22DTO = seriesRegistration.isoCategory22?.let { iso22Service.lookUpCode(it) }
         val productRegistrationDTOs = productRegistrationService.findAllBySeriesUuid(seriesRegistration.id)
             .filter { it.registrationStatus != RegistrationStatus.DELETED }
             .map { product -> productDTOMapper.toDTOV2(product) }

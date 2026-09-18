@@ -2,10 +2,12 @@ package no.nav.hm.grunndata.register.iso.v22
 
 import io.micronaut.cache.annotation.CacheConfig
 import io.micronaut.cache.annotation.Cacheable
+import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 
+@Singleton
 @CacheConfig(cacheNames = ["isomap"])
 class IsoMapService(private val isoMapRepository: IsoMapRepository) {
 
