@@ -15,7 +15,7 @@ import no.nav.hm.grunndata.register.security.Roles
 import java.time.LocalDateTime
 
 @Secured(Roles.ROLE_ADMIN)
-@Controller(Iso22AdminController.API_V1_ADMIN_ISO22)
+@Controller(Iso22AdminController.ADMIN_API_V22_ISO)
 @Tag(name="Admin IsoCategory v22")
 class Iso22AdminController(private val iso22Repository: Iso22Repository) {
 
@@ -42,7 +42,7 @@ class Iso22AdminController(private val iso22Repository: Iso22Repository) {
         } ?: HttpResponse.notFound()
 
     companion object {
-        const val API_V1_ADMIN_ISO22 = "/admin/api/v1/iso22"
+        const val ADMIN_API_V22_ISO = "/admin/api/v22/isocategory"
     }
 
     fun Iso22.toDTO(): Iso22DTO = Iso22DTO(

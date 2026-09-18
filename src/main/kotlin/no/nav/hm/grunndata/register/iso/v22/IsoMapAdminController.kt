@@ -6,16 +6,18 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
+import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.flow.toList
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import java.util.UUID
 
 @Secured(Roles.ROLE_ADMIN)
-@Controller(IsoMapAdminController.API_V1_ADMIN_ISOMAP)
+@Controller(IsoMapAdminController.ADMIN_API_V22_ISOMAP)
+@Tag(name="Admin IsoCategory v16 map to v22")
 class IsoMapAdminController(private val isoMapRepository: IsoMapRepository) {
     companion object {
-        const val API_V1_ADMIN_ISOMAP = "/admin/api/v1/isomap"
+        const val ADMIN_API_V22_ISOMAP = "/admin/api/v22/isomap"
     }
 
     @Get("/")
