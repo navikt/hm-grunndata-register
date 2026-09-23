@@ -33,19 +33,19 @@ class IsoCategoryRegistrationAdminController(private val isoCategoryRegistration
         } ?: HttpResponse.notFound()
 
 
-    @Post("/")
-    suspend fun createIsoCategory(dto: IsoCategoryRegistrationDTO, authentication: Authentication): HttpResponse<IsoCategoryRegistrationDTO> =
-        isoCategoryRegistrationService.findByCode(dto.isoCode)?.let {
-            throw BadRequestException("IsoCategory ${dto.isoCode} already exists")
-        } ?: HttpResponse.created(isoCategoryRegistrationService.save(dto.copy(createdByUser = authentication.name,
-            updatedByUser = authentication.name)))
+//    @Post("/") disabled for now, during migration we don't want to create or update
+//    suspend fun createIsoCategory(dto: IsoCategoryRegistrationDTO, authentication: Authentication): HttpResponse<IsoCategoryRegistrationDTO> =
+//        isoCategoryRegistrationService.findByCode(dto.isoCode)?.let {
+//            throw BadRequestException("IsoCategory ${dto.isoCode} already exists")
+//        } ?: HttpResponse.created(isoCategoryRegistrationService.save(dto.copy(createdByUser = authentication.name,
+//            updatedByUser = authentication.name)))
 
 
-    @Put("/{isocode}")
-    suspend fun updateCategoryByIsocode(isocode: String, dto: IsoCategoryRegistrationDTO, authentication: Authentication): HttpResponse<IsoCategoryRegistrationDTO> =
-        isoCategoryRegistrationService.findByCode(isocode)?.let { inDb ->
-            HttpResponse.ok(isoCategoryRegistrationService.update(dto.copy(created = inDb.created,
-                createdBy = inDb.createdBy, createdByUser = inDb.createdByUser, updated = LocalDateTime.now(),
-                updatedByUser = authentication.name)))
-        } ?: HttpResponse.notFound()
+//    @Put("/{isocode}") disabled for now, during migration we don't want to create or update
+//    suspend fun updateCategoryByIsocode(isocode: String, dto: IsoCategoryRegistrationDTO, authentication: Authentication): HttpResponse<IsoCategoryRegistrationDTO> =
+//        isoCategoryRegistrationService.findByCode(isocode)?.let { inDb ->
+//            HttpResponse.ok(isoCategoryRegistrationService.update(dto.copy(created = inDb.created,
+//                createdBy = inDb.createdBy, createdByUser = inDb.createdByUser, updated = LocalDateTime.now(),
+//                updatedByUser = authentication.name)))
+//        } ?: HttpResponse.notFound()
 }
