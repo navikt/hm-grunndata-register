@@ -66,19 +66,23 @@ class Iso16ToIso22UtilController(private val iso16ToIso22Util: Iso16ToIso22Util,
         }
     }
 
+    // try to build a iso map for NAV isos.
     @Post("/rebuild-nat-mapping")
     suspend fun updateIsoNatMapping() {
         iso16ToIso22Util.rebuildIso16NatTo22Map()
     }
 
-    @Get("/check-mapping")
-    suspend fun checkIsoMapping() {
-        iso16ToIso22Util.checkCode22Mappings()
-    }
 
+    // this will create iso22 categories based on the verified mapping, if the iso22 category does not exist, it will be created.
     @Post("/rebuild-iso22-tree")
     suspend fun rebuildIso22Tree() {
         iso16ToIso22Util.rebuildIso22TreeBasedOnVerifiedMapping()
+    }
+
+    // check if isocode 22 mappings does have a corresponding iso22 category, if not log a warning
+    @Get("/check-mapping")
+    suspend fun checkIsoMapping() {
+        iso16ToIso22Util.checkCode22Mappings()
     }
 
     companion object {
