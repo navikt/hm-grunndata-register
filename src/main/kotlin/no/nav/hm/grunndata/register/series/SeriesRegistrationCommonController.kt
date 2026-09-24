@@ -29,6 +29,8 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.iso.v22.IsoMapService
+import no.nav.hm.grunndata.register.iso.v22.IsoMapper
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.product.mapSuspend
@@ -44,6 +46,7 @@ class SeriesRegistrationCommonController(
     private val seriesRegistrationService: SeriesRegistrationService,
     private val productRegistrationService: ProductRegistrationService,
     private val seriesDTOMapper: SeriesDTOMapper,
+    private val isoMapService: IsoMapService,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationAdminController::class.java)
@@ -60,13 +63,13 @@ class SeriesRegistrationCommonController(
             LOG.warn("SupplierId in request does not match authenticated supplierId")
             return HttpResponse.unauthorized()
         }
-
+        val draftWithUpdated = if (draftWith.isoCategory22 == null) draftWith.copy(isoCategory22 = isoMapService.mapIso16To22(draftWith.isoCategory)?.code22) else draftWith
         return HttpResponse.ok(
             SeriesDraftResponse(
                 seriesRegistrationService.createDraftWith(
                     supplierId,
                     authentication,
-                    draftWith,
+                    draftWithUpdated,
                 ).id
             ),
         )

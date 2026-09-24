@@ -188,6 +188,7 @@ fun ProductRegistrationExcelDTO.toRegistrationDryRunDTO(): ProductRegistrationDr
         title = produktseriesnavn ?: produktnavn ?: "",
         articleName = produktnavn ?: produktseriesnavn ?: "",
         isoCategory = isoCategory,
+        isoCategory22 = null,
         productData =
             ProductData(
                 attributes =

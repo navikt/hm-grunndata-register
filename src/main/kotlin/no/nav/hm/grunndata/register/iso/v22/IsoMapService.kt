@@ -14,4 +14,16 @@ open class IsoMapService(private val isoMapRepository: IsoMapRepository) {
     @Cacheable("isomap-all")
     open fun retrieveAll(): List<IsoMapDTO> = runBlocking { isoMapRepository.findAll().filter { it.verified }.toList().map { it.toDTO() } }
 
+
+    fun mapIso16To22(code16: String): IsoMapDTO? {
+        val isoMaps = retrieveAll().filter {it.code16 != null && it.code22 != null }.associateBy { it.code16!! }
+        var code16Prefix = code16
+        for (code16PrefixLength in code16Prefix.length downTo 2) {
+            if (isoMaps[code16Prefix] != null) {
+                return isoMaps[code16Prefix]
+            }
+            code16Prefix = code16Prefix.dropLast(2)
+        }
+        return null
+    }
 }
