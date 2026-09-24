@@ -200,6 +200,7 @@ open class SeriesRegistrationService(
                 id = id,
                 supplierId = supplierId,
                 isoCategory = draftWithDTO.isoCategory,
+                isoCategory22 = draftWithDTO.isoCategory22,
                 title = draftWithDTO.title,
                 text = "",
                 identifier = id.toString(),
