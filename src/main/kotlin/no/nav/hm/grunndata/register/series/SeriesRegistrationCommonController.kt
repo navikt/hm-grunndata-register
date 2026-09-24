@@ -63,7 +63,11 @@ class SeriesRegistrationCommonController(
             LOG.warn("SupplierId in request does not match authenticated supplierId")
             return HttpResponse.unauthorized()
         }
-        val draftWithUpdated = if (draftWith.isoCategory22 == null) draftWith.copy(isoCategory22 = isoMapService.mapIso16To22(draftWith.isoCategory)?.code22) else draftWith
+        val draftWithUpdated = if (draftWith.isoCategory22 == null && draftWith.isoCategory.isNotEmpty()) {
+            draftWith.copy(isoCategory22 = isoMapService.mapIso22To16Lvl4(draftWith.isoCategory))
+        } else {
+            draftWith
+        }
         return HttpResponse.ok(
             SeriesDraftResponse(
                 seriesRegistrationService.createDraftWith(

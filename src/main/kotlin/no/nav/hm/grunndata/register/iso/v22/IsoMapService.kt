@@ -26,4 +26,14 @@ open class IsoMapService(private val isoMapRepository: IsoMapRepository) {
         }
         return null
     }
+
+    fun mapIso22To16Lvl4(code16: String): String? {
+        val isoMaps = retrieveAll().filter {it.code16 != null && it.code22 != null }.associateBy { it.code22!! }
+        isoMaps[code16]?.code22?.let {
+            if (getLevelFromIsoCode(it)==4 || isOebsCategory(it)) {
+                return isoMaps[code16]?.code16
+            }
+        }
+        return null
+    }
 }
