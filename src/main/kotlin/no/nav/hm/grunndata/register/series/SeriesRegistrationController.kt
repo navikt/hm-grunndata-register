@@ -48,4 +48,4 @@ class SeriesRegistrationController(
 
 data class SeriesDraftResponse(val id: UUID)
 
-data class SeriesDraftWithDTO(val title: String, val isoCategory: String)
+data class SeriesDraftWithDTO(val title: String, val isoCategory: String, val isoCategory22: String?=null)

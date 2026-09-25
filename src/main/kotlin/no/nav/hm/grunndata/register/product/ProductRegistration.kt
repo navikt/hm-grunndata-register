@@ -97,6 +97,7 @@ data class ProductRegistrationDTO(
     val seriesId: String,
     @Deprecated("Use series isoCategory instead")
     val isoCategory: String="0",
+    val isoCategory22: String? = null,
     @Deprecated("Use series title instead")
     val title: String="Use series title",
     val articleName: String,
@@ -158,6 +159,7 @@ data class ProductRegistrationDTO(
             hmsArtNr = registration.hmsArtNr,
             identifier = registration.id.toString(),
             isoCategory = registration.isoCategory,
+            isoCategory22 = registration.isoCategory22,
             accessory = registration.accessory,
             sparePart = registration.sparePart,
             mainProduct = registration.mainProduct,
@@ -231,6 +233,7 @@ data class ProductRegistrationDryRunDTO(
     val seriesUUID: UUID?,
     @Deprecated("Use series isoCategory instead")
     val isoCategory: String? = null,
+    val isoCategory22: String? = null,
     val title: String,
     val articleName: String,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
