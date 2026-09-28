@@ -293,6 +293,7 @@ enum class ColumnNames(val column: String) {
     bestillingsnr("Bestillingsnr"),
     hms_ArtNr("HMS-Artnr"),
     kategori("Kategori"),
+    kategori22("Kategori22"), // fix this when oebs is ready.
     beskrivelse("Beskrivelse"),
     leverandørensartnr("Leverandørensartnr"),
     anbudsnr("Anbudsnr"),

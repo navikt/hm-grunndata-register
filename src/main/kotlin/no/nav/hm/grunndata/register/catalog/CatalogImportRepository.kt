@@ -39,6 +39,7 @@ interface CatalogImportRepository:  CoroutineCrudRepository<CatalogImport, UUID>
 data class CatalogProductSeriesInfo(
     val hmsArtNr: String,
     val iso: String,
+    val iso22: String,
     val orderRef: String,
     val title: String,
     val supplierRef: String,
@@ -59,6 +60,7 @@ data class CatalogProductSeriesInfo(
 data class CatalogServiceJobInfo(
     val hmsArtNr: String,
     val iso: String,
+    val iso22: String,
     val orderRef: String,
     val title: String,
     val supplierRef: String,

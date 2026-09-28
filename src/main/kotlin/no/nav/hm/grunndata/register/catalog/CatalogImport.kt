@@ -16,6 +16,7 @@ data class CatalogImport(
     val orderRef: String, // oebs unique order reference for agreement
     val hmsArtNr: String,
     val iso: String, // oebs iso category
+    val iso22: String, // oebs iso category 22
     val title: String, // oebs article description,
     val supplierId: UUID,
     val supplierRef: String,
@@ -40,7 +41,8 @@ data class CatalogImport(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is CatalogImport) return false
-        return agreementAction == other.agreementAction &&
+        return  mainProduct == other.mainProduct &&
+                agreementAction == other.agreementAction &&
                 orderRef == other.orderRef &&
                 hmsArtNr == other.hmsArtNr &&
                 iso == other.iso &&
@@ -56,11 +58,35 @@ data class CatalogImport(
                 forChildren == other.forChildren &&
                 supplierName == other.supplierName &&
                 supplierCity == other.supplierCity &&
-                mainProduct == other.mainProduct &&
                 sparePart == other.sparePart &&
                 accessory == other.accessory &&
                 agreementId == other.agreementId &&
                 supplierId == other.supplierId
 
+    }
+
+    override fun hashCode(): Int {
+        var result = mainProduct.hashCode()
+        result = 31 * result + sparePart.hashCode()
+        result = 31 * result + accessory.hashCode()
+        result = 31 * result + agreementAction.hashCode()
+        result = 31 * result + orderRef.hashCode()
+        result = 31 * result + hmsArtNr.hashCode()
+        result = 31 * result + iso.hashCode()
+        result = 31 * result + title.hashCode()
+        result = 31 * result + supplierId.hashCode()
+        result = 31 * result + supplierRef.hashCode()
+        result = 31 * result + reference.hashCode()
+        result = 31 * result + (postNr?.hashCode() ?: 0)
+        result = 31 * result + dateFrom.hashCode()
+        result = 31 * result + dateTo.hashCode()
+        result = 31 * result + articleAction.hashCode()
+        result = 31 * result + articleType.hashCode()
+        result = 31 * result + functionalChange.hashCode()
+        result = 31 * result + forChildren.hashCode()
+        result = 31 * result + supplierName.hashCode()
+        result = 31 * result + supplierCity.hashCode()
+        result = 31 * result + agreementId.hashCode()
+        return result
     }
 }

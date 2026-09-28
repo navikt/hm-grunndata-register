@@ -1,0 +1,1 @@
+ALTER TABLE catalog_import_v1 ADD COLUMN iso22 character varying(32);

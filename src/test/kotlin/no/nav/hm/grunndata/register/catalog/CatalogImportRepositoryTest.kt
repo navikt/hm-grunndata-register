@@ -44,6 +44,7 @@ class CatalogImportRepositoryTest(
                 orderRef = "1234",
                 hmsArtNr = "432100",
                 iso = "iso",
+                iso22 = "iso22",
                 title = "title",
                 supplierRef = "supplierRef1",
                 reference = "20-1424",
@@ -68,6 +69,7 @@ class CatalogImportRepositoryTest(
                 orderRef = "1234",
                 hmsArtNr = "432101",
                 iso = "iso",
+                iso22 = "iso22",
                 title = "title",
                 supplierRef = "supplierRef2",
                 reference = "20-1424",
@@ -91,6 +93,7 @@ class CatalogImportRepositoryTest(
                 orderRef = "1234",
                 hmsArtNr = "432101",
                 iso = "iso",
+                iso22 = "iso22",
                 title = "title",
                 supplierRef = "supplierRef2",
                 reference = "20-1424",
@@ -124,6 +127,7 @@ class CatalogImportRepositoryTest(
             catalogSeriesInfo[0].mainProduct shouldBe false
             catalogSeriesInfo[0].sparePart shouldBe true
             catalogSeriesInfo[0].agreementId shouldBe agreementId
+            catalogSeriesInfo[0].iso22 shouldBe "iso22"
         }
     }
 
@@ -140,6 +144,7 @@ class CatalogImportRepositoryTest(
                     orderRef = "ORDER-REF-1",
                     hmsArtNr = "555555",
                     iso = "123456",
+                    iso22 = "123456",
                     title = "Service Job Title",
                     supplierRef = "supplierRef1",
                     reference = "ref",

@@ -54,6 +54,7 @@ class CatalogExcelFileImport {
                 bestillingsNr = readCellAsString(row, columnMap[ColumnNames.bestillingsnr.column]!!),
                 hmsArtNr = parseHMSNr(hmsNr),
                 iso = readCellAsString(row, columnMap[kategori.column]!!),
+                iso22 = readCellAsString(row, columnMap[kategori.column]!!),
                 title = readCellAsString(row, columnMap[beskrivelse.column]!!),
                 supplierRef = leveartNr.ifBlank { "ikke oppgitt, bruk HMS. nummer $hmsNr" },
                 reference = readCellAsString(row, columnMap[anbudsnr.column]!!),

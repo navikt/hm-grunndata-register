@@ -56,6 +56,7 @@ data class ProductAgreementRegistrationDTO(
     val accessory: Boolean = false,
     val sparePart: Boolean = false,
     val mainProduct: Boolean = true,
+    @Deprecated("we dont need this anymore, only product should be used")
     val isoCategory: String? = null,
     val supplierId: UUID,
     val supplierRef: String,
