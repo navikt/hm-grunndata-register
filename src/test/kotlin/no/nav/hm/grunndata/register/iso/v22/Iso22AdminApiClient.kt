@@ -17,6 +17,9 @@ interface Iso22AdminApiClient {
     @Post(uri = Iso22AdminController.ADMIN_API_V22_ISO, consumes = [MediaType.APPLICATION_JSON])
     fun createIso(@CookieValue("JWT") jwt: String, @Body iso: String): HttpResponse<Iso22DTO>
 
+    @Get(uri = "${Iso22AdminController.ADMIN_API_V22_ISO}/{isocode}")
+    fun getIso(@CookieValue("JWT") jwt: String, isocode: String): HttpResponse<Iso22DTO>
+
     @Put(uri = "${Iso22AdminController.ADMIN_API_V22_ISO}/{isocode}", consumes = [MediaType.APPLICATION_JSON])
     fun updateIso(@CookieValue("JWT") jwt: String, isocode: String, @Body iso: String): HttpResponse<Iso22DTO>
 

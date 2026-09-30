@@ -29,6 +29,11 @@ class Iso22AdminController(
     }
 
 
+    @Get("/{isocode}")
+    suspend fun getIsoByIsocode(isocode: String): HttpResponse<Iso22DTO> =
+        iso22Repository.findByIsoCode(isocode)?.let { HttpResponse.ok(it.toDTO()) } ?: HttpResponse.notFound()
+
+
     @Post("/")
     suspend fun createIso(@Body iso: Iso22DTO, authentication: Authentication): HttpResponse<Iso22DTO> =
         iso22Repository.findByIsoCode(iso.isoCode)?.let {

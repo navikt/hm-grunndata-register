@@ -34,7 +34,7 @@ class Iso22AdminControllerTest(
     @BeforeEach
     fun createAdminUser() {
         runBlocking {
-            userRepository.createUser(
+            if (userRepository.findByEmailIgnoreCase(email) == null) userRepository.createUser(
                 User(email = email, token = password, name = "Iso22 Admin", roles = listOf(Roles.ROLE_ADMIN))
             )
         }
@@ -49,8 +49,19 @@ class Iso22AdminControllerTest(
         client.getAllCategories().map { it.isoCode } shouldContain "32320101"
         client.getCategory("32320101").shouldNotBeNull().isoTitle shouldBe "Ny kategori"
 
+        val adminIso = client.getIso(jwt, "32320101").body().shouldNotBeNull()
+        adminIso.isoTitle shouldBe "Ny kategori"
+        adminIso.createdByUser shouldBe email
+
         client.updateIso(jwt, "32320101", iso("Endret kategori")).status shouldBe HttpStatus.OK
         client.getAllCategories().first { it.isoCode == "32320101" }.isoTitle shouldBe "Endret kategori"
         runBlocking { iso22Service.lookUpCode("32320101").shouldNotBeNull().isoTitle shouldBe "Endret kategori" }
+        client.getIso(jwt, "32320101").body().shouldNotBeNull().isoTitle shouldBe "Endret kategori"
+    }
+
+    @Test
+    fun `henting av ukjent kategori gir 404`() {
+        val jwt = loginClient.login(UsernamePasswordCredentials(email, password)).getCookie("JWT").get().value
+        client.getIso(jwt, "99887766").status shouldBe HttpStatus.NOT_FOUND
     }
 }
