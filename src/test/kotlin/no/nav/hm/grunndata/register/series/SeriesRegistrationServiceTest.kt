@@ -18,6 +18,8 @@ import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.iso.v22.Iso22
+import no.nav.hm.grunndata.register.iso.v22.Iso22Repository
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.ProductData
 import no.nav.hm.grunndata.register.product.ProductRegistration
@@ -28,7 +30,8 @@ import org.junit.jupiter.api.Test
 @MicronautTest
 class SeriesRegistrationServiceTest(
     private val service: SeriesRegistrationService,
-    private val productRegistrationService: ProductRegistrationService
+    private val productRegistrationService: ProductRegistrationService,
+    private val iso22Repository: Iso22Repository,
 ) {
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -75,6 +78,31 @@ class SeriesRegistrationServiceTest(
             patchedSeries.text shouldBe patchUpdateDTO.text
             patchedSeries.seriesData.attributes.keywords shouldBe patchUpdateDTO2.keywords
             patchedSeries.seriesData.attributes.url shouldBe patchUpdateDTO2.url
+        }
+    }
+
+    @Test
+    fun `patchSeries lagrer isoCategory22 og avviser ukjent kode`() {
+        val seriesId = UUID.randomUUID()
+        val supplierId = UUID.randomUUID()
+        val authentication = Authentication.build("marte", mapOf("supplierId" to supplierId.toString()))
+
+        runBlocking {
+            iso22Repository.save(
+                Iso22(isoCode = "33330101", isoTitle = "Ny v22", createdByUser = "tester", updatedByUser = "tester")
+            )
+            service.save(newSeries(seriesId, supplierId))
+
+            service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(isoCategory22 = "3333 0101"), authentication)
+                .isoCategory22 shouldBe "33330101"
+
+            service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(title = "annen tittel"), authentication)
+                .isoCategory22 shouldBe "33330101"
+
+            shouldThrow<BadRequestException> {
+                service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(isoCategory22 = "99999999"), authentication)
+            }
+            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe "33330101"
         }
     }
 
