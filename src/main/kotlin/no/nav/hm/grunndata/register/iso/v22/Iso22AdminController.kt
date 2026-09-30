@@ -17,10 +17,7 @@ import java.time.LocalDateTime
 @Secured(Roles.ROLE_ADMIN)
 @Controller(Iso22AdminController.ADMIN_API_V22_ISO)
 @Tag(name="Admin IsoCategory v22")
-class Iso22AdminController(
-    private val iso22Repository: Iso22Repository,
-    private val iso22Service: Iso22Service,
-) {
+class Iso22AdminController(private val iso22Repository: Iso22Repository) {
 
     
     @Get("/")
@@ -33,19 +30,15 @@ class Iso22AdminController(
     suspend fun createIso(@Body iso: Iso22DTO, authentication: Authentication): HttpResponse<Iso22DTO> =
         iso22Repository.findByIsoCode(iso.isoCode)?.let {
             throw BadRequestException("Iso22 ${iso.isoCode} already exists")
-        } ?: iso22Repository.save(iso.copy(createdByUser = authentication.name,
-            updatedByUser = authentication.name, created = LocalDateTime.now(), updated = LocalDateTime.now()).toEntity())
-            .also { iso22Service.upsert(it.toRapidDTO()) }
-            .let { HttpResponse.created(it.toDTO()) }
+        } ?: HttpResponse.created(iso22Repository.save(iso.copy(createdByUser = authentication.name,
+            updatedByUser = authentication.name, created = LocalDateTime.now(), updated = LocalDateTime.now()).toEntity()).toDTO())
 
 
     @Put("/{isocode}")
     suspend fun updateIsoByIsocode(isocode: String, @Body iso: Iso22DTO, authentication: Authentication): HttpResponse<Iso22DTO> =
         iso22Repository.findByIsoCode(isocode)?.let { inDb ->
-            iso22Repository.update(iso.copy(id = inDb.id, created = inDb.created,
-                createdByUser = inDb.createdByUser, updatedByUser = authentication.name, updated = LocalDateTime.now()).toEntity())
-                .also { iso22Service.upsert(it.toRapidDTO()) }
-                .let { HttpResponse.ok(it.toDTO()) }
+            HttpResponse.ok(iso22Repository.update(iso.copy(id = inDb.id, created = inDb.created,
+                createdByUser = inDb.createdByUser, updatedByUser = authentication.name, updated = LocalDateTime.now()).toEntity()).toDTO())
         } ?: HttpResponse.notFound()
 
     companion object {

@@ -13,9 +13,9 @@ import no.nav.hm.grunndata.rapid.dto.IsoCategory22DTO
 class Iso22ApiController(private val iso22Service: Iso22Service) {
 
     @Get("/")
-    suspend fun getAllCategories(): List<IsoCategory22DTO> = iso22Service.retrieveAll()
+    fun getAllCategories(): List<IsoCategory22DTO> = iso22Service.retrieveAll()
 
     @Get("/{isocode}")
-    suspend fun getCategoryByIsocode(isocode: String): IsoCategory22DTO? = iso22Service.lookUpCode(isocode)
+    fun getCategoryByIsocode(isocode: String): IsoCategory22DTO? = iso22Service.lookUpCode(isocode)
 
 }
