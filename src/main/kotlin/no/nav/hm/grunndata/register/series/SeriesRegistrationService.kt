@@ -29,7 +29,6 @@ import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.error.ErrorType
-import no.nav.hm.grunndata.register.iso.v22.Iso22Service
 import no.nav.hm.grunndata.register.media.MediaUploadService
 import no.nav.hm.grunndata.register.media.ObjectType
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
@@ -52,7 +51,6 @@ open class SeriesRegistrationService(
     private val supplierService: SupplierRegistrationService,
     private val mediaUploadService: MediaUploadService,
     private val techLabelService: TechLabelService,
-    private val iso22Service: Iso22Service,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationService::class.java)
@@ -594,12 +592,6 @@ open class SeriesRegistrationService(
     ): SeriesRegistration {
         val inDbSeries = getSeriesValidate(id, authentication)
 
-        val patchIsoCategory22 = patch.isoCategory22?.replace("\\s".toRegex(), "")
-        if (patchIsoCategory22 != null && iso22Service.lookUpCode(patchIsoCategory22) == null) {
-            throw BadRequestException("Iso22 category $patchIsoCategory22 does not exist")
-        }
-        val isoCategory22Changed = patchIsoCategory22 != null && patchIsoCategory22 != inDbSeries.isoCategory22
-
         val inDbSeriesData = inDbSeries.seriesData
         val inDbSeriesAttributes = inDbSeries.seriesData.attributes
 
@@ -621,7 +613,6 @@ open class SeriesRegistrationService(
                     title = patch.title ?: inDbSeries.title,
                     text = patch.text ?: inDbSeries.text,
                     isoCategory = patch.isoCategory ?: inDbSeries.isoCategory,
-                    isoCategory22 = patchIsoCategory22 ?: inDbSeries.isoCategory22,
                     seriesData = seriesData,
                     updated = LocalDateTime.now(),
                     updatedByUser = authentication.name
@@ -645,12 +636,6 @@ open class SeriesRegistrationService(
                         )
                 )
                 productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
-            }
-        } else if (isoCategory22Changed) {
-            // Produktenes isoCategory22 hentes fra serien når produkt-eventen lages, så produktene må
-            // re-publiseres for at nedstrøms (grunndata-db/index) skal få den nye koden.
-            productRegistrationService.findAllBySeriesUuid(id).forEach { product ->
-                productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(product, isUpdate = true)
             }
         }
 
