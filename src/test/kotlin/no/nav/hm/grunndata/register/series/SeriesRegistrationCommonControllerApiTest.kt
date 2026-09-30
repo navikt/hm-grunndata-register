@@ -1,9 +1,11 @@
 package no.nav.hm.grunndata.register.series
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.annotation.MockBean
@@ -175,6 +177,50 @@ class SeriesRegistrationCommonControllerApiTest {
 
             val pagedSeriesMultiple = commonApiClient.findSeriesByTitle(jwt, "titleSearch")
             pagedSeriesMultiple.totalSize shouldBe 2
+        }
+    }
+
+    @Test
+    fun `find series by iso code includes the code and underlying codes only`() {
+        runBlocking {
+            val jwt = loginClient.login(UsernamePasswordCredentials(email, password)).getCookie("JWT").get().value
+            val title = "isoFilterSeries"
+
+            commonApiClient.createDraft(jwt, testSupplier!!.id, SeriesDraftWithDTO("${title}Exact", "18090401"))
+            commonApiClient.createDraft(jwt, testSupplier!!.id, SeriesDraftWithDTO("${title}Sibling", "18090402"))
+            commonApiClient.createDraft(jwt, testSupplier!!.id, SeriesDraftWithDTO("${title}Cousin", "18090301"))
+            commonApiClient.createDraft(jwt, testSupplier!!.id, SeriesDraftWithDTO("${title}Other", "18100401"))
+
+            commonApiClient.findSeriesByTitle(jwt, title).totalSize shouldBe 4
+
+            val exact = commonApiClient.findSeriesByTitleAndIsoCode(jwt, title, "18090401")
+            exact.totalSize shouldBe 1
+            exact.content.map { it.title } shouldContainExactlyInAnyOrder listOf("${title}Exact")
+
+            val level3 = commonApiClient.findSeriesByTitleAndIsoCode(jwt, title, "180904")
+            level3.totalSize shouldBe 2
+            level3.content.map { it.title } shouldContainExactlyInAnyOrder listOf("${title}Exact", "${title}Sibling")
+
+            val level2 = commonApiClient.findSeriesByTitleAndIsoCode(jwt, title, "18 09")
+            level2.totalSize shouldBe 3
+            level2.content.map { it.title } shouldContainExactlyInAnyOrder
+                listOf("${title}Exact", "${title}Sibling", "${title}Cousin")
+
+            commonApiClient.findSeriesByTitleAndIsoCode(jwt, title, "").totalSize shouldBe 4
+        }
+    }
+
+    @Test
+    fun `find series rejects invalid iso code`() {
+        runBlocking {
+            val jwt = loginClient.login(UsernamePasswordCredentials(email, password)).getCookie("JWT").get().value
+
+            listOf("180", "18a9", "1", "1809040101", "18%").forEach { isoCode ->
+                val error = shouldThrow<HttpClientResponseException> {
+                    commonApiClient.findSeriesByTitleAndIsoCode(jwt, "isoFilterInvalid", isoCode)
+                }
+                error.status shouldBe HttpStatus.BAD_REQUEST
+            }
         }
     }
 
