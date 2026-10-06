@@ -79,6 +79,23 @@ class SeriesRegistrationServiceTest(
     }
 
     @Test
+    fun `patchSeries lagrer isoCategory22 og beholder den når patch mangler verdi`() {
+        val seriesId = UUID.randomUUID()
+        val supplierId = UUID.randomUUID()
+        val authentication = Authentication.build("marte", mapOf("supplierId" to supplierId.toString()))
+
+        runBlocking {
+            service.save(newSeries(seriesId, supplierId))
+
+            service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(isoCategory22 = "05030301"), authentication)
+            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe "05030301"
+
+            service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(title = "ny tittel"), authentication)
+            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe "05030301"
+        }
+    }
+
+    @Test
     fun `Change media priority`() {
         val seriesId = UUID.randomUUID()
         val supplierId = UUID.randomUUID()

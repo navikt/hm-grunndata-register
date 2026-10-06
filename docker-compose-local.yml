@@ -1,3 +1,5 @@
+version: "3"
+
 services:
   postgresregister:
     hostname: postgres
@@ -9,6 +11,11 @@ services:
     volumes:
       - ./src/test/resources/postgres:/docker-entrypoint-initdb.d
     command: ["postgres", "-c", "log_statement=none"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - register-net
   kafkaregister:
@@ -23,7 +30,7 @@ services:
       - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092,PLAINTEXT_HOST://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -52,11 +59,12 @@ services:
     networks:
       - register-net
   mediaregister:
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media:26.180.123059
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media:26.231.095130
     platform: linux/amd64
     hostname: media
     depends_on:
-      - postgresregister
+      postgresregister:
+        condition: service_healthy
     ports:
       - "8081:8080"
     networks:
@@ -71,7 +79,7 @@ services:
     volumes:
       - ./build/tmp:/app/teamdigihot/grunndata/media/v1
   mediaproxyregister:
-    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media-proxy:26.208.151033
+    image: europe-north1-docker.pkg.dev/nais-management-233d/teamdigihot/hm-grunndata-media-proxy:26.252.115314
     platform: linux/amd64
     hostname: mediaproxy
     depends_on:
@@ -89,7 +97,8 @@ services:
     platform: linux/amd64
     hostname: register
     depends_on:
-      - postgresregister
+      postgresregister:
+        condition: service_healthy
     ports:
       - "8080:8080"
     networks:
@@ -109,5 +118,6 @@ services:
       MICRONAUT_SERVER_CORS_CONFIGURATIONS_WEB_EXPOSED_HEADERS: "Set-Cookie"
       MICRONAUT_SECURITY_TOKEN_COOKIE_COOKIE_SECURE: "false"
       SERVER_PORT: 8080
+
 networks:
   register-net:

@@ -613,6 +613,7 @@ open class SeriesRegistrationService(
                     title = patch.title ?: inDbSeries.title,
                     text = patch.text ?: inDbSeries.text,
                     isoCategory = patch.isoCategory ?: inDbSeries.isoCategory,
+                    isoCategory22 = patch.isoCategory22 ?: inDbSeries.isoCategory22,
                     seriesData = seriesData,
                     updated = LocalDateTime.now(),
                     updatedByUser = authentication.name
