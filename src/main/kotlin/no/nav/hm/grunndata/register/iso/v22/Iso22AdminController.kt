@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.toList
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.security.Roles
 import java.time.LocalDateTime
-import kotlin.collections.copy
 
 @Secured(Roles.ROLE_ADMIN)
 @Controller(Iso22AdminController.ADMIN_API_V22_ISO)
