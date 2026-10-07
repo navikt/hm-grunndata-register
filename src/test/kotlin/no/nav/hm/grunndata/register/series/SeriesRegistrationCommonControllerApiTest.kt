@@ -225,6 +225,43 @@ class SeriesRegistrationCommonControllerApiTest {
     }
 
     @Test
+    fun `find series by iso code 22 searches v22 only`() {
+        runBlocking {
+            val jwt = loginClient.login(UsernamePasswordCredentials(email, password)).getCookie("JWT").get().value
+            val title = "iso22FilterSeries"
+
+            commonApiClient.createDraft(jwt, testSupplier!!.id, SeriesDraftWithDTO("${title}Exact", "18090401", "44440101"))
+            commonApiClient.createDraft(jwt, testSupplier!!.id, SeriesDraftWithDTO("${title}Sibling", "18090401", "44440102"))
+            commonApiClient.createDraft(jwt, testSupplier!!.id, SeriesDraftWithDTO("${title}Other", "18100401", "44450101"))
+
+            val exact = commonApiClient.findSeriesByTitleAndIsoCode22(jwt, title, "44440101")
+            exact.content.map { it.title } shouldContainExactlyInAnyOrder listOf("${title}Exact")
+
+            val level2 = commonApiClient.findSeriesByTitleAndIsoCode22(jwt, title, "44 44")
+            level2.content.map { it.title } shouldContainExactlyInAnyOrder listOf("${title}Exact", "${title}Sibling")
+
+            val combined = commonApiClient.findSeriesByTitleAndIsoCodes(jwt, title, "1809", "444401")
+            combined.content.map { it.title } shouldContainExactlyInAnyOrder listOf("${title}Exact", "${title}Sibling")
+
+            commonApiClient.findSeriesByTitleAndIsoCode(jwt, title, "4444").totalSize shouldBe 0
+        }
+    }
+
+    @Test
+    fun `find series rejects invalid iso code 22`() {
+        runBlocking {
+            val jwt = loginClient.login(UsernamePasswordCredentials(email, password)).getCookie("JWT").get().value
+
+            listOf("444", "44a4", "4444010101", "44%").forEach { isoCode22 ->
+                val error = shouldThrow<HttpClientResponseException> {
+                    commonApiClient.findSeriesByTitleAndIsoCode22(jwt, "iso22FilterInvalid", isoCode22)
+                }
+                error.status shouldBe HttpStatus.BAD_REQUEST
+            }
+        }
+    }
+
+    @Test
     fun `suppliers cannot read series belonging to other suppliers`() {
         runBlocking {
             val jwtSupplier =

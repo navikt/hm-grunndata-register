@@ -50,6 +50,21 @@ interface SeriesCommonControllerApiClient {
         isoCode: String,
     ): Page<SeriesSearchDTO>
 
+    @Get(uri = "/?title={title}&isoCode22={isoCode22}", processes = [APPLICATION_JSON])
+    fun findSeriesByTitleAndIsoCode22(
+        @CookieValue("JWT") jwt: String,
+        title: String,
+        isoCode22: String,
+    ): Page<SeriesSearchDTO>
+
+    @Get(uri = "/?title={title}&isoCode={isoCode}&isoCode22={isoCode22}", processes = [APPLICATION_JSON])
+    fun findSeriesByTitleAndIsoCodes(
+        @CookieValue("JWT") jwt: String,
+        title: String,
+        isoCode: String,
+        isoCode22: String,
+    ): Page<SeriesSearchDTO>
+
     @Get(uri = "/variant-id/{variantIdentifier}", consumes = [APPLICATION_JSON])
     fun findSeriesByVariantIdentifier(
         @CookieValue("JWT") jwt: String,

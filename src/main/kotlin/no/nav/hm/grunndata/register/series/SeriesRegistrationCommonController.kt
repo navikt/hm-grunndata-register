@@ -373,6 +373,7 @@ class SeriesRegistrationCommonController(
         criteria: SeriesCommonCriteria, authentication: Authentication
     ): PredicateSpecification<SeriesRegistration>? = if (criteria.isNotEmpty()) {
         val isoCodePrefix = normalizeIsoCodePrefix(criteria.isoCode)
+        val isoCode22Prefix = normalizeIsoCodePrefix(criteria.isoCode22, "isoCode22")
         PredicateSpecification<SeriesRegistration> { root, criteriaBuilder ->
             val predicates = mutableListOf<Predicate>()
 
@@ -521,6 +522,14 @@ class SeriesRegistrationCommonController(
                     ),
                 )
             }
+            if (isoCode22Prefix != null) {
+                predicates.add(
+                    criteriaBuilder.like(
+                        root[SeriesRegistration::isoCategory22],
+                        LiteralExpression("$isoCode22Prefix%"),
+                    ),
+                )
+            }
             // Return the combined predicates
             if (predicates.isNotEmpty()) {
                 criteriaBuilder.and(*predicates.toTypedArray())
@@ -549,23 +558,25 @@ data class SeriesCommonCriteria(
     val inAgreement: Boolean? = null,
     val missingMediaType: String? = null,
     val isoCode: String? = null,
+    val isoCode22: String? = null,
 ) {
     fun isNotEmpty(): Boolean =
         mainProduct != null || adminStatus != null || excludedStatus != null || excludeExpired != null
                 || status != null || supplierId != null || draft != null || createdByUser != null
                 || updatedByUser != null || createdByAdmin != null || supplierFilter != null || editStatus != null
                 || title != null || inAgreement != null || missingMediaType != null || isoCode != null
+                || isoCode22 != null
 }
 
 private val ISO_CODE_PREFIX_PATTERN = Regex("^\\d{2}(\\d{2}){0,3}$")
 
 // ISO-koder er hierarkiske med to siffer per nivå, så et prefiks med partall siffer treffer koden selv og alle underliggende koder.
-fun normalizeIsoCodePrefix(isoCode: String?): String? {
+fun normalizeIsoCodePrefix(isoCode: String?, parameterName: String = "isoCode"): String? {
     if (isoCode == null) return null
     val normalized = isoCode.filterNot { it.isWhitespace() }
     if (normalized.isEmpty()) return null
     if (!ISO_CODE_PREFIX_PATTERN.matches(normalized)) {
-        throw BadRequestException("isoCode must be 2, 4, 6 or 8 digits")
+        throw BadRequestException("$parameterName must be 2, 4, 6 or 8 digits")
     }
     return normalized
 }
