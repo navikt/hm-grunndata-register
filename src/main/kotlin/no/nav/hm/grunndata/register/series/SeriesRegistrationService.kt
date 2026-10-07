@@ -29,11 +29,13 @@ import no.nav.hm.grunndata.rapid.event.EventName
 import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.error.ErrorType
+import no.nav.hm.grunndata.register.iso.v22.Iso22Service
 import no.nav.hm.grunndata.register.media.MediaUploadService
 import no.nav.hm.grunndata.register.media.ObjectType
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
+import no.nav.hm.grunndata.register.product.isAdmin
 import no.nav.hm.grunndata.register.product.isHms
 import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.product.mapSuspend
@@ -51,6 +53,7 @@ open class SeriesRegistrationService(
     private val supplierService: SupplierRegistrationService,
     private val mediaUploadService: MediaUploadService,
     private val techLabelService: TechLabelService,
+    private val iso22Service: Iso22Service,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationService::class.java)
@@ -592,6 +595,16 @@ open class SeriesRegistrationService(
     ): SeriesRegistration {
         val inDbSeries = getSeriesValidate(id, authentication)
 
+        val patchIsoCategory22 = patch.isoCategory22?.filterNot { it.isWhitespace() }
+        if (patchIsoCategory22 != null && patchIsoCategory22 != inDbSeries.isoCategory22) {
+            if (!authentication.isAdmin()) {
+                throw BadRequestException("not authorized to change isoCategory22", ErrorType.UNAUTHORIZED)
+            }
+            if (iso22Service.lookUpCode(patchIsoCategory22) == null) {
+                throw BadRequestException("Iso22 category $patchIsoCategory22 does not exist")
+            }
+        }
+
         val inDbSeriesData = inDbSeries.seriesData
         val inDbSeriesAttributes = inDbSeries.seriesData.attributes
 
@@ -613,7 +626,7 @@ open class SeriesRegistrationService(
                     title = patch.title ?: inDbSeries.title,
                     text = patch.text ?: inDbSeries.text,
                     isoCategory = patch.isoCategory ?: inDbSeries.isoCategory,
-                    isoCategory22 = patch.isoCategory22 ?: inDbSeries.isoCategory22,
+                    isoCategory22 = patchIsoCategory22 ?: inDbSeries.isoCategory22,
                     seriesData = seriesData,
                     updated = LocalDateTime.now(),
                     updatedByUser = authentication.name
