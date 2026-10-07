@@ -83,7 +83,7 @@ class SeriesRegistrationServiceTest(
     }
 
     @Test
-    fun `patchSeries lagrer isoCategory22 og beholder den når patch mangler verdi`() {
+    fun `patchSeries does not save isoCategory22`() {
         val seriesId = UUID.randomUUID()
         val supplierId = UUID.randomUUID()
         val authentication = adminAuthentication()
@@ -93,15 +93,12 @@ class SeriesRegistrationServiceTest(
             service.save(newSeries(seriesId, supplierId))
 
             service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(isoCategory22 = "33330101"), authentication)
-            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe "33330101"
-
-            service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(title = "ny tittel"), authentication)
-            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe "33330101"
+            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe null
         }
     }
 
     @Test
-    fun `patchSeries fjerner mellomrom i isoCategory22 før lagring`() {
+    fun `patchSeries normalizes isoCategory22 before validating it`() {
         val seriesId = UUID.randomUUID()
         val supplierId = UUID.randomUUID()
         val authentication = adminAuthentication()
@@ -111,7 +108,7 @@ class SeriesRegistrationServiceTest(
             service.save(newSeries(seriesId, supplierId))
 
             service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(isoCategory22 = " 33 33 01 02 "), authentication)
-            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe "33330102"
+            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe null
         }
     }
 
@@ -123,8 +120,7 @@ class SeriesRegistrationServiceTest(
 
         runBlocking {
             ensureIso22("33330103")
-            service.save(newSeries(seriesId, supplierId))
-            service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(isoCategory22 = "33330103"), authentication)
+            service.save(newSeries(seriesId, supplierId).copy(isoCategory22 = "33330103"))
 
             shouldThrow<BadRequestException> {
                 service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(isoCategory22 = "33339999"), authentication)
@@ -141,8 +137,7 @@ class SeriesRegistrationServiceTest(
         runBlocking {
             ensureIso22("33330104")
             ensureIso22("33330105")
-            service.save(newSeries(seriesId, supplierId))
-            service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(isoCategory22 = "33330104"), adminAuthentication())
+            service.save(newSeries(seriesId, supplierId).copy(isoCategory22 = "33330104"))
 
             shouldThrow<BadRequestException> {
                 service.patchSeries(
@@ -162,8 +157,7 @@ class SeriesRegistrationServiceTest(
 
         runBlocking {
             ensureIso22("33330106")
-            service.save(newSeries(seriesId, supplierId))
-            service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(isoCategory22 = "33330106"), adminAuthentication())
+            service.save(newSeries(seriesId, supplierId).copy(isoCategory22 = "33330106"))
 
             service.patchSeries(
                 seriesId,
