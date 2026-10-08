@@ -18,17 +18,21 @@ import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.iso.v22.Iso22
+import no.nav.hm.grunndata.register.iso.v22.Iso22Repository
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.ProductData
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
+import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
 
 @MicronautTest
 class SeriesRegistrationServiceTest(
     private val service: SeriesRegistrationService,
-    private val productRegistrationService: ProductRegistrationService
+    private val productRegistrationService: ProductRegistrationService,
+    private val iso22Repository: Iso22Repository,
 ) {
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
@@ -75,6 +79,108 @@ class SeriesRegistrationServiceTest(
             patchedSeries.text shouldBe patchUpdateDTO.text
             patchedSeries.seriesData.attributes.keywords shouldBe patchUpdateDTO2.keywords
             patchedSeries.seriesData.attributes.url shouldBe patchUpdateDTO2.url
+        }
+    }
+
+    @Test
+    fun `patchSeries does not save isoCategory22`() {
+        val seriesId = UUID.randomUUID()
+        val supplierId = UUID.randomUUID()
+        val authentication = adminAuthentication()
+
+        runBlocking {
+            ensureIso22("33330101")
+            service.save(newSeries(seriesId, supplierId))
+
+            service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(isoCategory22 = "33330101"), authentication)
+            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe null
+        }
+    }
+
+    @Test
+    fun `patchSeries normalizes isoCategory22 before validating it`() {
+        val seriesId = UUID.randomUUID()
+        val supplierId = UUID.randomUUID()
+        val authentication = adminAuthentication()
+
+        runBlocking {
+            ensureIso22("33330102")
+            service.save(newSeries(seriesId, supplierId))
+
+            service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(isoCategory22 = " 33 33 01 02 "), authentication)
+            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe null
+        }
+    }
+
+    @Test
+    fun `patchSeries avviser ukjent isoCategory22 og beholder lagret verdi`() {
+        val seriesId = UUID.randomUUID()
+        val supplierId = UUID.randomUUID()
+        val authentication = adminAuthentication()
+
+        runBlocking {
+            ensureIso22("33330103")
+            service.save(newSeries(seriesId, supplierId).copy(isoCategory22 = "33330103"))
+
+            shouldThrow<BadRequestException> {
+                service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(isoCategory22 = "33339999"), authentication)
+            }
+            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe "33330103"
+        }
+    }
+
+    @Test
+    fun `leverandør kan ikke endre isoCategory22`() {
+        val seriesId = UUID.randomUUID()
+        val supplierId = UUID.randomUUID()
+
+        runBlocking {
+            ensureIso22("33330104")
+            ensureIso22("33330105")
+            service.save(newSeries(seriesId, supplierId).copy(isoCategory22 = "33330104"))
+
+            shouldThrow<BadRequestException> {
+                service.patchSeries(
+                    seriesId,
+                    UpdateSeriesRegistrationDTO(isoCategory22 = "33330105"),
+                    supplierAuthentication(supplierId),
+                )
+            }
+            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe "33330104"
+        }
+    }
+
+    @Test
+    fun `leverandør kan sende uendret isoCategory22 sammen med andre endringer`() {
+        val seriesId = UUID.randomUUID()
+        val supplierId = UUID.randomUUID()
+
+        runBlocking {
+            ensureIso22("33330106")
+            service.save(newSeries(seriesId, supplierId).copy(isoCategory22 = "33330106"))
+
+            service.patchSeries(
+                seriesId,
+                UpdateSeriesRegistrationDTO(title = "leverandørtittel", isoCategory22 = "33330106"),
+                supplierAuthentication(supplierId),
+            )
+
+            val patched = service.findById(seriesId).shouldNotBeNull()
+            patched.title shouldBe "leverandørtittel"
+            patched.isoCategory22 shouldBe "33330106"
+        }
+    }
+
+    private fun adminAuthentication() = Authentication.build("admin", listOf(Roles.ROLE_ADMIN), emptyMap())
+
+    private fun supplierAuthentication(supplierId: UUID) =
+        Authentication.build("leverandør", listOf(Roles.ROLE_SUPPLIER), mapOf("supplierId" to supplierId.toString()))
+
+    private suspend fun ensureIso22(isoCode: String) {
+        if (iso22Repository.findByIsoCode(isoCode) == null) {
+            iso22Repository.save(
+                Iso22(isoCode = isoCode, isoTitle = "Test $isoCode", createdByUser = "tester", updatedByUser = "tester")
+            )
         }
     }
 
