@@ -97,7 +97,7 @@ micronaut:
       expire-after-write: 15m
     isomap:
       charset: 'UTF-8'
-      expire-after-write: 15m
+      expire-after-write: 5m
   http:
     client:
       connect-timeout: 10s
