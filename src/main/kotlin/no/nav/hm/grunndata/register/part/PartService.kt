@@ -1,5 +1,8 @@
 package no.nav.hm.grunndata.register.part
 
+import no.nav.hm.grunndata.register.iso.IsoVersion
+import no.nav.hm.grunndata.register.iso.SeriesIsoMapper
+
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
@@ -24,7 +27,8 @@ open class PartService(
     private val seriesService: SeriesRegistrationService,
     private val productService: ProductRegistrationService,
     private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository,
-    private val catalogImportRepository: CatalogImportRepository
+    private val catalogImportRepository: CatalogImportRepository,
+    private val seriesIsoMapper: SeriesIsoMapper,
 ) {
 
     companion object {
@@ -36,14 +40,16 @@ open class PartService(
         object NotFound : ChangeToMainProductResult()
     }
 
+    @Transactional
     open suspend fun changeToMainProduct(
         seriesUUID: UUID,
         newIsoCode: String,
-        authentication: Authentication
+        authentication: Authentication,
+        isoVersion: IsoVersion = IsoVersion.v16,
     ): ChangeToMainProductResult {
         val series = seriesService.findById(seriesUUID) ?: return ChangeToMainProductResult.NotFound
 
-        val updatedSeries = series.copy(mainProduct = true, isoCategory = newIsoCode)
+        val updatedSeries = seriesIsoMapper.update(series, newIsoCode, isoVersion).copy(mainProduct = true)
         val products = productService.findAllBySeriesUuid(seriesUUID)
         products.forEach { product ->
             val updatedProduct =
@@ -63,7 +69,7 @@ open class PartService(
 
     @Transactional
     open suspend fun createDraftWith(auth: Authentication, draft: PartDraftWithDTO): ProductRegistration {
-        val series = draft.toSeriesRegistration(auth).also { seriesService.save(it) }
+        val series = mappedDraft(draft, auth).also { seriesService.save(it) }
         val product = draft.toProductRegistration(series.id, auth).also { productService.save(it) }
         LOG.info("Created part draft for series: ${series.id}, product: ${product.id}")
         return product
@@ -71,12 +77,19 @@ open class PartService(
 
     @Transactional
     open suspend fun createDraftWithAndApprove(auth: Authentication, draft: PartDraftWithDTO): ProductRegistration {
-        val series = draft.toSeriesRegistration(auth).also { seriesService.save(it) }
+        val series = mappedDraft(draft, auth).also { seriesService.save(it) }
         val product = draft.toProductRegistration(series.id, auth).also { productService.save(it) }
         seriesService.approveSeriesAndVariants(series, auth)
         LOG.info("Created and published part draft for series: ${series.id}, product: ${product.id}")
         return product
     }
+
+    private fun mappedDraft(draft: PartDraftWithDTO, auth: Authentication) =
+        seriesIsoMapper.update(
+            draft.toSeriesRegistration(auth),
+            draft.isoCategory22 ?: draft.isoCategory,
+            if (draft.isoCategory22 != null) IsoVersion.v22 else IsoVersion.v16
+        )
 
     @Transactional
     open suspend fun updatePart(auth: Authentication, updateDto: UpdatePartDto, seriesId: UUID) {

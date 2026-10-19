@@ -74,6 +74,37 @@ class TechLabelRegistrationAdminApiTest(private val client: TechLabelRegistratio
     }
 
     @Test
+    fun `update without isoCode22 preserves existing mapping and explicit code updates it`() {
+        val jwt = loginClient.login(UsernamePasswordCredentials(email, password)).getCookie("JWT").get().value
+        val dto = TechLabelCreateUpdateDTO(
+            label = "Mapped height",
+            type = TechLabelType.N,
+            unit = "cm",
+            isoCode = "09070601",
+            isoCode22 = "09070602",
+            sort = 1,
+            required = false
+        )
+        val created = client.createTechLabel(jwt, dto).body.get()
+        val legacyBody = mapOf<String, Any>(
+            "label" to dto.label,
+            "type" to dto.type.name,
+            "unit" to "cm",
+            "isoCode" to dto.isoCode,
+            "sort" to 2,
+            "required" to dto.required
+        )
+
+        val updated = client.updateTechLabel(jwt, created.id, legacyBody)
+        updated.status() shouldBe HttpStatus.OK
+        updated.body.get().sort shouldBe 2
+        client.getTechLabelById(jwt, created.id).body.get().isoCode22 shouldBe dto.isoCode22
+
+        client.updateTechLabel(jwt, created.id, dto.copy(isoCode22 = " 09070603 ")).status() shouldBe HttpStatus.OK
+        client.getTechLabelById(jwt, created.id).body.get().isoCode22 shouldBe "09070603"
+    }
+
+    @Test
     fun updateSectionForLabelTest() {
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value

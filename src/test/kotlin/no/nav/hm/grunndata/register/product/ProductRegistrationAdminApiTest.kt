@@ -36,7 +36,7 @@ import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
-import no.nav.hm.grunndata.register.techlabel.LabelService
+import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserRepository
@@ -148,8 +148,8 @@ class ProductRegistrationAdminApiTest(
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
 
-    @MockBean(LabelService::class)
-    fun mockTechLabelService(): LabelService = mockk<LabelService>().apply {
+    @MockBean(TechLabelService::class)
+    fun mockTechLabelService(): TechLabelService = mockk<TechLabelService>().apply {
         every {
             fetchLabelsByIsoCode("04360901")
         } returns

@@ -1,5 +1,8 @@
 package no.nav.hm.grunndata.register.product.batch
 
+import io.micronaut.http.annotation.QueryValue
+import no.nav.hm.grunndata.register.iso.IsoVersion
+
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
@@ -44,16 +47,17 @@ class ProductExcelAdminApi(
     suspend fun createExport(
         @Body uuids: List<UUID>,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<StreamedFile> {
         val products = uuids.mapNotNull { productRegistrationService.findById(it) }
         if (products.isEmpty()) throw BadRequestException("No products found")
 
-        val excelExportDtos = excelExportMapper.mapToExportDtos(products.map { productDTOMapper.toDTO(it) })
+        val excelExportDtos = excelExportMapper.mapToExportDtos(products.map { productDTOMapper.toDTO(it) }, isoVersion)
 
         val id = UUID.randomUUID()
         LOG.info("Generating Excel file: $id.xlsx")
         return ByteArrayOutputStream().use { byteStream ->
-            xlExport.createWorkbookToOutputStream(excelExportDtos, byteStream)
+            xlExport.createWorkbookToOutputStream(excelExportDtos, byteStream, isoVersion)
             HttpResponse.ok(StreamedFile(byteStream.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
                 .header("Content-Disposition", "attachment; filename=$id.xlsx")
         }
@@ -67,10 +71,11 @@ class ProductExcelAdminApi(
     suspend fun importExcel(
         file: CompletedFileUpload,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<List<ProductRegistrationDTO>> {
         LOG.info("Importing Excel file ${file.filename} by admin")
         return file.inputStream.use { inputStream ->
-            val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
+            val excelDTOList = xlImport.importExcelFileForRegistration(inputStream, isoVersion)
             LOG.info("found ${excelDTOList.size} products in Excel file")
             val products = productRegistrationService.importExcelRegistrations(excelDTOList, authentication)
             HttpResponse.ok(products.map { productDTOMapper.toDTO(it) })
@@ -85,10 +90,11 @@ class ProductExcelAdminApi(
     suspend fun importExcelDryrun(
         file: CompletedFileUpload,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<List<ProductRegistrationDryRunDTO>> {
         LOG.info("Dryrun - Importing Excel file ${file.filename} by admin")
         return file.inputStream.use { inputStream ->
-            val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
+            val excelDTOList = xlImport.importExcelFileForRegistration(inputStream, isoVersion)
             LOG.info("found ${excelDTOList.size} products in Excel file")
             val products = productRegistrationService.importDryRunExcelRegistrations(excelDTOList, authentication)
             HttpResponse.ok(products)

@@ -17,6 +17,8 @@ import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.RequestBean
+import io.micronaut.http.annotation.QueryValue
+import no.nav.hm.grunndata.register.iso.IsoVersion
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -52,18 +54,19 @@ class ProductRegistrationAdminApiController(
         productRegistrationService.findAllBySeriesUuid(seriesUUID).sortedBy { it.created }
 
     @Get("/series/{seriesUUID}")
-    suspend fun findBySeriesUUIDAndSupplierId(seriesUUID: UUID) =
+    suspend fun findBySeriesUUIDAndSupplierId(seriesUUID: UUID, @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16) =
         productRegistrationService.findAllBySeriesUuid(seriesUUID).sortedBy { it.created }
-            .map { productDTOMapper.toDTOV2(it) }
+            .map { productDTOMapper.toDTOV2(it, isoVersion) }
 
 
     @Get("/")
     suspend fun findProducts(
         @RequestBean criteria: ProductRegistrationAdminCriteria,
         pageable: Pageable,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): Page<ProductRegistrationDTOV2> = productRegistrationService
         .findAll(buildCriteriaSpec(criteria), pageable)
-        .mapSuspend { productDTOMapper.toDTOV2(it) }
+        .mapSuspend { productDTOMapper.toDTOV2(it, isoVersion) }
 
     private fun buildCriteriaSpec(criteria: ProductRegistrationAdminCriteria): PredicateSpecification<ProductRegistration>? =
         if (criteria.isNotEmpty()) {
@@ -86,9 +89,9 @@ class ProductRegistrationAdminApiController(
     ): Page<ProductToApproveDto> = productRegistrationService.findProductsToApprove(pageable)
 
     @Get("/{id}")
-    suspend fun getProductById(id: UUID): HttpResponse<ProductRegistrationDTOV2> =
+    suspend fun getProductById(id: UUID, @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16): HttpResponse<ProductRegistrationDTOV2> =
         productRegistrationService.findById(id)
-            ?.let { HttpResponse.ok(productDTOMapper.toDTOV2(it)) } ?: HttpResponse.notFound()
+            ?.let { HttpResponse.ok(productDTOMapper.toDTOV2(it, isoVersion)) } ?: HttpResponse.notFound()
 
     @Get("/hmsArtNr/{hmsArtNr}")
     suspend fun getProductByHmsArtNr(hmsArtNr: String): HttpResponse<ProductRegistrationDTO> =
@@ -110,9 +113,10 @@ class ProductRegistrationAdminApiController(
     @Post("/ids")
     suspend fun getProductsByIds(
         @Body ids: List<UUID>,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<List<ProductRegistrationDTOV2>> {
         val products = productRegistrationService.findByIdIn(ids)
-        return HttpResponse.ok(products.map { productDTOMapper.toDTOV2(it) })
+        return HttpResponse.ok(products.map { productDTOMapper.toDTOV2(it, isoVersion) })
     }
 
     @Post("/draftWithV3/{seriesUUID}")
@@ -120,10 +124,11 @@ class ProductRegistrationAdminApiController(
         @PathVariable seriesUUID: UUID,
         @Body draftVariant: DraftVariantDTO,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<ProductRegistrationDTOV2> =
         try {
-            val variant = productRegistrationService.createDraft(seriesUUID, draftVariant, authentication)
-            HttpResponse.ok(productDTOMapper.toDTOV2(variant))
+            val variant = productRegistrationService.createDraft(seriesUUID, draftVariant, authentication, isoVersion)
+            HttpResponse.ok(productDTOMapper.toDTOV2(variant, isoVersion))
         } catch (e: DataAccessException) {
             throw BadRequestException(e.message ?: "Error creating draft")
         } catch (e: Exception) {
@@ -135,6 +140,7 @@ class ProductRegistrationAdminApiController(
         @Body registrationDTO: UpdateProductRegistrationDTO,
         @PathVariable id: UUID,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<ProductRegistrationDTOV2> =
         try {
             val dto = productDTOMapper.toDTOV2(
@@ -142,7 +148,8 @@ class ProductRegistrationAdminApiController(
                     registrationDTO,
                     id,
                     authentication
-                )
+                ),
+                isoVersion
             )
             HttpResponse.ok(dto)
         } catch (dataAccessException: DataAccessException) {
@@ -157,11 +164,12 @@ class ProductRegistrationAdminApiController(
     suspend fun bulkUpdateTechData(
         @Body bulkUpdateDTO: BulkTechDataUpdateDTO,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<BulkTechDataUpdateResultDTO> {
         val result = productRegistrationService.bulkUpdateTechData(bulkUpdateDTO, authentication)
         return HttpResponse.ok(
             BulkTechDataUpdateResultDTO(
-                updated = result.updated.map { productDTOMapper.toDTOV2(it) },
+                updated = result.updated.map { productDTOMapper.toDTOV2(it, isoVersion) },
                 failed = result.failed,
             )
         )
@@ -189,9 +197,10 @@ class ProductRegistrationAdminApiController(
     suspend fun deleteProducts(
         @Body ids: List<UUID>,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<List<ProductRegistrationDTOV2>> {
         val updated = productRegistrationService.setDeletedStatus(ids, authentication)
-        return HttpResponse.ok(updated.map { productDTOMapper.toDTOV2(it) })
+        return HttpResponse.ok(updated.map { productDTOMapper.toDTOV2(it, isoVersion) })
     }
 
     @Delete("/draft/delete")

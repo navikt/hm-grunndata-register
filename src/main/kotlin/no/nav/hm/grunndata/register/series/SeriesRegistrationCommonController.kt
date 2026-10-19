@@ -1,5 +1,8 @@
 package no.nav.hm.grunndata.register.series
 
+import io.micronaut.http.annotation.QueryValue
+import no.nav.hm.grunndata.register.iso.IsoVersion
+
 import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
@@ -73,6 +76,9 @@ class SeriesRegistrationCommonController(
             draftWith.isoCategory
         }
         val draftWithUpdated = draftWith.copy(isoCategory22 = isoCategory22, isoCategory = isoCategory?:"")
+        if (isoCategory22.isNullOrBlank() || isoCategory.isNullOrBlank()) {
+            LOG.warn("Cannot maintain ISO counterpart for series draft")
+        }
 
         return HttpResponse.ok(
             SeriesDraftResponse(
@@ -187,9 +193,10 @@ class SeriesRegistrationCommonController(
     suspend fun readSeries(
         @PathVariable id: UUID,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<SeriesDTO> {
         return seriesRegistrationService.findById(id, authentication)?.let {
-            HttpResponse.ok(seriesDTOMapper.toDTOV2(it))
+            HttpResponse.ok(seriesDTOMapper.toDTOV2(it, isoVersion))
         } ?: run {
             LOG.warn("Series with id $id does not exist")
             HttpResponse.notFound()
@@ -201,11 +208,13 @@ class SeriesRegistrationCommonController(
         @PathVariable id: UUID,
         @Body updateSeriesRegistrationDTO: UpdateSeriesRegistrationDTO,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<Any> {
         seriesRegistrationService.patchSeries(
             id,
             updateSeriesRegistrationDTO,
             authentication,
+            isoVersion,
         )
         return HttpResponse.ok()
     }

@@ -1,5 +1,7 @@
 package no.nav.hm.grunndata.register.series
 
+import no.nav.hm.grunndata.register.iso.IsoVersion
+
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
 import io.micronaut.http.HttpResponse
@@ -41,12 +43,14 @@ class SeriesRegistrationAdminController(
     suspend fun changeMainProductToPart(
         seriesId: UUID,
         @Body accessoryDTO: AccessoryDTO,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<Any> {
         return when (seriesRegistrationService.changeMainProductToPart(
             seriesId,
             accessoryDTO.accessory,
             accessoryDTO.newIsoCode,
             accessoryDTO.resetTechnicalData,
+            isoVersion,
         )) {
             is SeriesRegistrationService.ChangeToPartResult.Ok -> HttpResponse.ok()
             is SeriesRegistrationService.ChangeToPartResult.AlreadyPart -> {

@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.product.batch
 
 import jakarta.inject.Singleton
+import no.nav.hm.grunndata.register.iso.IsoVersion
 import java.io.InputStream
 import java.time.LocalDateTime
 import java.util.UUID
@@ -27,15 +28,15 @@ class ProductExcelImport(private val labelService: LabelService) {
         private val LOG = org.slf4j.LoggerFactory.getLogger(ProductExcelImport::class.java)
     }
 
-    fun importExcelFileForRegistration(inputStream: InputStream): List<ProductRegistrationExcelDTO> {
+    fun importExcelFileForRegistration(inputStream: InputStream, isoVersion: IsoVersion = IsoVersion.v16): List<ProductRegistrationExcelDTO> {
         println("Reading xls file for registration")
         val workbook = WorkbookFactory.create(inputStream)
-        val productRegistrationList = readProductRegistrations(workbook)
+        val productRegistrationList = readProductRegistrations(workbook, isoVersion)
         workbook.close()
         return productRegistrationList
     }
 
-    private fun readProductRegistrations(workbook: Workbook): List<ProductRegistrationExcelDTO> {
+    private fun readProductRegistrations(workbook: Workbook, isoVersion: IsoVersion): List<ProductRegistrationExcelDTO> {
         val products =
             workbook.sheetIterator().asSequence().toList().map { sheet ->
                 val isoCategory =
@@ -44,7 +45,7 @@ class ProductExcelImport(private val labelService: LabelService) {
                     } else {
                         sheet.sheetName
                     }
-                val techLabels = labelService.fetchLabelsByIsoCode(isoCategory)
+                val techLabels = isoVersion.labels(labelService, isoCategory, isoCategory)
                 val labelList = techLabels.map { it.label }
                 LOG.info("Fetching labels for isoCategory: $isoCategory, got: ${techLabels.size}")
                 val firstRow = sheet.getRow(0)
@@ -56,7 +57,9 @@ class ProductExcelImport(private val labelService: LabelService) {
                     }
                 val headerMap = readHeaderMapIndex(firstRow, headerNames)
                 sheet.toList().mapIndexed { index, row ->
-                    if (index > 1) mapRowToProductRegistration(row, headerMap, isoCategory, techLabels) else null
+                    if (index > 1) mapRowToProductRegistration(row, headerMap, isoCategory, techLabels).let {
+                        if (isoVersion == IsoVersion.v22) it.copy(isoCategory = "", isoCategory22 = isoCategory) else it
+                    } else null
                 }.filterNotNull()
             }
         return products.flatten()
@@ -139,6 +142,7 @@ data class ProductRegistrationExcelDTO(
     val delkontrakt: String?,
     val rangering: String?,
     val techData: List<TechData> = emptyList(),
+    val isoCategory22: String? = null,
 )
 
 fun ProductRegistrationExcelDTO.toProductRegistration(): ProductRegistration {
@@ -188,7 +192,7 @@ fun ProductRegistrationExcelDTO.toRegistrationDryRunDTO(): ProductRegistrationDr
         title = produktseriesnavn ?: produktnavn ?: "",
         articleName = produktnavn ?: produktseriesnavn ?: "",
         isoCategory = isoCategory,
-        isoCategory22 = null,
+        isoCategory22 = isoCategory22,
         productData =
             ProductData(
                 attributes =

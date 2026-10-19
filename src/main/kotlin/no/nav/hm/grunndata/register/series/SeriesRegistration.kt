@@ -241,6 +241,7 @@ data class SeriesDTO(
     val inAgreement: Boolean,
     val agreements: List<SeriesAgreementInfo> = emptyList(),
     val hmdbId: String? = null,
+    val isoMappingWarning: Boolean = false,
 )
 
 data class SeriesAgreementInfo(

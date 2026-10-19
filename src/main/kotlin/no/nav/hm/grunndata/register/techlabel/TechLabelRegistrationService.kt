@@ -3,6 +3,7 @@ package no.nav.hm.grunndata.register.techlabel
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import jakarta.inject.Singleton
+import no.nav.hm.grunndata.register.iso.IsoVersion
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 
 import java.util.*
@@ -20,9 +21,12 @@ class TechLabelRegistrationService(private val techLabelRegistrationRepository: 
 
     suspend fun update(techlabel: TechLabelRegistration) = techLabelRegistrationRepository.update(techlabel)
 
-    suspend fun delete(techLabelRegistration: TechLabelRegistration, forcedDelete: Boolean) {
+    suspend fun delete(techLabelRegistration: TechLabelRegistration, forcedDelete: Boolean, isoVersion: IsoVersion = IsoVersion.v16) {
         if (!forcedDelete) {
-            productRegistrationService.findByStartsWithIsoCategoryAndTechLabelKeyUnit(techLabelRegistration.isoCode, techLabelRegistration.label, techLabelRegistration.unit)
+            val code = if (isoVersion == IsoVersion.v22) techLabelRegistration.isoCode22 else techLabelRegistration.isoCode
+            val products = if (code.isNullOrBlank()) emptyList() else
+                productRegistrationService.findByStartsWithIsoCategoryAndTechLabelKeyUnit(code, techLabelRegistration.label, techLabelRegistration.unit, isoVersion)
+            products
                 .let { products ->
                     if (products.isNotEmpty()) {
                         throw IllegalStateException("${techLabelRegistration.label} (${techLabelRegistration.unit}) " +
@@ -33,11 +37,11 @@ class TechLabelRegistrationService(private val techLabelRegistrationRepository: 
         techLabelRegistrationRepository.delete(techLabelRegistration)
     }
 
-    suspend fun changeProductsTechDataWithTechLabel(oldKey: String, oldUnit: String?, isoCode: String, newTechLabel: TechLabelRegistration) {
+    suspend fun changeProductsTechDataWithTechLabel(oldKey: String, oldUnit: String?, isoCode: String, newTechLabel: TechLabelRegistration, isoVersion: IsoVersion = IsoVersion.v16) {
         if (isoCode.length<6) {
             throw IllegalArgumentException("IsoCode must be at least 6 characters to avoid too broad search, was $isoCode")
         }
-        val products = productRegistrationService.findByStartsWithIsoCategoryAndTechLabelKeyUnit(isoCode, key = oldKey, unit = oldUnit)
+        val products = productRegistrationService.findByStartsWithIsoCategoryAndTechLabelKeyUnit(isoCode, key = oldKey, unit = oldUnit, isoVersion = isoVersion)
         LOG.debug("Found ${products.size} products with techLabel key=$oldKey, unit=$oldUnit to update to new techLabel ${newTechLabel.label} (${newTechLabel.unit})")
         products.forEach { product ->
             val techData = product.productData.techData.toMutableList()

@@ -1,5 +1,7 @@
 package no.nav.hm.grunndata.register.product
 
+import no.nav.hm.grunndata.register.iso.IsoVersion
+
 import tools.jackson.databind.ObjectMapper
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
@@ -449,7 +451,11 @@ open class ProductRegistrationService(
                 } else {
                     inDb
                 }
-                product.toProductRegistrationDryRunDTO()
+                val series = seriesRegistrationRepository.findById(product.seriesUUID)
+                product.toProductRegistrationDryRunDTO().copy(
+                    isoCategory = series?.isoCategory,
+                    isoCategory22 = series?.isoCategory22,
+                )
             } ?: it.toRegistrationDryRunDTO()
         }
     }
@@ -458,6 +464,7 @@ open class ProductRegistrationService(
         seriesUUID: UUID,
         draftWithDTO: DraftVariantDTO,
         authentication: Authentication,
+        isoVersion: IsoVersion = IsoVersion.v16,
     ): ProductRegistration {
         val previousProduct = productRegistrationRepository.findLastProductInSeries(seriesUUID)
 
@@ -473,7 +480,13 @@ open class ProductRegistrationService(
 
         val productId = UUID.randomUUID()
         val product = ProductData(
-            techData = previousProduct?.productData?.techData ?: createTechDataDraft(series.isoCategory),
+            techData = isoVersion.labels(techLabelService, series.isoCategory, series.isoCategory22).map { label ->
+                TechData(
+                    key = label.label,
+                    value = previousProduct?.productData?.techData?.find { it.key == label.label }?.value ?: "",
+                    unit = label.unit ?: ""
+                )
+            },
             attributes = Attributes(
                 shortdescription = "",
                 text = "",
@@ -504,11 +517,6 @@ open class ProductRegistrationService(
         LOG.info("Draft was created ${draft.id}")
         return draft
     }
-
-    private fun createTechDataDraft(isoCode: String): List<TechData> =
-        techLabelService.fetchLabelsByIsoCode(isoCode).map {
-            TechData(key = it.label, value = "", unit = it.unit ?: "")
-        }
 
     private suspend fun ProductRegistration.toProductToApproveDto(): ProductToApproveDto {
         val agreeements = productAgreementRegistrationRepository.findByProductId(id)
@@ -727,6 +735,7 @@ open class ProductRegistrationService(
         isoCategory: String,
         key: String? = null,
         unit: String? = null,
+        isoVersion: IsoVersion = IsoVersion.v16,
     ): List<ProductRegistration> {
         if (key.isNullOrBlank() && unit.isNullOrBlank()) {
             throw BadRequestException("At least one of key or unit must be provided")
@@ -737,9 +746,14 @@ open class ProductRegistrationService(
         val jsonQuery = objectMapper.writeValueAsString(listOf(queryMap))
         val isoCategoryPattern = "$isoCategory%"
         LOG.debug("Executing jsonQuery ${jsonQuery}")
-        return productRegistrationRepository.findDistinctByProductStartsWithIsoCategoryAndTechDataJsonQuery(
-            isoCategoryPattern, jsonQuery.toString()
-        )
+        return when (isoVersion) {
+            IsoVersion.v16 -> productRegistrationRepository.findDistinctByProductStartsWithIsoCategoryAndTechDataJsonQuery(
+                isoCategoryPattern, jsonQuery
+            )
+            IsoVersion.v22 -> productRegistrationRepository.findDistinctByProductStartsWithIsoCategory22AndTechDataJsonQuery(
+                isoCategoryPattern, jsonQuery
+            )
+        }
     }
 
     suspend fun findPartIdsOnAgreement(): List<UUID> = productRegistrationRepository.findPartIdsOnAgreement()
