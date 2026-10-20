@@ -146,11 +146,8 @@ class TechLabelRegistrationAdminController(
                 try {
                     coroutineScope.launch {
                         techLabelRegistrationService.changeProductsTechDataWithTechLabel(
-                            inDb.label,
-                            inDb.unit,
-                            if (isoVersion == IsoVersion.v22) inDb.isoCode22 ?: dto.isoCode22 ?: "" else inDb.isoCode,
+                            inDb,
                             updated,
-                            isoVersion
                         )
                     }
                 } catch (e: Exception) {
