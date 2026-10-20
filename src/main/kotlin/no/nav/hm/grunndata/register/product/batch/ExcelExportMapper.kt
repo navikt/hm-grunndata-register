@@ -14,9 +14,13 @@ class ExcelExportMapper(
         return products.groupBy { it.seriesUUID }.map {
             val series = seriesRegistrationRepository.findById(it.key)
                 ?: throw BadRequestException("No series ${it.key} for products in excel export")
+            val isoCategory = if (isoVersion == IsoVersion.v22) {
+                series.isoCategory22?.takeIf { code -> code.isNotBlank() }
+                    ?: throw BadRequestException("Series ${series.id} is missing an ISO22 category for Excel export")
+            } else series.isoCategory
             ProductExcelExportDto(
                 products = it.value,
-                isoCategory = if (isoVersion == IsoVersion.v22) series.isoCategory22 ?: "" else series.isoCategory,
+                isoCategory = isoCategory,
                 seriesUuid = it.key.toString(),
                 seriesTitle = series.title,
                 seriesDescription = series.text
