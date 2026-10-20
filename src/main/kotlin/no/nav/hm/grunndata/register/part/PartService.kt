@@ -16,6 +16,7 @@ import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import org.apache.commons.math3.stat.StatUtils.product
 import org.slf4j.LoggerFactory
@@ -84,12 +85,14 @@ open class PartService(
         return product
     }
 
-    private fun mappedDraft(draft: PartDraftWithDTO, auth: Authentication) =
-        seriesIsoMapper.update(
-            draft.toSeriesRegistration(auth),
-            draft.isoCategory22 ?: draft.isoCategory,
-            if (draft.isoCategory22 != null) IsoVersion.v22 else IsoVersion.v16
+    private fun mappedDraft(draft: PartDraftWithDTO, auth: Authentication): SeriesRegistration {
+        val isoCategory22 = draft.isoCategory22?.takeIf { it.isNotBlank() }
+        return seriesIsoMapper.update(
+            draft.copy(isoCategory22 = isoCategory22).toSeriesRegistration(auth),
+            isoCategory22 ?: draft.isoCategory,
+            if (isoCategory22 != null) IsoVersion.v22 else IsoVersion.v16
         )
+    }
 
     @Transactional
     open suspend fun updatePart(auth: Authentication, updateDto: UpdatePartDto, seriesId: UUID) {
