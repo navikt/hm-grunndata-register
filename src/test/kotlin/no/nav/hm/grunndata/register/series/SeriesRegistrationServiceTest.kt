@@ -5,6 +5,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.micronaut.cache.CacheManager
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
@@ -33,6 +34,7 @@ import no.nav.hm.grunndata.register.techlabel.TechLabelType
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.BeforeEach
 
 @MicronautTest
 class SeriesRegistrationServiceTest(
@@ -40,10 +42,15 @@ class SeriesRegistrationServiceTest(
     private val productRegistrationService: ProductRegistrationService,
     private val iso22Repository: Iso22Repository,
     private val techLabelRepository: TechLabelRegistrationRepository,
+    private val cacheManager: CacheManager<*>,
 ) {
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
 
+    @BeforeEach
+    fun clearTechnicalLabelCache() {
+        cacheManager.getCache("techlabels-all-labels22").invalidateAll()
+    }
 
     @Test
     fun patchSeries() {
@@ -102,6 +109,41 @@ class SeriesRegistrationServiceTest(
             service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(isoCategory22 = "33330101"), authentication)
             service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe "33330101"
         }
+    }
+
+    @Test
+    fun `default v16 patch honors changed ISO22 with unchanged ISO16 and uses ISO22 technical labels`(): Unit = runBlocking {
+        val series = newSeries(UUID.randomUUID(), UUID.randomUUID()).copy(isoCategory22 = "33330108")
+        ensureIso22("33330109")
+        service.save(series)
+        techLabelRepository.save(
+            TechLabelRegistration(
+                label = "ISO22 height", isoCode = "99999999", isoCode22 = "33330109",
+                type = TechLabelType.N, unit = "cm", sort = 0, definition = null,
+            )
+        )
+        val product = productRegistrationService.save(
+            ProductRegistration(
+                id = UUID.randomUUID(), seriesUUID = series.id, supplierId = series.supplierId,
+                supplierRef = UUID.randomUUID().toString(), articleName = "Variant", hmsArtNr = null,
+                productData = ProductData(techData = listOf(
+                    TechData(key = "ISO22 height", value = "42", unit = "cm"),
+                    TechData(key = "Old field", value = "10", unit = "kg"),
+                )),
+            )
+        )
+
+        service.patchSeries(
+            series.id,
+            UpdateSeriesRegistrationDTO(isoCategory = series.isoCategory, isoCategory22 = "33330109"),
+            supplierAuthentication(series.supplierId),
+        )
+
+        val updated = service.findById(series.id).shouldNotBeNull()
+        updated.isoCategory22 shouldBe "33330109"
+        updated.isoCategory shouldBe series.isoCategory
+        productRegistrationService.findById(product.id).shouldNotBeNull().productData.techData shouldBe
+            listOf(TechData(key = "ISO22 height", value = "42", unit = "cm"))
     }
 
     @Test
