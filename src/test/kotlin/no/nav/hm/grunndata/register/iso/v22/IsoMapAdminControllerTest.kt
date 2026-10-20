@@ -20,7 +20,8 @@ import org.junit.jupiter.api.Test
 class IsoMapAdminControllerTest(
     private val client: IsoMapAdminApiClient,
     private val userRepository: UserRepository,
-    private val loginClient: LoginClient
+    private val loginClient: LoginClient,
+    private val isoMapService: IsoMapService,
 ) {
 
     private val email = "isomap-admin@test.test"
@@ -55,6 +56,7 @@ class IsoMapAdminControllerTest(
             verified = true
         )
 
+        isoMapService.retrieveAll().none { it.code16 == isoMap.code16 && it.code22 == isoMap.code22 } shouldBe true
         var response = client.createIsoMap(jwt, isoMap)
         response.status shouldBe HttpStatus.CREATED
         response.body.isPresent shouldBe true
@@ -64,6 +66,7 @@ class IsoMapAdminControllerTest(
         created.code22 shouldBe "122436"
         created.mapEnum shouldBe listOf(IsoMapEnum.SAME)
         created.verified shouldBe true
+        isoMapService.retrieveAll().find { it.id == created.id }.shouldNotBeNull()
 
         val updated = created.copy(
             mapEnum = listOf(IsoMapEnum.CHANGED_CODE_SAME_HEADER, IsoMapEnum.CHANGED_EXPLANATION),
@@ -80,6 +83,7 @@ class IsoMapAdminControllerTest(
         updatedBody.code22 shouldBe created.code22
         updatedBody.mapEnum shouldBe listOf(IsoMapEnum.CHANGED_CODE_SAME_HEADER, IsoMapEnum.CHANGED_EXPLANATION)
         updatedBody.verified shouldBe false
+        isoMapService.retrieveAll().none { it.id == created.id } shouldBe true
 
         val all = client.getAllIsoMaps(jwt)
         all.find { it.id == created.id }.shouldNotBeNull()
