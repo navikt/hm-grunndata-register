@@ -192,12 +192,28 @@ class SeriesRegistrationServiceTest(
         runBlocking {
             ensureIso22("33330106")
             service.save(newSeries(seriesId, supplierId).copy(isoCategory22 = "33330106"))
-
-            service.patchSeries(
-                seriesId,
-                UpdateSeriesRegistrationDTO(title = "leverandørtittel", isoCategory22 = "33330106"),
-                supplierAuthentication(supplierId),
+            val technicalData = listOf(
+                TechData(key = "ISO16-only height", value = "42", unit = "cm"),
+                TechData(key = "ISO16-only weight", value = "10", unit = "kg"),
             )
+            val product = productRegistrationService.save(
+                ProductRegistration(
+                    id = UUID.randomUUID(), seriesUUID = seriesId, supplierId = supplierId,
+                    supplierRef = UUID.randomUUID().toString(), articleName = "Variant", hmsArtNr = null,
+                    productData = ProductData(techData = technicalData),
+                )
+            )
+
+            listOf(null, false).forEach { reset ->
+                service.patchSeries(
+                    seriesId,
+                    UpdateSeriesRegistrationDTO(
+                        title = "leverandørtittel", isoCategory22 = " 33 33 01 06 ", resetTechnicalData = reset,
+                    ),
+                    supplierAuthentication(supplierId),
+                )
+                productRegistrationService.findById(product.id).shouldNotBeNull().productData.techData shouldBe technicalData
+            }
 
             val patched = service.findById(seriesId).shouldNotBeNull()
             patched.title shouldBe "leverandørtittel"
