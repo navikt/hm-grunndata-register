@@ -87,7 +87,7 @@ class TechLabelRegistrationAdminController(
                         guide = dto.label,
                         definition = dto.definition,
                         isoCode = dto.isoCode.trim(),
-                            isoCode22 = dto.isoCode22?.trim(),
+                        isoCode22 = dto.isoCode22?.trim()?.takeIf { it.isNotEmpty() },
                         type = dto.type,
                         unit = dto.unit?.trim(),
                         sort = dto.sort,
@@ -129,7 +129,8 @@ class TechLabelRegistrationAdminController(
                     label = dto.label.trim(),
                     guide = dto.guide.trim(),
                     isoCode = dto.isoCode.trim(),
-                    isoCode22 = dto.isoCode22?.trim() ?: inDb.isoCode22,
+                    isoCode22 = if (dto.isoCode22 == null) inDb.isoCode22
+                        else dto.isoCode22.trim().takeIf { it.isNotEmpty() },
                     type = dto.type,
                     unit = dto.unit?.trim(),
                     sort = dto.sort,

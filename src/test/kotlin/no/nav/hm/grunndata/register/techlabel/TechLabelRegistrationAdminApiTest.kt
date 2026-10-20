@@ -105,6 +105,24 @@ class TechLabelRegistrationAdminApiTest(private val client: TechLabelRegistratio
     }
 
     @Test
+    fun `blank ISO22 codes are stored as null on creation and update`() {
+        val jwt = loginClient.login(UsernamePasswordCredentials(email, password)).getCookie("JWT").get().value
+        listOf("", "   ").forEachIndexed { index, blank ->
+            val dto = TechLabelCreateUpdateDTO(
+                label = "Blank ISO22 height $index", isoCode = "09070601", isoCode22 = blank,
+                type = TechLabelType.N, unit = "cm", sort = 1, required = false,
+            )
+            val created = client.createTechLabel(jwt, dto).body.get()
+            client.getTechLabelById(jwt, created.id).body.get().isoCode22 shouldBe null
+
+            client.updateTechLabel(jwt, created.id, dto.copy(isoCode22 = "09070602"))
+            client.getTechLabelById(jwt, created.id).body.get().isoCode22 shouldBe "09070602"
+            client.updateTechLabel(jwt, created.id, dto)
+            client.getTechLabelById(jwt, created.id).body.get().isoCode22 shouldBe null
+        }
+    }
+
+    @Test
     fun updateSectionForLabelTest() {
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
