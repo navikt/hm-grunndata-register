@@ -39,11 +39,12 @@ data class PartDraftWithDTO(
     val sparePart: Boolean? = false,
     val accessory: Boolean? = false,
     val supplierId: UUID,
+    val isoCategory22: String? = null,
 
     ) {
     init {
         if (title.isBlank()) throw BadRequestException("title is required")
-        if (isoCategory.isBlank()) throw BadRequestException("isoCategory is required")
+        if (isoCategory.isBlank() && isoCategory22.isNullOrBlank()) throw BadRequestException("isoCategory is required")
         if (levArtNr.isBlank()) throw BadRequestException("levArtNr is required")
         if ((sparePart == null && accessory == null) || (sparePart == false && accessory == false)) throw BadRequestException(
             "sparePart or accessory is required"
@@ -60,6 +61,7 @@ fun PartDraftWithDTO.toSeriesRegistration(authentication: Authentication): Serie
         supplierId = supplierId,
         title = title,
         isoCategory = isoCategory,
+        isoCategory22 = isoCategory22,
         mainProduct = false,
         text = "",
         identifier = seriesId.toString(),

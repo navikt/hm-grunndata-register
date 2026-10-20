@@ -12,6 +12,7 @@ import io.micronaut.http.server.exceptions.ConversionErrorHandler
 import io.micronaut.http.server.exceptions.ExceptionHandler
 import io.micronaut.http.server.exceptions.JsonExceptionHandler
 import jakarta.inject.Singleton
+import no.nav.hm.grunndata.register.iso.IsoVersion
 import org.slf4j.LoggerFactory
 import tools.jackson.core.JacksonException
 import tools.jackson.core.exc.StreamReadException
@@ -64,7 +65,9 @@ class BadRequestErrorHandler : ExceptionHandler<BadRequestException, HttpRespons
 class ConversionExceptionHandler : ExceptionHandler<ConversionErrorException, HttpResponse<ErrorMessage>> {
     override fun handle(request: HttpRequest<Any>, error: ConversionErrorException): HttpResponse<ErrorMessage> {
         val response =
-            when (error.cause) {
+            if (error.argument.type == IsoVersion::class.java) {
+                HttpResponse.badRequest(ErrorMessage("Invalid isoVersion; expected v16 or v22", ErrorType.INVALID_VALUE))
+            } else when (error.cause) {
                 is JacksonException -> handleJacksonException(error.cause as JacksonException)
                 else -> HttpResponse.serverError(ErrorMessage(error.message!!, ErrorType.UNKNOWN))
             }

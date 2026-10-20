@@ -30,6 +30,8 @@ import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.error.ErrorType
 import no.nav.hm.grunndata.register.iso.v22.Iso22Service
+import no.nav.hm.grunndata.register.iso.IsoVersion
+import no.nav.hm.grunndata.register.iso.SeriesIsoMapper
 import no.nav.hm.grunndata.register.media.MediaUploadService
 import no.nav.hm.grunndata.register.media.ObjectType
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
@@ -54,6 +56,7 @@ open class SeriesRegistrationService(
     private val mediaUploadService: MediaUploadService,
     private val techLabelService: TechLabelService,
     private val iso22Service: Iso22Service,
+    private val seriesIsoMapper: SeriesIsoMapper,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationService::class.java)
@@ -65,16 +68,18 @@ open class SeriesRegistrationService(
         object NotFound : ChangeToPartResult()
     }
 
+    @Transactional
     open suspend fun changeMainProductToPart(
         seriesUUID: UUID,
         accessory: Boolean,
         newIsoCode: String,
         resetTechnicalData: Boolean,
+        isoVersion: IsoVersion = IsoVersion.v16,
     ): ChangeToPartResult {
         val series = findById(seriesUUID) ?: return ChangeToPartResult.NotFound
         if (!series.mainProduct) return ChangeToPartResult.AlreadyPart
 
-        val updatedSeries = series.copy(mainProduct = false, isoCategory = newIsoCode)
+        val updatedSeries = seriesIsoMapper.update(series, newIsoCode, isoVersion).copy(mainProduct = false)
         val products = productRegistrationService.findAllBySeriesUuid(seriesUUID)
         products.forEach { product ->
             val updatedProduct = product.copy(
@@ -82,7 +87,7 @@ open class SeriesRegistrationService(
                 accessory = accessory,
                 sparePart = !accessory,
                 productData = if (resetTechnicalData)
-                    product.productData.copy(techData = createTechDataDraft(newIsoCode))
+                    product.productData.copy(techData = createTechDataDraft(newIsoCode, isoVersion))
                 else
                     product.productData
             )
@@ -591,15 +596,13 @@ open class SeriesRegistrationService(
     open suspend fun patchSeries(
         id: UUID,
         patch: UpdateSeriesRegistrationDTO,
-        authentication: Authentication
+        authentication: Authentication,
+        isoVersion: IsoVersion = IsoVersion.v16,
     ): SeriesRegistration {
         val inDbSeries = getSeriesValidate(id, authentication)
 
         val patchIsoCategory22 = patch.isoCategory22?.filterNot { it.isWhitespace() }
         if (patchIsoCategory22 != null && patchIsoCategory22 != inDbSeries.isoCategory22) {
-            if (!authentication.isAdmin()) {
-                throw BadRequestException("not authorized to change isoCategory22", ErrorType.UNAUTHORIZED)
-            }
             if (iso22Service.lookUpCode(patchIsoCategory22) == null) {
                 throw BadRequestException("Iso22 category $patchIsoCategory22 does not exist")
             }
@@ -620,12 +623,27 @@ open class SeriesRegistrationService(
             attributes = seriesDataAttributes,
         )
 
+        val requestedIsoCategory22 = patchIsoCategory22?.takeIf {
+            it != inDbSeries.isoCategory22 || patch.resetTechnicalData == true
+        }
+        val requestedIsoCategory = patch.isoCategory?.takeIf {
+            it != inDbSeries.isoCategory || patch.resetTechnicalData == true
+        }
+        val iso16Changed = patch.isoCategory != null && patch.isoCategory != inDbSeries.isoCategory
+        val iso22Changed = patchIsoCategory22 != null && patchIsoCategory22 != inDbSeries.isoCategory22
+        val categoryVersion = when {
+            iso22Changed && !iso16Changed -> IsoVersion.v22
+            iso16Changed && !iso22Changed -> IsoVersion.v16
+            requestedIsoCategory22 != null && requestedIsoCategory == null -> IsoVersion.v22
+            else -> isoVersion
+        }
+        val categoryCode = if (categoryVersion == IsoVersion.v22) requestedIsoCategory22 else requestedIsoCategory
+        val updatedCategories = categoryCode?.let { seriesIsoMapper.update(inDbSeries, it, categoryVersion) } ?: inDbSeries
         val saved = saveAndCreateEventIfNotDraftAndApproved(
-            inDbSeries
+            updatedCategories
                 .copy(
                     title = patch.title ?: inDbSeries.title,
                     text = patch.text ?: inDbSeries.text,
-                    isoCategory = patch.isoCategory ?: inDbSeries.isoCategory,
                     seriesData = seriesData,
                     updated = LocalDateTime.now(),
                     updatedByUser = authentication.name
@@ -634,17 +652,18 @@ open class SeriesRegistrationService(
             true,
         )
 
-        if (patch.isoCategory != null) {
+        if (categoryCode != null) {
             val products = productRegistrationService.findAllBySeriesUuid(id)
             products.forEach { product ->
                 val updatedProduct = product.copy(
                     productData = if (patch.resetTechnicalData == true)
-                        product.productData.copy(techData = createTechDataDraft(patch.isoCategory))
+                        product.productData.copy(techData = createTechDataDraft(categoryCode, categoryVersion))
                     else
                         product.productData.copy(
                             techData = createTechDataDraftWithCopy(
                                 product.productData.techData,
-                                patch.isoCategory
+                                categoryCode,
+                                categoryVersion
                             )
                         )
                 )
@@ -902,13 +921,13 @@ open class SeriesRegistrationService(
         return seriesToUpdate
     }
 
-    private fun createTechDataDraft(isoCode: String): List<TechData> =
-        techLabelService.fetchLabelsByIsoCode(isoCode).map {
+    private fun createTechDataDraft(isoCode: String, isoVersion: IsoVersion = IsoVersion.v16): List<TechData> =
+        isoVersion.labels(techLabelService, isoCode, isoCode).map {
             TechData(key = it.label, value = "", unit = it.unit ?: "")
         }
 
-    private fun createTechDataDraftWithCopy(oldTechData: List<TechData>, isoCode: String): List<TechData> {
-        val draftLabels = techLabelService.fetchLabelsByIsoCode(isoCode)
+    private fun createTechDataDraftWithCopy(oldTechData: List<TechData>, isoCode: String, isoVersion: IsoVersion = IsoVersion.v16): List<TechData> {
+        val draftLabels = isoVersion.labels(techLabelService, isoCode, isoCode)
         return draftLabels.map { label ->
             val existing = oldTechData.find { it.key == label.label }
             TechData(

@@ -1,5 +1,8 @@
 package no.nav.hm.grunndata.register.series
 
+import io.micronaut.http.annotation.QueryValue
+import no.nav.hm.grunndata.register.iso.IsoVersion
+
 import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
@@ -62,17 +65,21 @@ class SeriesRegistrationCommonController(
             LOG.warn("SupplierId in request does not match authenticated supplierId")
             return HttpResponse.unauthorized()
         }
-        val isoCategory22 = if (draftWith.isoCategory22 == null && draftWith.isoCategory.isNotEmpty()) {
+        val requestedIsoCategory22 = draftWith.isoCategory22?.takeIf { it.isNotBlank() }
+        val isoCategory22 = if (requestedIsoCategory22 == null && draftWith.isoCategory.isNotBlank()) {
             isoMapService.mapIso16To22Lvl4(draftWith.isoCategory)
         } else {
-            draftWith.isoCategory22
+            requestedIsoCategory22
         }
-        val isoCategory = if (draftWith.isoCategory.isEmpty() && draftWith.isoCategory22 != null) {
-            isoMapService.mapIso22To16Lvl4(draftWith.isoCategory22)
+        val isoCategory = if (draftWith.isoCategory.isBlank() && requestedIsoCategory22 != null) {
+            isoMapService.mapIso22To16Lvl4(requestedIsoCategory22)
         } else {
             draftWith.isoCategory
         }
         val draftWithUpdated = draftWith.copy(isoCategory22 = isoCategory22, isoCategory = isoCategory?:"")
+        if (isoCategory22.isNullOrBlank() || isoCategory.isNullOrBlank()) {
+            LOG.warn("Cannot maintain ISO counterpart for series draft")
+        }
 
         return HttpResponse.ok(
             SeriesDraftResponse(
@@ -187,9 +194,10 @@ class SeriesRegistrationCommonController(
     suspend fun readSeries(
         @PathVariable id: UUID,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<SeriesDTO> {
         return seriesRegistrationService.findById(id, authentication)?.let {
-            HttpResponse.ok(seriesDTOMapper.toDTOV2(it))
+            HttpResponse.ok(seriesDTOMapper.toDTOV2(it, isoVersion))
         } ?: run {
             LOG.warn("Series with id $id does not exist")
             HttpResponse.notFound()
@@ -201,11 +209,13 @@ class SeriesRegistrationCommonController(
         @PathVariable id: UUID,
         @Body updateSeriesRegistrationDTO: UpdateSeriesRegistrationDTO,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<Any> {
         seriesRegistrationService.patchSeries(
             id,
             updateSeriesRegistrationDTO,
             authentication,
+            isoVersion,
         )
         return HttpResponse.ok()
     }

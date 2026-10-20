@@ -5,6 +5,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.micronaut.cache.CacheManager
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
@@ -17,6 +18,8 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaSourceType
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
+import no.nav.hm.grunndata.rapid.dto.TechData
+import no.nav.hm.grunndata.register.iso.IsoVersion
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.iso.v22.Iso22
 import no.nav.hm.grunndata.register.iso.v22.Iso22Repository
@@ -24,19 +27,30 @@ import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.ProductData
 import no.nav.hm.grunndata.register.product.ProductRegistration
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
+import no.nav.hm.grunndata.register.product.DraftVariantDTO
+import no.nav.hm.grunndata.register.techlabel.TechLabelRegistration
+import no.nav.hm.grunndata.register.techlabel.TechLabelRegistrationRepository
+import no.nav.hm.grunndata.register.techlabel.TechLabelType
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.rapids_rivers.micronaut.RapidPushService
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.BeforeEach
 
 @MicronautTest
 class SeriesRegistrationServiceTest(
     private val service: SeriesRegistrationService,
     private val productRegistrationService: ProductRegistrationService,
     private val iso22Repository: Iso22Repository,
+    private val techLabelRepository: TechLabelRegistrationRepository,
+    private val cacheManager: CacheManager<*>,
 ) {
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
 
+    @BeforeEach
+    fun clearTechnicalLabelCache() {
+        cacheManager.getCache("techlabels-all-labels22").invalidateAll()
+    }
 
     @Test
     fun patchSeries() {
@@ -83,7 +97,7 @@ class SeriesRegistrationServiceTest(
     }
 
     @Test
-    fun `patchSeries does not save isoCategory22`() {
+    fun `patchSeries saves isoCategory22`() {
         val seriesId = UUID.randomUUID()
         val supplierId = UUID.randomUUID()
         val authentication = adminAuthentication()
@@ -93,7 +107,46 @@ class SeriesRegistrationServiceTest(
             service.save(newSeries(seriesId, supplierId))
 
             service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(isoCategory22 = "33330101"), authentication)
-            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe null
+            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe "33330101"
+        }
+    }
+
+    @Test
+    fun `default v16 patch honors changed ISO22 with unchanged ISO16 and uses ISO22 technical labels`(): Unit = runBlocking {
+        ensureIso22("33330109")
+        techLabelRepository.save(
+            TechLabelRegistration(
+                label = "ISO22 height", isoCode = "99999999", isoCode22 = "33330109",
+                type = TechLabelType.N, unit = "cm", sort = 0, definition = null,
+            )
+        )
+        listOf(false, true).forEach { reset ->
+            val series = newSeries(UUID.randomUUID(), UUID.randomUUID()).copy(isoCategory22 = "33330108")
+            service.save(series)
+            val product = productRegistrationService.save(
+                ProductRegistration(
+                    id = UUID.randomUUID(), seriesUUID = series.id, supplierId = series.supplierId,
+                    supplierRef = UUID.randomUUID().toString(), articleName = "Variant", hmsArtNr = null,
+                    productData = ProductData(techData = listOf(
+                        TechData(key = "ISO22 height", value = "42", unit = "cm"),
+                        TechData(key = "Old field", value = "10", unit = "kg"),
+                    )),
+                )
+            )
+
+            service.patchSeries(
+                series.id,
+                UpdateSeriesRegistrationDTO(
+                    isoCategory = series.isoCategory, isoCategory22 = "33330109", resetTechnicalData = reset,
+                ),
+                supplierAuthentication(series.supplierId),
+            )
+
+            val updated = service.findById(series.id).shouldNotBeNull()
+            updated.isoCategory22 shouldBe "33330109"
+            updated.isoCategory shouldBe series.isoCategory
+            productRegistrationService.findById(product.id).shouldNotBeNull().productData.techData shouldBe
+                listOf(TechData(key = "ISO22 height", value = if (reset) "" else "42", unit = "cm"))
         }
     }
 
@@ -108,7 +161,7 @@ class SeriesRegistrationServiceTest(
             service.save(newSeries(seriesId, supplierId))
 
             service.patchSeries(seriesId, UpdateSeriesRegistrationDTO(isoCategory22 = " 33 33 01 02 "), authentication)
-            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe null
+            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe "33330102"
         }
     }
 
@@ -130,7 +183,7 @@ class SeriesRegistrationServiceTest(
     }
 
     @Test
-    fun `leverandør kan ikke endre isoCategory22`() {
+    fun `supplier and HMS can change isoCategory22 under existing access rules`() {
         val seriesId = UUID.randomUUID()
         val supplierId = UUID.randomUUID()
 
@@ -139,15 +192,42 @@ class SeriesRegistrationServiceTest(
             ensureIso22("33330105")
             service.save(newSeries(seriesId, supplierId).copy(isoCategory22 = "33330104"))
 
+            service.patchSeries(
+                seriesId,
+                UpdateSeriesRegistrationDTO(isoCategory22 = "33330105"),
+                supplierAuthentication(supplierId),
+            )
+            service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe "33330105"
             shouldThrow<BadRequestException> {
                 service.patchSeries(
                     seriesId,
-                    UpdateSeriesRegistrationDTO(isoCategory22 = "33330105"),
-                    supplierAuthentication(supplierId),
+                    UpdateSeriesRegistrationDTO(isoCategory22 = "33330104"),
+                    Authentication.build("hms", listOf(Roles.ROLE_HMS), emptyMap()),
                 )
             }
+            service.update(service.findById(seriesId).shouldNotBeNull().copy(mainProduct = false))
+            service.patchSeries(
+                seriesId,
+                UpdateSeriesRegistrationDTO(isoCategory22 = "33330104"),
+                Authentication.build("hms", listOf(Roles.ROLE_HMS), emptyMap()),
+            )
             service.findById(seriesId).shouldNotBeNull().isoCategory22 shouldBe "33330104"
         }
+    }
+
+    @Test
+    fun `supplier cannot change another supplier ISO22 category`(): Unit = runBlocking {
+        val series = newSeries(UUID.randomUUID(), UUID.randomUUID())
+        ensureIso22("33330105")
+        service.save(series)
+        shouldThrow<BadRequestException> {
+            service.patchSeries(
+                series.id,
+                UpdateSeriesRegistrationDTO(isoCategory22 = "33330105"),
+                supplierAuthentication(UUID.randomUUID()),
+            )
+        }
+        service.findById(series.id).shouldNotBeNull().isoCategory22 shouldBe null
     }
 
     @Test
@@ -158,12 +238,28 @@ class SeriesRegistrationServiceTest(
         runBlocking {
             ensureIso22("33330106")
             service.save(newSeries(seriesId, supplierId).copy(isoCategory22 = "33330106"))
-
-            service.patchSeries(
-                seriesId,
-                UpdateSeriesRegistrationDTO(title = "leverandørtittel", isoCategory22 = "33330106"),
-                supplierAuthentication(supplierId),
+            val technicalData = listOf(
+                TechData(key = "ISO16-only height", value = "42", unit = "cm"),
+                TechData(key = "ISO16-only weight", value = "10", unit = "kg"),
             )
+            val product = productRegistrationService.save(
+                ProductRegistration(
+                    id = UUID.randomUUID(), seriesUUID = seriesId, supplierId = supplierId,
+                    supplierRef = UUID.randomUUID().toString(), articleName = "Variant", hmsArtNr = null,
+                    productData = ProductData(techData = technicalData),
+                )
+            )
+
+            listOf(null, false).forEach { reset ->
+                service.patchSeries(
+                    seriesId,
+                    UpdateSeriesRegistrationDTO(
+                        title = "leverandørtittel", isoCategory22 = " 33 33 01 06 ", resetTechnicalData = reset,
+                    ),
+                    supplierAuthentication(supplierId),
+                )
+                productRegistrationService.findById(product.id).shouldNotBeNull().productData.techData shouldBe technicalData
+            }
 
             val patched = service.findById(seriesId).shouldNotBeNull()
             patched.title shouldBe "leverandørtittel"
@@ -172,6 +268,59 @@ class SeriesRegistrationServiceTest(
     }
 
     private fun adminAuthentication() = Authentication.build("admin", listOf(Roles.ROLE_ADMIN), emptyMap())
+
+    @Test
+    fun `ISO22 category changes regenerate and reset active technical fields and initialize variants`() = runBlocking {
+        val series = newSeries(UUID.randomUUID(), UUID.randomUUID())
+        ensureIso22("33330107")
+        service.save(series)
+        listOf("Shared", "New").forEach { label ->
+            techLabelRepository.save(
+                TechLabelRegistration(
+                    label = label, isoCode = "99999999", isoCode22 = "33330107",
+                    type = TechLabelType.N, unit = "cm", sort = 0, definition = null,
+                )
+            )
+        }
+        val product = productRegistrationService.save(
+            ProductRegistration(
+                id = UUID.randomUUID(), seriesUUID = series.id, supplierId = series.supplierId,
+                supplierRef = UUID.randomUUID().toString(), articleName = "Variant", hmsArtNr = null,
+                productData = ProductData(techData = listOf(
+                    TechData(key = "Shared", value = "42", unit = "cm"),
+                    TechData(key = "Old", value = "10", unit = "kg"),
+                )),
+            )
+        )
+        service.patchSeries(
+            series.id, UpdateSeriesRegistrationDTO(isoCategory22 = "33330107", resetTechnicalData = false),
+            supplierAuthentication(series.supplierId), IsoVersion.v22,
+        )
+        val retained = productRegistrationService.findById(product.id).shouldNotBeNull().productData.techData
+        retained.map { it.key }.toSet() shouldBe setOf("Shared", "New")
+        retained.find { it.key == "Shared" }!!.value shouldBe "42"
+        retained.find { it.key == "New" }!!.value shouldBe ""
+        productRegistrationService.findByStartsWithIsoCategoryAndTechLabelKeyUnit(
+            "333301", key = "Shared", unit = "cm", isoVersion = IsoVersion.v22,
+        ).map { it.id } shouldBe listOf(product.id)
+        productRegistrationService.findByStartsWithIsoCategoryAndTechLabelKeyUnit(
+            "333301", key = "Shared", unit = "cm",
+        ).isEmpty() shouldBe true
+        service.findById(series.id).shouldNotBeNull().isoCategory shouldBe series.isoCategory
+        val variant = productRegistrationService.createDraft(
+            series.id, DraftVariantDTO("Second", UUID.randomUUID().toString()),
+            supplierAuthentication(series.supplierId), IsoVersion.v22,
+        )
+        variant.productData.techData.map { it.key }.toSet() shouldBe setOf("Shared", "New")
+        variant.productData.techData.find { it.key == "Shared" }!!.value shouldBe "42"
+        service.patchSeries(
+            series.id, UpdateSeriesRegistrationDTO(isoCategory22 = "33330107", resetTechnicalData = true),
+            supplierAuthentication(series.supplierId), IsoVersion.v22,
+        )
+        productRegistrationService.findAllBySeriesUuid(series.id).forEach { updated ->
+            updated.productData.techData.all { it.value.isEmpty() } shouldBe true
+        }
+    }
 
     private fun supplierAuthentication(supplierId: UUID) =
         Authentication.build("leverandør", listOf(Roles.ROLE_SUPPLIER), mapOf("supplierId" to supplierId.toString()))

@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.iso.IsoVersion
 import no.nav.hm.grunndata.register.product.isAdmin
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.runtime.where
@@ -86,6 +87,7 @@ class TechLabelRegistrationAdminController(
                         guide = dto.label,
                         definition = dto.definition,
                         isoCode = dto.isoCode.trim(),
+                        isoCode22 = dto.isoCode22?.trim()?.takeIf { it.isNotEmpty() },
                         type = dto.type,
                         unit = dto.unit?.trim(),
                         sort = dto.sort,
@@ -115,7 +117,8 @@ class TechLabelRegistrationAdminController(
     suspend fun updateTechLabel(
         id: UUID,
         @Body dto: TechLabelCreateUpdateDTO,
-        authentication: Authentication
+        authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<TechLabelRegistrationDTO> =
         techLabelRegistrationService.findById(id)?.let { inDb ->
             if (!TechLabelSection.isValid(dto.section)) {
@@ -126,7 +129,8 @@ class TechLabelRegistrationAdminController(
                     label = dto.label.trim(),
                     guide = dto.guide.trim(),
                     isoCode = dto.isoCode.trim(),
-                    isoCode22 = dto.isoCode22?.trim(),
+                    isoCode22 = if (dto.isoCode22 == null) inDb.isoCode22
+                        else dto.isoCode22.trim().takeIf { it.isNotEmpty() },
                     type = dto.type,
                     unit = dto.unit?.trim(),
                     sort = dto.sort,
@@ -143,10 +147,8 @@ class TechLabelRegistrationAdminController(
                 try {
                     coroutineScope.launch {
                         techLabelRegistrationService.changeProductsTechDataWithTechLabel(
-                            inDb.label,
-                            inDb.unit,
-                            inDb.isoCode,
-                            updated
+                            inDb,
+                            updated,
                         )
                     }
                 } catch (e: Exception) {
@@ -158,11 +160,11 @@ class TechLabelRegistrationAdminController(
         } ?: HttpResponse.notFound()
 
     @Delete("/{id}")
-    suspend fun deleteTechLabel(id: UUID, @QueryValue forcedDelete: Boolean = false, authentication: Authentication): HttpResponse<Unit> =
+    suspend fun deleteTechLabel(id: UUID, @QueryValue forcedDelete: Boolean = false, authentication: Authentication, @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16): HttpResponse<Unit> =
         techLabelRegistrationService.findById(id)?.let { techLabel ->
             try {
                 LOG.warn("Deleting TechLabel with id:$id iso:${techLabel.isoCode} ${techLabel.label} (${techLabel.unit}) by ${authentication.userId()}")
-                techLabelRegistrationService.delete(techLabel, forcedDelete)
+                techLabelRegistrationService.delete(techLabel, forcedDelete, isoVersion)
                 HttpResponse.noContent()
             } catch (e: IllegalStateException) {
                 throw BadRequestException("Advarsel sletting av teknisk beskrivelse med id=$id: ${e.message}")

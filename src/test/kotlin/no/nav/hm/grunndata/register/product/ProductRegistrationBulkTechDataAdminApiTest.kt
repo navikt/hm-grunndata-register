@@ -3,6 +3,9 @@ package no.nav.hm.grunndata.register.product
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
+import io.kotest.assertions.throwables.shouldThrow
+import io.micronaut.http.HttpStatus
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.security.authentication.UsernamePasswordCredentials
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
@@ -21,7 +24,7 @@ import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
-import no.nav.hm.grunndata.register.techlabel.LabelService
+import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
 import no.nav.hm.grunndata.register.user.User
 import no.nav.hm.grunndata.register.user.UserAdminApiClient
@@ -92,12 +95,15 @@ class ProductRegistrationBulkTechDataAdminApiTest(
     @MockBean(RapidPushService::class)
     fun rapidPushService(): RapidPushService = mockk(relaxed = true)
 
-    @MockBean(LabelService::class)
-    fun mockTechLabelService(): LabelService = mockk<LabelService>().apply {
+    @MockBean(TechLabelService::class)
+    fun mockTechLabelService(): TechLabelService = mockk<TechLabelService>().apply {
         every {
             fetchLabelsByIsoCode("04360901")
         } returns objectMapper.readValue(techlabeljson, object : TypeReference<List<TechLabelDTO>>() {})
             .sortedBy { it.sort }
+        every { fetchLabelsByIsoCode22("04360902") } returns
+            objectMapper.readValue(techlabeljson, object : TypeReference<List<TechLabelDTO>>() {})
+                .filter { it.label == "Lengde" }
     }
 
     @BeforeEach
@@ -126,6 +132,7 @@ class ProductRegistrationBulkTechDataAdminApiTest(
                     id = seriesUUID,
                     supplierId = supplierId,
                     isoCategory = "04360901",
+                    isoCategory22 = "04360902",
                     title = "",
                     text = "",
                     identifier = seriesUUID.toString(),
@@ -208,5 +215,20 @@ class ProductRegistrationBulkTechDataAdminApiTest(
         // the rejected update must not have overwritten the value set in the happy-path call above
         val stillOriginal = apiClient.readProduct(jwt, draft1.id)
         stillOriginal.productData.techData shouldContain techData1
+
+        val draft22 = apiClient.createDraft(jwt, seriesUUID, DraftVariantDTO("iso22", "iso22"), "v22")
+        draft22.productData.techData.map { it.key } shouldBe listOf("Lengde")
+        val activeData = draft22.productData.techData.map { it.copy(value = "32") }
+        val updated22 = apiClient.bulkUpdateTechData(
+            jwt,
+            BulkTechDataUpdateDTO(listOf(VariantTechDataUpdate(draft22.id, activeData))),
+            "v22"
+        )
+        updated22.updated.single().productData.techData shouldBe activeData
+        apiClient.readProduct(jwt, draft22.id, "v22").productData.techData shouldBe activeData
+        apiClient.readProduct(jwt, draft22.id).productData.techData.map { it.key } shouldBe listOf("Lengde", "Vekt")
+        shouldThrow<HttpClientResponseException> {
+            apiClient.readProduct(jwt, draft22.id, "invalid")
+        }.status shouldBe HttpStatus.BAD_REQUEST
     }
 }

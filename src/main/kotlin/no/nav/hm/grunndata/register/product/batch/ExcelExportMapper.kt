@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.product.batch
 
 import jakarta.inject.Singleton
+import no.nav.hm.grunndata.register.iso.IsoVersion
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
@@ -9,13 +10,17 @@ import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 class ExcelExportMapper(
     private val seriesRegistrationRepository: SeriesRegistrationRepository
 ) {
-    suspend fun mapToExportDtos(products: List<ProductRegistrationDTO>): List<ProductExcelExportDto> {
+    suspend fun mapToExportDtos(products: List<ProductRegistrationDTO>, isoVersion: IsoVersion = IsoVersion.v16): List<ProductExcelExportDto> {
         return products.groupBy { it.seriesUUID }.map {
             val series = seriesRegistrationRepository.findById(it.key)
                 ?: throw BadRequestException("No series ${it.key} for products in excel export")
+            val isoCategory = if (isoVersion == IsoVersion.v22) {
+                series.isoCategory22?.takeIf { code -> code.isNotBlank() }
+                    ?: throw BadRequestException("Series ${series.id} is missing an ISO22 category for Excel export")
+            } else series.isoCategory
             ProductExcelExportDto(
                 products = it.value,
-                isoCategory = series.isoCategory,
+                isoCategory = isoCategory,
                 seriesUuid = it.key.toString(),
                 seriesTitle = series.title,
                 seriesDescription = series.text

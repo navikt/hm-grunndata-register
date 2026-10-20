@@ -1,5 +1,8 @@
 package no.nav.hm.grunndata.register.part
 
+import io.micronaut.http.annotation.QueryValue
+import no.nav.hm.grunndata.register.iso.IsoVersion
+
 import io.micronaut.core.annotation.Introspected
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Body
@@ -43,7 +46,8 @@ class PartApiAdminController(
     @Put("/{id}/suitableForKommunalTekniker")
     suspend fun updateSuitableForKommunalTekniker(
         @Body suitableForKommunalTeknikerDTO: SuitableForKommunalTeknikerDTO,
-        id: UUID
+        id: UUID,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): ProductRegistrationDTOV2 {
         val product = productRegistrationService.findById(id) ?: throw IllegalArgumentException("Product $id not found")
         if (!(product.accessory or product.sparePart))
@@ -56,13 +60,14 @@ class PartApiAdminController(
             )
         )
         productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updated, isUpdate = true)
-        return productDTOMapper.toDTOV2(updated)
+        return productDTOMapper.toDTOV2(updated, isoVersion)
     }
 
     @Put("/{id}/suitableForBrukerpassbruker")
     suspend fun updateSuitableForBrukerpassbruker(
         @Body suitableForBrukerpassbruker: SuitableForBrukerpassbrukerDTO,
-        id: UUID
+        id: UUID,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): ProductRegistrationDTOV2 {
         val product = productRegistrationService.findById(id) ?: throw IllegalArgumentException("Product $id not found")
         if (!(product.accessory or product.sparePart))
@@ -75,7 +80,7 @@ class PartApiAdminController(
             )
         )
         productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updated, isUpdate = true)
-        return productDTOMapper.toDTOV2(updated)
+        return productDTOMapper.toDTOV2(updated, isoVersion)
     }
 
 
@@ -123,12 +128,14 @@ class PartApiAdminController(
     suspend fun changeToMainProduct(
         seriesId: UUID,
         @Body partToMainProductDto: PartToMainProductDto,
-        authentication: Authentication
+        authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<Any> {
         return when (partService.changeToMainProduct(
             seriesId,
             newIsoCode = partToMainProductDto.newIsoCode,
-            authentication
+            authentication,
+            isoVersion
         )) {
             is PartService.ChangeToMainProductResult.Ok -> HttpResponse.ok()
             is PartService.ChangeToMainProductResult.NotFound -> HttpResponse.notFound()
@@ -197,8 +204,8 @@ class PartApiAdminController(
     }
 
     @Get("/missing-hmsartnr/supplier-created")
-    suspend fun findPartsMissingHmsArtNrCreatedBySupplier(): List<ProductRegistrationDTOV2> =
-        productRegistrationService.findPartsMissingHmsArtNrCreatedBySupplier().map { productDTOMapper.toDTOV2(it) }
+    suspend fun findPartsMissingHmsArtNrCreatedBySupplier(@QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16): List<ProductRegistrationDTOV2> =
+        productRegistrationService.findPartsMissingHmsArtNrCreatedBySupplier().map { productDTOMapper.toDTOV2(it, isoVersion) }
 
 }
 

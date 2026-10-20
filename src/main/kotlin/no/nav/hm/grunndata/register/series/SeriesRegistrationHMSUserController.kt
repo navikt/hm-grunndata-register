@@ -1,5 +1,8 @@
 package no.nav.hm.grunndata.register.series
 
+import io.micronaut.http.annotation.QueryValue
+import no.nav.hm.grunndata.register.iso.IsoVersion
+
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
@@ -28,13 +31,13 @@ class SeriesRegistrationHmsUserController(
     suspend fun readSeries(
         @PathVariable id: UUID,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<SeriesDTO> {
         return seriesRegistrationService.findById(id, authentication)?.let {
-            HttpResponse.ok(seriesDTOMapper.toDTOV2(it))
+            HttpResponse.ok(seriesDTOMapper.toDTOV2(it, isoVersion))
         } ?: run {
             LOG.warn("Series with id $id does not exist")
             HttpResponse.notFound()
         }
     }
 }
-
