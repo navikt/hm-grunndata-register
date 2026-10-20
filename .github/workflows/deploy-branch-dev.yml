@@ -1,0 +1,54 @@
+name: Deploy ISO22 branch to dev
+
+on:
+  push:
+    branches:
+      - iso22
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-iso22-dev
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/iso22'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Java
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: gradle
+
+      - name: Build and test
+        run: ./build.sh
+        env:
+          READER_TOKEN: ${{ secrets.READER_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.READER_TOKEN }}
+
+      - name: Build and push image
+        id: image
+        uses: nais/docker-build-push@dd7421d5068057a020ca46ead966c26190c516b1 # v0
+        with:
+          team: teamdigihot
+          tag: iso22-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Deploy to dev-gcp
+        uses: nais/deploy/actions/deploy@7ad7c2b833e1db74a80954e3ee6bb6ac060a8ae7 # v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: .nais/nais.yaml
+          VARS: .nais/nais-dev.json
+          VAR: image=${{ steps.image.outputs.image }},commit=${{ github.sha }}
