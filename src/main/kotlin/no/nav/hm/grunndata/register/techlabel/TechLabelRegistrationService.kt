@@ -23,9 +23,15 @@ class TechLabelRegistrationService(private val techLabelRegistrationRepository: 
 
     suspend fun delete(techLabelRegistration: TechLabelRegistration, forcedDelete: Boolean, isoVersion: IsoVersion = IsoVersion.v16) {
         if (!forcedDelete) {
-            val code = if (isoVersion == IsoVersion.v22) techLabelRegistration.isoCode22 else techLabelRegistration.isoCode
-            val products = if (code.isNullOrBlank()) emptyList() else
-                productRegistrationService.findByStartsWithIsoCategoryAndTechLabelKeyUnit(code, techLabelRegistration.label, techLabelRegistration.unit, isoVersion)
+            val products = listOf(
+                IsoVersion.v16 to techLabelRegistration.isoCode,
+                IsoVersion.v22 to techLabelRegistration.isoCode22,
+            ).flatMap { (version, code) ->
+                if (code.isNullOrBlank()) emptyList() else
+                    productRegistrationService.findByStartsWithIsoCategoryAndTechLabelKeyUnit(
+                        code, techLabelRegistration.label, techLabelRegistration.unit, version,
+                    )
+            }.distinctBy { it.id }
             products
                 .let { products ->
                     if (products.isNotEmpty()) {
