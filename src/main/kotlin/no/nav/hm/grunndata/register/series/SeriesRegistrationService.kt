@@ -629,7 +629,14 @@ open class SeriesRegistrationService(
         val requestedIsoCategory = patch.isoCategory?.takeIf {
             it != inDbSeries.isoCategory || patch.resetTechnicalData == true
         }
-        val categoryVersion = if (requestedIsoCategory22 != null && requestedIsoCategory == null) IsoVersion.v22 else isoVersion
+        val iso16Changed = patch.isoCategory != null && patch.isoCategory != inDbSeries.isoCategory
+        val iso22Changed = patchIsoCategory22 != null && patchIsoCategory22 != inDbSeries.isoCategory22
+        val categoryVersion = when {
+            iso22Changed && !iso16Changed -> IsoVersion.v22
+            iso16Changed && !iso22Changed -> IsoVersion.v16
+            requestedIsoCategory22 != null && requestedIsoCategory == null -> IsoVersion.v22
+            else -> isoVersion
+        }
         val categoryCode = if (categoryVersion == IsoVersion.v22) requestedIsoCategory22 else requestedIsoCategory
         val updatedCategories = categoryCode?.let { seriesIsoMapper.update(inDbSeries, it, categoryVersion) } ?: inDbSeries
         val saved = saveAndCreateEventIfNotDraftAndApproved(
