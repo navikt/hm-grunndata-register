@@ -20,7 +20,9 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.internal.maintenance.SetMainPartAccessoryController
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
+import no.nav.hm.grunndata.register.productagreement.ProductAgreementRegistrationRepository
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.techlabel.TechLabelService
 import org.slf4j.LoggerFactory
@@ -33,6 +35,7 @@ import java.util.UUID
 class SeriesRegistrationAdminController(
     private val seriesRegistrationService: SeriesRegistrationService,
     private val productRegistrationService: ProductRegistrationService,
+    private val productAgreementRegistrationRepository: ProductAgreementRegistrationRepository
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationAdminController::class.java)
@@ -60,6 +63,35 @@ class SeriesRegistrationAdminController(
 
             is SeriesRegistrationService.ChangeToPartResult.NotFound -> HttpResponse.notFound()
         }
+    }
+
+    @Put("/mpa/{seriesId}")
+    suspend fun changeMainPartAccessory(
+        seriesId: UUID,
+        @Body mpa: MainPartAccessoryDTO,
+    ): HttpResponse<Any> {
+        LOG.info(
+            "Setting main: {}, accessory: {}, part: {} for product with seriesID: {}",
+            mpa.main,
+            mpa.accessory,
+            mpa.part,
+            seriesId
+        )
+        productRegistrationService.findAllBySeriesUuid(seriesId).forEach { p ->
+            productAgreementRegistrationRepository.findByProductId(p.id).forEach { agreement ->
+                val updatedAgreement =
+                    agreement.copy(mainProduct = mpa.main, accessory = mpa.accessory, sparePart = mpa.part)
+                productAgreementRegistrationRepository.update(updatedAgreement)
+            }
+            val updatedProduct = p.copy(mainProduct = mpa.main, accessory = mpa.accessory, sparePart = mpa.part)
+            productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
+        }
+
+        seriesRegistrationService.findById(seriesId)?.let {
+            val seriesUpdated = it.copy(mainProduct = mpa.main)
+            seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(seriesUpdated, isUpdate = true)
+        }
+        return HttpResponse.ok()
     }
 
     @Get("/to-approve{?params*}")
@@ -178,9 +210,10 @@ class SeriesRegistrationAdminController(
     }
 }
 
-
 data class AccessoryDTO(val accessory: Boolean, val newIsoCode: String, val resetTechnicalData: Boolean = false)
 
 data class RejectSeriesDTO(val message: String?)
 
 data class SupplierInventoryDTO(val numberOfSeries: Int, val numberOfVariants: Int)
+
+data class MainPartAccessoryDTO(val main: Boolean, val accessory: Boolean, val part: Boolean)
