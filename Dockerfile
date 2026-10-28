@@ -1,4 +1,4 @@
-FROM eclipse-temurin:25-jre
+FROM eclipse-temurin:25-jre-alpine
 RUN apk update && \
     apk add --no-cache --upgrade brotli-libs
 WORKDIR /app
