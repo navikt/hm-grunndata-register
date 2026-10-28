@@ -1,4 +1,6 @@
 FROM eclipse-temurin:25-jre
+RUN apk update && \
+    apk add --no-cache --upgrade brotli-libs
 WORKDIR /app
 ENV TZ="Europe/Oslo"
 EXPOSE 8080
