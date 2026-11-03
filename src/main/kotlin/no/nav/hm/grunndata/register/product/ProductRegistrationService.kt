@@ -297,17 +297,7 @@ open class ProductRegistrationService(
                 if (!authentication.isAdmin() && authentication.supplierId() != inDb.supplierId) {
                     throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
                 }
-                val saved = saveAndCreateEventIfNotDraftAndApproved(
-                    inDb.copy(
-                        productData = inDb.productData.copy(
-                            techData = variantUpdate.techData.map { it.toEntity() },
-                        ),
-                        updatedByUser = authentication.name,
-                        updatedBy = REGISTER,
-                        updated = LocalDateTime.now(),
-                    ),
-                    isUpdate = true,
-                )
+                val saved = updateTechData(inDb, variantUpdate, authentication.name)
                 updated.add(saved)
             } catch (e: BadRequestException) {
                 LOG.warn("Bulk tech data update rejected for product ${variantUpdate.productId}: ${e.message}")
@@ -317,8 +307,66 @@ open class ProductRegistrationService(
                 failed.add(BulkTechDataUpdateError(variantUpdate.productId, e.message ?: "Ukjent feil"))
             }
         }
+        updated.map { it.seriesUUID }.distinct().forEach { seriesId ->
+            updateSeriesAuditFields(seriesId, authentication.name)
+        }
         return BulkTechDataUpdateResult(updated = updated, failed = failed)
     }
+
+    open suspend fun bulkUpdateSupplierTechData(
+        bulkUpdateDTO: BulkTechDataUpdateDTO,
+        supplierId: UUID,
+        seriesId: UUID,
+        updatedByUser: String,
+    ): BulkTechDataUpdateResult {
+        val updated = mutableListOf<ProductRegistration>()
+        val failed = mutableListOf<BulkTechDataUpdateError>()
+
+        bulkUpdateDTO.updates.forEach { variantUpdate ->
+            try {
+                val inDb = findByIdAndSupplierId(variantUpdate.productId, supplierId)
+                if (inDb == null || inDb.seriesUUID != seriesId) {
+                    failed.add(BulkTechDataUpdateError(variantUpdate.productId, "Varianten finnes ikke i denne serien"))
+                } else {
+                    updated.add(updateTechData(inDb, variantUpdate, updatedByUser))
+                }
+            } catch (e: Exception) {
+                LOG.error("Supplier bulk tech data update failed for product ${variantUpdate.productId}", e)
+                failed.add(BulkTechDataUpdateError(variantUpdate.productId, "Kunne ikke lagre endringen"))
+            }
+        }
+        if (updated.isNotEmpty()) {
+            updateSeriesAuditFields(seriesId, updatedByUser)
+        }
+        return BulkTechDataUpdateResult(updated = updated, failed = failed)
+    }
+
+    private suspend fun updateSeriesAuditFields(seriesId: UUID, updatedByUser: String) {
+        val series = seriesRegistrationRepository.findById(seriesId) ?: return
+        seriesRegistrationRepository.update(
+            series.copy(
+                updated = LocalDateTime.now(),
+                updatedByUser = updatedByUser,
+                updatedBy = REGISTER,
+            )
+        )
+    }
+
+    private suspend fun updateTechData(
+        product: ProductRegistration,
+        variantUpdate: VariantTechDataUpdate,
+        updatedByUser: String,
+    ): ProductRegistration = saveAndCreateEventIfNotDraftAndApproved(
+        product.copy(
+            productData = product.productData.copy(
+                techData = variantUpdate.techData.map { it.toEntity() },
+            ),
+            updatedByUser = updatedByUser,
+            updatedBy = REGISTER,
+            updated = LocalDateTime.now(),
+        ),
+        isUpdate = true,
+    )
 
     @Transactional
     open suspend fun saveAndCreateEventIfNotDraftAndApproved(

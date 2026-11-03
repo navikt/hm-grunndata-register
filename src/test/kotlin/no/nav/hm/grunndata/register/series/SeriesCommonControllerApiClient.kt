@@ -43,6 +43,12 @@ interface SeriesCommonControllerApiClient {
         title: String,
     ): Page<SeriesSearchDTO>
 
+    @Get(uri = "/?updatedByUser={updatedByUser}", processes = [APPLICATION_JSON])
+    fun findSeriesByUpdatedByUser(
+        @CookieValue("JWT") jwt: String,
+        updatedByUser: String,
+    ): Page<SeriesSearchDTO>
+
     @Get(uri = "/?title={title}&isoCode={isoCode}", processes = [APPLICATION_JSON])
     fun findSeriesByTitleAndIsoCode(
         @CookieValue("JWT") jwt: String,
