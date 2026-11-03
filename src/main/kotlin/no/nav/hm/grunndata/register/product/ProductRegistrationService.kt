@@ -307,6 +307,9 @@ open class ProductRegistrationService(
                 failed.add(BulkTechDataUpdateError(variantUpdate.productId, e.message ?: "Ukjent feil"))
             }
         }
+        updated.map { it.seriesUUID }.distinct().forEach { seriesId ->
+            updateSeriesAuditFields(seriesId, authentication.name)
+        }
         return BulkTechDataUpdateResult(updated = updated, failed = failed)
     }
 
@@ -332,7 +335,21 @@ open class ProductRegistrationService(
                 failed.add(BulkTechDataUpdateError(variantUpdate.productId, "Kunne ikke lagre endringen"))
             }
         }
+        if (updated.isNotEmpty()) {
+            updateSeriesAuditFields(seriesId, updatedByUser)
+        }
         return BulkTechDataUpdateResult(updated = updated, failed = failed)
+    }
+
+    private suspend fun updateSeriesAuditFields(seriesId: UUID, updatedByUser: String) {
+        val series = seriesRegistrationRepository.findById(seriesId) ?: return
+        seriesRegistrationRepository.update(
+            series.copy(
+                updated = LocalDateTime.now(),
+                updatedByUser = updatedByUser,
+                updatedBy = REGISTER,
+            )
+        )
     }
 
     private suspend fun updateTechData(

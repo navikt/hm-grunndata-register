@@ -20,6 +20,7 @@ import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistration
+import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import no.nav.hm.grunndata.register.supplier.SupplierData
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationDTO
@@ -51,6 +52,7 @@ class ProductRegistrationBulkTechDataAdminApiTest(
     private val userAdminApiClient: UserAdminApiClient,
     private val supplierRegistrationService: SupplierRegistrationService,
     private val seriesRegistrationService: SeriesRegistrationService,
+    private val seriesRepository: SeriesRegistrationRepository,
     private val objectMapper: ObjectMapper,
 ) {
 
@@ -140,7 +142,7 @@ class ProductRegistrationBulkTechDataAdminApiTest(
                     adminStatus = AdminStatus.PENDING,
                     status = SeriesStatus.ACTIVE,
                     createdBy = REGISTER,
-                    updatedBy = REGISTER,
+                    updatedBy = "IMPORT",
                     createdByUser = "",
                     updatedByUser = "authentication.name",
                     created = LocalDateTime.now(),
@@ -159,6 +161,7 @@ class ProductRegistrationBulkTechDataAdminApiTest(
 
         val draft1 = apiClient.createDraft(jwt, seriesUUID, DraftVariantDTO("bulk-1", "bulk-1"))
         val draft2 = apiClient.createDraft(jwt, seriesUUID, DraftVariantDTO("bulk-2", "bulk-2"))
+        val seriesBefore = runBlocking { seriesRepository.findById(seriesUUID)!! }
 
         val techData1 = ExtendedTechDataDTO(
             key = "Vekt", unit = "kg", value = "10", type = TechDataType.NUMBER,
@@ -183,6 +186,10 @@ class ProductRegistrationBulkTechDataAdminApiTest(
         result.updated.size shouldBe 2
         result.updated.find { it.id == draft1.id }!!.productData.techData shouldContain techData1
         result.updated.find { it.id == draft2.id }!!.productData.techData shouldContain techData2
+        val seriesAfter = runBlocking { seriesRepository.findById(seriesUUID)!! }
+        seriesAfter.updated.isAfter(seriesBefore.updated) shouldBe true
+        seriesAfter.updatedByUser shouldBe email.lowercase()
+        seriesAfter.updatedBy shouldBe REGISTER
 
         // unauthorized: a non-admin user tied to a different supplier cannot bulk update this variant.
         // ROLE_HMS passes the controller-level @Secured check but is rejected by the per-variant
@@ -211,6 +218,7 @@ class ProductRegistrationBulkTechDataAdminApiTest(
         unauthorizedResult.updated.shouldBeEmpty()
         unauthorizedResult.failed.size shouldBe 1
         unauthorizedResult.failed[0].productId shouldBe draft1.id
+        runBlocking { seriesRepository.findById(seriesUUID) } shouldBe seriesAfter
 
         // the rejected update must not have overwritten the value set in the happy-path call above
         val stillOriginal = apiClient.readProduct(jwt, draft1.id)

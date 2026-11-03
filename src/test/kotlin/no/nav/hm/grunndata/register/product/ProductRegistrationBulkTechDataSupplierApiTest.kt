@@ -15,10 +15,12 @@ import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.AdminStatus
 import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
+import no.nav.hm.grunndata.register.REGISTER
 import no.nav.hm.grunndata.register.event.EventItemRepository
 import no.nav.hm.grunndata.register.event.EventItemType
 import no.nav.hm.grunndata.register.security.LoginClient
 import no.nav.hm.grunndata.register.security.Roles
+import no.nav.hm.grunndata.register.series.SeriesCommonControllerApiClient
 import no.nav.hm.grunndata.register.series.SeriesDataDTO
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
@@ -44,6 +46,7 @@ class ProductRegistrationBulkTechDataSupplierApiTest(
     private val userRepository: UserRepository,
     private val supplierService: SupplierRegistrationService,
     private val seriesRepository: SeriesRegistrationRepository,
+    private val seriesApiClient: SeriesCommonControllerApiClient,
     private val productRepository: ProductRegistrationRepository,
     private val eventRepository: EventItemRepository,
     private val supplierRepository: SupplierRepository,
@@ -89,6 +92,8 @@ class ProductRegistrationBulkTechDataSupplierApiTest(
                     SeriesRegistration(
                         id = id, supplierId = owner, title = "Series $id", text = "",
                         isoCategory = "04360901", isoCategory22 = "04360902", seriesData = SeriesDataDTO(),
+                        updated = LocalDateTime.now().minusDays(1),
+                        updatedByUser = "previous-editor", updatedBy = "IMPORT",
                     )
                 )
             }
@@ -152,10 +157,15 @@ class ProductRegistrationBulkTechDataSupplierApiTest(
     )
 
     @Test
-    fun `supplier bulk updates only owned variants in the requested series`() = runBlocking {
+    fun `supplier bulk updates only owned variants in the requested series`(): Unit = runBlocking {
         val unknownId = UUID.randomUUID()
+        val seriesBefore = seriesRepository.findById(seriesId)!!
+        val otherSeriesBefore = seriesRepository.findById(otherSeriesId)
+        val foreignSeriesBefore = seriesRepository.findById(foreignSeriesId)
+        val jwt = login()
+        seriesApiClient.findSeriesByUpdatedByUser(jwt, email).content.shouldBeEmpty()
         val result = apiClient.bulkUpdateTechData(
-            login(), seriesId,
+            jwt, seriesId,
             BulkTechDataUpdateDTO(
                 ownVariants.map { update(it.id) } +
                     listOf(update(otherSeriesVariant.id), update(foreignVariant.id), update(unknownId))
@@ -166,6 +176,13 @@ class ProductRegistrationBulkTechDataSupplierApiTest(
         result.updated.map { it.id }.toSet() shouldBe ownVariants.map { it.id }.toSet()
         result.failed.map { it.productId }.toSet() shouldBe setOf(otherSeriesVariant.id, foreignVariant.id, unknownId)
         result.failed.map { it.message }.distinct().size shouldBe 1
+        val seriesAfter = seriesRepository.findById(seriesId)!!
+        seriesAfter.updated.isAfter(seriesBefore.updated) shouldBe true
+        seriesAfter.updatedByUser shouldBe email
+        seriesAfter.updatedBy shouldBe REGISTER
+        seriesRepository.findById(otherSeriesId) shouldBe otherSeriesBefore
+        seriesRepository.findById(foreignSeriesId) shouldBe foreignSeriesBefore
+        seriesApiClient.findSeriesByUpdatedByUser(jwt, email).content.map { it.id } shouldBe listOf(seriesId)
         ownVariants.forEach { original ->
             val saved = productRepository.findById(original.id)!!
             saved.productData.techData.single().value shouldBe "20"
@@ -189,10 +206,29 @@ class ProductRegistrationBulkTechDataSupplierApiTest(
             productRepository.findById(ownVariants.first().id)!!.productData.techData.single().value shouldBe "20"
             productEventIds().count { it == ownVariants.first().id } shouldBe 1
         }
+        seriesRepository.findById(seriesId) shouldBe seriesAfter
+        seriesRepository.findById(foreignSeriesId) shouldBe foreignSeriesBefore
+    }
+
+    @Test
+    fun `successful supplier batch refreshes parent series audit fields`(): Unit = runBlocking {
+        val before = seriesRepository.findById(seriesId)!!
+
+        val result = apiClient.bulkUpdateTechData(
+            login(), seriesId, BulkTechDataUpdateDTO(ownVariants.map { update(it.id) }),
+        )
+
+        result.failed.shouldBeEmpty()
+        result.updated.size shouldBe ownVariants.size
+        val after = seriesRepository.findById(seriesId)!!
+        after.updated.isAfter(before.updated) shouldBe true
+        after.updatedByUser shouldBe email
+        after.updatedBy shouldBe REGISTER
     }
 
     @Test
     fun `supplier route enforces ownership and series even with admin role`(): Unit = runBlocking {
+        val seriesBefore = seriesRepository.findByIdIn(listOf(seriesId, otherSeriesId, foreignSeriesId))
         val mixedEmail = "mixed-$supplierId@test.test"
         userRepository.createUser(
             User(
@@ -211,6 +247,7 @@ class ProductRegistrationBulkTechDataSupplierApiTest(
             productRepository.findById(it.id) shouldBe it
         }
         productEventIds().filter { it in listOf(otherSeriesVariant.id, foreignVariant.id) }.shouldBeEmpty()
+        seriesRepository.findByIdIn(listOf(seriesId, otherSeriesId, foreignSeriesId)) shouldBe seriesBefore
     }
 
     @Test
