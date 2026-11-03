@@ -8,6 +8,7 @@ import io.micronaut.data.model.jpa.criteria.impl.expression.LiteralExpression
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import io.micronaut.data.runtime.criteria.get
 import io.micronaut.http.HttpResponse
+import io.micronaut.http.HttpStatus
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
@@ -28,6 +29,7 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.user.UserAttribute
 import org.slf4j.LoggerFactory
 
 @Secured(Roles.ROLE_SUPPLIER)
@@ -108,6 +110,27 @@ class ProductRegistrationApiController(
             LOG.error("Got exception while updating product", e)
             throw BadRequestException("Got exception while updating product $id")
         }
+    }
+
+    @Put("/series/{seriesId}/tech-data/bulk")
+    suspend fun bulkUpdateTechData(
+        @PathVariable seriesId: UUID,
+        @Body bulkUpdateDTO: BulkTechDataUpdateDTO,
+        authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
+    ): HttpResponse<BulkTechDataUpdateResultDTO> {
+        val supplierId = (authentication.attributes[UserAttribute.SUPPLIER_ID] as? String)
+            ?.let { runCatching { UUID.fromString(it) }.getOrNull() }
+            ?: return HttpResponse.status(HttpStatus.FORBIDDEN)
+        val result = productRegistrationService.bulkUpdateSupplierTechData(
+            bulkUpdateDTO, supplierId, seriesId, authentication.name,
+        )
+        return HttpResponse.ok(
+            BulkTechDataUpdateResultDTO(
+                updated = result.updated.map { productDTOMapper.toDTOV2(it, isoVersion) },
+                failed = result.failed,
+            )
+        )
     }
 
     @Post("/draftWithV3/{seriesUUID}")
