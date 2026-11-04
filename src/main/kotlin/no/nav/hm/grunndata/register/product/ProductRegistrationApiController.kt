@@ -113,20 +113,20 @@ class ProductRegistrationApiController(
     }
 
     @Put("/series/{seriesId}/tech-data/bulk")
-    suspend fun bulkUpdateTechData(
+    suspend fun bulkUpdateVariants(
         @PathVariable seriesId: UUID,
-        @Body bulkUpdateDTO: BulkTechDataUpdateDTO,
+        @Body bulkUpdateDTO: BulkVariantUpdateDTO,
         authentication: Authentication,
         @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
-    ): HttpResponse<BulkTechDataUpdateResultDTO> {
+    ): HttpResponse<BulkVariantUpdateResultDTO> {
         val supplierId = (authentication.attributes[UserAttribute.SUPPLIER_ID] as? String)
             ?.let { runCatching { UUID.fromString(it) }.getOrNull() }
             ?: return HttpResponse.status(HttpStatus.FORBIDDEN)
-        val result = productRegistrationService.bulkUpdateSupplierTechData(
+        val result = productRegistrationService.bulkUpdateSupplierVariants(
             bulkUpdateDTO, supplierId, seriesId, authentication.name,
         )
         return HttpResponse.ok(
-            BulkTechDataUpdateResultDTO(
+            BulkVariantUpdateResultDTO(
                 updated = result.updated.map { productDTOMapper.toDTOV2(it, isoVersion) },
                 failed = result.failed,
             )

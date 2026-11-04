@@ -161,14 +161,14 @@ class ProductRegistrationAdminApiController(
         }
 
     @Put("/tech-data/bulk")
-    suspend fun bulkUpdateTechData(
-        @Body bulkUpdateDTO: BulkTechDataUpdateDTO,
+    suspend fun bulkUpdateVariants(
+        @Body bulkUpdateDTO: BulkVariantUpdateDTO,
         authentication: Authentication,
         @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
-    ): HttpResponse<BulkTechDataUpdateResultDTO> {
-        val result = productRegistrationService.bulkUpdateTechData(bulkUpdateDTO, authentication)
+    ): HttpResponse<BulkVariantUpdateResultDTO> {
+        val result = productRegistrationService.bulkUpdateVariants(bulkUpdateDTO, authentication)
         return HttpResponse.ok(
-            BulkTechDataUpdateResultDTO(
+            BulkVariantUpdateResultDTO(
                 updated = result.updated.map { productDTOMapper.toDTOV2(it, isoVersion) },
                 failed = result.failed,
             )

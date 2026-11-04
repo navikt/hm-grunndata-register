@@ -40,7 +40,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @MicronautTest(transactional = false)
-class ProductRegistrationBulkTechDataSupplierApiTest(
+class ProductRegistrationBulkVariantSupplierApiTest(
     private val apiClient: ProductRegistrationApiClient,
     private val loginClient: LoginClient,
     private val userRepository: UserRepository,
@@ -146,7 +146,7 @@ class ProductRegistrationBulkTechDataSupplierApiTest(
     private fun login(userEmail: String = email): String =
         loginClient.login(UsernamePasswordCredentials(userEmail, password)).getCookie("JWT").get().value
 
-    private fun update(id: UUID, value: String = " 20 "): VariantTechDataUpdate = VariantTechDataUpdate(
+    private fun update(id: UUID, value: String = " 20 "): VariantUpdate = VariantUpdate(
         id,
         listOf(
             ExtendedTechDataDTO(
@@ -164,11 +164,12 @@ class ProductRegistrationBulkTechDataSupplierApiTest(
         val foreignSeriesBefore = seriesRepository.findById(foreignSeriesId)
         val jwt = login()
         seriesApiClient.findSeriesByUpdatedByUser(jwt, email).content.shouldBeEmpty()
-        val result = apiClient.bulkUpdateTechData(
+        val result = apiClient.bulkUpdateVariants(
             jwt, seriesId,
-            BulkTechDataUpdateDTO(
-                ownVariants.map { update(it.id) } +
-                    listOf(update(otherSeriesVariant.id), update(foreignVariant.id), update(unknownId))
+            BulkVariantUpdateDTO(
+                (ownVariants.map { update(it.id) } +
+                    listOf(update(otherSeriesVariant.id), update(foreignVariant.id), update(unknownId)))
+                    .map { it.copy(articleName = "  Nytt variantnavn  ") }
             ),
             "v22",
         )
@@ -186,6 +187,7 @@ class ProductRegistrationBulkTechDataSupplierApiTest(
         ownVariants.forEach { original ->
             val saved = productRepository.findById(original.id)!!
             saved.productData.techData.single().value shouldBe "20"
+            saved.articleName shouldBe "Nytt variantnavn"
             saved.draftStatus shouldBe original.draftStatus
             saved.adminStatus shouldBe original.adminStatus
             saved.published shouldBe original.published
@@ -198,8 +200,8 @@ class ProductRegistrationBulkTechDataSupplierApiTest(
         }
 
         listOf(UUID.randomUUID(), foreignSeriesId).forEach { wrongSeries ->
-            val rejected = apiClient.bulkUpdateTechData(
-                login(), wrongSeries, BulkTechDataUpdateDTO(listOf(update(ownVariants.first().id, "30"))),
+            val rejected = apiClient.bulkUpdateVariants(
+                login(), wrongSeries, BulkVariantUpdateDTO(listOf(update(ownVariants.first().id, "30"))),
             )
             rejected.updated.shouldBeEmpty()
             rejected.failed.single().message shouldBe result.failed.first().message
@@ -211,11 +213,52 @@ class ProductRegistrationBulkTechDataSupplierApiTest(
     }
 
     @Test
+    fun `supplier saves names and properties together and rejects invalid names without saving either`(): Unit = runBlocking {
+        val original = ownVariants.first()
+        listOf("", "   ", "x".repeat(1025)).forEach { invalidName ->
+            val result = apiClient.bulkUpdateVariants(
+                login(), seriesId,
+                BulkVariantUpdateDTO(listOf(update(original.id).copy(articleName = invalidName))),
+            )
+            result.updated.shouldBeEmpty()
+            result.failed.single().productId shouldBe original.id
+            productRepository.findById(original.id) shouldBe original
+        }
+        val partial = apiClient.bulkUpdateVariants(
+            login(), seriesId,
+            BulkVariantUpdateDTO(
+                listOf(
+                    update(original.id).copy(articleName = " "),
+                    update(ownVariants.last().id).copy(articleName = "Lagret variantnavn"),
+                )
+            ),
+        )
+        partial.failed.single().productId shouldBe original.id
+        partial.updated.single().articleName shouldBe "Lagret variantnavn"
+        productRepository.findById(original.id) shouldBe original
+        val result = apiClient.bulkUpdateVariants(
+            login(), seriesId,
+            BulkVariantUpdateDTO(
+                listOf(
+                    update(original.id).copy(articleName = "  ${"x".repeat(1024)}  "),
+                    update(ownVariants.last().id),
+                )
+            ),
+        )
+        result.failed.shouldBeEmpty()
+        val saved = productRepository.findById(original.id)!!
+        saved.articleName shouldBe "x".repeat(1024)
+        saved.productData.techData.single().value shouldBe "20"
+        productEventIds().count { it == original.id } shouldBe 1
+        productRepository.findById(ownVariants.last().id)!!.articleName shouldBe "Lagret variantnavn"
+    }
+
+    @Test
     fun `successful supplier batch refreshes parent series audit fields`(): Unit = runBlocking {
         val before = seriesRepository.findById(seriesId)!!
 
-        val result = apiClient.bulkUpdateTechData(
-            login(), seriesId, BulkTechDataUpdateDTO(ownVariants.map { update(it.id) }),
+        val result = apiClient.bulkUpdateVariants(
+            login(), seriesId, BulkVariantUpdateDTO(ownVariants.map { update(it.id) }),
         )
 
         result.failed.shouldBeEmpty()
@@ -237,9 +280,9 @@ class ProductRegistrationBulkTechDataSupplierApiTest(
                 attributes = mapOf(UserAttribute.SUPPLIER_ID to supplierId.toString()),
             )
         )
-        val result = apiClient.bulkUpdateTechData(
+        val result = apiClient.bulkUpdateVariants(
             login(mixedEmail), seriesId,
-            BulkTechDataUpdateDTO(listOf(update(otherSeriesVariant.id), update(foreignVariant.id))),
+            BulkVariantUpdateDTO(listOf(update(otherSeriesVariant.id), update(foreignVariant.id))),
         )
         result.updated.shouldBeEmpty()
         result.failed.size shouldBe 2
@@ -252,7 +295,7 @@ class ProductRegistrationBulkTechDataSupplierApiTest(
 
     @Test
     fun `supplier route rejects missing identity invalid identity and missing supplier role`(): Unit = runBlocking {
-        val payload = BulkTechDataUpdateDTO(ownVariants.map { update(it.id) })
+        val payload = BulkVariantUpdateDTO(ownVariants.map { update(it.id) })
         listOf(
             listOf(Roles.ROLE_SUPPLIER) to emptyMap(),
             listOf(Roles.ROLE_SUPPLIER) to mapOf(UserAttribute.SUPPLIER_ID to "invalid"),
@@ -263,11 +306,11 @@ class ProductRegistrationBulkTechDataSupplierApiTest(
                 User(email = userEmail, token = password, name = "Rejected user", roles = roles, attributes = attributes)
             )
             shouldThrow<HttpClientResponseException> {
-                apiClient.bulkUpdateTechData(login(userEmail), seriesId, payload)
+                apiClient.bulkUpdateVariants(login(userEmail), seriesId, payload)
             }.status shouldBe HttpStatus.FORBIDDEN
         }
         shouldThrow<HttpClientResponseException> {
-            apiClient.bulkUpdateTechData(null, seriesId, payload)
+            apiClient.bulkUpdateVariants(null, seriesId, payload)
         }.status shouldBe HttpStatus.UNAUTHORIZED
         ownVariants.forEach { productRepository.findById(it.id) shouldBe it }
         productEventIds().filter { it in ownVariants.map { variant -> variant.id } }.shouldBeEmpty()
