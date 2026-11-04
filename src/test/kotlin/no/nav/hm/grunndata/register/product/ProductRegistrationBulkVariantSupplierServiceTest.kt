@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
-class ProductRegistrationBulkTechDataSupplierServiceTest {
+class ProductRegistrationBulkVariantSupplierServiceTest {
     @Test
     fun `unexpected failure returns a safe message and does not stop remaining variants`() = runBlocking {
         val repository = mockk<ProductRegistrationRepository>()
@@ -24,8 +24,8 @@ class ProductRegistrationBulkTechDataSupplierServiceTest {
             IllegalStateException("Internal database details")
         coEvery { repository.findByIdAndSupplierId(unknownId, supplierId) } returns null
 
-        val result = service.bulkUpdateSupplierTechData(
-            BulkTechDataUpdateDTO(listOf(failedId, unknownId).map { VariantTechDataUpdate(it, emptyList()) }),
+        val result = service.bulkUpdateSupplierVariants(
+            BulkVariantUpdateDTO(listOf(failedId, unknownId).map { VariantUpdate(it, emptyList()) }),
             supplierId, UUID.randomUUID(), "supplier",
         )
 

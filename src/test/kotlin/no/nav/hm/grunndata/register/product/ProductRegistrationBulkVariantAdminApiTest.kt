@@ -45,7 +45,7 @@ import java.util.UUID
 // not safe to insert twice against the same database - every extra @Test in that class makes
 // @BeforeEach run again and collide on unique constraints.
 @MicronautTest
-class ProductRegistrationBulkTechDataAdminApiTest(
+class ProductRegistrationBulkVariantAdminApiTest(
     private val apiClient: ProductRegistrationAdminApiClient,
     private val loginClient: LoginClient,
     private val userRepository: UserRepository,
@@ -56,7 +56,7 @@ class ProductRegistrationBulkTechDataAdminApiTest(
     private val objectMapper: ObjectMapper,
 ) {
 
-    val email = "ProductRegistrationBulkTechDataAdminApiTest@test.test"
+    val email = "ProductRegistrationBulkVariantAdminApiTest@test.test"
     val password = "admin-123"
     val supplierId = UUID.randomUUID()
     val seriesUUID = UUID.randomUUID()
@@ -155,7 +155,7 @@ class ProductRegistrationBulkTechDataAdminApiTest(
     }
 
     @Test
-    fun bulkUpdateTechDataTest() {
+    fun bulkUpdateVariantsTest() {
         val resp = loginClient.login(UsernamePasswordCredentials(email, password))
         val jwt = resp.getCookie("JWT").get().value
 
@@ -173,12 +173,12 @@ class ProductRegistrationBulkTechDataAdminApiTest(
         )
 
         // happy path: two variants updated in one bulk call
-        val result = apiClient.bulkUpdateTechData(
+        val result = apiClient.bulkUpdateVariants(
             jwt,
-            BulkTechDataUpdateDTO(
+            BulkVariantUpdateDTO(
                 updates = listOf(
-                    VariantTechDataUpdate(draft1.id, listOf(techData1)),
-                    VariantTechDataUpdate(draft2.id, listOf(techData2)),
+                    VariantUpdate(draft1.id, listOf(techData1), articleName = "  Nytt variantnavn  "),
+                    VariantUpdate(draft2.id, listOf(techData2)),
                 )
             )
         )
@@ -186,6 +186,23 @@ class ProductRegistrationBulkTechDataAdminApiTest(
         result.updated.size shouldBe 2
         result.updated.find { it.id == draft1.id }!!.productData.techData shouldContain techData1
         result.updated.find { it.id == draft2.id }!!.productData.techData shouldContain techData2
+        result.updated.find { it.id == draft1.id }!!.articleName shouldBe "Nytt variantnavn"
+        result.updated.find { it.id == draft2.id }!!.articleName shouldBe draft2.articleName
+        listOf("", "   ", "x".repeat(1025)).forEach { invalidName ->
+            val rejected = apiClient.bulkUpdateVariants(
+                jwt,
+                BulkVariantUpdateDTO(listOf(VariantUpdate(draft1.id, listOf(techData2), invalidName))),
+            )
+            rejected.updated.shouldBeEmpty()
+            rejected.failed.single().message shouldBe if (invalidName.length > 1024) {
+                "Variantnavn kan ikke være lengre enn 1024 tegn"
+            } else {
+                "Variantnavn er påkrevd"
+            }
+            val unchanged = apiClient.readProduct(jwt, draft1.id)
+            unchanged.articleName shouldBe "Nytt variantnavn"
+            unchanged.productData.techData shouldContain techData1
+        }
         val seriesAfter = runBlocking { seriesRepository.findById(seriesUUID)!! }
         seriesAfter.updated.isAfter(seriesBefore.updated) shouldBe true
         seriesAfter.updatedByUser shouldBe email.lowercase()
@@ -193,7 +210,7 @@ class ProductRegistrationBulkTechDataAdminApiTest(
 
         // unauthorized: a non-admin user tied to a different supplier cannot bulk update this variant.
         // ROLE_HMS passes the controller-level @Secured check but is rejected by the per-variant
-        // supplier ownership check inside bulkUpdateTechData. The user is created via the admin
+        // supplier ownership check inside bulkUpdateVariants. The user is created via the admin
         // HTTP API (not a direct repository call) so the write is committed and visible to the
         // separate connection handling the login call below.
         val otherSupplierId = UUID.randomUUID()
@@ -211,9 +228,11 @@ class ProductRegistrationBulkTechDataAdminApiTest(
         val otherResp = loginClient.login(UsernamePasswordCredentials(otherEmail, password))
         val otherJwt = otherResp.getCookie("JWT").get().value
 
-        val unauthorizedResult = apiClient.bulkUpdateTechData(
+        val unauthorizedResult = apiClient.bulkUpdateVariants(
             otherJwt,
-            BulkTechDataUpdateDTO(updates = listOf(VariantTechDataUpdate(draft1.id, listOf(techData2))))
+            BulkVariantUpdateDTO(
+                updates = listOf(VariantUpdate(draft1.id, listOf(techData2), articleName = "Unauthorized"))
+            )
         )
         unauthorizedResult.updated.shouldBeEmpty()
         unauthorizedResult.failed.size shouldBe 1
@@ -222,14 +241,15 @@ class ProductRegistrationBulkTechDataAdminApiTest(
 
         // the rejected update must not have overwritten the value set in the happy-path call above
         val stillOriginal = apiClient.readProduct(jwt, draft1.id)
+        stillOriginal.articleName shouldBe "Nytt variantnavn"
         stillOriginal.productData.techData shouldContain techData1
 
         val draft22 = apiClient.createDraft(jwt, seriesUUID, DraftVariantDTO("iso22", "iso22"), "v22")
         draft22.productData.techData.map { it.key } shouldBe listOf("Lengde")
         val activeData = draft22.productData.techData.map { it.copy(value = "32") }
-        val updated22 = apiClient.bulkUpdateTechData(
+        val updated22 = apiClient.bulkUpdateVariants(
             jwt,
-            BulkTechDataUpdateDTO(listOf(VariantTechDataUpdate(draft22.id, activeData))),
+            BulkVariantUpdateDTO(listOf(VariantUpdate(draft22.id, activeData))),
             "v22"
         )
         updated22.updated.single().productData.techData shouldBe activeData

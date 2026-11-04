@@ -283,12 +283,12 @@ open class ProductRegistrationService(
         return dto ?: throw BadRequestException("Product not found", type = ErrorType.NOT_FOUND)
     }
 
-    open suspend fun bulkUpdateTechData(
-        bulkUpdateDTO: BulkTechDataUpdateDTO,
+    open suspend fun bulkUpdateVariants(
+        bulkUpdateDTO: BulkVariantUpdateDTO,
         authentication: Authentication,
-    ): BulkTechDataUpdateResult {
+    ): BulkVariantUpdateResult {
         val updated = mutableListOf<ProductRegistration>()
-        val failed = mutableListOf<BulkTechDataUpdateError>()
+        val failed = mutableListOf<BulkVariantUpdateError>()
 
         bulkUpdateDTO.updates.forEach { variantUpdate ->
             try {
@@ -297,48 +297,48 @@ open class ProductRegistrationService(
                 if (!authentication.isAdmin() && authentication.supplierId() != inDb.supplierId) {
                     throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
                 }
-                val saved = updateTechData(inDb, variantUpdate, authentication.name)
+                val saved = updateVariant(inDb, variantUpdate, authentication.name)
                 updated.add(saved)
             } catch (e: BadRequestException) {
-                LOG.warn("Bulk tech data update rejected for product ${variantUpdate.productId}: ${e.message}")
-                failed.add(BulkTechDataUpdateError(variantUpdate.productId, e.message ?: "Ukjent feil"))
+                LOG.warn("Bulk variant update rejected for product ${variantUpdate.productId}: ${e.message}")
+                failed.add(BulkVariantUpdateError(variantUpdate.productId, e.message ?: "Ukjent feil"))
             } catch (e: Exception) {
-                LOG.error("Bulk tech data update failed for product ${variantUpdate.productId}", e)
-                failed.add(BulkTechDataUpdateError(variantUpdate.productId, e.message ?: "Ukjent feil"))
+                LOG.error("Bulk variant update failed for product ${variantUpdate.productId}", e)
+                failed.add(BulkVariantUpdateError(variantUpdate.productId, e.message ?: "Ukjent feil"))
             }
         }
         updated.map { it.seriesUUID }.distinct().forEach { seriesId ->
             updateSeriesAuditFields(seriesId, authentication.name)
         }
-        return BulkTechDataUpdateResult(updated = updated, failed = failed)
+        return BulkVariantUpdateResult(updated = updated, failed = failed)
     }
 
-    open suspend fun bulkUpdateSupplierTechData(
-        bulkUpdateDTO: BulkTechDataUpdateDTO,
+    open suspend fun bulkUpdateSupplierVariants(
+        bulkUpdateDTO: BulkVariantUpdateDTO,
         supplierId: UUID,
         seriesId: UUID,
         updatedByUser: String,
-    ): BulkTechDataUpdateResult {
+    ): BulkVariantUpdateResult {
         val updated = mutableListOf<ProductRegistration>()
-        val failed = mutableListOf<BulkTechDataUpdateError>()
+        val failed = mutableListOf<BulkVariantUpdateError>()
 
         bulkUpdateDTO.updates.forEach { variantUpdate ->
             try {
                 val inDb = findByIdAndSupplierId(variantUpdate.productId, supplierId)
                 if (inDb == null || inDb.seriesUUID != seriesId) {
-                    failed.add(BulkTechDataUpdateError(variantUpdate.productId, "Varianten finnes ikke i denne serien"))
+                    failed.add(BulkVariantUpdateError(variantUpdate.productId, "Varianten finnes ikke i denne serien"))
                 } else {
-                    updated.add(updateTechData(inDb, variantUpdate, updatedByUser))
+                    updated.add(updateVariant(inDb, variantUpdate, updatedByUser))
                 }
             } catch (e: Exception) {
-                LOG.error("Supplier bulk tech data update failed for product ${variantUpdate.productId}", e)
-                failed.add(BulkTechDataUpdateError(variantUpdate.productId, "Kunne ikke lagre endringen"))
+                LOG.error("Supplier bulk variant update failed for product ${variantUpdate.productId}", e)
+                failed.add(BulkVariantUpdateError(variantUpdate.productId, "Kunne ikke lagre endringen"))
             }
         }
         if (updated.isNotEmpty()) {
             updateSeriesAuditFields(seriesId, updatedByUser)
         }
-        return BulkTechDataUpdateResult(updated = updated, failed = failed)
+        return BulkVariantUpdateResult(updated = updated, failed = failed)
     }
 
     private suspend fun updateSeriesAuditFields(seriesId: UUID, updatedByUser: String) {
@@ -352,21 +352,31 @@ open class ProductRegistrationService(
         )
     }
 
-    private suspend fun updateTechData(
+    private suspend fun updateVariant(
         product: ProductRegistration,
-        variantUpdate: VariantTechDataUpdate,
+        variantUpdate: VariantUpdate,
         updatedByUser: String,
-    ): ProductRegistration = saveAndCreateEventIfNotDraftAndApproved(
-        product.copy(
-            productData = product.productData.copy(
-                techData = variantUpdate.techData.map { it.toEntity() },
+    ): ProductRegistration {
+        val articleName = variantUpdate.articleName?.trim()
+        if (articleName != null && articleName.isBlank()) {
+            throw BadRequestException("Variantnavn er påkrevd")
+        }
+        if (articleName != null && articleName.length > 1024) {
+            throw BadRequestException("Variantnavn kan ikke være lengre enn 1024 tegn")
+        }
+        return saveAndCreateEventIfNotDraftAndApproved(
+            product.copy(
+                articleName = articleName ?: product.articleName,
+                productData = product.productData.copy(
+                    techData = variantUpdate.techData.map { it.toEntity() },
+                ),
+                updatedByUser = updatedByUser,
+                updatedBy = REGISTER,
+                updated = LocalDateTime.now(),
             ),
-            updatedByUser = updatedByUser,
-            updatedBy = REGISTER,
-            updated = LocalDateTime.now(),
-        ),
-        isUpdate = true,
-    )
+            isUpdate = true,
+        )
+    }
 
     @Transactional
     open suspend fun saveAndCreateEventIfNotDraftAndApproved(

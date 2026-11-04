@@ -45,11 +45,11 @@ interface ProductRegistrationAdminApiClient {
     fun deleteProduct(@CookieValue("JWT") jwt: String, @Body ids: List<UUID>): ProductRegistrationDTOV2
 
     @Put(uri = "/tech-data/bulk", processes = [APPLICATION_JSON])
-    fun bulkUpdateTechData(
+    fun bulkUpdateVariants(
         @CookieValue("JWT") jwt: String,
-        @Body bulkTechDataUpdateDTO: BulkTechDataUpdateDTO,
+        @Body bulkVariantUpdateDTO: BulkVariantUpdateDTO,
         @QueryValue isoVersion: String? = null,
-    ): BulkTechDataUpdateResultDTO
+    ): BulkVariantUpdateResultDTO
 
     @Post(uri = "/draftWithV3/{seriesUUID}", processes = [APPLICATION_JSON])
     fun createDraft(

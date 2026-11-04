@@ -263,28 +263,29 @@ data class UpdateProductRegistrationDTO(
     val productData: ProductDataDTO
 )
 
-data class VariantTechDataUpdate(
+data class VariantUpdate(
     val productId: UUID,
     val techData: List<ExtendedTechDataDTO>,
+    val articleName: String? = null,
 )
 
-data class BulkTechDataUpdateDTO(
-    val updates: List<VariantTechDataUpdate>,
+data class BulkVariantUpdateDTO(
+    val updates: List<VariantUpdate>,
 )
 
-data class BulkTechDataUpdateError(
+data class BulkVariantUpdateError(
     val productId: UUID,
     val message: String,
 )
 
-data class BulkTechDataUpdateResult(
+data class BulkVariantUpdateResult(
     val updated: List<ProductRegistration>,
-    val failed: List<BulkTechDataUpdateError>,
+    val failed: List<BulkVariantUpdateError>,
 )
 
-data class BulkTechDataUpdateResultDTO(
+data class BulkVariantUpdateResultDTO(
     val updated: List<ProductRegistrationDTOV2>,
-    val failed: List<BulkTechDataUpdateError>,
+    val failed: List<BulkVariantUpdateError>,
 )
 
 data class ProductRegistrationDTOV2(
