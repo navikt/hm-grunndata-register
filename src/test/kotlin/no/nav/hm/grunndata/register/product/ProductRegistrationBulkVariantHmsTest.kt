@@ -83,6 +83,9 @@ class ProductRegistrationBulkVariantHmsTest(
                 ),
             ),
         )
+        product = products.findById(product.id)!!
+        other = products.findById(other.id)!!
+        agreement = agreements.findById(agreement.id)!!
     }
 
     @AfterEach
