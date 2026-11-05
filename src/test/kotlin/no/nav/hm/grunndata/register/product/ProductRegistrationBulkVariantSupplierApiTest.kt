@@ -254,6 +254,38 @@ class ProductRegistrationBulkVariantSupplierApiTest(
     }
 
     @Test
+    fun `supplier cannot submit HMS numbers even when unchanged or blank`(): Unit = runBlocking {
+        val original = productRepository.update(ownVariants.first().copy(hmsArtNr = "123456"))
+        val seriesBefore = seriesRepository.findById(seriesId)
+        listOf("123456", "654321", "", "   ").forEach { hmsArtNr ->
+            val result = apiClient.bulkUpdateVariants(
+                login(), seriesId,
+                BulkVariantUpdateDTO(
+                    listOf(update(original.id).copy(articleName = "Unauthorized", hmsArtNr = hmsArtNr)),
+                ),
+            )
+            result.updated.shouldBeEmpty()
+            result.failed.single().productId shouldBe original.id
+            productRepository.findById(original.id) shouldBe original
+        }
+        seriesRepository.findById(seriesId) shouldBe seriesBefore
+        productEventIds().filter { it == original.id }.shouldBeEmpty()
+
+        val partial = apiClient.bulkUpdateVariants(
+            login(), seriesId,
+            BulkVariantUpdateDTO(
+                listOf(
+                    update(original.id).copy(hmsArtNr = ""),
+                    update(ownVariants.last().id).copy(articleName = "Allowed"),
+                ),
+            ),
+        )
+        partial.failed.single().productId shouldBe original.id
+        partial.updated.single().articleName shouldBe "Allowed"
+        productRepository.findById(original.id) shouldBe original
+    }
+
+    @Test
     fun `successful supplier batch refreshes parent series audit fields`(): Unit = runBlocking {
         val before = seriesRepository.findById(seriesId)!!
 

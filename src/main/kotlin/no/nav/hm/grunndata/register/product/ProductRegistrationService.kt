@@ -10,6 +10,7 @@ import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.security.authentication.Authentication
+import io.micronaut.transaction.TransactionDefinition
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import kotlinx.coroutines.flow.Flow
@@ -217,7 +218,7 @@ open class ProductRegistrationService(
             if (!authentication.isAdmin() && authentication.supplierId() != inDb.supplierId) {
                 throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
             }
-            val ensuredNotBlankHmsNr = if (updateDTO.hmsArtNr.isNullOrBlank()) null else updateDTO.hmsArtNr
+            val ensuredNotBlankHmsNr = updateDTO.hmsArtNr?.trim()?.takeIf { it.isNotEmpty() }
 
             var changedHmsNrSupplierRef = false
             if ((inDb.hmsArtNr ?: "") != (updateDTO.hmsArtNr ?: "")) {
@@ -235,22 +236,7 @@ open class ProductRegistrationService(
                 changedHmsNrSupplierRef = true
             }
             if (changedHmsNrSupplierRef) {
-                if (ensuredNotBlankHmsNr != null) {
-                    catalogImportRepository.findByHmsArtNr(inDb.hmsArtNr ?: "").forEach {
-                        catalogImportRepository.update(
-                            it.copy(
-                                hmsArtNr = ensuredNotBlankHmsNr, supplierRef = updateDTO.supplierRef
-                            )
-                        )
-                    }
-                }
-                productAgreementRegistrationRepository.findByProductId(
-                    inDb.id
-                ).forEach { change ->
-                    productAgreementRegistrationRepository.update(
-                        change.copy(hmsArtNr = ensuredNotBlankHmsNr, supplierRef = updateDTO.supplierRef),
-                    )
-                }
+                updateProductIdentifiers(inDb, ensuredNotBlankHmsNr, updateDTO.supplierRef)
             }
 
             val dto = saveAndCreateEventIfNotDraftAndApproved(
@@ -297,7 +283,7 @@ open class ProductRegistrationService(
                 if (!authentication.isAdmin() && authentication.supplierId() != inDb.supplierId) {
                     throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
                 }
-                val saved = updateVariant(inDb, variantUpdate, authentication.name)
+                val saved = updateVariant(inDb, variantUpdate, authentication.name, authentication.isAdmin())
                 updated.add(saved)
             } catch (e: BadRequestException) {
                 LOG.warn("Bulk variant update rejected for product ${variantUpdate.productId}: ${e.message}")
@@ -352,11 +338,33 @@ open class ProductRegistrationService(
         )
     }
 
-    private suspend fun updateVariant(
+    private suspend fun updateProductIdentifiers(
+        product: ProductRegistration,
+        hmsArtNr: String?,
+        supplierRef: String,
+    ) {
+        if (hmsArtNr != null) {
+            catalogImportRepository.findBySupplierIdAndSupplierRef(product.supplierId, product.supplierRef)
+                .filter { it.hmsArtNr == product.hmsArtNr.orEmpty() }
+                .forEach {
+                    catalogImportRepository.update(it.copy(hmsArtNr = hmsArtNr, supplierRef = supplierRef))
+                }
+        }
+        productAgreementRegistrationRepository.findByProductId(product.id).forEach {
+            productAgreementRegistrationRepository.update(it.copy(hmsArtNr = hmsArtNr, supplierRef = supplierRef))
+        }
+    }
+
+    @io.micronaut.transaction.annotation.Transactional(propagation = TransactionDefinition.Propagation.REQUIRES_NEW)
+    open suspend fun updateVariant(
         product: ProductRegistration,
         variantUpdate: VariantUpdate,
         updatedByUser: String,
+        allowHmsChange: Boolean = false,
     ): ProductRegistration {
+        if (variantUpdate.hmsArtNr != null && !allowHmsChange) {
+            throw BadRequestException("not authorized to change hms number", ErrorType.UNAUTHORIZED)
+        }
         val articleName = variantUpdate.articleName?.trim()
         if (articleName != null && articleName.isBlank()) {
             throw BadRequestException("Variantnavn er påkrevd")
@@ -364,9 +372,19 @@ open class ProductRegistrationService(
         if (articleName != null && articleName.length > 1024) {
             throw BadRequestException("Variantnavn kan ikke være lengre enn 1024 tegn")
         }
+        val hmsArtNr = if (variantUpdate.hmsArtNr != null) {
+            variantUpdate.hmsArtNr.trim().takeIf { it.isNotEmpty() }
+        } else {
+            product.hmsArtNr
+        }
+        if (hmsArtNr != product.hmsArtNr) {
+            updateProductIdentifiers(product, hmsArtNr, product.supplierRef)
+            LOG.warn("Hms artNr ${product.hmsArtNr} has been changed by admin to $hmsArtNr for id: ${product.id}")
+        }
         return saveAndCreateEventIfNotDraftAndApproved(
             product.copy(
                 articleName = articleName ?: product.articleName,
+                hmsArtNr = hmsArtNr,
                 productData = product.productData.copy(
                     techData = variantUpdate.techData.map { it.toEntity() },
                 ),

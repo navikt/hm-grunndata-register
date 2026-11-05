@@ -32,3 +32,11 @@ jobs:
         working-directory: "./"
         env:
           READER_TOKEN: ${{ secrets.READER_TOKEN }}
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            build/test-results/
+            build/reports/tests/
