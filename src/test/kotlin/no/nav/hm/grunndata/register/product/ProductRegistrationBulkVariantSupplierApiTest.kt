@@ -254,6 +254,41 @@ class ProductRegistrationBulkVariantSupplierApiTest(
     }
 
     @Test
+    fun `supplier reference edits require ownership and an unpublished variant`(): Unit = runBlocking {
+        productRepository.update(ownVariants.first().copy(published = null))
+        val unpublished = productRepository.findById(ownVariants.first().id)!!
+        val published = ownVariants.last()
+        val result = apiClient.bulkUpdateVariants(
+            login(), seriesId,
+            BulkVariantUpdateDTO(
+                listOf(unpublished, published, otherSeriesVariant, foreignVariant).map {
+                    update(it.id).copy(articleName = "Changed name", supplierRef = "  new-${it.id}  ")
+                },
+            ),
+        )
+        result.updated.single().supplierRef shouldBe "new-${unpublished.id}"
+        result.updated.single().articleName shouldBe "Changed name"
+        result.failed.map { it.productId }.toSet() shouldBe setOf(published.id, otherSeriesVariant.id, foreignVariant.id)
+        result.failed.first { it.productId == published.id }.message shouldBe "not authorized to change supplierref"
+        val saved = productRepository.findById(unpublished.id)!!
+        saved.supplierRef shouldBe "new-${unpublished.id}"
+        saved.hmsArtNr shouldBe unpublished.hmsArtNr
+        listOf(published, otherSeriesVariant, foreignVariant).forEach {
+            productRepository.findById(it.id) shouldBe it
+        }
+
+        val unchanged = apiClient.bulkUpdateVariants(
+            login(), seriesId,
+            BulkVariantUpdateDTO(
+                listOf(update(published.id).copy(articleName = "Allowed name", supplierRef = " ${published.supplierRef} ")),
+            ),
+        )
+        unchanged.failed.shouldBeEmpty()
+        unchanged.updated.single().supplierRef shouldBe published.supplierRef
+        unchanged.updated.single().articleName shouldBe "Allowed name"
+    }
+
+    @Test
     fun `supplier cannot submit HMS numbers even when unchanged or blank`(): Unit = runBlocking {
         val original = productRepository.update(ownVariants.first().copy(hmsArtNr = "123456"))
         val seriesBefore = seriesRepository.findById(seriesId)

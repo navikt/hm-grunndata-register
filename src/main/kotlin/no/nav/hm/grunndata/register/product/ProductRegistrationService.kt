@@ -283,14 +283,14 @@ open class ProductRegistrationService(
                 if (!authentication.isAdmin() && authentication.supplierId() != inDb.supplierId) {
                     throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
                 }
-                val saved = updateVariant(inDb, variantUpdate, authentication.name, authentication.isAdmin())
+                val saved = updateVariant(inDb, variantUpdate, authentication, authentication.isAdmin())
                 updated.add(saved)
             } catch (e: BadRequestException) {
                 LOG.warn("Bulk variant update rejected for product ${variantUpdate.productId}: ${e.message}")
                 failed.add(BulkVariantUpdateError(variantUpdate.productId, e.message ?: "Ukjent feil"))
             } catch (e: Exception) {
                 LOG.error("Bulk variant update failed for product ${variantUpdate.productId}", e)
-                failed.add(BulkVariantUpdateError(variantUpdate.productId, e.message ?: "Ukjent feil"))
+                failed.add(BulkVariantUpdateError(variantUpdate.productId, bulkVariantFailureMessage(e)))
             }
         }
         updated.map { it.seriesUUID }.distinct().forEach { seriesId ->
@@ -303,7 +303,7 @@ open class ProductRegistrationService(
         bulkUpdateDTO: BulkVariantUpdateDTO,
         supplierId: UUID,
         seriesId: UUID,
-        updatedByUser: String,
+        authentication: Authentication,
     ): BulkVariantUpdateResult {
         val updated = mutableListOf<ProductRegistration>()
         val failed = mutableListOf<BulkVariantUpdateError>()
@@ -314,18 +314,31 @@ open class ProductRegistrationService(
                 if (inDb == null || inDb.seriesUUID != seriesId) {
                     failed.add(BulkVariantUpdateError(variantUpdate.productId, "Varianten finnes ikke i denne serien"))
                 } else {
-                    updated.add(updateVariant(inDb, variantUpdate, updatedByUser))
+                    updated.add(updateVariant(inDb, variantUpdate, authentication))
                 }
+            } catch (e: BadRequestException) {
+                LOG.warn("Supplier bulk variant update rejected for product ${variantUpdate.productId}: ${e.message}")
+                failed.add(BulkVariantUpdateError(variantUpdate.productId, e.message ?: "Kunne ikke lagre endringen"))
             } catch (e: Exception) {
                 LOG.error("Supplier bulk variant update failed for product ${variantUpdate.productId}", e)
-                failed.add(BulkVariantUpdateError(variantUpdate.productId, "Kunne ikke lagre endringen"))
+                failed.add(BulkVariantUpdateError(variantUpdate.productId, bulkVariantFailureMessage(e)))
             }
         }
         if (updated.isNotEmpty()) {
-            updateSeriesAuditFields(seriesId, updatedByUser)
+            updateSeriesAuditFields(seriesId, authentication.name)
         }
         return BulkVariantUpdateResult(updated = updated, failed = failed)
     }
+
+    private fun bulkVariantFailureMessage(error: Exception): String =
+        if (generateSequence<Throwable>(error) { it.cause }.any {
+                it.message?.contains("product_reg_v1_supplier_id_supplier_ref_key") == true ||
+                    it.message?.contains("product_agreement_reg_v1_supplierid_supplierref_agreementid_pos") == true
+            }) {
+            "Artikkelnummeret finnes allerede på en annen variant"
+        } else {
+            "Kunne ikke lagre endringen"
+        }
 
     private suspend fun updateSeriesAuditFields(seriesId: UUID, updatedByUser: String) {
         val series = seriesRegistrationRepository.findById(seriesId) ?: return
@@ -359,7 +372,7 @@ open class ProductRegistrationService(
     open suspend fun updateVariant(
         product: ProductRegistration,
         variantUpdate: VariantUpdate,
-        updatedByUser: String,
+        authentication: Authentication,
         allowHmsChange: Boolean = false,
     ): ProductRegistration {
         if (variantUpdate.hmsArtNr != null && !allowHmsChange) {
@@ -372,23 +385,33 @@ open class ProductRegistrationService(
         if (articleName != null && articleName.length > 1024) {
             throw BadRequestException("Variantnavn kan ikke være lengre enn 1024 tegn")
         }
+        val supplierRef = variantUpdate.supplierRef?.trim() ?: product.supplierRef
+        if (supplierRef != product.supplierRef && !product.canChangeSupplierRef(authentication)) {
+            throw BadRequestException("not authorized to change supplierref", ErrorType.UNAUTHORIZED)
+        }
         val hmsArtNr = if (variantUpdate.hmsArtNr != null) {
             variantUpdate.hmsArtNr.trim().takeIf { it.isNotEmpty() }
         } else {
             product.hmsArtNr
         }
+        if (hmsArtNr != product.hmsArtNr || supplierRef != product.supplierRef) {
+            updateProductIdentifiers(product, hmsArtNr, supplierRef)
+        }
         if (hmsArtNr != product.hmsArtNr) {
-            updateProductIdentifiers(product, hmsArtNr, product.supplierRef)
             LOG.warn("Hms artNr ${product.hmsArtNr} has been changed by admin to $hmsArtNr for id: ${product.id}")
+        }
+        if (supplierRef != product.supplierRef) {
+            LOG.info("Supplier ref changed from ${product.supplierRef} to $supplierRef for product ${product.id}")
         }
         return saveAndCreateEventIfNotDraftAndApproved(
             product.copy(
                 articleName = articleName ?: product.articleName,
                 hmsArtNr = hmsArtNr,
+                supplierRef = supplierRef,
                 productData = product.productData.copy(
                     techData = variantUpdate.techData.map { it.toEntity() },
                 ),
-                updatedByUser = updatedByUser,
+                updatedByUser = authentication.name,
                 updatedBy = REGISTER,
                 updated = LocalDateTime.now(),
             ),

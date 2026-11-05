@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.product
 
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.micronaut.security.authentication.Authentication
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -26,7 +27,7 @@ class ProductRegistrationBulkVariantSupplierServiceTest {
 
         val result = service.bulkUpdateSupplierVariants(
             BulkVariantUpdateDTO(listOf(failedId, unknownId).map { VariantUpdate(it, emptyList()) }),
-            supplierId, UUID.randomUUID(), "supplier",
+            supplierId, UUID.randomUUID(), Authentication.build("supplier"),
         )
 
         result.updated.shouldBeEmpty()
