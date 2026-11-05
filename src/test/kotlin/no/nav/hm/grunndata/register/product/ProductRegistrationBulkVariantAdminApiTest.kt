@@ -177,7 +177,7 @@ class ProductRegistrationBulkVariantAdminApiTest(
             jwt,
             BulkVariantUpdateDTO(
                 updates = listOf(
-                    VariantUpdate(draft1.id, listOf(techData1), articleName = "  Nytt variantnavn  "),
+                    VariantUpdate(draft1.id, listOf(techData1), articleName = "  Nytt variantnavn  ", hmsArtNr = " 123456 "),
                     VariantUpdate(draft2.id, listOf(techData2)),
                 )
             )
@@ -187,11 +187,12 @@ class ProductRegistrationBulkVariantAdminApiTest(
         result.updated.find { it.id == draft1.id }!!.productData.techData shouldContain techData1
         result.updated.find { it.id == draft2.id }!!.productData.techData shouldContain techData2
         result.updated.find { it.id == draft1.id }!!.articleName shouldBe "Nytt variantnavn"
+        result.updated.find { it.id == draft1.id }!!.hmsArtNr shouldBe "123456"
         result.updated.find { it.id == draft2.id }!!.articleName shouldBe draft2.articleName
         listOf("", "   ", "x".repeat(1025)).forEach { invalidName ->
             val rejected = apiClient.bulkUpdateVariants(
                 jwt,
-                BulkVariantUpdateDTO(listOf(VariantUpdate(draft1.id, listOf(techData2), invalidName))),
+                BulkVariantUpdateDTO(listOf(VariantUpdate(draft1.id, listOf(techData2), invalidName, "654321"))),
             )
             rejected.updated.shouldBeEmpty()
             rejected.failed.single().message shouldBe if (invalidName.length > 1024) {
@@ -201,12 +202,44 @@ class ProductRegistrationBulkVariantAdminApiTest(
             }
             val unchanged = apiClient.readProduct(jwt, draft1.id)
             unchanged.articleName shouldBe "Nytt variantnavn"
+            unchanged.hmsArtNr shouldBe "123456"
             unchanged.productData.techData shouldContain techData1
         }
         val seriesAfter = runBlocking { seriesRepository.findById(seriesUUID)!! }
         seriesAfter.updated.isAfter(seriesBefore.updated) shouldBe true
         seriesAfter.updatedByUser shouldBe email.lowercase()
         seriesAfter.updatedBy shouldBe REGISTER
+
+        val nameOnly = apiClient.bulkUpdateVariants(
+            jwt,
+            BulkVariantUpdateDTO(listOf(VariantUpdate(draft1.id, listOf(techData1)))),
+        )
+        nameOnly.updated.single().hmsArtNr shouldBe "123456"
+        val cleared = apiClient.bulkUpdateVariants(
+            jwt,
+            BulkVariantUpdateDTO(listOf(VariantUpdate(draft1.id, listOf(techData1), hmsArtNr = ""))),
+        )
+        cleared.failed.shouldBeEmpty()
+        cleared.updated.single().hmsArtNr shouldBe null
+        apiClient.readProduct(jwt, draft1.id).hmsArtNr shouldBe null
+        val seriesAfterHmsChanges = runBlocking { seriesRepository.findById(seriesUUID)!! }
+
+        val hmsEmail = "hms-$seriesUUID@test.test"
+        userAdminApiClient.createUser(
+            jwt,
+            UserRegistrationDTO(
+                name = "HMS user", email = hmsEmail, password = password,
+                roles = listOf(Roles.ROLE_HMS),
+                attributes = mapOf(UserAttribute.SUPPLIER_ID to supplierId.toString()),
+            ),
+        )
+        val hmsJwt = loginClient.login(UsernamePasswordCredentials(hmsEmail, password)).getCookie("JWT").get().value
+        val hmsResult = apiClient.bulkUpdateVariants(
+            hmsJwt,
+            BulkVariantUpdateDTO(listOf(VariantUpdate(draft1.id, listOf(techData2), hmsArtNr = "654321"))),
+        )
+        hmsResult.updated.shouldBeEmpty()
+        hmsResult.failed.single().message shouldBe "not authorized to change hms number"
 
         // unauthorized: a non-admin user tied to a different supplier cannot bulk update this variant.
         // ROLE_HMS passes the controller-level @Secured check but is rejected by the per-variant
@@ -237,7 +270,7 @@ class ProductRegistrationBulkVariantAdminApiTest(
         unauthorizedResult.updated.shouldBeEmpty()
         unauthorizedResult.failed.size shouldBe 1
         unauthorizedResult.failed[0].productId shouldBe draft1.id
-        runBlocking { seriesRepository.findById(seriesUUID) } shouldBe seriesAfter
+        runBlocking { seriesRepository.findById(seriesUUID) } shouldBe seriesAfterHmsChanges
 
         // the rejected update must not have overwritten the value set in the happy-path call above
         val stillOriginal = apiClient.readProduct(jwt, draft1.id)
