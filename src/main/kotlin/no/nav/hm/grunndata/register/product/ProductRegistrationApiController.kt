@@ -123,7 +123,7 @@ class ProductRegistrationApiController(
             ?.let { runCatching { UUID.fromString(it) }.getOrNull() }
             ?: return HttpResponse.status(HttpStatus.FORBIDDEN)
         val result = productRegistrationService.bulkUpdateSupplierVariants(
-            bulkUpdateDTO, supplierId, seriesId, authentication.name,
+            bulkUpdateDTO, supplierId, seriesId, authentication,
         )
         return HttpResponse.ok(
             BulkVariantUpdateResultDTO(

@@ -22,6 +22,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 @MicronautTest(transactional = false)
@@ -134,6 +135,71 @@ class ProductRegistrationBulkVariantHmsTest(
         agreements.findById(agreement.id)!!.hmsArtNr shouldBe null
         catalogs.findById(catalog.id) shouldBe catalog
         catalogs.findById(otherCatalog.id) shouldBe otherCatalog
+    }
+
+    @Test
+    fun `admin changes supplier reference on published products together with HMS and preserves relations`(): Unit = runBlocking {
+        products.update(product.copy(published = LocalDateTime.now()))
+        val result = service.bulkUpdateVariants(
+            BulkVariantUpdateDTO(
+                listOf(VariantUpdate(product.id, emptyList(), hmsArtNr = "234567", supplierRef = "  new-ref  ")),
+            ),
+            admin,
+        )
+        result.failed.shouldBeEmpty()
+        result.updated.single().supplierRef shouldBe "new-ref"
+        products.findById(product.id)!!.supplierRef shouldBe "new-ref"
+        catalogs.findById(catalog.id)!!.supplierRef shouldBe "new-ref"
+        catalogs.findById(catalog.id)!!.hmsArtNr shouldBe "234567"
+        agreements.findById(agreement.id)!!.supplierRef shouldBe "new-ref"
+        agreements.findById(agreement.id)!!.hmsArtNr shouldBe "234567"
+        unrelatedCatalogs.forEach { catalogs.findById(it.id) shouldBe it }
+
+        val refOnly = service.bulkUpdateVariants(
+            BulkVariantUpdateDTO(listOf(VariantUpdate(product.id, emptyList(), supplierRef = "next-ref"))),
+            admin,
+        )
+        refOnly.failed.shouldBeEmpty()
+        refOnly.updated.single().hmsArtNr shouldBe "234567"
+        catalogs.findById(catalog.id)!!.hmsArtNr shouldBe "234567"
+        catalogs.findById(catalog.id)!!.supplierRef shouldBe "next-ref"
+        agreements.findById(agreement.id)!!.hmsArtNr shouldBe "234567"
+        agreements.findById(agreement.id)!!.supplierRef shouldBe "next-ref"
+    }
+
+    @Test
+    fun `supplier can change reference of an unpublished product with an active agreement`(): Unit = runBlocking {
+        val supplier = Authentication.build("supplier", listOf(Roles.ROLE_SUPPLIER), emptyMap())
+        val result = service.bulkUpdateSupplierVariants(
+            BulkVariantUpdateDTO(listOf(VariantUpdate(product.id, emptyList(), supplierRef = "supplier-ref"))),
+            product.supplierId, product.seriesUUID, supplier,
+        )
+        result.failed.shouldBeEmpty()
+        result.updated.single().supplierRef shouldBe "supplier-ref"
+        agreements.findById(agreement.id)!!.supplierRef shouldBe "supplier-ref"
+        agreements.findById(agreement.id)!!.hmsArtNr shouldBe product.hmsArtNr
+        catalogs.findById(catalog.id)!!.supplierRef shouldBe "supplier-ref"
+        catalogs.findById(catalog.id)!!.hmsArtNr shouldBe product.hmsArtNr
+    }
+
+    @Test
+    fun `duplicate supplier reference rolls back related writes without stopping the batch`(): Unit = runBlocking {
+        val result = service.bulkUpdateVariants(
+            BulkVariantUpdateDTO(
+                listOf(
+                    VariantUpdate(product.id, emptyList(), articleName = "Rejected", supplierRef = other.supplierRef),
+                    VariantUpdate(other.id, emptyList(), articleName = "Saved"),
+                ),
+            ),
+            admin,
+        )
+        result.failed.single().productId shouldBe product.id
+        result.failed.single().message shouldBe "Artikkelnummeret finnes allerede på en annen variant"
+        result.updated.single().id shouldBe other.id
+        products.findById(product.id) shouldBe product
+        agreements.findById(agreement.id) shouldBe agreement
+        catalogs.findById(catalog.id) shouldBe catalog
+        products.findById(other.id)!!.articleName shouldBe "Saved"
     }
 
     @Test

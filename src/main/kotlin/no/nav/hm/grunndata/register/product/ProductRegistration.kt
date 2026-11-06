@@ -268,6 +268,7 @@ data class VariantUpdate(
     val techData: List<ExtendedTechDataDTO>,
     val articleName: String? = null,
     val hmsArtNr: String? = null,
+    val supplierRef: String? = null,
 )
 
 data class BulkVariantUpdateDTO(
