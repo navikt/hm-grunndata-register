@@ -18,6 +18,7 @@ val flywayPostgresqlVersion = "13.6.0"
 val jacksonVersion = "3.1.8"
 
 // Security versions:
+val jackson2Version = "2.22.3"
 val jsonSmartVersion = "2.6.0"
 val commonsCompressVersion = "1.28.0"
 val opencsvVersion = "5.12.0"
@@ -43,6 +44,8 @@ configurations.all {
 }
 
 dependencies {
+    implementation(platform("com.fasterxml.jackson:jackson-bom:$jackson2Version"))
+
     constraints {
         implementation("com.opencsv:opencsv:$opencsvVersion")
         implementation("commons-beanutils:commons-beanutils:1.11.0")
