@@ -14,7 +14,8 @@ val leaderElectionVersion = "202606231046"
 val googleCloudPlatformVersion = "26.86.0"
 val microsoftGrapVersion = "6.67.0"
 val azureIdentityVersion = "1.18.4"
-val flywayPostgresqlVersion = "13.3.0"
+val flywayPostgresqlVersion = "13.6.0"
+val jacksonVersion = "3.1.8"
 
 // Security versions:
 val jsonSmartVersion = "2.6.0"
@@ -52,7 +53,7 @@ dependencies {
 
     runtimeOnly("org.yaml:snakeyaml")
     implementation("io.micronaut:micronaut-jackson-databind")
-    implementation("tools.jackson.module:jackson-module-kotlin")
+    api("tools.jackson.module:jackson-module-kotlin:${jacksonVersion}")
 
     // coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
