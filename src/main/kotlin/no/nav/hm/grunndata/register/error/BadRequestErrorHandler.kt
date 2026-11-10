@@ -13,6 +13,7 @@ import io.micronaut.http.server.exceptions.ExceptionHandler
 import io.micronaut.http.server.exceptions.JsonExceptionHandler
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.register.iso.IsoVersion
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import org.slf4j.LoggerFactory
 import tools.jackson.core.JacksonException
 import tools.jackson.core.exc.StreamReadException
@@ -42,7 +43,7 @@ class BadRequestErrorHandler : ExceptionHandler<BadRequestException, HttpRespons
                 ErrorType.UNAUTHORIZED -> HttpResponse.serverError(createMessage(error))
             }
         if (error.type != ErrorType.NOT_FOUND) {
-            LOG.error(response.body().toString())
+            LOG.error(response.body().toString().sanitizeForLog())
         }
         return response
     }
@@ -71,7 +72,7 @@ class ConversionExceptionHandler : ExceptionHandler<ConversionErrorException, Ht
                 is JacksonException -> handleJacksonException(error.cause as JacksonException)
                 else -> HttpResponse.serverError(ErrorMessage(error.message!!, ErrorType.UNKNOWN))
             }
-        LOG.error(response.body().toString())
+        LOG.error(response.body().toString().sanitizeForLog())
         return response
     }
 }
@@ -82,7 +83,7 @@ class ConversionExceptionHandler : ExceptionHandler<ConversionErrorException, Ht
 class ApiJsonErrorHandler : ExceptionHandler<JacksonException, HttpResponse<ErrorMessage>> {
     override fun handle(request: HttpRequest<Any>, error: JacksonException): HttpResponse<ErrorMessage> {
         val response = handleJacksonException(error)
-        LOG.error(response.body().toString())
+        LOG.error(response.body().toString().sanitizeForLog())
         return response
     }
 }

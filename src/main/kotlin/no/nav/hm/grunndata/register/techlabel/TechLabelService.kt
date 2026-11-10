@@ -6,6 +6,7 @@ import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import org.slf4j.LoggerFactory
 
 @Singleton
@@ -19,7 +20,7 @@ open class TechLabelService(
     }
 
     override fun fetchLabelsByIsoCode(isocode: String): List<TechLabelDTO> = runBlocking {
-        LOG.debug("Fetching labels by isocode: $isocode")
+        LOG.debug("Fetching labels by isocode: ${isocode.sanitizeForLog()}")
         val levels = isocode.length / 2
         val techLabels: MutableList<TechLabelDTO> = mutableListOf()
         for (i in levels downTo 0) {
@@ -30,7 +31,7 @@ open class TechLabelService(
     }
 
     override fun fetchLabelsByIsoCode22(isocode22: String): List<TechLabelDTO> = runBlocking {
-        LOG.debug("Fetching labels by isocode22: $isocode22")
+        LOG.debug("Fetching labels by isocode22: ${isocode22.sanitizeForLog()}")
         val levels = isocode22.length / 2
         val techLabels: MutableList<TechLabelDTO> = mutableListOf()
         for (i in levels downTo 0) {

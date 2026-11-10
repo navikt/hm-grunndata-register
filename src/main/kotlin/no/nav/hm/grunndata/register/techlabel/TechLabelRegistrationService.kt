@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.techlabel
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import io.micronaut.data.model.Pageable
 import io.micronaut.data.repository.jpa.criteria.PredicateSpecification
 import jakarta.inject.Singleton
@@ -62,13 +63,13 @@ class TechLabelRegistrationService(private val techLabelRegistrationRepository: 
                 code, key = oldKey, unit = oldUnit, isoVersion = version,
             )
         }.distinctBy { it.id }
-        LOG.debug("Found ${products.size} products with techLabel key=$oldKey, unit=$oldUnit to update to new techLabel ${newTechLabel.label} (${newTechLabel.unit})")
+        LOG.debug("Found ${products.size} products with techLabel key=${oldKey.sanitizeForLog()}, unit=${oldUnit.sanitizeForLog()} to update to new techLabel ${newTechLabel.label.sanitizeForLog()} (${newTechLabel.unit.sanitizeForLog()})")
         products.forEach { product ->
             val techData = product.productData.techData.toMutableList()
             val techLabel = techData.find { it.key == oldKey && it.unit == oldUnit }
             techLabel?.let {
                 techData.remove(it)
-                LOG.debug("Changed from ${it.key} to ${newTechLabel.label} and ${it.unit} to ${newTechLabel.unit} for product ${product.hmsArtNr}")
+                LOG.debug("Changed from ${it.key.sanitizeForLog()} to ${newTechLabel.label.sanitizeForLog()} and ${it.unit.sanitizeForLog()} to ${newTechLabel.unit.sanitizeForLog()} for product ${product.hmsArtNr.sanitizeForLog()}")
                 techData.add(it.copy(key = newTechLabel.label, unit = newTechLabel.unit ?: ""))
             }
             val updatedProdData = product.productData.copy(techData = techData)

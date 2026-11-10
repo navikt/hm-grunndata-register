@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.internal.maintenance
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
@@ -34,7 +35,7 @@ class DuplicateHmsnrSupplierIdHandlerController(private val productRegistrationR
         duplicates.forEach { duplicate ->
             if (duplicate.hmsArtNr.isNotEmpty()) {
                 productRegistrationService.findById(duplicate.id)?.let { product ->
-                    LOG.info("Found product with id ${product.id}, hmsArtNr ${product.hmsArtNr}, to mark delete")
+                    LOG.info("Found product with id ${product.id}, hmsArtNr ${product.hmsArtNr.sanitizeForLog()}, to mark delete")
                     val pag = productAgreementRegistrationRepository.findByProductId(product.id)
                     pag.forEach {
                         productAgreementRegistrationRepository.update(it.copy(status = ProductAgreementStatus.DELETED, updated = LocalDateTime.now()))

@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.internal.maintenance
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
@@ -26,23 +27,23 @@ class TrimHmsnrAndSupplierRefController(private val productRegistrationRepositor
         val trimSupplierRefs = productRegistrationRepository.findBySupplierRefForTrimming().map { it.copy(supplierRef = it.supplierRef.trim())}
         LOG.info("Trimming supplierRef size: ${trimSupplierRefs.size}")
         trimSupplierRefs.forEach { product ->
-            LOG.info("product ${product.supplierRef}")
+            LOG.info("product ${product.supplierRef.sanitizeForLog()}")
             try {
                 productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(product, isUpdate = true)
             }
             catch (e: Exception) {
-                LOG.error("Error saving product with id: ${product.id} supplierRef ${product.supplierRef}: ${e.message}")
+                LOG.error("Error saving product with id: ${product.id} supplierRef ${product.supplierRef.sanitizeForLog()}: ${e.message.sanitizeForLog()}")
             }
         }
         val trimHmsArtNr = productRegistrationRepository.findByHmsnrForTrimming().map { it.copy(hmsArtNr = it.hmsArtNr?.trim()) }
         LOG.info("Trimming HMS artNr size: ${trimHmsArtNr.size}")
         trimHmsArtNr.forEach { product ->
-            LOG.info("product ${product.hmsArtNr}")
+            LOG.info("product ${product.hmsArtNr.sanitizeForLog()}")
             try {
                 productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(product, isUpdate = true)
             }
             catch (e: Exception) {
-                LOG.error("Error saving product with id: ${product.id} hmsArtNr: ${product.hmsArtNr}:  ${e.message}")
+                LOG.error("Error saving product with id: ${product.id} hmsArtNr: ${product.hmsArtNr.sanitizeForLog()}:  ${e.message.sanitizeForLog()}")
             }
         }
     }

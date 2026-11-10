@@ -24,6 +24,7 @@ import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.servicejob.ServiceJob
 import no.nav.hm.grunndata.register.servicejob.ServiceJobRepository
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
@@ -141,9 +142,9 @@ open class CatalogImportService(
                             updatedByUser = adminAuthentication.name
                         )
                     )
-                    LOG.info("Deactivated product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                    LOG.info("Deactivated product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
                 } else {
-                    LOG.warn("Could not find product to deactivate for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                    LOG.warn("Could not find product to deactivate for HMS ArtNr: ${catalogImport.hmsArtNr.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
                 }
             }
         }
@@ -157,14 +158,14 @@ open class CatalogImportService(
         var changedSupplierRefOrHmsNr = false
         if (registration.supplierRef != catalogImport.supplierRef) {
             changedSupplierRefOrHmsNr = true
-            LOG.error("Product ${registration.id} hmsArtNr: ${registration.hmsArtNr} has different supplierRef: ${registration.supplierRef} than catalogImport: ${catalogImport.supplierRef} under orderRef: ${catalogImport.orderRef}")
+            LOG.error("Product ${registration.id} hmsArtNr: ${registration.hmsArtNr.sanitizeForLog()} has different supplierRef: ${registration.supplierRef.sanitizeForLog()} than catalogImport: ${catalogImport.supplierRef.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
         }
         if (registration.hmsArtNr != catalogImport.hmsArtNr) {
             changedSupplierRefOrHmsNr = true
-            LOG.error("Product ${registration.id} supplierRef: ${registration.supplierRef} has different hmsArtNr: ${registration.hmsArtNr} than catalogImport: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+            LOG.error("Product ${registration.id} supplierRef: ${registration.supplierRef.sanitizeForLog()} has different hmsArtNr: ${registration.hmsArtNr.sanitizeForLog()} than catalogImport: ${catalogImport.hmsArtNr.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
         }
         if (changedSupplierRefOrHmsNr) {
-            LOG.info("Updating product ${registration.id} for HMS ArtNr: ${registration.hmsArtNr} under orderRef: ${catalogImport.orderRef} with new supplierRef: ${catalogImport.supplierRef} and new hmsArtNr: ${catalogImport.hmsArtNr}")
+            LOG.info("Updating product ${registration.id} for HMS ArtNr: ${registration.hmsArtNr.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()} with new supplierRef: ${catalogImport.supplierRef.sanitizeForLog()} and new hmsArtNr: ${catalogImport.hmsArtNr.sanitizeForLog()}")
             productRegistrationRepository.update(
                 registration.copy(
                     articleName = catalogImport.title,
@@ -199,7 +200,7 @@ open class CatalogImportService(
                             updatedByUser = adminAuthentication.name,
                     ))
                 } ?: run {
-                    LOG.info("Creating new service for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                    LOG.info("Creating new service for HMS ArtNr: ${catalogImport.hmsArtNr.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
                     val service = serviceJobRepository.save(
                         ServiceJob(
                             id = UUID.randomUUID(),
@@ -217,7 +218,7 @@ open class CatalogImportService(
                             updatedByUser = adminAuthentication.name,
                         )
                     )
-                    LOG.info("Created service with id: ${service.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                    LOG.info("Created service with id: ${service.id} for HMS ArtNr: ${catalogImport.hmsArtNr.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
                 }
             }
         }
@@ -236,9 +237,9 @@ open class CatalogImportService(
                             updatedByUser = adminAuthentication.name
                         )
                     )
-                    LOG.info("Deactivated service with id: ${service.id} for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                    LOG.info("Deactivated service with id: ${service.id} for HMS ArtNr: ${catalogImport.hmsArtNr.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
                 } else {
-                    LOG.warn("Could not find service to deactivate for HMS ArtNr: ${catalogImport.hmsArtNr} under orderRef: ${catalogImport.orderRef}")
+                    LOG.warn("Could not find service to deactivate for HMS ArtNr: ${catalogImport.hmsArtNr.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
                 }
             }
         }
@@ -295,7 +296,7 @@ open class CatalogImportService(
                 createdByAdmin = authentication.isAdmin(),
             )
         )
-        LOG.info("Created product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr} mainProduct: ${catalogImport.mainProduct} under orderRef: ${catalogImport.orderRef}")
+        LOG.info("Created product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr.sanitizeForLog()} mainProduct: ${catalogImport.mainProduct} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
         return product
     }
 

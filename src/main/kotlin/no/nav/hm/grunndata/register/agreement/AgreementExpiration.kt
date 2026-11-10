@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.agreement
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import java.time.LocalDateTime
@@ -28,7 +29,7 @@ open class AgreementExpiration(private val agreementService: AgreementRegistrati
 
     @Transactional
     open suspend fun deactiveProductsInExpiredAgreement(expiredAgreement: AgreementRegistrationDTO) {
-        LOG.info("Agreement ${expiredAgreement.id} ${expiredAgreement.reference} has expired")
+        LOG.info("Agreement ${expiredAgreement.id} ${expiredAgreement.reference.sanitizeForLog()} has expired")
         agreementService.saveAndCreateEventIfNotDraft(dto = expiredAgreement.copy(agreementStatus = AgreementStatus.INACTIVE,
             updated = LocalDateTime.now(), updatedBy = REGISTER, updatedByUser = "system-expired"
         ), isUpdate = true)

@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.iso.updatev22
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
@@ -30,10 +31,10 @@ class SeriesIso22UpdateController(private val seriesRegistrationRepository: Seri
                         seriesRegistrationRepository.update(serie.copy(isoCategory22 = iso22.code22))
                 }
                 else {
-                    LOG.warn("Found mapping for ${serie.isoCategory} to iso22 ${iso22.code22} but not verified, skipping update")
+                    LOG.warn("Found mapping for ${serie.isoCategory.sanitizeForLog()} to iso22 ${iso22.code22.sanitizeForLog()} but not verified, skipping update")
                 }
             } ?: run {
-                LOG.warn("Could not find mapping for ${serie.isoCategory}")
+                LOG.warn("Could not find mapping for ${serie.isoCategory.sanitizeForLog()}")
             }
         }
     }

@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.archive
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import io.micronaut.transaction.TransactionDefinition
 import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Singleton
@@ -29,7 +30,7 @@ open class ArchiveService(private val archiveRepository: ArchiveRepository) {
             try {
                 handleArchive(handler)
             } catch (e: Exception) {
-                LOG.warn("Error during archiving with handler: ${handler::class.simpleName} ${e.message}")
+                LOG.warn("Error during archiving with handler: ${handler::class.simpleName} ${e.message.sanitizeForLog()}")
             }
         }
     }

@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.internal.maintenance
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.QueryValue
@@ -22,7 +23,7 @@ class SetMainPartAccessoryController(private val seriesRegistrationService: Seri
     @Put("/mpa")
     suspend fun setMainPartAccessory(@QueryValue hmsnr: String, @QueryValue main: Boolean, @QueryValue accessory: Boolean,
                                      @QueryValue part: Boolean) {
-        LOG.info("Setting main: {}, accessory: {}, part: {} for product with hmsnr: {}", main, accessory, part, hmsnr)
+        LOG.info("Setting main: {}, accessory: {}, part: {} for product with hmsnr: {}", main, accessory, part, hmsnr.sanitizeForLog())
         val product = productRegistrationService.findByExactHmsArtNr(hmsnr)
         if (product != null) {
             LOG.info("Found product with id: {} and seriesUUID: {}", product.id, product.seriesUUID)

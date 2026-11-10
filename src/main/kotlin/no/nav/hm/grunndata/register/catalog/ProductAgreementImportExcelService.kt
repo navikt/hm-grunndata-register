@@ -11,6 +11,7 @@ import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.agreement.DelkontraktRegistrationDTO
 import no.nav.hm.grunndata.register.agreement.NoDelKontraktHandler
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -61,7 +62,7 @@ open class ProductAgreementImportExcelService(
                     ), isUpdate = true)
                 }
             } else {
-                LOG.info("updating product agreement for accessory/sparepart with title ${it.title} and productId ${it.productId}")
+                LOG.info("updating product agreement for accessory/sparepart with title ${it.title.sanitizeForLog()} and productId ${it.productId}")
                 updateAccessoryAndSparePart(it)
             }
         }
@@ -123,7 +124,7 @@ open class ProductAgreementImportExcelService(
             var sparePart = product.sparePart
             var accessory = product.accessory
             if (product.mainProduct) {
-                LOG.warn("This product hmsnr: ${product.hmsArtNr} with id: ${product.id} is marked as main product, but is being updated as accessory/sparepart from excel import.")
+                LOG.warn("This product hmsnr: ${product.hmsArtNr.sanitizeForLog()} with id: ${product.id} is marked as main product, but is being updated as accessory/sparepart from excel import.")
             }
             if (pa.sparePart) sparePart = true
             if (pa.accessory) accessory = true
@@ -185,7 +186,7 @@ open class ProductAgreementImportExcelService(
             val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(postNr)
 
             return postRanks.map { postRank ->
-                LOG.info("Mapping to product agreement for agreement ${agreement.reference}, post ${postRank.first}, rank ${postRank.second}")
+                LOG.info("Mapping to product agreement for agreement ${agreement.reference.sanitizeForLog()}, post ${postRank.first.sanitizeForLog()}, rank ${postRank.second}")
                 val delkontrakt: DelkontraktRegistrationDTO =
                     agreement.delkontraktList.find { it.delkontraktData.refNr == postRank.first }
                         ?: throw BadRequestException("Delkontrakt ${postRank.first} finnes ikke i avtale ${agreement.reference}, må den opprettes?")

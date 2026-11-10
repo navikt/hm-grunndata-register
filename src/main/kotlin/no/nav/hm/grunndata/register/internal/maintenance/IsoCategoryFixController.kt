@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.internal.maintenance
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import com.opencsv.CSVParserBuilder
 import com.opencsv.CSVReaderBuilder
 import io.micronaut.http.annotation.Controller
@@ -40,7 +41,7 @@ class IsoCategoryFixController(private val isoCategoryRegistrationService: IsoCa
         while (reader.readNext().also { line = it } != null) {
             val isocode = line?.get(0)!!.trim()
             val isoTitle = line?.get(1)!!.trim()
-            LOG.info("adding missing category: $isocode;$isoTitle")
+            LOG.info("adding missing category: ${isocode.sanitizeForLog()};${isoTitle.sanitizeForLog()}")
             isoCategoryRegistrationService.save(createIsoCategory(isocode, isoTitle))
         }
         reader.close()

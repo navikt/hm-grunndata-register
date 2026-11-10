@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.product.attributes.produkttype
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import io.micronaut.context.annotation.Value
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
@@ -42,7 +43,7 @@ open class ProdukttypeService(
             produkttypeRegistrationRepository.findByIsokode(isokode)?.let { existing ->
                 if (existing.status != ProdukttypeStatus.ACTIVE || existing.produkttype != produkttype) {
                     // update produkttype which was previously deactivated
-                    LOG.info("Updating produkttype for isokode: ${isokode}: $produkttype")
+                    LOG.info("Updating produkttype for isokode: ${isokode.sanitizeForLog()}: ${produkttype.sanitizeForLog()}")
                     saveAndCreateEvent(
                         existing.copy(
                             produkttype = produkttype,
@@ -56,14 +57,14 @@ open class ProdukttypeService(
                 existing
             } ?: run {
                 // new produkttype
-                LOG.info("New produkttype for isokode: ${isokode}: $produkttype")
+                LOG.info("New produkttype for isokode: ${isokode.sanitizeForLog()}: ${produkttype.sanitizeForLog()}")
                 val produkttypeRegistration = ProdukttypeRegistration(isokode = isokode, produkttype = produkttype)
                 saveAndCreateEvent(produkttypeRegistration.toDTO(), update = false)
             }
         }
 
         deactiveList.forEach {
-            LOG.info("Deactivate produkttype for isokode: ${it.isokode}: ${it.produkttype}")
+            LOG.info("Deactivate produkttype for isokode: ${it.isokode.sanitizeForLog()}: ${it.produkttype.sanitizeForLog()}")
             saveAndCreateEvent(
                 it.copy(
                     status = ProdukttypeStatus.INACTIVE,

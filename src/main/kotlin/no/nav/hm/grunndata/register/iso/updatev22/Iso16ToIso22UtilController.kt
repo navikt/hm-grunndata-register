@@ -16,6 +16,7 @@ import no.nav.hm.grunndata.register.iso.v22.IsoMapEnum
 import no.nav.hm.grunndata.register.iso.v22.IsoMapRepository
 import no.nav.hm.grunndata.register.iso.v22.IsoType
 import org.slf4j.Logger
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import org.slf4j.LoggerFactory
 
 @Hidden
@@ -28,7 +29,7 @@ class Iso16ToIso22UtilController(private val iso16ToIso22Util: Iso16ToIso22Util,
 
     @Post("/upload")
     suspend fun uploadList(@Body isos: List<Iso22>) {
-        LOG.info("Got iso22: $isos")
+        LOG.info("Got iso22: ${isos.toString().sanitizeForLog()}")
         // All standard ISO only have 3 levels and should never have '9' on the third level.
         isos.forEach { iso22 ->
             if (iso22.isoCode.length == 6 && iso22.isoCode[4] == '9') {
@@ -49,7 +50,7 @@ class Iso16ToIso22UtilController(private val iso16ToIso22Util: Iso16ToIso22Util,
 
     @Post("/upload-mapping")
     suspend fun updateIsoMapping(@Body mappings: List<IsoMap>) {
-        LOG.info("Got iso22 mappings: $mappings")
+        LOG.info("Got iso22 mappings: ${mappings.toString().sanitizeForLog()}")
         // verify everything is ok before saving, if not throw exception
         mappings.forEach { mapping ->
             if (mapping.mapEnum.isEmpty()) {

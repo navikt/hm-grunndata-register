@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import no.nav.hm.grunndata.register.media.MediaController.Companion.API_V1_UPLOAD_PRODUCT_MEDIA
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
@@ -63,7 +64,7 @@ class MediaController(private val mediaUploadService: MediaUploadService,
     suspend fun uploadFiles(@Parameter(example = "series or product") type: String="product", oid: UUID,
                             files: Publisher<CompletedFileUpload>,
                             authentication: Authentication): HttpResponse<List<MediaDTO>>  {
-        LOG.info("supplier: ${authentication.supplierId()} uploading files for object $oid type: $type")
+        LOG.info("supplier: ${authentication.supplierId()} uploading files for object $oid type: ${type.sanitizeForLog()}")
         if ("product" == type && oidExists(oid, authentication.supplierId())) {
             return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid, ObjectType.PRODUCT) }.toList())
         } else if ("series" == type && seriesExists(oid, authentication.supplierId())) {
@@ -84,7 +85,7 @@ class MediaController(private val mediaUploadService: MediaUploadService,
 
     @Delete("/{type}/{oid}/{uri}")
     suspend fun deleteFiles(type: String = "product", oid: UUID, uri: String, authentication: Authentication): HttpResponse<MediaDTO> {
-        LOG.info("Deleting media file oid: $oid and $uri")
+        LOG.info("Deleting media file oid: $oid and ${uri.sanitizeForLog()}")
         if ("series" == type && seriesRegistrationService.findByIdAndSupplierId(oid, authentication.supplierId())!=null)
             return HttpResponse.ok(mediaUploadService.deleteByOidAndUri(oid, uri))
         else if ("product" == type && productRegistrationService.findByIdAndSupplierId(oid, authentication.supplierId())!=null)

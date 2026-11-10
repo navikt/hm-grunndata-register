@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.agreement
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.AgreementStatus
@@ -34,7 +35,7 @@ open class AgreementPublish(
 
     @Transactional
     open suspend fun publishAgreement(agreementRegistrationDTO: AgreementRegistrationDTO) {
-        LOG.info("Publishing agreement ${agreementRegistrationDTO.id} ${agreementRegistrationDTO.reference}")
+        LOG.info("Publishing agreement ${agreementRegistrationDTO.id} ${agreementRegistrationDTO.reference.sanitizeForLog()}")
         agreementRegigstrationService.saveAndCreateEventIfNotDraft(
             dto =
                 agreementRegistrationDTO.copy(

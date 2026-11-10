@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import no.nav.hm.grunndata.rapid.dto.IsoCategory22DTO
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import org.slf4j.LoggerFactory
 
 /**
@@ -33,7 +34,7 @@ class Iso22Service(
     suspend fun lookUpCode(isocode: String): IsoCategory22DTO? =
         iso22Categories[isocode]
             ?: iso22Repository.findByIsoCode(isocode)?.toRapidDTO()?.also {
-                LOG.debug("Iso22 cache miss for $isocode, loaded from database")
+                LOG.debug("Iso22 cache miss for ${isocode.sanitizeForLog()}, loaded from database")
                 upsert(it)
             }
 

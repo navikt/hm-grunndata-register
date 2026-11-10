@@ -11,6 +11,7 @@ import no.nav.hm.grunndata.register.agreement.AgreementRegistrationDTO
 import no.nav.hm.grunndata.register.product.ProductRegistrationRepository
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.micronaut.leaderelection.LeaderOnly
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
@@ -34,7 +35,7 @@ open class CatalogFileToProductAgreementScheduler(
                     processCatalogFile(catalogFile)
                 } catch (e: Exception) {
                     LOG.error(
-                        "Error while processing catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName}",
+                        "Error while processing catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName.sanitizeForLog()}",
                         e
                     )
                     catalogFileRepository.update(
@@ -50,7 +51,7 @@ open class CatalogFileToProductAgreementScheduler(
 
     @Transactional
     open suspend fun processCatalogFile(catalogFile: CatalogFile): Pair<ProductAgreementMappedResultLists, ServiceAgreementMappedResultLists> {
-        LOG.info("Got catalog file with filename: ${catalogFile.fileName} with rows: ${catalogFile.catalogList.size} to process with forceUpdate: $forceUpdate")
+        LOG.info("Got catalog file with filename: ${catalogFile.fileName.sanitizeForLog()} with rows: ${catalogFile.catalogList.size} to process with forceUpdate: $forceUpdate")
         val supplierId = catalogFile.supplierId
         val adminAuthentication =
             ClientAuthentication(catalogFile.updatedByUser, mapOf("roles" to listOf(Roles.ROLE_ADMIN)))
@@ -76,7 +77,7 @@ open class CatalogFileToProductAgreementScheduler(
             )
         LOG.info(
             "Finished saving with inserted: ${productAgreementMappedResultLists.insertList.size} updated: ${productAgreementMappedResultLists.updateList.size} " +
-                    "deactivated: ${productAgreementMappedResultLists.deactivateList.size} for catalog file id: ${updatedCatalogFile.id} with name: ${updatedCatalogFile.fileName}"
+                    "deactivated: ${productAgreementMappedResultLists.deactivateList.size} for catalog file id: ${updatedCatalogFile.id} with name: ${updatedCatalogFile.fileName.sanitizeForLog()}"
         )
         return productAgreementMappedResultLists to serviceAgreementMappedResultLists
     }
@@ -145,11 +146,11 @@ open class CatalogFileToProductAgreementScheduler(
     open suspend fun findInconsistenciesBetweenFHCatalog() {
         val productsNotMatchAS = productRegistrationRepository.findProductThatDoesNotMatchAgreementSparePartAccessory()
         productsNotMatchAS.forEach {
-            LOG.error("Product: ${it.id} hmsnr: ${it.hmsArtNr} does not match agreement and spare part/accessory")
+            LOG.error("Product: ${it.id} hmsnr: ${it.hmsArtNr.sanitizeForLog()} does not match agreement and spare part/accessory")
         }
         val productsNotMatchHmsNr = productRegistrationRepository.findProductThatDoesNotMatchAgreementHmsNr()
         productsNotMatchHmsNr.forEach {
-            LOG.error("Product: ${it.id} hmsnr: ${it.hmsArtNr} does not match agreement hmsnr")
+            LOG.error("Product: ${it.id} hmsnr: ${it.hmsArtNr.sanitizeForLog()} does not match agreement hmsnr")
         }
     }
 

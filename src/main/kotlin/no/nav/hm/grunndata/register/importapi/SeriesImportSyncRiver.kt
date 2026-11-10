@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.importapi
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import io.micronaut.context.annotation.Context
 import io.micronaut.context.annotation.Requires
 import kotlinx.coroutines.runBlocking
@@ -96,7 +97,7 @@ class SeriesImportSyncRiver(
                 eventName = EventName.registeredSeriesV1,
                 extraKeyValues = extraImportKeyValues,
             )
-            LOG.info("series import: ${dto.id} transferId: ${dto.transferId} version: ${dto.version} eventId: $eventId synced")
+            LOG.info("series import: ${dto.id} transferId: ${dto.transferId.toString().sanitizeForLog()} version: ${dto.version} eventId: ${eventId.sanitizeForLog()} synced")
         }
     }
 

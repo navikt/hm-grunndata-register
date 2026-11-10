@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.iso.updatev22
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
@@ -27,10 +28,10 @@ class TechLabelIso22UpdateController(val techLabelRepository: TechLabelRegistrat
                     techLabelRepository.update(techlabel.copy(isoCode22 = iso22.code22))
                 }
                 else {
-                    LOG.warn("Found mapping for ${techlabel.isoCode} to iso22 ${iso22.code22} but not verified, skipping update")
+                    LOG.warn("Found mapping for ${techlabel.isoCode.sanitizeForLog()} to iso22 ${iso22.code22.sanitizeForLog()} but not verified, skipping update")
                 }
             } ?: run {
-                LOG.warn("Could not find mapping for ${techlabel.isoCode}")
+                LOG.warn("Could not find mapping for ${techlabel.isoCode.sanitizeForLog()}")
             }
         }
     }

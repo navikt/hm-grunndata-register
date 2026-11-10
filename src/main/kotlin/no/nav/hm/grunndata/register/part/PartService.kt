@@ -19,6 +19,7 @@ import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import org.apache.commons.math3.stat.StatUtils.product
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.UUID
@@ -115,7 +116,7 @@ open class PartService(
         )
         val product = productService.findAllBySeriesUuid(seriesId).first()
         val cleanHmsArtNr = if (!updateDto.hmsArtNr.isNullOrBlank()) updateDto.hmsArtNr else null
-        LOG.info("Updated part draft for series: ${series.id}, product: ${product.id} and hmsArtNr: $cleanHmsArtNr")
+        LOG.info("Updated part draft for series: ${series.id}, product: ${product.id} and hmsArtNr: ${cleanHmsArtNr.sanitizeForLog()}")
         product.let {
             productService.update(
                 product.copy(
@@ -130,7 +131,7 @@ open class PartService(
         if ((cleanHmsArtNr != null && cleanHmsArtNr != product.hmsArtNr) ||
             (updateDto.supplierRef != null && updateDto.supplierRef != product.supplierRef)
         ) {
-            LOG.info("hmsnr: ${product.hmsArtNr} supplierRef: ${product.supplierRef} was updated $updateDto")
+            LOG.info("hmsnr: ${product.hmsArtNr.sanitizeForLog()} supplierRef: ${product.supplierRef.sanitizeForLog()} was updated ${updateDto.toString().sanitizeForLog()}")
             productAgreementRegistrationRepository.findByProductId(product.id).forEach {
                 productAgreementRegistrationRepository.update(
                     it.copy(

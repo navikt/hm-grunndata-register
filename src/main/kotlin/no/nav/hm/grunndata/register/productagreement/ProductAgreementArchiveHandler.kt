@@ -6,6 +6,7 @@ import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
 import no.nav.hm.grunndata.register.archive.Archive
 import no.nav.hm.grunndata.register.archive.ArchiveHandler
 import no.nav.hm.grunndata.register.archive.ArchiveType
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import tools.jackson.databind.ObjectMapper
 
 @Context
@@ -36,7 +37,7 @@ class ProductAgreementArchiveHandler(private val productAgreementRegistrationRep
         LOG.debug(
             "Unarchiving ProductAgreementRegistration with oid: {} and keywords: {}",
             unarchive.oid,
-            unarchive.keywords
+            unarchive.keywords.sanitizeForLog()
         )
         val productAgreement = objectMapper.readValue(unarchive.payload, ProductAgreementRegistration::class.java)
         productAgreementRegistrationRepository.save(productAgreement.copy(status = ProductAgreementStatus.INACTIVE))

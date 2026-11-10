@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.iso.IsoVersion
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import no.nav.hm.grunndata.register.product.isAdmin
 import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.runtime.where
@@ -108,7 +109,7 @@ class TechLabelRegistrationAdminController(
         if (!TechLabelSection.isValid(dto.section)) {
             throw BadRequestException("Invalid section '${dto.section}', must be one of ${TechLabelSection.labels()}")
         }
-        LOG.info("Updating section to '${dto.section}' for all TechLabels with label='${dto.label}' by ${authentication.userId()}")
+        LOG.info("Updating section to '${dto.section.sanitizeForLog()}' for all TechLabels with label='${dto.label.sanitizeForLog()}' by ${authentication.userId()}")
         val updated = techLabelRegistrationService.updateSectionForLabel(dto.label, dto.section)
         return HttpResponse.ok(updated.map { it.toDTO() })
     }
@@ -152,7 +153,7 @@ class TechLabelRegistrationAdminController(
                         )
                     }
                 } catch (e: Exception) {
-                    LOG.error("Error updating products with new techLabel ${e.message}", e)
+                    LOG.error("Error updating products with new techLabel ${e.message.sanitizeForLog()}", e)
                     throw BadRequestException("Error updating products with new techLabel ${e.message}")
                 }
             }
@@ -163,7 +164,7 @@ class TechLabelRegistrationAdminController(
     suspend fun deleteTechLabel(id: UUID, @QueryValue forcedDelete: Boolean = false, authentication: Authentication, @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16): HttpResponse<Unit> =
         techLabelRegistrationService.findById(id)?.let { techLabel ->
             try {
-                LOG.warn("Deleting TechLabel with id:$id iso:${techLabel.isoCode} ${techLabel.label} (${techLabel.unit}) by ${authentication.userId()}")
+                LOG.warn("Deleting TechLabel with id:$id iso:${techLabel.isoCode.sanitizeForLog()} ${techLabel.label.sanitizeForLog()} (${techLabel.unit.sanitizeForLog()}) by ${authentication.userId()}")
                 techLabelRegistrationService.delete(techLabel, forcedDelete, isoVersion)
                 HttpResponse.noContent()
             } catch (e: IllegalStateException) {

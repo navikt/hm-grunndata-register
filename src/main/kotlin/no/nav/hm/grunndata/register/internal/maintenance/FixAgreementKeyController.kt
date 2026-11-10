@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.internal.maintenance
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
@@ -19,7 +20,7 @@ class FixAgreementKeyController(private val agreementRegistrationRepository: Agr
     @Put("/keys")
     suspend fun fixAgreementKeys() {
         agreementRegistrationRepository.findAll().collect { agreementRegistration ->
-            LOG.info("updating agreement ${agreementRegistration.id} with agreementKey ${agreementRegistration.agreementKey}")
+            LOG.info("updating agreement ${agreementRegistration.id} with agreementKey ${agreementRegistration.agreementKey.sanitizeForLog()}")
             if (agreementRegistration.agreementKey == null) {
                 val agreementKey = generateKey(agreementRegistration.reference)
                 agreementRegistrationRepository.update(agreementRegistration.copy(agreementKey = agreementKey))

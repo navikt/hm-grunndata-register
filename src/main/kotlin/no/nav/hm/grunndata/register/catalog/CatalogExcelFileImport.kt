@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.catalog
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.register.catalog.ColumnNames.*
 import no.nav.hm.grunndata.register.error.BadRequestException
@@ -48,7 +49,7 @@ class CatalogExcelFileImport {
             val hmsNr = readCellAsString(row, columnMap[hms_ArtNr.column]!!)
             val funksjonsendring = row.getCell(columnMap[funksjonsendring.column]!!).toString().trim()
             val type = mapArticleType(typeArtikkel, funksjonsendring)
-            LOG.debug("Mapping row to CatalogImportExcelDTO with hmsArtNr: $hmsNr, type: $type, funksjonsendring: $funksjonsendring")
+            LOG.debug("Mapping row to CatalogImportExcelDTO with hmsArtNr: ${hmsNr.sanitizeForLog()}, type: $type, funksjonsendring: ${funksjonsendring.sanitizeForLog()}")
             return CatalogImportExcelDTO(
                 rammeavtaleHandling = readCellAsString(row, columnMap[ColumnNames.rammeavtaleHandling.column]!!),
                 bestillingsNr = readCellAsString(row, columnMap[ColumnNames.bestillingsnr.column]!!),

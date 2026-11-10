@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.series
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import io.micronaut.context.annotation.Context
 import io.micronaut.context.annotation.Requires
 import kotlinx.coroutines.runBlocking
@@ -101,7 +102,7 @@ class SeriesImportRiver(
                         createdByAdmin = false,
                     ),
                 )
-            LOG.info("series import id: ${series.id} with eventId $eventId synced")
+            LOG.info("series import id: ${series.id} with eventId ${eventId.sanitizeForLog()} synced")
         }
     }
 }

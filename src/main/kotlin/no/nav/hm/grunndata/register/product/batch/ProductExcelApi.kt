@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import java.util.UUID
 import no.nav.helse.rapids_rivers.toUUID
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTO
 import no.nav.hm.grunndata.register.product.ProductRegistrationDryRunDTO
@@ -117,7 +118,7 @@ class ProductExcelApi(
         authentication: Authentication,
         @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<List<ProductRegistrationDTO>> {
-        LOG.info("Importing Excel file ${file.filename} for supplierId ${authentication.supplierId()}")
+        LOG.info("Importing Excel file ${file.filename.sanitizeForLog()} for supplierId ${authentication.supplierId()}")
         return file.inputStream.use { inputStream ->
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream, isoVersion)
             validateProductsToBeImported(excelDTOList, seriesId, authentication)
@@ -145,7 +146,7 @@ class ProductExcelApi(
         authentication: Authentication,
         @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<List<ProductRegistrationDryRunDTO>> {
-        LOG.info("Dryrun for import of Excel file ${file.filename} for supplierId ${authentication.supplierId()}")
+        LOG.info("Dryrun for import of Excel file ${file.filename.sanitizeForLog()} for supplierId ${authentication.supplierId()}")
         return file.inputStream.use { inputStream ->
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream, isoVersion)
             validateProductsToBeImported(excelDTOList, seriesId, authentication)

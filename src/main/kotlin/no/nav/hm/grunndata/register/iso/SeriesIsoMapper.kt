@@ -2,6 +2,7 @@ package no.nav.hm.grunndata.register.iso
 
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.register.iso.v22.IsoMapService
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import no.nav.hm.grunndata.register.series.SeriesRegistration
 import org.slf4j.LoggerFactory
 
@@ -20,7 +21,7 @@ class SeriesIsoMapper(private val mappings: IsoMapService) {
             IsoVersion.v22 -> mappings.mapIso22To16Lvl4(code)
         }
         if (counterpart.isNullOrBlank()) {
-            LOG.warn("Cannot maintain ISO counterpart for {} category {}; retaining existing counterpart", version, code)
+            LOG.warn("Cannot maintain ISO counterpart for {} category {}; retaining existing counterpart", version, code.sanitizeForLog())
         }
         return when (version) {
             IsoVersion.v16 -> series.copy(isoCategory = code, isoCategory22 = counterpart ?: series.isoCategory22)

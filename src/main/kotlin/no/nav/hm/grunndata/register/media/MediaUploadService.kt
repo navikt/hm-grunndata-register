@@ -4,6 +4,7 @@ import io.micronaut.http.client.multipart.MultipartBody
 import io.micronaut.http.multipart.CompletedFileUpload
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.rapid.dto.MediaType
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -21,7 +22,7 @@ class MediaUploadService(private val mediaUploadClient: MediaUploadClient) {
             "file", file.filename,
             io.micronaut.http.MediaType.MULTIPART_FORM_DATA_TYPE, file.bytes
         ).build()
-        LOG.info("upload media ${file.filename} for $oid")
+        LOG.info("upload media ${file.filename.sanitizeForLog()} for $oid")
         return mediaUploadClient.uploadFile(oid, objectType, body)
     }
 

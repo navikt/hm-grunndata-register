@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.compatiblewith
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.QueryValue
@@ -25,7 +26,7 @@ class CompatibleProductController(
 
     @Post("/catalog/connect/orderref/{orderRef}")
     suspend fun connectWithCatalog(orderRef: String, @QueryValue(defaultValue = "false") reconnect: Boolean) {
-        LOG.info("connectWithCatalog: $orderRef")
+        LOG.info("connectWithCatalog: ${orderRef.sanitizeForLog()}")
         compatibleWithConnecter.connectCatalogOrderRef(orderRef, reconnect)
     }
 

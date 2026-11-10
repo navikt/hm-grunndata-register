@@ -5,6 +5,7 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductRegistrationDTOV2
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
@@ -45,7 +46,7 @@ class HiddenPartAdminController(
         val product = productRegistrationService.findById(id) ?: return HttpResponse.notFound()
         if (product.mainProduct) return HttpResponse.badRequest()
         val hidden = hiddenPartService.hide(id, body?.reason, authentication.name)
-        LOG.info("Hidden part {} reason={} by {}", id, body?.reason, authentication.name)
+        LOG.info("Hidden part {} reason={} by {}", id, body?.reason.sanitizeForLog(), authentication.name.sanitizeForLog())
         val dto = hidden.toDTO(productDTOMapper.toDTOV2(product))
         return HttpResponse.ok(dto)
     }

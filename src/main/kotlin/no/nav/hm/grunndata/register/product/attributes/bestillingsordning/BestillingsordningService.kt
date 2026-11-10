@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.product.attributes.bestillingsordning
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 
 import io.micronaut.context.annotation.Value
 import jakarta.inject.Singleton
@@ -51,7 +52,7 @@ open class BestillingsordningService(
             bestillingsordningRegistrationRepository.findByHmsArtNr(hmsnr)?.let { existing ->
                 if (existing.status != BestillingsordningStatus.ACTIVE) {
                     // update bestillingsordning which was previously deactivated
-                    LOG.info("Updating bestillingsordning for hmsnr: $hmsnr")
+                    LOG.info("Updating bestillingsordning for hmsnr: ${hmsnr.sanitizeForLog()}")
                     saveAndCreateEvent(existing.copy (
                         status = BestillingsordningStatus.ACTIVE,
                         updated = LocalDateTime.now(),
@@ -62,7 +63,7 @@ open class BestillingsordningService(
                 existing
             } ?: run {
                 // new bestillingsordning
-                LOG.info("New bestillingsordning for hmsnr: $hmsnr")
+                LOG.info("New bestillingsordning for hmsnr: ${hmsnr.sanitizeForLog()}")
                 val bestillingsordningRegistration = BestillingsordningRegistration(hmsArtNr = hmsnr, navn = bestillingsordningDTO.navn)
                 saveAndCreateEvent(bestillingsordningRegistration.toDTO(), update = false)
             }
@@ -70,7 +71,7 @@ open class BestillingsordningService(
         }
 
         deactiveList.forEach {
-            LOG.info("Deactivate bestillingsordning for hmsnr: ${it.hmsArtNr}")
+            LOG.info("Deactivate bestillingsordning for hmsnr: ${it.hmsArtNr.sanitizeForLog()}")
             saveAndCreateEvent(it.copy(status = BestillingsordningStatus.INACTIVE,
                 updated = LocalDateTime.now(), deactivated = LocalDateTime.now()).toDTO(), update = true)
         }

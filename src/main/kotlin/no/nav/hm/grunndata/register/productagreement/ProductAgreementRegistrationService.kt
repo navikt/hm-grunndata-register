@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.productagreement
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import no.nav.hm.grunndata.rapid.dto.ProductAgreementStatus
@@ -51,7 +52,7 @@ open class ProductAgreementRegistrationService(
     open suspend fun saveIfNotExists(productAgreement: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO {
         LOG.info(
             "Saving product agreement: ${productAgreement.agreementId} for supplier: ${productAgreement.supplierId} " +
-                    "and for product: ${productAgreement.productId} supplierRef: ${productAgreement.supplierRef}"
+                    "and for product: ${productAgreement.productId} supplierRef: ${productAgreement.supplierRef.sanitizeForLog()}"
         )
         return findByProductIdAndAgreementIdAndPostId(
             productAgreement.productId,

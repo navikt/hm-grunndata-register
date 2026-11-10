@@ -20,6 +20,7 @@ import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.series.SeriesRegistrationService
 import org.reactivestreams.Publisher
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -61,7 +62,7 @@ class MediaAdminController(private val mediaUploadService: MediaUploadService,
 
     @Delete("/{oid}/{uri}")
     suspend fun deleteFile(oid: UUID, uri: String, authentication: Authentication): HttpResponse<MediaDTO> {
-        LOG.info("Deleting media file oid: $oid and $uri")
+        LOG.info("Deleting media file oid: $oid and ${uri.sanitizeForLog()}")
         return HttpResponse.ok(mediaUploadService.deleteByOidAndUri(oid, uri))
     }
 

@@ -31,6 +31,7 @@ import no.nav.hm.grunndata.register.product.mapSuspend
 import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.supplierId
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
@@ -294,7 +295,7 @@ class PartApiCommonController(
                 ?: throw IllegalArgumentException("Product $id not found for supplier ${authentication.supplierId()}")
             if (!(product.accessory or product.sparePart))
                 throw IllegalArgumentException("Product $id is not an accessory or spare part")
-            LOG.info("Connect product $id with $compatibleWithDTO")
+            LOG.info("Connect product $id with ${compatibleWithDTO.toString().sanitizeForLog()}")
             val connected = compatibleWithConnecter.connectWith(compatibleWithDTO, product)
             return productDTOMapper.toDTOV2(connected, isoVersion)
         } else {
@@ -302,7 +303,7 @@ class PartApiCommonController(
                 ?: throw IllegalArgumentException("Product $id not found")
             if (!(product.accessory or product.sparePart))
                 throw IllegalArgumentException("Product $id is not an accessory or spare part")
-            LOG.info("Connect product $id with $compatibleWithDTO")
+            LOG.info("Connect product $id with ${compatibleWithDTO.toString().sanitizeForLog()}")
             val connected = compatibleWithConnecter.connectWith(compatibleWithDTO, product)
             return productDTOMapper.toDTOV2(connected, isoVersion)
         }

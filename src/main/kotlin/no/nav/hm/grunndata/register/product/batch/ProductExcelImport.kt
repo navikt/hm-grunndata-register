@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.product.batch
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import jakarta.inject.Singleton
 import no.nav.hm.grunndata.register.iso.IsoVersion
 import java.io.InputStream
@@ -47,7 +48,7 @@ class ProductExcelImport(private val labelService: LabelService) {
                     }
                 val techLabels = isoVersion.labels(labelService, isoCategory, isoCategory)
                 val labelList = techLabels.map { it.label }
-                LOG.info("Fetching labels for isoCategory: $isoCategory, got: ${techLabels.size}")
+                LOG.info("Fetching labels for isoCategory: ${isoCategory.sanitizeForLog()}, got: ${techLabels.size}")
                 val firstRow = sheet.getRow(0)
                 val headerNames =
                     if (oldVersion(firstRow)) {

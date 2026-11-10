@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.product
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import io.micronaut.context.annotation.Context
 import io.micronaut.core.annotation.Order
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
@@ -35,13 +36,13 @@ class ProductArchiveHandler(
     }
 
     override suspend fun unArchive(unArchive: Archive) {
-        LOG.debug("Unarchiving ProductRegistration with oid: ${unArchive.oid} and keywords: ${unArchive.keywords}")
+        LOG.debug("Unarchiving ProductRegistration with oid: ${unArchive.oid} and keywords: ${unArchive.keywords.sanitizeForLog()}")
         val productRegistration = objectMapper.readValue(unArchive.payload, ProductRegistration::class.java)
         productRegistrationRepository.findBySupplierRefAndSupplierId(
             productRegistration.supplierRef,
             productRegistration.supplierId
         )?.let {
-            LOG.info("Found existing ProductRegistration with id: ${it.supplierRef} and supplierId: ${it.supplierId}, skipping it")
+            LOG.info("Found existing ProductRegistration with id: ${it.supplierRef.sanitizeForLog()} and supplierId: ${it.supplierId}, skipping it")
             it
         } ?: productRegistrationRepository.save(productRegistration.copy(registrationStatus = RegistrationStatus.INACTIVE))
     }

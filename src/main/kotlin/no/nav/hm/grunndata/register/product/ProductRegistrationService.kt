@@ -32,6 +32,7 @@ import no.nav.hm.grunndata.register.security.supplierId
 import no.nav.hm.grunndata.register.series.SeriesRegistrationRepository
 import no.nav.hm.grunndata.register.supplier.SupplierRegistrationService
 import no.nav.hm.grunndata.register.techlabel.TechLabelService
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
@@ -225,14 +226,14 @@ open class ProductRegistrationService(
                 if (!inDb.canChangeHmsArtNr(authentication)) {
                     throw BadRequestException("not authorized to change hms number", ErrorType.UNAUTHORIZED)
                 }
-                LOG.warn("Hms artNr ${inDb.hmsArtNr} has been changed by admin to ${updateDTO.hmsArtNr} for id: $id")
+                LOG.warn("Hms artNr ${inDb.hmsArtNr.sanitizeForLog()} has been changed by admin to ${updateDTO.hmsArtNr.sanitizeForLog()} for id: $id")
                 changedHmsNrSupplierRef = true
             }
             if (inDb.supplierRef != updateDTO.supplierRef) {
                 if (!inDb.canChangeSupplierRef(authentication)) {
                     throw BadRequestException("not authorized to change supplierref", ErrorType.UNAUTHORIZED)
                 }
-                LOG.warn("Supplier ref ${inDb.supplierRef} has been changed by admin to ${updateDTO.supplierRef} for id: $id")
+                LOG.warn("Supplier ref ${inDb.supplierRef.sanitizeForLog()} has been changed by admin to ${updateDTO.supplierRef.sanitizeForLog()} for id: $id")
                 changedHmsNrSupplierRef = true
             }
             if (changedHmsNrSupplierRef) {
@@ -286,7 +287,7 @@ open class ProductRegistrationService(
                 val saved = updateVariant(inDb, variantUpdate, authentication, authentication.isAdmin())
                 updated.add(saved)
             } catch (e: BadRequestException) {
-                LOG.warn("Bulk variant update rejected for product ${variantUpdate.productId}: ${e.message}")
+                LOG.warn("Bulk variant update rejected for product ${variantUpdate.productId}: ${e.message.sanitizeForLog()}")
                 failed.add(BulkVariantUpdateError(variantUpdate.productId, e.message ?: "Ukjent feil"))
             } catch (e: Exception) {
                 LOG.error("Bulk variant update failed for product ${variantUpdate.productId}", e)
@@ -317,7 +318,7 @@ open class ProductRegistrationService(
                     updated.add(updateVariant(inDb, variantUpdate, authentication))
                 }
             } catch (e: BadRequestException) {
-                LOG.warn("Supplier bulk variant update rejected for product ${variantUpdate.productId}: ${e.message}")
+                LOG.warn("Supplier bulk variant update rejected for product ${variantUpdate.productId}: ${e.message.sanitizeForLog()}")
                 failed.add(BulkVariantUpdateError(variantUpdate.productId, e.message ?: "Kunne ikke lagre endringen"))
             } catch (e: Exception) {
                 LOG.error("Supplier bulk variant update failed for product ${variantUpdate.productId}", e)
@@ -398,10 +399,10 @@ open class ProductRegistrationService(
             updateProductIdentifiers(product, hmsArtNr, supplierRef)
         }
         if (hmsArtNr != product.hmsArtNr) {
-            LOG.warn("Hms artNr ${product.hmsArtNr} has been changed by admin to $hmsArtNr for id: ${product.id}")
+            LOG.warn("Hms artNr ${product.hmsArtNr.sanitizeForLog()} has been changed by admin to ${hmsArtNr.sanitizeForLog()} for id: ${product.id}")
         }
         if (supplierRef != product.supplierRef) {
-            LOG.info("Supplier ref changed from ${product.supplierRef} to $supplierRef for product ${product.id}")
+            LOG.info("Supplier ref changed from ${product.supplierRef.sanitizeForLog()} to ${supplierRef.sanitizeForLog()} for product ${product.id}")
         }
         return saveAndCreateEventIfNotDraftAndApproved(
             product.copy(
@@ -795,7 +796,7 @@ open class ProductRegistrationService(
         }
 
         products.forEach {
-            LOG.info("Delete called for id ${it.id} and supplierRef ${it.supplierRef}")
+            LOG.info("Delete called for id ${it.id} and supplierRef ${it.supplierRef.sanitizeForLog()}")
         }
 
         deleteAll(products)
@@ -826,7 +827,7 @@ open class ProductRegistrationService(
             queryMap["value"] = value
         }
         val jsonQuery = objectMapper.writeValueAsString(listOf(queryMap))
-        LOG.info("Executing jsonQuery $jsonQuery")
+        LOG.info("Executing jsonQuery ${jsonQuery.sanitizeForLog()}")
         return productRegistrationRepository.findDistinctByProductTechDataJsonQuery(jsonQuery)
     }
 
@@ -844,7 +845,7 @@ open class ProductRegistrationService(
         if (!unit.isNullOrBlank()) queryMap["unit"] = unit
         val jsonQuery = objectMapper.writeValueAsString(listOf(queryMap))
         val isoCategoryPattern = "$isoCategory%"
-        LOG.debug("Executing jsonQuery ${jsonQuery}")
+        LOG.debug("Executing jsonQuery ${jsonQuery.sanitizeForLog()}")
         return when (isoVersion) {
             IsoVersion.v16 -> productRegistrationRepository.findDistinctByProductStartsWithIsoCategoryAndTechDataJsonQuery(
                 isoCategoryPattern, jsonQuery

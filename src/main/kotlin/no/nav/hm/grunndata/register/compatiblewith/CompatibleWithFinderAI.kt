@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.compatiblewith
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 
 import com.google.cloud.vertexai.VertexAI
 import com.google.cloud.vertexai.api.GenerationConfig
@@ -33,19 +34,19 @@ open class CompatibleAIFinder(private val config: VertexAIConfig, private val ob
 
     open fun findCompatibleProducts(partsTitle: String, mainTitles: List<HmsNrTitlePair>): List<HmsNr> {
         val prompt = generatePrompt(partsTitle, mainTitles)
-        LOG.debug("Generated prompt: $prompt")
+        LOG.debug("Generated prompt: ${prompt.sanitizeForLog()}")
         return modelGenerateContent(prompt)
     }
 
     open fun findServiceableProducts(serviceTitle: String, mainTitles: List<HmsNrTitlePair>): List<HmsNr> {
         val prompt = generatePromptServiceFor(serviceTitle, mainTitles)
-        LOG.debug("Generated prompt for serviceable products: $prompt")
+        LOG.debug("Generated prompt for serviceable products: ${prompt.sanitizeForLog()}")
         return modelGenerateContent(prompt)
     }
 
     open fun findCompatibleWhenNoMainProducts(partsTitle: String, company: String): List<HmsNr> {
         val prompt = generatePromptWhenNoMainProducts(partsTitle, company)
-        LOG.debug("Generated prompt: $prompt")
+        LOG.debug("Generated prompt: ${prompt.sanitizeForLog()}")
         return modelGenerateContentUsingSearch(prompt)
     }
 
@@ -97,12 +98,12 @@ open class CompatibleAIFinder(private val config: VertexAIConfig, private val ob
                 .withSystemInstruction(ContentMaker.fromString(instruction))
             val response = model.generateContent(prompt)
             val output: String = ResponseHandler.getText(response)
-            LOG.debug("${config.project} ${config.location} - Generating content for model ${config.model} with temp: ${config.temperature} with prompt: $prompt")
-            LOG.debug("Got response: $output")
+            LOG.debug("${config.project} ${config.location} - Generating content for model ${config.model} with temp: ${config.temperature} with prompt: ${prompt.sanitizeForLog()}")
+            LOG.debug("Got response: ${output.sanitizeForLog()}")
             return objectMapper.readValue(output, object : TypeReference<List<HmsNr>>() {})
         }
     } catch (e: Exception) {
-        LOG.error("Got error while calling Vertex AI ${e.message}")
+        LOG.error("Got error while calling Vertex AI ${e.message.sanitizeForLog()}")
         return emptyList()
     }
 
@@ -123,11 +124,11 @@ open class CompatibleAIFinder(private val config: VertexAIConfig, private val ob
             val response = model.generateContent(prompt)
             val output: String = ResponseHandler.getText(response)
             val json = extractJsonFromOutput(output)
-            LOG.debug("Got output response: $output converted: $json")
+            LOG.debug("Got output response: ${output.sanitizeForLog()} converted: ${json.sanitizeForLog()}")
             return objectMapper.readValue(json, object : TypeReference<List<HmsNr>>() {})
         }
     } catch (e: Exception) {
-        LOG.error("Got error while calling Vertex AI ${e.message}")
+        LOG.error("Got error while calling Vertex AI ${e.message.sanitizeForLog()}")
         return emptyList()
     }
 

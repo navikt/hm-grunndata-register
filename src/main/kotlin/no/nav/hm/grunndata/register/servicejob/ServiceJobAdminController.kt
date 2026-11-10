@@ -9,6 +9,7 @@ import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.tags.Tag
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.security.userId
 import org.slf4j.LoggerFactory
@@ -40,7 +41,7 @@ class ServiceJobAdminController(
         @Body request: UpdateServiceJobRequest,
         authentication: Authentication,
     ): HttpResponse<ServiceJobDTO> {
-        LOG.info("Updating service job $id by ${authentication.userId()} with title='${request.title}' hmsArtNr='${request.hmsNr}'")
+        LOG.info("Updating service job $id by ${authentication.userId()} with title='${request.title.sanitizeForLog()}' hmsArtNr='${request.hmsNr.sanitizeForLog()}'")
         val updated = serviceJobService.updateServiceJobTitleOrHmsArtNr(id, request.title, request.hmsNr)
             ?: return HttpResponse.notFound()
         return HttpResponse.ok(updated)

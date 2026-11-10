@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.internal.maintenance
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Put
 import io.micronaut.security.annotation.Secured
@@ -34,7 +35,7 @@ class AccessoryShouldNotHaveRankController(private val productAgreementRegistrat
         count = 0;
         accessories.map { it.productId }.toSet().forEach { productId ->
             productRegistrationService.findById(productId)?.let {
-                LOG.info("Updating accessory product id {} : {}", it.id,  it.articleName)
+                LOG.info("Updating accessory product id {} : {}", it.id, it.articleName.sanitizeForLog())
                 productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(it, isUpdate = true)
                 count++
             }

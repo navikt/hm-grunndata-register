@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.news
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
@@ -53,7 +54,7 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
 
     @Post("/")
     suspend fun createNews(@Body news: CreateUpdateNewsDTO, authentication: Authentication): NewsRegistrationDTO {
-        LOG.info("Creating news: ${news.title}")
+        LOG.info("Creating news: ${news.title.sanitizeForLog()}")
 
         return newsRegistrationService.saveAndCreateEventIfNotDraft(
             NewsRegistrationDTO(

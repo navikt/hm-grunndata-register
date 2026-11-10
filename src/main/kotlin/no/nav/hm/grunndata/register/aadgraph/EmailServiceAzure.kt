@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.aadgraph
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import com.azure.identity.ClientSecretCredential
 import com.azure.identity.ClientSecretCredentialBuilder
 import com.microsoft.graph.models.BodyType
@@ -66,7 +67,7 @@ open class EmailServiceAzure(private val aadProperties: AzureADProperties) : Ema
             }
             .onFailure {
                 LOG.error("Got error", it)
-                SECURE_LOG.error("Got error sending mail to ${message.toRecipients!![0].emailAddress!!.address}")
+                SECURE_LOG.error("Got error sending mail to ${message.toRecipients!![0].emailAddress!!.address.sanitizeForLog()}")
             }
     }
 }

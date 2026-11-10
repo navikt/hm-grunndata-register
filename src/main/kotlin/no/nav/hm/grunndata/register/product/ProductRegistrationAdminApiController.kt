@@ -29,6 +29,7 @@ import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.runtime.where
 import no.nav.hm.grunndata.register.security.Roles
 import no.nav.hm.grunndata.register.series.SeriesGroupDTO
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
@@ -223,10 +224,10 @@ class ProductRegistrationAdminApiController(
                 HttpResponse.ok(productDTOMapper.toDTO(it))
             } ?: HttpResponse.notFound()
         } catch (e: DataAccessException) {
-            LOG.error("Got exception while creating variant ${draftVariant.supplierRef}", e)
+            LOG.error("Got exception while creating variant ${draftVariant.supplierRef.sanitizeForLog()}", e)
             throw BadRequestException(e.message ?: "Error creating variant")
         } catch (e: Exception) {
-            LOG.error("Got exception while creating variant ${draftVariant.supplierRef}", e)
+            LOG.error("Got exception while creating variant ${draftVariant.supplierRef.sanitizeForLog()}", e)
             throw e
         }
     }

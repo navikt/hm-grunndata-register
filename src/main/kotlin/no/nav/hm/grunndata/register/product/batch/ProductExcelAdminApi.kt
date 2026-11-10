@@ -22,6 +22,7 @@ import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.batch.ProductExcelAdminApi.Companion.API_V1_ADMIN_PRODUCT_REGISTRATIONS_EXCEL
 import no.nav.hm.grunndata.register.security.Roles
 import org.apache.commons.io.output.ByteArrayOutputStream
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import org.slf4j.LoggerFactory
 
 @Secured(Roles.ROLE_ADMIN)
@@ -73,7 +74,7 @@ class ProductExcelAdminApi(
         authentication: Authentication,
         @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<List<ProductRegistrationDTO>> {
-        LOG.info("Importing Excel file ${file.filename} by admin")
+        LOG.info("Importing Excel file ${file.filename.sanitizeForLog()} by admin")
         return file.inputStream.use { inputStream ->
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream, isoVersion)
             LOG.info("found ${excelDTOList.size} products in Excel file")
@@ -92,7 +93,7 @@ class ProductExcelAdminApi(
         authentication: Authentication,
         @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<List<ProductRegistrationDryRunDTO>> {
-        LOG.info("Dryrun - Importing Excel file ${file.filename} by admin")
+        LOG.info("Dryrun - Importing Excel file ${file.filename.sanitizeForLog()} by admin")
         return file.inputStream.use { inputStream ->
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream, isoVersion)
             LOG.info("found ${excelDTOList.size} products in Excel file")

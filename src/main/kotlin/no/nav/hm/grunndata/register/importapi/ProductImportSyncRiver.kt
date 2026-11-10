@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.importapi
 
+import no.nav.hm.grunndata.register.logging.sanitizeForLog
 import io.micronaut.context.annotation.Context
 import io.micronaut.context.annotation.Requires
 import io.micronaut.context.annotation.Value
@@ -103,7 +104,7 @@ class ProductImportSyncRiver(
                 mapOf("transferId" to importDTO.transferId, "version" to importDTO.version)
             productRegistrationEventHandler.queueDTORapidEvent(productDTOMapper.toDTO(registration), eventName = EventName.registeredProductV1, extraKeyValues = extraImportKeyValues)
             LOG.info(
-                """imported product ${importDTO.id} with eventId $eventId 
+                """imported product ${importDTO.id} with eventId ${eventId.sanitizeForLog()}
             |and version: ${importDTO.version} synced, adminstatus: ${registration.adminStatus}""".trimMargin()
             )
         }
