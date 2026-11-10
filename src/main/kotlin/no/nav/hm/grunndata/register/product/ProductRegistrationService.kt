@@ -1,5 +1,7 @@
 package no.nav.hm.grunndata.register.product
 
+import no.nav.hm.grunndata.register.iso.IsoVersion
+
 import tools.jackson.databind.ObjectMapper
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
@@ -8,6 +10,7 @@ import io.micronaut.data.runtime.criteria.get
 import io.micronaut.data.runtime.criteria.where
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.security.authentication.Authentication
+import io.micronaut.transaction.TransactionDefinition
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
 import kotlinx.coroutines.flow.Flow
@@ -215,7 +218,7 @@ open class ProductRegistrationService(
             if (!authentication.isAdmin() && authentication.supplierId() != inDb.supplierId) {
                 throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
             }
-            val ensuredNotBlankHmsNr = if (updateDTO.hmsArtNr.isNullOrBlank()) null else updateDTO.hmsArtNr
+            val ensuredNotBlankHmsNr = updateDTO.hmsArtNr?.trim()?.takeIf { it.isNotEmpty() }
 
             var changedHmsNrSupplierRef = false
             if ((inDb.hmsArtNr ?: "") != (updateDTO.hmsArtNr ?: "")) {
@@ -233,22 +236,7 @@ open class ProductRegistrationService(
                 changedHmsNrSupplierRef = true
             }
             if (changedHmsNrSupplierRef) {
-                if (ensuredNotBlankHmsNr != null) {
-                    catalogImportRepository.findByHmsArtNr(inDb.hmsArtNr ?: "").forEach {
-                        catalogImportRepository.update(
-                            it.copy(
-                                hmsArtNr = ensuredNotBlankHmsNr, supplierRef = updateDTO.supplierRef
-                            )
-                        )
-                    }
-                }
-                productAgreementRegistrationRepository.findByProductId(
-                    inDb.id
-                ).forEach { change ->
-                    productAgreementRegistrationRepository.update(
-                        change.copy(hmsArtNr = ensuredNotBlankHmsNr, supplierRef = updateDTO.supplierRef),
-                    )
-                }
+                updateProductIdentifiers(inDb, ensuredNotBlankHmsNr, updateDTO.supplierRef)
             }
 
             val dto = saveAndCreateEventIfNotDraftAndApproved(
@@ -281,12 +269,12 @@ open class ProductRegistrationService(
         return dto ?: throw BadRequestException("Product not found", type = ErrorType.NOT_FOUND)
     }
 
-    open suspend fun bulkUpdateTechData(
-        bulkUpdateDTO: BulkTechDataUpdateDTO,
+    open suspend fun bulkUpdateVariants(
+        bulkUpdateDTO: BulkVariantUpdateDTO,
         authentication: Authentication,
-    ): BulkTechDataUpdateResult {
+    ): BulkVariantUpdateResult {
         val updated = mutableListOf<ProductRegistration>()
-        val failed = mutableListOf<BulkTechDataUpdateError>()
+        val failed = mutableListOf<BulkVariantUpdateError>()
 
         bulkUpdateDTO.updates.forEach { variantUpdate ->
             try {
@@ -295,27 +283,140 @@ open class ProductRegistrationService(
                 if (!authentication.isAdmin() && authentication.supplierId() != inDb.supplierId) {
                     throw BadRequestException("product belongs to another supplier", type = ErrorType.UNAUTHORIZED)
                 }
-                val saved = saveAndCreateEventIfNotDraftAndApproved(
-                    inDb.copy(
-                        productData = inDb.productData.copy(
-                            techData = variantUpdate.techData.map { it.toEntity() },
-                        ),
-                        updatedByUser = authentication.name,
-                        updatedBy = REGISTER,
-                        updated = LocalDateTime.now(),
-                    ),
-                    isUpdate = true,
-                )
+                val saved = updateVariant(inDb, variantUpdate, authentication, authentication.isAdmin())
                 updated.add(saved)
             } catch (e: BadRequestException) {
-                LOG.warn("Bulk tech data update rejected for product ${variantUpdate.productId}: ${e.message}")
-                failed.add(BulkTechDataUpdateError(variantUpdate.productId, e.message ?: "Ukjent feil"))
+                LOG.warn("Bulk variant update rejected for product ${variantUpdate.productId}: ${e.message}")
+                failed.add(BulkVariantUpdateError(variantUpdate.productId, e.message ?: "Ukjent feil"))
             } catch (e: Exception) {
-                LOG.error("Bulk tech data update failed for product ${variantUpdate.productId}", e)
-                failed.add(BulkTechDataUpdateError(variantUpdate.productId, e.message ?: "Ukjent feil"))
+                LOG.error("Bulk variant update failed for product ${variantUpdate.productId}", e)
+                failed.add(BulkVariantUpdateError(variantUpdate.productId, bulkVariantFailureMessage(e)))
             }
         }
-        return BulkTechDataUpdateResult(updated = updated, failed = failed)
+        updated.map { it.seriesUUID }.distinct().forEach { seriesId ->
+            updateSeriesAuditFields(seriesId, authentication.name)
+        }
+        return BulkVariantUpdateResult(updated = updated, failed = failed)
+    }
+
+    open suspend fun bulkUpdateSupplierVariants(
+        bulkUpdateDTO: BulkVariantUpdateDTO,
+        supplierId: UUID,
+        seriesId: UUID,
+        authentication: Authentication,
+    ): BulkVariantUpdateResult {
+        val updated = mutableListOf<ProductRegistration>()
+        val failed = mutableListOf<BulkVariantUpdateError>()
+
+        bulkUpdateDTO.updates.forEach { variantUpdate ->
+            try {
+                val inDb = findByIdAndSupplierId(variantUpdate.productId, supplierId)
+                if (inDb == null || inDb.seriesUUID != seriesId) {
+                    failed.add(BulkVariantUpdateError(variantUpdate.productId, "Varianten finnes ikke i denne serien"))
+                } else {
+                    updated.add(updateVariant(inDb, variantUpdate, authentication))
+                }
+            } catch (e: BadRequestException) {
+                LOG.warn("Supplier bulk variant update rejected for product ${variantUpdate.productId}: ${e.message}")
+                failed.add(BulkVariantUpdateError(variantUpdate.productId, e.message ?: "Kunne ikke lagre endringen"))
+            } catch (e: Exception) {
+                LOG.error("Supplier bulk variant update failed for product ${variantUpdate.productId}", e)
+                failed.add(BulkVariantUpdateError(variantUpdate.productId, bulkVariantFailureMessage(e)))
+            }
+        }
+        if (updated.isNotEmpty()) {
+            updateSeriesAuditFields(seriesId, authentication.name)
+        }
+        return BulkVariantUpdateResult(updated = updated, failed = failed)
+    }
+
+    private fun bulkVariantFailureMessage(error: Exception): String =
+        if (generateSequence<Throwable>(error) { it.cause }.any {
+                it.message?.contains("product_reg_v1_supplier_id_supplier_ref_key") == true ||
+                    it.message?.contains("product_agreement_reg_v1_supplierid_supplierref_agreementid_pos") == true
+            }) {
+            "Artikkelnummeret finnes allerede på en annen variant"
+        } else {
+            "Kunne ikke lagre endringen"
+        }
+
+    private suspend fun updateSeriesAuditFields(seriesId: UUID, updatedByUser: String) {
+        val series = seriesRegistrationRepository.findById(seriesId) ?: return
+        seriesRegistrationRepository.update(
+            series.copy(
+                updated = LocalDateTime.now(),
+                updatedByUser = updatedByUser,
+                updatedBy = REGISTER,
+            )
+        )
+    }
+
+    private suspend fun updateProductIdentifiers(
+        product: ProductRegistration,
+        hmsArtNr: String?,
+        supplierRef: String,
+    ) {
+        if (hmsArtNr != null) {
+            catalogImportRepository.findBySupplierIdAndSupplierRef(product.supplierId, product.supplierRef)
+                .filter { it.hmsArtNr == product.hmsArtNr.orEmpty() }
+                .forEach {
+                    catalogImportRepository.update(it.copy(hmsArtNr = hmsArtNr, supplierRef = supplierRef))
+                }
+        }
+        productAgreementRegistrationRepository.findByProductId(product.id).forEach {
+            productAgreementRegistrationRepository.update(it.copy(hmsArtNr = hmsArtNr, supplierRef = supplierRef))
+        }
+    }
+
+    @io.micronaut.transaction.annotation.Transactional(propagation = TransactionDefinition.Propagation.REQUIRES_NEW)
+    open suspend fun updateVariant(
+        product: ProductRegistration,
+        variantUpdate: VariantUpdate,
+        authentication: Authentication,
+        allowHmsChange: Boolean = false,
+    ): ProductRegistration {
+        if (variantUpdate.hmsArtNr != null && !allowHmsChange) {
+            throw BadRequestException("not authorized to change hms number", ErrorType.UNAUTHORIZED)
+        }
+        val articleName = variantUpdate.articleName?.trim()
+        if (articleName != null && articleName.isBlank()) {
+            throw BadRequestException("Variantnavn er påkrevd")
+        }
+        if (articleName != null && articleName.length > 1024) {
+            throw BadRequestException("Variantnavn kan ikke være lengre enn 1024 tegn")
+        }
+        val supplierRef = variantUpdate.supplierRef?.trim() ?: product.supplierRef
+        if (supplierRef != product.supplierRef && !product.canChangeSupplierRef(authentication)) {
+            throw BadRequestException("not authorized to change supplierref", ErrorType.UNAUTHORIZED)
+        }
+        val hmsArtNr = if (variantUpdate.hmsArtNr != null) {
+            variantUpdate.hmsArtNr.trim().takeIf { it.isNotEmpty() }
+        } else {
+            product.hmsArtNr
+        }
+        if (hmsArtNr != product.hmsArtNr || supplierRef != product.supplierRef) {
+            updateProductIdentifiers(product, hmsArtNr, supplierRef)
+        }
+        if (hmsArtNr != product.hmsArtNr) {
+            LOG.warn("Hms artNr ${product.hmsArtNr} has been changed by admin to $hmsArtNr for id: ${product.id}")
+        }
+        if (supplierRef != product.supplierRef) {
+            LOG.info("Supplier ref changed from ${product.supplierRef} to $supplierRef for product ${product.id}")
+        }
+        return saveAndCreateEventIfNotDraftAndApproved(
+            product.copy(
+                articleName = articleName ?: product.articleName,
+                hmsArtNr = hmsArtNr,
+                supplierRef = supplierRef,
+                productData = product.productData.copy(
+                    techData = variantUpdate.techData.map { it.toEntity() },
+                ),
+                updatedByUser = authentication.name,
+                updatedBy = REGISTER,
+                updated = LocalDateTime.now(),
+            ),
+            isUpdate = true,
+        )
     }
 
     @Transactional
@@ -449,7 +550,11 @@ open class ProductRegistrationService(
                 } else {
                     inDb
                 }
-                product.toProductRegistrationDryRunDTO()
+                val series = seriesRegistrationRepository.findById(product.seriesUUID)
+                product.toProductRegistrationDryRunDTO().copy(
+                    isoCategory = series?.isoCategory,
+                    isoCategory22 = series?.isoCategory22,
+                )
             } ?: it.toRegistrationDryRunDTO()
         }
     }
@@ -458,6 +563,7 @@ open class ProductRegistrationService(
         seriesUUID: UUID,
         draftWithDTO: DraftVariantDTO,
         authentication: Authentication,
+        isoVersion: IsoVersion = IsoVersion.v16,
     ): ProductRegistration {
         val previousProduct = productRegistrationRepository.findLastProductInSeries(seriesUUID)
 
@@ -473,7 +579,13 @@ open class ProductRegistrationService(
 
         val productId = UUID.randomUUID()
         val product = ProductData(
-            techData = previousProduct?.productData?.techData ?: createTechDataDraft(series.isoCategory),
+            techData = isoVersion.labels(techLabelService, series.isoCategory, series.isoCategory22).map { label ->
+                TechData(
+                    key = label.label,
+                    value = previousProduct?.productData?.techData?.find { it.key == label.label }?.value ?: "",
+                    unit = label.unit ?: ""
+                )
+            },
             attributes = Attributes(
                 shortdescription = "",
                 text = "",
@@ -504,11 +616,6 @@ open class ProductRegistrationService(
         LOG.info("Draft was created ${draft.id}")
         return draft
     }
-
-    private fun createTechDataDraft(isoCode: String): List<TechData> =
-        techLabelService.fetchLabelsByIsoCode(isoCode).map {
-            TechData(key = it.label, value = "", unit = it.unit ?: "")
-        }
 
     private suspend fun ProductRegistration.toProductToApproveDto(): ProductToApproveDto {
         val agreeements = productAgreementRegistrationRepository.findByProductId(id)
@@ -727,6 +834,7 @@ open class ProductRegistrationService(
         isoCategory: String,
         key: String? = null,
         unit: String? = null,
+        isoVersion: IsoVersion = IsoVersion.v16,
     ): List<ProductRegistration> {
         if (key.isNullOrBlank() && unit.isNullOrBlank()) {
             throw BadRequestException("At least one of key or unit must be provided")
@@ -737,9 +845,14 @@ open class ProductRegistrationService(
         val jsonQuery = objectMapper.writeValueAsString(listOf(queryMap))
         val isoCategoryPattern = "$isoCategory%"
         LOG.debug("Executing jsonQuery ${jsonQuery}")
-        return productRegistrationRepository.findDistinctByProductStartsWithIsoCategoryAndTechDataJsonQuery(
-            isoCategoryPattern, jsonQuery.toString()
-        )
+        return when (isoVersion) {
+            IsoVersion.v16 -> productRegistrationRepository.findDistinctByProductStartsWithIsoCategoryAndTechDataJsonQuery(
+                isoCategoryPattern, jsonQuery
+            )
+            IsoVersion.v22 -> productRegistrationRepository.findDistinctByProductStartsWithIsoCategory22AndTechDataJsonQuery(
+                isoCategoryPattern, jsonQuery
+            )
+        }
     }
 
     suspend fun findPartIdsOnAgreement(): List<UUID> = productRegistrationRepository.findPartIdsOnAgreement()

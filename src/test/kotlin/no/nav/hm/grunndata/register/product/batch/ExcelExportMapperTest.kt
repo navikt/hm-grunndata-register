@@ -1,5 +1,6 @@
 package no.nav.hm.grunndata.register.product.batch
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.micronaut.test.annotation.MockBean
@@ -14,6 +15,8 @@ import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.rapid.dto.TechData
 import no.nav.hm.grunndata.register.REGISTER
+import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.iso.IsoVersion
 import no.nav.hm.grunndata.register.product.MediaInfoDTO
 import no.nav.hm.grunndata.register.product.ProductDTOMapper
 import no.nav.hm.grunndata.register.product.ProductData
@@ -197,6 +200,17 @@ class ExcelExportMapperTest(
 
             val productExcelExportDtos = excelExportMapper.mapToExportDtos(listOf(testProduct1, testProduct2))
             productExcelExportDtos shouldHaveSize 2
+            listOf(null, "", "   ").forEach { missingCode ->
+                seriesRepository.update(seriesRepository.findById(seriesId1)!!.copy(isoCategory22 = missingCode))
+                val error = shouldThrow<BadRequestException> {
+                    excelExportMapper.mapToExportDtos(listOf(testProduct1, testProduct2), IsoVersion.v22)
+                }
+                error.message shouldBe "Series $seriesId1 is missing an ISO22 category for Excel export"
+                productRepository.findById(productId1)?.productData?.techData shouldBe productData.techData
+                excelExportMapper.mapToExportDtos(listOf(testProduct1)).single().isoCategory shouldBe testSeries1.isoCategory
+            }
+            seriesRepository.update(seriesRepository.findById(seriesId1)!!.copy(isoCategory22 = "12001315"))
+            excelExportMapper.mapToExportDtos(listOf(testProduct1), IsoVersion.v22).single().isoCategory shouldBe "12001315"
             productExcelExportDtos.first { it.seriesUuid == seriesId1.toString() }.let {
                 it.seriesTitle shouldBe testSeries1.title
                 it.seriesDescription shouldBe testSeries1.text

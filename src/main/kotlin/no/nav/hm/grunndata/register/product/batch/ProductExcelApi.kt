@@ -1,5 +1,8 @@
 package no.nav.hm.grunndata.register.product.batch
 
+import io.micronaut.http.annotation.QueryValue
+import no.nav.hm.grunndata.register.iso.IsoVersion
+
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
@@ -50,6 +53,7 @@ class ProductExcelApi(
     suspend fun createExport(
         @Body uuids: List<UUID>,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<StreamedFile> {
         val products = uuids.mapNotNull { productRegistrationService.findById(it) }
         products.forEach {
@@ -59,7 +63,7 @@ class ProductExcelApi(
         }
         if (products.isEmpty()) throw BadRequestException("No products found")
 
-        return exportExcel(products.map { productDTOMapper.toDTO(it) })
+        return exportExcel(products.map { productDTOMapper.toDTO(it) }, isoVersion)
     }
 
     @Post(
@@ -67,11 +71,11 @@ class ProductExcelApi(
         consumes = ["application/json"],
         produces = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
     )
-    suspend fun createExportForAllSupplierProducts(authentication: Authentication): HttpResponse<StreamedFile> {
+    suspend fun createExportForAllSupplierProducts(authentication: Authentication, @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16): HttpResponse<StreamedFile> {
         val products = productRegistrationService.findBySupplierId(authentication.supplierId())
         if (products.isEmpty()) throw BadRequestException("No products found")
 
-        return exportExcel(products.map { productDTOMapper.toDTO(it) })
+        return exportExcel(products.map { productDTOMapper.toDTO(it) }, isoVersion)
     }
 
     @Post(
@@ -82,20 +86,21 @@ class ProductExcelApi(
     suspend fun createExportForSeries(
         @PathVariable seriesId: UUID,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<StreamedFile> {
         val products = productRegistrationService.findBySeriesUUIDAndSupplierId(seriesId, authentication.supplierId())
         if (products.isEmpty()) throw BadRequestException("No products found")
 
-        return exportExcel(products.map { productDTOMapper.toDTO(it) })
+        return exportExcel(products.map { productDTOMapper.toDTO(it) }, isoVersion)
     }
 
-    private suspend fun exportExcel(products: List<ProductRegistrationDTO>): HttpResponse<StreamedFile> {
-        val excelExportDtos = excelExportMapper.mapToExportDtos(products)
+    private suspend fun exportExcel(products: List<ProductRegistrationDTO>, isoVersion: IsoVersion): HttpResponse<StreamedFile> {
+        val excelExportDtos = excelExportMapper.mapToExportDtos(products, isoVersion)
 
         val id = UUID.randomUUID()
         LOG.info("Generating Excel file: $id.xlsx")
         return ByteArrayOutputStream().use { byteStream ->
-            xlExport.createWorkbookToOutputStream(excelExportDtos, byteStream)
+            xlExport.createWorkbookToOutputStream(excelExportDtos, byteStream, isoVersion)
             HttpResponse.ok(StreamedFile(byteStream.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
                 .header("Content-Disposition", "attachment; filename=$id.xlsx")
         }
@@ -110,10 +115,11 @@ class ProductExcelApi(
         @PathVariable seriesId: UUID,
         file: CompletedFileUpload,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<List<ProductRegistrationDTO>> {
         LOG.info("Importing Excel file ${file.filename} for supplierId ${authentication.supplierId()}")
         return file.inputStream.use { inputStream ->
-            val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
+            val excelDTOList = xlImport.importExcelFileForRegistration(inputStream, isoVersion)
             validateProductsToBeImported(excelDTOList, seriesId, authentication)
             LOG.info("found ${excelDTOList.size} products in Excel file")
             val products = productRegistrationService.importExcelRegistrations(excelDTOList, authentication)
@@ -137,10 +143,11 @@ class ProductExcelApi(
         @PathVariable seriesId: UUID,
         file: CompletedFileUpload,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<List<ProductRegistrationDryRunDTO>> {
         LOG.info("Dryrun for import of Excel file ${file.filename} for supplierId ${authentication.supplierId()}")
         return file.inputStream.use { inputStream ->
-            val excelDTOList = xlImport.importExcelFileForRegistration(inputStream)
+            val excelDTOList = xlImport.importExcelFileForRegistration(inputStream, isoVersion)
             validateProductsToBeImported(excelDTOList, seriesId, authentication)
             LOG.info("found ${excelDTOList.size} products in Excel file")
             val products = productRegistrationService.importDryRunExcelRegistrations(excelDTOList, authentication)

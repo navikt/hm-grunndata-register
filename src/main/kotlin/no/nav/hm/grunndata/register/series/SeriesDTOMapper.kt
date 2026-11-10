@@ -1,6 +1,8 @@
 package no.nav.hm.grunndata.register.series
 
 import jakarta.inject.Singleton
+import no.nav.hm.grunndata.register.iso.IsoVersion
+import no.nav.hm.grunndata.register.iso.SeriesIsoMapper
 import no.nav.hm.grunndata.rapid.dto.RegistrationStatus
 import no.nav.hm.grunndata.register.HMDB
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
@@ -20,10 +22,11 @@ class SeriesDTOMapper(
     private val isoCategoryService: IsoCategoryService,
     private val iso22Service: Iso22Service,
     private val supplierRegistrationService: SupplierRegistrationService,
-    private val productDTOMapper: ProductDTOMapper
+    private val productDTOMapper: ProductDTOMapper,
+    private val seriesIsoMapper: SeriesIsoMapper,
 ) {
 
-    suspend fun toDTOV2(seriesRegistration: SeriesRegistration): SeriesDTO {
+    suspend fun toDTOV2(seriesRegistration: SeriesRegistration, isoVersion: IsoVersion = IsoVersion.v16): SeriesDTO {
         val supplierName =
             supplierRegistrationService.findById(seriesRegistration.supplierId)?.name
                 ?: throw IllegalArgumentException("cannot find series ${seriesRegistration.id} supplier")
@@ -31,7 +34,7 @@ class SeriesDTOMapper(
         val isoCategory22DTO = seriesRegistration.isoCategory22?.let { iso22Service.lookUpCode(it) }
         val productRegistrationDTOs = productRegistrationService.findAllBySeriesUuid(seriesRegistration.id)
             .filter { it.registrationStatus != RegistrationStatus.DELETED }
-            .map { product -> productDTOMapper.toDTOV2(product) }
+            .map { product -> productDTOMapper.toDTOV2(product, isoVersion) }
         val activeProductAgreements = productAgreementRegistrationService.findAllByProductIds(
             productRegistrationService.findAllBySeriesUuid(seriesRegistration.id)
                 .filter { it.registrationStatus == RegistrationStatus.ACTIVE }
@@ -56,6 +59,7 @@ class SeriesDTOMapper(
             text = seriesRegistration.text,
             isoCategory = isoCategoryDTO,
             isoCategory22 = isoCategory22DTO,
+            isoMappingWarning = seriesIsoMapper.hasWarning(seriesRegistration, isoVersion),
             message = seriesRegistration.message,
             status = EditStatus.from(seriesRegistration),
             seriesData = seriesRegistration.seriesData,

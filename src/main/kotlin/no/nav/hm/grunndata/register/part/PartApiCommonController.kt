@@ -1,5 +1,8 @@
 package no.nav.hm.grunndata.register.part
 
+import io.micronaut.http.annotation.QueryValue
+import no.nav.hm.grunndata.register.iso.IsoVersion
+
 import io.micronaut.data.exceptions.DataAccessException
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
@@ -55,6 +58,7 @@ class PartApiCommonController(
         @RequestBean criteria: ProductRegistrationHmsUserCriteria,
         pageable: Pageable,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): Page<ProductRegistrationDTOV2> {
         var spec = buildCriteriaSpec(criteria, authentication)
 
@@ -124,7 +128,7 @@ class PartApiCommonController(
         }
 
         return productRegistrationService.findAll(spec, pageable)
-            .mapSuspend { productDTOMapper.toDTOV2(it) }
+            .mapSuspend { productDTOMapper.toDTOV2(it, isoVersion) }
     }
 
     private fun buildCriteriaSpec(
@@ -163,7 +167,8 @@ class PartApiCommonController(
     @Get("/series/{id}")
     suspend fun getPartsForSeriesId(
         id: UUID,
-        authentication: Authentication
+        authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): List<ProductRegistrationDTOV2> {
 
         if (authentication.isSupplier()) {
@@ -171,10 +176,10 @@ class PartApiCommonController(
                 id,
                 authentication.supplierId()
             )
-                .map { productDTOMapper.toDTOV2(it) }
+                .map { productDTOMapper.toDTOV2(it, isoVersion) }
         } else {
             return productRegistrationService.findAccessoryOrSparePartCombatibleWithSeriesId(id)
-                .map { productDTOMapper.toDTOV2(it) }
+                .map { productDTOMapper.toDTOV2(it, isoVersion) }
         }
 
     }
@@ -183,16 +188,17 @@ class PartApiCommonController(
     @Get("/hmsNr/{hmsNr}")
     suspend fun findByHmsNr(
         hmsNr: String,
-        authentication: Authentication
+        authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): ProductRegistrationDTOV2? {
 
         if (authentication.isSupplier()) {
             val product =
                 productRegistrationService.findByExactHmsArtNrAndSupplierId(hmsNr, authentication.supplierId())
-            return product?.let { productDTOMapper.toDTOV2(it) }
+            return product?.let { productDTOMapper.toDTOV2(it, isoVersion) }
         } else {
             val product = productRegistrationService.findByExactHmsArtNr(hmsNr)
-            return product?.let { productDTOMapper.toDTOV2(it) }
+            return product?.let { productDTOMapper.toDTOV2(it, isoVersion) }
         }
 
     }
@@ -201,29 +207,31 @@ class PartApiCommonController(
     suspend fun findPartByVariantIdentifier(
         @PathVariable variantIdentifier: String,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<ProductRegistrationDTOV2> {
         val variant = productRegistrationService.findPartByHmsArtNr(variantIdentifier, authentication)
             ?: productRegistrationService.findPartBySupplierRef(variantIdentifier, authentication)
 
-        return variant?.let { HttpResponse.ok(productDTOMapper.toDTOV2(it)) }
+        return variant?.let { HttpResponse.ok(productDTOMapper.toDTOV2(it, isoVersion)) }
             ?: HttpResponse.notFound()
     }
 
     @Get("/series-variants/{seriesUUID}")
     suspend fun findVariantsBySeriesUUID(
         seriesUUID: UUID,
-        authentication: Authentication
+        authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): List<ProductRegistrationDTOV2> {
 
         return if (authentication.isSupplier()) {
             productRegistrationService.findBySeriesUUIDAndSupplierId(
                 seriesUUID,
                 authentication.supplierId()
-            ).sortedBy { it.created }.map { productDTOMapper.toDTOV2(it) }
+            ).sortedBy { it.created }.map { productDTOMapper.toDTOV2(it, isoVersion) }
 
         } else {
             productRegistrationService.findAllBySeriesUuid(seriesUUID).sortedBy { it.created }
-                .map { productDTOMapper.toDTOV2(it) }
+                .map { productDTOMapper.toDTOV2(it, isoVersion) }
         }
     }
 
@@ -278,7 +286,8 @@ class PartApiCommonController(
     suspend fun connectProductAndVariants(
         @Body compatibleWithDTO: CompatibleWithDTO,
         id: UUID,
-        authentication: Authentication
+        authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): ProductRegistrationDTOV2 {
         if (authentication.isSupplier()) {
             val product = productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
@@ -287,7 +296,7 @@ class PartApiCommonController(
                 throw IllegalArgumentException("Product $id is not an accessory or spare part")
             LOG.info("Connect product $id with $compatibleWithDTO")
             val connected = compatibleWithConnecter.connectWith(compatibleWithDTO, product)
-            return productDTOMapper.toDTOV2(connected)
+            return productDTOMapper.toDTOV2(connected, isoVersion)
         } else {
             val product = productRegistrationService.findById(id)
                 ?: throw IllegalArgumentException("Product $id not found")
@@ -295,22 +304,23 @@ class PartApiCommonController(
                 throw IllegalArgumentException("Product $id is not an accessory or spare part")
             LOG.info("Connect product $id with $compatibleWithDTO")
             val connected = compatibleWithConnecter.connectWith(compatibleWithDTO, product)
-            return productDTOMapper.toDTOV2(connected)
+            return productDTOMapper.toDTOV2(connected, isoVersion)
         }
     }
 
     @Get("/{id}")
     suspend fun findPartById(
         id: UUID,
-        authentication: Authentication
+        authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): PartDTO? {
         if (authentication.isSupplier()) {
             val product = productRegistrationService.findByIdAndSupplierId(id, authentication.supplierId())
                 ?: throw IllegalArgumentException("Product $id not found for supplier ${authentication.supplierId()}")
-            return product?.let { productDTOMapper.toPartDTO(it) }
+            return product?.let { productDTOMapper.toPartDTO(it, isoVersion) }
         } else {
             val product = productRegistrationService.findById(id)
-            return product?.let { productDTOMapper.toPartDTO(it) }
+            return product?.let { productDTOMapper.toPartDTO(it, isoVersion) }
         }
     }
 

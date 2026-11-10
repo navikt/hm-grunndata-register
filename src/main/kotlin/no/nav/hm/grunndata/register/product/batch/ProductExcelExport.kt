@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.product.batch
 
 import jakarta.inject.Singleton
+import no.nav.hm.grunndata.register.iso.IsoVersion
 import java.io.OutputStream
 import no.nav.hm.grunndata.register.techlabel.LabelService
 import no.nav.hm.grunndata.register.techlabel.TechLabelDTO
@@ -11,17 +12,16 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 @Singleton
 class ProductExcelExport(private val labelService: LabelService) {
 
-    fun createWorkbookToOutputStream(productExcelExportDtos: List<ProductExcelExportDto>, out: OutputStream) {
-        val workbook = createWorkbook(productExcelExportDtos)
-        workbook.write(out)
+    fun createWorkbookToOutputStream(productExcelExportDtos: List<ProductExcelExportDto>, out: OutputStream, isoVersion: IsoVersion = IsoVersion.v16) {
+        createWorkbook(productExcelExportDtos, isoVersion).use { it.write(out) }
     }
 
-    fun createWorkbook(productExcelExportDtos: List<ProductExcelExportDto>): XSSFWorkbook {
+    fun createWorkbook(productExcelExportDtos: List<ProductExcelExportDto>, isoVersion: IsoVersion = IsoVersion.v16): XSSFWorkbook {
         val isoGroups = productExcelExportDtos.groupBy { it.isoCategory }
         val isoKeys = isoGroups.keys.toList().sorted()
         val workbook = XSSFWorkbook()
         isoKeys.forEach { iso ->
-            val techlabels = labelService.fetchLabelsByIsoCode(iso)
+            val techlabels = isoVersion.labels(labelService, iso, iso)
 
             val sheet = workbook.createSheet(iso.ifEmpty { "Ingen ISO kode" })
             createHeaderRows(sheet, techlabels)

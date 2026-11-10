@@ -6,6 +6,7 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
+import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.tags.Tag
 import no.nav.hm.grunndata.register.error.BadRequestException
 import no.nav.hm.grunndata.register.iso.v22.Iso22
@@ -17,10 +18,10 @@ import no.nav.hm.grunndata.register.iso.v22.IsoType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+@Hidden
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller(Iso16ToIso22UtilController.INTERNAL_ISO22_UTIL)
-@Tag(name="Admin IsoCategory")
-    class Iso16ToIso22UtilController(private val iso16ToIso22Util: Iso16ToIso22Util,
+class Iso16ToIso22UtilController(private val iso16ToIso22Util: Iso16ToIso22Util,
                                      private val iso22Repository: Iso22Repository,
                                      private val isoMapRepository: IsoMapRepository
 ) {
@@ -65,19 +66,23 @@ import org.slf4j.LoggerFactory
         }
     }
 
+    // try to build a iso map for NAV isos.
     @Post("/rebuild-nat-mapping")
     suspend fun updateIsoNatMapping() {
         iso16ToIso22Util.rebuildIso16NatTo22Map()
     }
 
-    @Get("/check-mapping")
-    suspend fun checkIsoMapping() {
-        iso16ToIso22Util.checkCode22Mappings()
-    }
 
+    // this will create iso22 categories based on the verified mapping, if the iso22 category does not exist, it will be created.
     @Post("/rebuild-iso22-tree")
     suspend fun rebuildIso22Tree() {
         iso16ToIso22Util.rebuildIso22TreeBasedOnVerifiedMapping()
+    }
+
+    // check if isocode 22 mappings does have a corresponding iso22 category, if not log a warning
+    @Get("/check-mapping")
+    suspend fun checkIsoMapping() {
+        iso16ToIso22Util.checkCode22Mappings()
     }
 
     companion object {

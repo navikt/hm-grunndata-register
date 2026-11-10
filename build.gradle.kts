@@ -4,12 +4,12 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val jvmTarget = "25"
-val micronautVersion = "5.1.1"
+val micronautVersion = "5.2.5"
 val logbackEncoderVersion = "9.0"
 val postgresqlVersion = "42.7.12"
 val poiVersion = "5.5.1"
-val rapidsRiversVersion = "202606190809"
-val grunndataDtoVersion = "202609171230"
+val rapidsRiversVersion = "202611101246"
+val grunndataDtoVersion = "202609220836"
 val leaderElectionVersion = "202606231046"
 val googleCloudPlatformVersion = "26.86.0"
 val microsoftGrapVersion = "6.67.0"

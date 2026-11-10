@@ -34,7 +34,7 @@ interface ProductRegistrationAdminApiClient {
     ): Page<ProductRegistrationDTOV2>
 
     @Get(uri = "/{id}", produces = [APPLICATION_JSON])
-    fun readProduct(@CookieValue("JWT") jwt: String, id: UUID): ProductRegistrationDTOV2
+    fun readProduct(@CookieValue("JWT") jwt: String, id: UUID, @QueryValue isoVersion: String? = null): ProductRegistrationDTOV2
 
     @Put(uri = "/{id}", processes = [APPLICATION_JSON])
     fun updateProduct(@CookieValue("JWT") jwt: String, id:UUID,
@@ -45,16 +45,18 @@ interface ProductRegistrationAdminApiClient {
     fun deleteProduct(@CookieValue("JWT") jwt: String, @Body ids: List<UUID>): ProductRegistrationDTOV2
 
     @Put(uri = "/tech-data/bulk", processes = [APPLICATION_JSON])
-    fun bulkUpdateTechData(
+    fun bulkUpdateVariants(
         @CookieValue("JWT") jwt: String,
-        @Body bulkTechDataUpdateDTO: BulkTechDataUpdateDTO,
-    ): BulkTechDataUpdateResultDTO
+        @Body bulkVariantUpdateDTO: BulkVariantUpdateDTO,
+        @QueryValue isoVersion: String? = null,
+    ): BulkVariantUpdateResultDTO
 
     @Post(uri = "/draftWithV3/{seriesUUID}", processes = [APPLICATION_JSON])
     fun createDraft(
         @CookieValue("JWT") jwt: String,
         @PathVariable seriesUUID: UUID,
         @Body draftVariantDTO: DraftVariantDTO,
+        @QueryValue isoVersion: String? = null,
     ): ProductRegistrationDTOV2
 
 }

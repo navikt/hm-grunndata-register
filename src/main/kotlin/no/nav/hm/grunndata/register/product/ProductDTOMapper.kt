@@ -1,6 +1,7 @@
 package no.nav.hm.grunndata.register.product
 
 import jakarta.inject.Singleton
+import no.nav.hm.grunndata.register.iso.IsoVersion
 import no.nav.hm.grunndata.rapid.dto.AgreementInfo
 import no.nav.hm.grunndata.register.agreement.AgreementRegistrationService
 import no.nav.hm.grunndata.register.part.PartDTO
@@ -55,17 +56,18 @@ class ProductDTOMapper(
             accessory = productRegistration.accessory,
             mainProduct = productRegistration.mainProduct,
             isoCategory = series.isoCategory,
+            isoCategory22 = series.isoCategory22,
             agreements = agreements.map { it.toAgreementInfo() },
             version = productRegistration.version,
         )
     }
 
-    suspend fun toDTOV2(productRegistration: ProductRegistration): ProductRegistrationDTOV2 {
+    suspend fun toDTOV2(productRegistration: ProductRegistration, isoVersion: IsoVersion = IsoVersion.v16): ProductRegistrationDTOV2 {
         val agreements = productAgreementRegistrationRepository.findByProductId(
             productRegistration.id
         )
         val series = seriesRegistrationService.findById(productRegistration.seriesUUID)
-        val techLabels = techLabelService.fetchLabelsByIsoCode(series!!.isoCategory)
+        val techLabels = isoVersion.labels(techLabelService, series!!.isoCategory, series.isoCategory22)
 
         return ProductRegistrationDTOV2(
             id = productRegistration.id,
@@ -84,9 +86,9 @@ class ProductDTOMapper(
         )
     }
 
-    suspend fun toPartDTO(productRegistration: ProductRegistration): PartDTO {
+    suspend fun toPartDTO(productRegistration: ProductRegistration, isoVersion: IsoVersion = IsoVersion.v16): PartDTO {
         val series = seriesRegistrationService.findById(productRegistration.seriesUUID)
-        val techLabels = techLabelService.fetchLabelsByIsoCode(series!!.isoCategory)
+        val techLabels = isoVersion.labels(techLabelService, series!!.isoCategory, series.isoCategory22)
         val supplier = supplierRegistrationService.findById(productRegistration.supplierId)
         return PartDTO(
             id = productRegistration.id,

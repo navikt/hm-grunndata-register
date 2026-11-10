@@ -21,8 +21,11 @@ data class ProductAgreementRegistration(
     val seriesUuid: UUID? = null,
     val title: String,
     val articleName: String?,
+    @Deprecated("we dont need this anymore, only product should be used")
     val sparePart: Boolean = false,
+    @Deprecated("we dont need this anymore, only product should be used")
     val accessory: Boolean = false,
+    @Deprecated("we dont need this anymore, only product should be used")
     val mainProduct: Boolean = true,
     val supplierId: UUID,
     val supplierRef: String,

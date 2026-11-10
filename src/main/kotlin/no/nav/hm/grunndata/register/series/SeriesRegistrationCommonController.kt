@@ -1,5 +1,8 @@
 package no.nav.hm.grunndata.register.series
 
+import io.micronaut.http.annotation.QueryValue
+import no.nav.hm.grunndata.register.iso.IsoVersion
+
 import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.model.Page
 import io.micronaut.data.model.Pageable
@@ -29,6 +32,7 @@ import no.nav.hm.grunndata.rapid.dto.DraftStatus
 import no.nav.hm.grunndata.rapid.dto.MediaType
 import no.nav.hm.grunndata.rapid.dto.SeriesStatus
 import no.nav.hm.grunndata.register.error.BadRequestException
+import no.nav.hm.grunndata.register.iso.v22.IsoMapService
 import no.nav.hm.grunndata.register.product.ProductRegistrationService
 import no.nav.hm.grunndata.register.product.isSupplier
 import no.nav.hm.grunndata.register.product.mapSuspend
@@ -44,6 +48,7 @@ class SeriesRegistrationCommonController(
     private val seriesRegistrationService: SeriesRegistrationService,
     private val productRegistrationService: ProductRegistrationService,
     private val seriesDTOMapper: SeriesDTOMapper,
+    private val isoMapService: IsoMapService,
 ) {
     companion object {
         private val LOG = LoggerFactory.getLogger(SeriesRegistrationAdminController::class.java)
@@ -60,13 +65,28 @@ class SeriesRegistrationCommonController(
             LOG.warn("SupplierId in request does not match authenticated supplierId")
             return HttpResponse.unauthorized()
         }
+        val requestedIsoCategory22 = draftWith.isoCategory22?.takeIf { it.isNotBlank() }
+        val isoCategory22 = if (requestedIsoCategory22 == null && draftWith.isoCategory.isNotBlank()) {
+            isoMapService.mapIso16To22Lvl4(draftWith.isoCategory)
+        } else {
+            requestedIsoCategory22
+        }
+        val isoCategory = if (draftWith.isoCategory.isBlank() && requestedIsoCategory22 != null) {
+            isoMapService.mapIso22To16Lvl4(requestedIsoCategory22)
+        } else {
+            draftWith.isoCategory
+        }
+        val draftWithUpdated = draftWith.copy(isoCategory22 = isoCategory22, isoCategory = isoCategory?:"")
+        if (isoCategory22.isNullOrBlank() || isoCategory.isNullOrBlank()) {
+            LOG.warn("Cannot maintain ISO counterpart for series draft")
+        }
 
         return HttpResponse.ok(
             SeriesDraftResponse(
                 seriesRegistrationService.createDraftWith(
                     supplierId,
                     authentication,
-                    draftWith,
+                    draftWithUpdated,
                 ).id
             ),
         )
@@ -174,9 +194,10 @@ class SeriesRegistrationCommonController(
     suspend fun readSeries(
         @PathVariable id: UUID,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<SeriesDTO> {
         return seriesRegistrationService.findById(id, authentication)?.let {
-            HttpResponse.ok(seriesDTOMapper.toDTOV2(it))
+            HttpResponse.ok(seriesDTOMapper.toDTOV2(it, isoVersion))
         } ?: run {
             LOG.warn("Series with id $id does not exist")
             HttpResponse.notFound()
@@ -188,11 +209,13 @@ class SeriesRegistrationCommonController(
         @PathVariable id: UUID,
         @Body updateSeriesRegistrationDTO: UpdateSeriesRegistrationDTO,
         authentication: Authentication,
+        @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<Any> {
         seriesRegistrationService.patchSeries(
             id,
             updateSeriesRegistrationDTO,
             authentication,
+            isoVersion,
         )
         return HttpResponse.ok()
     }
@@ -359,6 +382,8 @@ class SeriesRegistrationCommonController(
     private fun buildCriteriaSpec(
         criteria: SeriesCommonCriteria, authentication: Authentication
     ): PredicateSpecification<SeriesRegistration>? = if (criteria.isNotEmpty()) {
+        val isoCodePrefix = normalizeIsoCodePrefix(criteria.isoCode)
+        val isoCode22Prefix = normalizeIsoCodePrefix(criteria.isoCode22, "isoCode22")
         PredicateSpecification<SeriesRegistration> { root, criteriaBuilder ->
             val predicates = mutableListOf<Predicate>()
 
@@ -499,6 +524,22 @@ class SeriesRegistrationCommonController(
                     ),
                 )
             }
+            if (isoCodePrefix != null) {
+                predicates.add(
+                    criteriaBuilder.like(
+                        root[SeriesRegistration::isoCategory],
+                        LiteralExpression("$isoCodePrefix%"),
+                    ),
+                )
+            }
+            if (isoCode22Prefix != null) {
+                predicates.add(
+                    criteriaBuilder.like(
+                        root[SeriesRegistration::isoCategory22],
+                        LiteralExpression("$isoCode22Prefix%"),
+                    ),
+                )
+            }
             // Return the combined predicates
             if (predicates.isNotEmpty()) {
                 criteriaBuilder.and(*predicates.toTypedArray())
@@ -526,10 +567,26 @@ data class SeriesCommonCriteria(
     val title: String? = null,
     val inAgreement: Boolean? = null,
     val missingMediaType: String? = null,
+    val isoCode: String? = null,
+    val isoCode22: String? = null,
 ) {
     fun isNotEmpty(): Boolean =
         mainProduct != null || adminStatus != null || excludedStatus != null || excludeExpired != null
                 || status != null || supplierId != null || draft != null || createdByUser != null
                 || updatedByUser != null || createdByAdmin != null || supplierFilter != null || editStatus != null
-                || title != null || inAgreement != null || missingMediaType != null
+                || title != null || inAgreement != null || missingMediaType != null || isoCode != null
+                || isoCode22 != null
+}
+
+private val ISO_CODE_PREFIX_PATTERN = Regex("^\\d{2}(\\d{2}){0,3}$")
+
+// ISO-koder er hierarkiske med to siffer per nivå, så et prefiks med partall siffer treffer koden selv og alle underliggende koder.
+fun normalizeIsoCodePrefix(isoCode: String?, parameterName: String = "isoCode"): String? {
+    if (isoCode == null) return null
+    val normalized = isoCode.filterNot { it.isWhitespace() }
+    if (normalized.isEmpty()) return null
+    if (!ISO_CODE_PREFIX_PATTERN.matches(normalized)) {
+        throw BadRequestException("$parameterName must be 2, 4, 6 or 8 digits")
+    }
+    return normalized
 }

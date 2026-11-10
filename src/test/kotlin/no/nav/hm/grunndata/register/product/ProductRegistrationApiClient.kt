@@ -54,6 +54,14 @@ interface ProductRegistrationApiClient {
         @Body updateProductRegistrationDTO: UpdateProductRegistrationDTO
     ): ProductRegistrationDTOV2
 
+    @Put(uri = "/series/{seriesId}/tech-data/bulk", processes = [APPLICATION_JSON])
+    fun bulkUpdateVariants(
+        @CookieValue("JWT") jwt: String?,
+        @PathVariable seriesId: UUID,
+        @Body bulkVariantUpdateDTO: BulkVariantUpdateDTO,
+        @QueryValue isoVersion: String? = null,
+    ): BulkVariantUpdateResultDTO
+
     @Delete(uri = "/draft/delete", consumes = [APPLICATION_JSON])
     fun deleteDraftVariants(
         @CookieValue("JWT") jwt: String,

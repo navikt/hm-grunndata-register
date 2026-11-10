@@ -97,6 +97,7 @@ data class ProductRegistrationDTO(
     val seriesId: String,
     @Deprecated("Use series isoCategory instead")
     val isoCategory: String="0",
+    val isoCategory22: String? = null,
     @Deprecated("Use series title instead")
     val title: String="Use series title",
     val articleName: String,
@@ -158,6 +159,7 @@ data class ProductRegistrationDTO(
             hmsArtNr = registration.hmsArtNr,
             identifier = registration.id.toString(),
             isoCategory = registration.isoCategory,
+            isoCategory22 = registration.isoCategory22,
             accessory = registration.accessory,
             sparePart = registration.sparePart,
             mainProduct = registration.mainProduct,
@@ -231,6 +233,7 @@ data class ProductRegistrationDryRunDTO(
     val seriesUUID: UUID?,
     @Deprecated("Use series isoCategory instead")
     val isoCategory: String? = null,
+    val isoCategory22: String? = null,
     val title: String,
     val articleName: String,
     val draftStatus: DraftStatus = DraftStatus.DRAFT,
@@ -260,28 +263,31 @@ data class UpdateProductRegistrationDTO(
     val productData: ProductDataDTO
 )
 
-data class VariantTechDataUpdate(
+data class VariantUpdate(
     val productId: UUID,
     val techData: List<ExtendedTechDataDTO>,
+    val articleName: String? = null,
+    val hmsArtNr: String? = null,
+    val supplierRef: String? = null,
 )
 
-data class BulkTechDataUpdateDTO(
-    val updates: List<VariantTechDataUpdate>,
+data class BulkVariantUpdateDTO(
+    val updates: List<VariantUpdate>,
 )
 
-data class BulkTechDataUpdateError(
+data class BulkVariantUpdateError(
     val productId: UUID,
     val message: String,
 )
 
-data class BulkTechDataUpdateResult(
+data class BulkVariantUpdateResult(
     val updated: List<ProductRegistration>,
-    val failed: List<BulkTechDataUpdateError>,
+    val failed: List<BulkVariantUpdateError>,
 )
 
-data class BulkTechDataUpdateResultDTO(
+data class BulkVariantUpdateResultDTO(
     val updated: List<ProductRegistrationDTOV2>,
-    val failed: List<BulkTechDataUpdateError>,
+    val failed: List<BulkVariantUpdateError>,
 )
 
 data class ProductRegistrationDTOV2(
