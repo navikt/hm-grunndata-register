@@ -49,7 +49,7 @@ class SeriesImportRiver(
     ) {
         val eventId = packet["eventId"].asText()
         val dtoVersion = packet["dtoVersion"].asLong()
-        if (dtoVersion > rapidDTOVersion) LOG.warn("dto version $dtoVersion is newer than $rapidDTOVersion")
+        if (dtoVersion > rapidDTOVersion) LOG.warn("dto version {} is newer than {}", dtoVersion, rapidDTOVersion)
         val dto = objectMapper.treeToValue(packet["payload"], SeriesImportRapidDTO::class.java)
         runBlocking {
             val series =
@@ -102,7 +102,7 @@ class SeriesImportRiver(
                         createdByAdmin = false,
                     ),
                 )
-            LOG.info("series import id: ${series.id} with eventId ${eventId.sanitizeForLog()} synced")
+            LOG.info("series import id: {} with eventId {} synced", series.id, eventId.sanitizeForLog())
         }
     }
 }

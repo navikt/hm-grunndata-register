@@ -26,7 +26,7 @@ open class AgreementPublish(
 
     suspend fun publishAgreements(): List<AgreementRegistrationDTO> {
         val publishList = agreementRegigstrationService.findAgreementsToBePublish()
-        LOG.info("Found ${publishList.size} agreements to be publish")
+        LOG.info("Found {} agreements to be publish", publishList.size)
         publishList.forEach {
             publishAgreement(it)
         }
@@ -35,7 +35,7 @@ open class AgreementPublish(
 
     @Transactional
     open suspend fun publishAgreement(agreementRegistrationDTO: AgreementRegistrationDTO) {
-        LOG.info("Publishing agreement ${agreementRegistrationDTO.id} ${agreementRegistrationDTO.reference.sanitizeForLog()}")
+        LOG.info("Publishing agreement {} {}", agreementRegistrationDTO.id, agreementRegistrationDTO.reference.sanitizeForLog())
         agreementRegigstrationService.saveAndCreateEventIfNotDraft(
             dto =
                 agreementRegistrationDTO.copy(
@@ -55,9 +55,9 @@ open class AgreementPublish(
                     LocalDateTime.now()
                 )
 
-        LOG.info("Found ${productsInAgreement.size} products in agreement ${agreementRegistrationDTO.id}")
+        LOG.info("Found {} products in agreement {}", productsInAgreement.size, agreementRegistrationDTO.id)
         productsInAgreement.forEach { product ->
-            LOG.info("Found product: ${product.id} in agreement")
+            LOG.info("Found product: {} in agreement", product.id)
             productAgreementRegistrationService.saveAndCreateEvent(
                 product.copy(
                     status = ProductAgreementStatus.ACTIVE,
@@ -76,9 +76,9 @@ open class AgreementPublish(
             LocalDateTime.now()
         )
 
-        LOG.info("Found ${serviceAgreements.size} serviceAgreements in agreement ${agreementRegistrationDTO.id}")
+        LOG.info("Found {} serviceAgreements in agreement {}", serviceAgreements.size, agreementRegistrationDTO.id)
         serviceAgreements.forEach { serviceAgreement ->
-            LOG.info("Found serviceAgreement: ${serviceAgreement.id} in agreement")
+            LOG.info("Found serviceAgreement: {} in agreement", serviceAgreement.id)
             serviceJobService.saveServiceAgreement(
                 serviceAgreement.copy(
                     status = ServiceAgreementStatus.ACTIVE,
@@ -92,7 +92,7 @@ open class AgreementPublish(
 
         val serviceJobsInAgreement = serviceJobService.findServiceJobEntitiesByAgreementId(agreementRegistrationDTO.id)
         serviceJobsInAgreement.forEach { serviceJob ->
-            LOG.info("Found serviceJob: ${serviceJob.id} in agreement")
+            LOG.info("Found serviceJob: {} in agreement", serviceJob.id)
             serviceJobService.saveAndCreateEventIfNotDraft(
                 serviceJob.copy(
                     status = ServiceStatus.ACTIVE,

@@ -19,29 +19,29 @@ open class ArchiveService(private val archiveRepository: ArchiveRepository) {
     fun addArchiveHandler(handler: ArchiveHandler) {
         val type = handler.getArchiveType()
         archiveHandlers[type] = handler
-        LOG.info("Registered ArchiveHandler for type: ${type.name} with class: ${handler::class.simpleName}")
+        LOG.info("Registered ArchiveHandler for type: {} with class: {}", type.name, handler::class.simpleName)
     }
 
     fun getAllHandlers(): Collection<ArchiveHandler> = archiveHandlers.values
 
     suspend fun archiveAll() {
-        LOG.debug("Starting archiving process for all ${archiveHandlers.size} handlers")
+        LOG.debug("Starting archiving process for all {} handlers", archiveHandlers.size)
         for (handler in archiveHandlers.values) {
             try {
                 handleArchive(handler)
             } catch (e: Exception) {
-                LOG.warn("Error during archiving with handler: ${handler::class.simpleName} ${e.message.sanitizeForLog()}")
+                LOG.warn("Error during archiving with handler: {} {}", handler::class.simpleName, e.message.sanitizeForLog())
             }
         }
     }
 
     suspend fun unarchiveAll() {
-        LOG.debug("Starting unarchiving process for all ${archiveHandlers.size} handlers")
+        LOG.debug("Starting unarchiving process for all {} handlers", archiveHandlers.size)
         for (handler in archiveHandlers.values) {
             try {
                 handleUnarchive(handler)
             } catch (e: Exception) {
-                LOG.error("Error during unarchiving with handler: ${handler::class.simpleName}", e)
+                LOG.error("Error during unarchiving with handler: {}", handler::class.simpleName, e)
             }
         }
     }
@@ -52,16 +52,16 @@ open class ArchiveService(private val archiveRepository: ArchiveRepository) {
         val archives = handler.archive()
         if (archives.isNotEmpty()) {
             archiveRepository.saveAll(archives).collect()
-            LOG.debug("Archived ${archives.size} items for handler: ${handler::class.simpleName}")
+            LOG.debug("Archived {} items for handler: {}", archives.size, handler::class.simpleName)
         } else {
-            LOG.debug("No items to archive for handler: ${handler::class.simpleName}")
+            LOG.debug("No items to archive for handler: {}", handler::class.simpleName)
         }
     }
 
     @Transactional(propagation = TransactionDefinition.Propagation.REQUIRES_NEW)
     open suspend fun handleUnarchive(handler: ArchiveHandler) {
         try {
-            LOG.debug("Starting unarchiving process for handler: ${handler::class.simpleName}")
+            LOG.debug("Starting unarchiving process for handler: {}", handler::class.simpleName)
             val unarchives = archiveRepository.findByStatusAndType(
                 ArchiveStatus.UNARCHIVE, handler.getArchiveType()
             )
@@ -72,7 +72,7 @@ open class ArchiveService(private val archiveRepository: ArchiveRepository) {
                 }
             }
         } catch (e: Exception) {
-            LOG.error("Error during unarchiving with handler: ${handler::class.simpleName}", e)
+            LOG.error("Error during unarchiving with handler: {}", handler::class.simpleName, e)
         }
     }
 }

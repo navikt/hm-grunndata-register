@@ -43,7 +43,7 @@ class UserPasswordAuthenticationProvider(
         val secret = authRequest.secret.toString()
         userRepository.loginUser(identity, secret)
             ?.let {
-                LOG.debug("User ${it.email.sanitizeForLog()} with ${it.roles.toString().sanitizeForLog()} logged in ")
+                LOG.debug("User {} with {} logged in ", it.email.sanitizeForLog(), it.roles.toString().sanitizeForLog())
                 val userIdMap = mapOf(USER_ID to it.id.toString())
                 val userNameMap = mapOf(USER_NAME to it.name)
                 val supplierNameMap = mapOf(SUPPLIER_NAME to supplierName(it.attributes[SUPPLIER_ID].orEmpty()))
@@ -51,7 +51,7 @@ class UserPasswordAuthenticationProvider(
                AuthenticationResponse.success(it.email, it.roles, attributes)
             }
             ?: run {
-                LOG.error("User login failed ${identity.sanitizeForLog()}")
+                LOG.error("User login failed {}", identity.sanitizeForLog())
               AuthenticationResponse.failure("Login failed")
             }
     }

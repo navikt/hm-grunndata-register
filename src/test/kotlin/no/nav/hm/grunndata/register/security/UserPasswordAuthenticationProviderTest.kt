@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory
 class UserPasswordAuthenticationProviderTest {
     @Test
     fun `should sanitize failed login logs without changing credentials`() {
-        val identity = "invalid\r\nERROR forged-event"
+        val identity = "invalid{}\r\nERROR forged-event"
         val secret = "password"
         val repository = mockk<UserRepository>()
         coEvery { repository.loginUser(identity, secret) } returns null
@@ -34,7 +34,10 @@ class UserPasswordAuthenticationProviderTest {
             provider.authenticate(null, request).isAuthenticated shouldBe false
 
             coVerify(exactly = 1) { repository.loginUser(identity, secret) }
-            appender.list.single().formattedMessage shouldBe "User login failed invalid__ERROR forged-event"
+            val event = appender.list.single()
+            event.message shouldBe "User login failed {}"
+            event.argumentArray.toList() shouldBe listOf("invalid{}__ERROR forged-event")
+            event.formattedMessage shouldBe "User login failed invalid{}__ERROR forged-event"
         } finally {
             logger.detachAppender(appender)
             appender.stop()

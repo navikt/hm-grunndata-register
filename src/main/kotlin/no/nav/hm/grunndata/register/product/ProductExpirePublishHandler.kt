@@ -17,7 +17,7 @@ class ProductExpirePublishHandler(private val productRegistrationService: Produc
 
     suspend fun expiredProducts(): List<ProductRegistration> {
         val expiredProducts = productRegistrationService.findExpired()
-        LOG.info("Found ${expiredProducts.size} products to be expired")
+        LOG.info("Found {} products to be expired", expiredProducts.size)
         expiredProducts.forEach {
             productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                 it.copy(
@@ -31,7 +31,7 @@ class ProductExpirePublishHandler(private val productRegistrationService: Produc
 
     suspend fun publishProducts(): List<ProductRegistration> {
         val publishing = productRegistrationService.findProductsToPublish()
-        LOG.info("Found ${publishing.size} products to be published")
+        LOG.info("Found {} products to be published", publishing.size)
         publishing.forEach {
             productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                 it.copy(

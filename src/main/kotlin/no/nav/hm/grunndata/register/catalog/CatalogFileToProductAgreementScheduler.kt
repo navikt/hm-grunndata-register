@@ -35,7 +35,7 @@ open class CatalogFileToProductAgreementScheduler(
                     processCatalogFile(catalogFile)
                 } catch (e: Exception) {
                     LOG.error(
-                        "Error while processing catalog file with id: ${catalogFile.id} with name: ${catalogFile.fileName.sanitizeForLog()}",
+                        "Error while processing catalog file with id: {} with name: {}", catalogFile.id, catalogFile.fileName.sanitizeForLog(),
                         e
                     )
                     catalogFileRepository.update(
@@ -51,7 +51,7 @@ open class CatalogFileToProductAgreementScheduler(
 
     @Transactional
     open suspend fun processCatalogFile(catalogFile: CatalogFile): Pair<ProductAgreementMappedResultLists, ServiceAgreementMappedResultLists> {
-        LOG.info("Got catalog file with filename: ${catalogFile.fileName.sanitizeForLog()} with rows: ${catalogFile.catalogList.size} to process with forceUpdate: $forceUpdate")
+        LOG.info("Got catalog file with filename: {} with rows: {} to process with forceUpdate: {}", catalogFile.fileName.sanitizeForLog(), catalogFile.catalogList.size, forceUpdate)
         val supplierId = catalogFile.supplierId
         val adminAuthentication =
             ClientAuthentication(catalogFile.updatedByUser, mapOf("roles" to listOf(Roles.ROLE_ADMIN)))
@@ -76,8 +76,12 @@ open class CatalogFileToProductAgreementScheduler(
                 )
             )
         LOG.info(
-            "Finished saving with inserted: ${productAgreementMappedResultLists.insertList.size} updated: ${productAgreementMappedResultLists.updateList.size} " +
-                    "deactivated: ${productAgreementMappedResultLists.deactivateList.size} for catalog file id: ${updatedCatalogFile.id} with name: ${updatedCatalogFile.fileName.sanitizeForLog()}"
+            "Finished saving with inserted: {} updated: {} deactivated: {} for catalog file id: {} with name: {}",
+            productAgreementMappedResultLists.insertList.size,
+            productAgreementMappedResultLists.updateList.size,
+            productAgreementMappedResultLists.deactivateList.size,
+            updatedCatalogFile.id,
+            updatedCatalogFile.fileName.sanitizeForLog(),
         )
         return productAgreementMappedResultLists to serviceAgreementMappedResultLists
     }
@@ -93,8 +97,10 @@ open class CatalogFileToProductAgreementScheduler(
             catalogImportResult.deactivatedList.filter { it.isProduct() },
             catalogImportResult.insertedList.filter { it.isProduct() })
         LOG.info(
-            "Product import result has inserted: ${productImportResult.insertedList.size} updated: ${productImportResult.updatedList.size} " +
-                    "deactivated: ${productImportResult.deactivatedList.size}"
+            "Product import result has inserted: {} updated: {} deactivated: {}",
+            productImportResult.insertedList.size,
+            productImportResult.updatedList.size,
+            productImportResult.deactivatedList.size,
         )
 
         catalogImportService.handleNewProductsOrChangedSupplierRefFromCatalogImport(
@@ -123,8 +129,10 @@ open class CatalogFileToProductAgreementScheduler(
             catalogImportResult.deactivatedList.filter { it.isService() },
             catalogImportResult.insertedList.filter { it.isService() })
         LOG.info(
-            "Service import result has inserted: ${serviceImportResult.insertedList.size} updated: ${serviceImportResult.updatedList.size} " +
-                    "deactivated: ${serviceImportResult.deactivatedList.size}"
+            "Service import result has inserted: {} updated: {} deactivated: {}",
+            serviceImportResult.insertedList.size,
+            serviceImportResult.updatedList.size,
+            serviceImportResult.deactivatedList.size,
         )
 
         catalogImportService.handleNewServices(serviceImportResult, adminAuthentication)
@@ -146,11 +154,11 @@ open class CatalogFileToProductAgreementScheduler(
     open suspend fun findInconsistenciesBetweenFHCatalog() {
         val productsNotMatchAS = productRegistrationRepository.findProductThatDoesNotMatchAgreementSparePartAccessory()
         productsNotMatchAS.forEach {
-            LOG.error("Product: ${it.id} hmsnr: ${it.hmsArtNr.sanitizeForLog()} does not match agreement and spare part/accessory")
+            LOG.error("Product: {} hmsnr: {} does not match agreement and spare part/accessory", it.id, it.hmsArtNr.sanitizeForLog())
         }
         val productsNotMatchHmsNr = productRegistrationRepository.findProductThatDoesNotMatchAgreementHmsNr()
         productsNotMatchHmsNr.forEach {
-            LOG.error("Product: ${it.id} hmsnr: ${it.hmsArtNr.sanitizeForLog()} does not match agreement hmsnr")
+            LOG.error("Product: {} hmsnr: {} does not match agreement hmsnr", it.id, it.hmsArtNr.sanitizeForLog())
         }
     }
 

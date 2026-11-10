@@ -57,7 +57,7 @@ class SeriesRegistrationAdminController(
         )) {
             is SeriesRegistrationService.ChangeToPartResult.Ok -> HttpResponse.ok()
             is SeriesRegistrationService.ChangeToPartResult.AlreadyPart -> {
-                LOG.warn("Series $seriesId is already set as part")
+                LOG.warn("Series {} is already set as part", seriesId)
                 HttpResponse.badRequest("Series $seriesId is already set as part")
             }
 
@@ -123,7 +123,7 @@ class SeriesRegistrationAdminController(
 
         seriesRegistrationService.approveSeriesAndVariants(seriesToUpdate, authentication)
 
-        LOG.info("set series to approved: $id")
+        LOG.info("set series to approved: {}", id)
         return HttpResponse.ok()
     }
 
@@ -159,7 +159,7 @@ class SeriesRegistrationAdminController(
 
         seriesRegistrationService.rejectSeriesAndVariants(seriesToUpdate, rejectSeriesDTO.message, authentication)
 
-        LOG.info("set series to rejected: $id")
+        LOG.info("set series to rejected: {}", id)
         return HttpResponse.ok()
     }
 
@@ -185,18 +185,18 @@ class SeriesRegistrationAdminController(
         productIds: List<UUID>,
         authentication: Authentication,
     ) {
-        LOG.info("Moving products to series $seriesId")
+        LOG.info("Moving products to series {}", seriesId)
         seriesRegistrationService.moveVariantsToSeries(seriesId, productIds, authentication)
     }
 
     @Put("/move-owner/supplier/{fromSupplierId}/{toSupplierId}")
     suspend fun moveOwnerSupplier(fromSupplierId: UUID, toSupplierId: UUID) {
         val seriesFromSupplier = seriesRegistrationService.findBySupplierId(fromSupplierId)
-        LOG.info("Got ${seriesFromSupplier.size} series from supplier $fromSupplierId")
+        LOG.info("Got {} series from supplier {}", seriesFromSupplier.size, fromSupplierId)
         seriesFromSupplier.forEach { series ->
             seriesRegistrationService.moveOwnerForSeries(series, toSupplierId)
         }
-        LOG.info("All series and products from supplier $fromSupplierId moved to supplier $toSupplierId")
+        LOG.info("All series and products from supplier {} moved to supplier {}", fromSupplierId, toSupplierId)
     }
 
     @Post("/ungroup/{seriesId")
@@ -205,7 +205,7 @@ class SeriesRegistrationAdminController(
     ): HttpResponse<Any> {
         val seriesToUngroup = seriesRegistrationService.findById(seriesId) ?: return HttpResponse.notFound()
         seriesRegistrationService.ungroupSeries(seriesToUngroup)
-        LOG.info("Ungrouped series: $seriesId")
+        LOG.info("Ungrouped series: {}", seriesId)
         return HttpResponse.ok()
     }
 }

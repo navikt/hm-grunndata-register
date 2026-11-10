@@ -61,7 +61,7 @@ class UserAdminApiController(
     suspend fun createUser(
         @Body dto: UserRegistrationDTO,
     ): HttpResponse<UserDTO> {
-        LOG.info("Creating user ${dto.id} ")
+        LOG.info("Creating user {} ", dto.id)
         if (dto.roles.isEmpty()) throw BadRequestException("User does not have any role")
         if (dto.roles.contains(Roles.ROLE_SUPPLIER)) {
             if (!dto.attributes.containsKey(SUPPLIER_ID)) throw BadRequestException("User must be connected to a supplierId")
@@ -117,7 +117,7 @@ class UserAdminApiController(
     @Delete("/{id}")
     suspend fun deleteUser(id: UUID): HttpResponse<String> {
         userRepository.deleteById(id)
-        LOG.info("User $id has been deleted by admin")
+        LOG.info("User {} has been deleted by admin", id)
         return HttpResponse.ok("User $id has been deleted")
     }
 

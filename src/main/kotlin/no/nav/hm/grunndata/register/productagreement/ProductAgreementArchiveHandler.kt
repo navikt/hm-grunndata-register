@@ -18,7 +18,7 @@ class ProductAgreementArchiveHandler(private val productAgreementRegistrationRep
 
     override suspend fun archive(): List<Archive> {
         val toBeDeleted = productAgreementRegistrationRepository.findByStatus(ProductAgreementStatus.DELETED)
-        LOG.debug("${toBeDeleted.size} product agreements to be archived with status DELETED")
+        LOG.debug("{} product agreements to be archived with status DELETED", toBeDeleted.size)
         val archives = toBeDeleted.map { pag ->
             val archive = Archive (
                 oid = pag.productId!!,

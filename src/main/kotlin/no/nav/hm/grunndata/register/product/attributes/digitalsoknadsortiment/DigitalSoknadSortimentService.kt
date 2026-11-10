@@ -56,7 +56,7 @@ open class DigitalSoknadSortimentService(
                 digitalSoknadSortimentRegistrationRepository.findBySortimentKategoriAndPostId(sortimentKategori, postId)?.let { existing ->
                     if (existing.status != DigitalSoknadSortimentStatus.ACTIVE) {
                         // update digital soknad sortiment which was previously deactivated
-                        LOG.info("Updating digital soknad sortiment for sortimentKategori: ${sortimentKategori.sanitizeForLog()}, postId: $postId")
+                        LOG.info("Updating digital soknad sortiment for sortimentKategori: {}, postId: {}", sortimentKategori.sanitizeForLog(), postId)
                         saveAndCreateEvent(existing.copy (
                             status = DigitalSoknadSortimentStatus.ACTIVE,
                             updated = LocalDateTime.now(),
@@ -67,7 +67,7 @@ open class DigitalSoknadSortimentService(
                     existing
                 } ?: run {
                     // new digital soknad sortiment
-                    LOG.info("New digital soknad sortiment for sortimentKategori: ${sortimentKategori.sanitizeForLog()}, postId: $postId")
+                    LOG.info("New digital soknad sortiment for sortimentKategori: {}, postId: {}", sortimentKategori.sanitizeForLog(), postId)
                     val digitalSoknadSortimentRegistration = DigitalSoknadSortimentRegistration(sortimentKategori = sortimentKategori, postId = postId)
                     saveAndCreateEvent(digitalSoknadSortimentRegistration.toDTO(), update = false)
                 }
@@ -75,7 +75,7 @@ open class DigitalSoknadSortimentService(
         }
 
         deactiveList.forEach {
-            LOG.info("Deactivate digital soknad sortiment for sortimentKategori: ${it.sortimentKategori.sanitizeForLog()}, postId: ${it.postId}")
+            LOG.info("Deactivate digital soknad sortiment for sortimentKategori: {}, postId: {}", it.sortimentKategori.sanitizeForLog(), it.postId)
             saveAndCreateEvent(it.copy(status = DigitalSoknadSortimentStatus.INACTIVE,
                 updated = LocalDateTime.now(), deactivated = LocalDateTime.now()).toDTO(), update = true)
         }

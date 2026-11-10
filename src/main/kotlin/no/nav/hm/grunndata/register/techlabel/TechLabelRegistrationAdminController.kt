@@ -109,7 +109,7 @@ class TechLabelRegistrationAdminController(
         if (!TechLabelSection.isValid(dto.section)) {
             throw BadRequestException("Invalid section '${dto.section}', must be one of ${TechLabelSection.labels()}")
         }
-        LOG.info("Updating section to '${dto.section.sanitizeForLog()}' for all TechLabels with label='${dto.label.sanitizeForLog()}' by ${authentication.userId()}")
+        LOG.info("Updating section to '{}' for all TechLabels with label='{}' by {}", dto.section.sanitizeForLog(), dto.label.sanitizeForLog(), authentication.userId())
         val updated = techLabelRegistrationService.updateSectionForLabel(dto.label, dto.section)
         return HttpResponse.ok(updated.map { it.toDTO() })
     }
@@ -144,7 +144,7 @@ class TechLabelRegistrationAdminController(
                 )
             )
             if (inDb.label != dto.label || inDb.unit != dto.unit || inDb.sort != dto.sort) {
-                LOG.info("Updated TechLabel with id=$id, changed label or unit or sort, update products using this label")
+                LOG.info("Updated TechLabel with id={}, changed label or unit or sort, update products using this label", id)
                 try {
                     coroutineScope.launch {
                         techLabelRegistrationService.changeProductsTechDataWithTechLabel(
@@ -153,7 +153,7 @@ class TechLabelRegistrationAdminController(
                         )
                     }
                 } catch (e: Exception) {
-                    LOG.error("Error updating products with new techLabel ${e.message.sanitizeForLog()}", e)
+                    LOG.error("Error updating products with new techLabel {}", e.message.sanitizeForLog(), e)
                     throw BadRequestException("Error updating products with new techLabel ${e.message}")
                 }
             }
@@ -164,7 +164,7 @@ class TechLabelRegistrationAdminController(
     suspend fun deleteTechLabel(id: UUID, @QueryValue forcedDelete: Boolean = false, authentication: Authentication, @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16): HttpResponse<Unit> =
         techLabelRegistrationService.findById(id)?.let { techLabel ->
             try {
-                LOG.warn("Deleting TechLabel with id:$id iso:${techLabel.isoCode.sanitizeForLog()} ${techLabel.label.sanitizeForLog()} (${techLabel.unit.sanitizeForLog()}) by ${authentication.userId()}")
+                LOG.warn("Deleting TechLabel with id:{} iso:{} {} ({}) by {}", id, techLabel.isoCode.sanitizeForLog(), techLabel.label.sanitizeForLog(), techLabel.unit.sanitizeForLog(), authentication.userId())
                 techLabelRegistrationService.delete(techLabel, forcedDelete, isoVersion)
                 HttpResponse.noContent()
             } catch (e: IllegalStateException) {

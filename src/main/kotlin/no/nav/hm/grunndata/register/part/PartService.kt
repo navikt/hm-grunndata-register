@@ -73,7 +73,7 @@ open class PartService(
     open suspend fun createDraftWith(auth: Authentication, draft: PartDraftWithDTO): ProductRegistration {
         val series = mappedDraft(draft, auth).also { seriesService.save(it) }
         val product = draft.toProductRegistration(series.id, auth).also { productService.save(it) }
-        LOG.info("Created part draft for series: ${series.id}, product: ${product.id}")
+        LOG.info("Created part draft for series: {}, product: {}", series.id, product.id)
         return product
     }
 
@@ -82,7 +82,7 @@ open class PartService(
         val series = mappedDraft(draft, auth).also { seriesService.save(it) }
         val product = draft.toProductRegistration(series.id, auth).also { productService.save(it) }
         seriesService.approveSeriesAndVariants(series, auth)
-        LOG.info("Created and published part draft for series: ${series.id}, product: ${product.id}")
+        LOG.info("Created and published part draft for series: {}, product: {}", series.id, product.id)
         return product
     }
 
@@ -116,7 +116,7 @@ open class PartService(
         )
         val product = productService.findAllBySeriesUuid(seriesId).first()
         val cleanHmsArtNr = if (!updateDto.hmsArtNr.isNullOrBlank()) updateDto.hmsArtNr else null
-        LOG.info("Updated part draft for series: ${series.id}, product: ${product.id} and hmsArtNr: ${cleanHmsArtNr.sanitizeForLog()}")
+        LOG.info("Updated part draft for series: {}, product: {} and hmsArtNr: {}", series.id, product.id, cleanHmsArtNr.sanitizeForLog())
         product.let {
             productService.update(
                 product.copy(
@@ -131,7 +131,7 @@ open class PartService(
         if ((cleanHmsArtNr != null && cleanHmsArtNr != product.hmsArtNr) ||
             (updateDto.supplierRef != null && updateDto.supplierRef != product.supplierRef)
         ) {
-            LOG.info("hmsnr: ${product.hmsArtNr.sanitizeForLog()} supplierRef: ${product.supplierRef.sanitizeForLog()} was updated ${updateDto.toString().sanitizeForLog()}")
+            LOG.info("hmsnr: {} supplierRef: {} was updated {}", product.hmsArtNr.sanitizeForLog(), product.supplierRef.sanitizeForLog(), updateDto.toString().sanitizeForLog())
             productAgreementRegistrationRepository.findByProductId(product.id).forEach {
                 productAgreementRegistrationRepository.update(
                     it.copy(
@@ -168,6 +168,6 @@ open class PartService(
 
         seriesService.approveSeriesAndVariants(seriesToUpdate, auth)
 
-        LOG.info("set series to approved: $seriesId")
+        LOG.info("set series to approved: {}", seriesId)
     }
 }

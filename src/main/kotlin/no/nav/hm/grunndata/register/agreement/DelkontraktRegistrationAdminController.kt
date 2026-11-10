@@ -63,7 +63,7 @@ class DelkontraktRegistrationAdminController(
         id: UUID,
         authentication: Authentication,
     ): HttpResponse<Unit> {
-        LOG.info("deleting delkontrakt $id by user ${authentication.userId()}")
+        LOG.info("deleting delkontrakt {} by user {}", id, authentication.userId())
         return delkontraktRegistrationService.findById(id)?.let { inDb ->
             val agreement = agreementService.findById(inDb.agreementId)
             if (agreement != null ) {

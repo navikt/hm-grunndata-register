@@ -28,7 +28,7 @@ class WorksWithConnector(private val productRegistrationService: ProductRegistra
         sourceProduct: ProductRegistration,
         targetProduct: ProductRegistration
     ): ProductRegistration {
-        LOG.info("Connect worksWith product ${sourceProduct.id} with ${targetProduct.id}")
+        LOG.info("Connect worksWith product {} with {}", sourceProduct.id, targetProduct.id)
         val targetSeriesIds = sourceProduct.productData.attributes.worksWith?.seriesIds ?: emptySet()
         val targetProductIds = sourceProduct.productData.attributes.worksWith?.productIds ?: emptySet()
         val connected = sourceProduct.copy(
@@ -60,7 +60,7 @@ class WorksWithConnector(private val productRegistrationService: ProductRegistra
         sourceProduct: ProductRegistration,
         targetProduct: ProductRegistration
     ): ProductRegistration {
-        LOG.info("Delete worksWithConnection product ${sourceProduct.id} with ${targetProduct.id}")
+        LOG.info("Delete worksWithConnection product {} with {}", sourceProduct.id, targetProduct.id)
         val afterRemovedSeriesIds =
             sourceProduct.productData.attributes.worksWith?.seriesIds?.minus(targetProduct.seriesUUID) ?: emptySet()
         val afterRemovedProductIds =

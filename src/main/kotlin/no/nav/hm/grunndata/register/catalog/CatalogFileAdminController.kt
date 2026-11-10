@@ -67,7 +67,7 @@ open class CatalogFileAdminController(
     ): CatalogImportResultReport {
         val supplier = supplierRegistrationService.findById(supplierId)
             ?: throw BadRequestException("Supplier $supplierId not found")
-        LOG.info("Importing excel file: ${file.filename.sanitizeForLog()}, dryRun: $dryRun by ${authentication.userId()} for supplier ${supplier.name.sanitizeForLog()}")
+        LOG.info("Importing excel file: {}, dryRun: {} by {} for supplier {}", file.filename.sanitizeForLog(), dryRun, authentication.userId(), supplier.name.sanitizeForLog())
         try {
             val importedExcelCatalog =
                 file.inputStream.use { input -> catalogExcelFileImport.importExcelFile(input) }
@@ -78,18 +78,18 @@ open class CatalogFileAdminController(
             )
 
             val catalogImportResult= catalogImportService.checkForExistingAndMapCatalogImportResult(catalogList, false)
-            LOG.info("inserted: ${catalogImportResult.insertedList.size}")
-            LOG.info("updated: ${catalogImportResult.updatedList.size}")
-            LOG.info("deactivated: ${catalogImportResult.deactivatedList.size}")
+            LOG.info("inserted: {}", catalogImportResult.insertedList.size)
+            LOG.info("updated: {}", catalogImportResult.updatedList.size)
+            LOG.info("deactivated: {}", catalogImportResult.deactivatedList.size)
 
             val conflicts = catalogImportService.checkForProductRegistrationConflicts(catalogImportResult)
             if (conflicts.isNotEmpty()) {
-                LOG.warn("Found ${conflicts.size} potential duplicate key conflict(s) for supplier ${supplier.name.sanitizeForLog()}:")
-                conflicts.forEach { LOG.warn("  Conflict: ${it.message.sanitizeForLog()}") }
+                LOG.warn("Found {} potential duplicate key conflict(s) for supplier {}:", conflicts.size, supplier.name.sanitizeForLog())
+                conflicts.forEach { LOG.warn("  Conflict: {}", it.message.sanitizeForLog()) }
             }
 
             if (!dryRun) {
-                LOG.info("Save the catalog file ${file.filename.sanitizeForLog()}, for downstream processing")
+                LOG.info("Save the catalog file {}, for downstream processing", file.filename.sanitizeForLog())
                 catalogFileRepository.save(
                     CatalogFile(
                         fileName = file.filename,
@@ -114,7 +114,7 @@ open class CatalogFileAdminController(
                 conflictList = conflicts,
             )
         } catch (e: Exception) {
-            LOG.error("Error importing catalog excel file: ${file.filename.sanitizeForLog()} for supplier ${supplier.name.sanitizeForLog()}", e)
+            LOG.error("Error importing catalog excel file: {} for supplier {}", file.filename.sanitizeForLog(), supplier.name.sanitizeForLog(), e)
             throw BadRequestException("Feil i catalog fil: ${e.message}")
         }
     }
@@ -139,7 +139,7 @@ open class CatalogFileAdminController(
     @Delete("${ADMIN_API_V1_CATALOG_FILE}/{id}")
     suspend fun deleteCatalogFile(id: UUID, authentication: Authentication): Boolean {
         val existing = catalogFileRepository.findById(id) ?: return false
-        LOG.info("Deleting catalog file id: $id, name: ${existing.fileName.sanitizeForLog()} by user: ${authentication.userId()}")
+        LOG.info("Deleting catalog file id: {}, name: {} by user: {}", id, existing.fileName.sanitizeForLog(), authentication.userId())
         catalogFileRepository.delete(existing)
         return true
     }

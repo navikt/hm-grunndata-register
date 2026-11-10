@@ -29,13 +29,13 @@ class CatalogExcelFileImport {
         workbook: Workbook,
     ): List<CatalogImportExcelDTO> {
         val main = workbook.getSheet("Gjeldende") ?: workbook.getSheet("gjeldende")
-        LOG.info("First row num ${main.firstRowNum}")
+        LOG.info("First row num {}", main.firstRowNum)
         val columnMap = readColumnMapIndex(main.first())
         val productExcel = main.toList().mapIndexed { index, row ->
             if (index > 0) mapRowToProductAgreement(row, columnMap) else null
         }.filterNotNull()
         if (productExcel.isEmpty()) throw BadRequestException("Fant ingen produkter i Excel-fil")
-        LOG.info("Total product agreements in Excel file: ${productExcel.size}")
+        LOG.info("Total product agreements in Excel file: {}", productExcel.size)
         return productExcel
     }
 
@@ -49,7 +49,7 @@ class CatalogExcelFileImport {
             val hmsNr = readCellAsString(row, columnMap[hms_ArtNr.column]!!)
             val funksjonsendring = row.getCell(columnMap[funksjonsendring.column]!!).toString().trim()
             val type = mapArticleType(typeArtikkel, funksjonsendring)
-            LOG.debug("Mapping row to CatalogImportExcelDTO with hmsArtNr: ${hmsNr.sanitizeForLog()}, type: $type, funksjonsendring: ${funksjonsendring.sanitizeForLog()}")
+            LOG.debug("Mapping row to CatalogImportExcelDTO with hmsArtNr: {}, type: {}, funksjonsendring: {}", hmsNr.sanitizeForLog(), type, funksjonsendring.sanitizeForLog())
             return CatalogImportExcelDTO(
                 rammeavtaleHandling = readCellAsString(row, columnMap[ColumnNames.rammeavtaleHandling.column]!!),
                 bestillingsNr = readCellAsString(row, columnMap[ColumnNames.bestillingsnr.column]!!),

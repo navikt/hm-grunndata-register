@@ -22,7 +22,7 @@ class MediaUploadService(private val mediaUploadClient: MediaUploadClient) {
             "file", file.filename,
             io.micronaut.http.MediaType.MULTIPART_FORM_DATA_TYPE, file.bytes
         ).build()
-        LOG.info("upload media ${file.filename.sanitizeForLog()} for $oid")
+        LOG.info("upload media {} for {}", file.filename.sanitizeForLog(), oid)
         return mediaUploadClient.uploadFile(oid, objectType, body)
     }
 

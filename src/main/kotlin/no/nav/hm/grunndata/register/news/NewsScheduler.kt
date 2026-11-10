@@ -29,7 +29,7 @@ open class NewsScheduler(
                 status = NewsStatus.ACTIVE,
                 expired = LocalDateTime.now()
             )
-            LOG.info("Found ${expired.size} news to deactivate")
+            LOG.info("Found {} news to deactivate", expired.size)
             expired.forEach {
                 newsRegistrationService.saveAndCreateEventIfNotDraft(
                     it.copy(status = NewsStatus.INACTIVE),
@@ -49,7 +49,7 @@ open class NewsScheduler(
                 expired = LocalDateTime.now(),
                 published = LocalDateTime.now()
             )
-            LOG.info("Found ${toActivate.size} news to activate")
+            LOG.info("Found {} news to activate", toActivate.size)
             toActivate.forEach {
                 newsRegistrationService.saveAndCreateEventIfNotDraft(
                     it.copy(status = NewsStatus.ACTIVE),

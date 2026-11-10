@@ -52,14 +52,14 @@ class ProductImportSyncRiver(
             .validate { it.demandKey("dtoVersion") }
             .validate { it.demandKey("createdTime") }
             .register(this)
-        LOG.info("Import auto approve is: $autoApprove")
+        LOG.info("Import auto approve is: {}", autoApprove)
     }
 
     override fun onPacket(packet: JsonMessage, context: MessageContext) {
         runBlocking {
             val eventId = packet["eventId"].asText()
             val dtoVersion = packet["dtoVersion"].asLong()
-            if (dtoVersion > rapidDTOVersion) LOG.warn("dto version $dtoVersion is newer than $rapidDTOVersion")
+            if (dtoVersion > rapidDTOVersion) LOG.warn("dto version {} is newer than {}", dtoVersion, rapidDTOVersion)
             val importDTO = objectMapper.treeToValue(packet["payload"], ProductImportRapidDTO::class.java)
             val registration =
                 productRegistrationService.findById(importDTO.id)?.let { inDb ->
@@ -104,8 +104,11 @@ class ProductImportSyncRiver(
                 mapOf("transferId" to importDTO.transferId, "version" to importDTO.version)
             productRegistrationEventHandler.queueDTORapidEvent(productDTOMapper.toDTO(registration), eventName = EventName.registeredProductV1, extraKeyValues = extraImportKeyValues)
             LOG.info(
-                """imported product ${importDTO.id} with eventId ${eventId.sanitizeForLog()}
-            |and version: ${importDTO.version} synced, adminstatus: ${registration.adminStatus}""".trimMargin()
+                "imported product {} with eventId {}\nand version: {} synced, adminstatus: {}",
+                importDTO.id,
+                eventId.sanitizeForLog(),
+                importDTO.version,
+                registration.adminStatus,
             )
         }
     }

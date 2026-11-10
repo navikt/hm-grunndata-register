@@ -38,7 +38,7 @@ class ApproveOldHMDBController(val productRegistrationService: ProductRegistrati
             )
             count++
         }
-        LOG.info("Got product count=$count")
+        LOG.info("Got product count={}", count)
         return count
     }
 

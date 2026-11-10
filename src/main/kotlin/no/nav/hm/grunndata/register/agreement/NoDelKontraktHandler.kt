@@ -17,7 +17,7 @@ class NoDelKontraktHandler(private val agreementRegistrationService: AgreementRe
     suspend fun findAndCreateWithNoDelkonktraktTypeIfNotExists(agreementId: UUID): DelkontraktRegistration {
         return delkontraktRegistrationRepository.findByAgreementIdAndType(agreementId, DelkontraktType.WITH_NO_DELKONTRAKT)
             ?: run {
-                LOG.info("Creating delkontrakt with no delkontrakt type for agreementId: $agreementId")
+                LOG.info("Creating delkontrakt with no delkontrakt type for agreementId: {}", agreementId)
                 val saved = delkontraktRegistrationRepository.save(
                     DelkontraktRegistration(
                         agreementId = agreementId,

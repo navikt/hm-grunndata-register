@@ -22,7 +22,7 @@ class TokenAdminApiController(private val tokenClient: ImportApiTokenClient,
 
     @Post("/{supplierId}")
     suspend fun createSupplierToken(supplierId: UUID): String {
-        LOG.info("creating token for supplier $supplierId")
+        LOG.info("creating token for supplier {}", supplierId)
         return tokenClient.createSupplierToken(supplierId, bearerToken)
     }
 

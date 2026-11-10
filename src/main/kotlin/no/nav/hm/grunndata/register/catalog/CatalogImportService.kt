@@ -65,7 +65,7 @@ open class CatalogImportService(
 
     @Transactional
     open suspend fun persistCatalogImportResult(catalogImportResult: CatalogImportResult) {
-        LOG.info("persisting catalog import result with inserted: ${catalogImportResult.insertedList.size}, updated: ${catalogImportResult.updatedList.size}, deactivated: ${catalogImportResult.deactivatedList.size}")
+        LOG.info("persisting catalog import result with inserted: {}, updated: {}, deactivated: {}", catalogImportResult.insertedList.size, catalogImportResult.updatedList.size, catalogImportResult.deactivatedList.size)
         catalogImportResult.updatedList.forEach { catalogImportRepository.update(it) }
         catalogImportResult.deactivatedList.forEach { catalogImportRepository.update(it) }
         catalogImportResult.insertedList.forEach { catalogImportRepository.save(it) }
@@ -142,9 +142,9 @@ open class CatalogImportService(
                             updatedByUser = adminAuthentication.name
                         )
                     )
-                    LOG.info("Deactivated product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
+                    LOG.info("Deactivated product with id: {} for HMS ArtNr: {} under orderRef: {}", product.id, catalogImport.hmsArtNr.sanitizeForLog(), catalogImport.orderRef.sanitizeForLog())
                 } else {
-                    LOG.warn("Could not find product to deactivate for HMS ArtNr: ${catalogImport.hmsArtNr.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
+                    LOG.warn("Could not find product to deactivate for HMS ArtNr: {} under orderRef: {}", catalogImport.hmsArtNr.sanitizeForLog(), catalogImport.orderRef.sanitizeForLog())
                 }
             }
         }
@@ -158,14 +158,14 @@ open class CatalogImportService(
         var changedSupplierRefOrHmsNr = false
         if (registration.supplierRef != catalogImport.supplierRef) {
             changedSupplierRefOrHmsNr = true
-            LOG.error("Product ${registration.id} hmsArtNr: ${registration.hmsArtNr.sanitizeForLog()} has different supplierRef: ${registration.supplierRef.sanitizeForLog()} than catalogImport: ${catalogImport.supplierRef.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
+            LOG.error("Product {} hmsArtNr: {} has different supplierRef: {} than catalogImport: {} under orderRef: {}", registration.id, registration.hmsArtNr.sanitizeForLog(), registration.supplierRef.sanitizeForLog(), catalogImport.supplierRef.sanitizeForLog(), catalogImport.orderRef.sanitizeForLog())
         }
         if (registration.hmsArtNr != catalogImport.hmsArtNr) {
             changedSupplierRefOrHmsNr = true
-            LOG.error("Product ${registration.id} supplierRef: ${registration.supplierRef.sanitizeForLog()} has different hmsArtNr: ${registration.hmsArtNr.sanitizeForLog()} than catalogImport: ${catalogImport.hmsArtNr.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
+            LOG.error("Product {} supplierRef: {} has different hmsArtNr: {} than catalogImport: {} under orderRef: {}", registration.id, registration.supplierRef.sanitizeForLog(), registration.hmsArtNr.sanitizeForLog(), catalogImport.hmsArtNr.sanitizeForLog(), catalogImport.orderRef.sanitizeForLog())
         }
         if (changedSupplierRefOrHmsNr) {
-            LOG.info("Updating product ${registration.id} for HMS ArtNr: ${registration.hmsArtNr.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()} with new supplierRef: ${catalogImport.supplierRef.sanitizeForLog()} and new hmsArtNr: ${catalogImport.hmsArtNr.sanitizeForLog()}")
+            LOG.info("Updating product {} for HMS ArtNr: {} under orderRef: {} with new supplierRef: {} and new hmsArtNr: {}", registration.id, registration.hmsArtNr.sanitizeForLog(), catalogImport.orderRef.sanitizeForLog(), catalogImport.supplierRef.sanitizeForLog(), catalogImport.hmsArtNr.sanitizeForLog())
             productRegistrationRepository.update(
                 registration.copy(
                     articleName = catalogImport.title,
@@ -200,7 +200,7 @@ open class CatalogImportService(
                             updatedByUser = adminAuthentication.name,
                     ))
                 } ?: run {
-                    LOG.info("Creating new service for HMS ArtNr: ${catalogImport.hmsArtNr.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
+                    LOG.info("Creating new service for HMS ArtNr: {} under orderRef: {}", catalogImport.hmsArtNr.sanitizeForLog(), catalogImport.orderRef.sanitizeForLog())
                     val service = serviceJobRepository.save(
                         ServiceJob(
                             id = UUID.randomUUID(),
@@ -218,7 +218,7 @@ open class CatalogImportService(
                             updatedByUser = adminAuthentication.name,
                         )
                     )
-                    LOG.info("Created service with id: ${service.id} for HMS ArtNr: ${catalogImport.hmsArtNr.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
+                    LOG.info("Created service with id: {} for HMS ArtNr: {} under orderRef: {}", service.id, catalogImport.hmsArtNr.sanitizeForLog(), catalogImport.orderRef.sanitizeForLog())
                 }
             }
         }
@@ -237,9 +237,9 @@ open class CatalogImportService(
                             updatedByUser = adminAuthentication.name
                         )
                     )
-                    LOG.info("Deactivated service with id: ${service.id} for HMS ArtNr: ${catalogImport.hmsArtNr.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
+                    LOG.info("Deactivated service with id: {} for HMS ArtNr: {} under orderRef: {}", service.id, catalogImport.hmsArtNr.sanitizeForLog(), catalogImport.orderRef.sanitizeForLog())
                 } else {
-                    LOG.warn("Could not find service to deactivate for HMS ArtNr: ${catalogImport.hmsArtNr.sanitizeForLog()} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
+                    LOG.warn("Could not find service to deactivate for HMS ArtNr: {} under orderRef: {}", catalogImport.hmsArtNr.sanitizeForLog(), catalogImport.orderRef.sanitizeForLog())
                 }
             }
         }
@@ -296,7 +296,7 @@ open class CatalogImportService(
                 createdByAdmin = authentication.isAdmin(),
             )
         )
-        LOG.info("Created product with id: ${product.id} for HMS ArtNr: ${catalogImport.hmsArtNr.sanitizeForLog()} mainProduct: ${catalogImport.mainProduct} under orderRef: ${catalogImport.orderRef.sanitizeForLog()}")
+        LOG.info("Created product with id: {} for HMS ArtNr: {} mainProduct: {} under orderRef: {}", product.id, catalogImport.hmsArtNr.sanitizeForLog(), catalogImport.mainProduct, catalogImport.orderRef.sanitizeForLog())
         return product
     }
 

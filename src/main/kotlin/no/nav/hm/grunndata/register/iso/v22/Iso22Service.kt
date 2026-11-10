@@ -34,7 +34,7 @@ class Iso22Service(
     suspend fun lookUpCode(isocode: String): IsoCategory22DTO? =
         iso22Categories[isocode]
             ?: iso22Repository.findByIsoCode(isocode)?.toRapidDTO()?.also {
-                LOG.debug("Iso22 cache miss for ${isocode.sanitizeForLog()}, loaded from database")
+                LOG.debug("Iso22 cache miss for {}, loaded from database", isocode.sanitizeForLog())
                 upsert(it)
             }
 
@@ -51,6 +51,6 @@ class Iso22Service(
         synchronized(this) {
             iso22Categories = fresh
         }
-        LOG.info("Refreshed iso22 cache with ${fresh.size} categories")
+        LOG.info("Refreshed iso22 cache with {} categories", fresh.size)
     }
 }

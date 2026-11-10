@@ -57,7 +57,7 @@ open class EventItemService(
             setEventItemStatusToSent(eventItem)
         }
         else {
-            LOG.error("No EventHandler found for type: ${eventItem.type}")
+            LOG.error("No EventHandler found for type: {}", eventItem.type)
         }
     }
 

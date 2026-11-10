@@ -67,7 +67,7 @@ open class EmailServiceAzure(private val aadProperties: AzureADProperties) : Ema
             }
             .onFailure {
                 LOG.error("Got error", it)
-                SECURE_LOG.error("Got error sending mail to ${message.toRecipients!![0].emailAddress!!.address.sanitizeForLog()}")
+                SECURE_LOG.error("Got error sending mail to {}", message.toRecipients!![0].emailAddress!!.address.sanitizeForLog())
             }
     }
 }

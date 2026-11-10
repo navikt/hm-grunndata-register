@@ -23,7 +23,7 @@ open class EventItemScheduler(
     open fun sendEventItemScheduler() {
         runBlocking {
             val items = eventItemService.findByStatusOrderByUpdatedAsc()
-            LOG.debug("Running sendEventItemScheduler with ${items.size} items")
+            LOG.debug("Running sendEventItemScheduler with {} items", items.size)
             items.forEach {
                 eventItemService.sendRapidEvent(it)
             }
@@ -36,7 +36,7 @@ open class EventItemScheduler(
         runBlocking {
             val before = LocalDateTime.now().minusDays(30)
             val deleted = eventItemService.deleteByStatusAndUpdatedBefore(EventItemStatus.SENT, before)
-            LOG.info("Running deleteSentItemScheduler with $deleted items before: $before")
+            LOG.info("Running deleteSentItemScheduler with {} items before: {}", deleted, before)
         }
     }
 }

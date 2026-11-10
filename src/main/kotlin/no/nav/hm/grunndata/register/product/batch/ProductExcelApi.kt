@@ -99,7 +99,7 @@ class ProductExcelApi(
         val excelExportDtos = excelExportMapper.mapToExportDtos(products, isoVersion)
 
         val id = UUID.randomUUID()
-        LOG.info("Generating Excel file: $id.xlsx")
+        LOG.info("Generating Excel file: {}.xlsx", id)
         return ByteArrayOutputStream().use { byteStream ->
             xlExport.createWorkbookToOutputStream(excelExportDtos, byteStream, isoVersion)
             HttpResponse.ok(StreamedFile(byteStream.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
@@ -118,11 +118,11 @@ class ProductExcelApi(
         authentication: Authentication,
         @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<List<ProductRegistrationDTO>> {
-        LOG.info("Importing Excel file ${file.filename.sanitizeForLog()} for supplierId ${authentication.supplierId()}")
+        LOG.info("Importing Excel file {} for supplierId {}", file.filename.sanitizeForLog(), authentication.supplierId())
         return file.inputStream.use { inputStream ->
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream, isoVersion)
             validateProductsToBeImported(excelDTOList, seriesId, authentication)
-            LOG.info("found ${excelDTOList.size} products in Excel file")
+            LOG.info("found {} products in Excel file", excelDTOList.size)
             val products = productRegistrationService.importExcelRegistrations(excelDTOList, authentication)
             val seriesToUpdate = seriesRegistrationService.findById(seriesId)
             requireNotNull(seriesToUpdate)
@@ -146,11 +146,11 @@ class ProductExcelApi(
         authentication: Authentication,
         @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<List<ProductRegistrationDryRunDTO>> {
-        LOG.info("Dryrun for import of Excel file ${file.filename.sanitizeForLog()} for supplierId ${authentication.supplierId()}")
+        LOG.info("Dryrun for import of Excel file {} for supplierId {}", file.filename.sanitizeForLog(), authentication.supplierId())
         return file.inputStream.use { inputStream ->
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream, isoVersion)
             validateProductsToBeImported(excelDTOList, seriesId, authentication)
-            LOG.info("found ${excelDTOList.size} products in Excel file")
+            LOG.info("found {} products in Excel file", excelDTOList.size)
             val products = productRegistrationService.importDryRunExcelRegistrations(excelDTOList, authentication)
             HttpResponse.ok(products)
         }

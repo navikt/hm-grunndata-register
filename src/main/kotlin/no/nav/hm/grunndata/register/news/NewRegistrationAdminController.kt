@@ -54,7 +54,7 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
 
     @Post("/")
     suspend fun createNews(@Body news: CreateUpdateNewsDTO, authentication: Authentication): NewsRegistrationDTO {
-        LOG.info("Creating news: ${news.title.sanitizeForLog()}")
+        LOG.info("Creating news: {}", news.title.sanitizeForLog())
 
         return newsRegistrationService.saveAndCreateEventIfNotDraft(
             NewsRegistrationDTO(
@@ -94,7 +94,7 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
 
     @Put("/publish/{id}")
     suspend fun publishNews(@PathVariable id: UUID, authentication: Authentication): NewsRegistrationDTO {
-        LOG.info("Publishing news: $id")
+        LOG.info("Publishing news: {}", id)
         return newsRegistrationService.findById(id)?.let { inDb ->
             newsRegistrationService.saveAndCreateEventIfNotDraft(
                 inDb.copy(
@@ -109,7 +109,7 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
 
     @Put("/unpublish/{id}")
     suspend fun unpublishNews(@PathVariable id: UUID, authentication: Authentication): NewsRegistrationDTO {
-        LOG.info("unpublishing news: $id")
+        LOG.info("unpublishing news: {}", id)
         return newsRegistrationService.findById(id)?.let { inDb ->
             newsRegistrationService.saveAndCreateEventIfNotDraft(
                 inDb.copy(
@@ -128,7 +128,7 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
         @PathVariable id: UUID,
         authentication: Authentication
     ): NewsRegistrationDTO {
-        LOG.info("Updating news: $id")
+        LOG.info("Updating news: {}", id)
         return newsRegistrationService.findById(id)?.let { inDb ->
             newsRegistrationService.saveAndCreateEventIfNotDraft(
                 inDb.copy(
@@ -146,7 +146,7 @@ class NewRegistrationAdminController(private val newsRegistrationService: NewsRe
 
     @Delete("/{id}")
     suspend fun deleteNews(@PathVariable id: UUID, authentication: Authentication) {
-        LOG.info("Deleting news: $id")
+        LOG.info("Deleting news: {}", id)
         newsRegistrationService.findById(id)?.let { inDb ->
             newsRegistrationService.saveAndCreateEventIfNotDraft(
                 inDb.copy(status = NewsStatus.DELETED, expired = LocalDateTime.now()), isUpdate = true

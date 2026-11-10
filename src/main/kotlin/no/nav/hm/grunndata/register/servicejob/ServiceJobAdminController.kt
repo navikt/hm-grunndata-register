@@ -31,7 +31,7 @@ class ServiceJobAdminController(
         agreementId: UUID,
         authentication: Authentication,
     ): List<ServiceJobDTO> {
-        LOG.info("Getting service jobs for agreement {$agreementId} by ${authentication.userId()}")
+        LOG.info("Getting service jobs for agreement {{}} by {}", agreementId, authentication.userId())
         return serviceJobService.findByAgreementId(agreementId)
     }
 
@@ -41,7 +41,7 @@ class ServiceJobAdminController(
         @Body request: UpdateServiceJobRequest,
         authentication: Authentication,
     ): HttpResponse<ServiceJobDTO> {
-        LOG.info("Updating service job $id by ${authentication.userId()} with title='${request.title.sanitizeForLog()}' hmsArtNr='${request.hmsNr.sanitizeForLog()}'")
+        LOG.info("Updating service job {} by {} with title='{}' hmsArtNr='{}'", id, authentication.userId(), request.title.sanitizeForLog(), request.hmsNr.sanitizeForLog())
         val updated = serviceJobService.updateServiceJobTitleOrHmsArtNr(id, request.title, request.hmsNr)
             ?: return HttpResponse.notFound()
         return HttpResponse.ok(updated)
@@ -52,7 +52,7 @@ class ServiceJobAdminController(
         id: UUID,
         authentication: Authentication,
     ): HttpResponse<Any> {
-        LOG.info("Deleting service job $id by ${authentication.userId()}")
+        LOG.info("Deleting service job {} by {}", id, authentication.userId())
         val deleted = serviceJobService.deleteById(id)
         return if (deleted) HttpResponse.noContent() else HttpResponse.notFound()
     }

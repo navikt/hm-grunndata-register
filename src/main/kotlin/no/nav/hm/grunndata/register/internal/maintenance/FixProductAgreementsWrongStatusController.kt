@@ -20,7 +20,7 @@ class FixProductAgreementsWrongStatusController(private val productAgreementRegi
     @Put("/")
     suspend fun fixProductAgreementsWrongStatus() {
         val pags = productAgreementRegistrationService.findBystatusAndPublishedAfter(ProductAgreementStatus.ACTIVE, LocalDateTime.now())
-        LOG.info("Got pags ${pags.size} that are active and published after now")
+        LOG.info("Got pags {} that are active and published after now", pags.size)
             pags.forEach {
                 productAgreementRegistrationService.saveAndCreateEvent(
                     it.copy(

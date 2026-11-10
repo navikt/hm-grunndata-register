@@ -70,7 +70,7 @@ class UserController(private val userRepository: UserRepository,
     ): HttpResponse<UserDTO> {
         if (authentication.isAdmin()) throw BadRequestException("Only vendors can create users here")
         val supplierId = authentication.supplierId()
-        LOG.info("Creating user ${dto.id} by vendor ${supplierId}")
+        LOG.info("Creating user {} by vendor {}", dto.id, supplierId)
         if (supplierRegistrationService.findById(supplierId) == null) throw BadRequestException("Unknown vendor id $supplierId")
         if (userRepository.getUsersBySupplierId(supplierId.toString()).size >= 10) throw BadRequestException("Vendor can only have 10 users")
         if (userRepository.findByEmailIgnoreCase(dto.email) != null) throw BadRequestException("User with email already exists")
@@ -93,7 +93,7 @@ class UserController(private val userRepository: UserRepository,
         val userSupplier = user.attributes[SUPPLIER_ID] ?: throw BadRequestException("User missing supplier")
         if(userSupplier != authentication.supplierId().toString()) return HttpResponse.notFound()
         userRepository.deleteById(id)
-        LOG.info("User $id has been deleted by supplier")
+        LOG.info("User {} has been deleted by supplier", id)
         return HttpResponse.ok("User $id has been deleted")
     }
 

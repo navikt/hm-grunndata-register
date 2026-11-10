@@ -64,7 +64,7 @@ class MediaController(private val mediaUploadService: MediaUploadService,
     suspend fun uploadFiles(@Parameter(example = "series or product") type: String="product", oid: UUID,
                             files: Publisher<CompletedFileUpload>,
                             authentication: Authentication): HttpResponse<List<MediaDTO>>  {
-        LOG.info("supplier: ${authentication.supplierId()} uploading files for object $oid type: ${type.sanitizeForLog()}")
+        LOG.info("supplier: {} uploading files for object {} type: {}", authentication.supplierId(), oid, type.sanitizeForLog())
         if ("product" == type && oidExists(oid, authentication.supplierId())) {
             return HttpResponse.created(files.asFlow().map {mediaUploadService.uploadMedia(it, oid, ObjectType.PRODUCT) }.toList())
         } else if ("series" == type && seriesExists(oid, authentication.supplierId())) {
@@ -85,7 +85,7 @@ class MediaController(private val mediaUploadService: MediaUploadService,
 
     @Delete("/{type}/{oid}/{uri}")
     suspend fun deleteFiles(type: String = "product", oid: UUID, uri: String, authentication: Authentication): HttpResponse<MediaDTO> {
-        LOG.info("Deleting media file oid: $oid and ${uri.sanitizeForLog()}")
+        LOG.info("Deleting media file oid: {} and {}", oid, uri.sanitizeForLog())
         if ("series" == type && seriesRegistrationService.findByIdAndSupplierId(oid, authentication.supplierId())!=null)
             return HttpResponse.ok(mediaUploadService.deleteByOidAndUri(oid, uri))
         else if ("product" == type && productRegistrationService.findByIdAndSupplierId(oid, authentication.supplierId())!=null)

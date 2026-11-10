@@ -31,10 +31,10 @@ class SeriesIso22UpdateController(private val seriesRegistrationRepository: Seri
                         seriesRegistrationRepository.update(serie.copy(isoCategory22 = iso22.code22))
                 }
                 else {
-                    LOG.warn("Found mapping for ${serie.isoCategory.sanitizeForLog()} to iso22 ${iso22.code22.sanitizeForLog()} but not verified, skipping update")
+                    LOG.warn("Found mapping for {} to iso22 {} but not verified, skipping update", serie.isoCategory.sanitizeForLog(), iso22.code22.sanitizeForLog())
                 }
             } ?: run {
-                LOG.warn("Could not find mapping for ${serie.isoCategory.sanitizeForLog()}")
+                LOG.warn("Could not find mapping for {}", serie.isoCategory.sanitizeForLog())
             }
         }
     }

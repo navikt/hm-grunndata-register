@@ -58,7 +58,7 @@ open class CreateBaseVersionHandler(
                 }
             }
 
-            LOG.info("Created base version for $countSeriesBaseVersionsCreated series for supplier $it")
+            LOG.info("Created base version for {} series for supplier {}", countSeriesBaseVersionsCreated, it)
 
             val products =
                 supplier?.let { s -> productRegistrationService.findBySupplierId(s.id) }?.filter { product ->
@@ -75,7 +75,7 @@ open class CreateBaseVersionHandler(
                 }
             }
 
-            LOG.info("Created base version for $countProductVersionsCreated products for supplier $it")
+            LOG.info("Created base version for {} products for supplier {}", countProductVersionsCreated, it)
         }
     }
 

@@ -12,7 +12,7 @@ class EventHandlerRegister(private val eventItemService: EventItemService): Bean
     }
 
     override fun onCreated(event: BeanCreatedEvent<EventHandler>): EventHandler {
-        LOG.info("Found Eventhandler for : ${event.bean.getEventType()}")
+        LOG.info("Found Eventhandler for : {}", event.bean.getEventType())
         eventItemService.addEventHandler(event.bean)
         return event.bean
     }

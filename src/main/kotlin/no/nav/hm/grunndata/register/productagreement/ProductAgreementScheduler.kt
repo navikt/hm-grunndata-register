@@ -45,7 +45,7 @@ open class ProductAgreementScheduler(
                 LocalDateTime.now(),
                 LocalDateTime.now()
             )
-            LOG.info("Found ${toBePublished.size} product agreements to be published")
+            LOG.info("Found {} product agreements to be published", toBePublished.size)
             toBePublished.forEach {
                 val agreement = agreementRegistrationService.findById(it.agreementId)!!
                 if (agreement.agreementStatus == AgreementStatus.ACTIVE && agreement.draftStatus == DraftStatus.DONE) {
@@ -59,7 +59,7 @@ open class ProductAgreementScheduler(
                         isUpdate = true
                     )
                 } else {
-                    LOG.warn("Agreement ${agreement.id} is not active or not done, cannot activate product agreement ${it.id}")
+                    LOG.warn("Agreement {} is not active or not done, cannot activate product agreement {}", agreement.id, it.id)
                 }
             }
         }

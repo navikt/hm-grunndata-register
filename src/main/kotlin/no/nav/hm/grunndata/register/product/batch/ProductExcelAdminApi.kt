@@ -56,7 +56,7 @@ class ProductExcelAdminApi(
         val excelExportDtos = excelExportMapper.mapToExportDtos(products.map { productDTOMapper.toDTO(it) }, isoVersion)
 
         val id = UUID.randomUUID()
-        LOG.info("Generating Excel file: $id.xlsx")
+        LOG.info("Generating Excel file: {}.xlsx", id)
         return ByteArrayOutputStream().use { byteStream ->
             xlExport.createWorkbookToOutputStream(excelExportDtos, byteStream, isoVersion)
             HttpResponse.ok(StreamedFile(byteStream.toInputStream(), MediaType.MICROSOFT_EXCEL_OPEN_XML_TYPE))
@@ -74,10 +74,10 @@ class ProductExcelAdminApi(
         authentication: Authentication,
         @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<List<ProductRegistrationDTO>> {
-        LOG.info("Importing Excel file ${file.filename.sanitizeForLog()} by admin")
+        LOG.info("Importing Excel file {} by admin", file.filename.sanitizeForLog())
         return file.inputStream.use { inputStream ->
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream, isoVersion)
-            LOG.info("found ${excelDTOList.size} products in Excel file")
+            LOG.info("found {} products in Excel file", excelDTOList.size)
             val products = productRegistrationService.importExcelRegistrations(excelDTOList, authentication)
             HttpResponse.ok(products.map { productDTOMapper.toDTO(it) })
         }
@@ -93,10 +93,10 @@ class ProductExcelAdminApi(
         authentication: Authentication,
         @QueryValue(defaultValue = "v16") isoVersion: IsoVersion = IsoVersion.v16,
     ): HttpResponse<List<ProductRegistrationDryRunDTO>> {
-        LOG.info("Dryrun - Importing Excel file ${file.filename.sanitizeForLog()} by admin")
+        LOG.info("Dryrun - Importing Excel file {} by admin", file.filename.sanitizeForLog())
         return file.inputStream.use { inputStream ->
             val excelDTOList = xlImport.importExcelFileForRegistration(inputStream, isoVersion)
-            LOG.info("found ${excelDTOList.size} products in Excel file")
+            LOG.info("found {} products in Excel file", excelDTOList.size)
             val products = productRegistrationService.importDryRunExcelRegistrations(excelDTOList, authentication)
             HttpResponse.ok(products)
         }

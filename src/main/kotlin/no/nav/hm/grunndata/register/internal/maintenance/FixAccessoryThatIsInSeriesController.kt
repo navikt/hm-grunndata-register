@@ -26,7 +26,7 @@ open class FixAccessoryThatIsInSeriesController(
     @Post("/")
     suspend fun fixAccessoryThatIsInSeries() {
         val ids = productRegistrationRepository.findNotMainProductsThatIsInSeries()
-        LOG.info("Got ${ids.size} products that is not main product but is in series")
+        LOG.info("Got {} products that is not main product but is in series", ids.size)
         ids.forEach {
             splitSries(it)
         }

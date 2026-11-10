@@ -31,7 +31,7 @@ class AccessoryShouldNotHaveRankController(private val productAgreementRegistrat
             productAgreementRegistrationRepository.update(it.copy(rank = 99))
             count++
         }
-        LOG.info("Updated rank for $count product agreements")
+        LOG.info("Updated rank for {} product agreements", count)
         count = 0;
         accessories.map { it.productId }.toSet().forEach { productId ->
             productRegistrationService.findById(productId)?.let {
@@ -40,6 +40,6 @@ class AccessoryShouldNotHaveRankController(private val productAgreementRegistrat
                 count++
             }
         }
-        LOG.info("Sent $count product accessories")
+        LOG.info("Sent {} product accessories", count)
     }
 }

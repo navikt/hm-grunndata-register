@@ -48,7 +48,7 @@ class ProductExcelImport(private val labelService: LabelService) {
                     }
                 val techLabels = isoVersion.labels(labelService, isoCategory, isoCategory)
                 val labelList = techLabels.map { it.label }
-                LOG.info("Fetching labels for isoCategory: ${isoCategory.sanitizeForLog()}, got: ${techLabels.size}")
+                LOG.info("Fetching labels for isoCategory: {}, got: {}", isoCategory.sanitizeForLog(), techLabels.size)
                 val firstRow = sheet.getRow(0)
                 val headerNames =
                     if (oldVersion(firstRow)) {

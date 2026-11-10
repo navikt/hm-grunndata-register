@@ -19,7 +19,7 @@ class UngroupSeriesController(private val seriesRegistrationService: SeriesRegis
     @Post("/ungroup/{seriesId}")
     suspend fun ungroupSeries(seriesId: UUID) {
         val seriesToUngroup = seriesRegistrationService.findById(seriesId) ?: throw BadRequestException("Series with id $seriesId not found")
-        LOG.info("Ungrouping series: $seriesId")
+        LOG.info("Ungrouping series: {}", seriesId)
         seriesRegistrationService.ungroupSeries(seriesToUngroup)
     }
 

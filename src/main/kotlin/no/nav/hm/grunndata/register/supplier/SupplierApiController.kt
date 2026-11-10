@@ -34,7 +34,7 @@ class SupplierApiController(private val supplierRegistrationService: SupplierReg
     @Put("/")
     suspend fun updateSupplier(@Body supplier: SupplierRegistrationDTO, authentication: Authentication): HttpResponse<SupplierRegistrationDTO> {
         if (supplier.id != authentication.supplierId()) {
-            LOG.error("user made an unauthorized request for supplier ${supplier.id}")
+            LOG.error("user made an unauthorized request for supplier {}", supplier.id)
             return HttpResponse.unauthorized()
         }
         return supplierRegistrationService.findById(authentication.supplierId())

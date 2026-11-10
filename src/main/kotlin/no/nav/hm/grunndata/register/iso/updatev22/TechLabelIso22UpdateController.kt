@@ -28,10 +28,10 @@ class TechLabelIso22UpdateController(val techLabelRepository: TechLabelRegistrat
                     techLabelRepository.update(techlabel.copy(isoCode22 = iso22.code22))
                 }
                 else {
-                    LOG.warn("Found mapping for ${techlabel.isoCode.sanitizeForLog()} to iso22 ${iso22.code22.sanitizeForLog()} but not verified, skipping update")
+                    LOG.warn("Found mapping for {} to iso22 {} but not verified, skipping update", techlabel.isoCode.sanitizeForLog(), iso22.code22.sanitizeForLog())
                 }
             } ?: run {
-                LOG.warn("Could not find mapping for ${techlabel.isoCode.sanitizeForLog()}")
+                LOG.warn("Could not find mapping for {}", techlabel.isoCode.sanitizeForLog())
             }
         }
     }

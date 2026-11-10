@@ -36,7 +36,7 @@ class SeriesRegistrationHmsUserController(
         return seriesRegistrationService.findById(id, authentication)?.let {
             HttpResponse.ok(seriesDTOMapper.toDTOV2(it, isoVersion))
         } ?: run {
-            LOG.warn("Series with id $id does not exist")
+            LOG.warn("Series with id {} does not exist", id)
             HttpResponse.notFound()
         }
     }

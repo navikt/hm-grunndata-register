@@ -37,14 +37,14 @@ open class CompatibleWithConnecter(
                     productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(updatedProduct, isUpdate = true)
                 }
             }
-        } ?: LOG.info("No product found for hmsNr: ${hmsNr.sanitizeForLog()}")
+        } ?: LOG.info("No product found for hmsNr: {}", hmsNr.sanitizeForLog())
     }
 
 
     open suspend fun connectWithOrderRef(orderRef: String, reconnect: Boolean=false) {
         val productSeriesInfo =  catalogImportRepository.findCatalogProductSeriesInfoByOrderRef(orderRef)
         val parts = productSeriesInfo.filter { !it.mainProduct && it.productId != null }
-        LOG.info("Found ${parts.size} parts for orderRef: ${orderRef.sanitizeForLog()} to connect and reconnect: $reconnect")
+        LOG.info("Found {} parts for orderRef: {} to connect and reconnect: {}", parts.size, orderRef.sanitizeForLog(), reconnect)
         parts.forEach {
             productRegistrationService.findById(it.productId!!)?.let { product ->
                 addCompatibleWithAttribute(product, reconnect).let { updatedProduct ->
@@ -59,7 +59,7 @@ open class CompatibleWithConnecter(
             delay(500)
         }
         val serviceJobs = catalogImportRepository.findCatalogServiceJobInfoByOrderRef(orderRef)
-        LOG.info("Found ${serviceJobs.size} service jobs for orderRef: ${orderRef.sanitizeForLog()} to connect")
+        LOG.info("Found {} service jobs for orderRef: {} to connect", serviceJobs.size, orderRef.sanitizeForLog())
         serviceJobs.forEach {
             serviceJobRepository.findById(it.serviceId)?.let { serviceJob ->
                 addServiceForAttribute(serviceJob).let { updatedService ->
@@ -84,7 +84,7 @@ open class CompatibleWithConnecter(
         val orderRefGroup = catalogList.groupBy { it.orderRef }
         catalogList.distinctBy { it.orderRef }
             .forEach { catalogFile ->
-                LOG.info("Connecting catalog file with orderRef: ${catalogFile.orderRef.sanitizeForLog()} with name: ${catalogFile.fileName.sanitizeForLog()}")
+                LOG.info("Connecting catalog file with orderRef: {} with name: {}", catalogFile.orderRef.sanitizeForLog(), catalogFile.fileName.sanitizeForLog())
                 connectWithOrderRef(catalogFile.orderRef)
                 orderRefGroup[catalogFile.orderRef]?.forEach { toUpdate ->
                     catalogFileRepository.updatedConnectedUpdatedById(toUpdate.id, connected = true, updated = LocalDateTime.now())
@@ -94,7 +94,7 @@ open class CompatibleWithConnecter(
 
     open suspend fun connectAllProductsNotConnected() {
         val products = productRegistrationService.findAccessoryOrSparePartButNoCompatibleWith()
-        LOG.info("Connecting ${products.size} products")
+        LOG.info("Connecting {} products", products.size)
         products.forEach { product ->
             addCompatibleWithAttribute(product).let { updatedProduct ->
                 if (updatedProduct != null) {
@@ -107,18 +107,18 @@ open class CompatibleWithConnecter(
     open suspend fun findServiceForWithAi(hmsNr: String): List<ServiceForResult> {
         val serviceFor = catalogImportRepository.findOneByHmsArtNrOrderByCreatedDesc(hmsNr)
         if (serviceFor == null) {
-            LOG.info("No catalog info found for service with hmsArtNr ${hmsNr.sanitizeForLog()}, skip connecting with serviceFor")
+            LOG.info("No catalog info found for service with hmsArtNr {}, skip connecting with serviceFor", hmsNr.sanitizeForLog())
             return emptyList()
         }
         val mainProducts = catalogImportRepository.findCatalogProductSeriesInfoByOrderRefAndMain(serviceFor.orderRef, mainProduct = true)
         if (mainProducts.isEmpty()) {
-            LOG.info("No main products found for orderRef ${serviceFor.orderRef.sanitizeForLog()}, skip connecting with serviceFor")
+            LOG.info("No main products found for orderRef {}, skip connecting with serviceFor", serviceFor.orderRef.sanitizeForLog())
             return emptyList()
         }
         val hmsNrTitlePairs = mainProducts.map { product -> HmsNrTitlePair(product.hmsArtNr ,  product.seriesTitle)}.distinct()
         val serviceForSeries = compatibleAIFinder.findServiceableProducts(serviceFor.title, hmsNrTitlePairs)
         if (serviceForSeries.isEmpty()) {
-            LOG.info("No serviceFor products found for service ${serviceFor.hmsArtNr.sanitizeForLog()}, skip connecting with serviceFor")
+            LOG.info("No serviceFor products found for service {}, skip connecting with serviceFor", serviceFor.hmsArtNr.sanitizeForLog())
             return emptyList()
         }
 
@@ -138,7 +138,7 @@ open class CompatibleWithConnecter(
         // find latest catalog series info for hmsNr
         val catProduct = catalogImportRepository.findOneByHmsArtNrOrderByCreatedDesc(hmsNr)
         if (catProduct == null) {
-            LOG.info("No catalog product found for hmsArtNr ${hmsNr.sanitizeForLog()}, skip connecting with compatibleWith")
+            LOG.info("No catalog product found for hmsArtNr {}, skip connecting with compatibleWith", hmsNr.sanitizeForLog())
             return emptyList()
         }
         val mainProducts = catalogImportRepository.findCatalogProductSeriesInfoByOrderRefAndMain(catProduct.orderRef, mainProduct = true)
@@ -146,7 +146,7 @@ open class CompatibleWithConnecter(
             val hmsNrTitlePairs = mainProducts.map { product -> HmsNrTitlePair(product.hmsArtNr ,  product.seriesTitle)}.distinct()
             val compatibleWithHmsnrs = compatibleAIFinder.findCompatibleProducts(catProduct.title, hmsNrTitlePairs)
             if (compatibleWithHmsnrs.isEmpty()) {
-                LOG.info("No compatible series found for product ${catProduct.hmsArtNr.sanitizeForLog()}, skip connecting with compatibleWith")
+                LOG.info("No compatible series found for product {}, skip connecting with compatibleWith", catProduct.hmsArtNr.sanitizeForLog())
                 return emptyList()
             }
             return compatibleWithHmsnrs.mapNotNull { compatibleHmsnr ->
@@ -162,10 +162,10 @@ open class CompatibleWithConnecter(
         }
         else
         {
-            LOG.info("No main products found in catalog for hmsnr: ${hmsNr.sanitizeForLog()} and orderRef ${catProduct.orderRef.sanitizeForLog()}, try searching internet")
+            LOG.info("No main products found in catalog for hmsnr: {} and orderRef {}, try searching internet", hmsNr.sanitizeForLog(), catProduct.orderRef.sanitizeForLog())
             val compatibleWithHmsNrs = compatibleAIFinder.findCompatibleWhenNoMainProducts(catProduct.title, catProduct.supplierName)
             if (compatibleWithHmsNrs.isEmpty()) {
-                LOG.info("No compatible series found for product ${catProduct.hmsArtNr.sanitizeForLog()}, skip connecting with compatibleWith")
+                LOG.info("No compatible series found for product {}, skip connecting with compatibleWith", catProduct.hmsArtNr.sanitizeForLog())
                 return emptyList()
             }
             return compatibleWithHmsNrs.mapNotNull {
@@ -187,16 +187,16 @@ open class CompatibleWithConnecter(
         val productIds = serviceJob.attributes.serviceFor?.productIds?: emptySet()
         val seriesId = serviceJob.attributes.serviceFor?.seriesIds?: emptySet()
         if (serviceJob.attributes.serviceFor != null) {
-            LOG.debug("Skip connecting service job ${serviceJob.hmsArtNr.sanitizeForLog()} already connected with serviceFor")
+            LOG.debug("Skip connecting service job {} already connected with serviceFor", serviceJob.hmsArtNr.sanitizeForLog())
             return null
         }
         if (productIds.size>99 || seriesId.size > 50) {
-            LOG.error("Too many serviceFor connections for serviceJob hmsnr: ${serviceJob.hmsArtNr.sanitizeForLog()}, skip connecting with serviceFor")
+            LOG.error("Too many serviceFor connections for serviceJob hmsnr: {}, skip connecting with serviceFor", serviceJob.hmsArtNr.sanitizeForLog())
             return null
         }
         val serviceFors = findServiceForWithAi(serviceJob.hmsArtNr)
         if (serviceFors.isEmpty()) {
-            LOG.info("No serviceFor found for serviceJob ${serviceJob.hmsArtNr.sanitizeForLog()}, skip connecting with serviceFor")
+            LOG.info("No serviceFor found for serviceJob {}, skip connecting with serviceFor", serviceJob.hmsArtNr.sanitizeForLog())
             return null
         }
         val seriesIds = serviceFors.map { it.seriesId }.toSet()
@@ -216,28 +216,28 @@ open class CompatibleWithConnecter(
 
     private suspend fun addCompatibleWithAttribute(product: ProductRegistration, reconnect: Boolean = false): ProductRegistration? {
         if (!product.accessory && !product.sparePart) {
-            LOG.warn("Skip connecting product ${product.hmsArtNr.sanitizeForLog()} is not accessory or sparePart")
+            LOG.warn("Skip connecting product {} is not accessory or sparePart", product.hmsArtNr.sanitizeForLog())
             return null
         }
 
         if (product.hmsArtNr == null) {
-            LOG.error("No hmsArtNr for product ${product.id}, skip connecting with compatibleWith")
+            LOG.error("No hmsArtNr for product {}, skip connecting with compatibleWith", product.id)
             return null
         }
 
         val seriesIdToKeep = if (reconnect) emptySet() else product.productData.attributes.compatibleWith?.seriesIds ?: emptySet()
         val productIds = if (reconnect) emptySet() else product.productData.attributes.compatibleWith?.productIds ?: emptySet()
         if (productIds.size>99 || seriesIdToKeep.size > 50) {
-            LOG.error("Too many compatibleWith connections for product hmsnr: ${product.hmsArtNr.sanitizeForLog()}, skip connecting with compatibleWith")
+            LOG.error("Too many compatibleWith connections for product hmsnr: {}, skip connecting with compatibleWith", product.hmsArtNr.sanitizeForLog())
             return null
         }
         val compatibleWiths = findCompatibleWithAi(product.hmsArtNr)
         if (compatibleWiths.isEmpty()) {
-            LOG.info("No compatibleWith found for product ${product.hmsArtNr.sanitizeForLog()}, skip connecting with compatibleWith")
+            LOG.info("No compatibleWith found for product {}, skip connecting with compatibleWith", product.hmsArtNr.sanitizeForLog())
             return null
         }
         if (compatibleWiths.size > 50) {
-            LOG.warn("Too many compatiblewith connections for product ${product.id}, skip connecting with compatibleWith")
+            LOG.warn("Too many compatiblewith connections for product {}, skip connecting with compatibleWith", product.id)
             return null
         }
         val seriesIds = compatibleWiths.map { it.seriesId }.toSet()

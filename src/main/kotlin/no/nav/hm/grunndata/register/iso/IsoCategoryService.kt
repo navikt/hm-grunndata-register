@@ -24,7 +24,7 @@ class IsoCategoryService(
             isoCategories =
                 isoCategoryRegistrationRepository.findAll().map { it.toRapidDTO() }.toList().associateBy { it.isoCode }
             if (isoCategories.size < 1000) {
-                LOG.error("ISO categories are not loaded properly, only ${isoCategories.size} loaded")
+                LOG.error("ISO categories are not loaded properly, only {} loaded", isoCategories.size)
             }
 
         }

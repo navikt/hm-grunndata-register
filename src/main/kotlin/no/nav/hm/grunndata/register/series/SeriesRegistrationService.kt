@@ -225,7 +225,7 @@ open class SeriesRegistrationService(
                 version = 0,
             )
         val draft = save(series)
-        LOG.info("Created draft series with id $id for supplier $supplierId")
+        LOG.info("Created draft series with id {} for supplier {}", id, supplierId)
         return draft
     }
 
@@ -437,7 +437,7 @@ open class SeriesRegistrationService(
             authentication
         )
 
-        LOG.info("delete called for series ${seriesToDelete.id}")
+        LOG.info("delete called for series {}", seriesToDelete.id)
 
         seriesRegistrationRepository.delete(seriesToDelete)
     }
@@ -941,7 +941,7 @@ open class SeriesRegistrationService(
     suspend fun ungroupSeries(seriesToUngroup: SeriesRegistration) {
         var count = 0
         productRegistrationService.findAllBySeriesUuid(seriesToUngroup.id).forEach { product ->
-            LOG.info("Ungrouping product ${product.id} from series ${seriesToUngroup.id}")
+            LOG.info("Ungrouping product {} from series {}", product.id, seriesToUngroup.id)
             if (count == 0) {
                 // First product keeps the series, but use article name as title
                 saveAndCreateEventIfNotDraftAndApproved(
@@ -980,7 +980,7 @@ open class SeriesRegistrationService(
                     ),
                     isUpdate = false
                 )
-                LOG.info("Created new series ${series.id} for product ${product.id}")
+                LOG.info("Created new series {} for product {}", series.id, product.id)
                 productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                     product.copy(
                         seriesUUID = series.id,

@@ -199,7 +199,7 @@ class SeriesRegistrationCommonController(
         return seriesRegistrationService.findById(id, authentication)?.let {
             HttpResponse.ok(seriesDTOMapper.toDTOV2(it, isoVersion))
         } ?: run {
-            LOG.warn("Series with id $id does not exist")
+            LOG.warn("Series with id {} does not exist", id)
             HttpResponse.notFound()
         }
     }
@@ -229,7 +229,7 @@ class SeriesRegistrationCommonController(
 
         seriesRegistrationService.setSeriesToDraftStatus(seriesToUpdate, authentication)
 
-        LOG.info("set series to draft: $id")
+        LOG.info("set series to draft: {}", id)
         return HttpResponse.ok()
     }
 
@@ -246,7 +246,7 @@ class SeriesRegistrationCommonController(
             SeriesStatus.INACTIVE,
         )
 
-        LOG.info("set series to expired: $id")
+        LOG.info("set series to expired: {}", id)
         return HttpResponse.ok()
     }
 
@@ -263,7 +263,7 @@ class SeriesRegistrationCommonController(
             SeriesStatus.ACTIVE,
         )
 
-        LOG.info("set series to active: $id")
+        LOG.info("set series to active: {}", id)
         return HttpResponse.ok()
     }
 
@@ -280,7 +280,7 @@ class SeriesRegistrationCommonController(
         }
 
         seriesRegistrationService.deleteSeries(seriesToUpdate, authentication)
-        LOG.info("set series to deleted: $id")
+        LOG.info("set series to deleted: {}", id)
         return HttpResponse.ok()
     }
 
@@ -296,7 +296,7 @@ class SeriesRegistrationCommonController(
         }
 
         seriesRegistrationService.deleteDraft(seriesToUpdate, authentication)
-        LOG.info("set series to deleted: $id")
+        LOG.info("set series to deleted: {}", id)
         return HttpResponse.ok()
     }
 
@@ -311,7 +311,7 @@ class SeriesRegistrationCommonController(
         authentication: Authentication,
     ): HttpResponse<Any> {
 
-        LOG.info("Uploading files for series $seriesUUID")
+        LOG.info("Uploading files for series {}", seriesUUID)
         seriesRegistrationService.uploadMediaAndUpdateSeries(seriesUUID, files, authentication)
 
         return HttpResponse.ok()

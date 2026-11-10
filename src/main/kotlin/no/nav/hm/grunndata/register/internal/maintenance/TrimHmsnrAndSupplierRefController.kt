@@ -25,25 +25,25 @@ class TrimHmsnrAndSupplierRefController(private val productRegistrationRepositor
     @Put("/")
     suspend fun trim() {
         val trimSupplierRefs = productRegistrationRepository.findBySupplierRefForTrimming().map { it.copy(supplierRef = it.supplierRef.trim())}
-        LOG.info("Trimming supplierRef size: ${trimSupplierRefs.size}")
+        LOG.info("Trimming supplierRef size: {}", trimSupplierRefs.size)
         trimSupplierRefs.forEach { product ->
-            LOG.info("product ${product.supplierRef.sanitizeForLog()}")
+            LOG.info("product {}", product.supplierRef.sanitizeForLog())
             try {
                 productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(product, isUpdate = true)
             }
             catch (e: Exception) {
-                LOG.error("Error saving product with id: ${product.id} supplierRef ${product.supplierRef.sanitizeForLog()}: ${e.message.sanitizeForLog()}")
+                LOG.error("Error saving product with id: {} supplierRef {}: {}", product.id, product.supplierRef.sanitizeForLog(), e.message.sanitizeForLog())
             }
         }
         val trimHmsArtNr = productRegistrationRepository.findByHmsnrForTrimming().map { it.copy(hmsArtNr = it.hmsArtNr?.trim()) }
-        LOG.info("Trimming HMS artNr size: ${trimHmsArtNr.size}")
+        LOG.info("Trimming HMS artNr size: {}", trimHmsArtNr.size)
         trimHmsArtNr.forEach { product ->
-            LOG.info("product ${product.hmsArtNr.sanitizeForLog()}")
+            LOG.info("product {}", product.hmsArtNr.sanitizeForLog())
             try {
                 productRegistrationService.saveAndCreateEventIfNotDraftAndApproved(product, isUpdate = true)
             }
             catch (e: Exception) {
-                LOG.error("Error saving product with id: ${product.id} hmsArtNr: ${product.hmsArtNr.sanitizeForLog()}:  ${e.message.sanitizeForLog()}")
+                LOG.error("Error saving product with id: {} hmsArtNr: {}:  {}", product.id, product.hmsArtNr.sanitizeForLog(), e.message.sanitizeForLog())
             }
         }
     }

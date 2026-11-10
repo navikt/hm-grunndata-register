@@ -63,13 +63,13 @@ class TechLabelRegistrationService(private val techLabelRegistrationRepository: 
                 code, key = oldKey, unit = oldUnit, isoVersion = version,
             )
         }.distinctBy { it.id }
-        LOG.debug("Found ${products.size} products with techLabel key=${oldKey.sanitizeForLog()}, unit=${oldUnit.sanitizeForLog()} to update to new techLabel ${newTechLabel.label.sanitizeForLog()} (${newTechLabel.unit.sanitizeForLog()})")
+        LOG.debug("Found {} products with techLabel key={}, unit={} to update to new techLabel {} ({})", products.size, oldKey.sanitizeForLog(), oldUnit.sanitizeForLog(), newTechLabel.label.sanitizeForLog(), newTechLabel.unit.sanitizeForLog())
         products.forEach { product ->
             val techData = product.productData.techData.toMutableList()
             val techLabel = techData.find { it.key == oldKey && it.unit == oldUnit }
             techLabel?.let {
                 techData.remove(it)
-                LOG.debug("Changed from ${it.key.sanitizeForLog()} to ${newTechLabel.label.sanitizeForLog()} and ${it.unit.sanitizeForLog()} to ${newTechLabel.unit.sanitizeForLog()} for product ${product.hmsArtNr.sanitizeForLog()}")
+                LOG.debug("Changed from {} to {} and {} to {} for product {}", it.key.sanitizeForLog(), newTechLabel.label.sanitizeForLog(), it.unit.sanitizeForLog(), newTechLabel.unit.sanitizeForLog(), product.hmsArtNr.sanitizeForLog())
                 techData.add(it.copy(key = newTechLabel.label, unit = newTechLabel.unit ?: ""))
             }
             val updatedProdData = product.productData.copy(techData = techData)

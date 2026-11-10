@@ -295,7 +295,7 @@ class PartApiCommonController(
                 ?: throw IllegalArgumentException("Product $id not found for supplier ${authentication.supplierId()}")
             if (!(product.accessory or product.sparePart))
                 throw IllegalArgumentException("Product $id is not an accessory or spare part")
-            LOG.info("Connect product $id with ${compatibleWithDTO.toString().sanitizeForLog()}")
+            LOG.info("Connect product {} with {}", id, compatibleWithDTO.toString().sanitizeForLog())
             val connected = compatibleWithConnecter.connectWith(compatibleWithDTO, product)
             return productDTOMapper.toDTOV2(connected, isoVersion)
         } else {
@@ -303,7 +303,7 @@ class PartApiCommonController(
                 ?: throw IllegalArgumentException("Product $id not found")
             if (!(product.accessory or product.sparePart))
                 throw IllegalArgumentException("Product $id is not an accessory or spare part")
-            LOG.info("Connect product $id with ${compatibleWithDTO.toString().sanitizeForLog()}")
+            LOG.info("Connect product {} with {}", id, compatibleWithDTO.toString().sanitizeForLog())
             val connected = compatibleWithConnecter.connectWith(compatibleWithDTO, product)
             return productDTOMapper.toDTOV2(connected, isoVersion)
         }

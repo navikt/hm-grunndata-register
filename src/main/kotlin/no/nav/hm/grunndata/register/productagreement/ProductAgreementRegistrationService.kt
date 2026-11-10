@@ -51,8 +51,11 @@ open class ProductAgreementRegistrationService(
 
     open suspend fun saveIfNotExists(productAgreement: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO {
         LOG.info(
-            "Saving product agreement: ${productAgreement.agreementId} for supplier: ${productAgreement.supplierId} " +
-                    "and for product: ${productAgreement.productId} supplierRef: ${productAgreement.supplierRef.sanitizeForLog()}"
+            "Saving product agreement: {} for supplier: {} and for product: {} supplierRef: {}",
+            productAgreement.agreementId,
+            productAgreement.supplierId,
+            productAgreement.productId,
+            productAgreement.supplierRef.sanitizeForLog(),
         )
         return findByProductIdAndAgreementIdAndPostId(
             productAgreement.productId,
@@ -299,7 +302,7 @@ open class ProductAgreementRegistrationService(
         val products = findByStatusAndExpiredBefore(
             ProductAgreementStatus.ACTIVE, LocalDateTime.now()
         )
-        LOG.info("Found ${products.size} products to deactivate")
+        LOG.info("Found {} products to deactivate", products.size)
         products.forEach {
             saveAndCreateEvent(
                 it.copy(
@@ -313,7 +316,7 @@ open class ProductAgreementRegistrationService(
 
     suspend fun deactivateProductExpiredActiveAgreements() {
         val products = findProductExpiredButActiveAgreements()
-        LOG.info("Found ${products.size} products to deactivate")
+        LOG.info("Found {} products to deactivate", products.size)
         products.forEach {
             saveAndCreateEvent(
                 it.copy(

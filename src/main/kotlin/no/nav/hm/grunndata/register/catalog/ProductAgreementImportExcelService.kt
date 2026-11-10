@@ -62,7 +62,7 @@ open class ProductAgreementImportExcelService(
                     ), isUpdate = true)
                 }
             } else {
-                LOG.info("updating product agreement for accessory/sparepart with title ${it.title.sanitizeForLog()} and productId ${it.productId}")
+                LOG.info("updating product agreement for accessory/sparepart with title {} and productId {}", it.title.sanitizeForLog(), it.productId)
                 updateAccessoryAndSparePart(it)
             }
         }
@@ -70,8 +70,10 @@ open class ProductAgreementImportExcelService(
 
     private suspend fun deactivateProductAgreement(pa: ProductAgreementRegistrationDTO): ProductAgreementRegistrationDTO {
         LOG.info(
-            "Excel import deactivating product agreement for agreement ${pa.agreementId}, " +
-                    "post ${pa.postId} and productId: ${pa.productId}"
+            "Excel import deactivating product agreement for agreement {}, post {} and productId: {}",
+            pa.agreementId,
+            pa.postId,
+            pa.productId,
         )
         return productAgreementService.findByProductIdAndAgreementIdAndPostId(
             pa.productId, pa.agreementId, pa.postId
@@ -93,8 +95,10 @@ open class ProductAgreementImportExcelService(
             pa.productId, pa.agreementId, pa.postId
         )?.let { existing ->
             LOG.info(
-                "Excel import updating product agreement for agreement ${pa.agreementId}, " +
-                        "post ${pa.postId} and productId: ${pa.productId}"
+                "Excel import updating product agreement for agreement {}, post {} and productId: {}",
+                pa.agreementId,
+                pa.postId,
+                pa.productId,
             )
             productAgreementService.update(
                 existing.copy(
@@ -124,11 +128,11 @@ open class ProductAgreementImportExcelService(
             var sparePart = product.sparePart
             var accessory = product.accessory
             if (product.mainProduct) {
-                LOG.warn("This product hmsnr: ${product.hmsArtNr.sanitizeForLog()} with id: ${product.id} is marked as main product, but is being updated as accessory/sparepart from excel import.")
+                LOG.warn("This product hmsnr: {} with id: {} is marked as main product, but is being updated as accessory/sparepart from excel import.", product.hmsArtNr.sanitizeForLog(), product.id)
             }
             if (pa.sparePart) sparePart = true
             if (pa.accessory) accessory = true
-            LOG.info("Excel import updating accessory/sparepart product ${product.id} for product agreement ${pa.agreementId}, post ${pa.postId} and seriesId: ${product.seriesUUID}")
+            LOG.info("Excel import updating accessory/sparepart product {} for product agreement {}, post {} and seriesId: {}", product.id, pa.agreementId, pa.postId, product.seriesUUID)
             val series = seriesRegistrationService.findById(product.seriesUUID)
             seriesRegistrationService.saveAndCreateEventIfNotDraftAndApproved(
                 series!!.copy(
@@ -186,7 +190,7 @@ open class ProductAgreementImportExcelService(
             val postRanks: List<Pair<String, Int>> = parsedelkontraktNr(postNr)
 
             return postRanks.map { postRank ->
-                LOG.info("Mapping to product agreement for agreement ${agreement.reference.sanitizeForLog()}, post ${postRank.first.sanitizeForLog()}, rank ${postRank.second}")
+                LOG.info("Mapping to product agreement for agreement {}, post {}, rank {}", agreement.reference.sanitizeForLog(), postRank.first.sanitizeForLog(), postRank.second)
                 val delkontrakt: DelkontraktRegistrationDTO =
                     agreement.delkontraktList.find { it.delkontraktData.refNr == postRank.first }
                         ?: throw BadRequestException("Delkontrakt ${postRank.first} finnes ikke i avtale ${agreement.reference}, må den opprettes?")

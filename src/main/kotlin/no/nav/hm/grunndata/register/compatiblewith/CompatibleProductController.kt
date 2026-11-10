@@ -26,7 +26,7 @@ class CompatibleProductController(
 
     @Post("/catalog/connect/orderref/{orderRef}")
     suspend fun connectWithCatalog(orderRef: String, @QueryValue(defaultValue = "false") reconnect: Boolean) {
-        LOG.info("connectWithCatalog: ${orderRef.sanitizeForLog()}")
+        LOG.info("connectWithCatalog: {}", orderRef.sanitizeForLog())
         compatibleWithConnecter.connectCatalogOrderRef(orderRef, reconnect)
     }
 

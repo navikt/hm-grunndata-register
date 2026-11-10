@@ -224,10 +224,10 @@ class ProductRegistrationAdminApiController(
                 HttpResponse.ok(productDTOMapper.toDTO(it))
             } ?: HttpResponse.notFound()
         } catch (e: DataAccessException) {
-            LOG.error("Got exception while creating variant ${draftVariant.supplierRef.sanitizeForLog()}", e)
+            LOG.error("Got exception while creating variant {}", draftVariant.supplierRef.sanitizeForLog(), e)
             throw BadRequestException(e.message ?: "Error creating variant")
         } catch (e: Exception) {
-            LOG.error("Got exception while creating variant ${draftVariant.supplierRef.sanitizeForLog()}", e)
+            LOG.error("Got exception while creating variant {}", draftVariant.supplierRef.sanitizeForLog(), e)
             throw e
         }
     }

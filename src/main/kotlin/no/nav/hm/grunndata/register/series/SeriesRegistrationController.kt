@@ -40,7 +40,7 @@ class SeriesRegistrationController(
 
         seriesRegistrationService.requestApprovalForSeriesAndVariants(seriesToUpdate)
 
-        LOG.info("set series to pending approval: $seriesUUID")
+        LOG.info("set series to pending approval: {}", seriesUUID)
         return HttpResponse.ok()
     }
 

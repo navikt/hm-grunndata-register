@@ -32,7 +32,7 @@ class ProductAgreementController(
         seriesId: UUID,
         authentication: Authentication,
     ): Boolean {
-        LOG.info("Checking if series {$seriesId} is part of an agreement")
+        LOG.info("Checking if series {{}} is part of an agreement", seriesId)
         val ids: List<UUID> =
             productRegistrationService.findAllBySeriesUuid(seriesId)
                 .filter {

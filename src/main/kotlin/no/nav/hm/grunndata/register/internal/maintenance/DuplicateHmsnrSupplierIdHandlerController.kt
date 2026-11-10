@@ -25,7 +25,7 @@ class DuplicateHmsnrSupplierIdHandlerController(private val productRegistrationR
     @Get("/")
     suspend fun findDuplicateHmsnr(): List<ProductIdHmsArtNr> {
         val duplicates = productRegistrationRepository.findAllDuplicateHmsArtnrSupplierId()
-        LOG.info("Found ${duplicates.size} duplicates")
+        LOG.info("Found {} duplicates", duplicates.size)
         return duplicates
     }
 
@@ -35,7 +35,7 @@ class DuplicateHmsnrSupplierIdHandlerController(private val productRegistrationR
         duplicates.forEach { duplicate ->
             if (duplicate.hmsArtNr.isNotEmpty()) {
                 productRegistrationService.findById(duplicate.id)?.let { product ->
-                    LOG.info("Found product with id ${product.id}, hmsArtNr ${product.hmsArtNr.sanitizeForLog()}, to mark delete")
+                    LOG.info("Found product with id {}, hmsArtNr {}, to mark delete", product.id, product.hmsArtNr.sanitizeForLog())
                     val pag = productAgreementRegistrationRepository.findByProductId(product.id)
                     pag.forEach {
                         productAgreementRegistrationRepository.update(it.copy(status = ProductAgreementStatus.DELETED, updated = LocalDateTime.now()))

@@ -28,7 +28,7 @@ class ProductPersistListener(
     fun afterProductPersist(): PostPersistEventListener<ProductRegistration> {
         return PostPersistEventListener { product: ProductRegistration ->
             runBlocking {
-                LOG.debug("ProductRegistration ${product.id} inserted for series: ${product.seriesUUID}")
+                LOG.debug("ProductRegistration {} inserted for series: {}", product.id, product.seriesUUID)
                 insertProductVersion(product) // disabled for now
                 updateSeriesCounts(product.seriesUUID)
             }
@@ -39,10 +39,10 @@ class ProductPersistListener(
     fun afterProductUpdate(): PostUpdateEventListener<ProductRegistration> {
         return PostUpdateEventListener { product: ProductRegistration ->
             runBlocking {
-                LOG.debug("ProductRegistration ${product.id} updated for series: ${product.seriesUUID}")
+                LOG.debug("ProductRegistration {} updated for series: {}", product.id, product.seriesUUID)
                 insertProductVersion(product)
                 if (product.registrationStatus == RegistrationStatus.INACTIVE) {
-                    LOG.info("Product status is ${product.registrationStatus}, update series status")
+                    LOG.info("Product status is {}, update series status", product.registrationStatus)
                     updateStatusForSeries(product.seriesUUID, product.registrationStatus)
                 }
                 if (product.expired?.let { it < LocalDateTime.now() } == true) {
@@ -57,7 +57,7 @@ class ProductPersistListener(
     fun afterProductDelete(): PostRemoveEventListener<ProductRegistration> {
         return PostRemoveEventListener { product: ProductRegistration ->
             runBlocking {
-                LOG.debug("ProductRegistration ${product.id} deleted for series: ${product.seriesUUID}")
+                LOG.debug("ProductRegistration {} deleted for series: {}", product.id, product.seriesUUID)
                 updateSeriesCounts(product.seriesUUID)
             }
         }

@@ -47,7 +47,7 @@ open class PaakrevdGodkjenningskursService(
                     existing.kursId != paakrevdGodkjenningskursDTO.kursId
                 ) {
                     // update paakrevd godkjenningskurs which was previously deactivated
-                    LOG.info("Updating paakrevd godkjenningskurs for: ${paakrevdGodkjenningskursDTO.toString().sanitizeForLog()}")
+                    LOG.info("Updating paakrevd godkjenningskurs for: {}", paakrevdGodkjenningskursDTO.toString().sanitizeForLog())
                     saveAndCreateEvent(existing.copy (
                         tittel = paakrevdGodkjenningskursDTO.tittel,
                         kursId = paakrevdGodkjenningskursDTO.kursId,
@@ -60,7 +60,7 @@ open class PaakrevdGodkjenningskursService(
                 existing
             } ?: run {
                 // new paakrevd godkjenningskurs
-                LOG.info("New paakrevd godkjenningskurs for: ${paakrevdGodkjenningskursDTO.toString().sanitizeForLog()}")
+                LOG.info("New paakrevd godkjenningskurs for: {}", paakrevdGodkjenningskursDTO.toString().sanitizeForLog())
                 val paakrevdGodkjenningskursRegistration = PaakrevdGodkjenningskursRegistration(
                     isokode = paakrevdGodkjenningskursDTO.isokode,
                     tittel = paakrevdGodkjenningskursDTO.tittel,
@@ -71,7 +71,7 @@ open class PaakrevdGodkjenningskursService(
         }
 
         deactiveList.forEach {
-            LOG.info("Deactivate paakrevd godkjenningskurs for isokode: ${it.isokode.sanitizeForLog()}")
+            LOG.info("Deactivate paakrevd godkjenningskurs for isokode: {}", it.isokode.sanitizeForLog())
             saveAndCreateEvent(it.copy(status = PaakrevdGodkjenningskursStatus.INACTIVE,
                 updated = LocalDateTime.now(), deactivated = LocalDateTime.now()).toDTO(), update = true)
         }

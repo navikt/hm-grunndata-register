@@ -124,7 +124,7 @@ class PartApiAdminController(
 
         seriesRegistrationService.approveSeriesAndVariants(seriesToUpdate, authentication)
 
-        LOG.info("set series to approved: $seriesUUID")
+        LOG.info("set series to approved: {}", seriesUUID)
         return HttpResponse.ok()
     }
 

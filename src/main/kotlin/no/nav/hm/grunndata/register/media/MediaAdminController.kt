@@ -62,7 +62,7 @@ class MediaAdminController(private val mediaUploadService: MediaUploadService,
 
     @Delete("/{oid}/{uri}")
     suspend fun deleteFile(oid: UUID, uri: String, authentication: Authentication): HttpResponse<MediaDTO> {
-        LOG.info("Deleting media file oid: $oid and ${uri.sanitizeForLog()}")
+        LOG.info("Deleting media file oid: {} and {}", oid, uri.sanitizeForLog())
         return HttpResponse.ok(mediaUploadService.deleteByOidAndUri(oid, uri))
     }
 

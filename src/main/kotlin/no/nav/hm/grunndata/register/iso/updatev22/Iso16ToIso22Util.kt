@@ -32,7 +32,7 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
         val allIso16Maps = isoMapRepository.findAll().filter { !it.code16.isNullOrEmpty() }.map { it.code16 }.toSet()
         iso16Nats.forEach { iso16Nat ->
             if (!allIso16Maps.contains(iso16Nat.isoCode)) {
-                LOG.info("Trying to find mapping for iso16: ${iso16Nat.isoCode.sanitizeForLog()}")
+                LOG.info("Trying to find mapping for iso16: {}", iso16Nat.isoCode.sanitizeForLog())
                 createOrUpdateIso16To22Map(iso16Nat)
             }
         }
@@ -41,7 +41,7 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
 
     suspend fun createOrUpdateIso16To22Map(iso16Nat: IsoCategoryRegistration): IsoMap? {
         return isoMapper.mapIso16To22(iso16Nat.isoCode)?.let { isoMap ->
-            LOG.info("Found mapping for iso16: ${iso16Nat.isoCode.sanitizeForLog()} to iso22: ${isoMap.code22.sanitizeForLog()}")
+            LOG.info("Found mapping for iso16: {} to iso22: {}", iso16Nat.isoCode.sanitizeForLog(), isoMap.code22.sanitizeForLog())
             if (isoMap.mapEnum.contains(IsoMapEnum.SAME)) {
                 isoMapRepository.findByCode16AndCode22(iso16Nat.isoCode, iso16Nat.isoCode) ?: run {
                     isoMapRepository.save(
@@ -55,7 +55,7 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
                 }
             } else {
                 if (isOebsCategory(iso16Nat.isoCode) && iso16Nat.isoCode.startsWith(isoMap.code22!!)) {
-                    LOG.info("Found mapping for iso16: ${iso16Nat.isoCode.sanitizeForLog()} to iso22: ${isoMap.code22.sanitizeForLog()}, but not SAME code, but iso16 is oebs category and starts with iso22, so we can map it")
+                    LOG.info("Found mapping for iso16: {} to iso22: {}, but not SAME code, but iso16 is oebs category and starts with iso22, so we can map it", iso16Nat.isoCode.sanitizeForLog(), isoMap.code22.sanitizeForLog())
                     isoMapRepository.findByCode16AndCode22(iso16Nat.isoCode, iso16Nat.isoCode) ?: run {
                         isoMapRepository.save(
                             IsoMap(
@@ -67,7 +67,7 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
                         )
                     }
                 } else {
-                    LOG.info("Found mapping for iso16: ${iso16Nat.isoCode.sanitizeForLog()} to iso22: ${isoMap.code22.sanitizeForLog()}, but not SAME code, and iso22 is not level 3 or iso16 does not start with iso22")
+                    LOG.info("Found mapping for iso16: {} to iso22: {}, but not SAME code, and iso22 is not level 3 or iso16 does not start with iso22", iso16Nat.isoCode.sanitizeForLog(), isoMap.code22.sanitizeForLog())
                     isoMapRepository.findByCode16AndCode22(iso16Nat.isoCode, isoMap.code22!!) ?: run {
                         isoMapRepository.save(
                             IsoMap(
@@ -81,7 +81,7 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
                 }
             }
         } ?: run {
-            LOG.warn("Could not find mapping for iso16: ${iso16Nat.isoCode.sanitizeForLog()}")
+            LOG.warn("Could not find mapping for iso16: {}", iso16Nat.isoCode.sanitizeForLog())
             isoMapRepository.findByCode16AndCode22(iso16Nat.isoCode, "") ?: run {
                 isoMapRepository.save(
                     IsoMap(
@@ -100,7 +100,7 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
         code22List.forEach {
             code22 -> iso22Repository.findByIsoCode(code22!!)?.let {
             } ?: run {
-                LOG.warn("Could not find iso22 for code22: ${code22.sanitizeForLog()}")
+                LOG.warn("Could not find iso22 for code22: {}", code22.sanitizeForLog())
             }
         }
     }
@@ -112,7 +112,7 @@ class Iso16ToIso22Util(private val isoCategoryRepository: IsoCategoryRegistratio
             iso22Repository.findByIsoCode(isoMap.code22!!) ?: run {
                 // level 4 iso22 does not exist, create it based on iso16
                 isoCategoryRepository.findById(isoMap.code22)?.let { iso16 ->
-                    LOG.info("Saving iso22 for code22: ${isoMap.code22.sanitizeForLog()} based on iso16: ${iso16.isoCode.sanitizeForLog()}")
+                    LOG.info("Saving iso22 for code22: {} based on iso16: {}", isoMap.code22.sanitizeForLog(), iso16.isoCode.sanitizeForLog())
                     iso22Repository.save(
                         Iso22(
                             isoCode = isoMap.code22,

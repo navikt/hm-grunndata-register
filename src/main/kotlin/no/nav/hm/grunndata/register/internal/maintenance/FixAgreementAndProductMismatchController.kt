@@ -22,9 +22,9 @@ class FixAgreementAndProductMismatchController(private val productRegistrationRe
     @Post("/category")
     suspend fun fixAgreementAndProductMisMatchForSparePartAndAccessory() {
         val products =  productRegistrationRepository.findProductThatDoesNotMatchAgreementSparePartAccessory()
-        LOG.info("Got ${products.size} products that does not match agreement and spare part/accessory")
+        LOG.info("Got {} products that does not match agreement and spare part/accessory", products.size)
         products.forEach { product ->
-            LOG.info("Fixing product ${product.id} for supplier ${product.supplierId}")
+            LOG.info("Fixing product {} for supplier {}", product.id, product.supplierId)
             val pag = productAgreementRegistrationRepository.findByProductId(product.id)
             var mainProduct = false
             var accessory = false
@@ -47,9 +47,9 @@ class FixAgreementAndProductMismatchController(private val productRegistrationRe
     @Post("/status")
     suspend fun fixAgreementAndProductMisMatchForStatus() {
         val products =  productRegistrationRepository.findProductThatDoesNotMatchAgreementStatus()
-        LOG.info("Got ${products.size} products that does not match agreement status")
+        LOG.info("Got {} products that does not match agreement status", products.size)
         products.forEach { product ->
-            LOG.info("Fixing product ${product.id} for supplier ${product.supplierId}")
+            LOG.info("Fixing product {} for supplier {}", product.id, product.supplierId)
             val pag =
                 productAgreementRegistrationRepository.findByProductId(product.id)
                     .firstOrNull { it.status == ProductAgreementStatus.ACTIVE }

@@ -41,7 +41,7 @@ open class ProductAgreementAdminController(
         id: UUID,
         authentication: Authentication,
     ): List<ProductAgreementRegistrationDTO> {
-        LOG.info("Getting products for agreement {$id} by ${authentication.userId()}")
+        LOG.info("Getting products for agreement {{}} by {}", id, authentication.userId())
         return productAgreementRegistrationService.findByAgreementId(id)
     }
 
@@ -54,7 +54,7 @@ open class ProductAgreementAdminController(
         @Body ids: List<UUID>,
         authentication: Authentication,
     ): List<ProductAgreementRegistrationDTO> {
-        LOG.info("Getting productsAgreements by ${authentication.userId()}")
+        LOG.info("Getting productsAgreements by {}", authentication.userId())
         return productAgreementRegistrationService.findAllByIds(ids)
     }
 
@@ -67,7 +67,7 @@ open class ProductAgreementAdminController(
         id: UUID,
         authentication: Authentication,
     ): List<ProduktvarianterForDelkontrakterDTO> {
-        LOG.info("Getting product variants for agreement {$id} by ${authentication.userId()}")
+        LOG.info("Getting product variants for agreement {{}} by {}", id, authentication.userId())
         return productAgreementRegistrationService.findGroupedProductVariantsByAgreementId(id)
     }
 
@@ -81,7 +81,7 @@ open class ProductAgreementAdminController(
         @QueryValue mainProductsOnly: Boolean? = true,
         authentication: Authentication,
     ): List<ProductVariantsForDelkontraktDto> {
-        LOG.info("Getting product variants for delkontrakt {$id} by ${authentication.userId()}")
+        LOG.info("Getting product variants for delkontrakt {{}} by {}", id, authentication.userId())
         return productAgreementRegistrationService.findGroupedProductVariantsByDelkontraktId(
             id,
             mainProductsOnly ?: true
@@ -98,7 +98,7 @@ open class ProductAgreementAdminController(
         authentication: Authentication,
     ): ProductAgreementRegistrationDTO {
         LOG.info(
-            "Creating product agreement: ${regDTO.agreementId} ${regDTO.supplierId} ${regDTO.supplierRef.sanitizeForLog()} by ${authentication.userId()}",
+            "Creating product agreement: {} {} {} by {}", regDTO.agreementId, regDTO.supplierId, regDTO.supplierRef.sanitizeForLog(), authentication.userId(),
         )
         val product =
             productRegistrationService.findBySupplierRefAndSupplierId(regDTO.supplierRef, regDTO.supplierId)
@@ -160,7 +160,7 @@ open class ProductAgreementAdminController(
         @Body regDTOs: List<ProductAgreementRegistrationDTO>,
         authentication: Authentication,
     ): List<ProductAgreementRegistrationDTO> {
-        LOG.info("Creating ${regDTOs.size} product agreements by ${authentication.userId()}")
+        LOG.info("Creating {} product agreements by {}", regDTOs.size, authentication.userId())
 
         val validated =
             regDTOs.map { regDTO ->
@@ -221,7 +221,7 @@ open class ProductAgreementAdminController(
         @Body regDTOs: List<ProductAgreementRegistrationDTO>,
         authentication: Authentication,
     ): List<ProductAgreementRegistrationDTO> {
-        LOG.info("Updating ${regDTOs.size} product agreements by ${authentication.userId()}")
+        LOG.info("Updating {} product agreements by {}", regDTOs.size, authentication.userId())
         val lagrede =
             productAgreementRegistrationService.updateAll(
                 regDTOs,
@@ -234,14 +234,14 @@ open class ProductAgreementAdminController(
         id: UUID,
         authentication: Authentication,
     ): HttpResponse<ProductAgreementDeletedResponse> {
-        LOG.info("deleting product agreement: $id by ${authentication.userId()}")
+        LOG.info("deleting product agreement: {} by {}", id, authentication.userId())
 
         productAgreementRegistrationService.findById(id)?.let {
             if (it.published > LocalDateTime.now()) {
-                LOG.info("Product agreement $id is not published yet, performing physical delete")
+                LOG.info("Product agreement {} is not published yet, performing physical delete", id)
                 productAgreementRegistrationService.physicalDeleteById(id)
             } else {
-                LOG.info("Product agreement $id is published, performing logical delete")
+                LOG.info("Product agreement {} is published, performing logical delete", id)
                 productAgreementRegistrationService.saveAndCreateEvent(
                     it.copy(
                         status = ProductAgreementStatus.DELETED,
@@ -265,14 +265,14 @@ open class ProductAgreementAdminController(
         @Body ids: List<UUID>,
         authentication: Authentication,
     ): HttpResponse<ProductAgreementsDeletedResponse> {
-        LOG.info("deleting product agreements: $ids by ${authentication.userId()}")
+        LOG.info("deleting product agreements: {} by {}", ids, authentication.userId())
         ids.forEach { uuid ->
             productAgreementRegistrationService.findById(uuid)?.let {
                 if (it.published > LocalDateTime.now()) {
-                    LOG.info("Product agreement $uuid is not published yet, performing physical delete")
+                    LOG.info("Product agreement {} is not published yet, performing physical delete", uuid)
                     productAgreementRegistrationService.physicalDeleteById(uuid)
                 } else {
-                    LOG.info("Product agreement $uuid is published, deactivating")
+                    LOG.info("Product agreement {} is published, deactivating", uuid)
                     productAgreementRegistrationService.saveAndCreateEvent(
                         it.copy(
                             status = ProductAgreementStatus.INACTIVE,
@@ -297,7 +297,7 @@ open class ProductAgreementAdminController(
         @Body ids: List<UUID>,
         authentication: Authentication,
     ): HttpResponse<ProductAgreementsReactivatedResponse> {
-        LOG.info("reactivating product agreements: $ids by ${authentication.userId()}")
+        LOG.info("reactivating product agreements: {} by {}", ids, authentication.userId())
 
         val firstProductAgreement = productAgreementRegistrationService.findById(ids.first())
             ?: throw BadRequestException("Product agreement not found")
@@ -306,7 +306,7 @@ open class ProductAgreementAdminController(
 
         ids.forEach { uuid ->
             productAgreementRegistrationService.findById(uuid)?.let {
-                LOG.info("Reactivating product agreement wit id $uuid")
+                LOG.info("Reactivating product agreement wit id {}", uuid)
                 productAgreementRegistrationService.saveAndCreateEvent(
                     it.copy(
                         status = ProductAgreementStatus.ACTIVE,

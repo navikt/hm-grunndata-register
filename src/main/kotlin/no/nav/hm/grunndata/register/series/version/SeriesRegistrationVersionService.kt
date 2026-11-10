@@ -43,12 +43,12 @@ class SeriesRegistrationVersionService(private val seriesRegistrationVersionRepo
 
     suspend fun deleteOldVersions() {
         val draftsOlderThan1Month = seriesRegistrationVersionRepository.findByDraftStatusAndUpdatedBefore(DraftStatus.DRAFT, LocalDateTime.now().minusMonths(1))
-        LOG.info("Deleting ${draftsOlderThan1Month.size} draft series versions older than 1 month")
+        LOG.info("Deleting {} draft series versions older than 1 month", draftsOlderThan1Month.size)
         draftsOlderThan1Month.forEach {
             seriesRegistrationVersionRepository.delete(it)
         }
         val olderThan1Year = seriesRegistrationVersionRepository.findByDraftStatusAndUpdatedBefore(DraftStatus.DONE, LocalDateTime.now().minusYears(1))
-        LOG.info("Deleting ${olderThan1Year.size} series versions older than 1 year")
+        LOG.info("Deleting {} series versions older than 1 year", olderThan1Year.size)
         olderThan1Year.forEach {
             seriesRegistrationVersionRepository.delete(it)
         }
